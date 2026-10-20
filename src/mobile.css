@@ -1,0 +1,114 @@
+/* Phone and tablet adjustments; keep the desktop layout intact. */
+.collection-filter-toggle { display: none; }
+@media (max-width: 900px) {
+  .modal-backdrop { overscroll-behavior: contain; }
+  .modal-panel { overscroll-behavior-y: contain; }
+  .pack-ready-modal .ready-header {
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .pack-ready-modal .ready-close { width: 44px; height: 44px; justify-content: center; }
+  .pack-ready-modal .ready-actions {
+    bottom: max(14px, env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+  .opening-header {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-top: env(safe-area-inset-top);
+    height: calc(72px + env(safe-area-inset-top));
+  }
+  .opening-icon-button, .opening-quality, .opening-skip { min-width: 44px; min-height: 44px; }
+  .opening-result > .reveal-title { position: relative; top: auto; left: auto; right: auto; padding: 0 16px; white-space: normal; font-size: 18px; line-height: 1.4; }
+  .reveal-count { position: relative; top: auto; right: auto; padding: 8px 16px 0; display: flex; justify-content: flex-end; align-items: baseline; gap: 8px; }
+  .reveal-scene { margin-top: 16px; padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
+  .reveal-name { padding: 0 16px; flex-wrap: wrap; text-align: center; }
+  .reveal-actions {
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;
+    padding: 20px max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  }
+  .reveal-right { display: contents; }
+  .reveal-btn { width: 100%; min-width: 0; height: 48px; padding: 0 14px; font-size: 17px; gap: 6px; }
+  .reveal-stage .opening-batch { margin-bottom: calc(160px + env(safe-area-inset-bottom)); }
+  .reveal-summary-btn, .reveal-back { min-height: 44px; }
+}
+
+@media (max-width: 640px) {
+  .topbar { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
+  .topbar-actions { gap: 6px; }
+  .daily-button, .icon-button { min-width: 44px; min-height: 44px; }
+  .main-nav { height: 60px; }
+  .main-nav .nav-inner { padding: 0 8px; gap: 0; }
+  .main-nav .nav-inner > button { flex: 1; flex-direction: column; gap: 4px; font-size: 11px; min-width: 0; padding: 5px 2px; }
+  .main-nav .nav-inner > button > svg { width: 18px; height: 18px; }
+  .primary-button, .secondary-button, .pack-buy, .text-action, .collection-card-action { min-height: 44px; }
+  .pack-buy { min-width: 44px; }
+  .page-heading { flex-wrap: wrap; }
+  .workspace .page-heading > .primary-button { font-size: 12px; }
+  .collection-toolbar input, .collection-toolbar > .ovr-filter, .collection-toolbar select,
+  .market-filters .search-field input, .market-filters select,
+  .history-workspace select, .picker-modal input, .picker-modal select { font-size: 16px; }
+  .collection-toolbar:not(.filters-open) { grid-template-columns: minmax(0, 1fr) 88px; }
+  .collection-toolbar > .search-field { grid-column: auto; }
+  .collection-toolbar:not(.filters-open) > :not(.search-field):not(.collection-filter-toggle) { display: none; }
+  .collection-filter-toggle { display: flex; justify-content: center; align-items: center; gap: 6px; min-height: 44px; border: 1px solid #34404e; border-radius: 4px; color: #cddcea; font-size: 12px; }
+  .collection-filter-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+  .collection-toolbar select, .collection-toolbar > .ovr-filter,
+  .search-field, .market-filter-toggle, .history-workspace select { min-height: 44px; }
+  .collection-count { gap: 8px; }
+  .collection-grid { gap: 16px 10px; }
+  .collection-card { content-visibility: auto; contain-intrinsic-size: auto 230px; }
+  .collection-card .itm-sheen, .fco-used-card .itm-sheen { display: none; }
+  .collection-card-action { font-size: 12px; }
+  .history-item h2, .history-item p, .history-item time { overflow-wrap: anywhere; }
+  .modal-backdrop { padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom)); backdrop-filter: none; }
+  .cinema-modal { padding: 0; background: #03070c; }
+  .modal-panel { max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); }
+  .cinema-modal .modal-panel { max-height: 100dvh; }
+  .modal-heading h2 { font-size: 20px; }
+  .modal-heading .icon-button { margin-right: -8px; }
+  .toast { bottom: max(12px, env(safe-area-inset-bottom)); }
+
+  .fco-upgrade { border-radius: 0; border-left: 0; border-right: 0; }
+  .fco-left { gap: 12px; }
+  .fco-target { grid-template-columns: minmax(96px, 34%) minmax(0, 1fr); gap: 12px; }
+  .fco-target-card { width: 100%; }
+  .fco-stats h2 { font-size: 22px; overflow-wrap: anywhere; }
+  .fco-stats dl > div { font-size: 12px; gap: 6px; }
+  .fco-right { height: calc(100dvh - 76px); min-height: 390px; }
+  .fco-tabs { gap: 8px; }
+  .fco-tabs button { font-size: 18px; white-space: nowrap; }
+  .fco-tabs span { font-size: 11px; text-align: right; }
+  .fco-hint { padding-top: 12px; padding-bottom: 12px; }
+  .fco-hint p { font-size: 12px; line-height: 1.7; }
+  .fco-hint strong { font-size: 34px; }
+  .fco-head, .fco-line { grid-template-columns: 32px 36px minmax(0, 1fr) 36px 36px 28px; padding: 0 10px; gap: 4px; }
+  .fco-head { height: 44px; font-size: 11px; }
+  .fco-col-btn { min-height: 44px; max-width: 100%; padding: 0; gap: 2px; white-space: nowrap; font-size: 11px; }
+  .fco-col-btn svg { width: 10px; height: 10px; }
+  .fco-col-btn.on::after { display: none; }
+  .fco-line { height: 60px; }
+  .fco-boost { gap: 1px; padding: 2px; }
+  .fco-boost i { width: 4px; }
+  .fco-pos { padding-left: 4px; font-size: 15px; }
+  .fco-name b { font-size: 16px; }
+  .fco-ovr { font-size: 20px; }
+  .fco-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 12px 16px max(12px, env(safe-area-inset-bottom)); background: #0f1418; }
+  .fco-ghost { justify-content: center; padding: 10px 8px; min-height: 44px; white-space: nowrap; }
+  .fco-go { grid-column: 1 / -1; justify-content: center; width: 100%; margin: 0; min-height: 48px; padding: 10px 16px; white-space: nowrap; }
+  .fco-used-card { min-height: 44px; }
+  .fco-rule { font-size: 12px; line-height: 1.7; align-items: flex-start; }
+  .fco-rule svg { flex-shrink: 0; margin-top: 3px; }
+  .ready-title { white-space: normal; font-size: 18px; line-height: 1.4; }
+  .pack-ready-modal .ready-open, .ready-leave { height: 48px; }
+}
+
+@media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
+  .pack-ready-modal .ready-art { top: 45%; height: 42dvh; }
+  .pack-ready-modal .ready-art .ready-flip, .pack-ready-modal .ready-art .ready-flip.tm-flip { height: 40dvh; width: 28dvh; }
+  .ready-count { top: 64px; }
+  .reveal-scene { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+  .reveal-card { --rw: min(200px, 45dvh); }
+}

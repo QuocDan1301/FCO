@@ -4,4 +4,5 @@ import App from './App';
 import './styles.css';
 import './market.css';
 import './itm-sheen.css';
+import './mobile.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
