@@ -1,0 +1,293 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { ovr, MAX_LEVEL, UPGRADE_LEVELS, claimDaily, dayKey, draw, getPlayer, initialSave, makeCard, openPacks, packs, players, upgrade, upgradeInfo, validateSave } from '../src/game.ts';
+
+test('120 cầu thủ: 100 ICON, 10 mỗi mùa còn lại; mọi gói công bố đủ 100%', () => {
+  assert.equal(players.length, 120);
+  for (const tier of ['origin', 'stellar']) assert.equal(players.filter(p => p.tier === tier).length, 10);
+  assert.equal(players.filter(p => p.tier === 'eternal').length, 100);
+  for (const p of packs) assert.equal(p.weights.reduce((a, b) => a + b, 0), 100);
+});
+test('Ranh giới xác suất theo đúng tỷ lệ công bố', () => {
+  const base = packs[2];
+  for (const [value, tier] of [[0, 'origin'], [.79999, 'origin'], [.8, 'stellar'], [.97999, 'stellar'], [.98, 'eternal'], [.99999, 'eternal']] as const) {
+    let calls = 0;
+    assert.equal(getPlayer(draw(base, () => calls++ === 0 ? value : 0)).tier, tier);
+  }
+  assert.equal(getPlayer(draw(packs[0], () => 0)).tier, 'eternal');
+});
+test('Mở 10 trừ đúng tiền, thêm đủ thẻ riêng biệt và không sửa trạng thái cũ', () => {
+  const before = initialSave(); const result = openPacks(before, packs[0], 10, () => .99);
+  assert.equal(result.state.balance, 0); assert.equal(before.balance, 15000000);
+  assert.equal(result.state.cards.length, before.cards.length + 10);
+  assert.equal(result.state.opened, 10); assert.equal(result.state.history.length, 1);
+  assert.equal(new Set(result.cards.map(c => c.uid)).size, 10);
+  assert.ok(result.cards.every(c => getPlayer(c).tier === 'eternal'));
+  assert.throws(() => openPacks(result.state, packs[2], 1), /Không đủ xu/);
+  assert.throws(() => openPacks(before, packs[2], -1));
+});
+test('Tỷ lệ theo bảng ảnh, ranh giới thành công/thất bại ở đủ năng lượng cho cả 12 bước', () => {
+  const rates = [100, 81, 64, 50, 26, 15, 7, 5, 4, 3, 2, 1];
+  const gains = [1, 1, 2, 2, 2, 3, 4, 2, 2, 2, 3, 3];
+  for (let level = 1; level < MAX_LEVEL; level++) {
+    const target = { ...makeCard(21), level };
+    const materials = Array.from({ length: 5 }, () => ({ ...makeCard(21), level }));
+    const state = { ...initialSave(), cards: [target, ...materials] };
+    const info = upgradeInfo(target, materials);
+    assert.equal(info.energy, 100);
+    assert.equal(info.chance, rates[level - 1], `+${level} → +${level + 1}`);
+    const success = upgrade(state, target.uid, materials.map(c => c.uid), () => rates[level - 1] / 100 - 1e-9);
+    assert.equal(success.success, true);
+    assert.equal(ovr(success.result) - ovr(target), gains[level - 1]);
+    assert.equal(success.state.cards.length, 1);
+    assert.doesNotMatch(success.state.history[0].detail, /Tỷ lệ|%/);
+    if (rates[level - 1] < 100) {
+      const failure = upgrade(state, target.uid, materials.map(c => c.uid), () => rates[level - 1] / 100);
+      assert.equal(failure.success, false);
+      assert.equal(failure.result.level, level);
+      assert.equal(ovr(failure.result), ovr(target));
+      assert.equal(failure.state.cards.length, 1);
+    }
+    assert.equal(state.cards[0].level, level);
+  }
+  assert.equal(UPGRADE_LEVELS.length, 13);
+});
+
+test('OVR cộng dồn đúng đến cấp sao +13; giữ cấp thẻ trong bản lưu hiện có', () => {
+  const bonuses = [0, 1, 2, 4, 6, 8, 11, 15, 17, 19, 21, 24, 27];
+  const original = makeCard(1);
+  for (let level = 1; level <= MAX_LEVEL; level++) assert.equal(ovr({ ...original, level }), getPlayer(original).ovr + bonuses[level - 1]);
+  const saved = JSON.parse(JSON.stringify({ ...initialSave(), cards: [{ ...original, level: 13 }] }));
+  assert.ok(validateSave(saved));
+  assert.equal(saved.cards[0].level, 13);
+  assert.equal(ovr(saved.cards[0]), getPlayer(original).ovr + 27);
+});
+
+test('Tỷ lệ vẫn tăng theo năng lượng nguyên liệu; +1 lên +2 đủ năng lượng luôn thành công', () => {
+  const target = makeCard(21), equal = makeCard(21);
+  assert.equal(upgradeInfo(target, [equal]).chance, 100);
+  const high = { ...target, level: 7 };
+  assert.equal(upgradeInfo(high, [{ ...equal, level: 7 }]).chance, 7);
+  const materials = Array.from({ length: 3 }, () => makeCard(21));
+  const result = upgrade({ ...initialSave(), cards: [target, ...materials] }, target.uid, materials.map(c => c.uid), () => .999999999);
+  assert.equal(result.success, true);
+});
+
+test('Nguyên liệu cùng OVR từ 125 được 1 vạch; dưới 125 tăng 0,25 vạch mỗi OVR', () => {
+  const cases = [[1, 1, 126, 20], [33, 1, 125, 20], [5, 1, 124, 25], [3, 1, 123, 30], [37, 1, 122, 35], [47, 1, 121, 40], [5, 2, 125, 20], [3, 2, 124, 25], [21, 1, 94, 100]];
+  for (const [playerId, level, rating, energy] of cases) {
+    const target = { ...makeCard(playerId), level };
+    assert.equal(ovr(target), rating);
+    assert.equal(upgradeInfo(target, [{ ...makeCard(playerId), level }]).energy, energy, `OVR ${rating}`);
+  }
+  const target = makeCard(33);
+  assert.equal(upgradeInfo(target, [makeCard(34)]).energy, 20, 'Không phụ thuộc trùng cầu thủ');
+  assert.equal(upgradeInfo(target, []).chance, 0);
+  assert.equal(upgradeInfo(target, Array.from({ length: 5 }, () => makeCard(34))).energy, 100);
+});
+
+test('Năng lượng tăng theo OVR nguyên liệu và cộng dồn tối đa 5 vạch', () => {
+  const target = makeCard(5);
+  const low = upgradeInfo(target, [makeCard(3)]).energy;
+  const equal = upgradeInfo(target, [makeCard(35)]).energy;
+  const high = upgradeInfo(target, [makeCard(33)]).energy;
+  assert.ok(low < equal && equal < high);
+  assert.equal(upgradeInfo(target, [makeCard(35), makeCard(36)]).energy, 50);
+  assert.equal(upgradeInfo(target, Array.from({ length: 5 }, () => makeCard(35))).energy, 100);
+});
+test('Thành công tăng +1; thất bại phục hồi theo phôi trùng, cả hai tiêu hao nguyên liệu và phí', () => {
+  const target = { ...makeCard(33), level: 2 };
+  const materialCards = Array.from({ length: 5 }, () => ({ ...makeCard(33), level: 2 }));
+  const before = { ...initialSave(), cards: [target, ...materialCards] };
+  const materials = materialCards.map(c => c.uid);
+  for (const success of [true, false]) {
+    const result = upgrade(before, target.uid, materials, () => success ? 0 : .999999);
+    assert.equal(result.success, success); assert.equal(result.result.level, success ? 3 : 2);
+    assert.equal(result.state.cards.length, before.cards.length - 5);
+    assert.equal(result.state.balance, before.balance - 200000);
+    assert.equal(result.state.history[0].success, success);
+    assert.equal(before.cards[0].level, 2);
+  }
+});
+test('Thất bại không có phôi trùng rơi ngẫu nhiên xuống mọi cấp thấp hơn, thấp nhất +1', () => {
+  for (let level = 1; level < MAX_LEVEL; level++) {
+    const target = { ...makeCard(33), level };
+    const material = makeCard(34);
+    const state = { ...initialSave(), cards: [target, material] };
+    const snapshot = structuredClone(state);
+    const range = Math.max(1, level - 1);
+    for (let expected = 1; expected <= range; expected++) {
+      const rolls = [.999999, (expected - .5) / range];
+      const result = upgrade(state, target.uid, [material.uid], () => rolls.shift()!);
+      assert.equal(result.success, false);
+      assert.equal(result.result.level, expected);
+      assert.equal(result.droppedLevel, expected);
+      assert.equal(result.restoredLevel, null);
+      assert.equal(result.result.uid, target.uid);
+      assert.equal(result.state.cards.length, 1);
+      assert.equal(result.state.balance, state.balance - level * 100000);
+      assert.equal(result.state.upgrades, state.upgrades + 1);
+      assert.ok(validateSave(result.state));
+    }
+    assert.deepEqual(state, snapshot);
+  }
+});
+
+test('Phôi trùng chỉ phục hồi khi rớt dưới cấp phôi; lấy phôi trùng cao nhất', () => {
+  const target = { ...makeCard(33), level: 8 };
+  const materials = [{ ...makeCard(33), level: 3 }, { ...makeCard(33), level: 5 }, { ...makeCard(34), level: 13 }];
+  for (const order of [materials, [...materials].reverse()]) {
+    const state = { ...initialSave(), cards: [target, ...order] };
+    for (const [dropRoll, dropped, final, restored] of [[0, 1, 5, 5], [.5, 4, 5, 5], [.8, 6, 6, null], [.999999, 7, 7, null]] as const) {
+      const rolls = [.999999, dropRoll];
+      const result = upgrade(state, target.uid, order.map(c => c.uid), () => rolls.shift()!);
+      assert.equal(result.success, false);
+      assert.equal(result.droppedLevel, dropped);
+      assert.equal(result.result.level, final);
+      assert.equal(result.restoredLevel, restored);
+      assert.equal(result.state.cards.length, 1);
+      assert.equal(result.state.cards[0].playerId, 33);
+      assert.ok(validateSave(JSON.parse(JSON.stringify(result.state))));
+      if (restored !== null) assert.ok(result.state.history[0].detail.includes(`+8 → +${dropped} → +5`));
+    }
+  }
+});
+
+test('Nâng cấp thành công không rớt hoặc phục hồi và chỉ tăng đúng một cấp', () => {
+  const target = { ...makeCard(33), level: 8 };
+  const material = { ...makeCard(33), level: 12 };
+  let calls = 0;
+  const result = upgrade({ ...initialSave(), cards: [target, material] }, target.uid, [material.uid], () => { calls++; return 0; });
+  assert.equal(result.success, true);
+  assert.equal(result.result.level, 9);
+  assert.equal(result.droppedLevel, null);
+  assert.equal(result.restoredLevel, null);
+  assert.equal(calls, 1);
+});
+
+test('Chặn nguyên liệu trùng, thẻ chính, thiếu tiền, thẻ không tồn tại và cấp tối đa', () => {
+  const s = initialSave(); const target = s.cards[0]; const m = s.cards[1];
+  assert.throws(() => upgrade(s, target.uid, [m.uid, m.uid]));
+  assert.throws(() => upgrade(s, target.uid, [target.uid]));
+  assert.throws(() => upgrade(s, target.uid, []));
+  assert.throws(() => upgrade(s, target.uid, ['khong-ton-tai']));
+  assert.throws(() => upgrade({ ...s, balance: 0 }, target.uid, [m.uid]));
+  assert.throws(() => upgrade({ ...s, cards: [{ ...target, level: 13 }, m] }, target.uid, [m.uid]));
+});
+test('Điểm danh chỉ một lần/ngày theo UTC+7', () => {
+  assert.equal(dayKey(new Date('2026-10-20T16:59:59Z')), '2026-10-20');
+  assert.equal(dayKey(new Date('2026-10-20T17:00:00Z')), '2026-10-21');
+  const before = initialSave(); const after = claimDaily(before);
+  assert.equal(after.balance, before.balance + 1000000);
+  assert.throws(() => claimDaily(after));
+});
+test('Bản lưu hợp lệ; dữ liệu hỏng bị từ chối', () => {
+  const s = initialSave(); assert.equal(validateSave(JSON.parse(JSON.stringify(s))), true);
+  assert.equal(validateSave({ ...s, cards: [...s.cards, s.cards[0]] }), false);
+  assert.equal(validateSave({ ...s, balance: -1 }), false);
+  assert.equal(validateSave({ ...s, cards: [{ ...s.cards[0], playerId: 999 }] }), false);
+  assert.equal(validateSave({ ...s, history: [{}] }), false);
+  assert.equal(validateSave(null), false);
+});
+
+test('Chế độ thử mở gói/nâng cấp với 0 xu và không thay đổi số dư gốc', () => {
+  const before = { ...initialSave(), balance: 0 };
+  const opened = openPacks(before, packs[0], 10, () => .99, true);
+  assert.equal(opened.state.balance, 0);
+  assert.equal(opened.cards.length, 10);
+  assert.match(opened.state.history[0].detail, /Không trừ xu/);
+  assert.throws(() => openPacks(before, packs[0], -1, () => 0, true));
+  for (const outcome of [0, .99999]) {
+    const result = upgrade(before, before.cards[0].uid, [before.cards[1].uid], () => outcome, true);
+    assert.equal(result.state.balance, 0);
+    assert.equal(result.state.cards.length, before.cards.length - 1);
+    assert.match(result.state.history[0].detail, /Không trừ xu/);
+  }
+});
+
+test('Mốc mở thẻ có nhịp chuẩn 8–12 giây, nhanh 3–4 giây và bắt kịp sau chuyển tab', async () => {
+  const { OPENING_CUES, openingPhase, OPENING_RESULT } = await import('../src/cinema/timeline.ts');
+  assert.ok(OPENING_CUES.standard.at(-1)! >= 8000 && OPENING_CUES.standard.at(-1)! <= 12000);
+  assert.ok(OPENING_CUES.quick.at(-1)! >= 3000 && OPENING_CUES.quick.at(-1)! <= 4000);
+  assert.equal(openingPhase(0, false), 0);
+  assert.equal(openingPhase(4000, false), 3);
+  assert.equal(openingPhase(12000, false), OPENING_RESULT);
+  assert.equal(openingPhase(5000, true), OPENING_RESULT);
+});
+
+
+test('Mở mọi số lượng 1–10 nhận đúng số thẻ và tính đúng tổng phí', () => {
+  for (let count = 1; count <= 10; count++) {
+    const before = initialSave();
+    const result = openPacks(before, packs[0], count, () => .99);
+    assert.equal(result.cards.length, count);
+    assert.equal(result.state.cards.length, 12 + count);
+    assert.equal(result.state.opened, count);
+    assert.equal(result.state.balance, 15000000 - 1500000 * count);
+    assert.equal(new Set(result.cards.map(c => c.uid)).size, count);
+    assert.equal(before.cards.length, 12);
+  }
+  for (const count of [0, -1, 11, 2.5, NaN, Infinity]) {
+    assert.throws(() => openPacks(initialSave(), packs[0], count, () => 0, true));
+  }
+});
+
+
+test('Kho gói trừ đúng lượng đã mở, chặn mở quá số còn lại và giữ bản cũ', () => {
+  const start = initialSave();
+  const first = openPacks(start, packs[0], 10, () => 0, true);
+  assert.equal(first.state.unopened?.eternal, 5);
+  assert.equal(start.unopened?.eternal, 15);
+  assert.throws(() => openPacks(first.state, packs[0], 6, () => 0, true));
+  const last = openPacks(first.state, packs[0], 5, () => 0, true);
+  assert.equal(last.state.unopened?.eternal, 0);
+  assert.equal(last.state.cards.length, 27);
+  assert.equal(last.state.unopened?.origin, 15);
+  assert.throws(() => openPacks(last.state, packs[0], 1, () => 0, true));
+  const legacy = { ...start }; delete legacy.unopened;
+  assert.ok(validateSave(legacy));
+  assert.equal(openPacks(legacy, packs[0], 1, () => 0, true).state.unopened?.eternal, 14);
+  assert.equal(validateSave({ ...start, unopened: { eternal: -1, stellar: 15, origin: 15 } }), false);
+});
+
+
+test('Camera chạy liên tục qua các mốc hé lộ và dừng êm tại sân khấu', async () => {
+  const timeline = await import('../src/cinema/timeline.ts');
+  assert.equal(typeof timeline.cameraProgress, 'function');
+  for (const quick of [false, true]) {
+    const cues = timeline.OPENING_CUES[quick ? 'quick' : 'standard'];
+    const end = cues.at(-1)!;
+    const progress = (t: number) => timeline.cameraProgress(t, quick);
+    assert.equal(progress(-100), 0); assert.equal(progress(end + 100), 1);
+    let last = 0;
+    for (let t = 0; t <= end; t += 4) {
+      const p = progress(t); assert.ok(p >= last && p <= 1); last = p;
+    }
+    for (const t of cues.slice(0, -1)) {
+      const step = .01;
+      const left = (progress(t) - progress(t - step)) / step, right = (progress(t + step) - progress(t)) / step;
+      assert.ok(left > 0 && right > 0, 'Không dừng giữa các nhịp hé lộ');
+      assert.ok(Math.abs(right - left) < .0000001, 'Không đổi tốc độ đột ngột ở mốc hé lộ');
+    }
+    assert.ok(1 - progress(end - 1) < .000002, 'Hãm tốc trước khi dừng');
+  }
+});
+
+
+test('Camera luôn nhìn về phía sân khấu khi rời đường hầm', async () => {
+  const { cameraPose, cameraProgress, OPENING_CUES } = await import('../src/cinema/timeline.ts');
+  assert.equal(typeof cameraPose, 'function');
+  for (const quick of [false, true]) {
+    const end = OPENING_CUES[quick ? 'quick' : 'standard'][8];
+    let previousPitch = 0;
+    for (let t = 0; t <= end + 100; t += 1000 / 60) {
+      const pose = cameraPose(cameraProgress(t, quick));
+      assert.ok(pose.lookZ < pose.z - 5, `Không quay ngược ở ${Math.round(t)}ms`);
+      const pitch = Math.atan2(3.3 - pose.y, pose.z - pose.lookZ);
+      if (t > 0) assert.ok(Math.abs(pitch - previousPitch) < .01, 'Không đổi góc nhìn đột ngột');
+      previousPitch = pitch;
+    }
+    assert.equal(cameraPose(1).z, -49.5);
+    assert.equal(cameraPose(1).lookZ, -59);
+  }
+});

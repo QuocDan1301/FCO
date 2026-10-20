@@ -1,0 +1,45 @@
+import assert from 'node:assert/strict';
+import { mkdirSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+const { Browser, sleep } = await import(pathToFileURL(process.argv[2]).href);
+const browser = await Browser.launch();
+mkdirSync('.taste-skill/animation-qa', { recursive: true });
+try {
+  const page = await browser.newPage();
+  await page.goto('http://127.0.0.1:5173');
+  await page.eval(() => { document.querySelector('.sound-button').click(); });
+  await sleep(100);
+  await page.eval(() => { let n = 0; crypto.getRandomValues = a => { a[0] = n++ % 2 === 0 ? 4294967295 : 644245094; return a; }; document.querySelector('.hero-button').click(); });
+  await sleep(1600);
+  assert.ok(await page.eval(() => !!document.querySelector('.phase-1')), 'Hé lộ quốc tịch');
+  await sleep(1200);
+  assert.ok(await page.eval(() => !!document.querySelector('.phase-2')), 'Hé lộ CLB');
+  await sleep(1200);
+  assert.ok(await page.eval(() => !!document.querySelector('.phase-3')), 'Hé lộ vị trí');
+  await sleep(1200);
+  assert.ok(await page.eval(() => !!document.querySelector('.phase-4 .walkout-player')), 'Walkout và OVR');
+  await page.screenshot({ path: '.taste-skill/animation-qa/rare-walkout.jpg' });
+  await sleep(1800);
+  assert.ok(await page.eval(() => !!document.querySelector('.phase-5')));
+  assert.match(await page.eval(() => document.querySelector('.result-feature h2').textContent), /Lionel Messi/);
+  await page.screenshot({ path: '.taste-skill/animation-qa/rare-reveal.jpg' });
+  await page.eval(() => { document.querySelector('.cinema-top button').click(); });
+  await sleep(150);
+  await page.eval(() => { document.querySelector('.main-nav button:nth-child(2)').click(); });
+  await sleep(150);
+  await page.eval(() => { document.querySelector('.material-slot').click(); });
+  await sleep(100);
+  for (let i = 1; i <= 5; i++) { await page.eval(n => document.querySelector(`.picker-row:nth-child(${n})`).click(), i); await sleep(70); }
+  await page.eval(() => { document.querySelector('.picker-modal .modal-bottom-button').click(); });
+  await sleep(100);
+  await page.eval(() => { crypto.getRandomValues = a => { a[0] = 0; return a; }; document.querySelector('.upgrade-controls>.primary-button').click(); });
+  await sleep(1800);
+  assert.ok(await page.eval(() => !!document.querySelector('.upgrade-phase-1')));
+  await sleep(1200);
+  assert.ok(await page.eval(() => !!document.querySelector('.upgrade-phase-2')));
+  await page.screenshot({ path: '.taste-skill/animation-qa/upgrade-suspense.jpg' });
+  await sleep(1400);
+  assert.ok(await page.eval(() => !!document.querySelector('.upgrade-phase-3.success')));
+  assert.deepEqual(page.consoleErrors, []);
+  console.log('PASS: hoạt cảnh thật quốc tịch → CLB → vị trí → OVR + walkout → Messi; nâng cấp hội tụ → rung → dừng tối → thành công; âm thanh bật không gây lỗi.');
+} finally { await browser.close(); }

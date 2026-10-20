@@ -1,0 +1,247 @@
+import { useEffect, useRef } from 'react';
+import * as THREE from 'three';
+import { Reflector } from 'three/addons/objects/Reflector.js';
+import { cameraPose, cameraProgress, OPENING_CUES } from './timeline';
+
+type Props = { phase: number; quick: boolean; nation: string; position: string; team: string; season: string; onFallback: () => void; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number };
+
+export default function StadiumScene(props: Props) {
+  const host = useRef<HTMLDivElement>(null);
+  const state = useRef(props); state.current = props;
+  useEffect(() => {
+    let dispose: (() => void) | undefined;
+    const launch = window.setTimeout(() => { dispose = build(); }, 320);
+    const build = () => {
+    const container = host.current;
+    if (!container) return;
+    let mobile = matchMedia('(max-width: 700px)').matches;
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: !mobile, powerPreference: 'high-performance', alpha: false });
+    } catch { state.current.onFallback(); return; }
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
+    renderer.shadowMap.enabled = false;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    container.appendChild(renderer.domElement);
+    renderer.domElement.setAttribute('aria-hidden', 'true');
+    const scene = new THREE.Scene(); scene.background = new THREE.Color('#03070c'); scene.fog = new THREE.FogExp2('#050a10', .018);
+    const camera = new THREE.PerspectiveCamera(mobile ? 62 : 54, 1, .15, 180);
+    const metal = new THREE.MeshStandardMaterial({ color: '#2b3949', metalness: .4, roughness: .42 });
+    const darkMetal = new THREE.MeshStandardMaterial({ color: '#172333', metalness: .25, roughness: .65 });
+    const trim = new THREE.MeshStandardMaterial({ color: '#a89a77', metalness: .8, roughness: .28 });
+    const lightColor = new THREE.Color('#f1dba3');
+    const textures = new Set<THREE.Texture>();
+    const geometries = new Set<THREE.BufferGeometry>();
+    const boxGeometry = new THREE.BoxGeometry(1, 1, 1); geometries.add(boxGeometry);
+    const box = (w: number, h: number, d: number, x: number, y: number, z: number, material: THREE.Material = metal, parent: THREE.Object3D = scene) => {
+      const mesh = new THREE.Mesh(boxGeometry, material); mesh.scale.set(w, h, d); mesh.position.set(x, y, z); parent.add(mesh); return mesh;
+    };
+    const basic = (color: string, opacity = 1) => new THREE.MeshBasicMaterial({ color, transparent: opacity < 1, opacity, toneMapped: false, depthWrite: opacity >= 1 });
+    scene.add(new THREE.HemisphereLight('#b4cada', '#070b10', 1.2));
+    const ambient = new THREE.AmbientLight('#b9c9d6', .08); scene.add(ambient);
+    const stageLight = new THREE.PointLight('#ffe5ae', 90, 45, 1.3); stageLight.position.set(0, 9, -57); scene.add(stageLight);
+    const cameraLight = new THREE.PointLight('#d4eaff', 32, 25, 1.4); scene.add(cameraLight);
+    const spotlight = new THREE.SpotLight('#fff2d2', 250, 65, Math.PI / 4, .6, 1.5); spotlight.position.set(0, 12, -52); spotlight.target.position.set(0, 2, -59); spotlight.castShadow = false; spotlight.shadow.mapSize.set(512, 512); scene.add(spotlight, spotlight.target);
+
+    // Vách, trần và từng nhịp khung là hình học độc lập để camera thực sự đi xuyên qua.
+    box(.5, 7.6, 55, -5.3, 3.8, -10.5, darkMetal); box(.5, 7.6, 55, 5.3, 3.8, -10.5, darkMetal);
+    box(11, .35, 55, 0, 7.65, -10.5, darkMetal);
+    const ribs: { material: THREE.MeshBasicMaterial; z: number; brightness: number }[] = [];
+    for (let i = 0; i < 13; i++) {
+      const z = 15 - i * 4;
+      const led = basic('#efdbad'); led.color.multiplyScalar(.015); ribs.push({ material: led, z, brightness: .015 });
+      for (const x of [-5, 5]) {
+        box(.26, 7.3, .25, x, 3.65, z); box(.06, 5.9, .09, x + (x < 0 ? .16 : -.16), 3.6, z + .16, led);
+        box(.3, .2, 3.65, x, .22, z - 1.8, led);
+        box(.12, .65, 3, x * .98, 2.2, z - 1.8, trim);
+      }
+      box(10.25, .28, .25, 0, 7.2, z); box(9.7, .045, .08, 0, 7, z + .15, led);
+      for (const x of [-2.6, 2.6]) box(.1, .05, 1.5, x, 7.4, z - 1.6, led);
+      box(10, .04, .08, 0, .045, z, basic('#35414e', .4));
+    }
+    const floorGeo = new THREE.PlaneGeometry(60, 150); geometries.add(floorGeo);
+    const reflector = new Reflector(floorGeo, { color: 0x4a4e55, textureWidth: mobile ? 128 : 256, textureHeight: mobile ? 128 : 256, clipBias: .003, multisample: 0 });
+    let reflectedAt = -Infinity;
+    const reflectFrame = reflector.onBeforeRender.bind(reflector);
+    reflector.onBeforeRender = (...args: Parameters<typeof reflectFrame>) => {
+      const now = performance.now();
+      if (now - reflectedAt < (mobile ? 60 : 30)) return;
+      reflectedAt = now; reflectFrame(...args);
+    };
+    reflector.rotation.x = -Math.PI / 2; reflector.position.set(0, -.015, -32); scene.add(reflector);
+    const floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({ color: '#0c141e', metalness: .7, roughness: .25, transparent: true, opacity: .77 }));
+    floor.rotation.x = -Math.PI / 2; floor.position.set(0, .003, -32); floor.receiveShadow = true; scene.add(floor);
+    for (const x of [-4.2, 4.2]) box(.035, .008, 53, x, .017, -10, basic('#d9c391', .45));
+
+    const makeCanvas = (width: number, height: number) => {
+      const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
+      const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('Canvas không khả dụng');
+      const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; textures.add(texture); return { canvas, ctx, texture };
+    };
+    const panel = makeCanvas(768, 256);
+    const panelMat = new THREE.MeshBasicMaterial({ map: panel.texture, toneMapped: false });
+    const panelGeo = new THREE.PlaneGeometry(3.3, 1.1); geometries.add(panelGeo);
+    for (const z of [-3, -13, -23, -32]) for (const side of [-1, 1]) {
+      const screen = new THREE.Mesh(panelGeo, panelMat); screen.position.set(side * 4.9, 3.8, z); screen.rotation.y = -side * Math.PI / 2; scene.add(screen);
+      box(.12, 1.26, 3.5, side * 5.04, 3.8, z, trim);
+    }
+    // Sân khấu và khán đài ở cuối đường hầm; không dựng cửa hoặc thẻ áo trắng.
+    const stageGeo = new THREE.CylinderGeometry(8.2, 8.6, .35, mobile ? 32 : 64); geometries.add(stageGeo);
+    const stage = new THREE.Mesh(stageGeo, metal); stage.position.set(0, .18, -59); stage.receiveShadow = true; scene.add(stage);
+    for (const radius of [7.9, 6.9]) {
+      const geo = new THREE.TorusGeometry(radius, .025, 4, mobile ? 48 : 80); geometries.add(geo);
+      const ring = new THREE.Mesh(geo, basic('#ead29a')); ring.rotation.x = Math.PI / 2; ring.position.set(0, .39, -59); scene.add(ring);
+    }
+    for (let tier = 0; tier < 4; tier++) {
+      const geo = new THREE.CylinderGeometry(28 + tier * 2, 27 + tier * 2, 1.4, 64, 1, true, Math.PI / 2, Math.PI); geometries.add(geo);
+      const stand = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: tier % 2 ? '#24303b' : '#141f29', side: THREE.DoubleSide, roughness: .8 })); stand.position.set(0, 1.5 + tier * 1.7, -62); scene.add(stand);
+    }
+    const glow = makeCanvas(128, 128);
+    const gradient = glow.ctx.createRadialGradient(64, 64, 0, 64, 64, 64); gradient.addColorStop(0, '#ffffff'); gradient.addColorStop(.12, '#fff3ceaa'); gradient.addColorStop(.45, '#dcb97422'); gradient.addColorStop(1, '#dcb97400'); glow.ctx.fillStyle = gradient; glow.ctx.fillRect(0, 0, 128, 128); glow.texture.needsUpdate = true;
+    const lampMaterial = new THREE.SpriteMaterial({ map: glow.texture, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false });
+    for (let i = 0; i < 16; i++) {
+      const angle = i / 16 * Math.PI * 2;
+      const lamp = new THREE.Sprite(lampMaterial); lamp.position.set(Math.sin(angle) * 28, 10, -62 + Math.cos(angle) * 28); lamp.scale.set(4.5, 4.5, 1); scene.add(lamp);
+      box(3.2, .13, .2, lamp.position.x, 9.8, lamp.position.z, basic('#d6e8f2'));
+    }
+
+    let seed = 1357;
+    const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+    const crowdCount = mobile ? 320 : 1100;
+    const crowdPositions = new Float32Array(crowdCount * 3);
+    for (let i = 0; i < crowdCount; i++) {
+      const angle = Math.PI / 2 + rnd() * Math.PI, tier = Math.floor(rnd() * 5), radius = 28 + tier * 1.5;
+      crowdPositions[i * 3] = Math.sin(angle) * radius; crowdPositions[i * 3 + 1] = 1.4 + tier * 1.7 + rnd() * .5; crowdPositions[i * 3 + 2] = -62 + Math.cos(angle) * radius;
+    }
+    const crowdGeo = new THREE.BufferGeometry(); crowdGeo.setAttribute('position', new THREE.BufferAttribute(crowdPositions, 3)); geometries.add(crowdGeo);
+    const crowd = new THREE.Points(crowdGeo, new THREE.PointsMaterial({ color: '#b8cbd7', size: .09, transparent: true, opacity: .65, depthWrite: false })); scene.add(crowd);
+    const dustCount = mobile ? 65 : 200, dustPositions = new Float32Array(dustCount * 3);
+    for (let i = 0; i < dustCount; i++) { dustPositions[i * 3] = (rnd() - .5) * 16; dustPositions[i * 3 + 1] = rnd() * 9; dustPositions[i * 3 + 2] = 15 - rnd() * 90; }
+    const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3)); geometries.add(dustGeo);
+    const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: '#f5dfad', size: mobile ? .045 : .035, transparent: true, opacity: .45, depthWrite: false })); scene.add(dust);
+    const smoke: THREE.Sprite[] = [];
+    for (let i = 0; i < (mobile ? 4 : 9); i++) { const mat = new THREE.SpriteMaterial({ map: glow.texture, color: '#718fa5', transparent: true, opacity: .045, depthWrite: false, blending: THREE.AdditiveBlending }); const sprite = new THREE.Sprite(mat); sprite.position.set(i % 2 ? 3.8 : -3.8, .6, 10 - i * 7); sprite.scale.set(9, 3, 1); smoke.push(sprite); scene.add(sprite); }
+    const sparksCount = mobile ? 80 : 260;
+    const sparkGeo = new THREE.BufferGeometry(), sparkPositions = new Float32Array(sparksCount * 3);
+    const velocities = Array.from({ length: sparksCount }, (_, i) => ({ side: i % 2 ? -1 : 1, x: (rnd() - .5) * 2.5, y: 4 + rnd() * 5.3, z: (rnd() - .5) * 2, delay: rnd() * 1.3 }));
+    sparkGeo.setAttribute('position', new THREE.BufferAttribute(sparkPositions, 3)); geometries.add(sparkGeo);
+    const sparkMaterial = new THREE.PointsMaterial({ map: glow.texture, color: '#ffe8a5', size: .18, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
+    const sparks = new THREE.Points(sparkGeo, sparkMaterial); sparks.frustumCulled = false; scene.add(sparks);
+
+    // Gộp các khung/vách dùng chung vật liệu, giảm lệnh vẽ ở cả cảnh và phản chiếu.
+    const batches = new Map<THREE.Material, THREE.Mesh[]>();
+    scene.children.forEach(object => {
+      if (object instanceof THREE.Mesh && object.geometry === boxGeometry && !Array.isArray(object.material)) {
+        const list = batches.get(object.material) || []; list.push(object); batches.set(object.material, list);
+      }
+    });
+    batches.forEach((meshes, material) => {
+      if (meshes.length < 2) return;
+      const batch = new THREE.InstancedMesh(boxGeometry, material, meshes.length);
+      meshes.forEach((mesh, i) => { mesh.updateMatrix(); batch.setMatrixAt(i, mesh.matrix); scene.remove(mesh); });
+      batch.instanceMatrix.needsUpdate = true; batch.computeBoundingSphere(); scene.add(batch);
+    });
+    const lookTarget = new THREE.Vector3(0, 3.3, -43);
+    let frame = 0, previous = performance.now(), phaseSince = previous, lastPhase = -1, progress = 0, alive = true, average = 16, slowFrames = 0;
+    let startedAt: number | null = null, prepared = false, wasPlaying = false, qualityChangedAt = -Infinity;
+    const resize = () => {
+      const width = container.clientWidth || innerWidth, height = container.clientHeight || innerHeight;
+      const compact = width <= 700;
+      if (compact !== mobile) {
+        mobile = compact; renderer.setPixelRatio(Math.min(devicePixelRatio, 1));
+        const resolution = mobile ? 128 : 256; reflector.getRenderTarget().setSize(resolution, resolution);
+        crowdGeo.setDrawRange(0, Math.min(crowdCount, mobile ? 320 : 1100));
+        dustGeo.setDrawRange(0, Math.min(dustCount, mobile ? 65 : 200));
+        sparkGeo.setDrawRange(0, Math.min(sparksCount, mobile ? 80 : 260));
+        camera.fov = mobile ? 62 : 54;
+      }
+      renderer.setSize(width, height); camera.aspect = width / height; camera.updateProjectionMatrix();
+    };
+    resize(); const observer = new ResizeObserver(resize); observer.observe(container);
+    const onLost = (event: Event) => { event.preventDefault(); state.current.onFallback(); }; renderer.domElement.addEventListener('webglcontextlost', onLost);
+    const paintLed = (phase: number) => {
+      const ctx = panel.ctx; ctx.fillStyle = '#0b1118'; ctx.fillRect(0, 0, 768, 256); ctx.fillStyle = '#ebce8f'; ctx.fillRect(0, 0, 768, 4); ctx.fillRect(0, 252, 768, 4); ctx.textAlign = 'center';
+      const title = phase === 3 ? 'QUỐC TỊCH' : phase === 4 ? 'VỊ TRÍ' : phase === 5 ? 'ĐỘI BÓNG' : 'FCO VIP';
+      const value = phase === 3 ? state.current.nation : phase === 4 ? state.current.position : phase === 5 ? state.current.team : state.current.season;
+      ctx.fillStyle = '#94a5b5'; ctx.font = '24px Arial'; ctx.fillText(title, 384, 66); ctx.fillStyle = '#f4e7c7'; ctx.font = `bold ${value.length > 18 ? 40 : 55}px Arial`; ctx.fillText(value, 384, 160, 710); panel.texture.needsUpdate = true;
+    };
+    const animate = (now: number) => {
+      if (!alive) return;
+      frame = requestAnimationFrame(animate);
+      const interval = now - previous;
+      const dt = Math.min(interval / 1000, .1); previous = now;
+      if (document.hidden) return;
+      const playing = state.current.playing !== false;
+      if (playing !== wasPlaying) {
+        if (!playing) {
+          prepared = false; startedAt = null; progress = 0; lastPhase = -1;
+          lookTarget.set(0, 3.3, -43);
+          stageLight.intensity = 35; spotlight.intensity = 120; ambient.intensity = .025; renderer.toneMappingExposure = .12;
+          ribs.forEach(rib => { rib.brightness = .015; });
+        }
+        wasPlaying = playing;
+      }
+      if (!playing && prepared) return;
+      const phase = playing ? state.current.phase : 0;
+      if (phase !== lastPhase) { lastPhase = phase; phaseSince = now; paintLed(phase); }
+      const age = (now - phaseSince) / 1000;
+      const elapsed = state.current.getElapsed?.() ?? (startedAt === null ? 0 : now - startedAt);
+      const duration = OPENING_CUES[state.current.quick ? 'quick' : 'standard'][8];
+      progress = phase >= 9 && elapsed < duration - 150 ? THREE.MathUtils.damp(progress, 1, 9, dt) : cameraProgress(elapsed, state.current.quick);
+      const pose = cameraPose(progress);
+      camera.position.set(pose.x, pose.y, pose.z);
+      lookTarget.z = pose.lookZ;
+      camera.lookAt(lookTarget); cameraLight.position.copy(camera.position); cameraLight.position.y += 1;
+      stageLight.intensity = THREE.MathUtils.damp(stageLight.intensity, phase >= 8 ? 130 : 35, 4, dt);
+      spotlight.intensity = THREE.MathUtils.damp(spotlight.intensity, phase >= 8 ? 350 : 120, 4, dt);
+      ambient.intensity = THREE.MathUtils.damp(ambient.intensity, phase === 0 ? .025 : phase === 6 ? .035 : phase >= 8 ? .9 : .6, 5, dt);
+      const exposure = phase === 0 ? .12 + Math.min(age, .7) * .22 : phase === 6 ? .42 : phase >= 8 ? 1.2 : .9;
+      renderer.toneMappingExposure = THREE.MathUtils.damp(renderer.toneMappingExposure, exposure, 5, dt);
+      ribs.forEach((rib, i) => {
+        const lit = phase >= 2 || (phase === 1 && i <= age * 12);
+        rib.brightness = THREE.MathUtils.damp(rib.brightness, lit ? .8 + .18 * Math.sin(now * .002 - i * .45) : .01, 7, dt);
+        rib.material.color.copy(lightColor).multiplyScalar(rib.brightness);
+      });
+      dust.position.z = Math.sin(now * .0001) * 2; dust.rotation.y = Math.sin(now * .00009) * .015;
+      smoke.forEach((sprite, i) => { sprite.position.x = (i % 2 ? 3.8 : -3.8) + Math.sin(now * .0005 + i) * .4; });
+      sparks.visible = phase >= 9 && age < 4;
+      if (sparks.visible) {
+        velocities.forEach((v, i) => { const t = Math.max(0, age - v.delay); sparkPositions[i * 3] = v.side * 5.4 + v.x * t; sparkPositions[i * 3 + 1] = age < v.delay ? -5 : Math.max(-1, .5 + v.y * t - 3.2 * t * t); sparkPositions[i * 3 + 2] = -57 + v.z * t; });
+        sparkGeo.attributes.position.needsUpdate = true; sparkMaterial.opacity = Math.max(0, 1 - age / 4);
+      }
+      try { renderer.render(scene, camera); } catch { alive = false; state.current.onFallback(); return; }
+      if (!prepared) { prepared = true; container.dataset.prepared = 'true'; state.current.onPrepared?.(); }
+      if (playing && startedAt === null) { startedAt = performance.now(); state.current.onReady(); }
+      container.dataset.drawCalls = String(renderer.info.render.calls);
+      const cost = performance.now() - now;
+      average = average * .94 + Math.min(100, Math.max(cost, interval)) * .06;
+      // Theo nhịp khung hình thực tế; giữ chữ/thẻ DOM sắc nét khi giảm độ phân giải nền.
+      if (playing && elapsed > 1000 && phase < 9 && average > 26 && now - qualityChangedAt > 2000 && renderer.getPixelRatio() > (mobile ? .75 : .8)) {
+        renderer.setPixelRatio(Math.max(mobile ? .75 : .8, renderer.getPixelRatio() - .15)); qualityChangedAt = now;
+      }
+      if (now - phaseSince > 800 && phase > 1 && average > 55) slowFrames++; else slowFrames = Math.max(0, slowFrames - 1);
+      if (slowFrames > 20) { alive = false; state.current.onFallback(); }
+      container.dataset.renderScale = renderer.getPixelRatio().toFixed(2); container.dataset.frameMs = average.toFixed(1);
+      container.dataset.cameraZ = camera.position.z.toFixed(2); container.dataset.reflection = mobile ? '128' : '256';
+    };
+    camera.position.set(0, 3.1, 13); camera.lookAt(lookTarget); renderer.toneMappingExposure = .12;
+    paintLed(0); sparks.visible = false;
+    // Biên dịch shader trước khi chạy đồng hồ; vẫn cho phép Bỏ qua khi chờ.
+    void renderer.compileAsync(scene, camera).catch(() => {}).then(() => {
+      if (!alive) return;
+      previous = performance.now(); frame = requestAnimationFrame(animate);
+    });
+    return () => {
+      alive = false; cancelAnimationFrame(frame); observer.disconnect(); renderer.domElement.removeEventListener('webglcontextlost', onLost);
+      const materials = new Set<THREE.Material>();
+      scene.traverse(object => { if (object instanceof THREE.Mesh || object instanceof THREE.Points || object instanceof THREE.Sprite) { if ('geometry' in object) geometries.add(object.geometry); const material = object.material; (Array.isArray(material) ? material : [material]).forEach(m => materials.add(m)); } });
+      reflector.dispose(); geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose()); textures.forEach(t => t.dispose()); renderer.dispose(); renderer.domElement.remove();
+    };
+    };
+    return () => { clearTimeout(launch); dispose?.(); };
+  }, []);
+  return <div className="three-stadium" ref={host} data-renderer="three"/>;
+}

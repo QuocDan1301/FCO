@@ -1,0 +1,169 @@
+/* taste-skill-ignore: Sân khấu ICON TM dùng kim loại, ánh sáng và bóng đổ theo yêu cầu điện ảnh. */
+.icon-opening { position: relative; isolation: isolate; min-height: 100dvh; width: 100%; color: #eaf0f5; }
+.opening-scene { position: fixed; inset: 0; z-index: -4; background: #03070c; pointer-events: none; }
+.three-stadium, .three-stadium canvas, .light-cinema-canvas { width: 100%; height: 100%; display: block; }
+.opening-vignette { position: fixed; inset: 0; z-index: -2; pointer-events: none; background: radial-gradient(ellipse at 50% 46%, transparent 8%, #03071011 45%, #010307ab 100%), linear-gradient(0deg, #03070ab0, transparent 25%, transparent 80%, #03070a9c); }
+.opening-letterbox { position: fixed; left: 0; right: 0; height: 6.5dvh; background: #020407; pointer-events: none; z-index: -1; }
+.opening-letterbox.top { top: 0; }.opening-letterbox.bottom { bottom: 0; }
+.opening-header { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 20; height: 85px; gap: 20px; padding: 0 4%; }
+.opening-brand { display: flex; gap: 10px; align-items: center; color: #ccba92; font-family: var(--display); font-size: 13px; letter-spacing: 1.8px; }
+.opening-brand img { width: 23px; height: 28px; }
+.opening-controls { display: flex; gap: 10px; align-items: center; }
+.opening-icon-button, .opening-quality, .opening-skip { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid #56637788; background: #0a131fe0; min-height: 38px; border-radius: 3px; color: #c5d4df; }
+.opening-icon-button { width: 38px; }.opening-quality, .opening-skip { font-size: 11px; padding: 9px 14px; }
+.opening-quality.selected { color: #ead09a; border-color: #9f8759; }
+.opening-skip:hover, .opening-quality:hover, .opening-icon-button:hover { background: #223041; border-color: #b3c5d2; }
+.opening-chapter { position: absolute; top: 103px; left: 16px; right: 16px; font-size: 11px; color: #a1b4c4; text-align: center; letter-spacing: .2px; text-shadow: 0 2px 12px #000; }
+.opening-reveal { min-height: 420px; position: absolute; top: 47%; left: 0; right: 0; margin-top: -160px; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 18px; }
+.opening-intro { display: flex; align-items: center; flex-direction: column; gap: 28px; padding-top: 115px; color: #b1c3d2; font-size: 12px; text-shadow: 0 2px 15px #000; }
+.intro-light { width: 60px; height: 2px; background: #ddc99b; box-shadow: 0 0 24px 3px #e3c18033; }
+.opening-emblem { display: flex; align-items: center; flex-direction: column; gap: 24px; }
+.opening-emblem>img { width: 185px; height: 232px; filter: drop-shadow(0 0 35px #edce7a35); }
+.opening-emblem>span { font-size: 11px; color: #d6c39b; text-shadow: 0 4px 18px #000; }
+.season-emblem { position: relative; color: #e6ce9b; }.season-emblem>b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-size: 39px; padding-bottom: 9px; }
+.opening-information { display: flex; flex-direction: column; align-items: center; gap: 25px; text-shadow: 0 3px 25px #000, 0 0 12px #000; }
+/* Mỗi thông tin hiện dần, giữ một nhịp rồi ẩn hết trước thông tin kế tiếp. */
+.opening-information { animation: opening-information-fade var(--information-duration, 1.2s) ease-in-out both; }
+@keyframes opening-information-fade { 0%,100% { opacity: 0; } 30%,62% { opacity: 1; } }
+.opening-reduced .opening-information { animation: none; opacity: 1; }
+.opening-icon-button:disabled { cursor: default; opacity: .65; }
+@media(prefers-reduced-motion:reduce) { .opening-information { animation: none !important; opacity: 1; } }
+.opening-information>.flag.large { width: 122px; height: 81px; border-radius: 2px; box-shadow: 0 6px 30px #0009; }
+.opening-information>span { font-size: 12px; letter-spacing: 1.8px; color: #dccbaa; text-transform: uppercase; }
+.opening-information>strong { font-family: var(--display); font-size: 56px; font-weight: 600; line-height: 1; }
+.opening-information>.opening-position { font-size: 158px; font-weight: 500; color: #f3ebd8; }
+.team-shield { width: 110px; height: 115px; display: flex; justify-content: center; align-items: center; color: #dfc994; position: relative; }
+.team-shield>b { position: absolute; font-family: var(--display); font-size: 30px; top: 32px; }
+.opening-silence { display: flex; flex-direction: column; gap: 25px; align-items: center; font-size: 12px; color: #b8b6b0; }
+.opening-silence>i { width: 3px; height: 3px; background: #e9d5ac; border-radius: 50%; }
+.opening-stage-message { font-size: 12px; color: #e5d3ad; text-shadow: 0 2px 20px #000; display: flex; align-items: center; gap: 12px; padding-top: 190px; }
+.opening-phase-6 .opening-vignette { background: #01030780; }
+.opening-steps { position: absolute; left: 15px; right: 15px; bottom: 26px; display: flex; align-items: center; justify-content: center; gap: 27px; color: #748597; font-size: 10px; z-index: 5; }
+.opening-steps>span { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.opening-steps i { height: 4px; width: 4px; border-radius: 50%; background: #546477; }
+.opening-steps .done { color: #dfc793; }.opening-steps .done i { background: #e2c68b; }
+.opening-result { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 3px 25px 32px; min-height: calc(100dvh - 85px); }
+.opening-result-label { color: #dcc694; font-size: 11px; letter-spacing: .6px; display: flex; align-items: center; justify-content: center; gap: 9px; margin: 4px 0 21px; }
+.opening-result-label>img { height: 28px; width: 23px; }
+.opening-best-card { position: relative; transform-style: preserve-3d; filter: drop-shadow(8px 18px 18px #000a); perspective: 900px; z-index: 3; }
+.opening-best-card:before { content: ''; position: absolute; inset: 3px -4px 1px 4px; clip-path: polygon(15% 0,85% 0,100% 10%,100% 85%,86% 95%,50% 100%,14% 95%,0 85%,0 10%); background: #51442d; border-right: 3px solid #a88e56; transform: translateZ(-3px); }
+/* Ảnh mặt thẻ đã có viền riêng; không đặt khung đa giác chung phía sau ảnh. */
+.opening-best-card:has(>.face-art):before { display: none; }
+.opening-best-card>.player-card { width: 246px; }
+.card-edge-sweep { position: absolute; inset: 0; padding: 3px; clip-path: polygon(15% 0,85% 0,100% 10%,100% 85%,86% 95%,50% 100%,14% 95%,0 85%,0 10%); background: linear-gradient(115deg, transparent 15%, transparent 39%, #fff6d6 49%, transparent 58%); background-size: 250% 100%; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; pointer-events: none; z-index: 9; animation: icon-edge-sweep 3s ease-in-out 1.1s 1 both; }
+.opening-result>h2 { font-family: var(--display); font-size: 39px; line-height: 1.1; font-weight: 600; margin-top: 15px; text-shadow: 0 3px 20px #000; }
+.opening-player-meta { color: #afc3d1; font-size: 12px; margin-top: 10px; display: flex; gap: 9px; align-items: center; justify-content: center; text-shadow: 0 2px 15px #000; }.opening-player-meta>span { color: #a48c5b; }
+.opening-result-actions { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 25px; position: relative; z-index: 4; flex-wrap: wrap; }
+.opening-result-actions .primary-button { background: #e6cd94; border-color: #f1dfb7; color: #201b12; min-width: 155px; }
+.opening-result-actions .secondary-button { background: #10202ee8; min-width: 155px; }
+.opening-stats-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 43px; padding: 10px 16px; font-size: 12px; color: #c5d5e2; }
+.opening-stats-button:hover { color: #f0dba8; }
+.opening-saved-note { font-size: 10px; color: #8da8bd; line-height: 1.8; display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 19px; }
+.opening-pack-name { font-size: 10px; color: #718b9f; margin-top: 7px; }
+.opening-show-summary { display: flex; align-items: center; gap: 8px; color: #ccb582; font-size: 11px; margin-top: 17px; padding: 8px; min-height: 38px; }
+.opening-show-summary:hover { color: #ffe7af; }
+.opening-stats { position: relative; z-index: 4; width: min(460px,100%); background: #0f1b28ef; border: 1px solid #354859; border-radius: 4px; padding: 15px 18px; margin-top: 20px; }
+.opening-stats-title { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 11px; color: #acbfcd; text-align: left; padding-bottom: 12px; }
+.opening-stats-title>button { display: flex; min-height: 25px; min-width: 25px; align-items: center; justify-content: center; }
+.opening-stats>div:last-child { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 15px; }.opening-stats>div:last-child>span { display: flex; justify-content: space-between; gap: 10px; align-items: center; color: #91aabd; font-size: 11px; }.opening-stats b { color: #e6d29f; font-family: var(--display); font-size: 24px; font-weight: 500; }
+.opening-pyro { position: fixed; inset: 0; pointer-events: none; z-index: -1; overflow: hidden; }
+.opening-pyro>div { width: 130px; height: 65%; position: absolute; bottom: 10%; background: radial-gradient(ellipse at bottom, #ffe8a847, #edbc5820 20%, transparent 68%); opacity: 0; animation: icon-pyro-glow 3.5s ease-out both; transform-origin: bottom; }
+.pyro-left { left: 20%; rotate: -12deg; }.pyro-right { right: 20%; rotate: 12deg; }
+.opening-summary .opening-best-card { display: none; }.opening-summary .opening-result-label { margin-bottom: 12px; }.opening-summary .opening-result>h2 { font-size: 28px; margin-top: 3px; }
+.opening-batch { width: min(1220px,100%); margin-top: 25px; }
+.batch-caption { display: flex; justify-content: space-between; align-items: center; gap: 15px; font-size: 11px; color: #9eb4c5; margin-bottom: 20px; }.batch-caption>b { display: flex; gap: 6px; align-items: center; font-size: 11px; font-weight: 500; color: #ddc58f; }
+.opening-batch-grid { display: grid; grid-template-columns: repeat(10,minmax(0,1fr)); gap: 13px; align-items: start; }
+.opening-batch-grid>div { min-width: 0; text-align: center; }.opening-batch-grid>div>span { font-family: var(--display); color: #d0dbe4; font-size: 14px; line-height: 1.3; display: block; margin-top: 10px; min-height: 36px; }.opening-batch-grid>div>b { font-size: 10px; font-weight: 400; color: #93a9ba; display: block; margin-top: 3px; }.opening-batch-grid>div>small { font-size: 10px; color: #ecd195; display: block; margin-top: 8px; }
+.batch-highlight>.player-card { filter: drop-shadow(0 0 15px #e2be6955); }
+.opening-batch .compact { padding: 3px; }.opening-batch .compact .card-rating { top: 17px; left: 4px; width: 25px; }.opening-batch .compact .card-rating>strong { font-size: 25px; }.opening-batch .compact .card-rating>span { font-size: 11px; margin-bottom: 5px; }.opening-batch .compact .card-topline { height: 15px; font-size: 6px; letter-spacing: .6px; }.opening-batch .compact .card-club,.opening-batch .compact .card-stats,.opening-batch .compact .club-mini { display: none; }.opening-batch .compact .player-photo { top: 18px; }.opening-batch .compact .player-name { font-size: 12px; }.opening-batch .compact .card-bottom { bottom: 12px; left: 3px; right: 3px; }.opening-batch .compact .flag { width: 14px; height: 9px; }.opening-batch .compact .season-crest { width: 18px; height: 23px; font-size: 9px; left: 5px; }.opening-batch .compact .card-level { font-size: 6px; padding: 2px 3px; right: 2px; }
+.opening-mode-toggle { display: inline-flex; align-items: center; gap: 8px; background: #131e2a; border: 1px solid #344355; border-radius: 4px; color: #b5c9da; min-height: 38px; padding: 9px 13px; font-size: 11px; white-space: nowrap; }.opening-mode-toggle.selected { color: #e9c67a; border-color: #8e784e; }.opening-mode-toggle:hover { background: #203044; }
+.opening-reduced .opening-scene { background: radial-gradient(ellipse at 50% 45%, #263747, #050b13 70%); }
+.opening-reduced .opening-vignette { background: transparent; }.opening-reduced .card-edge-sweep { display: none; }
+@keyframes icon-edge-sweep { from { background-position: 160% 0; } to { background-position: -100% 0; } }
+@keyframes icon-pyro-glow { 0% { opacity: 0; scale: .7 0; } 12% { opacity: .9; scale: 1 1; } 55% { opacity: .55; } 100% { opacity: 0; scale: 1.3 1.1; } }
+@media(min-width:1600px) { .opening-best-card>.player-card { width: 276px; }.opening-result { padding-top: 20px; }.opening-result>h2 { font-size: 43px; } }
+@media(max-width:1050px) { .opening-batch-grid { grid-template-columns: repeat(5,minmax(0,1fr)); gap: 22px 18px; max-width: 800px; margin: 0 auto; }.opening-batch .compact .card-rating>strong { font-size: 31px; }.opening-batch .compact .card-rating { left: 7px; top: 22px; width: 31px; }.opening-batch .compact .card-topline { font-size: 8px; height: 20px; }.opening-batch .compact .player-name { font-size: 16px; }.opening-batch .compact .player-photo { top: 23px; }.opening-batch .compact .card-bottom { bottom: 15px; }.opening-batch .compact .season-crest { width: 24px; height: 28px; left: 7px; font-size: 12px; } }
+@media(max-width:640px) {
+  .opening-header { height: 72px; padding: 0 16px; gap: 10px; }.opening-brand { font-size: 8px; letter-spacing: 1px; gap: 6px; }.opening-brand img { width: 18px; height: 23px; }.opening-controls { gap: 7px; }.opening-quality { width: 33px; padding: 0; }.opening-quality>span { display: none; }.opening-icon-button { width: 33px; }.opening-icon-button,.opening-quality,.opening-skip { min-height: 38px; }.opening-skip { font-size: 10px; padding: 8px 11px; gap: 5px; }
+  .opening-chapter { top: 91px; font-size: 10px; }.opening-reveal { min-height: 350px; top: 46%; margin-top: -135px; }.opening-emblem>img { width: 150px; height: 190px; }.opening-emblem>span { font-size: 10px; }.opening-information { gap: 24px; }.opening-information>.flag.large { width: 100px; height: 67px; }.opening-information>span { font-size: 10px; letter-spacing: 1.3px; }.opening-information>strong { font-size: 44px; }.opening-information>.opening-position { font-size: 126px; }.opening-stage-message { font-size: 11px; padding-top: 135px; }.opening-silence,.opening-intro { font-size: 11px; }
+  .opening-steps { gap: 11px; left: 13px; right: 13px; bottom: 22px; font-size: 8px; }.opening-steps>span { gap: 4px; }.opening-steps i { width: 3px; height: 3px; }
+  .opening-result { padding: 7px 17px 28px; min-height: calc(100dvh - 72px); }.opening-result-label { font-size: 10px; letter-spacing: 0; gap: 7px; margin: 4px 0 20px; }.opening-result-label>img { width: 19px; height: 24px; }.opening-best-card>.player-card { width: 195px; }.opening-best-card .card-rating { top: 28px; left: 9px; width: 38px; }.opening-best-card .card-rating>strong { font-size: 39px; }.opening-best-card .card-rating>span { font-size: 16px; margin-bottom: 8px; }.opening-best-card .card-topline { font-size: 9px; height: 24px; }.opening-best-card .player-photo { top: 28px; }.opening-best-card .player-name { font-size: 20px; }.opening-best-card .card-club { font-size: 7px; }.opening-best-card .card-bottom { bottom: 17px; left: 8px; right: 8px; }.opening-best-card .card-level { font-size: 9px; }.opening-best-card .card-stats { margin-top: 7px; padding-top: 6px; }.opening-best-card .card-stats b { font-size: 15px; }.opening-best-card .card-stats>span { font-size: 5px; }.opening-best-card .season-crest { width: 25px; height: 29px; left: 10px; font-size: 12px; }
+  .opening-result>h2 { font-size: 31px; margin-top: 18px; }.opening-player-meta { font-size: 11px; gap: 7px; margin-top: 9px; }.opening-result-actions { gap: 8px; width: 100%; max-width: 380px; margin-top: 21px; }.opening-result-actions>.primary-button,.opening-result-actions>.secondary-button { flex: 1; min-width: 0; font-size: 11px; padding: 12px 10px; min-height: 44px; gap: 7px; }.opening-result-actions>.secondary-button>svg:last-child { display: none; }.opening-stats-button { width: 100%; font-size: 11px; min-height: 40px; }.opening-saved-note { font-size: 9px; line-height: 1.8; gap: 5px; max-width: 340px; margin-top: 10px; }.opening-saved-note svg { flex-shrink: 0; }.opening-pack-name { font-size: 9px; }.opening-pyro>div { width: 85px; height: 55%; bottom: 20%; }.pyro-left { left: 1%; }.pyro-right { right: 1%; }
+  .opening-summary .opening-result-label { font-size: 11px; margin-bottom: 14px; }.opening-summary .opening-result>h2 { font-size: 27px; }.opening-batch { margin-top: 25px; }.batch-caption { align-items: flex-start; flex-direction: column; gap: 9px; font-size: 11px; text-align: left; margin-bottom: 20px; }.batch-caption>b { font-size: 11px; }.opening-batch-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 25px 20px; }.opening-batch-grid>div>span { font-size: 18px; min-height: 24px; margin-top: 11px; }.opening-batch-grid>div>b { font-size: 11px; margin-top: 6px; }.opening-batch-grid>div>small { font-size: 11px; }.opening-batch .compact .card-rating>strong { font-size: 32px; }.opening-batch .compact .card-rating { width: 30px; top: 24px; left: 6px; }.opening-batch .compact .card-topline { font-size: 8px; }.opening-batch .compact .card-rating>span { font-size: 13px; margin-bottom: 8px; }.opening-batch .compact .flag { width: 18px; height: 12px; }.opening-batch .compact .player-name { font-size: 16px; }.opening-batch .compact .card-bottom { bottom: 17px; left: 4px; right: 4px; }.opening-batch .compact .card-level { font-size: 9px; right: 4px; top: -13px; }.opening-batch .compact .season-crest { width: 23px; height: 27px; left: 7px; font-size: 12px; }
+  .opening-stats { padding: 14px; }.opening-stats>div:last-child { gap: 13px; grid-template-columns: repeat(2,minmax(0,1fr)); }.opening-stats-title { font-size: 10px; }.opening-mode-toggle { min-height: 38px; padding: 8px 9px; font-size: 10px; max-width: 140px; white-space: normal; text-align: left; }
+}
+@media(prefers-reduced-motion:reduce) { .opening-pyro,.card-edge-sweep { display: none; } }
+
+.app:has(.cinema-modal) > main, .app:has(.cinema-modal) > header, .app:has(.cinema-modal) > nav { filter: brightness(.4); transition: filter .25s ease; }
+
+/* Cảnh được làm ấm dưới lớp đen; camera bắt đầu sau khung hình hợp lệ đầu tiên. */
+.opening-entry-veil{position:fixed;inset:0;background:#03070c;z-index:10;pointer-events:none;opacity:1;transition:opacity .35s cubic-bezier(.22,1,.36,1)}
+.opening-primed .opening-entry-veil{opacity:0}
+.opening-reduced .opening-entry-veil{display:none}
+.icon-opening:not(.opening-primed) .opening-intro>span{font-size:0}
+.icon-opening:not(.opening-primed) .opening-intro>span:after{content:'Đang thắp sáng đường hầm…';font-size:12px}
+
+.opening-entry-veil{display:flex;align-items:center;justify-content:center}
+.opening-entry-veil>span{color:#b2a58a;font-size:12px;letter-spacing:1px}
+
+.team-logo { width: 110px; height: 117px; object-fit: contain; filter: drop-shadow(0 0 30px #edce7a40); }
+
+/* Màn hiện thẻ: thẻ giữa trên bục, bảng LED cong hai bên, thanh nút dưới */
+.reveal-stage { min-height: calc(100dvh - 85px); padding: 0; }
+.opening-finished .opening-brand { visibility: hidden; }
+.reveal-title { position: absolute; top: -58px; left: 6%; right: 260px; margin: 0; text-align: left; font-family: var(--display); font-size: clamp(17px, 2vw, 30px); font-weight: 600; color: #fff; text-shadow: 0 2px 8px #000c; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 6; }
+.reveal-count { position: absolute; top: 8px; right: 7%; text-align: right; font-family: var(--display); line-height: 1.1; z-index: 6; }
+.reveal-count span { display: block; font-size: clamp(13px, 1.2vw, 19px); color: #e8eef2; }
+.reveal-count b { font-size: clamp(24px, 2.5vw, 36px); color: #1df095; text-shadow: 0 0 12px #1df09566; }
+.reveal-scene { position: relative; width: min(1500px, 100%); height: min(74vh, 720px); margin: 4vh auto 0; perspective: 1400px; }
+.reveal-panel { --led: #1f3fd8; --led2: #0c1f8f; position: absolute; top: 26%; height: 62%; width: 38%; display: flex; align-items: center; border: 2px solid #ffffff22; background: radial-gradient(ellipse at 30% 40%, #ffffff22, transparent 55%), linear-gradient(160deg, var(--led), var(--led2)); box-shadow: 0 0 60px #2a5bff55, inset 0 0 80px #0008; color: #fff; }
+.reveal-icon .reveal-panel { --led: #b8954f; --led2: #3c2c12; box-shadow: 0 0 60px #e2c27a44, inset 0 0 80px #0008; }
+.reveal-origin .reveal-panel { --led: #5b6b7d; --led2: #1d2630; box-shadow: 0 0 50px #a6b5c533, inset 0 0 80px #0008; }
+.reveal-panel-left { left: 2%; transform: rotateY(16deg); transform-origin: left center; border-radius: 26px 0 0 26px; padding: 0 3% 0 4%; gap: 4%; }
+.reveal-panel-right { right: 2%; transform: rotateY(-16deg); transform-origin: right center; border-radius: 0 26px 26px 0; justify-content: flex-end; padding-right: 6%; gap: 6%; }
+.reveal-crest { flex: none; width: clamp(80px, 9vw, 150px); aspect-ratio: 1; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px #0006; }
+.reveal-crest img { width: 78%; height: 78%; object-fit: contain; }
+.reveal-club { font-family: var(--display); font-weight: 800; font-size: clamp(22px, 2.6vw, 44px); color: #14306b; letter-spacing: -1px; }
+.reveal-panel-left { flex-wrap: wrap; align-content: center; }
+.reveal-ovr { font-family: var(--display); font-size: clamp(54px, 7vw, 110px); font-weight: 700; line-height: .9; text-shadow: 0 4px 0 #0004; }
+.reveal-stats { flex-basis: 100%; display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 1.6vh 2.2vw; margin: 2vh 0 0; }
+.reveal-stats div { text-align: center; }
+.reveal-stats dt { font-family: var(--display); font-size: clamp(12px, 1.2vw, 19px); color: #e6edff; }
+.reveal-stats dd { margin: 0; font-family: var(--display); font-size: clamp(28px, 3.4vw, 56px); font-weight: 700; line-height: 1; }
+.reveal-pos { font-family: var(--display); font-size: clamp(44px, 5vw, 84px); font-weight: 700; opacity: .9; }
+.reveal-card { position: absolute; left: 50%; top: 0; width: clamp(220px, 21vw, 340px); transform: translateX(-50%); z-index: 3; margin: 0; filter: drop-shadow(0 20px 40px #000c); }
+.reveal-card > .player-card { width: 100%; }
+.reveal-podium { position: absolute; left: 28%; right: 28%; bottom: 6%; height: 9%; display: flex; justify-content: space-around; align-items: center; border-radius: 50%/40%; background: linear-gradient(180deg, #2b56e8, #13298f); border-top: 3px solid #8fb0ff; box-shadow: 0 10px 30px #0009, 0 0 40px #2a5bff66; z-index: 2; }
+.reveal-icon .reveal-podium { background: linear-gradient(180deg, #caa65c, #5a4219); border-top-color: #fff0c2; box-shadow: 0 10px 30px #0009, 0 0 40px #e2c27a55; }
+.reveal-origin .reveal-podium { background: linear-gradient(180deg, #6d7e90, #28323d); border-top-color: #d5e1eb; }
+.reveal-podium span { font-family: var(--display); font-weight: 700; font-size: clamp(13px, 1.5vw, 24px); color: #fff; text-transform: uppercase; }
+.reveal-podium span:nth-child(2) { font-size: clamp(16px, 1.9vw, 30px); }
+.reveal-name { position: absolute; left: 0; right: 0; bottom: -1%; margin: 0; font-family: var(--display); font-size: 15px; color: #dfe6ef; display: flex; justify-content: center; gap: 8px; z-index: 3; }
+.reveal-summary-btn { position: absolute; left: 50%; bottom: -8%; transform: translateX(-50%); z-index: 4; }
+.reveal-back { margin: 14px auto 0; display: block; padding: 9px 18px; border-radius: 999px; background: #2a3038; color: #dfe4ea; font-size: 13px; }
+.reveal-actions { position: fixed; left: 0; right: 0; bottom: clamp(14px, 3vh, 30px); z-index: 8; display: flex; align-items: center; justify-content: center; padding: 0 9%; }
+.reveal-btn { height: 46px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 22px 0 30px; border-radius: 999px; font-family: var(--display); font-size: clamp(15px, 1.2vw, 19px); font-weight: 600; box-shadow: 0 6px 20px #0008; }
+.reveal-trade { position: absolute; left: 9%; min-width: clamp(140px, 11vw, 205px); background: #4a4f56d9; color: #fff; }
+.reveal-again { min-width: clamp(150px, 11vw, 205px); justify-content: center; padding: 0 26px; background: #fff; color: #111; }
+.reveal-right { position: absolute; right: 9%; display: flex; gap: 12px; }
+.reveal-manage { min-width: clamp(150px, 11vw, 205px); background: #4a4f56d9; color: #fff; }
+.reveal-done { min-width: clamp(150px, 11vw, 205px); background: #1de07f; color: #06210f; }
+.reveal-trade:hover, .reveal-manage:hover { background: #5b6168; } .reveal-again:hover:not(:disabled) { background: #e8ecef; } .reveal-done:hover { background: #4cf09b; }
+.reveal-stage .opening-batch { margin-top: 6vh; margin-bottom: 90px; }
+@media (max-width: 900px) {
+  .reveal-title { top: -50px; right: 120px; left: 16px; font-size: 16px; }
+  .reveal-count { right: 16px; }
+  .reveal-scene { height: auto; margin-top: 70px; display: flex; flex-direction: column; align-items: center; gap: 14px; padding-bottom: 150px; perspective: none; }
+  .reveal-card { position: relative; left: auto; transform: none; width: min(240px, 62vw); }
+  .reveal-podium, .reveal-panel-right { display: none; }
+  .reveal-panel-left { position: relative; top: auto; left: auto; width: min(420px, 92vw); height: auto; transform: none; border-radius: 18px; padding: 16px; order: 2; }
+  .reveal-crest { width: 64px; }
+  .reveal-name, .reveal-summary-btn { position: static; transform: none; order: 3; }
+  .reveal-actions { flex-wrap: wrap; gap: 8px; padding: 0 12px; background: linear-gradient(0deg, #030910ee, transparent); padding-top: 18px; bottom: 0; padding-bottom: 14px; }
+  .reveal-trade, .reveal-right { position: static; }
+  .reveal-btn { min-width: 0; flex: 1 1 40%; padding: 0 14px; gap: 8px; height: 42px; }
+  .reveal-right { flex: 1 1 100%; } .reveal-right .reveal-btn { flex: 1; }
+}
+.reveal-card { --rw: clamp(230px, 25vw, 420px); width: var(--rw); margin-left: calc(var(--rw) / -2); top: 2%; }
+.reveal-podium { bottom: 19%; }
+@media (max-width: 900px) { .reveal-card { --rw: min(240px, 62vw); margin-left: 0; } }
