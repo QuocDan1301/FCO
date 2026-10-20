@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
-import { cameraPose, cameraProgress, OPENING_CUES } from './timeline';
+import { cameraPose, cameraProgress, OPENING_CUES, STAGE_Z, TUNNEL_EXTRA as EXTRA } from './timeline';
+import { drawBadge, infoVisibility } from './sceneBadge';
 
-type Props = { phase: number; quick: boolean; nation: string; position: string; team: string; season: string; onFallback: () => void; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number };
+type Props = { phase: number; quick: boolean; nation: string; position: string; team: string; season: string; flag: string; teamLogo?: string; onFallback: () => void; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number };
 
 export default function StadiumScene(props: Props) {
   const host = useRef<HTMLDivElement>(null);
@@ -28,7 +29,7 @@ export default function StadiumScene(props: Props) {
     container.appendChild(renderer.domElement);
     renderer.domElement.setAttribute('aria-hidden', 'true');
     const scene = new THREE.Scene(); scene.background = new THREE.Color('#03070c'); scene.fog = new THREE.FogExp2('#050a10', .018);
-    const camera = new THREE.PerspectiveCamera(mobile ? 62 : 54, 1, .15, 180);
+    const camera = new THREE.PerspectiveCamera(mobile ? 62 : 54, 1, .15, 230);
     const metal = new THREE.MeshStandardMaterial({ color: '#2b3949', metalness: .4, roughness: .42 });
     const darkMetal = new THREE.MeshStandardMaterial({ color: '#172333', metalness: .25, roughness: .65 });
     const trim = new THREE.MeshStandardMaterial({ color: '#a89a77', metalness: .8, roughness: .28 });
@@ -42,15 +43,15 @@ export default function StadiumScene(props: Props) {
     const basic = (color: string, opacity = 1) => new THREE.MeshBasicMaterial({ color, transparent: opacity < 1, opacity, toneMapped: false, depthWrite: opacity >= 1 });
     scene.add(new THREE.HemisphereLight('#b4cada', '#070b10', 1.2));
     const ambient = new THREE.AmbientLight('#b9c9d6', .08); scene.add(ambient);
-    const stageLight = new THREE.PointLight('#ffe5ae', 90, 45, 1.3); stageLight.position.set(0, 9, -57); scene.add(stageLight);
+    const stageLight = new THREE.PointLight('#ffe5ae', 90, 45, 1.3); stageLight.position.set(0, 9, STAGE_Z + 2); scene.add(stageLight);
     const cameraLight = new THREE.PointLight('#d4eaff', 32, 25, 1.4); scene.add(cameraLight);
-    const spotlight = new THREE.SpotLight('#fff2d2', 250, 65, Math.PI / 4, .6, 1.5); spotlight.position.set(0, 12, -52); spotlight.target.position.set(0, 2, -59); spotlight.castShadow = false; spotlight.shadow.mapSize.set(512, 512); scene.add(spotlight, spotlight.target);
+    const spotlight = new THREE.SpotLight('#fff2d2', 250, 65, Math.PI / 4, .6, 1.5); spotlight.position.set(0, 12, STAGE_Z + 7); spotlight.target.position.set(0, 2, STAGE_Z); spotlight.castShadow = false; spotlight.shadow.mapSize.set(512, 512); scene.add(spotlight, spotlight.target);
 
     // Vách, trần và từng nhịp khung là hình học độc lập để camera thực sự đi xuyên qua.
-    box(.5, 7.6, 55, -5.3, 3.8, -10.5, darkMetal); box(.5, 7.6, 55, 5.3, 3.8, -10.5, darkMetal);
-    box(11, .35, 55, 0, 7.65, -10.5, darkMetal);
+    box(.5, 7.6, 55 + EXTRA, -5.3, 3.8, -10.5 - EXTRA / 2, darkMetal); box(.5, 7.6, 55 + EXTRA, 5.3, 3.8, -10.5 - EXTRA / 2, darkMetal);
+    box(11, .35, 55 + EXTRA, 0, 7.65, -10.5 - EXTRA / 2, darkMetal);
     const ribs: { material: THREE.MeshBasicMaterial; z: number; brightness: number }[] = [];
-    for (let i = 0; i < 13; i++) {
+    for (let i = 0; i < 13 + EXTRA / 4; i++) {
       const z = 15 - i * 4;
       const led = basic('#efdbad'); led.color.multiplyScalar(.015); ribs.push({ material: led, z, brightness: .015 });
       for (const x of [-5, 5]) {
@@ -71,40 +72,47 @@ export default function StadiumScene(props: Props) {
       if (now - reflectedAt < (mobile ? 60 : 30)) return;
       reflectedAt = now; reflectFrame(...args);
     };
-    reflector.rotation.x = -Math.PI / 2; reflector.position.set(0, -.015, -32); scene.add(reflector);
+    reflector.rotation.x = -Math.PI / 2; reflector.position.set(0, -.015, -32 - EXTRA / 2); scene.add(reflector);
     const floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({ color: '#0c141e', metalness: .7, roughness: .25, transparent: true, opacity: .77 }));
-    floor.rotation.x = -Math.PI / 2; floor.position.set(0, .003, -32); floor.receiveShadow = true; scene.add(floor);
-    for (const x of [-4.2, 4.2]) box(.035, .008, 53, x, .017, -10, basic('#d9c391', .45));
+    floor.rotation.x = -Math.PI / 2; floor.position.set(0, .003, -32 - EXTRA / 2); floor.receiveShadow = true; scene.add(floor);
+    for (const x of [-4.2, 4.2]) box(.035, .008, 53 + EXTRA, x, .017, -10 - EXTRA / 2, basic('#d9c391', .45));
 
     const makeCanvas = (width: number, height: number) => {
       const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
       const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('Canvas không khả dụng');
       const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; textures.add(texture); return { canvas, ctx, texture };
     };
-    const panel = makeCanvas(768, 256);
+    const panel = makeCanvas(768, 384);
     const panelMat = new THREE.MeshBasicMaterial({ map: panel.texture, toneMapped: false });
-    const panelGeo = new THREE.PlaneGeometry(3.3, 1.1); geometries.add(panelGeo);
-    for (const z of [-3, -13, -23, -32]) for (const side of [-1, 1]) {
+    const panelGeo = new THREE.PlaneGeometry(3.3, 1.65); geometries.add(panelGeo);
+    for (const z of Array.from({ length: 9 }, (_, i) => -3 - i * 10)) for (const side of [-1, 1]) {
       const screen = new THREE.Mesh(panelGeo, panelMat); screen.position.set(side * 4.9, 3.8, z); screen.rotation.y = -side * Math.PI / 2; scene.add(screen);
-      box(.12, 1.26, 3.5, side * 5.04, 3.8, z, trim);
+      box(.12, 1.82, 3.5, side * 5.04, 3.8, z, trim);
+    }
+    // Hai màn treo ngang hầm, quay về phía camera: cờ, vị trí, logo đội trôi qua khi camera tiến vào.
+    const hangGeo = new THREE.PlaneGeometry(4.2, 2.1); geometries.add(hangGeo);
+    for (const z of [-9, -27, -45, -63, -81]) {
+      const hang = new THREE.Mesh(hangGeo, panelMat); hang.position.set(0, 5.75, z); scene.add(hang);
+      box(4.4, 2.3, .1, 0, 5.75, z - .07, trim);
+      for (const x of [-1.6, 1.6]) box(.05, .55, .05, x, 7.05, z - .07, trim);
     }
     // Sân khấu và khán đài ở cuối đường hầm; không dựng cửa hoặc thẻ áo trắng.
     const stageGeo = new THREE.CylinderGeometry(8.2, 8.6, .35, mobile ? 32 : 64); geometries.add(stageGeo);
-    const stage = new THREE.Mesh(stageGeo, metal); stage.position.set(0, .18, -59); stage.receiveShadow = true; scene.add(stage);
+    const stage = new THREE.Mesh(stageGeo, metal); stage.position.set(0, .18, STAGE_Z); stage.receiveShadow = true; scene.add(stage);
     for (const radius of [7.9, 6.9]) {
       const geo = new THREE.TorusGeometry(radius, .025, 4, mobile ? 48 : 80); geometries.add(geo);
-      const ring = new THREE.Mesh(geo, basic('#ead29a')); ring.rotation.x = Math.PI / 2; ring.position.set(0, .39, -59); scene.add(ring);
+      const ring = new THREE.Mesh(geo, basic('#ead29a')); ring.rotation.x = Math.PI / 2; ring.position.set(0, .39, STAGE_Z); scene.add(ring);
     }
     for (let tier = 0; tier < 4; tier++) {
       const geo = new THREE.CylinderGeometry(28 + tier * 2, 27 + tier * 2, 1.4, 64, 1, true, Math.PI / 2, Math.PI); geometries.add(geo);
-      const stand = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: tier % 2 ? '#24303b' : '#141f29', side: THREE.DoubleSide, roughness: .8 })); stand.position.set(0, 1.5 + tier * 1.7, -62); scene.add(stand);
+      const stand = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: tier % 2 ? '#24303b' : '#141f29', side: THREE.DoubleSide, roughness: .8 })); stand.position.set(0, 1.5 + tier * 1.7, STAGE_Z - 3); scene.add(stand);
     }
     const glow = makeCanvas(128, 128);
     const gradient = glow.ctx.createRadialGradient(64, 64, 0, 64, 64, 64); gradient.addColorStop(0, '#ffffff'); gradient.addColorStop(.12, '#fff3ceaa'); gradient.addColorStop(.45, '#dcb97422'); gradient.addColorStop(1, '#dcb97400'); glow.ctx.fillStyle = gradient; glow.ctx.fillRect(0, 0, 128, 128); glow.texture.needsUpdate = true;
     const lampMaterial = new THREE.SpriteMaterial({ map: glow.texture, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false });
     for (let i = 0; i < 16; i++) {
       const angle = i / 16 * Math.PI * 2;
-      const lamp = new THREE.Sprite(lampMaterial); lamp.position.set(Math.sin(angle) * 28, 10, -62 + Math.cos(angle) * 28); lamp.scale.set(4.5, 4.5, 1); scene.add(lamp);
+      const lamp = new THREE.Sprite(lampMaterial); lamp.position.set(Math.sin(angle) * 28, 10, STAGE_Z - 3 + Math.cos(angle) * 28); lamp.scale.set(4.5, 4.5, 1); scene.add(lamp);
       box(3.2, .13, .2, lamp.position.x, 9.8, lamp.position.z, basic('#d6e8f2'));
     }
 
@@ -114,12 +122,12 @@ export default function StadiumScene(props: Props) {
     const crowdPositions = new Float32Array(crowdCount * 3);
     for (let i = 0; i < crowdCount; i++) {
       const angle = Math.PI / 2 + rnd() * Math.PI, tier = Math.floor(rnd() * 5), radius = 28 + tier * 1.5;
-      crowdPositions[i * 3] = Math.sin(angle) * radius; crowdPositions[i * 3 + 1] = 1.4 + tier * 1.7 + rnd() * .5; crowdPositions[i * 3 + 2] = -62 + Math.cos(angle) * radius;
+      crowdPositions[i * 3] = Math.sin(angle) * radius; crowdPositions[i * 3 + 1] = 1.4 + tier * 1.7 + rnd() * .5; crowdPositions[i * 3 + 2] = STAGE_Z - 3 + Math.cos(angle) * radius;
     }
     const crowdGeo = new THREE.BufferGeometry(); crowdGeo.setAttribute('position', new THREE.BufferAttribute(crowdPositions, 3)); geometries.add(crowdGeo);
     const crowd = new THREE.Points(crowdGeo, new THREE.PointsMaterial({ color: '#b8cbd7', size: .09, transparent: true, opacity: .65, depthWrite: false })); scene.add(crowd);
     const dustCount = mobile ? 65 : 200, dustPositions = new Float32Array(dustCount * 3);
-    for (let i = 0; i < dustCount; i++) { dustPositions[i * 3] = (rnd() - .5) * 16; dustPositions[i * 3 + 1] = rnd() * 9; dustPositions[i * 3 + 2] = 15 - rnd() * 90; }
+    for (let i = 0; i < dustCount; i++) { dustPositions[i * 3] = (rnd() - .5) * 16; dustPositions[i * 3 + 1] = rnd() * 9; dustPositions[i * 3 + 2] = 15 - rnd() * (90 + EXTRA); }
     const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3)); geometries.add(dustGeo);
     const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: '#f5dfad', size: mobile ? .045 : .035, transparent: true, opacity: .45, depthWrite: false })); scene.add(dust);
     const smoke: THREE.Sprite[] = [];
@@ -144,7 +152,7 @@ export default function StadiumScene(props: Props) {
       meshes.forEach((mesh, i) => { mesh.updateMatrix(); batch.setMatrixAt(i, mesh.matrix); scene.remove(mesh); });
       batch.instanceMatrix.needsUpdate = true; batch.computeBoundingSphere(); scene.add(batch);
     });
-    const lookTarget = new THREE.Vector3(0, 3.3, -43);
+    const lookTarget = new THREE.Vector3(0, 3.3, cameraPose(0).lookZ);
     let frame = 0, previous = performance.now(), phaseSince = previous, lastPhase = -1, progress = 0, alive = true, average = 16, slowFrames = 0;
     let startedAt: number | null = null, prepared = false, wasPlaying = false, qualityChangedAt = -Infinity;
     const resize = () => {
@@ -163,10 +171,8 @@ export default function StadiumScene(props: Props) {
     resize(); const observer = new ResizeObserver(resize); observer.observe(container);
     const onLost = (event: Event) => { event.preventDefault(); state.current.onFallback(); }; renderer.domElement.addEventListener('webglcontextlost', onLost);
     const paintLed = (phase: number) => {
-      const ctx = panel.ctx; ctx.fillStyle = '#0b1118'; ctx.fillRect(0, 0, 768, 256); ctx.fillStyle = '#ebce8f'; ctx.fillRect(0, 0, 768, 4); ctx.fillRect(0, 252, 768, 4); ctx.textAlign = 'center';
-      const title = phase === 3 ? 'QUỐC TỊCH' : phase === 4 ? 'VỊ TRÍ' : phase === 5 ? 'ĐỘI BÓNG' : 'FCO VIP';
-      const value = phase === 3 ? state.current.nation : phase === 4 ? state.current.position : phase === 5 ? state.current.team : state.current.season;
-      ctx.fillStyle = '#94a5b5'; ctx.font = '24px Arial'; ctx.fillText(title, 384, 66); ctx.fillStyle = '#f4e7c7'; ctx.font = `bold ${value.length > 18 ? 40 : 55}px Arial`; ctx.fillText(value, 384, 160, 710); panel.texture.needsUpdate = true;
+      drawBadge(panel.ctx, { ...state.current, phase }, 768, 384, () => { if (lastPhase === phase) paintLed(phase); });
+      panel.texture.needsUpdate = true;
     };
     const animate = (now: number) => {
       if (!alive) return;
@@ -178,7 +184,7 @@ export default function StadiumScene(props: Props) {
       if (playing !== wasPlaying) {
         if (!playing) {
           prepared = false; startedAt = null; progress = 0; lastPhase = -1;
-          lookTarget.set(0, 3.3, -43);
+          lookTarget.set(0, 3.3, cameraPose(0).lookZ);
           stageLight.intensity = 35; spotlight.intensity = 120; ambient.intensity = .025; renderer.toneMappingExposure = .12;
           ribs.forEach(rib => { rib.brightness = .015; });
         }
@@ -188,6 +194,8 @@ export default function StadiumScene(props: Props) {
       const phase = playing ? state.current.phase : 0;
       if (phase !== lastPhase) { lastPhase = phase; phaseSince = now; paintLed(phase); }
       const age = (now - phaseSince) / 1000;
+      // Màn LED sáng/tắt cùng lúc với chữ giữa màn hình; giữ chút ánh nền để màn không tắt hẳn.
+      const ledLevel = .07 + .93 * infoVisibility(phase); panelMat.color.setScalar(ledLevel); container.dataset.ledLevel = ledLevel.toFixed(2);
       const elapsed = state.current.getElapsed?.() ?? (startedAt === null ? 0 : now - startedAt);
       const duration = OPENING_CUES[state.current.quick ? 'quick' : 'standard'][8];
       progress = phase >= 9 && elapsed < duration - 150 ? THREE.MathUtils.damp(progress, 1, 9, dt) : cameraProgress(elapsed, state.current.quick);
@@ -209,7 +217,7 @@ export default function StadiumScene(props: Props) {
       smoke.forEach((sprite, i) => { sprite.position.x = (i % 2 ? 3.8 : -3.8) + Math.sin(now * .0005 + i) * .4; });
       sparks.visible = phase >= 9 && age < 4;
       if (sparks.visible) {
-        velocities.forEach((v, i) => { const t = Math.max(0, age - v.delay); sparkPositions[i * 3] = v.side * 5.4 + v.x * t; sparkPositions[i * 3 + 1] = age < v.delay ? -5 : Math.max(-1, .5 + v.y * t - 3.2 * t * t); sparkPositions[i * 3 + 2] = -57 + v.z * t; });
+        velocities.forEach((v, i) => { const t = Math.max(0, age - v.delay); sparkPositions[i * 3] = v.side * 5.4 + v.x * t; sparkPositions[i * 3 + 1] = age < v.delay ? -5 : Math.max(-1, .5 + v.y * t - 3.2 * t * t); sparkPositions[i * 3 + 2] = STAGE_Z + 2 + v.z * t; });
         sparkGeo.attributes.position.needsUpdate = true; sparkMaterial.opacity = Math.max(0, 1 - age / 4);
       }
       try { renderer.render(scene, camera); } catch { alive = false; state.current.onFallback(); return; }

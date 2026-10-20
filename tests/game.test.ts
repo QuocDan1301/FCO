@@ -86,6 +86,31 @@ test('Nguyên liệu cùng OVR từ 125 được 1 vạch; dưới 125 tăng 0,2
   assert.equal(upgradeInfo(target, Array.from({ length: 5 }, () => makeCard(34))).energy, 100);
 });
 
+test('Phôi thấp hơn 7 OVR đóng góp 1/5 mức cùng OVR; 122 đập 129 được 0,2 vạch', () => {
+  const target = { ...makeCard(33), level: 4 };
+  assert.equal(ovr(target), 129);
+  const cases = [[34, 4, 129, 20], [1, 3, 128, 15.9], [31, 1, 127, 12.6], [1, 1, 126, 10], [34, 1, 125, 8], [5, 1, 124, 6.3], [3, 1, 123, 5], [37, 1, 122, 4], [11, 7, 115, .8]];
+  for (const [playerId, level, rating, energy] of cases) {
+    const material = { ...makeCard(playerId), level };
+    assert.equal(ovr(material), rating);
+    assert.equal(upgradeInfo(target, [material]).energy, energy, `${rating} → 129`);
+  }
+  const materials = Array.from({ length: 5 }, () => makeCard(37));
+  assert.equal(upgradeInfo(target, materials).energy, 20, '5 phôi 122 bằng 1 vạch khi đập 129');
+  assert.equal(upgradeInfo(target, [makeCard(37)]).chance, 2, 'Tỷ lệ thành công dùng đúng năng lượng mới');
+  const higher = { ...makeCard(1), level: 4 };
+  assert.equal(ovr(higher), 130);
+  assert.equal(upgradeInfo(target, [higher]).energy, 21.2);
+});
+
+test('Năng lượng phôi thấp OVR vẫn tính từ mức cùng OVR và cộng đúng phần xem trước', () => {
+  const target = makeCard(5);
+  assert.equal(upgradeInfo(target, [makeCard(3)]).energy, 19.9);
+  const materials = Array.from({ length: 3 }, () => makeCard(3));
+  assert.equal(upgradeInfo(target, materials).energy, 59.7);
+  assert.equal(upgradeInfo(makeCard(21), [makeCard(25)]).energy, 79.5);
+});
+
 test('Năng lượng tăng theo OVR nguyên liệu và cộng dồn tối đa 5 vạch', () => {
   const target = makeCard(5);
   const low = upgradeInfo(target, [makeCard(3)]).energy;
@@ -205,10 +230,16 @@ test('Chế độ thử mở gói/nâng cấp với 0 xu và không thay đổi 
   }
 });
 
-test('Mốc mở thẻ có nhịp chuẩn 8–12 giây, nhanh 3–4 giây và bắt kịp sau chuyển tab', async () => {
+test('Mốc mở thẻ có nhịp chuẩn 9–12 giây, nhanh 3–4,5 giây; cờ/vị trí/logo dài bằng nhau rồi vào thẻ ngay', async () => {
   const { OPENING_CUES, openingPhase, OPENING_RESULT } = await import('../src/cinema/timeline.ts');
-  assert.ok(OPENING_CUES.standard.at(-1)! >= 8000 && OPENING_CUES.standard.at(-1)! <= 12000);
-  assert.ok(OPENING_CUES.quick.at(-1)! >= 3000 && OPENING_CUES.quick.at(-1)! <= 4000);
+  assert.ok(OPENING_CUES.standard.at(-1)! >= 9000 && OPENING_CUES.standard.at(-1)! <= 12000);
+  assert.ok(OPENING_CUES.quick.at(-1)! >= 3000 && OPENING_CUES.quick.at(-1)! <= 4500);
+  assert.equal(OPENING_CUES.standard[4] - OPENING_CUES.standard[3], 2500, 'Mỗi mục hiện 2 giây rồi nghỉ 0,5 giây');
+  for (const cues of [OPENING_CUES.standard, OPENING_CUES.quick]) {
+    const [flag, position, team] = [cues[3] - cues[2], cues[4] - cues[3], cues[5] - cues[4]];
+    assert.equal(flag, position); assert.equal(position, team);
+    assert.ok(cues[8] - cues[5] <= 150, 'Hết logo là vào thẻ, không chờ');
+  }
   assert.equal(openingPhase(0, false), 0);
   assert.equal(openingPhase(4000, false), 3);
   assert.equal(openingPhase(12000, false), OPENING_RESULT);
@@ -256,7 +287,7 @@ test('Camera chạy liên tục qua các mốc hé lộ và dừng êm tại sâ
   assert.equal(typeof timeline.cameraProgress, 'function');
   for (const quick of [false, true]) {
     const cues = timeline.OPENING_CUES[quick ? 'quick' : 'standard'];
-    const end = cues.at(-1)!;
+    const end = timeline.cameraEnd(quick);
     const progress = (t: number) => timeline.cameraProgress(t, quick);
     assert.equal(progress(-100), 0); assert.equal(progress(end + 100), 1);
     let last = 0;
@@ -275,7 +306,12 @@ test('Camera chạy liên tục qua các mốc hé lộ và dừng êm tại sâ
 
 
 test('Camera luôn nhìn về phía sân khấu khi rời đường hầm', async () => {
-  const { cameraPose, cameraProgress, OPENING_CUES } = await import('../src/cinema/timeline.ts');
+  const { cameraPose, cameraProgress, OPENING_CUES, STAGE_Z, TUNNEL_EXTRA } = await import('../src/cinema/timeline.ts');
+  // Camera còn ở trong hầm (trước cửa hầm z = -38 - TUNNEL_EXTRA) suốt cờ, vị trí, logo đội.
+  for (const quick of [false, true]) {
+    const cues = OPENING_CUES[quick ? 'quick' : 'standard'];
+    for (let t = cues[2]; t < cues[5]; t += 50) assert.ok(cameraPose(cameraProgress(t, quick)).z > -38 - TUNNEL_EXTRA, `Đã ra khỏi hầm ở ${t}ms`);
+  }
   assert.equal(typeof cameraPose, 'function');
   for (const quick of [false, true]) {
     const end = OPENING_CUES[quick ? 'quick' : 'standard'][8];
@@ -287,7 +323,7 @@ test('Camera luôn nhìn về phía sân khấu khi rời đường hầm', asyn
       if (t > 0) assert.ok(Math.abs(pitch - previousPitch) < .01, 'Không đổi góc nhìn đột ngột');
       previousPitch = pitch;
     }
-    assert.equal(cameraPose(1).z, -49.5);
-    assert.equal(cameraPose(1).lookZ, -59);
+    assert.equal(cameraPose(1).z, STAGE_Z + 9.5);
+    assert.equal(cameraPose(1).lookZ, STAGE_Z);
   }
 });

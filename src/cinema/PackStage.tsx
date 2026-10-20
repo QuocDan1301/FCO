@@ -21,8 +21,9 @@ export default function PackStage(props: Props) {
   const scene = {
     phase: playing ? props.phase : 0, playing, quick,
     season: player ? seasons[player.tier] : seasons[pack.id as Tier] || pack.name,
-    nation: player?.nation || '', position: player?.pos || '',
-    team: player ? player.tier === 'eternal' ? 'ICON THE MOMENT' : player.club : '',
+    nation: player?.nation || '', position: player?.pos || '', flag: player?.flag || '',
+    teamLogo: player?.tier === 'eternal' ? '/assets/itm-team.png' : undefined,
+    team: player ? player.tier === 'eternal' ? 'ICON The Moment' : player.club : '',
     getElapsed: () => playbackStart.current === null ? 0 : performance.now() - playbackStart.current,
     onPrepared: () => setPrepared(true), onReady: () => { if (playbackStart.current === null) { playbackStart.current = performance.now(); latest.current.onReady(); } },
   };

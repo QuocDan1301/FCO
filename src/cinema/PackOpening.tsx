@@ -5,7 +5,7 @@ import { ArrowRight, Check, ChevronRight, Layers3, PackageOpen, Shield, SlidersH
 import type { Card, Pack } from '../game';
 import { getPlayer, ovr, seasons } from '../game';
 import { OpeningAudio } from './audio';
-import { OPENING_CUES } from './timeline';
+import { INFO_GAP, OPENING_CUES } from './timeline';
 import { AUDIO_ENABLED } from '../config';
 import './cinema.css';
 
@@ -38,7 +38,8 @@ export default function PackOpening(props: Props) {
   }, [finished, cards.length, reduced, quick, stats]);
   const info = phase === 3 ? { label: 'Quốc tịch', text: player.nation } : phase === 4 ? { label: 'Vị trí thi đấu', text: player.pos } : phase === 5 ? { label: icon ? 'Đội bóng' : 'Câu lạc bộ', text: icon ? 'ICON The Moment' : team } : null;
   const cues = OPENING_CUES[quick ? 'quick' : 'standard'];
-  const informationDuration = info ? Math.max(.1, (cues[phase] - cues[phase - 1]) / 1000 - (quick ? .1 : .2) - .04) : 0;
+  // Thời gian hiện rõ của mỗi mục = cả nhịp trừ khoảng nghỉ trước mục kế.
+  const informationDuration = info ? Math.max(.1, (cues[phase] - cues[phase - 1] - INFO_GAP[quick ? 'quick' : 'standard']) / 1000) : 0;
   const weakDevice = typeof navigator !== 'undefined' && (navigator.hardwareConcurrency <= 2 || ((navigator as Navigator & { deviceMemory?: number }).deviceMemory || 8) <= 2);
   const lightweight = light || weakDevice;
   // Chỉ số giả lập theo nhóm vị trí; lệch nhẹ theo từng cầu thủ để các thẻ không giống hệt nhau.
@@ -52,8 +53,8 @@ export default function PackOpening(props: Props) {
     <div className="opening-vignette"/><div className="opening-letterbox top"/><div className="opening-letterbox bottom"/>
     <div className="opening-header"><div className="opening-brand"><img src="/assets/mark.svg" alt=""/><span>FCO VIP</span></div><div className="opening-controls">{finished && <><button onClick={props.onSound} className="opening-icon-button" disabled={!AUDIO_ENABLED} aria-label={AUDIO_ENABLED ? (sound ? 'Tắt âm thanh mở thẻ' : 'Bật âm thanh mở thẻ') : 'Âm thanh đã tắt'} title={AUDIO_ENABLED ? (sound ? 'Tắt âm thanh' : 'Bật âm thanh') : 'Âm thanh đã tắt'}>{AUDIO_ENABLED && sound ? <Volume2 size={18}/> : <VolumeX size={18}/>}</button><button className={`opening-quality ${light ? 'selected' : ''}`} onClick={props.onLight} aria-pressed={light}><SlidersHorizontal size={14}/><span>{lightweight ? 'Hiệu ứng nhẹ' : 'Tự động'}</span></button></>}{(finished || props.canSkip) && <button className="opening-skip" onClick={props.onClose} aria-keyshortcuts={!finished ? "Space" : undefined} title={!finished ? "Bỏ qua (phím cách)" : undefined}>{finished ? 'Đóng' : 'Bỏ qua'}{finished ? <X size={15}/> : <ChevronRight size={15}/>}</button>}</div></div>
     {!finished && <>
-      <AnimatePresence mode="wait"><motion.div key={phase} className={`opening-reveal ${phase === 6 ? 'suspense' : ''}`} initial={reduced || info ? false : { opacity: 0, y: 12, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: info ? 0 : -8, scale: info ? 1 : 1.025, transition: { duration: quick ? .1 : .2 } }} transition={{ duration: quick ? .1 : .2 }}>
-        {phase <= 1 ? <div className="opening-intro"><div className="intro-light"/></div> : phase === 2 ? <div className="opening-emblem">{icon ? <img src="/assets/icon-tm-back.png" alt="Mặt sau thẻ ICON The Moment"/> : <div className="season-emblem"><Shield size={110} strokeWidth={.8}/><b>{player.tier === 'stellar' ? 'TT' : 'KN'}</b></div>}</div> : info ? <div className={`opening-information information-${phase}`} style={{ '--information-duration': `${informationDuration}s` } as CSSProperties}>{phase === 3 ? props.renderFlag(player.flag, true) : phase === 4 ? <strong className="opening-position">{player.pos}</strong> : (icon ? <img className="team-logo" src="/assets/itm-team.png" alt="Logo đội ICON The Moment"/> : <div className="team-shield"><Shield size={100} strokeWidth={.8}/><b>{team.slice(0, 2).toUpperCase()}</b></div>)}<span>{info.label}</span>{phase !== 4 && <strong>{info.text}</strong>}</div> : phase === 6 ? <div className="opening-silence"><i/></div> : null}
+      <AnimatePresence mode="wait"><motion.div key={phase} className={`opening-reveal ${phase === 6 ? 'suspense' : ''}`} initial={reduced || info ? false : { opacity: 0, y: 12, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: info ? 0 : -8, scale: info ? 1 : 1.025, transition: { duration: info ? 0 : quick ? .1 : .2 } }} transition={{ duration: quick ? .1 : .2 }}>
+        {phase <= 1 ? <div className="opening-intro"><div className="intro-light"/></div> : phase === 2 ? null : info ? <div className={`opening-information information-${phase}`} style={{ '--information-duration': `${informationDuration}s` } as CSSProperties}>{phase === 3 ? props.renderFlag(player.flag, true) : phase === 4 ? <strong className="opening-position">{player.pos}</strong> : (icon ? <img className="team-logo" src="/assets/itm-team.png" alt="Logo đội ICON The Moment"/> : <div className="team-shield"><Shield size={100} strokeWidth={.8}/><b>{team.slice(0, 2).toUpperCase()}</b></div>)}<span>{info.label}</span>{phase !== 4 && <strong>{info.text}</strong>}</div> : phase === 6 ? <div className="opening-silence"><i/></div> : null}
       </motion.div></AnimatePresence>
       <div className="opening-steps">{['Ánh đèn', 'Mùa thẻ', 'Quốc tịch', 'Vị trí', icon ? 'Đội bóng' : 'CLB', 'Cầu thủ'].map((label, i) => <span key={label} className={phase >= [1, 2, 3, 4, 5, 9][i] ? 'done' : ''}><i/>{label}</span>)}</div>
     </>}

@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { flushSync } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 // Cờ vẽ bằng SVG theo khung 30×20; đơn giản hóa quốc huy nhưng giữ đúng màu và bố cục.
 const stripes = (colors: string[], vertical = false, weights = colors.map(() => 1)) => {
@@ -63,4 +65,17 @@ export function Flag({ code, large = false }: { code: string; large?: boolean })
   return <svg className={`flag ${large ? 'large' : ''}`} viewBox="0 0 30 20" role="img" aria-label={code} preserveAspectRatio="none">
     {flags[code] ?? <rect width="30" height="20" fill="#53657b"/>}
   </svg>;
+}
+
+const flagUrls = new Map<string, string>();
+// Ảnh cờ dạng data URL để vẽ lên màn LED trong đường hầm.
+export function flagImageUrl(code: string) {
+  let url = flagUrls.get(code);
+  if (!url) {
+    // Dựng cờ vào một khối tạm rồi lấy mã SVG; tránh react-dom/server để bản mothe.html độc lập không mang theo chuỗi <script src>.
+    const host = document.createElement('div'); const root = createRoot(host);
+    flushSync(() => root.render(<svg xmlns="http://www.w3.org/2000/svg" width="300" height="200" viewBox="0 0 30 20" preserveAspectRatio="none">{flags[code] ?? <rect width="30" height="20" fill="#53657b"/>}</svg>));
+    url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(host.innerHTML); root.unmount(); flagUrls.set(code, url);
+  }
+  return url;
 }

@@ -28,14 +28,14 @@ try {
     const report = await page.eval(() => ({
       energy: document.querySelector('.fco-energy').getAttribute('aria-label'),
       full: document.querySelectorAll('.fco-energy .full').length,
-      partial: document.querySelector('.fco-energy .part') ? getComputedStyle(document.querySelector('.fco-energy .part')).backgroundImage : null,
+      partial: document.querySelector('.fco-energy .part') ? parseFloat(getComputedStyle(document.querySelector('.fco-energy .part'), '::before').width) / document.querySelector('.fco-energy .part').getBoundingClientRect().width * 100 : null,
       mini: document.querySelector('.fco-boost .part') ? getComputedStyle(document.querySelector('.fco-boost .part')).backgroundImage : null,
     }));
     assert.equal(report.energy, `Năng lượng ${energy}%`);
     assert.equal(report.full, Math.floor(energy / 20));
     if (energy % 20) {
       const fill = `${energy % 20 * 5}%`;
-      assert.ok(report.partial.includes(fill), report.partial);
+      assert.ok(Math.abs(report.partial - parseFloat(fill)) < .2, JSON.stringify(report));
       assert.ok(report.mini.includes(fill), report.mini);
     }
     await click('.fco-line:nth-child(2)');

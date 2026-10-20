@@ -180,10 +180,16 @@ export function openPacks(state: Save, pack: Pack, count: number, rng = random, 
 }
 export function upgradeInfo(target: Card, materials: Card[]) {
   const targetOvr = ovr(target);
-  // Một vạch = 20%; dưới OVR 125, mỗi OVR giảm thêm 0,25 vạch cho nguyên liệu cùng OVR.
-  const equalOvrEnergy = 20 + Math.max(0, 125 - targetOvr) * 5;
-  const energy = Math.round(Math.min(100, materials.reduce((sum, material) =>
-    sum + Math.max(6, Math.min(100, equalOvrEnergy + (ovr(material) - targetOvr) * 1.2)), 0)));
+  // Một vạch = 20%; giữ mức cùng OVR đã chốt, tối đa 5 vạch mỗi thẻ.
+  const equalOvrEnergy = Math.min(100, 20 + Math.max(0, 125 - targetOvr) * 5);
+  const total = materials.reduce((sum, material) => {
+    const difference = ovr(material) - targetOvr;
+    // Thấp hơn 7 OVR còn 1/5 mức cùng OVR: phôi 122 đập 129 được 4% năng lượng.
+    const contribution = difference < 0 ? equalOvrEnergy * Math.pow(5, difference / 7) : equalOvrEnergy + difference * 1.2;
+    // Cộng đúng phần năng lượng 0,1% hiển thị ở từng phôi.
+    return sum + Math.round(Math.min(100, contribution) * 10) / 10;
+  }, 0);
+  const energy = Math.round(Math.min(100, total) * 10) / 10;
   const base = UPGRADE_LEVELS[target.level]?.chance ?? 0;
   return { energy, chance: Math.round(base * energy / 100 * 10) / 10, cost: target.level * 100000 };
 }

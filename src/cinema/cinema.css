@@ -167,3 +167,6 @@
 .reveal-card { --rw: clamp(230px, 25vw, 420px); width: var(--rw); margin-left: calc(var(--rw) / -2); top: 2%; }
 .reveal-podium { bottom: 19%; }
 @media (max-width: 900px) { .reveal-card { --rw: min(240px, 62vw); margin-left: 0; } }
+
+@keyframes opening-information-fade { 0% { opacity: 0; transform: translateY(10px) scale(.97); } 14% { opacity: 1; transform: none; } 86% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-6px) scale(1.01); } }
+.opening-information { animation-timing-function: ease-out; animation-fill-mode: both; }
