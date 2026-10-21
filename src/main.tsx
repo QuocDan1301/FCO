@@ -6,4 +6,5 @@ import './market.css';
 import './inventory.css';
 import './itm-sheen.css';
 import './mobile.css';
+import './fixed-screen.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);
