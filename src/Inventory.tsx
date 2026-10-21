@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ViewportPages from './ViewportPages';
 import type { ReactNode } from 'react';
 import { Search } from 'lucide-react';
 import { getPackStock, isPackAvailable } from './game';
@@ -53,13 +54,14 @@ export default function Inventory({ save, packs, onUse, renderArt, testMode, onR
     <div className="inv-top"><h1 id="inv-title">Kho vật phẩm</h1><div className="inv-tab"><span>Vật phẩm</span></div><p className="inv-capacity">Số loại đang sở hữu <b>{owned.length} / {CAPACITY.toLocaleString('vi-VN')}</b> cái</p></div>
     <div className="inv-body">
       <aside className="inv-side" aria-label="Bộ lọc kho">
+        <div className="inv-compact-filters"><label>Loại sản phẩm<select aria-label="Loại sản phẩm trong kho" value={checked[0] || ''} onChange={e => setChecked(e.target.value ? [e.target.value] : [])}><option value="">Tất cả</option>{categories.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}</select></label><label>Sắp xếp<select aria-label="Sắp xếp kho" value={sort} onChange={e => setSort(e.target.value as Sort)}>{sorts.map(s => <option key={s.id} value={s.id}>{s.label}</option>)}</select></label></div>
         <h2>Loại sản phẩm</h2>
         <ul>{categories.map(c => <li key={c.id}><label><input type="checkbox" checked={checked.includes(c.id)} onChange={() => toggleCategory(c.id)}/><span className="inv-check"/>{c.label}</label></li>)}</ul>
         <h2>Sắp xếp vật phẩm</h2>
         <ul>{sorts.map(s => <li key={s.id}><label><input type="radio" name="inv-sort" checked={sort === s.id} onChange={() => setSort(s.id)}/><span className="inv-radio"/>{s.label}</label></li>)}</ul>
       </aside>
       <div className="inv-main">
-        {shown.length ? <div className="inv-grid">{shown.map(({ pack, stock }) => {
+        {shown.length ? <ViewportPages className="inv-grid" itemWidth={230} itemHeight={300} gap={12} resetKey={`${checked.join()}-${sort}`}>{shown.map(({ pack, stock }) => {
           const isSelected = selected.includes(pack.id);
           return <article key={pack.id} className={`inv-item ${pack.color} ${isSelected ? 'is-selected' : ''}`} onMouseEnter={() => setHover(pack.id)} onMouseLeave={() => setHover('')}>
             <span className="inv-new">Mới</span>
@@ -72,7 +74,7 @@ export default function Inventory({ save, packs, onUse, renderArt, testMode, onR
             <span className="inv-count">SL:{stock}</span>
             {hover === pack.id && <div className="inv-tip" role="tooltip"><b>{pack.name} {pack.range}</b><em>SL:{stock}</em><p>Bạn sẽ nhận được 1 cầu thủ thuộc {pack.name} với chỉ số OVR {pack.range}.</p></div>}
           </article>;
-        })}</div> : <div className="inv-empty"><Search size={30}/><h2>Kho đang trống</h2><p>{owned.length ? 'Không có vật phẩm thuộc nhóm đã chọn.' : 'Bạn chưa sở hữu gói cầu thủ nào.'}</p>{testMode && <button className="secondary-button" onClick={() => packs[0] && onReceiveTest?.(packs[0])}>Nhận gói thử</button>}</div>}
+        })}</ViewportPages> : <div className="inv-empty"><Search size={30}/><h2>Kho đang trống</h2><p>{owned.length ? 'Không có vật phẩm thuộc nhóm đã chọn.' : 'Bạn chưa sở hữu gói cầu thủ nào.'}</p>{testMode && <button className="secondary-button" onClick={() => packs[0] && onReceiveTest?.(packs[0])}>Nhận gói thử</button>}</div>}
       </div>
     </div>
     <div className="inv-foot">

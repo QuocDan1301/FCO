@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowRight, Check, ChevronRight, Layers3, PackageOpen, Shield, SlidersHorizontal, Sparkles, Volume2, VolumeX, X } from 'lucide-react';
 import type { Card, Pack } from '../game';
+import ViewportPages from '../ViewportPages';
 import { getPlayer, ovr, seasons } from '../game';
 import { OpeningAudio } from './audio';
 import { INFO_GAP, OPENING_CUES } from './timeline';
@@ -76,7 +77,7 @@ export default function PackOpening(props: Props) {
         <p className="reveal-name">{player.name}<span>·</span>{team}</p>
         {cards.length > 1 && <button className="opening-show-summary reveal-summary-btn" onClick={() => setSummary(true)}><Layers3 size={15}/>Xem đủ {cards.length} thẻ<ChevronRight size={14}/></button>}
       </div>}
-      {cards.length > 1 && summary && <motion.div className="opening-batch" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}><div className="batch-caption"><span>{cards.length} thẻ · Đã nhận đủ vào kho</span><b><Sparkles size={12}/>Thẻ nổi bật: {player.name} · {ovr(best)}</b></div><div className="opening-batch-grid">{cards.map(card => <div key={card.uid} className={card.uid === best.uid ? 'batch-highlight' : ''}>{props.renderCard(card, true)}<span>{getPlayer(card).name}</span><b>{ovr(card)} · {getPlayer(card).pos} · +{card.level}</b>{card.uid === best.uid && <small>Xuất sắc nhất</small>}</div>)}</div><button className="reveal-back" onClick={() => { setStats(true); setSummary(false); }}>Xem lại thẻ nổi bật</button></motion.div>}
+      {cards.length > 1 && summary && <motion.div className="opening-batch" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}><div className="batch-caption"><span>{cards.length} thẻ · Đã nhận đủ vào kho</span><b><Sparkles size={12}/>Thẻ nổi bật: {player.name} · {ovr(best)}</b></div><ViewportPages className="opening-batch-grid" itemWidth={130} itemHeight={200} gap={12}>{cards.map(card => <div key={card.uid} className={card.uid === best.uid ? 'batch-highlight' : ''}>{props.renderCard(card, true)}<span>{getPlayer(card).name}</span><b>{ovr(card)} · {getPlayer(card).pos} · +{card.level}</b>{card.uid === best.uid && <small>Xuất sắc nhất</small>}</div>)}</ViewportPages><button className="reveal-back" onClick={() => { setStats(true); setSummary(false); }}>Xem lại thẻ nổi bật</button></motion.div>}
       <div className="reveal-actions">
         <button className="reveal-btn reveal-trade" onClick={props.onTrade}>Trao đổi<ArrowRight size={18}/></button>
         <button className="reveal-btn reveal-again" onClick={props.onAgain} disabled={props.stock < 1}>{props.stock < 1 ? 'Hết vật phẩm' : 'Mở 1 vật phẩm'}</button>

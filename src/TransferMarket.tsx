@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { usePageCapacity } from './ViewportPages';
 import type { ReactNode } from 'react';
 import { ArrowLeftRight, ArrowRight, ChevronLeft, ChevronRight, History, Search } from 'lucide-react';
 import { getPlayer, MAX_LEVEL, money, ovr, players, seasons } from './game';
@@ -17,10 +18,12 @@ type Props = {
   renderCard: (card: Card) => ReactNode;
 };
 const normalize = (value: string) => value.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').trim();
-const pageSize = 8;
+
 
 export default function TransferMarket({ save, free, onTrade, onHistory, onOpenPacks, renderCard }: Props) {
   const [mode, setMode] = useState<'buy' | 'sell'>('buy');
+  const listRef = useRef<HTMLDivElement>(null);
+  const { capacity: pageSize } = usePageCapacity(listRef, 10000, 76);
   const [query, setQuery] = useState('');
   const [position, setPosition] = useState('');
   const [season, setSeason] = useState('');
@@ -74,7 +77,7 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
     <div className="market-count"><span role="status">{filtered.length ? `${currentPage * pageSize + 1}–${Math.min((currentPage + 1) * pageSize, filtered.length)} / ${filtered.length} thẻ` : '0 thẻ phù hợp'}</span><button className="text-action" onClick={reset}>Đặt lại bộ lọc</button></div>
     {visible.length ? <div className="market-layout"><div className="market-list-panel">
       <div className="market-table-heading" aria-hidden="true"><span>Cầu thủ</span><span>OVR</span><span>{buying ? 'Giá mua' : 'Nhận sau phí'}</span><span/></div>
-      <div className="market-list">{visible.map(card => {
+      <div ref={listRef} className="market-list">{visible.map(card => {
         const player = getPlayer(card), rowQuote = marketQuote(card);
         const canAfford = !buying || free || save.balance >= rowQuote.price;
         return <article className={`market-row ${selected.uid === card.uid ? 'is-selected' : ''}`} key={card.uid}>
