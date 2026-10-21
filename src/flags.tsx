@@ -60,6 +60,7 @@ const flags: Record<string, ReactNode> = {
   CM: <>{stripes(['#007A5E', '#CE1126', '#FCD116'], true)}{star(15, 10, 3, '#FCD116')}</>,
   EG: <>{stripes(['#CE1126', '#fff', '#000'])}<path d="M15 7.6l1.6 1.2-.6 2.6h-2l-.6-2.6Z" fill="#C09300"/></>,
   VN: <><rect width="30" height="20" fill="#DA251D"/>{star(15, 10.3, 6, '#FFFF00')}</>,
+  DZ: <>{stripes(['#006233', '#fff'], true)}<circle cx="15" cy="10" r="5" fill="#D21034"/><circle cx="16.6" cy="9" r="4.2" fill="#fff"/>{star(17, 10, 2.5, '#D21034')}</>,
   JP: <><rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="6" fill="#BC002D"/></>,
   KR: <><rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="5" fill="#0047A0"/><path d="M10.7 7.4a5 5 0 0 1 8.6 5.2 2.5 2.5 0 0 0-4.3-2.6 2.5 2.5 0 0 1-4.3-2.6Z" fill="#CD2E3A"/>
     <g stroke="#000" strokeWidth=".75">{[[5.3, 4.2, 35], [24.7, 15.8, 35], [24.7, 4.2, -35], [5.3, 15.8, -35]].map(([x, y, a], i) => <g key={i} transform={`translate(${x} ${y}) rotate(${a})`}><path d="M-1.8-1.3h3.6M-1.8 0h3.6M-1.8 1.3h3.6"/></g>)}</g></>,

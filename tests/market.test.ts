@@ -21,27 +21,27 @@ test('Giá thị trường là số nguyên an toàn; tăng theo OVR và cấp t
 });
 
 test('Mua đúng cấp thẻ, trừ đúng xu, tạo UID riêng, giữ dữ liệu cũ và lưu lịch sử hợp lệ', () => {
-  const before = initialSave();
+  const before = { ...initialSave(), balance: 1000000000 };
   const snapshot = structuredClone(before);
-  const quote = marketQuote({ playerId: 30, level: 3 });
-  const result = buyPlayer(before, 30, 3);
+  const quote = marketQuote({ playerId: 47, level: 3 });
+  const result = buyPlayer(before, 47, 3);
   assert.equal(result.state.balance, before.balance - quote.price);
   assert.equal(result.state.cards.length, before.cards.length + 1);
-  assert.equal(result.card.playerId, 30);
+  assert.equal(result.card.playerId, 47);
   assert.equal(result.card.level, 3);
   assert.ok(!before.cards.some(c => c.uid === result.card.uid));
   assert.deepEqual(before, snapshot);
   assert.equal(result.state.history[0].type, 'market');
   assert.match(result.state.history[0].title, /Mua/);
   assert.ok(validateSave(JSON.parse(JSON.stringify(result.state))));
-  const second = buyPlayer(result.state, 30, 3);
+  const second = buyPlayer(result.state, 47, 3);
   assert.notEqual(second.card.uid, result.card.uid);
-  assert.throws(() => buyPlayer({ ...before, balance: quote.price - 1 }, 30, 3), /Không đủ xu/);
-  assert.equal(buyPlayer({ ...before, balance: quote.price }, 30, 3).state.balance, 0);
+  assert.throws(() => buyPlayer({ ...before, balance: quote.price - 1 }, 47, 3), /Không đủ xu/);
+  assert.equal(buyPlayer({ ...before, balance: quote.price }, 47, 3).state.balance, 0);
 });
 
 test('Bán đúng bản sao thẻ, nhận xu sau phí; chặn bán lại và tràn số dư', () => {
-  const first = makeCard(21), duplicate = makeCard(21);
+  const first = makeCard(11), duplicate = makeCard(11);
   first.level = 5;
   const before = { ...initialSave(), cards: [first, duplicate] };
   const snapshot = structuredClone(before);
@@ -60,8 +60,8 @@ test('Bán đúng bản sao thẻ, nhận xu sau phí; chặn bán lại và tr�
 });
 
 test('Mua rồi bán mất đúng phí; không tạo lợi nhuận và giữ nguyên kho gói, số lần mở/nâng cấp', () => {
-  const before = initialSave();
-  const bought = buyPlayer(before, 30, 2);
+  const before = { ...initialSave(), balance: 1000000000 };
+  const bought = buyPlayer(before, 47, 2);
   const sold = sellPlayer(bought.state, bought.card.uid);
   assert.equal(sold.state.balance, before.balance - bought.quote.fee);
   assert.deepEqual(sold.state.cards, before.cards);
@@ -85,10 +85,10 @@ test('Xu vô hạn: giao dịch vẫn thêm/xóa thẻ nhưng không đổi số
 });
 
 test('Giữ tối đa 200 lịch sử, đọc lại được bản lưu cũ và bản lưu có giao dịch', () => {
-  const before = initialSave();
+  const before = { ...initialSave(), balance: 1000000000 };
   assert.ok(validateSave(before));
   before.history = Array.from({ length: 200 }, (_, i) => ({ id: `old-${i}`, type: 'gift', time: 1, title: 'Điểm danh', detail: 'Xu' }));
-  const bought = buyPlayer(before, 30, 1);
+  const bought = buyPlayer(before, 47, 1);
   assert.equal(bought.state.history.length, 200);
   assert.equal(bought.state.history.at(-1)?.id, 'old-198');
   assert.ok(validateSave(JSON.parse(JSON.stringify(bought.state))));

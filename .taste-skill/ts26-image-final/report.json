@@ -1,0 +1,1912 @@
+{
+ "url": "mothe.html",
+ "at": "2026-10-21T06:39:31.779Z",
+ "allow": [
+  "gradient",
+  "icon-chips",
+  "tiny-text"
+ ],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 2,
+   "filled": [
+    0.84,
+    0.68
+   ],
+   "motion": {
+    "elements": 33,
+    "css": 29,
+    "transitions": 0,
+    "scripted": 4,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 1315,
+     "screens": 1.5,
+     "words": 299,
+     "img": 10,
+     "video": 0,
+     "canvas": 0,
+     "svg": 35,
+     "sections": 4,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 3,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "dsjIAAAAGSURBVAMA97SArmVpBRgAAAAASUVORK5CYII=",
+      "AfABYF3sZgAAAAAyTloAAAAAA==",
+      "+25ZlLAAAABklEQVQDAIYvzM3P26UbAAAAAElFTkSuQmCC"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Chạm tới huyền thoại.",
+     "words": 4,
+     "chars": 21,
+     "lines": 2,
+     "size": 64,
+     "vw": 4.4,
+     "font": "Barlow Condensed",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 0.99,
+     "top": 221,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Chạm tới huyền thoại.",
+     "words": 4,
+     "lines": 2,
+     "size": 64,
+     "font": "Barlow Condensed"
+    },
+    "headings": [
+     {
+      "text": "Chạm tới huyền thoại.",
+      "words": 4,
+      "chars": 21,
+      "lines": 2,
+      "size": 64,
+      "vw": 4.4,
+      "font": "Barlow Condensed",
+      "weight": 700,
+      "tracking": -0.016,
+      "leading": 0.99,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.39,
+      "top": 221,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "0",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Barlow Condensed",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "right",
+      "widthRatio": 0.06,
+      "top": 703,
+      "tag": "strong",
+      "kind": "heading"
+     },
+     {
+      "text": "126",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Barlow Condensed",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "right",
+      "widthRatio": 0.06,
+      "top": 703,
+      "tag": "strong",
+      "kind": "heading"
+     },
+     {
+      "text": "12",
+      "words": 1,
+      "chars": 2,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Barlow Condensed",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "right",
+      "widthRatio": 0.06,
+      "top": 703,
+      "tag": "strong",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 4,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 3,
+     "medianWords": 1,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.95,
+       "mono": false
+      },
+      {
+       "family": "Barlow Condensed",
+       "share": 0.05,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      6,
+      7,
+      10,
+      11,
+      12,
+      13,
+      14,
+      16,
+      18,
+      21,
+      22,
+      23,
+      27,
+      30,
+      64
+     ],
+     "sizeCount": 15,
+     "notLoaded": [],
+     "body": {
+      "font": "Be Vietnam Pro",
+      "size": 11,
+      "leading": 1.9,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 7.3
+     },
+     "measureChars": 83,
+     "max": {
+      "size": 64,
+      "vw": 4.4,
+      "font": "Barlow Condensed",
+      "text": "Chạm tới"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 2,
+     "microLabelShare": 0.038,
+     "microSamples": [
+      "MÙA THẺ ICON TM",
+      "SẴN SÀNG CHO KHOẢNH KHẮC CỦA BẠN"
+     ],
+     "upperShare": 0.1,
+     "centerShare": 0.31,
+     "smallText": 33
+    },
+    "eyebrows": [
+     {
+      "text": "MÙA THẺ ICON TM",
+      "above": "Chạm tới huyền thoại.",
+      "upper": true,
+      "tracked": true,
+      "mono": false,
+      "pill": false,
+      "size": 10,
+      "top": 187
+     },
+     {
+      "text": "Hành trình của bạn",
+      "above": "0",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 14,
+      "top": 657
+     },
+     {
+      "text": "Hành trình của bạn",
+      "above": "126",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 14,
+      "top": 657
+     }
+    ],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#080b10",
+     "bodyBgHsl": {
+      "h": 218,
+      "s": 0.33,
+      "l": 0.05
+     },
+     "dark": true,
+     "sectionBgs": [
+      {
+       "color": "#0d1621",
+       "top": 154,
+       "hsl": {
+        "h": 213,
+        "s": 0.43,
+        "l": 0.09
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#f0f1f3",
+       "share": 0.13
+      },
+      {
+       "color": "#91a0b3",
+       "share": 0.11
+      },
+      {
+       "color": "#8894a3",
+       "share": 0.07
+      },
+      {
+       "color": "#a7b0be",
+       "share": 0.06
+      },
+      {
+       "color": "#798797",
+       "share": 0.06
+      }
+     ],
+     "button": {
+      "bg": "#1c1913",
+      "hsl": {
+       "h": 40,
+       "s": 0.19,
+       "l": 0.09
+      },
+      "fg": "#e2c687"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 5,
+     "inHero": 3,
+     "radius": 4,
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Quà mỗi ngày",
+      "Mở gói ngay",
+      "Điện ảnh · 14 giây"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 1,
+     "shadowOverlay": 0,
+     "shadowSamples": [
+      "div.card-pedestal → rgba(0, 0, 0, 0.467) 0px 10px 20px 0px"
+     ],
+     "gradients": 8,
+     "scrims": 0,
+     "gradientSamples": [
+      "div.light-beam.beam-one → linear-gradient(rgba(169, 234, 255, 0.533), rgba(0, 0, 0, 0) 80%)",
+      "div.light-beam.beam-two → linear-gradient(rgba(169, 234, 255, 0.533), rgba(0, 0, 0, 0) 80%)",
+      "div.stadium-fog → radial-gradient(rgba(155, 187, 214, 0.11), rgba(0, 0, 0, 0) 60%)",
+      "div.stadium-vignette → linear-gradient(90deg, rgba(8, 13, 21, 0.91), rgba(11, 16, 27, 0.52) 40%, rgba(5, 13, 22, 0) 72%, rgba(8, 13, "
+     ],
+     "gradientText": 0,
+     "hairlines": 10,
+     "hairlineSamples": [
+      "header.topbar 1440px",
+      "nav.main-nav 1440px",
+      "section.hero 1440px",
+      "div.card-pedestal 345px",
+      "div.hero-bottom 1440px"
+     ],
+     "outlinedBoxes": 3,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 3,
+     "boxRadius": 6,
+     "squareMedia": 3,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 727
+      }
+     ]
+    },
+    "heroMedia": [
+     {
+      "type": "svg",
+      "ratio": 0.52
+     }
+    ],
+    "nav": {
+     "links": 1,
+     "fixed": false,
+     "height": 88,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "barlow condensed",
+     "be vietnam pro"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 1315,
+    "margins": {
+     "left": 58,
+     "right": 58
+    },
+    "sections": [
+     {
+      "sel": "section.hero",
+      "tag": "section",
+      "top": 154,
+      "height": 470,
+      "words": 62,
+      "media": 4,
+      "middle": 355,
+      "heading": {
+       "text": "Chạm tới",
+       "size": 64,
+       "tag": "h1"
+      },
+      "left": 71,
+      "right": 82,
+      "textLeft": 71,
+      "textRight": 82,
+      "fullBleed": true,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "div.below-hero",
+      "tag": "div",
+      "top": 624,
+      "height": 621,
+      "words": 167,
+      "media": 0,
+      "middle": 30,
+      "heading": {
+       "text": "126",
+       "size": 30,
+       "tag": "strong"
+      },
+      "left": 58,
+      "right": 58,
+      "textLeft": 58,
+      "textRight": 73,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Chạm tới huyền thoại.",
+      "size": 64,
+      "top": 221,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 88,
+      "n": 2
+     },
+     {
+      "x": 1102,
+      "n": 2
+     },
+     {
+      "x": 58,
+      "n": 1
+     },
+     {
+      "x": 75,
+      "n": 1
+     },
+     {
+      "x": 418,
+      "n": 1
+     },
+     {
+      "x": 760,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 8,
+    "bodySize": 11,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0.03,
+    "voidBox": {
+     "x": 300,
+     "y": 660,
+     "w": 600,
+     "h": 60
+    }
+   },
+   "app": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "dark": true,
+    "ground": "#080b10",
+    "sidebar": null,
+    "topbar": {
+     "h": 88
+    },
+    "canvas": {
+     "left": 58,
+     "right": 58
+    },
+    "hero": {
+     "text": "Chạm tới huyền thoại.",
+     "words": 4,
+     "chars": 21,
+     "lines": 2,
+     "size": 64,
+     "vw": 4.4,
+     "font": "Barlow Condensed",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 0.99,
+     "top": 221,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 1,
+    "layout": {
+     "panels": 5,
+     "firstScreen": 3,
+     "ragged": [],
+     "voids": []
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 5,
+     "radii": [
+      [
+       6,
+       3
+      ],
+      [
+       5,
+       2
+      ]
+     ],
+     "heavyBorders": 1,
+     "borderSamples": [
+      "#8e7750 on #191a1a (4.07:1)"
+     ],
+     "heavyShadows": 0,
+     "softShadows": 0,
+     "shadowSamples": [],
+     "glass": 0
+    },
+    "chips": {
+     "count": 3,
+     "hues": 2,
+     "samples": [
+      {
+       "hue": 41,
+       "size": 32,
+       "radius": "3px"
+      },
+      {
+       "hue": 211,
+       "size": 32,
+       "radius": "3px"
+      },
+      {
+       "hue": 211,
+       "size": 32,
+       "radius": "3px"
+      }
+     ]
+    },
+    "numbers": {
+     "cells": 0,
+     "leftAligned": 0,
+     "figures": 6,
+     "tabularShare": 1,
+     "kpiMax": 30
+    },
+    "rows": null,
+    "chartHues": 4,
+    "placeholders": [],
+    "type": {
+     "under13": 0.81,
+     "tiny": 9,
+     "tinySamples": [
+      "MÙA THẺ ICON TM 10px",
+      "SẴN SÀNG CHO KHOẢNH KHẮC 10px",
+      "Đề cử 10px",
+      "Ngôi sao 10px"
+     ],
+     "sizes": [
+      4,
+      6,
+      7,
+      10,
+      11,
+      12,
+      13,
+      14,
+      16,
+      18,
+      21,
+      22,
+      23,
+      27,
+      30,
+      64
+     ]
+    },
+    "title": {
+     "text": "Chạm tới\nhuyền thoại.",
+     "size": 64,
+     "top": 221
+    },
+    "colourShare": 0.024
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 2,
+   "filled": [
+    0.94,
+    0.71
+   ],
+   "motion": {
+    "elements": 33,
+    "css": 29,
+    "transitions": 0,
+    "scripted": 4,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 1571,
+     "screens": 1.5,
+     "words": 286,
+     "img": 10,
+     "video": 0,
+     "canvas": 0,
+     "svg": 35,
+     "sections": 4,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 3,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "dsjIAAAAGSURBVAMA97SArmVpBRgAAAAASUVORK5CYII=",
+      "AfABYF3sZgAAAAAyTloAAAAAA==",
+      "+25ZlLAAAABklEQVQDAIYvzM3P26UbAAAAAElFTkSuQmCC"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Chạm tới huyền thoại.",
+     "words": 4,
+     "chars": 21,
+     "lines": 2,
+     "size": 54,
+     "vw": 7,
+     "font": "Barlow Condensed",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 0.99,
+     "top": 205,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Chạm tới huyền thoại.",
+     "words": 4,
+     "lines": 2,
+     "size": 54,
+     "font": "Barlow Condensed"
+    },
+    "headings": [
+     {
+      "text": "Chạm tới huyền thoại.",
+      "words": 4,
+      "chars": 21,
+      "lines": 2,
+      "size": 54,
+      "vw": 7,
+      "font": "Barlow Condensed",
+      "weight": 700,
+      "tracking": -0.019,
+      "leading": 0.99,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.42,
+      "top": 205,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "0",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 27,
+      "vw": 3.5,
+      "font": "Barlow Condensed",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "left",
+      "widthRatio": 0.15,
+      "top": 1229,
+      "tag": "strong",
+      "kind": "heading"
+     },
+     {
+      "text": "126",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 27,
+      "vw": 3.5,
+      "font": "Barlow Condensed",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "left",
+      "widthRatio": 0.15,
+      "top": 1229,
+      "tag": "strong",
+      "kind": "heading"
+     },
+     {
+      "text": "12",
+      "words": 1,
+      "chars": 2,
+      "lines": 1,
+      "size": 27,
+      "vw": 3.5,
+      "font": "Barlow Condensed",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "left",
+      "widthRatio": 0.15,
+      "top": 1229,
+      "tag": "strong",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 4,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 3,
+     "medianWords": 1,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.95,
+       "mono": false
+      },
+      {
+       "family": "Barlow Condensed",
+       "share": 0.05,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      16,
+      17,
+      18,
+      19,
+      23,
+      27,
+      54
+     ],
+     "sizeCount": 16,
+     "notLoaded": [],
+     "body": {
+      "font": "Be Vietnam Pro",
+      "size": 11,
+      "leading": 1.8,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 7.3
+     },
+     "measureChars": 83,
+     "max": {
+      "size": 54,
+      "vw": 7,
+      "font": "Barlow Condensed",
+      "text": "Chạm tới"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 2,
+     "microLabelShare": 0.04,
+     "microSamples": [
+      "MÙA THẺ ICON TM",
+      "SẴN SÀNG CHO KHOẢNH KHẮC CỦA BẠN"
+     ],
+     "upperShare": 0.1,
+     "centerShare": 0.31,
+     "smallText": 32
+    },
+    "eyebrows": [
+     {
+      "text": "MÙA THẺ ICON TM",
+      "above": "Chạm tới huyền thoại.",
+      "upper": true,
+      "tracked": true,
+      "mono": false,
+      "pill": false,
+      "size": 8,
+      "top": 174
+     }
+    ],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#080b10",
+     "bodyBgHsl": {
+      "h": 218,
+      "s": 0.33,
+      "l": 0.05
+     },
+     "dark": true,
+     "sectionBgs": [
+      {
+       "color": "#0d1621",
+       "top": 137,
+       "hsl": {
+        "h": 213,
+        "s": 0.43,
+        "l": 0.09
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#f0f1f3",
+       "share": 0.14
+      },
+      {
+       "color": "#91a0b3",
+       "share": 0.11
+      },
+      {
+       "color": "#8894a3",
+       "share": 0.07
+      },
+      {
+       "color": "#a7b0be",
+       "share": 0.06
+      },
+      {
+       "color": "#798797",
+       "share": 0.06
+      }
+     ],
+     "button": {
+      "bg": "#1c1913",
+      "hsl": {
+       "h": 40,
+       "s": 0.19,
+       "l": 0.09
+      },
+      "fg": "#e2c687"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 5,
+     "inHero": 3,
+     "radius": 4,
+     "height": 40,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Quà mỗi ngày",
+      "Mở gói ngay",
+      "Điện ảnh · 14 giây"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 1,
+     "shadowOverlay": 0,
+     "shadowSamples": [
+      "div.card-pedestal → rgba(0, 0, 0, 0.467) 0px 10px 20px 0px"
+     ],
+     "gradients": 9,
+     "scrims": 0,
+     "gradientSamples": [
+      "div.light-beam.beam-one → linear-gradient(rgba(169, 234, 255, 0.533), rgba(0, 0, 0, 0) 80%)",
+      "div.light-beam.beam-two → linear-gradient(rgba(169, 234, 255, 0.533), rgba(0, 0, 0, 0) 80%)",
+      "div.stadium-fog → radial-gradient(rgba(155, 187, 214, 0.11), rgba(0, 0, 0, 0) 60%)",
+      "div.stadium-vignette → linear-gradient(90deg, rgba(8, 13, 21, 0.91), rgba(11, 16, 27, 0.52) 40%, rgba(5, 13, 22, 0) 72%, rgba(8, 13, "
+     ],
+     "gradientText": 0,
+     "hairlines": 6,
+     "hairlineSamples": [
+      "header.topbar 768px",
+      "nav.main-nav 768px",
+      "section.hero 768px",
+      "div.card-pedestal 280px",
+      "div.hero-bottom 768px"
+     ],
+     "outlinedBoxes": 3,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 3,
+     "boxRadius": 6,
+     "squareMedia": 1,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": [
+      {
+       "count": 3,
+       "iconTopped": false,
+       "rounded": true,
+       "top": 686
+      }
+     ]
+    },
+    "heroMedia": [
+     {
+      "type": "svg",
+      "ratio": 0.44
+     }
+    ],
+    "nav": {
+     "links": 1,
+     "fixed": false,
+     "height": 78,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "barlow condensed",
+     "be vietnam pro"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "pageH": 1571,
+    "margins": {
+     "left": 24,
+     "right": 24
+    },
+    "sections": [
+     {
+      "sel": "section.hero",
+      "tag": "section",
+      "top": 137,
+      "height": 450,
+      "words": 62,
+      "media": 4,
+      "middle": 84,
+      "heading": {
+       "text": "Chạm tới",
+       "size": 54,
+       "tag": "h1"
+      },
+      "left": 24,
+      "right": 18,
+      "textLeft": 24,
+      "textRight": 48,
+      "fullBleed": true,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "div.below-hero",
+      "tag": "div",
+      "top": 587,
+      "height": 887,
+      "words": 164,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Chọn gói. Mở đam mê.",
+       "size": 18,
+       "tag": "h2"
+      },
+      "left": 24,
+      "right": 24,
+      "textLeft": 24,
+      "textRight": 38,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Chạm tới huyền thoại.",
+      "size": 54,
+      "top": 205,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 24,
+      "n": 4
+     },
+     {
+      "x": 38,
+      "n": 1
+     },
+     {
+      "x": 283,
+      "n": 1
+     },
+     {
+      "x": 419,
+      "n": 1
+     },
+     {
+      "x": 527,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 8,
+    "bodySize": 11,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "dark": true,
+    "ground": "#080b10",
+    "sidebar": null,
+    "topbar": {
+     "h": 78
+    },
+    "canvas": {
+     "left": 24,
+     "right": 24
+    },
+    "hero": {
+     "text": "Chạm tới huyền thoại.",
+     "words": 4,
+     "chars": 21,
+     "lines": 2,
+     "size": 54,
+     "vw": 7,
+     "font": "Barlow Condensed",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 0.99,
+     "top": 205,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 1,
+    "layout": {
+     "panels": 5,
+     "firstScreen": 3,
+     "ragged": [],
+     "voids": []
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 5,
+     "radii": [
+      [
+       6,
+       3
+      ],
+      [
+       5,
+       2
+      ]
+     ],
+     "heavyBorders": 1,
+     "borderSamples": [
+      "#8e7750 on #191a1a (4.07:1)"
+     ],
+     "heavyShadows": 0,
+     "softShadows": 0,
+     "shadowSamples": [],
+     "glass": 0
+    },
+    "chips": {
+     "count": 3,
+     "hues": 2,
+     "samples": [
+      {
+       "hue": 41,
+       "size": 32,
+       "radius": "3px"
+      },
+      {
+       "hue": 211,
+       "size": 32,
+       "radius": "3px"
+      },
+      {
+       "hue": 211,
+       "size": 32,
+       "radius": "3px"
+      }
+     ]
+    },
+    "numbers": {
+     "cells": 0,
+     "leftAligned": 0,
+     "figures": 6,
+     "tabularShare": 1,
+     "kpiMax": 27
+    },
+    "rows": null,
+    "chartHues": 4,
+    "placeholders": [],
+    "type": {
+     "under13": 0.89,
+     "tiny": 24,
+     "tinySamples": [
+      "MÙA THẺ ICON TM 8px",
+      "Hoàn toàn miễn phí 10px",
+      "Tỷ lệ minh bạch 10px",
+      "Thẻ tiêu biểu · Không đả 10px"
+     ],
+     "sizes": [
+      4,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      16,
+      17,
+      18,
+      19,
+      23,
+      27,
+      54
+     ]
+    },
+    "title": {
+     "text": "Chạm tới\nhuyền thoại.",
+     "size": 54,
+     "top": 205
+    },
+    "colourShare": 0.027
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 3,
+   "filled": [
+    1,
+    0.86,
+    0.52
+   ],
+   "motion": {
+    "elements": 18,
+    "css": 14,
+    "transitions": 0,
+    "scripted": 4,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 2516,
+     "screens": 3,
+     "words": 272,
+     "img": 10,
+     "video": 0,
+     "canvas": 0,
+     "svg": 35,
+     "sections": 4,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 3,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [
+      "dsjIAAAAGSURBVAMA97SArmVpBRgAAAAASUVORK5CYII=",
+      "AfABYF3sZgAAAAAyTloAAAAAA==",
+      "+25ZlLAAAABklEQVQDAIYvzM3P26UbAAAAAElFTkSuQmCC"
+     ],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Chạm tới huyền thoại.",
+     "words": 4,
+     "chars": 21,
+     "lines": 2,
+     "size": 48,
+     "vw": 12.3,
+     "font": "Barlow Condensed",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 1.02,
+     "top": 188,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Chạm tới huyền thoại.",
+     "words": 4,
+     "lines": 2,
+     "size": 48,
+     "font": "Barlow Condensed"
+    },
+    "headings": [
+     {
+      "text": "Chạm tới huyền thoại.",
+      "words": 4,
+      "chars": 21,
+      "lines": 2,
+      "size": 48,
+      "vw": 12.3,
+      "font": "Barlow Condensed",
+      "weight": 700,
+      "tracking": -0.017,
+      "leading": 1.02,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.52,
+      "top": 188,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "0",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Barlow Condensed",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "left",
+      "widthRatio": 0.3,
+      "top": 1948,
+      "tag": "strong",
+      "kind": "heading"
+     },
+     {
+      "text": "126",
+      "words": 1,
+      "chars": 3,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Barlow Condensed",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "center",
+      "widthRatio": 0.29,
+      "top": 1948,
+      "tag": "strong",
+      "kind": "heading"
+     },
+     {
+      "text": "12",
+      "words": 1,
+      "chars": 2,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Barlow Condensed",
+      "weight": 500,
+      "tracking": 0,
+      "leading": 1,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "right",
+      "widthRatio": 0.29,
+      "top": 1948,
+      "tag": "strong",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 4,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 4,
+     "medianWords": 1,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.95,
+       "mono": false
+      },
+      {
+       "family": "Barlow Condensed",
+       "share": 0.05,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      21,
+      30,
+      48
+     ],
+     "sizeCount": 15,
+     "notLoaded": [],
+     "body": {
+      "font": "Be Vietnam Pro",
+      "size": 11,
+      "leading": 1.8,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 7.3
+     },
+     "measureChars": 60,
+     "max": {
+      "size": 48,
+      "vw": 12.3,
+      "font": "Barlow Condensed",
+      "text": "Chạm tới"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 1,
+     "microLabelShare": 0.013,
+     "microSamples": [
+      "MÙA THẺ ICON TM"
+     ],
+     "upperShare": 0.1,
+     "centerShare": 0.4,
+     "smallText": 27
+    },
+    "eyebrows": [
+     {
+      "text": "MÙA THẺ ICON TM",
+      "above": "Chạm tới huyền thoại.",
+      "upper": true,
+      "tracked": true,
+      "mono": false,
+      "pill": false,
+      "size": 10,
+      "top": 160
+     },
+     {
+      "text": "Hành trình của bạn",
+      "above": "0",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 15,
+      "top": 1903
+     },
+     {
+      "text": "Hành trình của bạn",
+      "above": "126",
+      "upper": false,
+      "tracked": false,
+      "mono": false,
+      "pill": false,
+      "size": 15,
+      "top": 1903
+     }
+    ],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#080b10",
+     "bodyBgHsl": {
+      "h": 218,
+      "s": 0.33,
+      "l": 0.05
+     },
+     "dark": true,
+     "sectionBgs": [
+      {
+       "color": "#0d1621",
+       "top": 132,
+       "hsl": {
+        "h": 213,
+        "s": 0.43,
+        "l": 0.09
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#f0f1f3",
+       "share": 0.14
+      },
+      {
+       "color": "#91a0b3",
+       "share": 0.12
+      },
+      {
+       "color": "#8894a3",
+       "share": 0.08
+      },
+      {
+       "color": "#a7b0be",
+       "share": 0.06
+      },
+      {
+       "color": "#798797",
+       "share": 0.06
+      }
+     ],
+     "button": {
+      "bg": "#e1c389",
+      "hsl": {
+       "h": 40,
+       "s": 0.59,
+       "l": 0.71
+      },
+      "fg": "#18140c"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 4,
+     "inHero": 1,
+     "radius": 4,
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Mở gói ngay"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 1,
+     "shadowOverlay": 0,
+     "shadowSamples": [
+      "div.card-pedestal → rgba(0, 0, 0, 0.467) 0px 10px 20px 0px"
+     ],
+     "gradients": 10,
+     "scrims": 1,
+     "gradientSamples": [
+      "div.light-beam.beam-one → linear-gradient(rgba(169, 234, 255, 0.533), rgba(0, 0, 0, 0) 80%)",
+      "div.light-beam.beam-two → linear-gradient(rgba(169, 234, 255, 0.533), rgba(0, 0, 0, 0) 80%)",
+      "div.stadium-fog → radial-gradient(rgba(155, 187, 214, 0.11), rgba(0, 0, 0, 0) 60%)",
+      "div.stadium-vignette → linear-gradient(rgba(8, 14, 23, 0.867), rgba(0, 0, 0, 0) 65%, rgba(7, 11, 19, 0.733))"
+     ],
+     "gradientText": 0,
+     "hairlines": 10,
+     "hairlineSamples": [
+      "header.topbar 390px",
+      "nav.main-nav 390px",
+      "section.hero 390px",
+      "div.card-pedestal 260px",
+      "div.hero-bottom 390px"
+     ],
+     "outlinedBoxes": 4,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "svg",
+      "ratio": 0.73
+     },
+     {
+      "type": "img",
+      "ratio": 0.12
+     },
+     {
+      "type": "img",
+      "ratio": 0.11
+     },
+     {
+      "type": "img",
+      "ratio": 0.1
+     }
+    ],
+    "nav": {
+     "links": 1,
+     "fixed": false,
+     "height": 72,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "barlow condensed",
+     "be vietnam pro"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "pageH": 2516,
+    "margins": {
+     "left": 17,
+     "right": 12
+    },
+    "sections": [
+     {
+      "sel": "section.hero",
+      "tag": "section",
+      "top": 132,
+      "height": 686,
+      "words": 54,
+      "media": 4,
+      "middle": 0,
+      "heading": {
+       "text": "Chạm tới",
+       "size": 48,
+       "tag": "h1"
+      },
+      "left": 9,
+      "right": 8,
+      "textLeft": 27,
+      "textRight": 35,
+      "fullBleed": true,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "section#pack-shop.pack-shop",
+      "tag": "section",
+      "top": 843,
+      "height": 1037,
+      "words": 112,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "Chọn gói. Mở đam mê.",
+       "size": 18,
+       "tag": "h2"
+      },
+      "left": 17,
+      "right": 17,
+      "textLeft": 17,
+      "textRight": 44,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "aside.activity-sidebar",
+      "tag": "aside",
+      "top": 1902,
+      "height": 472,
+      "words": 55,
+      "media": 0,
+      "middle": 0,
+      "heading": {
+       "text": "126",
+       "size": 30,
+       "tag": "strong"
+      },
+      "left": 17,
+      "right": 17,
+      "textLeft": 17,
+      "textRight": 43,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Chạm tới huyền thoại.",
+      "size": 48,
+      "top": 188,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 17,
+      "n": 3
+     },
+     {
+      "x": 158,
+      "n": 3
+     }
+    ],
+    "leftBlocks": 6,
+    "bodySize": 11,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "dark": true,
+    "ground": "#080b10",
+    "sidebar": null,
+    "topbar": {
+     "h": 72
+    },
+    "canvas": {
+     "left": 16,
+     "right": 12
+    },
+    "hero": {
+     "text": "Chạm tới huyền thoại.",
+     "words": 4,
+     "chars": 21,
+     "lines": 2,
+     "size": 48,
+     "vw": 12.3,
+     "font": "Barlow Condensed",
+     "weight": 700,
+     "tracking": -0.02,
+     "leading": 1.02,
+     "top": 188,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 1,
+    "layout": {
+     "panels": 5,
+     "firstScreen": 0,
+     "ragged": [],
+     "voids": []
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 5,
+     "radii": [
+      [
+       5,
+       5
+      ]
+     ],
+     "heavyBorders": 1,
+     "borderSamples": [
+      "#8e7750 on #191a1a (4.07:1)"
+     ],
+     "heavyShadows": 0,
+     "softShadows": 0,
+     "shadowSamples": [],
+     "glass": 0
+    },
+    "chips": {
+     "count": 3,
+     "hues": 2,
+     "samples": [
+      {
+       "hue": 41,
+       "size": 45,
+       "radius": "3px"
+      },
+      {
+       "hue": 211,
+       "size": 45,
+       "radius": "3px"
+      },
+      {
+       "hue": 211,
+       "size": 45,
+       "radius": "3px"
+      }
+     ]
+    },
+    "numbers": {
+     "cells": 0,
+     "leftAligned": 0,
+     "figures": 5,
+     "tabularShare": 1,
+     "kpiMax": 30
+    },
+    "rows": null,
+    "chartHues": 4,
+    "placeholders": [],
+    "type": {
+     "under13": 0.87,
+     "tiny": 15,
+     "tinySamples": [
+      "FCO 9px",
+      "Chế độ thử nghiệm 9px",
+      "MÙA THẺ ICON TM 10px",
+      "Hoàn toàn miễn phí 10px"
+     ],
+     "sizes": [
+      4,
+      6,
+      7,
+      9,
+      10,
+      11,
+      12,
+      15,
+      16,
+      17,
+      18,
+      19,
+      21,
+      30,
+      48
+     ]
+    },
+    "title": {
+     "text": "Chạm tới\nhuyền thoại.",
+     "size": 48,
+     "top": 188
+    },
+    "colourShare": 0.04
+   },
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "WARN",
+   "id": "micro-label",
+   "width": 1440,
+   "message": "2 tiny uppercase letter-spaced label(s): \"MÙA THẺ ICON TM\", \"SẴN SÀNG CHO KHOẢNH KHẮC CỦA BẠN\"",
+   "fix": "Prefer sentence case at body size.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  },
+  {
+   "level": "WARN",
+   "id": "app-title-size",
+   "width": 1440,
+   "message": "The h1 is 64px (\"Chạm tới\nhuyền thoại.\").",
+   "fix": "An app screen is not a landing page: the title is 18-32px (20-24px on a phone).",
+   "alsoAt": [
+    768,
+    390
+   ]
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\.taste-skill\\ts26-image-final\\desktop-fold.jpg",
+   "pages": [
+    "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\.taste-skill\\ts26-image-final\\desktop-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\.taste-skill\\ts26-image-final\\tablet-fold.jpg",
+   "pages": [
+    "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\.taste-skill\\ts26-image-final\\tablet-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\.taste-skill\\ts26-image-final\\mobile-fold.jpg",
+   "pages": [
+    "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\.taste-skill\\ts26-image-final\\mobile-page-01.jpg"
+   ],
+   "film": []
+  }
+ ]
+}

@@ -21,17 +21,17 @@
 .opening-emblem>img { width: 185px; height: 232px; filter: drop-shadow(0 0 35px #edce7a35); }
 .opening-emblem>span { font-size: 11px; color: #d6c39b; text-shadow: 0 4px 18px #000; }
 .season-emblem { position: relative; color: #e6ce9b; }.season-emblem>b { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: var(--display); font-size: 39px; padding-bottom: 9px; }
-.opening-information { display: flex; flex-direction: column; align-items: center; gap: 25px; text-shadow: 0 3px 25px #000, 0 0 12px #000; }
+.opening-information { --opening-symbol-size: 158px; display: flex; flex-direction: column; align-items: center; gap: 25px; text-shadow: 0 3px 25px #000, 0 0 12px #000; }
 /* Mỗi thông tin hiện dần, giữ một nhịp rồi ẩn hết trước thông tin kế tiếp. */
 .opening-information { animation: opening-information-fade var(--information-duration, 1.2s) ease-in-out both; }
 @keyframes opening-information-fade { 0%,100% { opacity: 0; } 30%,62% { opacity: 1; } }
 .opening-reduced .opening-information { animation: none; opacity: 1; }
 .opening-icon-button:disabled { cursor: default; opacity: .65; }
 @media(prefers-reduced-motion:reduce) { .opening-information { animation: none !important; opacity: 1; } }
-.opening-information>.flag.large { width: 122px; height: 81px; border-radius: 2px; box-shadow: 0 6px 30px #0009; }
+.opening-information>.flag.large { width: calc(var(--opening-symbol-size) * 1.5); height: var(--opening-symbol-size); border-radius: 2px; box-shadow: 0 6px 30px #0009; }
 .opening-information>span { font-size: 12px; letter-spacing: 1.8px; color: #dccbaa; text-transform: uppercase; }
 .opening-information>strong { font-family: var(--display); font-size: 56px; font-weight: 600; line-height: 1; }
-.opening-information>.opening-position { font-size: 158px; font-weight: 500; color: #f3ebd8; }
+.opening-information>.opening-position { font-size: var(--opening-symbol-size); font-weight: 500; color: #f3ebd8; }
 .team-shield { width: 110px; height: 115px; display: flex; justify-content: center; align-items: center; color: #dfc994; position: relative; }
 .team-shield>b { position: absolute; font-family: var(--display); font-size: 30px; top: 32px; }
 .opening-silence { display: flex; flex-direction: column; gap: 25px; align-items: center; font-size: 12px; color: #b8b6b0; }
@@ -85,7 +85,7 @@
 @media(max-width:1050px) { .opening-batch-grid { grid-template-columns: repeat(5,minmax(0,1fr)); gap: 22px 18px; max-width: 800px; margin: 0 auto; }.opening-batch .compact .card-rating>strong { font-size: 31px; }.opening-batch .compact .card-rating { left: 7px; top: 22px; width: 31px; }.opening-batch .compact .card-topline { font-size: 8px; height: 20px; }.opening-batch .compact .player-name { font-size: 16px; }.opening-batch .compact .player-photo { top: 23px; }.opening-batch .compact .card-bottom { bottom: 15px; }.opening-batch .compact .season-crest { width: 24px; height: 28px; left: 7px; font-size: 12px; } }
 @media(max-width:640px) {
   .opening-header { height: 72px; padding: 0 16px; gap: 10px; }.opening-brand { font-size: 8px; letter-spacing: 1px; gap: 6px; }.opening-brand img { width: 18px; height: 23px; }.opening-controls { gap: 7px; }.opening-quality { width: 33px; padding: 0; }.opening-quality>span { display: none; }.opening-icon-button { width: 33px; }.opening-icon-button,.opening-quality,.opening-skip { min-height: 38px; }.opening-skip { font-size: 10px; padding: 8px 11px; gap: 5px; }
-  .opening-chapter { top: 91px; font-size: 10px; }.opening-reveal { min-height: 350px; top: 46%; margin-top: -135px; }.opening-emblem>img { width: 150px; height: 190px; }.opening-emblem>span { font-size: 10px; }.opening-information { gap: 24px; }.opening-information>.flag.large { width: 100px; height: 67px; }.opening-information>span { font-size: 10px; letter-spacing: 1.3px; }.opening-information>strong { font-size: 44px; }.opening-information>.opening-position { font-size: 126px; }.opening-stage-message { font-size: 11px; padding-top: 135px; }.opening-silence,.opening-intro { font-size: 11px; }
+  .opening-chapter { top: 91px; font-size: 10px; }.opening-reveal { min-height: 350px; top: 46%; margin-top: -135px; }.opening-emblem>img { width: 150px; height: 190px; }.opening-emblem>span { font-size: 10px; }.opening-information { --opening-symbol-size: 126px; gap: 24px; }.opening-information>span { font-size: 10px; letter-spacing: 1.3px; }.opening-information>strong { font-size: 44px; }.opening-stage-message { font-size: 11px; padding-top: 135px; }.opening-silence,.opening-intro { font-size: 11px; }
   .opening-steps { gap: 11px; left: 13px; right: 13px; bottom: 22px; font-size: 8px; }.opening-steps>span { gap: 4px; }.opening-steps i { width: 3px; height: 3px; }
   .opening-result { padding: 7px 17px 28px; min-height: calc(100dvh - 72px); }.opening-result-label { font-size: 10px; letter-spacing: 0; gap: 7px; margin: 4px 0 20px; }.opening-result-label>img { width: 19px; height: 24px; }.opening-best-card>.player-card { width: 195px; }.opening-best-card .card-rating { top: 28px; left: 9px; width: 38px; }.opening-best-card .card-rating>strong { font-size: 39px; }.opening-best-card .card-rating>span { font-size: 16px; margin-bottom: 8px; }.opening-best-card .card-topline { font-size: 9px; height: 24px; }.opening-best-card .player-photo { top: 28px; }.opening-best-card .player-name { font-size: 20px; }.opening-best-card .card-club { font-size: 7px; }.opening-best-card .card-bottom { bottom: 17px; left: 8px; right: 8px; }.opening-best-card .card-level { font-size: 9px; }.opening-best-card .card-stats { margin-top: 7px; padding-top: 6px; }.opening-best-card .card-stats b { font-size: 15px; }.opening-best-card .card-stats>span { font-size: 5px; }.opening-best-card .season-crest { width: 25px; height: 29px; left: 10px; font-size: 12px; }
   .opening-result>h2 { font-size: 31px; margin-top: 18px; }.opening-player-meta { font-size: 11px; gap: 7px; margin-top: 9px; }.opening-result-actions { gap: 8px; width: 100%; max-width: 380px; margin-top: 21px; }.opening-result-actions>.primary-button,.opening-result-actions>.secondary-button { flex: 1; min-width: 0; font-size: 11px; padding: 12px 10px; min-height: 44px; gap: 7px; }.opening-result-actions>.secondary-button>svg:last-child { display: none; }.opening-stats-button { width: 100%; font-size: 11px; min-height: 40px; }.opening-saved-note { font-size: 9px; line-height: 1.8; gap: 5px; max-width: 340px; margin-top: 10px; }.opening-saved-note svg { flex-shrink: 0; }.opening-pack-name { font-size: 9px; }.opening-pyro>div { width: 85px; height: 55%; bottom: 20%; }.pyro-left { left: 1%; }.pyro-right { right: 1%; }
@@ -106,7 +106,7 @@
 .opening-entry-veil{display:flex;align-items:center;justify-content:center}
 .opening-entry-veil>span{color:#b2a58a;font-size:12px;letter-spacing:1px}
 
-.team-logo { width: 110px; height: 117px; object-fit: contain; filter: drop-shadow(0 0 30px #edce7a40); }
+.team-logo { width: var(--opening-symbol-size); height: var(--opening-symbol-size); object-fit: contain; filter: drop-shadow(0 0 30px #edce7a40); }
 
 /* Màn hiện thẻ: thẻ giữa trên bục, bảng LED cong hai bên, thanh nút dưới */
 .reveal-stage { min-height: calc(100dvh - 85px); padding: 0; }
@@ -148,7 +148,9 @@
 .reveal-right { position: absolute; right: 9%; display: flex; gap: 12px; }
 .reveal-manage { min-width: clamp(150px, 11vw, 205px); background: #4a4f56d9; color: #fff; }
 .reveal-done { min-width: clamp(150px, 11vw, 205px); background: #1de07f; color: #06210f; }
-.reveal-trade:hover, .reveal-manage:hover { background: #5b6168; } .reveal-again:hover:not(:disabled) { background: #e8ecef; } .reveal-done:hover { background: #4cf09b; }
+.reveal-trade:hover, .reveal-manage:hover { background: #5b6168; } .reveal-again:hover:not(:disabled) { background: #e8ecef; }
+.reveal-again.reveal-many { background: #1de07f; color: #06210f; }
+.reveal-again.reveal-many:hover:not(:disabled) { background: #4cf09b; } .reveal-done:hover { background: #4cf09b; }
 .reveal-stage .opening-batch { margin-top: 6vh; margin-bottom: 90px; }
 @media (max-width: 900px) {
   .reveal-title { top: -50px; right: 120px; left: 16px; font-size: 16px; }

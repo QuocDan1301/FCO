@@ -1,5 +1,15 @@
 # Nguồn tài nguyên
 
+## Thẻ NO.7
+
+Nền đường hầm NO.7 dùng ảnh “Dòng chảy cẩm thạch ánh kim.png” do người dùng cung cấp, lưu tại `public/assets/no7-tunnel.png` và nhúng trong bản HTML ngoại tuyến.
+
+24 mặt thẻ NO.7 do người dùng cung cấp qua các ảnh chụp `Screenshot 2026-10-21 145520.png` đến `145837.png`. Bản dùng trong trò chơi được lưu ở `public/assets/no7-*-card.webp`, giữ nền trong suốt và tách OVR/cấp cộng để cập nhật khi nâng cấp. Ảnh được nhúng vào `mothe.html` để hoạt động ngoại tuyến.
+
+## Logo CLB mùa 26TS và NO.7
+
+Logo của 49 CLB được lưu trong `public/assets/clubs/` và nhúng vào bản HTML độc lập để hoạt động ngoại tuyến. Nguồn ảnh: [ESPN](https://www.espn.com/soccer/); tên CLB, đường dẫn ảnh gốc và trang nguồn cho từng logo được ghi trong `public/assets/clubs/sources.json`. Nhãn CLB trong dữ liệu hiện có được ánh xạ sang logo tương ứng, gồm “Torino” → Juventus, “Milano” → AC Milan và “Los Angeles FC” → LAFC. Logo và nhãn hiệu thuộc về các CLB/chủ sở hữu tương ứng; không ngụ ý họ bảo trợ dự án.
+
 ## Ảnh cầu thủ
 
 **Lionel Messi WC2022.jpg** — Hossein Zohrevand / Tasnim News Agency. Giấy phép [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/). [Trang nguồn Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Lionel_Messi_WC2022.jpg). Tệp cục bộ: `public/assets/messi.jpg`.

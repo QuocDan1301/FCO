@@ -1,0 +1,1873 @@
+[
+  {
+    "label": "D. Maradona, OVR 127, CAM, ICON TM, cộng 1",
+    "w": 169.40625,
+    "h": 174.703125,
+    "row": 443.59375,
+    "action": 623.296875,
+    "clipped": false,
+    "ovr": "127"
+  },
+  {
+    "label": "Pelé, OVR 127, CF, ICON TM, cộng 1",
+    "w": 165.15625,
+    "h": 174.71875,
+    "row": 443.59375,
+    "action": 623.3125,
+    "clipped": false,
+    "ovr": "127"
+  },
+  {
+    "label": "F. Beckenbauer, OVR 126, CB, ICON TM, cộng 1",
+    "w": 178.1875,
+    "h": 174.71875,
+    "row": 443.59375,
+    "action": 623.3125,
+    "clipped": false,
+    "ovr": "126"
+  },
+  {
+    "label": "Ferenc Puskás, OVR 126, CF, ICON TM, cộng 1",
+    "w": 183.921875,
+    "h": 174.703125,
+    "row": 443.59375,
+    "action": 623.296875,
+    "clipped": false,
+    "ovr": "126"
+  },
+  {
+    "label": "G. Müller, OVR 126, ST, ICON TM, cộng 1",
+    "w": 155.484375,
+    "h": 174.71875,
+    "row": 443.59375,
+    "action": 623.3125,
+    "clipped": false,
+    "ovr": "126"
+  },
+  {
+    "label": "H. Kane, OVR 126, ST, 26TS, cộng 1",
+    "w": 158.078125,
+    "h": 174.71875,
+    "row": 443.59375,
+    "action": 623.3125,
+    "clipped": false,
+    "ovr": "126"
+  },
+  {
+    "label": "J. Cruyff, OVR 126, CF, ICON TM, cộng 1",
+    "w": 170.171875,
+    "h": 174.703125,
+    "row": 681.8125,
+    "action": 861.515625,
+    "clipped": false,
+    "ovr": "126"
+  },
+  {
+    "label": "K. Mbappé, OVR 126, ST, 26TS, cộng 1",
+    "w": 159.46875,
+    "h": 174.71875,
+    "row": 681.8125,
+    "action": 861.53125,
+    "clipped": false,
+    "ovr": "126"
+  },
+  {
+    "label": "L. Yashin, OVR 126, GK, ICON TM, cộng 1",
+    "w": 159.140625,
+    "h": 174.71875,
+    "row": 681.8125,
+    "action": 861.53125,
+    "clipped": false,
+    "ovr": "126"
+  },
+  {
+    "label": "Lamine Yamal, OVR 126, RW, 26TS, cộng 1",
+    "w": 171.390625,
+    "h": 174.703125,
+    "row": 681.8125,
+    "action": 861.515625,
+    "clipped": false,
+    "ovr": "126"
+  },
+  {
+    "label": "M. Olise, OVR 126, RW, 26TS, cộng 1",
+    "w": 161.390625,
+    "h": 174.71875,
+    "row": 681.8125,
+    "action": 861.53125,
+    "clipped": false,
+    "ovr": "126"
+  },
+  {
+    "label": "M. van Basten, OVR 126, ST, ICON TM, cộng 1",
+    "w": 168.84375,
+    "h": 174.71875,
+    "row": 681.8125,
+    "action": 861.53125,
+    "clipped": false,
+    "ovr": "126"
+  },
+  {
+    "label": "Ronaldo, OVR 126, ST, ICON TM, cộng 1",
+    "w": 165.4375,
+    "h": 174.703125,
+    "row": 920.03125,
+    "action": 1099.734375,
+    "clipped": false,
+    "ovr": "126"
+  },
+  {
+    "label": "B. Charlton, OVR 125, CAM, ICON TM, cộng 1",
+    "w": 178.703125,
+    "h": 174.71875,
+    "row": 920.03125,
+    "action": 1099.75,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "Bruno Fernandes, OVR 125, CAM, 26TS, cộng 1",
+    "w": 151.03125,
+    "h": 174.71875,
+    "row": 920.03125,
+    "action": 1099.75,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "D. Rice, OVR 125, CM, 26TS, cộng 1",
+    "w": 153.328125,
+    "h": 174.703125,
+    "row": 920.03125,
+    "action": 1099.734375,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "E. Haaland, OVR 125, ST, 26TS, cộng 1",
+    "w": 153.546875,
+    "h": 174.71875,
+    "row": 920.03125,
+    "action": 1099.75,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "Eusébio, OVR 125, ST, ICON TM, cộng 1",
+    "w": 183.25,
+    "h": 174.71875,
+    "row": 920.03125,
+    "action": 1099.75,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "F. Baresi, OVR 125, CB, ICON TM, cộng 1",
+    "w": 170.375,
+    "h": 174.703125,
+    "row": 1158.25,
+    "action": 1337.953125,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "G. Best, OVR 125, RW, ICON TM, cộng 1",
+    "w": 191.640625,
+    "h": 174.71875,
+    "row": 1158.25,
+    "action": 1337.96875,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "G. Buffon, OVR 125, GK, ICON TM, cộng 1",
+    "w": 171.359375,
+    "h": 174.71875,
+    "row": 1158.25,
+    "action": 1337.96875,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "Gabriel, OVR 125, CB, 26TS, cộng 1",
+    "w": 157.59375,
+    "h": 174.703125,
+    "row": 1158.25,
+    "action": 1337.953125,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "Garrincha, OVR 125, RW, ICON TM, cộng 1",
+    "w": 182.8125,
+    "h": 174.71875,
+    "row": 1158.25,
+    "action": 1337.96875,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "Iniesta, OVR 125, CM, ICON TM, cộng 1",
+    "w": 178.140625,
+    "h": 174.71875,
+    "row": 1158.25,
+    "action": 1337.96875,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "Jairzinho, OVR 125, RW, ICON TM, cộng 1",
+    "w": 182.4375,
+    "h": 174.703125,
+    "row": 1396.46875,
+    "action": 1576.171875,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "L. Díaz, OVR 125, LW, 26TS, cộng 1",
+    "w": 141.609375,
+    "h": 174.71875,
+    "row": 1396.46875,
+    "action": 1576.1875,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "P. Maldini, OVR 125, LB, ICON TM, cộng 1",
+    "w": 182.75,
+    "h": 174.71875,
+    "row": 1396.46875,
+    "action": 1576.1875,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "Pedri, OVR 125, CM, 26TS, cộng 1",
+    "w": 164.8125,
+    "h": 174.703125,
+    "row": 1396.46875,
+    "action": 1576.171875,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "R. Baggio, OVR 125, CF, ICON TM, cộng 1",
+    "w": 187.671875,
+    "h": 174.71875,
+    "row": 1396.46875,
+    "action": 1576.1875,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "R. Gullit, OVR 125, CF, ICON TM, cộng 1",
+    "w": 169.40625,
+    "h": 174.71875,
+    "row": 1396.46875,
+    "action": 1576.1875,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "Ronaldinho, OVR 125, LW, ICON TM, cộng 1",
+    "w": 182.265625,
+    "h": 174.703125,
+    "row": 1634.6875,
+    "action": 1814.390625,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "Vitinha, OVR 125, CM, 26TS, cộng 1",
+    "w": 154.8125,
+    "h": 174.71875,
+    "row": 1634.6875,
+    "action": 1814.40625,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "Xavi, OVR 125, CM, ICON TM, cộng 1",
+    "w": 168.71875,
+    "h": 174.71875,
+    "row": 1634.6875,
+    "action": 1814.40625,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "Zico, OVR 125, CAM, ICON TM, cộng 1",
+    "w": 167.84375,
+    "h": 174.703125,
+    "row": 1634.6875,
+    "action": 1814.390625,
+    "clipped": false,
+    "ovr": "125"
+  },
+  {
+    "label": "A. Nesta, OVR 124, CB, ICON TM, cộng 1",
+    "w": 151.609375,
+    "h": 174.71875,
+    "row": 1634.6875,
+    "action": 1814.40625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "A. Pirlo, OVR 124, CM, ICON TM, cộng 1",
+    "w": 170.203125,
+    "h": 174.71875,
+    "row": 1634.6875,
+    "action": 1814.40625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "A. Shearer, OVR 124, ST, ICON TM, cộng 1",
+    "w": 164.421875,
+    "h": 174.703125,
+    "row": 1872.90625,
+    "action": 2052.609375,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "A. Shevchenko, OVR 124, ST, ICON TM, cộng 1",
+    "w": 176.40625,
+    "h": 174.71875,
+    "row": 1872.90625,
+    "action": 2052.625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "Cafu, OVR 124, RB, ICON TM, cộng 1",
+    "w": 159.4375,
+    "h": 174.71875,
+    "row": 1872.90625,
+    "action": 2052.625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "Casillas, OVR 124, GK, ICON TM, cộng 1",
+    "w": 162.171875,
+    "h": 174.703125,
+    "row": 1872.90625,
+    "action": 2052.609375,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "D. Beckham, OVR 124, RM, ICON TM, cộng 1",
+    "w": 179.28125,
+    "h": 174.71875,
+    "row": 1872.90625,
+    "action": 2052.625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "D. Bergkamp, OVR 124, CF, ICON TM, cộng 1",
+    "w": 166.875,
+    "h": 174.71875,
+    "row": 1872.90625,
+    "action": 2052.625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "D. Drogba, OVR 124, ST, ICON TM, cộng 1",
+    "w": 193.65625,
+    "h": 174.703125,
+    "row": 2111.125,
+    "action": 2290.828125,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "E. Cantona, OVR 124, CF, ICON TM, cộng 1",
+    "w": 156.109375,
+    "h": 174.71875,
+    "row": 2111.125,
+    "action": 2290.84375,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "F. Cannavaro, OVR 124, CB, ICON TM, cộng 1",
+    "w": 160.75,
+    "h": 174.71875,
+    "row": 2111.125,
+    "action": 2290.84375,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "F. Dimarco, OVR 124, LWB, 26TS, cộng 1",
+    "w": 141.4375,
+    "h": 174.703125,
+    "row": 2111.125,
+    "action": 2290.828125,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "F. Rijkaard, OVR 124, CDM, ICON TM, cộng 1",
+    "w": 170.25,
+    "h": 174.71875,
+    "row": 2111.125,
+    "action": 2290.84375,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "F. Totti, OVR 124, CF, ICON TM, cộng 1",
+    "w": 189.65625,
+    "h": 174.71875,
+    "row": 2111.125,
+    "action": 2290.84375,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "Gabriel Batistuta, OVR 124, ST, ICON TM, cộng 1",
+    "w": 158.765625,
+    "h": 174.703125,
+    "row": 2349.34375,
+    "action": 2529.046875,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "H. Sánchez, OVR 124, ST, ICON TM, cộng 1",
+    "w": 160.296875,
+    "h": 174.71875,
+    "row": 2349.34375,
+    "action": 2529.0625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "Igor Thiago, OVR 124, ST, 26TS, cộng 1",
+    "w": 153.34375,
+    "h": 174.71875,
+    "row": 2349.34375,
+    "action": 2529.0625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "Kaká, OVR 124, CAM, ICON TM, cộng 1",
+    "w": 172.046875,
+    "h": 174.703125,
+    "row": 2349.34375,
+    "action": 2529.046875,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "L. Modrić, OVR 124, CM, 26TS, cộng 1",
+    "w": 176.3125,
+    "h": 174.71875,
+    "row": 2349.34375,
+    "action": 2529.0625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "Luís Figo, OVR 124, RW, ICON TM, cộng 1",
+    "w": 157.515625,
+    "h": 174.71875,
+    "row": 2349.34375,
+    "action": 2529.0625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "Nico Paz, OVR 124, CAM, 26TS, cộng 1",
+    "w": 153.515625,
+    "h": 174.703125,
+    "row": 2587.5625,
+    "action": 2767.265625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "O. Kahn, OVR 124, GK, ICON TM, cộng 1",
+    "w": 171.328125,
+    "h": 174.71875,
+    "row": 2587.5625,
+    "action": 2767.28125,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "R. van Nistelrooy, OVR 124, ST, ICON TM, cộng 1",
+    "w": 162.84375,
+    "h": 174.71875,
+    "row": 2587.5625,
+    "action": 2767.28125,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "Rivaldo, OVR 124, CAM, ICON TM, cộng 1",
+    "w": 154.078125,
+    "h": 174.703125,
+    "row": 2587.5625,
+    "action": 2767.265625,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "Roberto Carlos, OVR 124, LB, ICON TM, cộng 1",
+    "w": 169.0625,
+    "h": 174.71875,
+    "row": 2587.5625,
+    "action": 2767.28125,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "S. Eto'o, OVR 124, ST, ICON TM, cộng 1",
+    "w": 162.625,
+    "h": 174.71875,
+    "row": 2587.5625,
+    "action": 2767.28125,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "T. Henry, OVR 124, ST, ICON TM, cộng 1",
+    "w": 169,
+    "h": 174.703125,
+    "row": 2825.78125,
+    "action": 3005.484375,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "W. Rooney, OVR 124, ST, ICON TM, cộng 1",
+    "w": 180.484375,
+    "h": 174.71875,
+    "row": 2825.78125,
+    "action": 3005.5,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "W. Saliba, OVR 124, CB, 26TS, cộng 1",
+    "w": 163.859375,
+    "h": 174.71875,
+    "row": 2825.78125,
+    "action": 3005.5,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "Z. Ibrahimović, OVR 124, ST, ICON TM, cộng 1",
+    "w": 169.09375,
+    "h": 174.703125,
+    "row": 2825.78125,
+    "action": 3005.484375,
+    "clipped": false,
+    "ovr": "124"
+  },
+  {
+    "label": "A. Del Piero, OVR 123, CF, ICON TM, cộng 1",
+    "w": 162.953125,
+    "h": 174.71875,
+    "row": 2825.78125,
+    "action": 3005.5,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "A. Semenyo, OVR 123, RW, 26TS, cộng 1",
+    "w": 142.1875,
+    "h": 174.71875,
+    "row": 2825.78125,
+    "action": 3005.5,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "B. Cha, OVR 123, ST, ICON TM, cộng 1",
+    "w": 165.796875,
+    "h": 174.703125,
+    "row": 3064,
+    "action": 3243.703125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "B. Moore, OVR 123, CB, ICON TM, cộng 1",
+    "w": 168.140625,
+    "h": 174.71875,
+    "row": 3064,
+    "action": 3243.71875,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "Bruno Guimarães, OVR 123, CM, 26TS, cộng 1",
+    "w": 156.203125,
+    "h": 174.71875,
+    "row": 3064,
+    "action": 3243.71875,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "C. Puyol, OVR 123, CB, ICON TM, cộng 1",
+    "w": 154.859375,
+    "h": 174.703125,
+    "row": 3064,
+    "action": 3243.703125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "Carlos Alberto, OVR 123, RB, ICON TM, cộng 1",
+    "w": 165.890625,
+    "h": 174.71875,
+    "row": 3064,
+    "action": 3243.71875,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "Cristiano Ronaldo, OVR 123, ST, 26TS, cộng 1",
+    "w": 144.390625,
+    "h": 174.71875,
+    "row": 3064,
+    "action": 3243.71875,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "D. Raum, OVR 123, LB, 26TS, cộng 1",
+    "w": 149.1875,
+    "h": 174.703125,
+    "row": 3302.21875,
+    "action": 3481.921875,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "D. Szoboszlai, OVR 123, CAM, 26TS, cộng 1",
+    "w": 135.640625,
+    "h": 174.71875,
+    "row": 3302.21875,
+    "action": 3481.9375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "David Raya, OVR 123, GK, 26TS, cộng 1",
+    "w": 125.09375,
+    "h": 174.71875,
+    "row": 3302.21875,
+    "action": 3481.9375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "Dunga, OVR 123, CDM, ICON TM, cộng 1",
+    "w": 192.5,
+    "h": 174.703125,
+    "row": 3302.21875,
+    "action": 3481.921875,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "F. Lampard, OVR 123, CM, ICON TM, cộng 1",
+    "w": 153.21875,
+    "h": 174.71875,
+    "row": 3302.21875,
+    "action": 3481.9375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "F. Valverde, OVR 123, RM, 26TS, cộng 1",
+    "w": 148.53125,
+    "h": 174.71875,
+    "row": 3302.21875,
+    "action": 3481.9375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "I. Rush, OVR 123, ST, ICON TM, cộng 1",
+    "w": 171.875,
+    "h": 174.703125,
+    "row": 3540.4375,
+    "action": 3720.140625,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "J. Kimmich, OVR 123, CDM, 26TS, cộng 1",
+    "w": 134.03125,
+    "h": 174.71875,
+    "row": 3540.4375,
+    "action": 3720.15625,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "J. Veerman, OVR 123, CM, 26TS, cộng 1",
+    "w": 144.46875,
+    "h": 174.71875,
+    "row": 3540.4375,
+    "action": 3720.15625,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "J. Zanetti, OVR 123, LB, ICON TM, cộng 1",
+    "w": 167.34375,
+    "h": 174.703125,
+    "row": 3540.4375,
+    "action": 3720.140625,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "Jacobo Ramón, OVR 123, CB, 26TS, cộng 1",
+    "w": 127.59375,
+    "h": 174.71875,
+    "row": 3540.4375,
+    "action": 3720.15625,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "João Pedro, OVR 123, ST, 26TS, cộng 1",
+    "w": 136.0625,
+    "h": 174.71875,
+    "row": 3540.4375,
+    "action": 3720.15625,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "K. Dalglish, OVR 123, CF, ICON TM, cộng 1",
+    "w": 166.296875,
+    "h": 174.703125,
+    "row": 3778.65625,
+    "action": 3958.359375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "K. Kvaratskhelia, OVR 123, LW, 26TS, cộng 1",
+    "w": 136.1875,
+    "h": 174.71875,
+    "row": 3778.65625,
+    "action": 3958.375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "K. Yıldız, OVR 123, LW, 26TS, cộng 1",
+    "w": 141.71875,
+    "h": 174.71875,
+    "row": 3778.65625,
+    "action": 3958.375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "L. Martínez, OVR 123, ST, 26TS, cộng 1",
+    "w": 154.328125,
+    "h": 174.703125,
+    "row": 3778.65625,
+    "action": 3958.359375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "L. Messi, OVR 123, CF, 26TS, cộng 1",
+    "w": 151.59375,
+    "h": 174.71875,
+    "row": 3778.65625,
+    "action": 3958.375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "L. Suárez, OVR 123, ST, 26TS, cộng 1",
+    "w": 143.140625,
+    "h": 174.71875,
+    "row": 3778.65625,
+    "action": 3958.375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "L. Thuram, OVR 123, RB, ICON TM, cộng 1",
+    "w": 171.359375,
+    "h": 174.703125,
+    "row": 4016.875,
+    "action": 4196.578125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "L. Vušković, OVR 123, CB, 26TS, cộng 1",
+    "w": 148.046875,
+    "h": 174.71875,
+    "row": 4016.875,
+    "action": 4196.59375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "M. Ballack, OVR 123, CAM, ICON TM, cộng 1",
+    "w": 176.296875,
+    "h": 174.71875,
+    "row": 4016.875,
+    "action": 4196.59375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "M. Klose, OVR 123, ST, ICON TM, cộng 1",
+    "w": 175.265625,
+    "h": 174.703125,
+    "row": 4016.875,
+    "action": 4196.578125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "M. Owen, OVR 123, ST, ICON TM, cộng 1",
+    "w": 158.625,
+    "h": 174.71875,
+    "row": 4016.875,
+    "action": 4196.59375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "Marcelo, OVR 123, LB, ICON TM, cộng 1",
+    "w": 168.46875,
+    "h": 174.71875,
+    "row": 4016.875,
+    "action": 4196.59375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "Marcos Llorente, OVR 123, RB, 26TS, cộng 1",
+    "w": 139.4375,
+    "h": 174.703125,
+    "row": 4255.09375,
+    "action": 4434.796875,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "N. Schlotterbeck, OVR 123, CB, 26TS, cộng 1",
+    "w": 146.5,
+    "h": 174.71875,
+    "row": 4255.09375,
+    "action": 4434.8125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "Nuno Mendes, OVR 123, LB, 26TS, cộng 1",
+    "w": 140.09375,
+    "h": 174.71875,
+    "row": 4255.09375,
+    "action": 4434.8125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "O. Dembélé, OVR 123, ST, 26TS, cộng 1",
+    "w": 150.828125,
+    "h": 174.703125,
+    "row": 4255.09375,
+    "action": 4434.796875,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "P. Lahm, OVR 123, RB, ICON TM, cộng 1",
+    "w": 165.40625,
+    "h": 174.71875,
+    "row": 4255.09375,
+    "action": 4434.8125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "P. Nedvěd, OVR 123, CAM, ICON TM, cộng 1",
+    "w": 158.78125,
+    "h": 174.71875,
+    "row": 4255.09375,
+    "action": 4434.8125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "P. Schmeichel, OVR 123, GK, ICON TM, cộng 1",
+    "w": 170.3125,
+    "h": 174.703125,
+    "row": 4493.3125,
+    "action": 4673.015625,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "P. Scholes, OVR 123, CM, ICON TM, cộng 1",
+    "w": 165.515625,
+    "h": 174.71875,
+    "row": 4493.3125,
+    "action": 4673.03125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "P. Vieira, OVR 123, CDM, ICON TM, cộng 1",
+    "w": 169.734375,
+    "h": 174.71875,
+    "row": 4493.3125,
+    "action": 4673.03125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "R. Ferdinand, OVR 123, CB, ICON TM, cộng 1",
+    "w": 162.953125,
+    "h": 174.703125,
+    "row": 4493.3125,
+    "action": 4673.015625,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "R. Koeman, OVR 123, CB, ICON TM, cộng 1",
+    "w": 170.765625,
+    "h": 174.71875,
+    "row": 4493.3125,
+    "action": 4673.03125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "R. van Persie, OVR 123, ST, ICON TM, cộng 1",
+    "w": 156.6875,
+    "h": 174.71875,
+    "row": 4493.3125,
+    "action": 4673.03125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "Raúl, OVR 123, CF, ICON TM, cộng 1",
+    "w": 154.390625,
+    "h": 174.703125,
+    "row": 4731.53125,
+    "action": 4911.234375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "S. Gerrard, OVR 123, CAM, ICON TM, cộng 1",
+    "w": 190.796875,
+    "h": 174.71875,
+    "row": 4731.53125,
+    "action": 4911.25,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "T. Kroos, OVR 123, CM, ICON TM, cộng 1",
+    "w": 160.53125,
+    "h": 174.71875,
+    "row": 4731.53125,
+    "action": 4911.25,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "V. Muriqi, OVR 123, ST, 26TS, cộng 1",
+    "w": 136.71875,
+    "h": 174.703125,
+    "row": 4731.53125,
+    "action": 4911.234375,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "V. van Dijk, OVR 123, CB, 26TS, cộng 1",
+    "w": 139.984375,
+    "h": 174.71875,
+    "row": 4731.53125,
+    "action": 4911.25,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "Xabi Alonso, OVR 123, CM, ICON TM, cộng 1",
+    "w": 160.578125,
+    "h": 174.71875,
+    "row": 4731.53125,
+    "action": 4911.25,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "Z. Zidane, OVR 123, CAM, ICON TM, cộng 1",
+    "w": 160.484375,
+    "h": 174.703125,
+    "row": 4969.75,
+    "action": 5149.453125,
+    "clipped": false,
+    "ovr": "123"
+  },
+  {
+    "label": "A. Pavlović, OVR 122, CDM, 26TS, cộng 1",
+    "w": 154.28125,
+    "h": 174.71875,
+    "row": 4969.75,
+    "action": 5149.46875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "A. Rabiot, OVR 122, CM, 26TS, cộng 1",
+    "w": 154.640625,
+    "h": 174.71875,
+    "row": 4969.75,
+    "action": 5149.46875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "A. Tchouaméni, OVR 122, CDM, 26TS, cộng 1",
+    "w": 142.140625,
+    "h": 174.703125,
+    "row": 4969.75,
+    "action": 5149.453125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "B. Schweinsteiger, OVR 122, CM, ICON TM, cộng 1",
+    "w": 156.796875,
+    "h": 174.71875,
+    "row": 4969.75,
+    "action": 5149.46875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Bremer, OVR 122, CB, 26TS, cộng 1",
+    "w": 139.4375,
+    "h": 174.71875,
+    "row": 4969.75,
+    "action": 5149.46875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Butragueño, OVR 122, ST, ICON TM, cộng 1",
+    "w": 168.703125,
+    "h": 174.703125,
+    "row": 5207.96875,
+    "action": 5387.671875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "C. Makélélé, OVR 122, CDM, ICON TM, cộng 1",
+    "w": 162.109375,
+    "h": 174.71875,
+    "row": 5207.96875,
+    "action": 5387.6875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "C. Seedorf, OVR 122, CAM, ICON TM, cộng 1",
+    "w": 153.765625,
+    "h": 174.71875,
+    "row": 5207.96875,
+    "action": 5387.6875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Carlos Romero, OVR 122, LB, 26TS, cộng 1",
+    "w": 137.71875,
+    "h": 174.703125,
+    "row": 5207.96875,
+    "action": 5387.671875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Casemiro, OVR 122, CDM, 26TS, cộng 1",
+    "w": 148.90625,
+    "h": 174.71875,
+    "row": 5207.96875,
+    "action": 5387.6875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "D. Trezeguet, OVR 122, ST, ICON TM, cộng 1",
+    "w": 168.46875,
+    "h": 174.71875,
+    "row": 5207.96875,
+    "action": 5387.6875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "D. Undav, OVR 122, ST, 26TS, cộng 1",
+    "w": 146.484375,
+    "h": 174.703125,
+    "row": 5446.1875,
+    "action": 5625.890625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "D. Upamecano, OVR 122, CB, 26TS, cộng 1",
+    "w": 142.1875,
+    "h": 174.71875,
+    "row": 5446.1875,
+    "action": 5625.90625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "E. Fernández, OVR 122, CM, 26TS, cộng 1",
+    "w": 142.59375,
+    "h": 174.71875,
+    "row": 5446.1875,
+    "action": 5625.90625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Eric García, OVR 122, CB, 26TS, cộng 1",
+    "w": 143.515625,
+    "h": 174.703125,
+    "row": 5446.1875,
+    "action": 5625.890625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "F. Ribéry, OVR 122, LW, ICON TM, cộng 1",
+    "w": 184.171875,
+    "h": 174.71875,
+    "row": 5446.1875,
+    "action": 5625.90625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "F. Thauvin, OVR 122, RW, 26TS, cộng 1",
+    "w": 143.78125,
+    "h": 174.71875,
+    "row": 5446.1875,
+    "action": 5625.90625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Fernando Hierro, OVR 122, CB, ICON TM, cộng 1",
+    "w": 159.71875,
+    "h": 174.703125,
+    "row": 5684.40625,
+    "action": 5864.109375,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Fernando Torres, OVR 122, ST, ICON TM, cộng 1",
+    "w": 179.984375,
+    "h": 174.71875,
+    "row": 5684.40625,
+    "action": 5864.125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "G. Bale, OVR 122, LM, ICON TM, cộng 1",
+    "w": 186.359375,
+    "h": 174.71875,
+    "row": 5684.40625,
+    "action": 5864.125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "G. Chiellini, OVR 122, CB, ICON TM, cộng 1",
+    "w": 162.21875,
+    "h": 174.703125,
+    "row": 5684.40625,
+    "action": 5864.109375,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "G. Donnarumma, OVR 122, GK, 26TS, cộng 1",
+    "w": 155.53125,
+    "h": 174.71875,
+    "row": 5684.40625,
+    "action": 5864.125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "G. Hagi, OVR 122, CAM, ICON TM, cộng 1",
+    "w": 166.921875,
+    "h": 174.71875,
+    "row": 5684.40625,
+    "action": 5864.125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "G. Lineker, OVR 122, ST, ICON TM, cộng 1",
+    "w": 163.734375,
+    "h": 174.703125,
+    "row": 5922.625,
+    "action": 6102.328125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "G. Xhaka, OVR 122, CDM, 26TS, cộng 1",
+    "w": 128.921875,
+    "h": 174.71875,
+    "row": 5922.625,
+    "action": 6102.34375,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Grimaldo, OVR 122, LM, 26TS, cộng 1",
+    "w": 143.65625,
+    "h": 174.71875,
+    "row": 5922.625,
+    "action": 6102.34375,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "H. Crespo, OVR 122, ST, ICON TM, cộng 1",
+    "w": 176.90625,
+    "h": 174.703125,
+    "row": 5922.625,
+    "action": 6102.328125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "H. Stoichkov, OVR 122, RW, ICON TM, cộng 1",
+    "w": 167,
+    "h": 174.71875,
+    "row": 5922.625,
+    "action": 6102.34375,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "I. Saibari, OVR 122, CAM, 26TS, cộng 1",
+    "w": 150.3125,
+    "h": 174.71875,
+    "row": 5922.625,
+    "action": 6102.34375,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "J. Alvarez, OVR 122, CF, 26TS, cộng 1",
+    "w": 149.8125,
+    "h": 174.703125,
+    "row": 6160.84375,
+    "action": 6340.546875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "J. Tah, OVR 122, CB, 26TS, cộng 1",
+    "w": 137.34375,
+    "h": 174.71875,
+    "row": 6160.84375,
+    "action": 6340.5625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "J. Timber, OVR 122, RB, 26TS, cộng 1",
+    "w": 142.453125,
+    "h": 174.71875,
+    "row": 6160.84375,
+    "action": 6340.5625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Joan García, OVR 122, GK, 26TS, cộng 1",
+    "w": 142.78125,
+    "h": 174.703125,
+    "row": 6160.84375,
+    "action": 6340.546875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "João Félix, OVR 122, CF, 26TS, cộng 1",
+    "w": 142.125,
+    "h": 174.71875,
+    "row": 6160.84375,
+    "action": 6340.5625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "L. Blanc, OVR 122, CB, ICON TM, cộng 1",
+    "w": 174.140625,
+    "h": 174.71875,
+    "row": 6160.84375,
+    "action": 6340.5625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "M. Desailly, OVR 122, CDM, ICON TM, cộng 1",
+    "w": 167.78125,
+    "h": 174.703125,
+    "row": 6399.0625,
+    "action": 6578.765625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "M. Godts, OVR 122, LW, 26TS, cộng 1",
+    "w": 139.328125,
+    "h": 174.71875,
+    "row": 6399.0625,
+    "action": 6578.78125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "M. Laudrup, OVR 122, CF, ICON TM, cộng 1",
+    "w": 161.4375,
+    "h": 174.71875,
+    "row": 6399.0625,
+    "action": 6578.78125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "M. Locatelli, OVR 122, CDM, 26TS, cộng 1",
+    "w": 140.96875,
+    "h": 174.703125,
+    "row": 6399.0625,
+    "action": 6578.765625,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "M. Sangaré, OVR 122, CM, 26TS, cộng 1",
+    "w": 137.734375,
+    "h": 174.71875,
+    "row": 6399.0625,
+    "action": 6578.78125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "M. Sarr, OVR 122, CB, 26TS, cộng 1",
+    "w": 143.59375,
+    "h": 174.71875,
+    "row": 6399.0625,
+    "action": 6578.78125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "M. Udol, OVR 122, LWB, 26TS, cộng 1",
+    "w": 149.734375,
+    "h": 174.703125,
+    "row": 6637.28125,
+    "action": 6816.984375,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Mauro Júnior, OVR 122, LB, 26TS, cộng 1",
+    "w": 141.640625,
+    "h": 174.71875,
+    "row": 6637.28125,
+    "action": 6817,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "N. O'Reilly, OVR 122, LB, 26TS, cộng 1",
+    "w": 141.859375,
+    "h": 174.71875,
+    "row": 6637.28125,
+    "action": 6817,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "N. Vidić, OVR 122, CB, ICON TM, cộng 1",
+    "w": 177.828125,
+    "h": 174.703125,
+    "row": 6637.28125,
+    "action": 6816.984375,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Oyarzabal, OVR 122, CF, 26TS, cộng 1",
+    "w": 140.5,
+    "h": 174.71875,
+    "row": 6637.28125,
+    "action": 6817,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "P. Čech, OVR 122, GK, ICON TM, cộng 1",
+    "w": 176.484375,
+    "h": 174.71875,
+    "row": 6637.28125,
+    "action": 6817,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Park Ji-sung, OVR 122, CAM, ICON TM, cộng 1",
+    "w": 178.078125,
+    "h": 174.703125,
+    "row": 6875.5,
+    "action": 7055.203125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "R. Cherki, OVR 122, RW, 26TS, cộng 1",
+    "w": 151.921875,
+    "h": 174.71875,
+    "row": 6875.5,
+    "action": 7055.21875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "R. James, OVR 122, RB, 26TS, cộng 1",
+    "w": 146.15625,
+    "h": 174.71875,
+    "row": 6875.5,
+    "action": 7055.21875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "R. Keane, OVR 122, CDM, ICON TM, cộng 1",
+    "w": 151.46875,
+    "h": 174.703125,
+    "row": 6875.5,
+    "action": 7055.203125,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Raphinha, OVR 122, LW, 26TS, cộng 1",
+    "w": 147.578125,
+    "h": 174.71875,
+    "row": 6875.5,
+    "action": 7055.21875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "S. Gnabry, OVR 122, CF, 26TS, cộng 1",
+    "w": 140.3125,
+    "h": 174.71875,
+    "row": 6875.5,
+    "action": 7055.21875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "S. McTominay, OVR 122, CM, 26TS, cộng 1",
+    "w": 148.4375,
+    "h": 174.703125,
+    "row": 7113.71875,
+    "action": 7293.421875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "S. Mouriño, OVR 122, RB, 26TS, cộng 1",
+    "w": 155.421875,
+    "h": 174.71875,
+    "row": 7113.71875,
+    "action": 7293.4375,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "T. Courtois, OVR 122, GK, 26TS, cộng 1",
+    "w": 150.765625,
+    "h": 174.71875,
+    "row": 7113.71875,
+    "action": 7293.4375,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "Y. Touré, OVR 122, CM, ICON TM, cộng 1",
+    "w": 165.390625,
+    "h": 174.703125,
+    "row": 7113.71875,
+    "action": 7293.421875,
+    "clipped": false,
+    "ovr": "122"
+  },
+  {
+    "label": "A. Thomasson, OVR 121, CM, 26TS, cộng 1",
+    "w": 140.75,
+    "h": 174.71875,
+    "row": 7113.71875,
+    "action": 7293.4375,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "Aleix García, OVR 121, CM, 26TS, cộng 1",
+    "w": 137,
+    "h": 174.71875,
+    "row": 7113.71875,
+    "action": 7293.4375,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "C. Tolisso, OVR 121, CAM, 26TS, cộng 1",
+    "w": 144.0625,
+    "h": 174.703125,
+    "row": 7351.9375,
+    "action": 7531.640625,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "D. Bouanga, OVR 121, LW, 26TS, cộng 1",
+    "w": 143.046875,
+    "h": 174.71875,
+    "row": 7351.9375,
+    "action": 7531.65625,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "E. Ndicka, OVR 121, CB, 26TS, cộng 1",
+    "w": 154.1875,
+    "h": 174.71875,
+    "row": 7351.9375,
+    "action": 7531.65625,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "E. van der Sar, OVR 121, GK, ICON TM, cộng 1",
+    "w": 167.890625,
+    "h": 174.703125,
+    "row": 7351.9375,
+    "action": 7531.640625,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "H. Koffi, OVR 121, GK, 26TS, cộng 1",
+    "w": 129.984375,
+    "h": 174.71875,
+    "row": 7351.9375,
+    "action": 7531.65625,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "H. Son, OVR 121, CF, 26TS, cộng 1",
+    "w": 152.109375,
+    "h": 174.71875,
+    "row": 7351.9375,
+    "action": 7531.65625,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "H. Wilson, OVR 121, RW, 26TS, cộng 1",
+    "w": 142.078125,
+    "h": 174.703125,
+    "row": 7590.15625,
+    "action": 7769.859375,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "I. Toney, OVR 121, ST, 26TS, cộng 1",
+    "w": 150.890625,
+    "h": 174.71875,
+    "row": 7590.15625,
+    "action": 7769.875,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "J. Bednarek, OVR 121, CB, 26TS, cộng 1",
+    "w": 145.3125,
+    "h": 174.71875,
+    "row": 7590.15625,
+    "action": 7769.875,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "J. Quiñones, OVR 121, ST, 26TS, cộng 1",
+    "w": 139.859375,
+    "h": 174.703125,
+    "row": 7590.15625,
+    "action": 7769.859375,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "J. Ryerson, OVR 121, RWB, 26TS, cộng 1",
+    "w": 148.34375,
+    "h": 174.71875,
+    "row": 7590.15625,
+    "action": 7769.875,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "L. Karl, OVR 121, CAM, 26TS, cộng 1",
+    "w": 169.125,
+    "h": 174.71875,
+    "row": 7590.15625,
+    "action": 7769.875,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "Luis Milla, OVR 121, CM, 26TS, cộng 1",
+    "w": 146.484375,
+    "h": 174.703125,
+    "row": 7828.375,
+    "action": 8008.078125,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "M. Akanji, OVR 121, CB, 26TS, cộng 1",
+    "w": 145.765625,
+    "h": 174.71875,
+    "row": 7828.375,
+    "action": 8008.09375,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "M. Maignan, OVR 121, GK, 26TS, cộng 1",
+    "w": 144.875,
+    "h": 174.71875,
+    "row": 7828.375,
+    "action": 8008.09375,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "M. Svilar, OVR 121, GK, 26TS, cộng 1",
+    "w": 148.359375,
+    "h": 174.703125,
+    "row": 7828.375,
+    "action": 8008.078125,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "Marc Cucurella, OVR 121, LB, 26TS, cộng 1",
+    "w": 143.140625,
+    "h": 174.71875,
+    "row": 7828.375,
+    "action": 8008.09375,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "P. Zieliński, OVR 121, CM, 26TS, cộng 1",
+    "w": 148.640625,
+    "h": 174.71875,
+    "row": 7828.375,
+    "action": 8008.09375,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "Pablo Fornals, OVR 121, CAM, 26TS, cộng 1",
+    "w": 144.0625,
+    "h": 174.703125,
+    "row": 8066.59375,
+    "action": 8246.296875,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "Rúben Neves, OVR 121, CDM, 26TS, cộng 1",
+    "w": 147.53125,
+    "h": 174.71875,
+    "row": 8066.59375,
+    "action": 8246.3125,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "Rui Costa, OVR 121, CAM, ICON TM, cộng 1",
+    "w": 175.8125,
+    "h": 174.71875,
+    "row": 8066.59375,
+    "action": 8246.3125,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "S. Guirassy, OVR 121, ST, 26TS, cộng 1",
+    "w": 145.765625,
+    "h": 174.703125,
+    "row": 8066.59375,
+    "action": 8246.296875,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "V. Rongier, OVR 121, CM, 26TS, cộng 1",
+    "w": 148.90625,
+    "h": 174.71875,
+    "row": 8066.59375,
+    "action": 8246.3125,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "W. McKennie, OVR 121, RM, 26TS, cộng 1",
+    "w": 150.390625,
+    "h": 174.71875,
+    "row": 8066.59375,
+    "action": 8246.3125,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "Wesley, OVR 121, LWB, 26TS, cộng 1",
+    "w": 155.890625,
+    "h": 174.703125,
+    "row": 8304.8125,
+    "action": 8484.515625,
+    "clipped": false,
+    "ovr": "121"
+  },
+  {
+    "label": "Nguyễn Quang Hải, OVR 94, CAM, Khởi nguyên, cộng 1",
+    "w": 123.265625,
+    "h": 174.71875,
+    "row": 8304.8125,
+    "action": 8484.53125,
+    "clipped": false
+  },
+  {
+    "label": "Takefusa Kubo, OVR 93, RW, Khởi nguyên, cộng 1",
+    "w": 123.265625,
+    "h": 174.71875,
+    "row": 8304.8125,
+    "action": 8484.53125,
+    "clipped": false
+  },
+  {
+    "label": "Nguyễn Tiến Linh, OVR 92, ST, Khởi nguyên, cộng 1",
+    "w": 123.25,
+    "h": 174.703125,
+    "row": 8304.8125,
+    "action": 8484.515625,
+    "clipped": false
+  },
+  {
+    "label": "Lee Kang-in, OVR 91, CAM, Khởi nguyên, cộng 1",
+    "w": 123.265625,
+    "h": 174.71875,
+    "row": 8304.8125,
+    "action": 8484.53125,
+    "clipped": false
+  },
+  {
+    "label": "Đỗ Hùng Dũng, OVR 90, CM, Khởi nguyên, cộng 1",
+    "w": 123.265625,
+    "h": 174.71875,
+    "row": 8304.8125,
+    "action": 8484.53125,
+    "clipped": false
+  },
+  {
+    "label": "Đặng Văn Lâm, OVR 89, GK, Khởi nguyên, cộng 1",
+    "w": 123.25,
+    "h": 174.703125,
+    "row": 8543.03125,
+    "action": 8722.734375,
+    "clipped": false
+  },
+  {
+    "label": "Kaoru Mitoma, OVR 88, LW, Khởi nguyên, cộng 1",
+    "w": 123.265625,
+    "h": 174.71875,
+    "row": 8543.03125,
+    "action": 8722.75,
+    "clipped": false
+  },
+  {
+    "label": "Đoàn Văn Hậu, OVR 86, LB, Khởi nguyên, cộng 1",
+    "w": 123.265625,
+    "h": 174.71875,
+    "row": 8543.03125,
+    "action": 8722.75,
+    "clipped": false
+  },
+  {
+    "label": "Bùi Hoàng Việt Anh, OVR 83, CB, Khởi nguyên, cộng 1",
+    "w": 123.25,
+    "h": 174.703125,
+    "row": 8543.03125,
+    "action": 8722.734375,
+    "clipped": false
+  },
+  {
+    "label": "Nguyễn Hoàng Đức, OVR 80, CM, Khởi nguyên, cộng 1",
+    "w": 123.265625,
+    "h": 174.71875,
+    "row": 8543.03125,
+    "action": 8722.75,
+    "clipped": false
+  }
+]

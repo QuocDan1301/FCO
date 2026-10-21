@@ -3,7 +3,7 @@ import type { Card, Pack, Tier } from '../game';
 import { getPlayer, ovr, seasons } from '../game';
 import StadiumScene from './StadiumScene';
 import LightTunnel from './LightTunnel';
-import { asset } from '../asset';
+import { getTeamLogo } from '../teamLogos';
 
 type Props = { preparationId: number; pack: Pack; cards?: Card[]; phase: number; playing: boolean; quick: boolean; reduced: boolean; light: boolean; onPrepared: () => void; onReady: () => void };
 export default function PackStage(props: Props) {
@@ -23,7 +23,7 @@ export default function PackStage(props: Props) {
     phase: playing ? props.phase : 0, playing, quick,
     season: player ? seasons[player.tier] : seasons[pack.id as Tier] || pack.name,
     nation: player?.nation || '', position: player?.pos || '', flag: player?.flag || '', back: pack.back, intro: pack.tunnel, accent: pack.accent,
-    teamLogo: player?.tier === 'eternal' ? asset('/assets/itm-team.png') : undefined,
+    teamLogo: player ? getTeamLogo(player) : undefined,
     team: player ? player.tier === 'eternal' ? 'ICON The Moment' : player.club : '',
     getElapsed: () => playbackStart.current === null ? 0 : performance.now() - playbackStart.current,
     onPrepared: () => setPrepared(true), onReady: () => { if (playbackStart.current === null) { playbackStart.current = performance.now(); latest.current.onReady(); } },

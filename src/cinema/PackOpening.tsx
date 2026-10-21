@@ -8,11 +8,12 @@ import { OpeningAudio } from './audio';
 import { INFO_GAP, OPENING_CUES } from './timeline';
 import { AUDIO_ENABLED } from '../config';
 import { asset } from '../asset';
+import { getTeamLogo } from '../teamLogos';
 import './cinema.css';
 
 type Props = {
   cards: Card[]; pack: Pack; phase: number; quick: boolean; reduced: boolean; light: boolean; sound: boolean;
-  canSkip: boolean; sceneReady: boolean; onSound: () => void; onLight: () => void; onClose: () => void; onAgain: () => void; onSave: () => void; onTrade: () => void; stock: number;
+  canSkip: boolean; sceneReady: boolean; onSound: () => void; onLight: () => void; onClose: () => void; onAgain: () => void; onAgainMany: () => void; onSave: () => void; onTrade: () => void; stock: number;
   renderCard: (card: Card, compact?: boolean) => ReactNode; renderFlag: (code: string, large?: boolean) => ReactNode;
 };
 export default function PackOpening(props: Props) {
@@ -37,7 +38,7 @@ export default function PackOpening(props: Props) {
     const timer = setTimeout(() => setSummary(true), reduced ? 150 : quick ? 1400 : 2200);
     return () => clearTimeout(timer);
   }, [finished, cards.length, reduced, quick, stats]);
-  const info = phase === 3 ? { label: 'Quốc tịch', text: player.nation } : phase === 4 ? { label: 'Vị trí thi đấu', text: player.pos } : phase === 5 ? { label: icon ? 'Đội bóng' : 'Câu lạc bộ', text: icon ? 'ICON The Moment' : team } : null;
+  const info = phase >= 3 && phase <= 5;
   const cues = OPENING_CUES[quick ? 'quick' : 'standard'];
   // Thời gian hiện rõ của mỗi mục = cả nhịp trừ khoảng nghỉ trước mục kế.
   const informationDuration = info ? Math.max(.1, (cues[phase] - cues[phase - 1] - INFO_GAP[quick ? 'quick' : 'standard']) / 1000) : 0;
@@ -48,16 +49,16 @@ export default function PackOpening(props: Props) {
   const statShape = { att: [0, 0, -3, 1, -36, -10], mid: [-3, -4, 1, 0, -18, -6], def: [-6, -30, -9, -11, 0, -3], gk: [0, 1, -6, 2, -40, -4] }[group];
   const statLabels = group === 'gk' ? ['Đổ người', 'Bắt bóng', 'Phát bóng', 'Phản xạ', 'Tốc độ', 'Chọn vị trí'] : ['Tốc độ', 'Sút', 'Chuyền', 'Rê bóng', 'Thủ', 'Thể lực'];
   const statsList = statLabels.map((label, i) => ({ label, value: Math.max(40, ovr(best) + statShape[i] + ((player.id * 37 + i * 11) % 7) - 3) }));
-  const teamCrest = icon ? <img src={asset('/assets/itm-team.png')} alt=""/> : <span className="reveal-club">{team.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}</span>;
+  const teamLogo = getTeamLogo(player);
+  const teamCrest = teamLogo ? <img src={teamLogo} alt=""/> : <span className="reveal-club">{team.split(' ').map(w => w[0]).join('').slice(0, 3).toUpperCase()}</span>;
   return <div className={`icon-opening ${primed || finished ? 'opening-primed' : ''} opening-phase-${phase} ${finished ? 'opening-finished' : ''} ${summary ? 'opening-summary' : ''} ${reduced ? 'opening-reduced' : ''}`} data-opening-mode={quick ? 'quick' : 'standard'} data-scene-ready={primed}>
     {!primed && !finished && <div className="opening-entry-veil" aria-hidden="true"/>}
     <div className="opening-vignette"/><div className="opening-letterbox top"/><div className="opening-letterbox bottom"/>
     <div className="opening-header"><div className="opening-brand"><img src={asset('/assets/mark.svg')} alt=""/><span>FCO VIP</span></div><div className="opening-controls">{finished && <><button onClick={props.onSound} className="opening-icon-button" disabled={!AUDIO_ENABLED} aria-label={AUDIO_ENABLED ? (sound ? 'Tắt âm thanh mở thẻ' : 'Bật âm thanh mở thẻ') : 'Âm thanh đã tắt'} title={AUDIO_ENABLED ? (sound ? 'Tắt âm thanh' : 'Bật âm thanh') : 'Âm thanh đã tắt'}>{AUDIO_ENABLED && sound ? <Volume2 size={18}/> : <VolumeX size={18}/>}</button><button className={`opening-quality ${light ? 'selected' : ''}`} onClick={props.onLight} aria-pressed={light}><SlidersHorizontal size={14}/><span>{lightweight ? 'Hiệu ứng nhẹ' : 'Tự động'}</span></button></>}{(finished || props.canSkip) && <button className="opening-skip" onClick={props.onClose} aria-keyshortcuts={!finished ? "Space" : undefined} title={!finished ? "Bỏ qua (phím cách)" : undefined}>{finished ? 'Đóng' : 'Bỏ qua'}{finished ? <X size={15}/> : <ChevronRight size={15}/>}</button>}</div></div>
     {!finished && <>
       <AnimatePresence mode="wait"><motion.div key={phase} className={`opening-reveal ${phase === 6 ? 'suspense' : ''}`} initial={reduced || info ? false : { opacity: 0, y: 12, scale: .96 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: info ? 0 : -8, scale: info ? 1 : 1.025, transition: { duration: info ? 0 : quick ? .1 : .2 } }} transition={{ duration: quick ? .1 : .2 }}>
-        {phase <= 1 ? <div className="opening-intro"><div className="intro-light"/></div> : phase === 2 ? null : info ? <div className={`opening-information information-${phase}`} style={{ '--information-duration': `${informationDuration}s` } as CSSProperties}>{phase === 3 ? props.renderFlag(player.flag, true) : phase === 4 ? <strong className="opening-position">{player.pos}</strong> : (icon ? <img className="team-logo" src={asset('/assets/itm-team.png')} alt="Logo đội ICON The Moment"/> : <div className="team-shield"><Shield size={100} strokeWidth={.8}/><b>{team.slice(0, 2).toUpperCase()}</b></div>)}<span>{info.label}</span>{phase !== 4 && <strong>{info.text}</strong>}</div> : phase === 6 ? <div className="opening-silence"><i/></div> : null}
+        {phase <= 1 ? <div className="opening-intro"><div className="intro-light"/></div> : phase === 2 ? null : info ? <div className={`opening-information information-${phase}`} style={{ '--information-duration': `${informationDuration}s` } as CSSProperties}>{phase === 3 ? props.renderFlag(player.flag, true) : phase === 4 ? <strong className="opening-position">{player.pos}</strong> : (teamLogo ? <img className="team-logo" src={teamLogo} alt={icon ? 'Logo đội ICON The Moment' : `Logo ${team}`}/> : <div className="team-shield"><Shield size={100} strokeWidth={.8}/><b>{team.slice(0, 2).toUpperCase()}</b></div>)}</div> : phase === 6 ? <div className="opening-silence"><i/></div> : null}
       </motion.div></AnimatePresence>
-      <div className="opening-steps">{['Ánh đèn', 'Mùa thẻ', 'Quốc tịch', 'Vị trí', icon ? 'Đội bóng' : 'CLB', 'Cầu thủ'].map((label, i) => <span key={label} className={phase >= [1, 2, 3, 4, 5, 9][i] ? 'done' : ''}><i/>{label}</span>)}</div>
     </>}
     {finished && <div className={`opening-result reveal-stage ${icon ? 'reveal-icon' : `reveal-${player.tier}`}`}>
       {!reduced && <div className="opening-pyro" aria-hidden="true"><div className="pyro-left"/><div className="pyro-right"/></div>}
@@ -78,7 +79,8 @@ export default function PackOpening(props: Props) {
       {cards.length > 1 && summary && <motion.div className="opening-batch" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}><div className="batch-caption"><span>{cards.length} thẻ · Đã nhận đủ vào kho</span><b><Sparkles size={12}/>Thẻ nổi bật: {player.name} · {ovr(best)}</b></div><div className="opening-batch-grid">{cards.map(card => <div key={card.uid} className={card.uid === best.uid ? 'batch-highlight' : ''}>{props.renderCard(card, true)}<span>{getPlayer(card).name}</span><b>{ovr(card)} · {getPlayer(card).pos} · +{card.level}</b>{card.uid === best.uid && <small>Xuất sắc nhất</small>}</div>)}</div><button className="reveal-back" onClick={() => { setStats(true); setSummary(false); }}>Xem lại thẻ nổi bật</button></motion.div>}
       <div className="reveal-actions">
         <button className="reveal-btn reveal-trade" onClick={props.onTrade}>Trao đổi<ArrowRight size={18}/></button>
-        <button className="reveal-btn reveal-again" onClick={props.onAgain} disabled={props.stock < 1}>{props.stock < 1 ? 'Hết gói' : 'Mở một gói'}</button>
+        <button className="reveal-btn reveal-again" onClick={props.onAgain} disabled={props.stock < 1}>{props.stock < 1 ? 'Hết vật phẩm' : 'Mở 1 vật phẩm'}</button>
+        <button className="reveal-btn reveal-again reveal-many" onClick={props.onAgainMany} disabled={props.stock < 2}>{props.stock < 1 ? 'Hết vật phẩm' : `Mở ${Math.min(10, props.stock)} vật phẩm`}</button>
         <span className="reveal-right"><button className="reveal-btn reveal-manage" onClick={props.onSave}>Quản lí C.Thủ<ArrowRight size={18}/></button><button className="reveal-btn reveal-done" onClick={props.onClose}>Hoàn thành<Check size={18} strokeWidth={2.6}/></button></span>
       </div>
     </div>}
