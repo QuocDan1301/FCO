@@ -5,6 +5,7 @@ import { getPlayer, MAX_LEVEL, money, ovr, players, seasons } from './game';
 import type { Card, Save } from './game';
 import { MARKET_FEE_PERCENT, marketQuote } from './market';
 import type { MarketTrade } from './market';
+import { asset } from './asset';
 
 
 type Props = {
@@ -77,7 +78,7 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
         const player = getPlayer(card), rowQuote = marketQuote(card);
         const canAfford = !buying || free || save.balance >= rowQuote.price;
         return <article className={`market-row ${selected.uid === card.uid ? 'is-selected' : ''}`} key={card.uid}>
-          <button className="market-player" aria-label={`Xem ${player.name} +${card.level}`} aria-pressed={selected.uid === card.uid} onClick={() => setSelectedId(card.uid)}><img src={player.cardFace || '/assets/silhouette.svg'} alt="" loading="lazy"/><span><b>{player.name}</b><small>{player.pos} · {seasons[player.tier]} · +{card.level}</small></span></button>
+          <button className="market-player" aria-label={`Xem ${player.name} +${card.level}`} aria-pressed={selected.uid === card.uid} onClick={() => setSelectedId(card.uid)}><img src={player.cardFace || asset('/assets/silhouette.svg')} alt="" loading="lazy"/><span><b>{player.name}</b><small>{player.pos} · {seasons[player.tier]} · +{card.level}</small></span></button>
           <strong className="market-ovr">{ovr(card)}</strong><div className="market-price"><b>{money(buying ? rowQuote.price : rowQuote.proceeds)}</b><small>xu{!canAfford ? ' · Chưa đủ xu' : ''}</small></div>
           <button className="market-row-action" disabled={!canAfford} aria-label={`${buying ? 'Mua' : 'Bán'} ${player.name} +${card.level}`} onClick={() => onTrade({ kind: mode, card })}>{buying ? 'Mua' : 'Bán'}<ArrowRight size={14}/></button>
         </article>;

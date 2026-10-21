@@ -2,9 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ovr, MAX_LEVEL, UPGRADE_LEVELS, claimDaily, dayKey, draw, getPlayer, initialSave, makeCard, openPacks, packs, players, upgrade, upgradeInfo, validateSave } from '../src/game.ts';
 
-test('120 cầu thủ: 100 ICON, 10 mỗi mùa còn lại; mọi gói công bố đủ 100%', () => {
-  assert.equal(players.length, 120);
-  for (const tier of ['origin', 'stellar']) assert.equal(players.filter(p => p.tier === tier).length, 10);
+test('209 cầu thủ: 100 ICON, 99 thẻ 26TS, 10 Khởi nguyên; mọi gói công bố đủ 100%', () => {
+  assert.equal(players.length, 209);
+  assert.equal(players.filter(p => p.tier === 'origin').length, 10);
+  assert.equal(players.filter(p => p.tier === 'stellar').length, 99);
   assert.equal(players.filter(p => p.tier === 'eternal').length, 100);
   for (const p of packs) assert.equal(p.weights.reduce((a, b) => a + b, 0), 100);
 });
@@ -89,7 +90,7 @@ test('Nguyên liệu cùng OVR từ 125 được 1 vạch; dưới 125 tăng 0,2
 test('Phôi thấp hơn 7 OVR đóng góp 1/5 mức cùng OVR; 122 đập 129 được 0,2 vạch', () => {
   const target = { ...makeCard(33), level: 4 };
   assert.equal(ovr(target), 129);
-  const cases = [[34, 4, 129, 20], [1, 3, 128, 15.9], [31, 1, 127, 12.6], [1, 1, 126, 10], [34, 1, 125, 8], [5, 1, 124, 6.3], [3, 1, 123, 5], [37, 1, 122, 4], [11, 7, 115, .8]];
+  const cases = [[34, 4, 129, 20], [1, 3, 128, 15.9], [31, 1, 127, 12.6], [1, 1, 126, 10], [34, 1, 125, 8], [5, 1, 124, 6.3], [3, 1, 123, 5], [37, 1, 122, 4], [21, 11, 115, .8]];
   for (const [playerId, level, rating, energy] of cases) {
     const material = { ...makeCard(playerId), level };
     assert.equal(ovr(material), rating);

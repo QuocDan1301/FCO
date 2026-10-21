@@ -1,7 +1,8 @@
 import { AUDIO_ENABLED } from '../config';
+import { asset } from '../asset';
 
 const paths = {
-  crowd: '/assets/cinema-crowd.wav', cue: '/assets/cinema-cue.wav', gate: '/assets/cinema-gate.wav', impact: '/assets/cinema-impact.wav', cheer: '/assets/cinema-cheer.wav',
+  crowd: asset('/assets/cinema-crowd.wav'), cue: asset('/assets/cinema-cue.wav'), gate: asset('/assets/cinema-gate.wav'), impact: asset('/assets/cinema-impact.wav'), cheer: asset('/assets/cinema-cheer.wav'),
 };
 let context: AudioContext | undefined;
 const cached = new Map<string, AudioBuffer>();

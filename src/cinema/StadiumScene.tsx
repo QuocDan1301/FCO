@@ -4,7 +4,7 @@ import { Reflector } from 'three/addons/objects/Reflector.js';
 import { cameraPose, cameraProgress, OPENING_CUES, STAGE_Z, TUNNEL_EXTRA as EXTRA } from './timeline';
 import { drawBadge, infoVisibility } from './sceneBadge';
 
-type Props = { phase: number; quick: boolean; nation: string; position: string; team: string; season: string; flag: string; teamLogo?: string; onFallback: () => void; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number };
+type Props = { phase: number; quick: boolean; nation: string; position: string; team: string; season: string; flag: string; teamLogo?: string; back?: string; intro?: string; accent?: string; onFallback: () => void; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number };
 
 export default function StadiumScene(props: Props) {
   const host = useRef<HTMLDivElement>(null);
@@ -75,33 +75,31 @@ export default function StadiumScene(props: Props) {
     reflector.rotation.x = -Math.PI / 2; reflector.position.set(0, -.015, -32 - EXTRA / 2); scene.add(reflector);
     const floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({ color: '#0c141e', metalness: .7, roughness: .25, transparent: true, opacity: .77 }));
     floor.rotation.x = -Math.PI / 2; floor.position.set(0, .003, -32 - EXTRA / 2); floor.receiveShadow = true; scene.add(floor);
-    for (const x of [-4.2, 4.2]) box(.035, .008, 53 + EXTRA, x, .017, -10 - EXTRA / 2, basic('#d9c391', .45));
+    const floorStrip = basic('#d9c391', .45);
+    for (const x of [-4.2, 4.2]) box(.035, .008, 53 + EXTRA, x, .017, -10 - EXTRA / 2, floorStrip);
 
     const makeCanvas = (width: number, height: number) => {
       const canvas = document.createElement('canvas'); canvas.width = width; canvas.height = height;
       const ctx = canvas.getContext('2d'); if (!ctx) throw new Error('Canvas không khả dụng');
       const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; textures.add(texture); return { canvas, ctx, texture };
     };
-    const panel = makeCanvas(768, 384);
+    const panel = makeCanvas(1024, 576);
     const panelMat = new THREE.MeshBasicMaterial({ map: panel.texture, toneMapped: false });
-    const panelGeo = new THREE.PlaneGeometry(3.3, 1.65); geometries.add(panelGeo);
+    // Màn LED lớn gần liền nhau phủ hai vách; khung vòm vàng nằm phía trước tạo các vạch sáng dọc.
+    const panelGeo = new THREE.PlaneGeometry(9.6, 5.4); geometries.add(panelGeo);
+    // Cặp màn ở cửa hầm có canvas riêng: hiện ảnh nền intro của gói đúng một lần, không lặp ở các màn sau.
+    const intro = makeCanvas(1024, 576);
+    const introMat = new THREE.MeshBasicMaterial({ map: intro.texture, toneMapped: false });
     for (const z of Array.from({ length: 9 }, (_, i) => -3 - i * 10)) for (const side of [-1, 1]) {
-      const screen = new THREE.Mesh(panelGeo, panelMat); screen.position.set(side * 4.9, 3.8, z); screen.rotation.y = -side * Math.PI / 2; scene.add(screen);
-      box(.12, 1.82, 3.5, side * 5.04, 3.8, z, trim);
-    }
-    // Hai màn treo ngang hầm, quay về phía camera: cờ, vị trí, logo đội trôi qua khi camera tiến vào.
-    const hangGeo = new THREE.PlaneGeometry(4.2, 2.1); geometries.add(hangGeo);
-    for (const z of [-9, -27, -45, -63, -81]) {
-      const hang = new THREE.Mesh(hangGeo, panelMat); hang.position.set(0, 5.75, z); scene.add(hang);
-      box(4.4, 2.3, .1, 0, 5.75, z - .07, trim);
-      for (const x of [-1.6, 1.6]) box(.05, .55, .05, x, 7.05, z - .07, trim);
+      const screen = new THREE.Mesh(panelGeo, z === -3 ? introMat : panelMat); screen.position.set(side * 5.03, 3.75, z); screen.rotation.y = -side * Math.PI / 2; scene.add(screen);
     }
     // Sân khấu và khán đài ở cuối đường hầm; không dựng cửa hoặc thẻ áo trắng.
     const stageGeo = new THREE.CylinderGeometry(8.2, 8.6, .35, mobile ? 32 : 64); geometries.add(stageGeo);
     const stage = new THREE.Mesh(stageGeo, metal); stage.position.set(0, .18, STAGE_Z); stage.receiveShadow = true; scene.add(stage);
+    const ringMaterial = basic('#ead29a');
     for (const radius of [7.9, 6.9]) {
       const geo = new THREE.TorusGeometry(radius, .025, 4, mobile ? 48 : 80); geometries.add(geo);
-      const ring = new THREE.Mesh(geo, basic('#ead29a')); ring.rotation.x = Math.PI / 2; ring.position.set(0, .39, STAGE_Z); scene.add(ring);
+      const ring = new THREE.Mesh(geo, ringMaterial); ring.rotation.x = Math.PI / 2; ring.position.set(0, .39, STAGE_Z); scene.add(ring);
     }
     for (let tier = 0; tier < 4; tier++) {
       const geo = new THREE.CylinderGeometry(28 + tier * 2, 27 + tier * 2, 1.4, 64, 1, true, Math.PI / 2, Math.PI); geometries.add(geo);
@@ -129,7 +127,8 @@ export default function StadiumScene(props: Props) {
     const dustCount = mobile ? 65 : 200, dustPositions = new Float32Array(dustCount * 3);
     for (let i = 0; i < dustCount; i++) { dustPositions[i * 3] = (rnd() - .5) * 16; dustPositions[i * 3 + 1] = rnd() * 9; dustPositions[i * 3 + 2] = 15 - rnd() * (90 + EXTRA); }
     const dustGeo = new THREE.BufferGeometry(); dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPositions, 3)); geometries.add(dustGeo);
-    const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: '#f5dfad', size: mobile ? .045 : .035, transparent: true, opacity: .45, depthWrite: false })); scene.add(dust);
+    const dustMaterial = new THREE.PointsMaterial({ color: '#f5dfad', size: mobile ? .045 : .035, transparent: true, opacity: .45, depthWrite: false });
+    const dust = new THREE.Points(dustGeo, dustMaterial); scene.add(dust);
     const smoke: THREE.Sprite[] = [];
     for (let i = 0; i < (mobile ? 4 : 9); i++) { const mat = new THREE.SpriteMaterial({ map: glow.texture, color: '#718fa5', transparent: true, opacity: .045, depthWrite: false, blending: THREE.AdditiveBlending }); const sprite = new THREE.Sprite(mat); sprite.position.set(i % 2 ? 3.8 : -3.8, .6, 10 - i * 7); sprite.scale.set(9, 3, 1); smoke.push(sprite); scene.add(sprite); }
     const sparksCount = mobile ? 80 : 260;
@@ -170,9 +169,21 @@ export default function StadiumScene(props: Props) {
     };
     resize(); const observer = new ResizeObserver(resize); observer.observe(container);
     const onLost = (event: Event) => { event.preventDefault(); state.current.onFallback(); }; renderer.domElement.addEventListener('webglcontextlost', onLost);
+    let appliedAccent: string | undefined = '';
+    const GOLD = { light: '#f1dba3', trim: '#a89a77', strip: '#d9c391', ring: '#ead29a', stage: '#ffe5ae', spot: '#fff2d2', dust: '#f5dfad', spark: '#ffe8a5' };
+    const applyAccent = (accent?: string) => {
+      appliedAccent = accent;
+      const tone = (gold: string, mixWhite: number, dim = 1) => accent ? new THREE.Color(accent).lerp(new THREE.Color('#ffffff'), mixWhite).multiplyScalar(dim) : new THREE.Color(gold);
+      lightColor.copy(tone(GOLD.light, .35)); trim.color.copy(tone(GOLD.trim, .1, .75)); floorStrip.color.copy(tone(GOLD.strip, .3));
+      ringMaterial.color.copy(tone(GOLD.ring, .3)); stageLight.color.copy(tone(GOLD.stage, .5)); spotlight.color.copy(tone(GOLD.spot, .6));
+      dustMaterial.color.copy(tone(GOLD.dust, .45)); sparkMaterial.color.copy(tone(GOLD.spark, .4));
+    };
+    let paintedBack: string | undefined;
     const paintLed = (phase: number) => {
-      drawBadge(panel.ctx, { ...state.current, phase }, 768, 384, () => { if (lastPhase === phase) paintLed(phase); });
-      panel.texture.needsUpdate = true;
+      const info = { ...state.current, phase }, redraw = () => { if (lastPhase === phase) paintLed(phase); };
+      drawBadge(intro.ctx, info.intro ? { ...info, back: info.intro } : info, 1024, 576, redraw);
+      drawBadge(panel.ctx, info.intro ? { ...info, off: true } : info, 1024, 576, redraw);
+      panel.texture.needsUpdate = true; intro.texture.needsUpdate = true;
     };
     const animate = (now: number) => {
       if (!alive) return;
@@ -192,10 +203,11 @@ export default function StadiumScene(props: Props) {
       }
       if (!playing && prepared) return;
       const phase = playing ? state.current.phase : 0;
-      if (phase !== lastPhase) { lastPhase = phase; phaseSince = now; paintLed(phase); }
+      if (state.current.accent !== appliedAccent) applyAccent(state.current.accent);
+      if (phase !== lastPhase || `${state.current.back}|${state.current.intro}` !== paintedBack) { lastPhase = phase; phaseSince = now; paintedBack = `${state.current.back}|${state.current.intro}`; paintLed(phase); }
       const age = (now - phaseSince) / 1000;
       // Màn LED sáng/tắt cùng lúc với chữ giữa màn hình; giữ chút ánh nền để màn không tắt hẳn.
-      const ledLevel = .07 + .93 * infoVisibility(phase); panelMat.color.setScalar(ledLevel); container.dataset.ledLevel = ledLevel.toFixed(2);
+      const ledLevel = .07 + .93 * infoVisibility(phase, state.current.back); panelMat.color.setScalar(ledLevel); introMat.color.setScalar(ledLevel); container.dataset.ledLevel = ledLevel.toFixed(2);
       const elapsed = state.current.getElapsed?.() ?? (startedAt === null ? 0 : now - startedAt);
       const duration = OPENING_CUES[state.current.quick ? 'quick' : 'standard'][8];
       progress = phase >= 9 && elapsed < duration - 150 ? THREE.MathUtils.damp(progress, 1, 9, dt) : cameraProgress(elapsed, state.current.quick);

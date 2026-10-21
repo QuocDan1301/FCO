@@ -578,3 +578,305 @@ img.card-level{background:none;border:0;padding:0;border-radius:0;height:20px;wi
 .ready-flip>.ready-glitch{position:absolute;inset:0;z-index:2;transform:rotateY(180deg) translateZ(4px);backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:4px}
 .tm-flip>.ready-glitch{-webkit-mask:var(--tm-mask) center/contain no-repeat;mask:var(--tm-mask) center/contain no-repeat;border-radius:0}
 .ready-flip>.ready-glitch{mix-blend-mode:normal;filter:invert(1) contrast(1.25)}
+/* Đang xem trước cấp kế tiếp khi có phôi: OVR và giá đổi màu xanh */
+.fco-preview div:nth-child(2) b,.fco-preview .fco-price{color:#2be27a}
+.fco-preview div:first-child .fco-badge{filter:drop-shadow(0 0 6px #2be27a99)}
+/* Thẻ 26TS: màu OVR áp dụng cho cả mùa, kể cả khi bổ sung cầu thủ mới. */
+.season-stellar .face-art-ovr{color:#f6ead0}
+.player-card.face-art.face-13{aspect-ratio:285/315}
+.face-13 .face-art-ovr{left:30.4%;top:20.3%;font-size:12.6cqw;color:#f6ead0}
+.face-13 .face-art-level{left:30.4%;top:64.8%;width:17.2%}
+.player-card.face-art.face-11{aspect-ratio:293/321}
+.face-11 .face-art-ovr{left:27.8%;top:21.2%;font-size:12.3cqw;color:#f6ead0}
+.face-11 .face-art-level{left:27.8%;top:64.8%;width:16.7%}
+.player-card.face-art.face-14{aspect-ratio:311/317}
+.face-14 .face-art-ovr{left:28.3%;top:21.1%;font-size:11.6cqw;color:#f6ead0}
+.face-14 .face-art-level{left:28.3%;top:65.3%;width:15.4%}
+.player-card.face-art.face-15{aspect-ratio:303/328}
+.face-15 .face-art-ovr{left:29.5%;top:22.6%;font-size:11.9cqw;color:#f6ead0}
+.face-15 .face-art-level{left:29.5%;top:65.2%;width:16.2%}
+.player-card.face-art.face-12{aspect-ratio:283/322}
+.face-12 .face-art-ovr{left:31.1%;top:22.7%;font-size:12.7cqw;color:#f6ead0}
+.face-12 .face-art-level{left:31.1%;top:66.1%;width:17.0%}
+.player-card.face-art.face-16{aspect-ratio:287/332}
+.face-16 .face-art-ovr{left:31.9%;top:23.5%;font-size:12.5cqw;color:#f6ead0}
+.face-16 .face-art-level{left:31.9%;top:65.7%;width:17.1%}
+.player-card.face-art.face-17{aspect-ratio:288/325}
+.face-17 .face-art-ovr{left:30.7%;top:22.8%;font-size:12.5cqw;color:#f6ead0}
+.face-17 .face-art-level{left:30.7%;top:65.8%;width:17.0%}
+.player-card.face-art.face-18{aspect-ratio:300/318}
+.face-18 .face-art-ovr{left:27.8%;top:21.1%;font-size:12.0cqw;color:#f6ead0}
+.face-18 .face-art-level{left:27.8%;top:65.1%;width:16.3%}
+.player-card.face-art.face-123{aspect-ratio:261/322}
+.face-123 .face-art-ovr{left:26.2%;top:22.4%;font-size:13.8cqw;color:#f6ead0}
+.face-123 .face-art-level{left:26.2%;top:65.8%;width:18.8%}
+.player-card.face-art.face-20{aspect-ratio:287/327}
+.face-20 .face-art-ovr{left:26.7%;top:23.5%;font-size:12.5cqw;color:#f6ead0}
+.face-20 .face-art-level{left:26.7%;top:66.4%;width:17.1%}
+.player-card.face-art.face-124{aspect-ratio:295/327}
+.face-124 .face-art-ovr{left:29.3%;top:22.6%;font-size:12.2cqw;color:#f6ead0}
+.face-124 .face-art-level{left:29.3%;top:65.4%;width:16.6%}
+.player-card.face-art.face-19{aspect-ratio:330/327}
+.face-19 .face-art-ovr{left:29.8%;top:23.5%;font-size:10.9cqw;color:#f6ead0}
+.face-19 .face-art-level{left:29.8%;top:66.4%;width:14.8%}
+.player-card.face-art.face-125{aspect-ratio:290/330}
+.face-125 .face-art-ovr{left:29.8%;top:23.3%;font-size:12.4cqw;color:#f6ead0}
+.face-125 .face-art-level{left:29.8%;top:65.8%;width:16.9%}
+.player-card.face-art.face-126{aspect-ratio:287/327}
+.face-126 .face-art-ovr{left:27.4%;top:22.0%;font-size:12.5cqw;color:#f6ead0}
+.face-126 .face-art-level{left:27.4%;top:64.8%;width:17.1%}
+.player-card.face-art.face-127{aspect-ratio:317/338}
+.face-127 .face-art-ovr{left:29.5%;top:25.7%;font-size:11.4cqw;color:#f6ead0}
+.face-127 .face-art-level{left:29.5%;top:67.2%;width:15.5%}
+.player-card.face-art.face-128{aspect-ratio:268/331}
+.face-128 .face-art-ovr{left:27.4%;top:23.6%;font-size:13.4cqw;color:#f6ead0}
+.face-128 .face-art-level{left:27.4%;top:65.9%;width:18.3%}
+.player-card.face-art.face-129{aspect-ratio:282/325}
+.face-129 .face-art-ovr{left:30.0%;top:22.2%;font-size:12.8cqw;color:#f6ead0}
+.face-129 .face-art-level{left:30.0%;top:65.2%;width:17.4%}
+.player-card.face-art.face-130{aspect-ratio:262/317}
+.face-130 .face-art-ovr{left:29.2%;top:20.8%;font-size:13.7cqw;color:#f6ead0}
+.face-130 .face-art-level{left:29.2%;top:65.0%;width:18.7%}
+.player-card.face-art.face-131{aspect-ratio:262/323}
+.face-131 .face-art-ovr{left:28.4%;top:22.6%;font-size:13.7cqw;color:#f6ead0}
+.face-131 .face-art-level{left:28.4%;top:65.9%;width:18.7%}
+.player-card.face-art.face-132{aspect-ratio:272/332}
+.face-132 .face-art-ovr{left:26.3%;top:23.8%;font-size:13.2cqw;color:#f6ead0}
+.face-132 .face-art-level{left:26.3%;top:66.0%;width:18.0%}
+.player-card.face-art.face-133{aspect-ratio:278/327}
+.face-133 .face-art-ovr{left:30.0%;top:23.5%;font-size:12.9cqw;color:#f6ead0}
+.face-133 .face-art-level{left:30.0%;top:66.4%;width:17.6%}
+.player-card.face-art.face-134{aspect-ratio:288/326}
+.face-134 .face-art-ovr{left:29.0%;top:23.3%;font-size:12.5cqw;color:#f6ead0}
+.face-134 .face-art-level{left:29.0%;top:66.3%;width:17.0%}
+.player-card.face-art.face-135{aspect-ratio:265/332}
+.face-135 .face-art-ovr{left:28.9%;top:22.9%;font-size:13.6cqw;color:#f6ead0}
+.face-135 .face-art-level{left:28.9%;top:65.1%;width:18.5%}
+.player-card.face-art.face-136{aspect-ratio:252/322}
+.face-136 .face-art-ovr{left:29.2%;top:22.0%;font-size:14.3cqw;color:#f6ead0}
+.face-136 .face-art-level{left:29.2%;top:65.5%;width:19.4%}
+.player-card.face-art.face-137{aspect-ratio:257/335}
+.face-137 .face-art-ovr{left:29.8%;top:24.5%;font-size:14.0cqw;color:#f6ead0}
+.face-137 .face-art-level{left:29.8%;top:66.3%;width:19.1%}
+.player-card.face-art.face-138{aspect-ratio:266/332}
+.face-138 .face-art-ovr{left:25.0%;top:24.4%;font-size:13.5cqw;color:#f6ead0}
+.face-138 .face-art-level{left:25.0%;top:66.6%;width:18.4%}
+.player-card.face-art.face-139{aspect-ratio:277/335}
+.face-139 .face-art-ovr{left:30.1%;top:24.5%;font-size:13.0cqw;color:#f6ead0}
+.face-139 .face-art-level{left:30.1%;top:66.3%;width:17.7%}
+.player-card.face-art.face-140{aspect-ratio:255/318}
+.face-140 .face-art-ovr{left:26.9%;top:21.1%;font-size:14.1cqw;color:#f6ead0}
+.face-140 .face-art-level{left:26.9%;top:65.1%;width:19.2%}
+.player-card.face-art.face-141{aspect-ratio:250/321}
+.face-141 .face-art-ovr{left:26.4%;top:22.4%;font-size:14.4cqw;color:#f6ead0}
+.face-141 .face-art-level{left:26.4%;top:66.0%;width:19.2%}
+.player-card.face-art.face-142{aspect-ratio:287/321}
+.face-142 .face-art-ovr{left:28.4%;top:22.1%;font-size:12.5cqw;color:#f6ead0}
+.face-142 .face-art-level{left:28.4%;top:65.7%;width:17.1%}
+.player-card.face-art.face-143{aspect-ratio:270/322}
+.face-143 .face-art-ovr{left:29.4%;top:22.0%;font-size:13.3cqw;color:#f6ead0}
+.face-143 .face-art-level{left:29.4%;top:65.5%;width:18.1%}
+.player-card.face-art.face-144{aspect-ratio:251/322}
+.face-144 .face-art-ovr{left:25.1%;top:22.4%;font-size:14.3cqw;color:#f6ead0}
+.face-144 .face-art-level{left:25.1%;top:65.8%;width:19.1%}
+.player-card.face-art.face-145{aspect-ratio:258/317}
+.face-145 .face-art-ovr{left:27.7%;top:21.5%;font-size:14.0cqw;color:#f6ead0}
+.face-145 .face-art-level{left:27.7%;top:65.6%;width:19.0%}
+.player-card.face-art.face-146{aspect-ratio:250/322}
+.face-146 .face-art-ovr{left:25.6%;top:22.4%;font-size:14.4cqw;color:#f6ead0}
+.face-146 .face-art-level{left:25.6%;top:65.8%;width:19.2%}
+.player-card.face-art.face-147{aspect-ratio:275/322}
+.face-147 .face-art-ovr{left:29.6%;top:21.4%;font-size:13.1cqw;color:#f6ead0}
+.face-147 .face-art-level{left:29.6%;top:64.9%;width:17.8%}
+.player-card.face-art.face-148{aspect-ratio:278/322}
+.face-148 .face-art-ovr{left:25.7%;top:21.4%;font-size:12.9cqw;color:#f6ead0}
+.face-148 .face-art-level{left:25.7%;top:64.9%;width:17.6%}
+.player-card.face-art.face-149{aspect-ratio:241/330}
+.face-149 .face-art-ovr{left:28.4%;top:23.0%;font-size:14.9cqw;color:#f6ead0}
+.face-149 .face-art-level{left:28.4%;top:65.5%;width:20.3%}
+.player-card.face-art.face-150{aspect-ratio:272/321}
+.face-150 .face-art-ovr{left:30.0%;top:22.1%;font-size:13.2cqw;color:#f6ead0}
+.face-150 .face-art-level{left:30.0%;top:65.7%;width:18.0%}
+.player-card.face-art.face-151{aspect-ratio:237/331}
+.face-151 .face-art-ovr{left:24.7%;top:23.0%;font-size:15.2cqw;color:#f6ead0}
+.face-151 .face-art-level{left:24.7%;top:65.3%;width:20.7%}
+.player-card.face-art.face-152{aspect-ratio:252/316}
+.face-152 .face-art-ovr{left:24.4%;top:19.9%;font-size:14.3cqw;color:#f6ead0}
+.face-152 .face-art-level{left:24.4%;top:64.2%;width:19.4%}
+.player-card.face-art.face-153{aspect-ratio:277/323}
+.face-153 .face-art-ovr{left:27.6%;top:22.3%;font-size:13.0cqw;color:#f6ead0}
+.face-153 .face-art-level{left:27.6%;top:65.6%;width:17.7%}
+.player-card.face-art.face-154{aspect-ratio:270/322}
+.face-154 .face-art-ovr{left:27.2%;top:22.0%;font-size:13.3cqw;color:#f6ead0}
+.face-154 .face-art-level{left:27.2%;top:65.5%;width:18.1%}
+.player-card.face-art.face-155{aspect-ratio:257/320}
+.face-155 .face-art-ovr{left:31.7%;top:21.6%;font-size:14.0cqw;color:#f6ead0}
+.face-155 .face-art-level{left:31.7%;top:65.3%;width:19.1%}
+.player-card.face-art.face-156{aspect-ratio:245/332}
+.face-156 .face-art-ovr{left:23.9%;top:23.2%;font-size:14.7cqw;color:#f6ead0}
+.face-156 .face-art-level{left:23.9%;top:65.4%;width:20.0%}
+.player-card.face-art.face-157{aspect-ratio:257/326}
+.face-157 .face-art-ovr{left:28.6%;top:20.9%;font-size:14.0cqw;color:#f6ead0}
+.face-157 .face-art-level{left:28.6%;top:63.8%;width:19.1%}
+.player-card.face-art.face-158{aspect-ratio:271/315}
+.face-158 .face-art-ovr{left:27.1%;top:19.7%;font-size:13.3cqw;color:#f6ead0}
+.face-158 .face-art-level{left:27.1%;top:64.1%;width:18.1%}
+.player-card.face-art.face-159{aspect-ratio:265/325}
+.face-159 .face-art-ovr{left:28.9%;top:22.8%;font-size:13.6cqw;color:#f6ead0}
+.face-159 .face-art-level{left:28.9%;top:65.8%;width:18.5%}
+.player-card.face-art.face-160{aspect-ratio:280/322}
+.face-160 .face-art-ovr{left:26.3%;top:22.0%;font-size:12.9cqw;color:#f6ead0}
+.face-160 .face-art-level{left:26.3%;top:65.5%;width:17.5%}
+.player-card.face-art.face-161{aspect-ratio:262/321}
+.face-161 .face-art-ovr{left:25.4%;top:22.1%;font-size:13.7cqw;color:#f6ead0}
+.face-161 .face-art-level{left:25.4%;top:65.7%;width:18.7%}
+.player-card.face-art.face-162{aspect-ratio:267/325}
+.face-162 .face-art-ovr{left:29.4%;top:22.2%;font-size:13.5cqw;color:#f6ead0}
+.face-162 .face-art-level{left:29.4%;top:65.2%;width:18.4%}
+.player-card.face-art.face-163{aspect-ratio:266/327}
+.face-163 .face-art-ovr{left:25.8%;top:22.6%;font-size:13.5cqw;color:#f6ead0}
+.face-163 .face-art-level{left:25.8%;top:65.4%;width:18.4%}
+.player-card.face-art.face-164{aspect-ratio:262/322}
+.face-164 .face-art-ovr{left:27.3%;top:21.4%;font-size:13.7cqw;color:#f6ead0}
+.face-164 .face-art-level{left:27.3%;top:64.9%;width:18.7%}
+.player-card.face-art.face-165{aspect-ratio:257/322}
+.face-165 .face-art-ovr{left:27.0%;top:22.4%;font-size:14.0cqw;color:#f6ead0}
+.face-165 .face-art-level{left:27.0%;top:65.8%;width:19.1%}
+.player-card.face-art.face-166{aspect-ratio:277/326}
+.face-166 .face-art-ovr{left:30.1%;top:22.1%;font-size:13.0cqw;color:#f6ead0}
+.face-166 .face-art-level{left:30.1%;top:65.0%;width:17.7%}
+.player-card.face-art.face-167{aspect-ratio:267/332}
+.face-167 .face-art-ovr{left:30.5%;top:24.4%;font-size:13.5cqw;color:#f6ead0}
+.face-167 .face-art-level{left:30.5%;top:66.6%;width:18.4%}
+.player-card.face-art.face-168{aspect-ratio:280/347}
+.face-168 .face-art-ovr{left:29.1%;top:26.8%;font-size:12.9cqw;color:#f6ead0}
+.face-168 .face-art-level{left:29.1%;top:67.1%;width:17.5%}
+.player-card.face-art.face-169{aspect-ratio:250/318}
+.face-169 .face-art-ovr{left:24.6%;top:21.4%;font-size:14.4cqw;color:#f6ead0}
+.face-169 .face-art-level{left:24.6%;top:65.4%;width:19.6%}
+.player-card.face-art.face-170{aspect-ratio:285/322}
+.face-170 .face-art-ovr{left:27.5%;top:22.4%;font-size:12.6cqw;color:#f6ead0}
+.face-170 .face-art-level{left:27.5%;top:65.8%;width:17.2%}
+.player-card.face-art.face-171{aspect-ratio:277/325}
+.face-171 .face-art-ovr{left:27.4%;top:20.6%;font-size:13.0cqw;color:#f6ead0}
+.face-171 .face-art-level{left:27.4%;top:63.7%;width:17.3%}
+.player-card.face-art.face-172{aspect-ratio:272/335}
+.face-172 .face-art-ovr{left:26.3%;top:23.0%;font-size:13.2cqw;color:#f6ead0}
+.face-172 .face-art-level{left:26.3%;top:64.8%;width:18.0%}
+.player-card.face-art.face-173{aspect-ratio:290/326}
+.face-173 .face-art-ovr{left:32.6%;top:23.3%;font-size:12.4cqw;color:#f6ead0}
+.face-173 .face-art-level{left:32.6%;top:66.3%;width:16.9%}
+.player-card.face-art.face-174{aspect-ratio:287/325}
+.face-174 .face-art-ovr{left:24.2%;top:21.2%;font-size:12.5cqw;color:#f6ead0}
+.face-174 .face-art-level{left:24.2%;top:64.3%;width:17.1%}
+.player-card.face-art.face-175{aspect-ratio:257/326}
+.face-175 .face-art-ovr{left:27.0%;top:21.8%;font-size:14.0cqw;color:#f6ead0}
+.face-175 .face-art-level{left:27.0%;top:64.7%;width:19.1%}
+.player-card.face-art.face-176{aspect-ratio:261/312}
+.face-176 .face-art-ovr{left:28.4%;top:20.2%;font-size:13.8cqw;color:#f6ead0}
+.face-176 .face-art-level{left:28.4%;top:65.1%;width:18.4%}
+.player-card.face-art.face-177{aspect-ratio:263/320}
+.face-177 .face-art-ovr{left:28.9%;top:20.9%;font-size:13.7cqw;color:#f6ead0}
+.face-177 .face-art-level{left:28.9%;top:64.7%;width:18.3%}
+.player-card.face-art.face-178{aspect-ratio:272/322}
+.face-178 .face-art-ovr{left:30.0%;top:22.4%;font-size:13.2cqw;color:#f6ead0}
+.face-178 .face-art-level{left:30.0%;top:65.8%;width:18.0%}
+.player-card.face-art.face-179{aspect-ratio:258/317}
+.face-179 .face-art-ovr{left:24.4%;top:21.1%;font-size:14.0cqw;color:#f6ead0}
+.face-179 .face-art-level{left:24.4%;top:65.3%;width:18.6%}
+.player-card.face-art.face-180{aspect-ratio:273/332}
+.face-180 .face-art-ovr{left:26.9%;top:24.4%;font-size:13.2cqw;color:#f6ead0}
+.face-180 .face-art-level{left:26.9%;top:66.6%;width:17.9%}
+.player-card.face-art.face-181{aspect-ratio:265/322}
+.face-181 .face-art-ovr{left:27.7%;top:22.4%;font-size:13.6cqw;color:#f6ead0}
+.face-181 .face-art-level{left:27.7%;top:65.8%;width:18.5%}
+.player-card.face-art.face-182{aspect-ratio:255/312}
+.face-182 .face-art-ovr{left:28.0%;top:20.2%;font-size:14.1cqw;color:#f6ead0}
+.face-182 .face-art-level{left:28.0%;top:65.1%;width:19.2%}
+.player-card.face-art.face-183{aspect-ratio:257/317}
+.face-183 .face-art-ovr{left:28.6%;top:21.1%;font-size:14.0cqw;color:#f6ead0}
+.face-183 .face-art-level{left:28.6%;top:65.3%;width:19.1%}
+.player-card.face-art.face-184{aspect-ratio:292/328}
+.face-184 .face-art-ovr{left:28.6%;top:22.0%;font-size:12.3cqw;color:#f6ead0}
+.face-184 .face-art-level{left:28.6%;top:64.6%;width:16.8%}
+.player-card.face-art.face-185{aspect-ratio:270/315}
+.face-185 .face-art-ovr{left:27.6%;top:21.0%;font-size:13.3cqw;color:#f6ead0}
+.face-185 .face-art-level{left:27.6%;top:65.4%;width:18.1%}
+.player-card.face-art.face-186{aspect-ratio:277/321}
+.face-186 .face-art-ovr{left:29.4%;top:22.1%;font-size:13.0cqw;color:#f6ead0}
+.face-186 .face-art-level{left:29.4%;top:65.7%;width:17.7%}
+.player-card.face-art.face-187{aspect-ratio:285/330}
+.face-187 .face-art-ovr{left:31.1%;top:21.8%;font-size:12.6cqw;color:#f6ead0}
+.face-187 .face-art-level{left:31.1%;top:64.2%;width:17.2%}
+.player-card.face-art.face-188{aspect-ratio:276/317}
+.face-188 .face-art-ovr{left:24.8%;top:20.8%;font-size:13.0cqw;color:#f6ead0}
+.face-188 .face-art-level{left:24.8%;top:65.0%;width:17.8%}
+.player-card.face-art.face-189{aspect-ratio:270/322}
+.face-189 .face-art-ovr{left:25.2%;top:21.4%;font-size:13.3cqw;color:#f6ead0}
+.face-189 .face-art-level{left:25.2%;top:64.9%;width:17.8%}
+.player-card.face-art.face-190{aspect-ratio:272/316}
+.face-190 .face-art-ovr{left:26.3%;top:19.9%;font-size:13.2cqw;color:#f6ead0}
+.face-190 .face-art-level{left:26.3%;top:64.2%;width:18.0%}
+.player-card.face-art.face-191{aspect-ratio:257/321}
+.face-191 .face-art-ovr{left:28.4%;top:22.1%;font-size:14.0cqw;color:#f6ead0}
+.face-191 .face-art-level{left:28.4%;top:65.7%;width:18.7%}
+.player-card.face-art.face-192{aspect-ratio:247/315}
+.face-192 .face-art-ovr{left:27.7%;top:19.7%;font-size:14.6cqw;color:#f6ead0}
+.face-192 .face-art-level{left:27.7%;top:64.1%;width:19.8%}
+.player-card.face-art.face-193{aspect-ratio:262/320}
+.face-193 .face-art-ovr{left:26.7%;top:19.4%;font-size:13.7cqw}
+.face-193 .face-art-level{left:26.0%;top:65.3%;width:18.3%}
+.player-card.face-art.face-194{aspect-ratio:266/315}
+.face-194 .face-art-ovr{left:27.8%;top:19.4%;font-size:13.5cqw}
+.face-194 .face-art-level{left:26.3%;top:64.8%;width:18.0%}
+.player-card.face-art.face-195{aspect-ratio:262/315}
+.face-195 .face-art-ovr{left:27.5%;top:18.7%;font-size:13.7cqw}
+.face-195 .face-art-level{left:26.7%;top:64.4%;width:18.3%}
+.player-card.face-art.face-196{aspect-ratio:267/320}
+.face-196 .face-art-ovr{left:27.3%;top:19.4%;font-size:13.5cqw}
+.face-196 .face-art-level{left:26.6%;top:65.0%;width:18.0%}
+.player-card.face-art.face-197{aspect-ratio:268/315}
+.face-197 .face-art-ovr{left:29.1%;top:18.1%;font-size:13.4cqw}
+.face-197 .face-art-level{left:27.6%;top:64.1%;width:17.9%}
+.player-card.face-art.face-198{aspect-ratio:263/321}
+.face-198 .face-art-ovr{left:28.1%;top:20.6%;font-size:13.7cqw}
+.face-198 .face-art-level{left:27.8%;top:66.0%;width:18.3%}
+.player-card.face-art.face-199{aspect-ratio:278/315}
+.face-199 .face-art-ovr{left:31.7%;top:19.7%;font-size:12.9cqw}
+.face-199 .face-art-level{left:31.7%;top:66.3%;width:17.3%}
+.player-card.face-art.face-200{aspect-ratio:270/318}
+.face-200 .face-art-ovr{left:30.7%;top:20.4%;font-size:13.3cqw}
+.face-200 .face-art-level{left:30.7%;top:65.1%;width:17.8%}
+.player-card.face-art.face-201{aspect-ratio:277/332}
+.face-201 .face-art-ovr{left:28.9%;top:22.3%;font-size:13.0cqw}
+.face-201 .face-art-level{left:28.2%;top:65.4%;width:17.3%}
+.player-card.face-art.face-202{aspect-ratio:268/325}
+.face-202 .face-art-ovr{left:28.7%;top:21.5%;font-size:13.4cqw}
+.face-202 .face-art-level{left:28.0%;top:65.5%;width:17.9%}
+.player-card.face-art.face-203{aspect-ratio:277/325}
+.face-203 .face-art-ovr{left:30.0%;top:20.6%;font-size:13.0cqw}
+.face-203 .face-art-level{left:29.2%;top:64.6%;width:17.3%}
+.player-card.face-art.face-204{aspect-ratio:257/316}
+.face-204 .face-art-ovr{left:25.7%;top:19.0%;font-size:14.0cqw}
+.face-204 .face-art-level{left:25.7%;top:64.2%;width:18.7%}
+.player-card.face-art.face-205{aspect-ratio:268/325}
+.face-205 .face-art-ovr{left:29.9%;top:22.2%;font-size:13.4cqw}
+.face-205 .face-art-level{left:28.7%;top:66.5%;width:17.9%}
+.player-card.face-art.face-206{aspect-ratio:257/319}
+.face-206 .face-art-ovr{left:25.3%;top:20.4%;font-size:14.0cqw}
+.face-206 .face-art-level{left:25.7%;top:64.9%;width:18.7%}
+.player-card.face-art.face-207{aspect-ratio:282/316}
+.face-207 .face-art-ovr{left:28.4%;top:19.3%;font-size:12.8cqw}
+.face-207 .face-art-level{left:28.0%;top:64.6%;width:17.0%}
+.player-card.face-art.face-208{aspect-ratio:303/313}
+.face-208 .face-art-ovr{left:28.4%;top:19.2%;font-size:11.9cqw}
+.face-208 .face-art-level{left:28.4%;top:65.2%;width:15.8%}
+.player-card.face-art.face-209{aspect-ratio:267/322}
+.face-209 .face-art-ovr{left:25.8%;top:21.4%;font-size:13.5cqw}
+.face-209 .face-art-level{left:25.5%;top:65.8%;width:18.0%}
+.player-card.face-art.face-210{aspect-ratio:247/332}
+.face-210 .face-art-ovr{left:25.1%;top:23.8%;font-size:14.6cqw}
+.face-210 .face-art-level{left:25.1%;top:67.2%;width:19.4%}
+.player-card.face-art.face-211{aspect-ratio:276/325}
+.face-211 .face-art-ovr{left:28.6%;top:21.2%;font-size:13.0cqw}
+.face-211 .face-art-level{left:28.6%;top:65.5%;width:17.4%}

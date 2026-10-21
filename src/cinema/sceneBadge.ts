@@ -1,7 +1,9 @@
 import { flagImageUrl } from '../flags';
 
 // Nội dung màn LED trong đường hầm: cờ → vị trí → logo đội, vẽ lên canvas để chạy cùng camera.
-export type BadgeInfo = { phase: number; nation: string; position: string; team: string; season: string; flag: string; teamLogo?: string };
+// back: ảnh nền thẻ của gói; có ảnh thì LED luôn hiện ảnh này thay cho cờ / vị trí / logo.
+// off: màn tắt (chỉ nền tối và viền vàng).
+export type BadgeInfo = { phase: number; nation: string; position: string; team: string; season: string; flag: string; teamLogo?: string; back?: string; off?: boolean; accent?: string };
 
 // Cùng font và cách viết với phần hiện giữa màn hình (.opening-information) để chữ trên LED khớp.
 const FONT = '"Barlow Condensed", "Arial Narrow", Arial, sans-serif';
@@ -15,11 +17,21 @@ function sceneImage(url: string, onLoad: () => void) {
 }
 
 export function drawBadge(ctx: CanvasRenderingContext2D, info: BadgeInfo, w: number, h: number, onLoad: () => void) {
-  const gold = '#ebce8f';
+  const gold = info.accent ?? '#ebce8f';
   if (typeof document !== 'undefined' && document.fonts && document.fonts.status !== 'loaded') document.fonts.ready.then(onLoad);
   ctx.clearRect(0, 0, w, h);
   ctx.fillStyle = '#0b1118'; ctx.fillRect(0, 0, w, h);
   ctx.fillStyle = gold; ctx.fillRect(0, 0, w, h * .016); ctx.fillRect(0, h * .984, w, h * .016);
+  if (info.off) return;
+  if (info.back) {
+    const card = sceneImage(info.back, onLoad);
+    if (card && card.naturalWidth >= card.naturalHeight) {
+      // Ảnh nền ngang: trải kín cả màn LED (cắt mép thừa), không viền.
+      const scale = Math.max(w / card.naturalWidth, h / card.naturalHeight), cw = card.naturalWidth * scale, ch = card.naturalHeight * scale;
+      ctx.drawImage(card, (w - cw) / 2, (h - ch) / 2, cw, ch);
+    } else if (card) { const ch = h * .92, cw = ch * card.naturalWidth / card.naturalHeight; ctx.drawImage(card, (w - cw) / 2, (h - ch) / 2, cw, ch); }
+    return;
+  }
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
   const label = info.phase === 3 ? 'QUỐC TỊCH' : info.phase === 4 ? 'VỊ TRÍ THI ĐẤU' : info.phase === 5 ? 'ĐỘI BÓNG' : 'FCO VIP';
   ctx.fillStyle = '#dccbaa'; ctx.font = `500 ${Math.round(h * .085)}px ${FONT}`; if ('letterSpacing' in ctx) ctx.letterSpacing = `${Math.round(h * .012)}px`; ctx.fillText(label, w / 2, h * .13); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
@@ -49,8 +61,8 @@ export function drawBadge(ctx: CanvasRenderingContext2D, info: BadgeInfo, w: num
 
 // Độ sáng màn LED bám đúng độ hiện thực tế của chữ giữa màn hình (.opening-information),
 // nên cờ / vị trí / logo trên LED và ở giữa luôn sáng lên, giữ và tắt cùng một lúc.
-export function infoVisibility(phase: number) {
-  if (phase < 3 || phase > 5) return 1;
+export function infoVisibility(phase: number, back?: string) {
+  if (back || phase < 3 || phase > 5) return 1;
   const overlay = document.querySelector('.opening-information');
   return overlay ? Number(getComputedStyle(overlay).opacity) || 0 : 0;
 }

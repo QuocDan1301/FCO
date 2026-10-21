@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react';
 import { cameraProgress, OPENING_CUES } from './timeline';
 import { drawBadge, infoVisibility } from './sceneBadge';
 
-export default function LightTunnel({ phase, season, nation, position, team, flag, teamLogo, quick, onReady, onPrepared, playing = true, getElapsed }: { phase: number; season: string; nation: string; position: string; team: string; flag: string; teamLogo?: string; quick: boolean; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number }) {
+export default function LightTunnel({ phase, season, nation, position, team, flag, teamLogo, back, accent, quick, onReady, onPrepared, playing = true, getElapsed }: { phase: number; season: string; nation: string; position: string; team: string; flag: string; teamLogo?: string; back?: string; accent?: string; quick: boolean; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const latest = useRef({ phase, season, nation, position, team, flag, teamLogo, quick, onReady, onPrepared, playing, getElapsed }); latest.current = { phase, season, nation, position, team, flag, teamLogo, quick, onReady, onPrepared, playing, getElapsed };
+  const latest = useRef({ phase, season, nation, position, team, flag, teamLogo, back, accent, quick, onReady, onPrepared, playing, getElapsed }); latest.current = { phase, season, nation, position, team, flag, teamLogo, back, accent, quick, onReady, onPrepared, playing, getElapsed };
   useEffect(() => {
     const canvas = canvasRef.current; const ctx = canvas?.getContext('2d'); if (!canvas || !ctx) return;
     const board = document.createElement('canvas'); board.width = 384; board.height = 192; const boardCtx = board.getContext('2d'); let boardKey = '';
@@ -14,7 +14,7 @@ export default function LightTunnel({ phase, season, nation, position, team, fla
       if (document.hidden || now - last < 33) return;
       const dt = last ? Math.min((now - last) / 1000, .1) : 0;
       last = now;
-      const { phase, season, nation, position, team, flag, teamLogo, quick, onReady, onPrepared, playing, getElapsed } = latest.current;
+      const { phase, season, nation, position, team, flag, teamLogo, back, accent, quick, onReady, onPrepared, playing, getElapsed } = latest.current;
       if (playing !== wasPlaying) { if (!playing) { prepared = false; startedAt = null; progress = 0; } wasPlaying = playing; }
       if (!playing && prepared) return;
       const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
@@ -22,7 +22,7 @@ export default function LightTunnel({ phase, season, nation, position, team, fla
       const elapsed = getElapsed?.() ?? (startedAt === null ? 0 : now - startedAt);
       const duration = OPENING_CUES[quick ? 'quick' : 'standard'][8];
       progress = phase >= 9 && elapsed < duration - 150 ? progress + (1 - progress) * (1 - Math.exp(-9 * dt)) : cameraProgress(elapsed, quick);
-      const cx = w * .5, cy = h * .47, gold = '#e5c991';
+      const cx = w * .5, cy = h * .47, gold = accent ?? '#e5c991';
       ctx.fillStyle = phase === 0 ? '#020408' : '#060c13'; ctx.fillRect(0, 0, w, h);
       const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * .65); glow.addColorStop(0, phase >= 7 ? '#8d9f9a44' : '#d8bf8420'); glow.addColorStop(1, '#03070c00'); ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);
       if (phase < 8) {
@@ -33,9 +33,9 @@ export default function LightTunnel({ phase, season, nation, position, team, fla
           ctx.beginPath(); ctx.moveTo(x + c, y); ctx.lineTo(x + rw - c, y); ctx.lineTo(x + rw, y + c); ctx.lineTo(x + rw, y + rh - c); ctx.lineTo(x + rw - c, y + rh); ctx.lineTo(x + c, y + rh); ctx.lineTo(x, y + rh - c); ctx.lineTo(x, y + c); ctx.closePath(); ctx.strokeStyle = '#2a3441'; ctx.lineWidth = 11 * scale + 1; ctx.stroke();
           if (phase > 0) { ctx.strokeStyle = gold; ctx.globalAlpha = .25 + .4 * scale; ctx.lineWidth = Math.max(1, 2 * scale); ctx.beginPath(); ctx.moveTo(x + c, y + 7 * scale); ctx.lineTo(x + rw - c, y + 7 * scale); ctx.moveTo(x + 7 * scale, y + c); ctx.lineTo(x + 7 * scale, y + rh - c); ctx.moveTo(x + rw - 7 * scale, y + c); ctx.lineTo(x + rw - 7 * scale, y + rh - c); ctx.stroke(); ctx.globalAlpha = 1; }
         }
-        const key = `${phase}|${flag}|${position}|${team}`;
-        if (boardCtx && key !== boardKey) { boardKey = key; drawBadge(boardCtx, { phase, season, nation, position, team, flag, teamLogo }, 384, 192, () => { boardKey = ''; }); }
-        const bw = w * .2, bh = bw / 2, shown = .07 + .93 * infoVisibility(phase);
+        const key = `${phase}|${flag}|${position}|${team}|${back}`;
+        if (boardCtx && key !== boardKey) { boardKey = key; drawBadge(boardCtx, { phase, season, nation, position, team, flag, teamLogo, back }, 384, 192, () => { boardKey = ''; }); }
+        const bw = w * .2, bh = bw / 2, shown = .07 + .93 * infoVisibility(phase, back);
         for (const side of [-1, 1]) { ctx.save(); ctx.globalAlpha = shown; ctx.translate(cx + side * w * .36, cy); ctx.transform(1, side * -.12, 0, 1, 0, 0); ctx.drawImage(board, -bw / 2, -bh / 2, bw, bh); ctx.restore(); }
       } else {
         ctx.fillStyle = '#1b2630'; ctx.beginPath(); ctx.ellipse(cx, h * .79, w * .4, h * .09, 0, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = gold; ctx.lineWidth = 2; ctx.stroke();
