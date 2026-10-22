@@ -17,7 +17,7 @@ if (!force && await exists(`${root}~$gia-cau-thu-bp.xlsx`)) {
   process.exit(1);
 }
 const { ovrs: ovrOverrides } = JSON.parse(await readFile(`${root}src/excel-overrides.json`, 'utf8'));
-const season = { eternal: 'ICON TM', stellar: '26TS', origin: 'NO.7' }, order = { eternal: 0, stellar: 1, origin: 2 };
+const season = { prime: 'INFINITE PRIME', eternal: 'ICON TM', stellar: '26TS', origin: 'NO.7' }, order = { prime: 0, eternal: 1, stellar: 2, origin: 3 };
 const list = [...players].sort((a, b) => order[a.tier] - order[b.tier] || b.ovr - a.ovr || a.name.localeCompare(b.name));
 
 const font = (extra = {}) => ({ name: 'Arial', size: 10, ...extra });
