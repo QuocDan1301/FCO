@@ -1,21 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowLeftRight, ArrowRight, Check, ChevronDown, ChevronRight, Coins, Gift, History, Info, Layers3, Maximize2, PackageOpen, Plus, Search, Settings2, Shield, Sparkles, Trophy, Volume2, VolumeX, X, Zap } from 'lucide-react';
-import { MAX_LEVEL, UPGRADE_LEVELS, claimDaily, dayKey, getPackStock, getPlayer, initialSave, isPackAvailable, money, openPacks, ovr, packs, players, seasons, STORAGE_KEY, uid, upgrade, upgradeInfo, validateSave } from './game';
+import { ArrowLeftRight, ArrowRight, Check, ChevronDown, ChevronRight, Coins, Gift, History, Info, Layers3, Maximize2, PackageOpen, Plus, Search, Settings2, Shield, ShoppingBag, Sparkles, Trophy, Volume2, VolumeX, X, Zap } from 'lucide-react';
+import { MAX_LEVEL, UPGRADE_LEVELS, buyPacks, claimDaily, dayKey, getPackOpeningCost, getPackStock, getPlayer, initialSave, isPackAvailable, money, openPacks, openSelectedPacks, ovr, packs, players, seasons, STORAGE_KEY, uid, upgrade, upgradeInfo, validateSave } from './game';
 import type { Card, Entry, Pack, Save, Tier } from './game';
 import PackOpening from './cinema/PackOpening';
 import ViewportPages from './ViewportPages';
 import PackStage from './cinema/PackStage';
-import { OPENING_CUES, OPENING_ENTRY, OPENING_RESULT, openingPhase } from './cinema/timeline';
+import { GATE_CROSS, OPENING_CUES, OPENING_ENTRY, OPENING_RESULT, openingPhase } from './cinema/timeline';
 import { unlockCinemaAudio } from './cinema/audio';
 import { AUDIO_ENABLED, UNLIMITED_COINS } from './config';
 import TransferMarket from './TransferMarket';
 import Inventory from './Inventory';
+import PackShop from './PackShop';
 import { Flag } from './flags';
-import { buyPlayer, sellPlayer, marketQuote, MARKET_FEE_PERCENT } from './market';
+import { buyPlayer, sellPlayer, marketQuote, formatMarketPrice, compareMarketPrices, MARKET_FEE_PERCENT } from './market';
 import type { MarketTrade } from './market';
 import { asset } from './asset';
+
 
 const cardSortOptions = [
   { value: 'ovr', label: 'OVR: cao → thấp' },
@@ -54,9 +56,9 @@ function CardSortSelect({ id, value, onChange }: { id: string; value: CardSort; 
   return <label className="card-sort" htmlFor={id}><span>Sắp xếp theo</span><select id={id} value={value} onChange={e => onChange(e.target.value as CardSort)}>{cardSortOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>;
 }
 
-const historyDetail = (entry: Entry) => entry.type === 'upgrade' ? entry.detail.replace(/ · Tỷ lệ [0-9.,]+%/g, '') : entry.detail;
+const historyDetail = (entry: Entry) => (entry.type === 'upgrade' ? entry.detail.replace(/ · Tỷ lệ [0-9.,]+%/g, '') : entry.detail).replace(/(\d{1,3}(?:[.,]\d{3})+|\d{7,})(?=\s*(?:BP|xu))/g, value => money(Number(value.replace(/[.,]/g, ''))));
 
-type View = 'packs' | 'upgrade' | 'collection' | 'inventory' | 'history' | 'market';
+type View = 'packs' | 'upgrade' | 'collection' | 'inventory' | 'history' | 'market' | 'shop';
 type Animation = { id: string; kind: 'pack'; cards: Card[]; pack: Pack; quick: boolean } | { id: string; kind: 'upgrade'; card: Card; success: boolean; before: number; droppedLevel: number | null; restoredLevel: number | null };
 const preview = (id: number): Card => ({ uid: `preview-${id}`, playerId: id, level: 1, received: 0 });
 let audioContext: AudioContext | undefined;
@@ -92,7 +94,7 @@ function playSound(kind: 'charge' | 'success' | 'fail' | 'click', enabled: boole
 }
 
 
-const shortPrice = (n: number) => n >= 1e9 ? `${(n / 1e9).toFixed(2)}B` : n >= 1e6 ? `${(n / 1e6).toFixed(2)}M` : money(n);
+const shortPrice = (n: number | null) => n === null ? 'Chưa có giá' : money(n);
 const posGroup = (pos: string) => pos === 'GK' ? 'gk' : ['CB', 'LB', 'RB', 'LWB', 'RWB', 'SW'].includes(pos) ? 'def' : ['ST', 'CF', 'LW', 'RW', 'LF', 'RF'].includes(pos) ? 'att' : 'mid';
 
 // Huy hiệu cấp thẻ +1 → +13; đường dẫn viết đầy đủ để bản mothe.html nhúng được ảnh.
@@ -206,9 +208,11 @@ export default function App() {
   const readyAvailable = readyPack ? getPackStock(save, readyPack) : 0;
   const readyBatch = Math.min(10, readyAvailable);
   const autoBatch = useRef(false);
-  const prepareOpening = (pack: Pack) => {
-    autoBatch.current = false;
+  const inventoryBatch = useRef<Pack[] | null>(null);
+  const prepareOpening = (pack: Pack, selection?: Pack[]) => {
     if (busy.current || !isPackAvailable(pack)) return;
+    inventoryBatch.current = selection ?? null;
+    autoBatch.current = !!selection;
     setPreparationId(id => id + 1); setEntryStarted(false); setPackPrepared(false); setSelectedPack(pack); setReadyPack(pack);
   };
   const [toast, setToast] = useState(loadNotice);
@@ -226,6 +230,7 @@ export default function App() {
   const [sceneReady, setSceneReady] = useState(false);
   const [targetId, setTargetId] = useState(save.cards[0]?.uid || '');
   const [materialIds, setMaterialIds] = useState<string[]>([]);
+  const [hoveredMaterialId, setHoveredMaterialId] = useState('');
   const [matSort, setMatSort] = useState<`${'position' | 'name' | 'ovr' | 'level' | 'price'}-${'asc' | 'desc'}`>('ovr-desc');
   const [picker, setPicker] = useState<'target' | 'material' | null>(null);
   const [query, setQuery] = useState('');
@@ -236,9 +241,14 @@ export default function App() {
   const [minOvr, setMinOvr] = useState('');
   const [sort, setSort] = useState<CardSort>('ovr');
   const [historyType, setHistoryType] = useState('');
-  const target = save.cards.find(c => c.uid === targetId);
+  const savedTarget = save.cards.find(c => c.uid === targetId);
+  const pendingUpgrade = animation?.kind === 'upgrade' && phase < (animation.restoredLevel !== null ? 4 : 3) ? animation : null;
+  const target = savedTarget && pendingUpgrade?.card.uid === savedTarget.uid ? { ...savedTarget, level: pendingUpgrade.before } : savedTarget;
   const materials = materialIds.map(id => save.cards.find(c => c.uid === id)).filter((c): c is Card => !!c);
   const info = target ? upgradeInfo(target, materials) : { energy: 0, chance: 0, cost: 100000 };
+  const hoveredMaterial = !animation && materials.length < 5 && !materialIds.includes(hoveredMaterialId) ? save.cards.find(card => card.uid === hoveredMaterialId && card.uid !== targetId) : undefined;
+  const previewEnergy = target && target.level < MAX_LEVEL && hoveredMaterial ? upgradeInfo(target, [...materials, hoveredMaterial]).energy : info.energy;
+  useEffect(() => { setHoveredMaterialId(''); }, [targetId, matSort, view]);
   const bestOwned = save.cards.length ? Math.max(...save.cards.map(ovr)) : 0;
   const [currentDay, setCurrentDay] = useState(dayKey);
   useEffect(() => { const timer = setInterval(() => setCurrentDay(dayKey()), 30000); return () => clearInterval(timer); }, []);
@@ -255,6 +265,8 @@ export default function App() {
   };
   const requestTrade = (pending: MarketTrade) => {
     if (busy.current) return;
+    const quote = marketQuote(pending.card);
+    if (!quote.available) { notify(quote.reason); return; }
     setTradeError(''); setTrade(pending);
   };
   const confirmTrade = () => {
@@ -270,9 +282,18 @@ export default function App() {
         setMaterialIds(ids => ids.filter(id => id !== pending.card.uid));
         if (targetId === pending.card.uid) { setTargetId(result.state.cards[0]?.uid || ''); setMaterialIds([]); }
       }
-      notify(pending.kind === 'buy' ? `Đã mua ${getPlayer(result.card).name} +${result.card.level}. Thẻ đã vào kho.` : `Đã bán ${getPlayer(result.card).name} +${result.card.level}.${UNLIMITED_COINS ? ' Chế độ thử: không đổi số dư.' : ` Nhận ${money(result.quote.proceeds)} xu.`}`);
+      notify(pending.kind === 'buy' ? `Đã mua ${getPlayer(result.card).name} +${result.card.level}. Thẻ đã vào kho.` : `Đã bán ${getPlayer(result.card).name} +${result.card.level}.${UNLIMITED_COINS ? ' Chế độ thử: không đổi số dư.' : ` Nhận ${money(result.quote.proceeds)} BP.`}`);
       playSound('success', latest.current.sound);
     } catch (error) { setTradeError((error as Error).message); }
+    finally { busy.current = false; }
+  };
+  const purchasePacks = (pack: Pack, count: number) => {
+    if (busy.current) return;
+    busy.current = true;
+    try {
+      const next = buyPacks(latest.current, pack, count, UNLIMITED_COINS);
+      if (commit(next)) { notify(`Đã mua ${count} ${pack.name}. Gói đã được thêm vào kho vật phẩm.`); playSound('success', latest.current.sound); }
+    } catch (error) { notify((error as Error).message); }
     finally { busy.current = false; }
   };
   const receiveTestPacks = () => {
@@ -285,14 +306,15 @@ export default function App() {
   useEffect(() => {
     if (!packPrepared || !readyPack || packAnimation || !autoBatch.current) return;
     autoBatch.current = false;
+    if (inventoryBatch.current) { open(readyPack, 1, inventoryBatch.current); return; }
     const batch = Math.min(10, getPackStock(latest.current, readyPack));
-    if (batch >= 2 && (UNLIMITED_COINS || latest.current.balance >= readyPack.price * batch)) open(readyPack, batch);
+    if (batch >= 2 && (UNLIMITED_COINS || latest.current.balance >= getPackOpeningCost(latest.current, readyPack, batch))) open(readyPack, batch);
   }, [packPrepared, readyPack]);
-  const open = (pack: Pack, count: number) => {
+  const open = (pack: Pack, count: number, selection?: Pack[]) => {
     if (busy.current || !packPrepared) return;
     busy.current = true;
     try {
-      const result = openPacks(latest.current, pack, count, undefined, UNLIMITED_COINS);
+      const result = selection ? openSelectedPacks(latest.current, selection, undefined, UNLIMITED_COINS) : openPacks(latest.current, pack, count, undefined, UNLIMITED_COINS);
       if (!commit(result.state)) { busy.current = false; return; }
       unlockCinemaAudio(latest.current.sound);
       setPackSkipReady(false); setFlipStarted(false); setEntryStarted(false); setSceneReady(false); setPhase(0); setAnimation({ id: uid(), kind: 'pack', cards: result.cards, pack, quick: !!latest.current.quick });
@@ -303,7 +325,8 @@ export default function App() {
     const entry = OPENING_ENTRY[packAnimation.quick ? 'quick' : 'standard'];
     const flipTimer = window.setTimeout(() => setFlipStarted(true), entry.wait);
     const cameraTimer = window.setTimeout(() => setEntryStarted(true), entry.wait + (save.reduced ? 0 : entry.flip - entry.cameraLead));
-    const handoffTimer = window.setTimeout(() => setReadyPack(null), entry.wait + (save.reduced ? 0 : entry.flip + entry.glitch));
+    // Chuyển sang hầm 3D khi đã đi vào hết cổng phòng chờ (màn hình trắng), đúng lúc camera 3D xuyên qua vùng sáng.
+    const handoffTimer = window.setTimeout(() => setReadyPack(null), entry.wait + (save.reduced ? 0 : entry.flip + GATE_CROSS[packAnimation.quick ? 'quick' : 'standard']));
     return () => { clearTimeout(flipTimer); clearTimeout(cameraTimer); clearTimeout(handoffTimer); };
   }, [packAnimation?.id, !!readyPack, save.reduced]);
   useEffect(() => {
@@ -338,10 +361,11 @@ export default function App() {
     if (!animation || (animation.kind === 'pack' && !sceneReady && !save.reduced)) return;
     const started = Date.now();
     const last = finalPhase;
-    const times = save.reduced ? [80] : animation.kind === 'pack' ? OPENING_CUES[animation.quick ? 'quick' : 'standard'] : hasRecovery ? [1600, 2800, 3700, 4800] : [1600, 2800, 3700];
+    // Giảm chuyển động chỉ rút ngắn màn mở gói; nâng cấp vẫn chờ đủ các mốc trước khi hiện kết quả.
+    const times = animation.kind === 'pack' ? (save.reduced ? [80] : OPENING_CUES[animation.quick ? 'quick' : 'standard']) : hasRecovery ? [1600, 2800, 3700, 4800] : [1600, 2800, 3700];
     const advance = () => {
       const elapsed = Date.now() - started + 10;
-      const next = save.reduced ? last : animation.kind === 'pack' ? openingPhase(elapsed, animation.quick) : times.filter(at => elapsed >= at).length;
+      const next = animation.kind === 'pack' ? (save.reduced ? last : openingPhase(elapsed, animation.quick)) : times.filter(at => elapsed >= at).length;
       setPhase(previous => Math.max(previous, next));
     };
     const timers = times.map(at => setTimeout(advance, at));
@@ -354,14 +378,14 @@ export default function App() {
     const p = getPlayer(c);
     return p.name.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(query.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '')) && (!position || p.pos === position) && (!season || p.tier === season) && (!level || c.level === Number(level)) && (!minOvr || ovr(c) >= Number(minOvr));
   });
-  const navItems: { id: View; label: string; icon: typeof PackageOpen }[] = [{ id: 'packs', label: 'Trang chủ', icon: PackageOpen }, { id: 'upgrade', label: 'Nâng cấp thẻ', icon: Zap }, { id: 'collection', label: 'Kho cầu thủ', icon: Layers3 }, { id: 'inventory', label: 'Kho vật phẩm', icon: PackageOpen }, { id: 'history', label: 'Lịch sử', icon: History }, { id: 'market', label: 'Thị trường', icon: ArrowLeftRight }];
+  const navItems: { id: View; label: string; icon: typeof PackageOpen }[] = [{ id: 'packs', label: 'Trang chủ', icon: PackageOpen }, { id: 'upgrade', label: 'Nâng cấp thẻ', icon: Zap }, { id: 'collection', label: 'Kho cầu thủ', icon: Layers3 }, { id: 'inventory', label: 'Kho vật phẩm', icon: PackageOpen }, { id: 'history', label: 'Lịch sử', icon: History }, { id: 'market', label: 'Thị trường', icon: ArrowLeftRight }, { id: 'shop', label: 'Shop gói', icon: ShoppingBag }];
   const switchView = (next: View) => { setView(next); mainRef.current?.scrollTo({ top: 0, behavior: 'instant' }); };
   const daily = () => { try { if (commit(claimDaily(latest.current))) { notify('Điểm danh thành công! Đã nhận 1.000.000 xu.'); playSound('success', save.sound); } } catch (e) { notify((e as Error).message); } };
   const resetFilters = () => { setQuery(''); setPosition(''); setSeason(''); setLevel(''); setMinOvr(''); setSort('ovr'); };
 
   return <div className={`app min-h-screen antialiased ${save.reduced ? 'reduced-motion' : ''}`}>
     <header className="topbar"><a className="brand" href="#" onClick={e => { e.preventDefault(); switchView('packs'); }} aria-label="FCO VIP, trang chủ"><img src={asset('/assets/mark.svg')} alt=""/><span>FCO<b>VIP</b></span></a><div className="header-tag"><span className="live-dot"/>Sân chơi của những huyền thoại</div><div className="topbar-actions"><div className="wallet"><span className="coin-icon">A</span><div><small>{UNLIMITED_COINS ? 'Chế độ thử nghiệm' : 'Số dư của bạn'}</small><b>{UNLIMITED_COINS ? '∞' : money(save.balance)} <span>xu</span></b></div></div><button className={`daily-button ${dailyClaimed ? 'claimed' : ''}`} onClick={daily} disabled={dailyClaimed}><Gift size={17}/><span>{dailyClaimed ? 'Đã điểm danh' : 'Quà mỗi ngày'}</span>{!dailyClaimed && <i/>}</button><button className="icon-button sound-button" disabled={!AUDIO_ENABLED} aria-label={AUDIO_ENABLED ? (save.sound ? 'Tắt âm thanh' : 'Bật âm thanh') : 'Âm thanh đã tắt'} title={AUDIO_ENABLED ? (save.sound ? 'Tắt âm thanh' : 'Bật âm thanh') : 'Âm thanh đã tắt'} onClick={() => updateSetting('sound', !save.sound)}>{AUDIO_ENABLED && save.sound ? <Volume2 size={19}/> : <VolumeX size={19}/>}</button><button className="avatar" aria-label="Cài đặt trò chơi" onClick={() => setSettings(true)}>HLV</button></div></header>
-    <nav className="main-nav" aria-label="Điều hướng chính"><div className="nav-inner">{navItems.map(({ id, label, icon: Icon }) => <button key={id} onClick={() => switchView(id)} className={view === id ? 'active' : ''} aria-current={view === id ? 'page' : undefined}><Icon size={18}/><span className="nav-full">{label}</span><span className="nav-short">{id === 'packs' ? 'Trang chủ' : id === 'upgrade' ? 'Nâng cấp' : id === 'collection' ? 'Kho thẻ' : id === 'inventory' ? 'Vật phẩm' : id === 'market' ? 'Thị trường' : 'Lịch sử'}</span>{id === 'collection' && <small>{save.cards.length}</small>}</button>)}<button className="help-link" onClick={() => setHelp(true)}><Info size={16}/><span>Hướng dẫn chơi</span></button></div></nav>
+    <nav className="main-nav" aria-label="Điều hướng chính"><div className="nav-inner">{navItems.map(({ id, label, icon: Icon }) => <button key={id} onClick={() => switchView(id)} className={view === id ? 'active' : ''} aria-current={view === id ? 'page' : undefined}><Icon size={18}/><span className="nav-full">{label}</span><span className="nav-short">{id === 'packs' ? 'Trang chủ' : id === 'upgrade' ? 'Nâng cấp' : id === 'collection' ? 'Kho thẻ' : id === 'inventory' ? 'Vật phẩm' : id === 'market' ? 'Thị trường' : id === 'shop' ? 'Shop' : 'Lịch sử'}</span>{id === 'collection' && <small>{save.cards.length}</small>}</button>)}<button className="help-link" onClick={() => setHelp(true)}><Info size={16}/><span>Hướng dẫn chơi</span></button></div></nav>
     <main ref={mainRef} className={`main-content view-${view}`}>
       {view === 'packs' && <>
         <section className="hero" aria-labelledby="hero-title"><Stadium reduced={save.reduced}/><div className="hero-content"><motion.div initial={save.reduced ? false : { opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .6 }} className="hero-copy"><div className="season-label"><span/>MÙA THẺ ICON TM</div><h1 id="hero-title">Chạm tới<br/><em>huyền thoại.</em></h1><p>Một gói cầu thủ. Vạn cảm xúc.<br/> Khoảnh khắc vĩ đại tiếp theo thuộc về bạn.</p><div className="hero-price">{selectedPack.name}<span>·</span><span className="tiny-coin">A</span>{money(selectedPack.price)} xu</div><div className="hero-facts"><span><Shield size={14}/>Hoàn toàn miễn phí</span><span><Check size={14}/>Tỷ lệ minh bạch</span></div></motion.div>
@@ -388,8 +412,8 @@ export default function App() {
             </div>
           </div>
           <button className="fco-change" onClick={() => setPicker('target')}>Thay đổi cầu thủ<ChevronDown size={16}/></button>
-          <div className="fco-row"><span>Tăng % nâng cấp</span><div className="fco-energy" aria-label={`Năng lượng ${info.energy}%`} style={{ '--fco-energy': info.energy, '--energy-duration': save.reduced ? '0s' : '.4s' } as CSSProperties}>{[1, 2, 3, 4, 5].map(n => <i key={n} style={{ '--energy-start': (n - 1) * 20 } as CSSProperties} className={info.energy >= n * 20 ? 'full' : info.energy > (n - 1) * 20 ? 'part' : ''}><b>{n}</b></i>)}</div></div>
-          <div className="fco-row fco-used"><span>Cầu thủ sử dụng</span><div className="fco-stack">{Array.from({ length: 5 }, (_, n) => materials[n] ? <button key={materials[n].uid} className="fco-used-card" style={{ zIndex: 5 - n }} onClick={() => setMaterialIds(ids => ids.filter(id => id !== materials[n].uid))} aria-label={`Bỏ nguyên liệu ${getPlayer(materials[n]).name}`}><PlayerCard card={materials[n]} compact/></button> : <span key={n} className="fco-used-empty"/>)}</div></div>
+          <div className="fco-row"><span>Tăng % nâng cấp</span><div className={`fco-energy ${info.energy >= 100 ? 'is-full' : ''}`} aria-label={`Năng lượng ${info.energy}%${previewEnergy > info.energy ? ` · Xem trước ${previewEnergy}%` : ''}`} style={{ '--fco-energy': info.energy, '--fco-preview-energy': previewEnergy, '--energy-duration': save.reduced ? '0s' : '.4s' } as CSSProperties}>{[1, 2, 3, 4, 5].map(n => <i key={n} style={{ '--energy-start': (n - 1) * 20 } as CSSProperties} className={info.energy >= n * 20 ? 'full' : info.energy > (n - 1) * 20 ? 'part' : ''}><b>{n}</b></i>)}</div></div>
+          <div className="fco-row fco-used"><span>Cầu thủ sử dụng</span><div className="fco-stack">{!materials.length && <span className="fco-used-blank">Chọn cầu thủ sử dụng.<br/>Bạn có thể chứa tối đa 5 CT</span>}{Array.from({ length: 5 }, (_, n) => materials[n] ? <button key={materials[n].uid} className="fco-used-card" style={{ zIndex: n + 1, '--n': n } as CSSProperties} onClick={() => setMaterialIds(ids => ids.filter(id => id !== materials[n].uid))} aria-label={`Bỏ nguyên liệu ${getPlayer(materials[n]).name}`}><PlayerCard card={materials[n]} compact/></button> : <span key={n} className="fco-used-empty" style={{ '--n': n } as CSSProperties}/>)}</div></div>
           <p className="fco-rule"><Info size={14}/>Thất bại: rớt cấp ngẫu nhiên; phôi trùng bảo vệ cấp tối thiểu. Nguyên liệu{UNLIMITED_COINS ? '' : ' và phí'} vẫn tiêu hao.</p>
         </div>
         <div className="fco-right">
@@ -399,7 +423,7 @@ export default function App() {
             <div className="fco-head" role="row"><span role="columnheader">Tăng</span>{([
               ['position', 'Vị trí'], ['name', 'Tên cầu thủ'], ['ovr', 'OVR'], ['level', 'Thẻ'], ['price', 'Giá'],
             ] as const).map(([key, label]) => <span key={key} className="fco-col" role="columnheader" aria-sort={matSort === `${key}-asc` ? 'ascending' : matSort === `${key}-desc` ? 'descending' : 'none'}><button className={`fco-col-btn ${matSort.startsWith(key) ? 'on' : ''}`} data-sort={key} aria-label={`Sắp xếp ${label} ${matSort === `${key}-asc` ? 'giảm dần' : 'tăng dần'}`} onClick={() => setMatSort(current => current === `${key}-asc` ? `${key}-desc` : `${key}-asc`)}>{label}<ChevronDown size={12}/></button></span>)}<span role="columnheader"/></div>
-            <ViewportPages className="fco-body" itemHeight={54} resetKey={matSort}>{save.cards.filter(c => c.uid !== targetId).sort((a, b) => { const [key, dir] = matSort.split('-'); const comparison = key === 'name' ? getPlayer(a).name.localeCompare(getPlayer(b).name, 'vi') : key === 'position' ? getPlayer(a).pos.localeCompare(getPlayer(b).pos, 'en') : key === 'price' ? marketQuote(a).price - marketQuote(b).price : key === 'level' ? a.level - b.level : ovr(a) - ovr(b); return (dir === 'asc' ? 1 : -1) * comparison || ovr(b) - ovr(a) || b.level - a.level; }).map(c => { const p = getPlayer(c); const picked = materialIds.includes(c.uid); const full = !picked && materialIds.length >= 5; const boost = target ? upgradeInfo(target, [c]).energy : 0; return <button key={c.uid} role="row" className={`fco-line ${picked ? 'picked' : ''}`} disabled={!target || full} onClick={() => setMaterialIds(ids => picked ? ids.filter(id => id !== c.uid) : [...ids, c.uid])}>
+            <div className="fco-body" role="rowgroup" aria-label="Chọn cầu thủ làm phôi nâng cấp" tabIndex={0} key={`${matSort}-${targetId}`}>{save.cards.filter(c => c.uid !== targetId).sort((a, b) => { const [key, dir] = matSort.split('-'); const comparison = key === 'name' ? getPlayer(a).name.localeCompare(getPlayer(b).name, 'vi') : key === 'position' ? getPlayer(a).pos.localeCompare(getPlayer(b).pos, 'en') : key === 'price' ? compareMarketPrices(a, b, dir === 'desc') : key === 'level' ? a.level - b.level : ovr(a) - ovr(b); return (key === 'price' || dir === 'asc' ? 1 : -1) * comparison || ovr(b) - ovr(a) || b.level - a.level; }).map(c => { const p = getPlayer(c); const picked = materialIds.includes(c.uid); const full = !picked && materialIds.length >= 5; const boost = target ? upgradeInfo(target, [c]).energy : 0; return <button key={c.uid} role="row" className={`fco-line ${picked ? 'picked' : ''}`} disabled={!target || full} onMouseEnter={() => setHoveredMaterialId(!picked && !full ? c.uid : '')} onMouseLeave={() => setHoveredMaterialId('')} onFocus={() => setHoveredMaterialId(!picked && !full ? c.uid : '')} onBlur={() => setHoveredMaterialId('')} onClick={() => { setHoveredMaterialId(''); setMaterialIds(ids => picked ? ids.filter(id => id !== c.uid) : [...ids, c.uid]); }}>
               <span className="fco-boost" aria-label={`Tăng ${boost}% năng lượng`} title={`${boost}% năng lượng · ${Number((boost / 20).toFixed(3))} vạch`}>{[1, 2, 3, 4, 5].map(n => <i key={n} style={{ '--energy-fill': `${Math.min(100, Math.max(0, boost - (n - 1) * 20) * 5)}%` } as CSSProperties} className={boost >= n * 20 ? 'on' : boost > (n - 1) * 20 ? 'part' : ''}/>)}</span>
               <span className={`fco-pos pos-${posGroup(p.pos)}`}>{p.pos}</span>
               <span className="fco-name">{p.cardFace ? <img src={p.cardFace} alt=""/> : <Flag code={p.flag}/>}<b>{p.name}</b></span>
@@ -407,15 +431,16 @@ export default function App() {
               <span><img className="fco-badge" src={levelBadge(c.level)} alt={`+${c.level}`}/></span>
               <span className="fco-cost">{shortPrice(marketQuote(c).price)}</span>
               <span className="fco-check">{picked && <Check size={18}/>}</span>
-            </button>; })}{save.cards.length <= 1 ? <p className="fine-print">Kho chưa có thẻ nào để làm nguyên liệu.</p> : null}</ViewportPages>
+            </button>; })}{save.cards.length <= 1 ? <p className="fine-print">Kho chưa có thẻ nào để làm nguyên liệu.</p> : null}</div>
           </div>
           <div className="fco-actions"><button className="fco-ghost" onClick={() => setMaterialIds([])} disabled={!materials.length}><X size={15}/>Bỏ chọn</button><button className="fco-ghost" onClick={() => setHelp(true)}><Info size={15}/>Hướng dẫn</button><button className="fco-go" onClick={enhance} disabled={!target || !materials.length || (!UNLIMITED_COINS && save.balance < info.cost) || target.level >= MAX_LEVEL}>{target?.level === MAX_LEVEL ? 'Đã đạt cấp tối đa' : 'Nâng cấp'}<ArrowRight size={18}/></button></div>
         </div>
       </section>}
       {view === 'collection' && <section className="workspace"><div className="page-heading"><div><h1>Kho cầu thủ</h1><p>{save.cards.length} thẻ trong bộ sưu tập · {new Set(save.cards.map(c => c.playerId)).size}/{players.length} cầu thủ đã khám phá</p></div><button className="primary-button" onClick={() => switchView('inventory')}><Plus size={17}/>Mở thêm cầu thủ</button></div><div className={`collection-toolbar${collectionFiltersOpen ? ' filters-open' : ''}`}><div className="search-field"><Search size={17}/><input aria-label="Tìm cầu thủ theo tên" placeholder="Tìm tên cầu thủ…" value={query} onChange={e => setQuery(e.target.value)}/></div><button className="collection-filter-toggle" aria-expanded={collectionFiltersOpen} onClick={() => setCollectionFiltersOpen(open => !open)}>Bộ lọc<ChevronDown size={15}/></button><label className="sr-only" htmlFor="position">Vị trí</label><select id="position" value={position} onChange={e => setPosition(e.target.value)}><option value="">Mọi vị trí</option>{[...new Set(players.map(p => p.pos))].map(pos => <option key={pos}>{pos}</option>)}</select><label className="sr-only" htmlFor="season">Mùa giải</label><select id="season" value={season} onChange={e => setSeason(e.target.value)}><option value="">Mọi mùa giải</option>{Object.entries(seasons).map(([key, value]) => <option key={key} value={key}>{value}</option>)}</select><label className="sr-only" htmlFor="level">Cấp cộng</label><select id="level" value={level} onChange={e => setLevel(e.target.value)}><option value="">Mọi cấp cộng</option>{Array.from({ length: MAX_LEVEL }, (_, i) => <option key={i} value={i + 1}>+{i + 1}</option>)}</select><input className="ovr-filter" aria-label="OVR tối thiểu" type="number" min="80" max={Math.max(...players.map(p => ovr({ uid: "", playerId: p.id, level: MAX_LEVEL, received: 0 })))} placeholder="OVR từ…" value={minOvr} onChange={e => setMinOvr(e.target.value)}/><CardSortSelect id="sort" value={sort} onChange={setSort}/></div><div className="collection-count"><span>Hiển thị {filtered.length} thẻ</span><button className="text-action" onClick={resetFilters}>Đặt lại bộ lọc</button></div>{filtered.length ? <ViewportPages className="collection-grid" itemWidth={165} itemHeight={210} gap={12} resetKey={`${query}-${position}-${season}-${level}-${minOvr}-${sort}`}>{filtered.map(c => <button className="collection-card" key={c.uid} onClick={() => setDetail(c)}><div className="collection-card-art"><PlayerCard card={c} compact/></div><span className="collection-card-action"><Maximize2 size={13}/>Chi tiết thẻ</span></button>)}</ViewportPages> : <div className="empty-state"><Search size={34}/><h2>Chưa tìm thấy cầu thủ</h2><p>Thử tên khác hoặc đặt lại bộ lọc để xem bộ sưu tập.</p><button className="secondary-button" onClick={resetFilters}>Đặt lại bộ lọc</button></div>}</section>}
-      {view === 'inventory' && <Inventory save={save} packs={packs} onUse={prepareOpening} renderArt={pack => <PackArt pack={pack}/>} testMode={UNLIMITED_COINS} onReceiveTest={receiveTestPacks}/>}
+      {view === 'shop' && <PackShop save={save} packs={packs} free={UNLIMITED_COINS} onBuy={purchasePacks} onInventory={() => switchView('inventory')} renderArt={pack => <PackArt pack={pack}/>}/>}
+      {view === 'inventory' && <Inventory save={save} packs={packs} onUse={prepareOpening} onShop={() => switchView('shop')} onUseSelected={selection => selection[0] && prepareOpening(selection[0], selection)} renderArt={pack => <PackArt pack={pack}/>} testMode={UNLIMITED_COINS} onReceiveTest={receiveTestPacks}/>}
       {view === 'market' && <TransferMarket save={save} free={UNLIMITED_COINS} onTrade={requestTrade} onHistory={() => { setHistoryType('market'); switchView('history'); }} onOpenPacks={() => switchView('inventory')} renderCard={card => <PlayerCard card={card}/>}/>}
-      {view === 'history' && <section className="workspace history-workspace"><div className="page-heading"><div><h1>Dấu ấn hành trình</h1><p>Lưu tối đa 200 hoạt động gần nhất trên trình duyệt này.</p></div><select aria-label="Lọc loại lịch sử" value={historyType} onChange={e => setHistoryType(e.target.value)}><option value="">Tất cả hoạt động</option><option value="pack">Mở gói</option><option value="upgrade">Nâng cấp</option><option value="gift">Điểm danh</option><option value="market">Chuyển nhượng</option></select></div>{save.history.filter(e => !historyType || e.type === historyType).length ? <ViewportPages className="history-list" itemHeight={92} resetKey={historyType}>{save.history.filter(e => !historyType || e.type === historyType).map(e => <article className="history-item" key={e.id}><div className={`history-icon ${e.success === false ? 'failure' : ''}`}>{e.type === 'pack' ? <PackageOpen size={21}/> : e.type === 'gift' ? <Gift size={21}/> : e.type === 'market' ? <ArrowLeftRight size={21}/> : <Zap size={21}/>}</div><div><h2>{e.title}</h2><p>{historyDetail(e)}</p></div><time>{new Date(e.time).toLocaleString('vi-VN')}</time></article>)}</ViewportPages> : <div className="empty-state"><History size={38}/><h2>Trang sử đang chờ bạn</h2><p>Mở gói, nâng cấp hoặc nhận quà điểm danh để bắt đầu.</p><button className="primary-button" onClick={() => switchView('inventory')}>Kho vật phẩm<ArrowRight size={16}/></button></div>}</section>}
+      {view === 'history' && <section className="workspace history-workspace"><div className="page-heading"><div><h1>Dấu ấn hành trình</h1><p>Lưu tối đa 200 hoạt động gần nhất trên trình duyệt này.</p></div><select aria-label="Lọc loại lịch sử" value={historyType} onChange={e => setHistoryType(e.target.value)}><option value="">Tất cả hoạt động</option><option value="pack">Mở gói</option><option value="upgrade">Nâng cấp</option><option value="gift">Điểm danh</option><option value="market">Chuyển nhượng</option><option value="shop">Mua gói</option></select></div>{save.history.filter(e => !historyType || e.type === historyType).length ? <ViewportPages className="history-list" itemHeight={92} resetKey={historyType}>{save.history.filter(e => !historyType || e.type === historyType).map(e => <article className="history-item" key={e.id}><div className={`history-icon ${e.success === false ? 'failure' : ''}`}>{e.type === 'pack' ? <PackageOpen size={21}/> : e.type === 'gift' ? <Gift size={21}/> : e.type === 'market' ? <ArrowLeftRight size={21}/> : e.type === 'shop' ? <ShoppingBag size={21}/> : <Zap size={21}/>}</div><div><h2>{e.title}</h2><p>{historyDetail(e)}</p></div><time>{new Date(e.time).toLocaleString('vi-VN')}</time></article>)}</ViewportPages> : <div className="empty-state"><History size={38}/><h2>Trang sử đang chờ bạn</h2><p>Mở gói, nâng cấp hoặc nhận quà điểm danh để bắt đầu.</p><button className="primary-button" onClick={() => switchView('inventory')}>Kho vật phẩm<ArrowRight size={16}/></button></div>}</section>}
     </main>
     <footer><div><img src={asset('/assets/mark.svg')} alt=""/><span>Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.</span></div><span>Không tiền thật<button onClick={() => setHelp(true)}>Thông tin & nguồn ảnh</button><button aria-label="Mở cài đặt" onClick={() => setSettings(true)}><Settings2 size={15}/></button></span></footer>
     <AnimatePresence>{toast && <motion.div className="toast" role="status" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}><Info size={18}/><span>{toast}</span><button className="icon-button" aria-label="Đóng thông báo" onClick={() => setToast('')}><X size={15}/></button></motion.div>}</AnimatePresence>
@@ -423,10 +448,10 @@ export default function App() {
       {trade && <Modal className="market-confirm" label={trade.kind === 'buy' ? 'Xác nhận mua cầu thủ' : 'Xác nhận bán cầu thủ'} onClose={() => setTrade(null)}>
         <div className="modal-heading"><h2>{trade.kind === 'buy' ? 'Xác nhận mua cầu thủ' : 'Xác nhận bán cầu thủ'}</h2><button className="icon-button" aria-label="Đóng xác nhận giao dịch" onClick={() => setTrade(null)}><X/></button></div>
         <div className="trade-player"><img src={getPlayer(trade.card).cardFace || asset('/assets/silhouette.svg')} alt=""/><div><h3>{getPlayer(trade.card).name}</h3><p>{getPlayer(trade.card).pos} · {seasons[getPlayer(trade.card).tier]} · +{trade.card.level} · OVR {ovr(trade.card)}</p></div></div>
-        <dl className="trade-breakdown"><div><dt>Giá thẻ</dt><dd>{money(marketQuote(trade.card).price)} xu</dd></div>{trade.kind === 'sell' && <div><dt>Phí bán {MARKET_FEE_PERCENT}%</dt><dd>−{money(marketQuote(trade.card).fee)} xu</dd></div>}<div className="market-total"><dt>{trade.kind === 'buy' ? 'Thanh toán' : 'Bạn nhận'}</dt><dd>{money(trade.kind === 'buy' ? marketQuote(trade.card).price : marketQuote(trade.card).proceeds)} xu</dd></div></dl>
+        <dl className="trade-breakdown"><div><dt>Giá thẻ</dt><dd>{formatMarketPrice(marketQuote(trade.card).price)}</dd></div>{trade.kind === 'sell' && <div><dt>Phí bán {MARKET_FEE_PERCENT}%</dt><dd>−{formatMarketPrice(marketQuote(trade.card).fee)}</dd></div>}<div className="market-total"><dt>{trade.kind === 'buy' ? 'Thanh toán' : 'Bạn nhận'}</dt><dd>{formatMarketPrice(trade.kind === 'buy' ? marketQuote(trade.card).price : marketQuote(trade.card).proceeds)}</dd></div></dl>
         <p className="trade-note">{UNLIMITED_COINS ? 'Chế độ thử: số dư xu được giữ nguyên. ' : ''}{trade.kind === 'buy' ? 'Nhận 1 thẻ đúng cấp cộng đã chọn vào kho cầu thủ.' : 'Bán 1 thẻ đã chọn. Thẻ sẽ được chuyển khỏi kho cầu thủ.'}</p>
         {tradeError && <p className="trade-error" role="alert">{tradeError}</p>}
-        <div className="trade-actions"><button className="secondary-button" onClick={() => setTrade(null)}>Hủy</button><button className="market-primary confirm-trade" onClick={confirmTrade} disabled={trade.kind === 'buy' && !UNLIMITED_COINS && save.balance < marketQuote(trade.card).price}>Xác nhận {trade.kind === 'buy' ? 'mua' : 'bán'}<Check size={17}/></button></div>
+        <div className="trade-actions"><button className="secondary-button" onClick={() => setTrade(null)}>Hủy</button><button className="market-primary confirm-trade" onClick={confirmTrade} disabled={!marketQuote(trade.card).available || (trade.kind === 'buy' && !UNLIMITED_COINS && save.balance < (marketQuote(trade.card).price ?? Infinity))}>Xác nhận {trade.kind === 'buy' ? 'mua' : 'bán'}<Check size={17}/></button></div>
       </Modal>}
       {odds && <Modal label={`Tỷ lệ ${odds.name}`} onClose={() => setOdds(null)}><div className="modal-heading"><h2>{odds.name}</h2><button className="icon-button" onClick={() => setOdds(null)} aria-label="Đóng bảng tỷ lệ"><X/></button></div><p className="modal-description">{isPackAvailable(odds) ? `Mỗi gói nhận đúng 1 thẻ +1. Giá ${money(odds.price)} xu.` : 'Gói chưa có cầu thủ. Tính năng mở gói sẽ được bật sau khi cập nhật danh sách.'}</p><div className="odds-table">{(['origin', 'stellar', 'eternal'] as Tier[]).map((tier, i) => <div key={tier}><span className={`rarity-dot ${tier}`}/><div><b>{seasons[tier]}</b><small>OVR {i === 0 ? 'Chưa cập nhật' : i === 1 ? '121–126' : '119–127'} · {players.filter(p => p.tier === (['origin', 'stellar', 'eternal'] as const)[i]).length} cầu thủ</small></div><strong>{odds.weights[i]}%</strong></div>)}</div><p className="fine-print">Mỗi cầu thủ trong cùng mùa có xác suất bằng nhau: tỷ lệ mùa ÷ số cầu thủ hiện có trong mùa. Mở 10 gói là 10 lượt độc lập, không có bảo đảm thẻ hiếm. Đây là tỷ lệ của trò chơi giả lập, không phải tỷ lệ chính thức của FC Online.</p><h3 className="reward-list-title">Danh sách phần thưởng</h3><div className="reward-list">{players.filter(p => odds.weights[(['origin', 'stellar', 'eternal'] as Tier[]).indexOf(p.tier)] > 0).map(p => <div key={p.id}><span>{p.name}<small>{seasons[p.tier]}</small></span><b>{p.ovr}</b></div>)}</div><button className="primary-button modal-bottom-button" onClick={() => { setSelectedPack(odds); setOdds(null); }}>Chọn gói này<Check size={17}/></button></Modal>}
       {settings && <Modal label="Cài đặt trò chơi" onClose={() => setSettings(false)}><div className="modal-heading"><h2>Cài đặt trò chơi</h2><button className="icon-button" aria-label="Đóng cài đặt" onClick={() => setSettings(false)}><X/></button></div>{([{ key: 'sound' as const, title: 'Âm thanh', description: AUDIO_ENABLED ? 'Âm thanh điện tử khi mở gói và nâng cấp.' : 'Âm thanh đã tắt trong phiên bản này.' }, { key: 'reduced' as const, title: 'Giảm chuyển động', description: 'Bỏ hoạt cảnh dài, khói và hạt sáng chuyển động.' }, { key: 'quick' as const, title: 'Mở thẻ nhanh', description: 'Rút hoạt cảnh từ khoảng 10 giây xuống 3,5 giây.' }, { key: 'light' as const, title: 'Hiệu ứng nhẹ', description: 'Dùng đường hầm 2D nhẹ, phù hợp khi máy nóng hoặc hình chuyển động chậm.' }]).map(s => <label className="setting-row" key={s.key}><span><b>{s.title}</b><small>{s.description}</small></span><input type="checkbox" disabled={s.key === 'sound' && !AUDIO_ENABLED} checked={s.key === 'sound' ? AUDIO_ENABLED && !!save.sound : !!save[s.key]} onChange={e => updateSetting(s.key, e.target.checked)}/></label>)}<div className="storage-notice"><Shield size={20}/><p>Tiến trình được lưu trên trình duyệt này. Xóa dữ liệu trang sẽ xóa kho thẻ. Không cần đăng nhập và không có thanh toán bằng tiền thật.</p></div></Modal>}
@@ -435,7 +460,7 @@ export default function App() {
       {picker && <Modal className="picker-modal" label={picker === 'target' ? 'Chọn thẻ chính' : 'Chọn nguyên liệu'} onClose={() => setPicker(null)}><div className="modal-heading"><h2>{picker === 'target' ? 'Chọn thẻ chính' : `Chọn nguyên liệu (${materialIds.length}/5)`}</h2><button className="icon-button" aria-label="Đóng chọn cầu thủ" onClick={() => setPicker(null)}><X/></button></div><p className="modal-description">{picker === 'target' ? `Chọn thẻ dưới +${MAX_LEVEL} để bắt đầu nâng cấp.` : 'Thẻ đã chọn sẽ bị tiêu hao. Năng lượng tính theo OVR hiện tại, kể cả khi trùng cầu thủ.'}</p><CardSortSelect id="picker-sort" value={sort} onChange={setSort}/><ViewportPages className="picker-list" itemHeight={58} resetKey={`${picker}-${sort}`}>{sortedCards.filter(c => picker === 'target' ? c.level < MAX_LEVEL : c.uid !== targetId).map(c => <button className={`picker-row ${materialIds.includes(c.uid) && picker === 'material' ? 'selected' : ''}`} key={c.uid} disabled={picker === 'material' && materialIds.length >= 5 && !materialIds.includes(c.uid)} onClick={() => { if (picker === 'target') { setTargetId(c.uid); setMaterialIds([]); setPicker(null); } else setMaterialIds(ids => ids.includes(c.uid) ? ids.filter(id => id !== c.uid) : [...ids, c.uid]); }}><span className={`picker-ovr ${getPlayer(c).tier}`}>{ovr(c)}</span><span className="picker-name"><b>{getPlayer(c).name}</b><small>{getPlayer(c).pos} · {seasons[getPlayer(c).tier]} · +{c.level}</small></span>{picker === 'material' ? <span className="picker-check">{materialIds.includes(c.uid) && <Check size={16}/>}</span> : <ChevronRight size={17}/>}</button>)}{!save.cards.filter(c => picker === 'target' ? c.level < MAX_LEVEL : c.uid !== targetId).length && <p className="fine-print">Chưa có thẻ phù hợp. Hãy mở thêm gói cầu thủ.</p>}</ViewportPages>{picker === 'material' && <button className="primary-button modal-bottom-button" onClick={() => setPicker(null)}>Xác nhận {materialIds.length} nguyên liệu<Check size={18}/></button>}</Modal>}
       {(readyPack || packAnimation) && <Modal key="pack-session" className={`cinema-modal ${readyPack ? 'pack-ready-modal' : finished ? 'is-finished' : ''} ${flipping ? 'is-flipping' : ''}`} label={readyPack ? 'Chuẩn bị mở thẻ' : 'Mở gói cầu thủ'} onClose={closePackSession} onSkip={packAnimation && !finished && packSkipReady ? closeAnimation : undefined}>
         <PackStage preparationId={preparationId} pack={(readyPack || packAnimation!.pack)} cards={packAnimation?.cards} phase={phase} playing={!!packAnimation && (!readyPack || entryStarted)} quick={packAnimation?.quick ?? !!save.quick} reduced={save.reduced} light={!!save.light} onPrepared={() => setPackPrepared(true)} onReady={() => setSceneReady(true)}/>
-        {readyPack ? <div className={`ready-screen ${save.reduced ? 'flip-reduced' : ''}`} style={{ '--flip-duration': `${OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].flip / 1000}s`, '--tunnel-delay': `${Math.max(0, (OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].flip - OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].cameraLead - 260) / 1000)}s`, '--glitch-delay': `${OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].flip * .74 / 1000}s`, '--glitch-duration': `${(OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].flip * .26 + OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].glitch) / 1000}s` } as CSSProperties}>
+        {readyPack ? <div className={`ready-screen ${save.reduced ? 'flip-reduced' : ''}`} style={{ '--flip-duration': `${OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].flip / 1000}s`, '--tunnel-delay': `${Math.max(0, (OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].flip - OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].cameraLead - 260) / 1000)}s`, '--glitch-delay': `${OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].flip * .74 / 1000}s`, '--glitch-duration': `${(OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].flip * .26 + OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].glitch) / 1000}s`, '--dive-at': `${(OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].flip + OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].glitch - (OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].flip * .26 + OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].glitch) * .25) / 1000}s`, '--dive-duration': `${(GATE_CROSS[packAnimation?.quick ? 'quick' : 'standard'] - OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].glitch + (OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].flip * .26 + OPENING_ENTRY[packAnimation?.quick ? 'quick' : 'standard'].glitch) * .25) / 1000}s` } as CSSProperties}>
           <Stadium cinematic reduced={save.reduced}/>
           <div className="ready-tunnel" aria-hidden="true">
             <svg className="rt-shell" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -465,6 +490,7 @@ export default function App() {
                 <line x1="41.4" y1="66" x2="21" y2="100"/><line x1="58.6" y1="66" x2="79" y2="100"/>
               </g>
             </svg>
+            {flipping && !save.reduced && <span className="rt-gate-light"/>}
             {(['left', 'right'] as const).map(side => <div key={side} className={`rt-led rt-led-${side}`}><img src={asset('/assets/mark.svg')} alt=""/><b>FCO VIP</b></div>)}
             {(['left', 'right'] as const).map(side => <span key={side} className={`rt-slogan rt-slogan-${side}`}>Mọi huyền thoại bắt đầu từ đây</span>)}
           </div>
@@ -473,18 +499,18 @@ export default function App() {
           <div className="ready-content">
             <div className="ready-art"><div className={`ready-flip ${readyPack.back ? 'tm-flip' : ''}`} style={readyPack.back ? { '--tm-mask': `url("${readyPack.back}")` } as CSSProperties : undefined} aria-hidden="true"><div className="flip-face flip-front"><PackArt pack={readyPack}/></div><div className="flip-face flip-back"><img src={asset('/assets/mark.svg')} alt=""/><span>FCO VIP</span><strong>{readyPack.short}</strong><i>VINH QUANG ĐANG CHỜ</i></div>{flipping && !save.reduced && <div className="ready-glitch" aria-hidden="true"><i/></div>}</div><span className="ready-art-halo"/></div>
             <div className="ready-actions" style={{ visibility: packAnimation ? 'hidden' : undefined }} aria-hidden={!!packAnimation} inert={!!packAnimation}>
-              <button className="ready-open ready-open-one" onClick={() => open(readyPack, 1)} disabled={!packPrepared || !!animation || readyAvailable < 1 || (!UNLIMITED_COINS && save.balance < readyPack.price)}>Mở 1 vật phẩm</button>
-              <button className="ready-open ready-open-batch" onClick={() => open(readyPack, readyBatch)} disabled={!packPrepared || !!animation || readyBatch < 2 || (!UNLIMITED_COINS && save.balance < readyPack.price * readyBatch)}>{readyBatch > 0 ? `Mở ${readyBatch} vật phẩm` : 'Hết vật phẩm'}</button>
+              <button className="ready-open ready-open-one" onClick={() => open(readyPack, 1)} disabled={!packPrepared || !!animation || readyAvailable < 1 || (!UNLIMITED_COINS && save.balance < getPackOpeningCost(save, readyPack, 1))}>Mở 1 vật phẩm</button>
+              <button className="ready-open ready-open-batch" onClick={() => open(readyPack, readyBatch)} disabled={!packPrepared || !!animation || readyBatch < 2 || (!UNLIMITED_COINS && save.balance < getPackOpeningCost(save, readyPack, readyBatch))}>{readyBatch > 0 ? `Mở ${readyBatch} vật phẩm` : 'Hết vật phẩm'}</button>
               <button className="ready-leave" onClick={closePackSession}>Rời<X size={18} strokeWidth={2.6}/></button>
             </div>
-            <p className="ready-note" aria-live="polite"><Shield size={13}/>{packAnimation && !flipStarted ? 'Đang chuẩn bị mở…' : !packPrepared ? 'Đang chuẩn bị sân khấu…' : readyAvailable === 0 ? 'Đã hết gói. Quay lại để nhận thêm gói thử.' : readyAvailable === 1 ? 'Còn 1 gói. Nhấn Mở 1 vật phẩm để mở gói cuối cùng.' : 'Mỗi lượt tối đa 10 thẻ · Mở bao nhiêu, trừ bấy nhiêu.'}</p>
-            <p className="ready-cost">{UNLIMITED_COINS ? 'Xu vô hạn · Miễn phí thử' : `Phí mở: ${money(readyPack.price)} xu / thẻ`}</p>
+            <p className="ready-note" aria-live="polite"><Shield size={13}/>{packAnimation && !flipStarted ? 'Đang chuẩn bị mở…' : !packPrepared ? 'Đang chuẩn bị sân khấu…' : readyAvailable === 0 ? 'Đã hết gói. Quay lại để nhận thêm gói thử.' : readyAvailable === 1 ? 'Còn 1 gói. Nhấn Mở 1 vật phẩm để mở gói cuối cùng.' : inventoryBatch.current ? 'Mỗi lượt tối đa 150 thẻ · Mở bao nhiêu, trừ bấy nhiêu.' : 'Mỗi lượt tối đa 10 thẻ · Mở bao nhiêu, trừ bấy nhiêu.'}</p>
+            <p className="ready-cost">{UNLIMITED_COINS ? 'Xu vô hạn · Miễn phí thử' : readyBatch > 1 ? `Mở 1: ${money(getPackOpeningCost(save, readyPack, 1))} xu · Mở ${readyBatch}: ${money(getPackOpeningCost(save, readyPack, readyBatch))} xu` : getPackOpeningCost(save, readyPack, 1) === 0 ? 'Gói đã thanh toán · Không thu thêm phí mở' : `Phí mở 1 gói có sẵn: ${money(readyPack.price)} xu`}</p>
           </div>
           
         </div> : packAnimation && <PackOpening key={packAnimation.id} canSkip={packSkipReady} cards={packAnimation.cards} pack={packAnimation.pack} phase={phase} quick={packAnimation.quick} reduced={save.reduced} light={!!save.light} sound={save.sound} sceneReady={sceneReady || packPrepared} onSound={() => { unlockCinemaAudio(!save.sound); updateSetting('sound', !save.sound); }} onLight={() => updateSetting('light', !save.light)} onClose={closeAnimation} onAgain={() => { busy.current = false; setAnimation(null); prepareOpening(packAnimation.pack); }} onAgainMany={() => { busy.current = false; setAnimation(null); prepareOpening(packAnimation.pack); autoBatch.current = true; }} onSave={() => { closeAnimation(); switchView('collection'); }} onTrade={() => { closeAnimation(); switchView('market'); }} stock={getPackStock(save, packAnimation.pack)} renderCard={(card, compact) => <PlayerCard card={card} compact={compact}/>} renderFlag={(code, large) => <Flag code={code} large={large}/>} />}
       </Modal>}
       {animation?.kind === 'upgrade' && <Modal className={`cinema-modal ${finished ? 'is-finished' : ''} ${!animation.success && finished ? 'is-failure' : ''}`} label="Kết quả nâng cấp" onClose={closeAnimation} onSkip={!finished ? closeAnimation : undefined}><Stadium cinematic reduced={save.reduced}/><div className="cinema-top"><span><img src={asset('/assets/mark.svg')} alt=""/>FCO VIP</span><button className="secondary-button" onClick={closeAnimation} aria-keyshortcuts={!finished ? "Space" : undefined} title={!finished ? "Bỏ qua (phím cách)" : undefined}>{finished ? 'Đóng' : 'Bỏ qua'}{finished ? <X size={16}/> : <ChevronRight size={16}/>}</button></div>
-        <div className={`upgrade-cinema upgrade-phase-${phase} ${animation.success ? 'success' : 'failed'}`}><div className="upgrade-energy-ring"/>{!finished && <div className="material-dissolve">{Array.from({ length: 20 }, (_, i) => <i key={i} style={{ '--angle': `${i * 18}deg`, '--delay': `${i % 7 * .13}s` } as CSSProperties}/>)}</div>}{finished && animation.success && <div className="reveal-burst"/>}<motion.div animate={!save.reduced && phase === 1 ? { x: [-3, 4, -6, 4, -3, 0] } : { x: 0 }} transition={{ repeat: phase === 1 ? Infinity : 0, duration: .18 }} className="upgrade-reveal-card"><PlayerCard card={finished ? animation.card : { ...animation.card, level: showingDrop ? animation.droppedLevel! : animation.before }}/></motion.div><div className="upgrade-result-copy" aria-live="polite">{showingDrop ? <><span className="result-season">ĐANG PHỤC HỒI BẰNG PHÔI TRÙNG</span><h2>Thẻ rớt về +{animation.droppedLevel}</h2><p>Phôi cùng cầu thủ sẽ phục hồi thẻ lên +{animation.restoredLevel}.</p></> : finished ? <><span className="result-season">{animation.success ? 'VƯỢT QUA GIỚI HẠN' : hasRecovery ? 'ĐÃ PHỤC HỒI BẰNG PHÔI TRÙNG' : 'CHƯA THỂ BỨT PHÁ'}</span><h2>{animation.success ? 'Nâng cấp thành công!' : 'Nâng cấp thất bại'}</h2><div className="result-level">+{animation.before}<ArrowRight size={22}/>{hasRecovery && <><span>+{animation.droppedLevel}</span><ArrowRight size={22}/></>}<b>+{animation.card.level}</b></div><p>{animation.success ? 'Cấp cộng mới đã được lưu. Ngôi sao của bạn vừa tỏa sáng hơn.' : ((hasRecovery ? `Thẻ rớt về +${animation.droppedLevel} và được phục hồi lên +${animation.restoredLevel} bằng phôi cùng cầu thủ. ` : `Thẻ rớt về +${animation.card.level}. `) + (UNLIMITED_COINS ? 'Nguyên liệu đã tiêu hao; không trừ xu trong chế độ thử.' : 'Nguyên liệu và phí đã tiêu hao.'))}</p><small>Kết quả đã được lưu vào lịch sử</small><button className="primary-button" onClick={closeAnimation}>Trở về lò luyện<ArrowRight size={17}/></button></> : <><h2>{phase === 0 ? 'Năng lượng đang hội tụ…' : phase === 1 ? 'Vượt qua giới hạn…' : 'Khoảnh khắc quyết định.'}</h2><p>{phase === 2 ? 'Hít thở. Và chờ điều kỳ diệu.' : 'Những ngôi sao đang tiếp thêm sức mạnh.'}</p></>}</div></div>
+        <div className={`upgrade-cinema upgrade-phase-${phase} ${finished || showingDrop ? (animation.success ? 'success' : 'failed') : 'is-pending'}`}><div className="upgrade-energy-ring"/>{!finished && <div className="material-dissolve">{Array.from({ length: 20 }, (_, i) => <i key={i} style={{ '--angle': `${i * 18}deg`, '--delay': `${i % 7 * .13}s` } as CSSProperties}/>)}</div>}{finished && animation.success && <div className="reveal-burst"/>}<motion.div animate={!save.reduced && phase === 1 ? { x: [-3, 4, -6, 4, -3, 0] } : { x: 0 }} transition={{ repeat: phase === 1 ? Infinity : 0, duration: .18 }} className="upgrade-reveal-card"><PlayerCard card={finished ? animation.card : { ...animation.card, level: showingDrop ? animation.droppedLevel! : animation.before }}/></motion.div><div className="upgrade-result-copy" aria-live="polite">{showingDrop ? <><span className="result-season">ĐANG PHỤC HỒI BẰNG PHÔI TRÙNG</span><h2>Thẻ rớt về +{animation.droppedLevel}</h2><p>Phôi cùng cầu thủ sẽ phục hồi thẻ lên +{animation.restoredLevel}.</p></> : finished ? <><span className="result-season">{animation.success ? 'VƯỢT QUA GIỚI HẠN' : hasRecovery ? 'ĐÃ PHỤC HỒI BẰNG PHÔI TRÙNG' : 'CHƯA THỂ BỨT PHÁ'}</span><h2>{animation.success ? 'Nâng cấp thành công!' : 'Nâng cấp thất bại'}</h2><div className="result-level">+{animation.before}<ArrowRight size={22}/>{hasRecovery && <><span>+{animation.droppedLevel}</span><ArrowRight size={22}/></>}<b>+{animation.card.level}</b></div><p>{animation.success ? 'Cấp cộng mới đã được lưu. Ngôi sao của bạn vừa tỏa sáng hơn.' : ((hasRecovery ? `Thẻ rớt về +${animation.droppedLevel} và được phục hồi lên +${animation.restoredLevel} bằng phôi cùng cầu thủ. ` : `Thẻ rớt về +${animation.card.level}. `) + (UNLIMITED_COINS ? 'Nguyên liệu đã tiêu hao; không trừ xu trong chế độ thử.' : 'Nguyên liệu và phí đã tiêu hao.'))}</p><small>Kết quả đã được lưu vào lịch sử</small><button className="primary-button" onClick={closeAnimation}>Trở về lò luyện<ArrowRight size={17}/></button></> : <><h2>{phase === 0 ? 'Năng lượng đang hội tụ…' : phase === 1 ? 'Vượt qua giới hạn…' : 'Khoảnh khắc quyết định.'}</h2><p>{phase === 2 ? 'Hít thở. Và chờ điều kỳ diệu.' : 'Những ngôi sao đang tiếp thêm sức mạnh.'}</p></>}</div></div>
       </Modal>}
     </AnimatePresence>
   </div>;

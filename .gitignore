@@ -1,4 +1,5 @@
 node_modules/
+outputs/price-update/node_modules/
 dist/
 *.tsbuildinfo
 .taste-skill/inspect/

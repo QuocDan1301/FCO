@@ -1,0 +1,4 @@
+{
+  "note": "OVR sửa tay từ gia-cau-thu-bp.xlsx (npm run prices:import), theo id cầu thủ rồi cấp thẻ; ưu tiên hơn OVR tự tính.",
+  "ovrs": {}
+}

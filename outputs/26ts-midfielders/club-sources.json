@@ -1,0 +1,72 @@
+[
+  {
+    "club": "Seattle Sounders",
+    "name": "Seattle Sounders FC",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/9726.png",
+    "page": "https://www.espn.com/soccer/club/_/id/9726/seattle-sounders-fc",
+    "asset": "/assets/clubs/9726.png"
+  },
+  {
+    "club": "Vancouver Whitecaps",
+    "name": "Vancouver Whitecaps",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/9727.png",
+    "page": "https://www.espn.com/soccer/club/_/id/9727/vancouver-whitecaps",
+    "asset": "/assets/clubs/9727.png"
+  },
+  {
+    "club": "Elche",
+    "name": "Elche",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/3751.png",
+    "page": "https://www.espn.com/soccer/club/_/id/3751/elche",
+    "asset": "/assets/clubs/3751.png"
+  },
+  {
+    "club": "Torino FC",
+    "name": "Torino",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/239.png",
+    "page": "https://www.espn.com/soccer/club/_/id/239/torino",
+    "asset": "/assets/clubs/239.png"
+  },
+  {
+    "club": "Monaco",
+    "name": "AS Monaco",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/174.png",
+    "page": "https://www.espn.com/soccer/club/_/id/174/as-monaco",
+    "asset": "/assets/clubs/174.png"
+  },
+  {
+    "club": "NEC Nijmegen",
+    "name": "NEC Nijmegen",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/147.png",
+    "page": "https://www.espn.com/soccer/club/_/id/147/nec-nijmegen",
+    "asset": "/assets/clubs/147.png"
+  },
+  {
+    "club": "Al Khaleej",
+    "name": "Al Khaleej",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/21829.png",
+    "page": "https://www.espn.com/soccer/club/_/id/21829/al-khaleej",
+    "asset": "/assets/clubs/21829.png"
+  },
+  {
+    "club": "Hoffenheim",
+    "name": "TSG Hoffenheim",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/7911.png",
+    "page": "https://www.espn.com/soccer/club/_/id/7911/tsg-hoffenheim",
+    "asset": "/assets/clubs/7911.png"
+  },
+  {
+    "club": "FC Cincinnati",
+    "name": "FC Cincinnati",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/18267.png",
+    "page": "https://www.espn.com/soccer/club/_/id/18267/fc-cincinnati",
+    "asset": "/assets/clubs/18267.png"
+  },
+  {
+    "club": "Braga",
+    "name": "Braga",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/2994.png",
+    "page": "https://www.espn.com/soccer/club/_/id/2994/braga",
+    "asset": "/assets/clubs/2994.png"
+  }
+]

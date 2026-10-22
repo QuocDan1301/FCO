@@ -92,8 +92,7 @@ html,body,#root{height:100%;overflow:hidden}
 .fco-upgrade .fco-change{flex-shrink:0;padding:6px;width:100%;margin:0}
 .fco-upgrade .fco-row{flex-shrink:0;grid-template-columns:110px 1fr;font-size:12px}
 .fco-upgrade .fco-used{display:flex;flex-direction:column;align-items:stretch}
-.fco-upgrade .fco-stack{max-height:120px;max-width:500px}
-.fco-upgrade .fco-used-card,.fco-upgrade .fco-used-empty{max-height:120px;min-height:0}
+.fco-upgrade .fco-stack{max-width:440px;margin-inline:auto}
 .fco-upgrade .fco-rule{font-size:11px;line-height:1.5;margin:0}
 .fco-upgrade .fco-right{height:100%;min-height:0}
 .fco-upgrade .fco-tabs{padding:0 16px}
@@ -101,8 +100,10 @@ html,body,#root{height:100%;overflow:hidden}
 .fco-upgrade .fco-hint{padding:8px 16px}
 .fco-upgrade .fco-hint strong{font-size:28px}
 .fco-upgrade .fco-head,.fco-upgrade .fco-line{padding:0 12px}
-.fco-upgrade .fco-line{height:100%;min-height:0}
-.fco-upgrade .fco-body{overflow:hidden}
+.fco-upgrade .fco-line{height:54px;min-height:0}
+.fco-upgrade .fco-body{overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+.fco-upgrade .fco-body::-webkit-scrollbar{display:none;width:0;height:0}
+.fco-upgrade .fco-body:focus-visible{outline:2px solid #2be27a;outline-offset:-2px}
 .fco-upgrade .fco-actions{padding:10px 16px}
 /* Market */
 .market-workspace .market-heading{margin-bottom:8px}
@@ -173,6 +174,64 @@ html,body,#root{height:100%;overflow:hidden}
 .opening-finished .reveal-name{position:static;font-size:16px;margin:0}
 .opening-finished .reveal-podium{display:none}
 }
+/* Secondary pack results stay below the featured player in one scrollable row. */
+.has-secondary-cards>.opening-result{gap:12px}
+.has-secondary-cards .reveal-scene{flex:1;min-height:0;height:auto;margin:0 auto}
+.has-secondary-cards .reveal-card{--rw:clamp(110px,calc((100dvh - 410px) * .72),300px);top:0}
+.has-secondary-cards .reveal-panel{top:12%;height:70%}
+.has-secondary-cards .reveal-crest{width:clamp(64px,7vw,100px)}
+.has-secondary-cards .reveal-ovr{font-size:clamp(40px,6vw,80px)}
+.has-secondary-cards .reveal-stats{gap:10px 2vw;margin-top:8px}
+.has-secondary-cards .reveal-stats dd{font-size:clamp(22px,2.5vw,40px)}
+.has-secondary-cards .reveal-podium{bottom:12%}
+.has-secondary-cards .reveal-name{bottom:0}
+.secondary-players{width:100%;min-width:0;flex-shrink:0;position:relative;z-index:4;text-align:left}
+.secondary-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:36px}
+.secondary-toggle,.secondary-navigation{display:flex;align-items:center;gap:9px}
+.secondary-toggle{min-height:36px;color:#e1e8ee;font-size:12px}
+.secondary-toggle>svg:last-child{transition:transform .15s}
+.secondary-toggle>.is-collapsed{transform:rotate(180deg)}
+.secondary-navigation{font-size:11px;color:#aebdcc}
+.secondary-navigation>button{display:grid;place-items:center;width:36px;height:36px;background:#26313b;color:#f1f5f8;border-radius:4px}
+.secondary-navigation>button:disabled{opacity:.3}
+.secondary-player-list{--secondary-card-width:clamp(100px,16dvh,152px);display:flex;align-items:flex-end;gap:16px;height:clamp(170px,26dvh,244px);overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;touch-action:pan-x;cursor:grab;user-select:none;padding:6px 2px 10px;scrollbar-width:thin;scrollbar-color:#718593 #19232c}
+.secondary-player-list::-webkit-scrollbar{display:block;width:auto;height:5px}
+.secondary-player-list::-webkit-scrollbar-thumb{background:#718593;border-radius:3px}
+.secondary-player-list.is-dragging{cursor:grabbing}
+.secondary-player{flex:0 0 var(--secondary-card-width);min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.secondary-player>.player-card{width:100%;flex-shrink:0}
+.secondary-player>span{max-width:100%;font-size:12px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.secondary-player>b{color:#aebdcc;font-size:10px;font-weight:400;line-height:1.4}
+.secondary-player-list:focus-visible,.secondary-toolbar button:focus-visible{outline:2px solid #1de07f;outline-offset:-2px}
+@media(max-width:900px){
+.has-secondary-cards>.opening-result{gap:8px;padding-bottom:calc(144px + env(safe-area-inset-bottom))}
+.has-secondary-cards .reveal-actions{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.has-secondary-cards .reveal-actions>.reveal-btn{grid-column:span 2}
+.has-secondary-cards .reveal-right{display:contents}
+.has-secondary-cards .reveal-right>.reveal-btn{grid-column:span 3}
+.has-secondary-cards .reveal-btn{font-size:15px;gap:6px;padding:0 12px;min-width:0}
+.has-secondary-cards .reveal-scene{flex:1;gap:5px;justify-content:center}
+.has-secondary-cards .reveal-panel{display:none}
+.has-secondary-cards .reveal-card{--rw:min(42vw,25dvh,calc((100dvh - 450px) * .65));flex-shrink:0}
+.has-secondary-cards .reveal-card>.player-card{width:100%;max-height:none}
+.has-secondary-cards .reveal-name{font-size:13px;flex-shrink:0}
+.secondary-toolbar{gap:8px}
+.secondary-toggle{font-size:11px;gap:5px}
+.secondary-navigation{gap:6px}
+.secondary-navigation>span{font-size:10px}
+.secondary-navigation>button{width:32px;height:36px}
+.secondary-player-list{--secondary-card-width:clamp(90px,14dvh,125px);height:clamp(150px,23dvh,205px);gap:12px}
+}
+@media(max-width:480px){
+.secondary-navigation>span{display:none}
+.secondary-player-list{--secondary-card-width:clamp(90px,13dvh,112px);height:clamp(150px,22dvh,190px)}
+}
+@media(min-width:901px) and (max-width:1200px){
+.has-secondary-cards .reveal-actions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;padding:0 4%}
+.has-secondary-cards .reveal-right{display:contents}
+.has-secondary-cards .reveal-btn{position:static;min-width:0;padding:0 12px;gap:8px;font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){.secondary-toggle>svg:last-child{transition:none}}
 /* Narrow screens */
 @media(max-width:1050px), (max-height:800px){
 .app>footer{flex-direction:row;padding:6px 3%;gap:10px;min-height:36px}
@@ -269,9 +328,8 @@ html,body,#root{height:100%;overflow:hidden}
 .fco-upgrade .fco-change{padding:2px;font-size:11px}
 .fco-upgrade .fco-row{grid-template-columns:100px 1fr;font-size:10px}
 .fco-upgrade .fco-used{display:grid}
-.fco-upgrade .fco-stack{height:34px;max-height:34px}
-.fco-upgrade .fco-used-card,.fco-upgrade .fco-used-empty{height:34px;max-height:34px;aspect-ratio:auto}
-.fco-upgrade .fco-used-card .player-card{width:auto;height:100%;margin:auto}
+.fco-upgrade .fco-stack{height:34px;width:99px;margin-inline:auto}
+.fco-upgrade .fco-used-blank{font-size:9px;line-height:1.3}
 .fco-upgrade .fco-rule{font-size:9px;line-height:1.3}
 .fco-upgrade .fco-tabs{padding:0 12px}
 .fco-upgrade .fco-tabs button{font-size:16px;padding:6px 0}
@@ -280,7 +338,7 @@ html,body,#root{height:100%;overflow:hidden}
 .fco-upgrade .fco-hint p{font-size:10px}
 .fco-upgrade .fco-hint strong{font-size:20px}
 .fco-upgrade .fco-head{height:28px;font-size:10px}
-.fco-upgrade .fco-body{--page-item-height:42}
+.fco-upgrade .fco-line{height:42px}
 .fco-upgrade .fco-name b{font-size:13px}
 .fco-upgrade .fco-name>img{height:28px;width:22px}
 .fco-upgrade .fco-pos{font-size:13px}

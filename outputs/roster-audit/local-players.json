@@ -1,0 +1,2046 @@
+[
+  {
+    "id": 1,
+    "name": "Ronaldo",
+    "ovr": 126,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 31,
+    "name": "Pelé",
+    "ovr": 127,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 32,
+    "name": "J. Cruyff",
+    "ovr": 126,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 33,
+    "name": "R. Gullit",
+    "ovr": 125,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 5,
+    "name": "T. Henry",
+    "ovr": 124,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 34,
+    "name": "Eusébio",
+    "ovr": 125,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 35,
+    "name": "W. Rooney",
+    "ovr": 124,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 36,
+    "name": "D. Drogba",
+    "ovr": 124,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 37,
+    "name": "Fernando Torres",
+    "ovr": 122,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 3,
+    "name": "Z. Zidane",
+    "ovr": 126,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 4,
+    "name": "Ronaldinho",
+    "ovr": 125,
+    "pos": "LW",
+    "tier": "eternal"
+  },
+  {
+    "id": 8,
+    "name": "D. Beckham",
+    "ovr": 124,
+    "pos": "RM",
+    "tier": "eternal"
+  },
+  {
+    "id": 38,
+    "name": "Kaká",
+    "ovr": 124,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 39,
+    "name": "P. Vieira",
+    "ovr": 123,
+    "pos": "CDM",
+    "tier": "eternal"
+  },
+  {
+    "id": 40,
+    "name": "M. Ballack",
+    "ovr": 123,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 41,
+    "name": "S. Gerrard",
+    "ovr": 123,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 42,
+    "name": "Park Ji-sung",
+    "ovr": 122,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 6,
+    "name": "P. Maldini",
+    "ovr": 125,
+    "pos": "LB",
+    "tier": "eternal"
+  },
+  {
+    "id": 43,
+    "name": "R. Ferdinand",
+    "ovr": 123,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 44,
+    "name": "N. Vidić",
+    "ovr": 122,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 45,
+    "name": "Roberto Carlos",
+    "ovr": 124,
+    "pos": "LB",
+    "tier": "eternal"
+  },
+  {
+    "id": 46,
+    "name": "L. Yashin",
+    "ovr": 126,
+    "pos": "GK",
+    "tier": "eternal"
+  },
+  {
+    "id": 47,
+    "name": "E. van der Sar",
+    "ovr": 121,
+    "pos": "GK",
+    "tier": "eternal"
+  },
+  {
+    "id": 48,
+    "name": "P. Čech",
+    "ovr": 122,
+    "pos": "GK",
+    "tier": "eternal"
+  },
+  {
+    "id": 49,
+    "name": "D. Maradona",
+    "ovr": 127,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 50,
+    "name": "M. van Basten",
+    "ovr": 126,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 51,
+    "name": "G. Müller",
+    "ovr": 126,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 52,
+    "name": "F. Beckenbauer",
+    "ovr": 126,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 53,
+    "name": "Ferenc Puskás",
+    "ovr": 126,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 54,
+    "name": "G. Best",
+    "ovr": 125,
+    "pos": "RW",
+    "tier": "eternal"
+  },
+  {
+    "id": 55,
+    "name": "R. Baggio",
+    "ovr": 125,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 56,
+    "name": "Jairzinho",
+    "ovr": 125,
+    "pos": "RW",
+    "tier": "eternal"
+  },
+  {
+    "id": 57,
+    "name": "Garrincha",
+    "ovr": 125,
+    "pos": "RW",
+    "tier": "eternal"
+  },
+  {
+    "id": 58,
+    "name": "B. Charlton",
+    "ovr": 125,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 59,
+    "name": "F. Baresi",
+    "ovr": 125,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 60,
+    "name": "Zico",
+    "ovr": 125,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 61,
+    "name": "Iniesta",
+    "ovr": 125,
+    "pos": "CM",
+    "tier": "eternal"
+  },
+  {
+    "id": 62,
+    "name": "Xavi",
+    "ovr": 125,
+    "pos": "CM",
+    "tier": "eternal"
+  },
+  {
+    "id": 63,
+    "name": "G. Buffon",
+    "ovr": 125,
+    "pos": "GK",
+    "tier": "eternal"
+  },
+  {
+    "id": 64,
+    "name": "E. Cantona",
+    "ovr": 124,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 65,
+    "name": "Z. Ibrahimović",
+    "ovr": 124,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 66,
+    "name": "A. Shevchenko",
+    "ovr": 124,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 67,
+    "name": "F. Totti",
+    "ovr": 124,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 68,
+    "name": "Gabriel Batistuta",
+    "ovr": 124,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 9,
+    "name": "A. Pirlo",
+    "ovr": 124,
+    "pos": "CM",
+    "tier": "eternal"
+  },
+  {
+    "id": 10,
+    "name": "Casillas",
+    "ovr": 124,
+    "pos": "GK",
+    "tier": "eternal"
+  },
+  {
+    "id": 69,
+    "name": "F. Rijkaard",
+    "ovr": 124,
+    "pos": "CDM",
+    "tier": "eternal"
+  },
+  {
+    "id": 70,
+    "name": "H. Sánchez",
+    "ovr": 124,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 71,
+    "name": "R. van Nistelrooy",
+    "ovr": 124,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 72,
+    "name": "S. Eto'o",
+    "ovr": 124,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 73,
+    "name": "Luís Figo",
+    "ovr": 124,
+    "pos": "RW",
+    "tier": "eternal"
+  },
+  {
+    "id": 74,
+    "name": "Rivaldo",
+    "ovr": 124,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 75,
+    "name": "D. Bergkamp",
+    "ovr": 124,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 76,
+    "name": "A. Nesta",
+    "ovr": 124,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 77,
+    "name": "A. Shearer",
+    "ovr": 124,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 78,
+    "name": "Cafu",
+    "ovr": 124,
+    "pos": "RB",
+    "tier": "eternal"
+  },
+  {
+    "id": 79,
+    "name": "F. Cannavaro",
+    "ovr": 124,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 80,
+    "name": "O. Kahn",
+    "ovr": 124,
+    "pos": "GK",
+    "tier": "eternal"
+  },
+  {
+    "id": 81,
+    "name": "K. Dalglish",
+    "ovr": 123,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 82,
+    "name": "Dunga",
+    "ovr": 123,
+    "pos": "CDM",
+    "tier": "eternal"
+  },
+  {
+    "id": 83,
+    "name": "B. Cha",
+    "ovr": 123,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 84,
+    "name": "T. Kroos",
+    "ovr": 123,
+    "pos": "CM",
+    "tier": "eternal"
+  },
+  {
+    "id": 85,
+    "name": "Marcelo",
+    "ovr": 123,
+    "pos": "LB",
+    "tier": "eternal"
+  },
+  {
+    "id": 86,
+    "name": "M. Klose",
+    "ovr": 123,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 87,
+    "name": "R. van Persie",
+    "ovr": 123,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 88,
+    "name": "P. Nedvěd",
+    "ovr": 123,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 89,
+    "name": "F. Lampard",
+    "ovr": 123,
+    "pos": "CM",
+    "tier": "eternal"
+  },
+  {
+    "id": 90,
+    "name": "A. Del Piero",
+    "ovr": 123,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 91,
+    "name": "I. Rush",
+    "ovr": 123,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 92,
+    "name": "B. Moore",
+    "ovr": 123,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 93,
+    "name": "R. Koeman",
+    "ovr": 123,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 94,
+    "name": "Carlos Alberto",
+    "ovr": 123,
+    "pos": "RB",
+    "tier": "eternal"
+  },
+  {
+    "id": 95,
+    "name": "P. Lahm",
+    "ovr": 123,
+    "pos": "RB",
+    "tier": "eternal"
+  },
+  {
+    "id": 96,
+    "name": "Raúl",
+    "ovr": 123,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 97,
+    "name": "Xabi Alonso",
+    "ovr": 123,
+    "pos": "CM",
+    "tier": "eternal"
+  },
+  {
+    "id": 98,
+    "name": "C. Puyol",
+    "ovr": 123,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 99,
+    "name": "M. Owen",
+    "ovr": 123,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 100,
+    "name": "L. Thuram",
+    "ovr": 123,
+    "pos": "RB",
+    "tier": "eternal"
+  },
+  {
+    "id": 101,
+    "name": "J. Zanetti",
+    "ovr": 123,
+    "pos": "LB",
+    "tier": "eternal"
+  },
+  {
+    "id": 102,
+    "name": "P. Scholes",
+    "ovr": 123,
+    "pos": "CM",
+    "tier": "eternal"
+  },
+  {
+    "id": 103,
+    "name": "P. Schmeichel",
+    "ovr": 123,
+    "pos": "GK",
+    "tier": "eternal"
+  },
+  {
+    "id": 104,
+    "name": "Y. Touré",
+    "ovr": 122,
+    "pos": "CM",
+    "tier": "eternal"
+  },
+  {
+    "id": 105,
+    "name": "M. Laudrup",
+    "ovr": 122,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 106,
+    "name": "G. Lineker",
+    "ovr": 122,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 107,
+    "name": "Butragueño",
+    "ovr": 122,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 108,
+    "name": "G. Bale",
+    "ovr": 122,
+    "pos": "LM",
+    "tier": "eternal"
+  },
+  {
+    "id": 109,
+    "name": "G. Hagi",
+    "ovr": 122,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 110,
+    "name": "F. Ribéry",
+    "ovr": 122,
+    "pos": "LW",
+    "tier": "eternal"
+  },
+  {
+    "id": 111,
+    "name": "G. Chiellini",
+    "ovr": 122,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 112,
+    "name": "H. Crespo",
+    "ovr": 122,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 113,
+    "name": "D. Trezeguet",
+    "ovr": 122,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 114,
+    "name": "H. Stoichkov",
+    "ovr": 122,
+    "pos": "RW",
+    "tier": "eternal"
+  },
+  {
+    "id": 115,
+    "name": "C. Seedorf",
+    "ovr": 122,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 116,
+    "name": "M. Desailly",
+    "ovr": 122,
+    "pos": "CDM",
+    "tier": "eternal"
+  },
+  {
+    "id": 117,
+    "name": "L. Blanc",
+    "ovr": 122,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 118,
+    "name": "Fernando Hierro",
+    "ovr": 122,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 119,
+    "name": "B. Schweinsteiger",
+    "ovr": 122,
+    "pos": "CM",
+    "tier": "eternal"
+  },
+  {
+    "id": 120,
+    "name": "C. Makélélé",
+    "ovr": 122,
+    "pos": "CDM",
+    "tier": "eternal"
+  },
+  {
+    "id": 121,
+    "name": "R. Keane",
+    "ovr": 122,
+    "pos": "CDM",
+    "tier": "eternal"
+  },
+  {
+    "id": 122,
+    "name": "Rui Costa",
+    "ovr": 121,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 236,
+    "name": "L. Matthäus",
+    "ovr": 126,
+    "pos": "CM",
+    "tier": "eternal"
+  },
+  {
+    "id": 237,
+    "name": "A. Cole",
+    "ovr": 121,
+    "pos": "LB",
+    "tier": "eternal"
+  },
+  {
+    "id": 238,
+    "name": "E. Petit",
+    "ovr": 121,
+    "pos": "CDM",
+    "tier": "eternal"
+  },
+  {
+    "id": 239,
+    "name": "G. Gattuso",
+    "ovr": 121,
+    "pos": "CDM",
+    "tier": "eternal"
+  },
+  {
+    "id": 240,
+    "name": "G. Zambrotta",
+    "ovr": 121,
+    "pos": "RB",
+    "tier": "eternal"
+  },
+  {
+    "id": 241,
+    "name": "Verón",
+    "ovr": 121,
+    "pos": "CM",
+    "tier": "eternal"
+  },
+  {
+    "id": 242,
+    "name": "M. Essien",
+    "ovr": 121,
+    "pos": "CDM",
+    "tier": "eternal"
+  },
+  {
+    "id": 243,
+    "name": "H. Larsson",
+    "ovr": 121,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 244,
+    "name": "I. Wright",
+    "ovr": 121,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 245,
+    "name": "P. Kluivert",
+    "ovr": 121,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 246,
+    "name": "Sócrates",
+    "ovr": 121,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 247,
+    "name": "H. Nakata",
+    "ovr": 117,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 248,
+    "name": "L. Hernández",
+    "ovr": 119,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 249,
+    "name": "O. Bierhoff",
+    "ovr": 119,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 250,
+    "name": "O. Solskjaer",
+    "ovr": 119,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 251,
+    "name": "J. Carragher",
+    "ovr": 119,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 252,
+    "name": "D. Šuker",
+    "ovr": 119,
+    "pos": "ST",
+    "tier": "eternal"
+  },
+  {
+    "id": 253,
+    "name": "J. Barnes",
+    "ovr": 119,
+    "pos": "LW",
+    "tier": "eternal"
+  },
+  {
+    "id": 254,
+    "name": "Riquelme",
+    "ovr": 120,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 255,
+    "name": "G. Zola",
+    "ovr": 120,
+    "pos": "CF",
+    "tier": "eternal"
+  },
+  {
+    "id": 256,
+    "name": "R. Pirès",
+    "ovr": 120,
+    "pos": "LM",
+    "tier": "eternal"
+  },
+  {
+    "id": 257,
+    "name": "J. Litmanen",
+    "ovr": 120,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 258,
+    "name": "F. Ljungberg",
+    "ovr": 120,
+    "pos": "RM",
+    "tier": "eternal"
+  },
+  {
+    "id": 259,
+    "name": "Paulo Futre",
+    "ovr": 120,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 260,
+    "name": "S. Campbell",
+    "ovr": 120,
+    "pos": "CB",
+    "tier": "eternal"
+  },
+  {
+    "id": 261,
+    "name": "J. Okocha",
+    "ovr": 119,
+    "pos": "CAM",
+    "tier": "eternal"
+  },
+  {
+    "id": 13,
+    "name": "H. Kane",
+    "ovr": 126,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 11,
+    "name": "K. Mbappé",
+    "ovr": 126,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 14,
+    "name": "Lamine Yamal",
+    "ovr": 126,
+    "pos": "RW",
+    "tier": "stellar"
+  },
+  {
+    "id": 15,
+    "name": "M. Olise",
+    "ovr": 126,
+    "pos": "RW",
+    "tier": "stellar"
+  },
+  {
+    "id": 12,
+    "name": "E. Haaland",
+    "ovr": 125,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 16,
+    "name": "Bruno Fernandes",
+    "ovr": 125,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 17,
+    "name": "Vitinha",
+    "ovr": 125,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 18,
+    "name": "Pedri",
+    "ovr": 125,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 123,
+    "name": "L. Díaz",
+    "ovr": 125,
+    "pos": "LW",
+    "tier": "stellar"
+  },
+  {
+    "id": 20,
+    "name": "D. Rice",
+    "ovr": 125,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 124,
+    "name": "Gabriel",
+    "ovr": 125,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 19,
+    "name": "L. Modrić",
+    "ovr": 124,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 125,
+    "name": "Nico Paz",
+    "ovr": 124,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 126,
+    "name": "Igor Thiago",
+    "ovr": 124,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 127,
+    "name": "W. Saliba",
+    "ovr": 124,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 128,
+    "name": "F. Dimarco",
+    "ovr": 124,
+    "pos": "LWB",
+    "tier": "stellar"
+  },
+  {
+    "id": 129,
+    "name": "L. Messi",
+    "ovr": 123,
+    "pos": "CF",
+    "tier": "stellar"
+  },
+  {
+    "id": 130,
+    "name": "Cristiano Ronaldo",
+    "ovr": 123,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 131,
+    "name": "K. Yıldız",
+    "ovr": 123,
+    "pos": "LW",
+    "tier": "stellar"
+  },
+  {
+    "id": 132,
+    "name": "L. Suárez",
+    "ovr": 123,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 133,
+    "name": "F. Valverde",
+    "ovr": 123,
+    "pos": "RM",
+    "tier": "stellar"
+  },
+  {
+    "id": 134,
+    "name": "L. Martínez",
+    "ovr": 123,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 135,
+    "name": "Marcos Llorente",
+    "ovr": 123,
+    "pos": "RB",
+    "tier": "stellar"
+  },
+  {
+    "id": 136,
+    "name": "V. Muriqi",
+    "ovr": 123,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 137,
+    "name": "J. Kimmich",
+    "ovr": 123,
+    "pos": "CDM",
+    "tier": "stellar"
+  },
+  {
+    "id": 138,
+    "name": "V. van Dijk",
+    "ovr": 123,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 139,
+    "name": "J. Veerman",
+    "ovr": 123,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 140,
+    "name": "Nuno Mendes",
+    "ovr": 123,
+    "pos": "LB",
+    "tier": "stellar"
+  },
+  {
+    "id": 141,
+    "name": "João Pedro",
+    "ovr": 123,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 142,
+    "name": "Bruno Guimarães",
+    "ovr": 123,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 143,
+    "name": "N. Schlotterbeck",
+    "ovr": 123,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 144,
+    "name": "K. Kvaratskhelia",
+    "ovr": 123,
+    "pos": "LW",
+    "tier": "stellar"
+  },
+  {
+    "id": 145,
+    "name": "A. Semenyo",
+    "ovr": 123,
+    "pos": "RW",
+    "tier": "stellar"
+  },
+  {
+    "id": 146,
+    "name": "D. Szoboszlai",
+    "ovr": 123,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 147,
+    "name": "D. Raum",
+    "ovr": 123,
+    "pos": "LB",
+    "tier": "stellar"
+  },
+  {
+    "id": 148,
+    "name": "O. Dembélé",
+    "ovr": 123,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 149,
+    "name": "Jacobo Ramón",
+    "ovr": 123,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 150,
+    "name": "L. Vušković",
+    "ovr": 123,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 151,
+    "name": "David Raya",
+    "ovr": 123,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 152,
+    "name": "M. Godts",
+    "ovr": 122,
+    "pos": "LW",
+    "tier": "stellar"
+  },
+  {
+    "id": 153,
+    "name": "J. Alvarez",
+    "ovr": 122,
+    "pos": "CF",
+    "tier": "stellar"
+  },
+  {
+    "id": 154,
+    "name": "D. Undav",
+    "ovr": 122,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 155,
+    "name": "S. Gnabry",
+    "ovr": 122,
+    "pos": "CF",
+    "tier": "stellar"
+  },
+  {
+    "id": 156,
+    "name": "G. Xhaka",
+    "ovr": 122,
+    "pos": "CDM",
+    "tier": "stellar"
+  },
+  {
+    "id": 157,
+    "name": "Carlos Romero",
+    "ovr": 121,
+    "pos": "LB",
+    "tier": "stellar"
+  },
+  {
+    "id": 158,
+    "name": "I. Saibari",
+    "ovr": 122,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 159,
+    "name": "J. Timber",
+    "ovr": 122,
+    "pos": "RB",
+    "tier": "stellar"
+  },
+  {
+    "id": 160,
+    "name": "R. Cherki",
+    "ovr": 122,
+    "pos": "RW",
+    "tier": "stellar"
+  },
+  {
+    "id": 161,
+    "name": "E. Fernández",
+    "ovr": 122,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 162,
+    "name": "Eric García",
+    "ovr": 122,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 163,
+    "name": "João Félix",
+    "ovr": 122,
+    "pos": "CF",
+    "tier": "stellar"
+  },
+  {
+    "id": 164,
+    "name": "A. Tchouaméni",
+    "ovr": 122,
+    "pos": "CDM",
+    "tier": "stellar"
+  },
+  {
+    "id": 165,
+    "name": "Bremer",
+    "ovr": 122,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 166,
+    "name": "S. McTominay",
+    "ovr": 122,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 167,
+    "name": "Oyarzabal",
+    "ovr": 122,
+    "pos": "CF",
+    "tier": "stellar"
+  },
+  {
+    "id": 168,
+    "name": "M. Locatelli",
+    "ovr": 122,
+    "pos": "CDM",
+    "tier": "stellar"
+  },
+  {
+    "id": 169,
+    "name": "J. Tah",
+    "ovr": 122,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 170,
+    "name": "A. Rabiot",
+    "ovr": 122,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 171,
+    "name": "Casemiro",
+    "ovr": 122,
+    "pos": "CDM",
+    "tier": "stellar"
+  },
+  {
+    "id": 172,
+    "name": "N. O'Reilly",
+    "ovr": 122,
+    "pos": "LB",
+    "tier": "stellar"
+  },
+  {
+    "id": 173,
+    "name": "S. Mouriño",
+    "ovr": 122,
+    "pos": "RB",
+    "tier": "stellar"
+  },
+  {
+    "id": 174,
+    "name": "A. Pavlović",
+    "ovr": 122,
+    "pos": "CDM",
+    "tier": "stellar"
+  },
+  {
+    "id": 175,
+    "name": "M. Sangaré",
+    "ovr": 122,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 176,
+    "name": "R. James",
+    "ovr": 122,
+    "pos": "RB",
+    "tier": "stellar"
+  },
+  {
+    "id": 177,
+    "name": "M. Sarr",
+    "ovr": 122,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 178,
+    "name": "Raphinha",
+    "ovr": 122,
+    "pos": "LW",
+    "tier": "stellar"
+  },
+  {
+    "id": 179,
+    "name": "D. Upamecano",
+    "ovr": 122,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 180,
+    "name": "Grimaldo",
+    "ovr": 122,
+    "pos": "LM",
+    "tier": "stellar"
+  },
+  {
+    "id": 181,
+    "name": "F. Thauvin",
+    "ovr": 122,
+    "pos": "RW",
+    "tier": "stellar"
+  },
+  {
+    "id": 182,
+    "name": "Joan García",
+    "ovr": 122,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 183,
+    "name": "Mauro Júnior",
+    "ovr": 122,
+    "pos": "LB",
+    "tier": "stellar"
+  },
+  {
+    "id": 184,
+    "name": "G. Donnarumma",
+    "ovr": 122,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 185,
+    "name": "M. Udol",
+    "ovr": 122,
+    "pos": "LWB",
+    "tier": "stellar"
+  },
+  {
+    "id": 186,
+    "name": "T. Courtois",
+    "ovr": 122,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 187,
+    "name": "I. Toney",
+    "ovr": 121,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 188,
+    "name": "H. Son",
+    "ovr": 121,
+    "pos": "CF",
+    "tier": "stellar"
+  },
+  {
+    "id": 189,
+    "name": "Luis Milla",
+    "ovr": 121,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 190,
+    "name": "W. McKennie",
+    "ovr": 121,
+    "pos": "RM",
+    "tier": "stellar"
+  },
+  {
+    "id": 191,
+    "name": "J. Quiñones",
+    "ovr": 121,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 192,
+    "name": "Aleix García",
+    "ovr": 121,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 193,
+    "name": "D. Bouanga",
+    "ovr": 121,
+    "pos": "LW",
+    "tier": "stellar"
+  },
+  {
+    "id": 194,
+    "name": "Rúben Neves",
+    "ovr": 121,
+    "pos": "CDM",
+    "tier": "stellar"
+  },
+  {
+    "id": 195,
+    "name": "J. Bednarek",
+    "ovr": 121,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 196,
+    "name": "S. Guirassy",
+    "ovr": 121,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 197,
+    "name": "P. Zieliński",
+    "ovr": 121,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 198,
+    "name": "Marc Cucurella",
+    "ovr": 121,
+    "pos": "LB",
+    "tier": "stellar"
+  },
+  {
+    "id": 199,
+    "name": "E. Ndicka",
+    "ovr": 121,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 200,
+    "name": "J. Ryerson",
+    "ovr": 121,
+    "pos": "RWB",
+    "tier": "stellar"
+  },
+  {
+    "id": 201,
+    "name": "M. Akanji",
+    "ovr": 121,
+    "pos": "CB",
+    "tier": "stellar"
+  },
+  {
+    "id": 202,
+    "name": "Pablo Fornals",
+    "ovr": 121,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 203,
+    "name": "V. Rongier",
+    "ovr": 121,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 204,
+    "name": "H. Wilson",
+    "ovr": 121,
+    "pos": "RW",
+    "tier": "stellar"
+  },
+  {
+    "id": 205,
+    "name": "C. Tolisso",
+    "ovr": 121,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 206,
+    "name": "A. Thomasson",
+    "ovr": 121,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 207,
+    "name": "Wesley",
+    "ovr": 121,
+    "pos": "LWB",
+    "tier": "stellar"
+  },
+  {
+    "id": 208,
+    "name": "L. Karl",
+    "ovr": 121,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 209,
+    "name": "M. Maignan",
+    "ovr": 121,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 210,
+    "name": "H. Koffi",
+    "ovr": 121,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 211,
+    "name": "M. Svilar",
+    "ovr": 121,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 262,
+    "name": "Y. Begraoui",
+    "ovr": 119,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 263,
+    "name": "Borja Iglesias",
+    "ovr": 120,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 264,
+    "name": "E. Lepaul",
+    "ovr": 120,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 265,
+    "name": "D. Welbeck",
+    "ovr": 120,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 266,
+    "name": "A. Dreyer",
+    "ovr": 120,
+    "pos": "RW",
+    "tier": "stellar"
+  },
+  {
+    "id": 267,
+    "name": "R. Højlund",
+    "ovr": 120,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 268,
+    "name": "T. Douvikas",
+    "ovr": 120,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 269,
+    "name": "Moleiro",
+    "ovr": 120,
+    "pos": "LW",
+    "tier": "stellar"
+  },
+  {
+    "id": 270,
+    "name": "P. Aubameyang",
+    "ovr": 120,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 271,
+    "name": "Y. Carrasco",
+    "ovr": 120,
+    "pos": "LW",
+    "tier": "stellar"
+  },
+  {
+    "id": 272,
+    "name": "S. Al Dawsari",
+    "ovr": 120,
+    "pos": "LW",
+    "tier": "stellar"
+  },
+  {
+    "id": 273,
+    "name": "V. Pavlidis",
+    "ovr": 120,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 274,
+    "name": "S. Surridge",
+    "ovr": 120,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 275,
+    "name": "A. Ueda",
+    "ovr": 120,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 276,
+    "name": "A. Ezzalzouli",
+    "ovr": 121,
+    "pos": "LW",
+    "tier": "stellar"
+  },
+  {
+    "id": 277,
+    "name": "B. Barcola",
+    "ovr": 121,
+    "pos": "LW",
+    "tier": "stellar"
+  },
+  {
+    "id": 278,
+    "name": "J. Panichelli",
+    "ovr": 121,
+    "pos": "ST",
+    "tier": "stellar"
+  },
+  {
+    "id": 279,
+    "name": "C. Roldan",
+    "ovr": 118,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 280,
+    "name": "F. Aursnes",
+    "ovr": 119,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 281,
+    "name": "S. Berhalter",
+    "ovr": 119,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 282,
+    "name": "V. Froholdt",
+    "ovr": 119,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 283,
+    "name": "Aleix Febas",
+    "ovr": 120,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 284,
+    "name": "N. Vlašić",
+    "ovr": 120,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 285,
+    "name": "L. Camara",
+    "ovr": 120,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 286,
+    "name": "K. Sano",
+    "ovr": 120,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 287,
+    "name": "W. Zaïre-Emery",
+    "ovr": 121,
+    "pos": "CM",
+    "tier": "stellar"
+  },
+  {
+    "id": 288,
+    "name": "K. Fortounis",
+    "ovr": 120,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 289,
+    "name": "A. Kramarić",
+    "ovr": 120,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 290,
+    "name": "Evander",
+    "ovr": 120,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 291,
+    "name": "C. Baumgartner",
+    "ovr": 120,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 292,
+    "name": "P. Šulc",
+    "ovr": 120,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 293,
+    "name": "R. Zalazar",
+    "ovr": 120,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 294,
+    "name": "Trincão",
+    "ovr": 121,
+    "pos": "CAM",
+    "tier": "stellar"
+  },
+  {
+    "id": 295,
+    "name": "Mailson",
+    "ovr": 118,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 296,
+    "name": "D. St. Clair",
+    "ovr": 118,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 297,
+    "name": "R. Koeman Jr.",
+    "ovr": 119,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 298,
+    "name": "O. Baumann",
+    "ovr": 119,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 299,
+    "name": "L. Carević",
+    "ovr": 119,
+    "pos": "GK",
+    "tier": "stellar"
+  },
+  {
+    "id": 300,
+    "name": "D. Nejašmić",
+    "ovr": 119,
+    "pos": "CDM",
+    "tier": "stellar"
+  },
+  {
+    "id": 301,
+    "name": "A. Stiller",
+    "ovr": 121,
+    "pos": "CDM",
+    "tier": "stellar"
+  },
+  {
+    "id": 302,
+    "name": "M. Akliouche",
+    "ovr": 120,
+    "pos": "RM",
+    "tier": "stellar"
+  },
+  {
+    "id": 303,
+    "name": "B. André",
+    "ovr": 120,
+    "pos": "CDM",
+    "tier": "stellar"
+  },
+  {
+    "id": 304,
+    "name": "M. Perrone",
+    "ovr": 120,
+    "pos": "CDM",
+    "tier": "stellar"
+  },
+  {
+    "id": 212,
+    "name": "Jairzinho",
+    "ovr": 117,
+    "pos": "RW",
+    "tier": "origin"
+  },
+  {
+    "id": 213,
+    "name": "H. Nakata",
+    "ovr": 115,
+    "pos": "CAM",
+    "tier": "origin"
+  },
+  {
+    "id": 214,
+    "name": "R. Mahrez",
+    "ovr": 115,
+    "pos": "RW",
+    "tier": "origin"
+  },
+  {
+    "id": 215,
+    "name": "Pedro Neto",
+    "ovr": 115,
+    "pos": "LW",
+    "tier": "origin"
+  },
+  {
+    "id": 216,
+    "name": "Ramires",
+    "ovr": 116,
+    "pos": "CDM",
+    "tier": "origin"
+  },
+  {
+    "id": 217,
+    "name": "L. Díaz",
+    "ovr": 116,
+    "pos": "LW",
+    "tier": "origin"
+  },
+  {
+    "id": 218,
+    "name": "T. Rosický",
+    "ovr": 116,
+    "pos": "CAM",
+    "tier": "origin"
+  },
+  {
+    "id": 219,
+    "name": "H. Larsson",
+    "ovr": 116,
+    "pos": "ST",
+    "tier": "origin"
+  },
+  {
+    "id": 220,
+    "name": "N. Kanté",
+    "ovr": 117,
+    "pos": "CDM",
+    "tier": "origin"
+  },
+  {
+    "id": 221,
+    "name": "D. Beckham",
+    "ovr": 117,
+    "pos": "RM",
+    "tier": "origin"
+  },
+  {
+    "id": 222,
+    "name": "Park Ji Sung",
+    "ovr": 117,
+    "pos": "CAM",
+    "tier": "origin"
+  },
+  {
+    "id": 223,
+    "name": "Raúl",
+    "ovr": 117,
+    "pos": "ST",
+    "tier": "origin"
+  },
+  {
+    "id": 224,
+    "name": "B. Saka",
+    "ovr": 117,
+    "pos": "RW",
+    "tier": "origin"
+  },
+  {
+    "id": 225,
+    "name": "K. Dalglish",
+    "ovr": 117,
+    "pos": "CF",
+    "tier": "origin"
+  },
+  {
+    "id": 226,
+    "name": "R. Pirès",
+    "ovr": 117,
+    "pos": "LM",
+    "tier": "origin"
+  },
+  {
+    "id": 227,
+    "name": "D. Forlán",
+    "ovr": 117,
+    "pos": "ST",
+    "tier": "origin"
+  },
+  {
+    "id": 228,
+    "name": "F. Ribéry",
+    "ovr": 117,
+    "pos": "LW",
+    "tier": "origin"
+  },
+  {
+    "id": 229,
+    "name": "E. Cantona",
+    "ovr": 117,
+    "pos": "CF",
+    "tier": "origin"
+  },
+  {
+    "id": 230,
+    "name": "E. Butragueño",
+    "ovr": 117,
+    "pos": "CF",
+    "tier": "origin"
+  },
+  {
+    "id": 231,
+    "name": "H. Son",
+    "ovr": 117,
+    "pos": "LW",
+    "tier": "origin"
+  },
+  {
+    "id": 232,
+    "name": "G. Best",
+    "ovr": 118,
+    "pos": "RW",
+    "tier": "origin"
+  },
+  {
+    "id": 233,
+    "name": "Luís Figo",
+    "ovr": 118,
+    "pos": "RW",
+    "tier": "origin"
+  },
+  {
+    "id": 234,
+    "name": "A. Shevchenko",
+    "ovr": 118,
+    "pos": "ST",
+    "tier": "origin"
+  },
+  {
+    "id": 235,
+    "name": "Cristiano Ronaldo",
+    "ovr": 119,
+    "pos": "RW",
+    "tier": "origin"
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {"id":295,"stamp":"201859","slug":"mailson","name":"Mailson","ovr":118,"pos":"GK","nation":"Brazil","flag":"BR","club":"Al Taawoun","wage":26},
+  {"id":296,"stamp":"201851","slug":"stclair","name":"D. St. Clair","ovr":118,"pos":"GK","nation":"Canada","flag":"CA","club":"Inter Miami","wage":26},
+  {"id":297,"stamp":"201839","slug":"koemanjr","name":"R. Koeman Jr.","ovr":119,"pos":"GK","nation":"Hà Lan","flag":"NL","club":"Telstar","wage":27},
+  {"id":298,"stamp":"201828","slug":"baumann","name":"O. Baumann","ovr":119,"pos":"GK","nation":"Đức","flag":"DE","club":"Hoffenheim","wage":27},
+  {"id":299,"stamp":"201815","slug":"carevic","name":"L. Carević","ovr":119,"pos":"GK","nation":"Montenegro","flag":"ME","club":"Famalicão","wage":27},
+  {"id":300,"stamp":"182912","slug":"nejasmic","name":"D. Nejašmić","ovr":119,"pos":"CDM","nation":"Croatia","flag":"HR","club":"NEC Nijmegen","wage":29},
+  {"id":301,"stamp":"182806","slug":"stiller","name":"A. Stiller","ovr":121,"pos":"CDM","nation":"Đức","flag":"DE","club":"Stuttgart","wage":29},
+  {"id":302,"stamp":"182317","slug":"akliouche","name":"M. Akliouche","ovr":120,"pos":"RM","nation":"Pháp","flag":"FR","club":"Monaco","wage":30},
+  {"id":303,"stamp":"182848","slug":"andre","name":"B. André","ovr":120,"pos":"CDM","nation":"Pháp","flag":"FR","club":"Lille","wage":30},
+  {"id":304,"stamp":"182828","slug":"perrone","name":"M. Perrone","ovr":120,"pos":"CDM","nation":"Argentina","flag":"AR","club":"Como","wage":29}
+]

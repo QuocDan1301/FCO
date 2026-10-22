@@ -37,7 +37,7 @@ export function drawBadge(ctx: CanvasRenderingContext2D, info: BadgeInfo, w: num
   ctx.fillStyle = '#dccbaa'; ctx.font = `500 ${Math.round(h * .085)}px ${FONT}`; if ('letterSpacing' in ctx) ctx.letterSpacing = `${Math.round(h * .012)}px`; ctx.fillText(label, w / 2, h * .13); if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
   const caption = (text: string) => { ctx.fillStyle = '#fff'; ctx.font = `600 ${Math.round(h * (text.length > 18 ? .12 : .15))}px ${FONT}`; ctx.fillText(text, w / 2, h * .93, w * .92); };
   if (info.phase === 3 && info.flag) {
-    const fh = h * .46, fw = fh * 1.5, x = (w - fw) / 2, y = h * .2;
+    const fh = h * .46, fw = fh * 4 / 3, x = (w - fw) / 2, y = h * .2;
     const flag = sceneImage(flagImageUrl(info.flag), onLoad);
     if (flag) ctx.drawImage(flag, x, y, fw, fh);
     ctx.strokeStyle = '#ffffff55'; ctx.lineWidth = Math.max(1, h * .006); ctx.strokeRect(x, y, fw, fh);

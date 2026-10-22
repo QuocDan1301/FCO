@@ -24,6 +24,7 @@ const resources = [
   ['icon-tm-back.png', 'image/png'],
   ['ts26-back.png', 'image/png'],
   ['no7-back.webp', 'image/webp'],
+  ['no7-team.png', 'image/png'],
   ['no7-jairzinho-card.webp', 'image/webp'],
   ['no7-nakata-card.webp', 'image/webp'],
   ['no7-mahrez-card.webp', 'image/webp'],
@@ -178,6 +179,7 @@ const resources = [
   ['vanbasten-card.webp', 'image/webp'],
   ['muller-card.webp', 'image/webp'],
   ['beckenbauer-card.webp', 'image/webp'],
+  ['matthaus-card.webp', 'image/webp'],
   ['puskas-card.webp', 'image/webp'],
   ['best-card.webp', 'image/webp'],
   ['baggio-card.webp', 'image/webp'],
@@ -274,8 +276,24 @@ for (const [name, mime] of resources) {
   css = css.replaceAll(`/assets/${name}`, data);
   html = html.replaceAll(`/assets/${name}`, data);
 }
+// Ảnh game dùng mà không có trong resources (vd. thẻ cầu thủ mới) được tự nhúng từ public/assets, tránh ảnh vỡ trong bản độc lập.
+const imageTypes = { png: 'image/png', webp: 'image/webp', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml' };
+const referenced = [...new Set((js + css + html).match(/\/assets\/[\w./-]+\.(?:png|webp|jpe?g|svg)/g) ?? [])];
+const unembedded = [];
+for (const ref of referenced) {
+  const name = ref.slice('/assets/'.length);
+  const bytes = await readFile(path.join(root, 'public/assets', name)).catch(() => null);
+  if (!bytes) { unembedded.push(ref); continue; }
+  const data = `data:${imageTypes[name.split('.').pop().toLowerCase()]};base64,${bytes.toString('base64')}`;
+  js = js.replaceAll(ref, data); css = css.replaceAll(ref, data); html = html.replaceAll(ref, data);
+}
+if (referenced.length > unembedded.length) console.log(`Tự nhúng thêm ${referenced.length - unembedded.length} ảnh chưa có trong resources.`);
+if (unembedded.length) console.warn(`Không tìm thấy ảnh trong public/assets (bản độc lập sẽ hiện ảnh vỡ): ${unembedded.join(', ')}`);
 // Font trực tuyến là phần trang trí; bản độc lập dùng font nhúng nếu có sẵn.
 html = html.replace(/<link\b[^>]*(?:fonts\.googleapis\.com|fonts\.gstatic\.com)[^>]*>/g, '');
+// Giữ thông tin nguồn và giấy phép của bộ cờ trong cả bản HTML phân phối độc lập.
+const flagLicense = await readFile(path.join(root, 'src/flag-assets.LICENSE'), 'utf8');
+html = html.replace('</head>', () => `\n<!--\nFlag artwork: flag-icons 7.5.0 — https://github.com/lipis/flag-icons\n${flagLicense}\n-->\n</head>`);
 let fonts = '';
 try { fonts = await readFile(path.join(root, 'public/assets/fonts-inline.css'), 'utf8'); } catch { /* Có font hệ thống thay thế khi chưa tải font. */ }
 html = html.replace(/<script\b[^>]*\bsrc="[^"]+"[^>]*><\/script>/g, '');

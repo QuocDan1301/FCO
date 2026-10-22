@@ -1,13 +1,15 @@
 import { asset } from './asset';
+import excelOverrides from './excel-overrides.json';
 export type Tier = 'origin' | 'stellar' | 'eternal';
-export type Player = { id: number; name: string; ovr: number; pos: string; nation: string; flag: string; club: string; tier: Tier; image?: string; value?: number; wage?: number; cardFace?: string };
+export type Player = { id: number; name: string; ovr: number; pos: string; nation: string; flag: string; club: string; tier: Tier; image?: string; value?: number; wage?: number; cardFace?: string; teamLogo?: string };
 export type Card = { uid: string; playerId: number; level: number; received: number };
-export type Entry = { id: string; time: number; type: 'pack' | 'upgrade' | 'gift' | 'market'; title: string; detail: string; success?: boolean };
-export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number> };
+export type Entry = { id: string; time: number; type: 'pack' | 'upgrade' | 'gift' | 'market' | 'shop'; title: string; detail: string; success?: boolean };
+export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; prepaid?: Record<string, number> };
 // back: ảnh mặt sau thẻ của gói (hiện ở danh sách gói và màn chuẩn bị mở); không có thì dùng hình gói mặc định.
 // tunnel: ảnh nền chỉ hiện một lần trên cặp màn LED ở cửa hầm; các màn phía sau tắt.
 // accent: màu đèn LED / khung của đường hầm khi mở gói; không có thì dùng màu vàng mặc định.
 export type Pack = { id: string; name: string; short: string; price: number; weights: [number, number, number]; description: string; range: string; color: string; back?: string; tunnel?: string; accent?: string };
+const no7TeamLogo = asset('/assets/no7-team.png');
 export const seasons: Record<Tier, string> = { origin: 'NO.7', stellar: '26TS', eternal: 'ICON TM' };
 export const players: Player[] = [
   { id: 1, name: 'Ronaldo', ovr: 126, pos: 'ST', nation: 'Brazil', flag: 'BR', club: 'Milano', tier: 'eternal', value: 1800000, wage: 34, cardFace: asset('/assets/ronaldo-card.png') },
@@ -19,7 +21,7 @@ export const players: Player[] = [
   { id: 35, name: 'W. Rooney', ovr: 124, pos: 'ST', nation: 'Anh', flag: 'EN', club: 'Manchester Đỏ', tier: 'eternal', value: 500000, wage: 32, cardFace: asset('/assets/rooney-card.png') },
   { id: 36, name: 'D. Drogba', ovr: 124, pos: 'ST', nation: 'Bờ Biển Ngà', flag: 'CI', club: 'Chelsea', tier: 'eternal', value: 450000, wage: 33, cardFace: asset('/assets/drogba-card.png') },
   { id: 37, name: 'Fernando Torres', ovr: 122, pos: 'ST', nation: 'Tây Ban Nha', flag: 'ES', club: 'Liverpool', tier: 'eternal', value: 350000, wage: 32, cardFace: asset('/assets/torres-card.png') },
-  { id: 3, name: 'Z. Zidane', ovr: 123, pos: 'CAM', nation: 'Pháp', flag: 'FR', club: 'Madrid', tier: 'eternal', value: 1100000, wage: 34, cardFace: asset('/assets/zidane-card.webp') },
+  { id: 3, name: 'Z. Zidane', ovr: 126, pos: 'CAM', nation: 'Pháp', flag: 'FR', club: 'Madrid', tier: 'eternal', value: 1100000, wage: 34, cardFace: asset('/assets/zidane-card.webp') },
   { id: 4, name: 'Ronaldinho', ovr: 125, pos: 'LW', nation: 'Brazil', flag: 'BR', club: 'Barcelona', tier: 'eternal', value: 950000, wage: 32, cardFace: asset('/assets/ronaldinho-card.png') },
   { id: 8, name: 'D. Beckham', ovr: 124, pos: 'RM', nation: 'Anh', flag: 'EN', club: 'Manchester Đỏ', tier: 'eternal', value: 600000, wage: 32, cardFace: asset('/assets/beckham-card.png') },
   { id: 38, name: 'Kaká', ovr: 124, pos: 'CAM', nation: 'Brazil', flag: 'BR', club: 'Milano', tier: 'eternal', value: 600000, wage: 33, cardFace: asset('/assets/kaka-card.png') },
@@ -110,6 +112,32 @@ export const players: Player[] = [
   { id: 120, name: 'C. Makélélé', ovr: 122, pos: 'CDM', nation: 'Pháp', flag: 'FR', club: 'Chelsea', tier: 'eternal', wage: 30, cardFace: asset('/assets/makelele-card.webp') },
   { id: 121, name: 'R. Keane', ovr: 122, pos: 'CDM', nation: 'Ireland', flag: 'IE', club: 'Manchester Đỏ', tier: 'eternal', wage: 30, cardFace: asset('/assets/keane-card.webp') },
   { id: 122, name: 'Rui Costa', ovr: 121, pos: 'CAM', nation: 'Bồ Đào Nha', flag: 'PT', club: 'Milano', tier: 'eternal', wage: 30, cardFace: asset('/assets/ruicosta-card.webp') },
+  { id: 236, name: 'L. Matthäus', ovr: 126, pos: 'CM', nation: 'Đức', flag: 'DE', club: 'Bayern', tier: 'eternal', wage: 33, cardFace: asset('/assets/matthaus-card.webp') },
+  { id: 237, name: 'A. Cole', ovr: 121, pos: 'LB', nation: 'Anh', flag: 'EN', club: 'Arsenal', tier: 'eternal', wage: 30, cardFace: asset('/assets/cole-card.webp') },
+  { id: 238, name: 'E. Petit', ovr: 121, pos: 'CDM', nation: 'Pháp', flag: 'FR', club: 'Arsenal', tier: 'eternal', wage: 30, cardFace: asset('/assets/petit-card.webp') },
+  { id: 239, name: 'G. Gattuso', ovr: 121, pos: 'CDM', nation: 'Ý', flag: 'IT', club: 'Milano', tier: 'eternal', wage: 30, cardFace: asset('/assets/gattuso-card.webp') },
+  { id: 240, name: 'G. Zambrotta', ovr: 121, pos: 'RB', nation: 'Ý', flag: 'IT', club: 'Milano', tier: 'eternal', wage: 30, cardFace: asset('/assets/zambrotta-card.webp') },
+  { id: 241, name: 'Verón', ovr: 121, pos: 'CM', nation: 'Argentina', flag: 'AR', club: 'Lazio', tier: 'eternal', wage: 30, cardFace: asset('/assets/veron-card.webp') },
+  { id: 242, name: 'M. Essien', ovr: 121, pos: 'CDM', nation: 'Ghana', flag: 'GH', club: 'Chelsea', tier: 'eternal', wage: 30, cardFace: asset('/assets/essien-card.webp') },
+  { id: 243, name: 'H. Larsson', ovr: 121, pos: 'ST', nation: 'Thụy Điển', flag: 'SE', club: 'Barcelona', tier: 'eternal', wage: 30, cardFace: asset('/assets/larsson-card.webp') },
+  { id: 244, name: 'I. Wright', ovr: 121, pos: 'ST', nation: 'Anh', flag: 'EN', club: 'Arsenal', tier: 'eternal', wage: 30, cardFace: asset('/assets/iwright-card.webp') },
+  { id: 245, name: 'P. Kluivert', ovr: 121, pos: 'ST', nation: 'Hà Lan', flag: 'NL', club: 'Barcelona', tier: 'eternal', wage: 30, cardFace: asset('/assets/kluivert-card.webp') },
+  { id: 246, name: 'Sócrates', ovr: 121, pos: 'CAM', nation: 'Brazil', flag: 'BR', club: 'Corinthians', tier: 'eternal', wage: 30, cardFace: asset('/assets/socrates-card.webp') },
+  { id: 247, name: 'H. Nakata', ovr: 117, pos: 'CAM', nation: 'Nhật Bản', flag: 'JP', club: 'Parma', tier: 'eternal', wage: 29, cardFace: asset('/assets/nakata-card.webp') },
+  { id: 248, name: 'L. Hernández', ovr: 119, pos: 'ST', nation: 'Mexico', flag: 'MX', club: 'Necaxa', tier: 'eternal', wage: 29, cardFace: asset('/assets/hernandez-card.webp') },
+  { id: 249, name: 'O. Bierhoff', ovr: 119, pos: 'ST', nation: 'Đức', flag: 'DE', club: 'Milano', tier: 'eternal', wage: 29, cardFace: asset('/assets/bierhoff-card.webp') },
+  { id: 250, name: 'O. Solskjaer', ovr: 119, pos: 'ST', nation: 'Na Uy', flag: 'NO', club: 'Manchester Đỏ', tier: 'eternal', wage: 30, cardFace: asset('/assets/solskjaer-card.webp') },
+  { id: 251, name: 'J. Carragher', ovr: 119, pos: 'CB', nation: 'Anh', flag: 'EN', club: 'Liverpool', tier: 'eternal', wage: 30, cardFace: asset('/assets/carragher-card.webp') },
+  { id: 252, name: 'D. Šuker', ovr: 119, pos: 'ST', nation: 'Croatia', flag: 'HR', club: 'Sevilla', tier: 'eternal', wage: 30, cardFace: asset('/assets/suker-card.webp') },
+  { id: 253, name: 'J. Barnes', ovr: 119, pos: 'LW', nation: 'Anh', flag: 'EN', club: 'Liverpool', tier: 'eternal', wage: 30, cardFace: asset('/assets/barnes-card.webp') },
+  { id: 254, name: 'Riquelme', ovr: 120, pos: 'CAM', nation: 'Argentina', flag: 'AR', club: 'Boca Juniors', tier: 'eternal', wage: 29, cardFace: asset('/assets/riquelme-card.webp') },
+  { id: 255, name: 'G. Zola', ovr: 120, pos: 'CF', nation: 'Ý', flag: 'IT', club: 'Chelsea', tier: 'eternal', wage: 30, cardFace: asset('/assets/zola-card.webp') },
+  { id: 256, name: 'R. Pirès', ovr: 120, pos: 'LM', nation: 'Pháp', flag: 'FR', club: 'Arsenal', tier: 'eternal', wage: 30, cardFace: asset('/assets/pires-card.webp') },
+  { id: 257, name: 'J. Litmanen', ovr: 120, pos: 'CAM', nation: 'Phần Lan', flag: 'FI', club: 'Ajax', tier: 'eternal', wage: 30, cardFace: asset('/assets/litmanen-card.webp') },
+  { id: 258, name: 'F. Ljungberg', ovr: 120, pos: 'RM', nation: 'Thụy Điển', flag: 'SE', club: 'Arsenal', tier: 'eternal', wage: 30, cardFace: asset('/assets/ljungberg-card.webp') },
+  { id: 259, name: 'Paulo Futre', ovr: 120, pos: 'CAM', nation: 'Bồ Đào Nha', flag: 'PT', club: 'Atlético', tier: 'eternal', wage: 30, cardFace: asset('/assets/futre-card.webp') },
+  { id: 260, name: 'S. Campbell', ovr: 120, pos: 'CB', nation: 'Anh', flag: 'EN', club: 'Arsenal', tier: 'eternal', wage: 31, cardFace: asset('/assets/campbell-card.webp') },
+  { id: 261, name: 'J. Okocha', ovr: 119, pos: 'CAM', nation: 'Nigeria', flag: 'NG', club: 'Paris', tier: 'eternal', wage: 29, cardFace: asset('/assets/okocha-card.webp') },
   { id: 13, name: 'H. Kane', ovr: 126, pos: 'ST', nation: 'Anh', flag: 'EN', club: 'Bayern', tier: 'stellar', wage: 34, cardFace: asset('/assets/ts-kane-card.webp') },
   { id: 11, name: 'K. Mbappé', ovr: 126, pos: 'ST', nation: 'Pháp', flag: 'FR', club: 'Madrid', tier: 'stellar', wage: 33, cardFace: asset('/assets/ts-mbappe-card.webp') },
   { id: 14, name: 'Lamine Yamal', ovr: 126, pos: 'RW', nation: 'Tây Ban Nha', flag: 'ES', club: 'Barcelona', tier: 'stellar', wage: 32, cardFace: asset('/assets/ts-yamal-card.webp') },
@@ -154,7 +182,7 @@ export const players: Player[] = [
   { id: 154, name: 'D. Undav', ovr: 122, pos: 'ST', nation: 'Đức', flag: 'DE', club: 'Stuttgart', tier: 'stellar', wage: 32, cardFace: asset('/assets/ts-undav-card.webp') },
   { id: 155, name: 'S. Gnabry', ovr: 122, pos: 'CF', nation: 'Đức', flag: 'DE', club: 'Bayern', tier: 'stellar', wage: 32, cardFace: asset('/assets/ts-gnabry-card.webp') },
   { id: 156, name: 'G. Xhaka', ovr: 122, pos: 'CDM', nation: 'Thụy Sĩ', flag: 'CH', club: 'Sunderland', tier: 'stellar', wage: 32, cardFace: asset('/assets/ts-xhaka-card.webp') },
-  { id: 157, name: 'Carlos Romero', ovr: 122, pos: 'LB', nation: 'Tây Ban Nha', flag: 'ES', club: 'Espanyol', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-carlosromero-card.webp') },
+  { id: 157, name: 'Carlos Romero', ovr: 121, pos: 'LB', nation: 'Tây Ban Nha', flag: 'ES', club: 'Espanyol', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-carlosromero-card.webp') },
   { id: 158, name: 'I. Saibari', ovr: 122, pos: 'CAM', nation: 'Ma-rốc', flag: 'MA', club: 'PSV', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-saibari-card.webp') },
   { id: 159, name: 'J. Timber', ovr: 122, pos: 'RB', nation: 'Hà Lan', flag: 'NL', club: 'Arsenal', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-timber-card.webp') },
   { id: 160, name: 'R. Cherki', ovr: 122, pos: 'RW', nation: 'Pháp', flag: 'FR', club: 'Manchester Xanh', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-cherki-card.webp') },
@@ -209,34 +237,77 @@ export const players: Player[] = [
   { id: 209, name: 'M. Maignan', ovr: 121, pos: 'GK', nation: 'Pháp', flag: 'FR', club: 'Milano', tier: 'stellar', wage: 28, cardFace: asset('/assets/ts-maignan-card.webp') },
   { id: 210, name: 'H. Koffi', ovr: 121, pos: 'GK', nation: 'Burkina Faso', flag: 'BF', club: 'Angers', tier: 'stellar', wage: 27, cardFace: asset('/assets/ts-koffi-card.webp') },
   { id: 211, name: 'M. Svilar', ovr: 121, pos: 'GK', nation: 'Serbia', flag: 'RS', club: 'Roma', tier: 'stellar', wage: 26, cardFace: asset('/assets/ts-svilar-card.webp') },
-  { id: 212, name: 'Jairzinho', ovr: 117, pos: 'RW', nation: 'Brazil', flag: 'BR', club: 'Botafogo', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-jairzinho-card.webp') },
-  { id: 213, name: 'H. Nakata', ovr: 115, pos: 'CAM', nation: 'Nhật Bản', flag: 'JP', club: 'Parma', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-nakata-card.webp') },
+  { id: 262, name: 'Y. Begraoui', ovr: 119, pos: 'ST', nation: 'Ma-rốc', flag: 'MA', club: 'Estoril', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-begraoui-card.webp') },
+  { id: 263, name: 'Borja Iglesias', ovr: 120, pos: 'ST', nation: 'Tây Ban Nha', flag: 'ES', club: 'Celta', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-borjaiglesias-card.webp') },
+  { id: 264, name: 'E. Lepaul', ovr: 120, pos: 'ST', nation: 'Pháp', flag: 'FR', club: 'Rennes', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-lepaul-card.webp') },
+  { id: 265, name: 'D. Welbeck', ovr: 120, pos: 'ST', nation: 'Anh', flag: 'EN', club: 'Brighton', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-welbeck-card.webp') },
+  { id: 266, name: 'A. Dreyer', ovr: 120, pos: 'RW', nation: 'Đan Mạch', flag: 'DK', club: 'San Diego FC', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-dreyer-card.webp') },
+  { id: 267, name: 'R. Højlund', ovr: 120, pos: 'ST', nation: 'Đan Mạch', flag: 'DK', club: 'Napoli', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-hojlund-card.webp') },
+  { id: 268, name: 'T. Douvikas', ovr: 120, pos: 'ST', nation: 'Hy Lạp', flag: 'GR', club: 'Como', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-douvikas-card.webp') },
+  { id: 269, name: 'Moleiro', ovr: 120, pos: 'LW', nation: 'Tây Ban Nha', flag: 'ES', club: 'Villarreal', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-moleiro-card.webp') },
+  { id: 270, name: 'P. Aubameyang', ovr: 120, pos: 'ST', nation: 'Gabon', flag: 'GA', club: 'Marseille', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-aubameyang-card.webp') },
+  { id: 271, name: 'Y. Carrasco', ovr: 120, pos: 'LW', nation: 'Bỉ', flag: 'BE', club: 'Al Shabab', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-carrasco-card.webp') },
+  { id: 272, name: 'S. Al Dawsari', ovr: 120, pos: 'LW', nation: 'Ả Rập Xê Út', flag: 'SA', club: 'Al Hilal', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-aldawsari-card.webp') },
+  { id: 273, name: 'V. Pavlidis', ovr: 120, pos: 'ST', nation: 'Hy Lạp', flag: 'GR', club: 'Benfica', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-pavlidis-card.webp') },
+  { id: 274, name: 'S. Surridge', ovr: 120, pos: 'ST', nation: 'Anh', flag: 'EN', club: 'Nashville SC', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-surridge-card.webp') },
+  { id: 275, name: 'A. Ueda', ovr: 120, pos: 'ST', nation: 'Nhật Bản', flag: 'JP', club: 'Feyenoord', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-ueda-card.webp') },
+  { id: 276, name: 'A. Ezzalzouli', ovr: 121, pos: 'LW', nation: 'Ma-rốc', flag: 'MA', club: 'Real Betis', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-ezzalzouli-card.webp') },
+  { id: 277, name: 'B. Barcola', ovr: 121, pos: 'LW', nation: 'Pháp', flag: 'FR', club: 'Paris', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-barcola-card.webp') },
+  { id: 278, name: 'J. Panichelli', ovr: 121, pos: 'ST', nation: 'Argentina', flag: 'AR', club: 'Strasbourg', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-panichelli-card.webp') },
+  { id: 279, name: 'C. Roldan', ovr: 118, pos: 'CM', nation: 'Hoa Kỳ', flag: 'US', club: 'Seattle Sounders', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-roldan-card.webp') },
+  { id: 280, name: 'F. Aursnes', ovr: 119, pos: 'CM', nation: 'Na Uy', flag: 'NO', club: 'Benfica', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-aursnes-card.webp') },
+  { id: 281, name: 'S. Berhalter', ovr: 119, pos: 'CM', nation: 'Hoa Kỳ', flag: 'US', club: 'Vancouver Whitecaps', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-berhalter-card.webp') },
+  { id: 282, name: 'V. Froholdt', ovr: 119, pos: 'CM', nation: 'Đan Mạch', flag: 'DK', club: 'Porto', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-froholdt-card.webp') },
+  { id: 283, name: 'Aleix Febas', ovr: 120, pos: 'CM', nation: 'Tây Ban Nha', flag: 'ES', club: 'Elche', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-febas-card.webp') },
+  { id: 284, name: 'N. Vlašić', ovr: 120, pos: 'CM', nation: 'Croatia', flag: 'HR', club: 'Torino FC', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-vlasic-card.webp') },
+  { id: 285, name: 'L. Camara', ovr: 120, pos: 'CM', nation: 'Senegal', flag: 'SN', club: 'Monaco', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-camara-card.webp') },
+  { id: 286, name: 'K. Sano', ovr: 120, pos: 'CM', nation: 'Nhật Bản', flag: 'JP', club: 'NEC Nijmegen', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-sano-card.webp') },
+  { id: 287, name: 'W. Zaïre-Emery', ovr: 121, pos: 'CM', nation: 'Pháp', flag: 'FR', club: 'Paris', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-zaireemery-card.webp') },
+  { id: 288, name: 'K. Fortounis', ovr: 120, pos: 'CAM', nation: 'Hy Lạp', flag: 'GR', club: 'Al Khaleej', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-fortounis-card.webp') },
+  { id: 289, name: 'A. Kramarić', ovr: 120, pos: 'CAM', nation: 'Croatia', flag: 'HR', club: 'Hoffenheim', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-kramaric-card.webp') },
+  { id: 290, name: 'Evander', ovr: 120, pos: 'CAM', nation: 'Brazil', flag: 'BR', club: 'FC Cincinnati', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-evander-card.webp') },
+  { id: 291, name: 'C. Baumgartner', ovr: 120, pos: 'CAM', nation: 'Áo', flag: 'AT', club: 'Leipzig', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-baumgartner-card.webp') },
+  { id: 292, name: 'P. Šulc', ovr: 120, pos: 'CAM', nation: 'Séc', flag: 'CZ', club: 'Lyon', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-sulc-card.webp') },
+  { id: 293, name: 'R. Zalazar', ovr: 120, pos: 'CAM', nation: 'Uruguay', flag: 'UY', club: 'Braga', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-zalazar-card.webp') },
+  { id: 294, name: 'Trincão', ovr: 121, pos: 'CAM', nation: 'Bồ Đào Nha', flag: 'PT', club: 'Sporting', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-trincao-card.webp') },
+  { id: 295, name: 'Mailson', ovr: 118, pos: 'GK', nation: 'Brazil', flag: 'BR', club: 'Al Taawoun', tier: 'stellar', wage: 26, cardFace: asset('/assets/ts-mailson-card.webp') },
+  { id: 296, name: 'D. St. Clair', ovr: 118, pos: 'GK', nation: 'Canada', flag: 'CA', club: 'Inter Miami', tier: 'stellar', wage: 26, cardFace: asset('/assets/ts-stclair-card.webp') },
+  { id: 297, name: 'R. Koeman Jr.', ovr: 119, pos: 'GK', nation: 'Hà Lan', flag: 'NL', club: 'Telstar', tier: 'stellar', wage: 27, cardFace: asset('/assets/ts-koemanjr-card.webp') },
+  { id: 298, name: 'O. Baumann', ovr: 119, pos: 'GK', nation: 'Đức', flag: 'DE', club: 'Hoffenheim', tier: 'stellar', wage: 27, cardFace: asset('/assets/ts-baumann-card.webp') },
+  { id: 299, name: 'L. Carević', ovr: 119, pos: 'GK', nation: 'Montenegro', flag: 'ME', club: 'Famalicão', tier: 'stellar', wage: 27, cardFace: asset('/assets/ts-carevic-card.webp') },
+  { id: 300, name: 'D. Nejašmić', ovr: 119, pos: 'CDM', nation: 'Croatia', flag: 'HR', club: 'NEC Nijmegen', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-nejasmic-card.webp') },
+  { id: 301, name: 'A. Stiller', ovr: 121, pos: 'CDM', nation: 'Đức', flag: 'DE', club: 'Stuttgart', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-stiller-card.webp') },
+  { id: 302, name: 'M. Akliouche', ovr: 120, pos: 'RM', nation: 'Pháp', flag: 'FR', club: 'Monaco', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-akliouche-card.webp') },
+  { id: 303, name: 'B. André', ovr: 120, pos: 'CDM', nation: 'Pháp', flag: 'FR', club: 'Lille', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-andre-card.webp') },
+  { id: 304, name: 'M. Perrone', ovr: 120, pos: 'CDM', nation: 'Argentina', flag: 'AR', club: 'Como', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-perrone-card.webp') },
+  { id: 212, name: 'Jairzinho', ovr: 117, pos: 'RW', nation: 'Brazil', flag: 'BR', club: 'Botafogo', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-jairzinho-card.webp'), teamLogo: no7TeamLogo },
+  { id: 213, name: 'H. Nakata', ovr: 115, pos: 'CAM', nation: 'Nhật Bản', flag: 'JP', club: 'Parma', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-nakata-card.webp'), teamLogo: no7TeamLogo },
   { id: 214, name: 'R. Mahrez', ovr: 115, pos: 'RW', nation: 'Algeria', flag: 'DZ', club: 'Al Ahli', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-mahrez-card.webp') },
   { id: 215, name: 'Pedro Neto', ovr: 115, pos: 'LW', nation: 'Bồ Đào Nha', flag: 'PT', club: 'Chelsea', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-neto-card.webp') },
-  { id: 216, name: 'Ramires', ovr: 116, pos: 'CDM', nation: 'Brazil', flag: 'BR', club: 'Chelsea', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-ramires-card.webp') },
+  { id: 216, name: 'Ramires', ovr: 116, pos: 'CDM', nation: 'Brazil', flag: 'BR', club: 'Chelsea', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-ramires-card.webp'), teamLogo: no7TeamLogo },
   { id: 217, name: 'L. Díaz', ovr: 116, pos: 'LW', nation: 'Colombia', flag: 'CO', club: 'Bayern', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-diaz-card.webp') },
-  { id: 218, name: 'T. Rosický', ovr: 116, pos: 'CAM', nation: 'CH Séc', flag: 'CZ', club: 'Arsenal', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-rosicky-card.webp') },
-  { id: 219, name: 'H. Larsson', ovr: 116, pos: 'ST', nation: 'Thụy Điển', flag: 'SE', club: 'Celtic', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-larsson-card.webp') },
+  { id: 218, name: 'T. Rosický', ovr: 116, pos: 'CAM', nation: 'CH Séc', flag: 'CZ', club: 'Arsenal', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-rosicky-card.webp'), teamLogo: no7TeamLogo },
+  { id: 219, name: 'H. Larsson', ovr: 116, pos: 'ST', nation: 'Thụy Điển', flag: 'SE', club: 'Celtic', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-larsson-card.webp'), teamLogo: no7TeamLogo },
   { id: 220, name: 'N. Kanté', ovr: 117, pos: 'CDM', nation: 'Pháp', flag: 'FR', club: 'Al Ittihad', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-kante-card.webp') },
-  { id: 221, name: 'D. Beckham', ovr: 117, pos: 'RM', nation: 'Anh', flag: 'EN', club: 'Manchester Đỏ', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-beckham-card.webp') },
-  { id: 222, name: 'Park Ji Sung', ovr: 117, pos: 'CAM', nation: 'Hàn Quốc', flag: 'KR', club: 'Manchester Đỏ', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-park-card.webp') },
-  { id: 223, name: 'Raúl', ovr: 117, pos: 'ST', nation: 'Tây Ban Nha', flag: 'ES', club: 'Madrid', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-raul-card.webp') },
+  { id: 221, name: 'D. Beckham', ovr: 117, pos: 'RM', nation: 'Anh', flag: 'EN', club: 'Manchester Đỏ', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-beckham-card.webp'), teamLogo: no7TeamLogo },
+  { id: 222, name: 'Park Ji Sung', ovr: 117, pos: 'CAM', nation: 'Hàn Quốc', flag: 'KR', club: 'Manchester Đỏ', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-park-card.webp'), teamLogo: no7TeamLogo },
+  { id: 223, name: 'Raúl', ovr: 117, pos: 'ST', nation: 'Tây Ban Nha', flag: 'ES', club: 'Madrid', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-raul-card.webp'), teamLogo: no7TeamLogo },
   { id: 224, name: 'B. Saka', ovr: 117, pos: 'RW', nation: 'Anh', flag: 'EN', club: 'Arsenal', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-saka-card.webp') },
-  { id: 225, name: 'K. Dalglish', ovr: 117, pos: 'CF', nation: 'Scotland', flag: 'SC', club: 'Liverpool', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-dalglish-card.webp') },
-  { id: 226, name: 'R. Pirès', ovr: 117, pos: 'LM', nation: 'Pháp', flag: 'FR', club: 'Arsenal', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-pires-card.webp') },
-  { id: 227, name: 'D. Forlán', ovr: 117, pos: 'ST', nation: 'Uruguay', flag: 'UY', club: 'Atlético', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-forlan-card.webp') },
-  { id: 228, name: 'F. Ribéry', ovr: 117, pos: 'LW', nation: 'Pháp', flag: 'FR', club: 'Bayern', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-ribery-card.webp') },
-  { id: 229, name: 'E. Cantona', ovr: 117, pos: 'CF', nation: 'Pháp', flag: 'FR', club: 'Manchester Đỏ', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-cantona-card.webp') },
-  { id: 230, name: 'E. Butragueño', ovr: 117, pos: 'CF', nation: 'Tây Ban Nha', flag: 'ES', club: 'Madrid', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-butragueno-card.webp') },
+  { id: 225, name: 'K. Dalglish', ovr: 117, pos: 'CF', nation: 'Scotland', flag: 'SC', club: 'Liverpool', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-dalglish-card.webp'), teamLogo: no7TeamLogo },
+  { id: 226, name: 'R. Pirès', ovr: 117, pos: 'LM', nation: 'Pháp', flag: 'FR', club: 'Arsenal', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-pires-card.webp'), teamLogo: no7TeamLogo },
+  { id: 227, name: 'D. Forlán', ovr: 117, pos: 'ST', nation: 'Uruguay', flag: 'UY', club: 'Atlético', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-forlan-card.webp'), teamLogo: no7TeamLogo },
+  { id: 228, name: 'F. Ribéry', ovr: 117, pos: 'LW', nation: 'Pháp', flag: 'FR', club: 'Bayern', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-ribery-card.webp'), teamLogo: no7TeamLogo },
+  { id: 229, name: 'E. Cantona', ovr: 117, pos: 'CF', nation: 'Pháp', flag: 'FR', club: 'Manchester Đỏ', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-cantona-card.webp'), teamLogo: no7TeamLogo },
+  { id: 230, name: 'E. Butragueño', ovr: 117, pos: 'CF', nation: 'Tây Ban Nha', flag: 'ES', club: 'Madrid', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-butragueno-card.webp'), teamLogo: no7TeamLogo },
   { id: 231, name: 'H. Son', ovr: 117, pos: 'LW', nation: 'Hàn Quốc', flag: 'KR', club: 'Los Angeles FC', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-son-card.webp') },
-  { id: 232, name: 'G. Best', ovr: 118, pos: 'RW', nation: 'Bắc Ireland', flag: 'NI', club: 'Manchester Đỏ', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-best-card.webp') },
-  { id: 233, name: 'Luís Figo', ovr: 118, pos: 'RW', nation: 'Bồ Đào Nha', flag: 'PT', club: 'Barcelona', tier: 'origin', wage: 31, cardFace: asset('/assets/no7-figo-card.webp') },
-  { id: 234, name: 'A. Shevchenko', ovr: 118, pos: 'ST', nation: 'Ukraine', flag: 'UA', club: 'Milano', tier: 'origin', wage: 31, cardFace: asset('/assets/no7-shevchenko-card.webp') },
+  { id: 232, name: 'G. Best', ovr: 118, pos: 'RW', nation: 'Bắc Ireland', flag: 'NI', club: 'Manchester Đỏ', tier: 'origin', wage: 30, cardFace: asset('/assets/no7-best-card.webp'), teamLogo: no7TeamLogo },
+  { id: 233, name: 'Luís Figo', ovr: 118, pos: 'RW', nation: 'Bồ Đào Nha', flag: 'PT', club: 'Barcelona', tier: 'origin', wage: 31, cardFace: asset('/assets/no7-figo-card.webp'), teamLogo: no7TeamLogo },
+  { id: 234, name: 'A. Shevchenko', ovr: 118, pos: 'ST', nation: 'Ukraine', flag: 'UA', club: 'Milano', tier: 'origin', wage: 31, cardFace: asset('/assets/no7-shevchenko-card.webp'), teamLogo: no7TeamLogo },
   { id: 235, name: 'Cristiano Ronaldo', ovr: 119, pos: 'RW', nation: 'Bồ Đào Nha', flag: 'PT', club: 'Al Nassr', tier: 'origin', wage: 32, cardFace: asset('/assets/no7-ronaldo-card.webp') },
 ];
 export const packs: Pack[] = [
-  { id: 'eternal', name: 'ICONTM (ALL)', short: 'TM', price: 1500000, weights: [0, 0, 100], description: 'Nơi những huyền thoại trở lại.', range: '119–127', color: 'gold', back: asset('/assets/icon-tm-back.png'), tunnel: asset('/assets/itm-tunnel.webp') },
-  { id: 'stellar', name: '26TS (ALL)', short: '26TS', price: 500000, weights: [0, 100, 0], description: 'Tỏa sáng cùng những ngôi sao.', range: '121–126', color: 'blue', back: asset('/assets/ts26-back.png'), tunnel: asset('/assets/ts26-tunnel.webp'), accent: '#4f8dff' },
+  { id: 'eternal', name: 'ICONTM (ALL)', short: 'TM', price: 1500000, weights: [0, 0, 100], description: 'Nơi những huyền thoại trở lại.', range: '117–127', color: 'gold', back: asset('/assets/icon-tm-back.png'), tunnel: asset('/assets/itm-tunnel.webp'), accent: '#ffd23f' },
+  { id: 'stellar', name: '26TS (ALL)', short: '26TS', price: 500000, weights: [0, 100, 0], description: 'Tỏa sáng cùng những ngôi sao.', range: '118–126', color: 'blue', back: asset('/assets/ts26-back.png'), tunnel: asset('/assets/ts26-tunnel.webp'), accent: '#4f8dff' },
   { id: 'origin', name: 'NO.7 (ALL)', short: 'NO.7', price: 100000, weights: [100, 0, 0], description: '24 ngôi sao mang dấu ấn số 7.', range: '115–119', color: 'silver', back: asset('/assets/no7-back.webp'), tunnel: asset('/assets/no7-tunnel.webp') },
 ];
 
@@ -263,8 +334,16 @@ export const UPGRADE_LEVELS = [
 const levelOvrBonuses = UPGRADE_LEVELS.map((_, index) => UPGRADE_LEVELS.slice(0, index + 1).reduce((total, row) => total + row.ovrGain, 0));
 export const MAX_LEVEL = UPGRADE_LEVELS.length;
 export const getPlayer = (card: Card) => players.find(p => p.id === card.playerId)!;
-export const ovr = (card: Card) => getPlayer(card).ovr + (levelOvrBonuses[card.level - 1] ?? 0);
-export const money = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
+// OVR game tự tính: OVR gốc + phần tăng theo cấp. OVR sửa tay trong gia-cau-thu-bp.xlsx (npm run prices:import) được ưu tiên.
+export const baseOvr = (card: Pick<Card, 'playerId' | 'level'>) => players.find(p => p.id === card.playerId)!.ovr + (levelOvrBonuses[card.level - 1] ?? 0);
+const manualOvrs: Record<string, Record<string, number>> = excelOverrides.ovrs;
+export const ovr = (card: Pick<Card, 'playerId' | 'level'> & Partial<Card>) => manualOvrs[String(card.playerId)]?.[String(card.level)] ?? baseOvr(card);
+export const money = (n: number) => {
+  const magnitude = Math.abs(n);
+  const divisor = magnitude >= 1e9 ? 1e9 : magnitude >= 1e6 ? 1e6 : 1;
+  if (divisor === 1) return new Intl.NumberFormat('vi-VN').format(n);
+  return `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2, useGrouping: false }).format(n / divisor)}${divisor === 1e9 ? 'B' : 'M'}`;
+};
 export const uid = () => crypto.randomUUID();
 export function random() { return crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296; }
 export function makeCard(playerId: number): Card { return { uid: uid(), playerId, level: 1, received: Date.now() }; }
@@ -280,15 +359,60 @@ export function draw(pack: Pack, rng = random): Card {
 }
 export const getPackStock = (state: Save, pack: Pack): number => state.unopened?.[pack.id] ?? 15;
 
+export const MAX_INVENTORY_OPEN = 150;
+
+export const getPackOpeningCost = (state: Save, pack: Pack, count: number): number =>
+  pack.price * Math.max(0, count - (state.prepaid?.[pack.id] ?? 0));
+
+export function buyPacks(state: Save, requested: Pack, count: number, free = false): Save {
+  const pack = packs.find(item => item.id === requested.id);
+  if (!pack || !isPackAvailable(pack)) throw new Error('Gói này hiện chưa có trong shop.');
+  if (!Number.isInteger(count) || count < 1 || count > MAX_INVENTORY_OPEN) throw new Error(`Hãy chọn từ 1 đến ${MAX_INVENTORY_OPEN} gói.`);
+  const cost = pack.price * count;
+  const stock = getPackStock(state, pack) + count;
+  const prepaid = (state.prepaid?.[pack.id] ?? 0) + count;
+  if (![cost, stock, prepaid].every(Number.isSafeInteger)) throw new Error('Số lượng gói vượt giới hạn lưu trữ.');
+  if (!free && state.balance < cost) throw new Error('Không đủ xu để mua số gói này.');
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'shop', title: `Mua ${count} ${pack.name}`, detail: `Đã thêm vào kho vật phẩm · ${free ? 'Thử nghiệm · Không trừ xu' : `−${money(cost)} xu`} · Không thu thêm phí khi mở` };
+  return {
+    ...state,
+    balance: free ? state.balance : state.balance - cost,
+    unopened: { eternal: 15, stellar: 15, origin: 15, ...state.unopened, [pack.id]: stock },
+    prepaid: { ...state.prepaid, [pack.id]: prepaid },
+    history: [entry, ...state.history].slice(0, 200),
+  };
+}
+
+export function openSelectedPacks(state: Save, selected: Pack[], rng = random, free = false): { state: Save; cards: Card[]; pack: Pack } {
+  let next = state;
+  const cards: Card[] = [];
+  const seen = new Set<string>();
+  let openingPack: Pack | undefined;
+  for (const pack of selected) {
+    if (seen.has(pack.id) || !isPackAvailable(pack)) continue;
+    seen.add(pack.id);
+    const count = Math.min(getPackStock(next, pack), MAX_INVENTORY_OPEN - cards.length);
+    if (count < 1) continue;
+    const result = openPacks(next, pack, count, rng, free);
+    next = result.state;
+    cards.push(...result.cards);
+    openingPack ??= pack;
+    if (cards.length === MAX_INVENTORY_OPEN) break;
+  }
+  if (!openingPack) throw new Error('Hãy chọn vật phẩm còn trong kho để mở.');
+  return { state: next, cards, pack: openingPack };
+}
+
 export function openPacks(state: Save, pack: Pack, count: number, rng = random, free = false): { state: Save; cards: Card[] } {
-  if (!Number.isInteger(count) || count < 1 || count > 10) throw new Error('Hãy chọn từ 1 đến 10 thẻ.');
-  if (!free && state.balance < pack.price * count) throw new Error('Không đủ xu để mở gói này. Hãy nhận quà điểm danh hoặc chọn gói khác.');
+  if (!Number.isInteger(count) || count < 1 || count > MAX_INVENTORY_OPEN) throw new Error(`Hãy chọn từ 1 đến ${MAX_INVENTORY_OPEN} thẻ.`);
+  const cost = free ? 0 : getPackOpeningCost(state, pack, count);
+  if (state.balance < cost) throw new Error('Không đủ xu để mở gói này. Hãy nhận quà điểm danh hoặc chọn gói khác.');
   const available = getPackStock(state, pack);
   if (count > available) throw new Error(`Chỉ còn ${available} gói chưa mở. Hãy nhận thêm gói trước khi mở tiếp.`);
   const cards = Array.from({ length: count }, () => draw(pack, rng));
   const best = [...cards].sort((a, b) => ovr(b) - ovr(a))[0];
-  const entry: Entry = { id: uid(), time: Date.now(), type: 'pack', title: `Mở ${count} ${pack.name.toLowerCase()}`, detail: `${getPlayer(best).name} · OVR ${ovr(best)} · ${free ? 'Thử nghiệm · Không trừ xu' : `−${money(pack.price * count)} xu`}` };
-  return { state: { ...state, unopened: { eternal: 15, stellar: 15, origin: 15, ...state.unopened, [pack.id]: available - count }, balance: free ? state.balance : state.balance - pack.price * count, cards: [...cards, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + count }, cards };
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'pack', title: `Mở ${count} ${pack.name.toLowerCase()}`, detail: `${getPlayer(best).name} · OVR ${ovr(best)} · ${free ? 'Thử nghiệm · Không trừ xu' : cost === 0 ? 'Gói đã thanh toán · Không trừ thêm xu' : `−${money(cost)} xu`}` };
+  return { state: { ...state, unopened: { eternal: 15, stellar: 15, origin: 15, ...state.unopened, [pack.id]: available - count }, ...(state.prepaid ? { prepaid: { ...state.prepaid, [pack.id]: Math.max(0, (state.prepaid[pack.id] ?? 0) - count) } } : {}), balance: state.balance - cost, cards: [...cards, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + count }, cards };
 }
 export function upgradeInfo(target: Card, materials: Card[]) {
   const targetOvr = ovr(target);
@@ -340,5 +464,6 @@ export function validateSave(data: unknown): data is Save {
     s.cards = s.cards.filter(c => !c || !Number.isInteger(c.playerId) || c.playerId < 21 || c.playerId > 30);
     for (const c of s.cards) if (c && retiredIcons[c.playerId]) c.playerId = retiredIcons[c.playerId];
   }
-  return s.version === 1 && Number.isSafeInteger(s.balance) && s.balance >= 0 && Array.isArray(s.cards) && s.cards.every(c => c && typeof c.uid === 'string' && players.some(p => p.id === c.playerId) && Number.isInteger(c.level) && c.level >= 1 && c.level <= MAX_LEVEL && Number.isFinite(c.received)) && new Set(s.cards.map(c => c.uid)).size === s.cards.length && Array.isArray(s.history) && s.history.every(e => e && typeof e.id === 'string' && Number.isFinite(e.time) && ['pack', 'upgrade', 'gift', 'market'].includes(e.type) && typeof e.title === 'string' && typeof e.detail === 'string') && typeof s.daily === 'string' && Number.isSafeInteger(s.opened) && s.opened >= 0 && Number.isSafeInteger(s.upgrades) && s.upgrades >= 0 && typeof s.sound === 'boolean' && typeof s.reduced === 'boolean' && (s.quick === undefined || typeof s.quick === 'boolean') && (s.light === undefined || typeof s.light === 'boolean') && (s.unopened === undefined || (!!s.unopened && typeof s.unopened === 'object' && !Array.isArray(s.unopened) && packs.every(p => Number.isSafeInteger(s.unopened![p.id]) && s.unopened![p.id] >= 0)));
+  if (s.prepaid !== undefined && (!s.prepaid || typeof s.prepaid !== 'object' || Array.isArray(s.prepaid) || !Object.entries(s.prepaid).every(([id, count]) => { const pack = packs.find(p => p.id === id); return !!pack && Number.isSafeInteger(count) && count >= 0 && count <= getPackStock(s, pack); }))) return false;
+  return s.version === 1 && Number.isSafeInteger(s.balance) && s.balance >= 0 && Array.isArray(s.cards) && s.cards.every(c => c && typeof c.uid === 'string' && players.some(p => p.id === c.playerId) && Number.isInteger(c.level) && c.level >= 1 && c.level <= MAX_LEVEL && Number.isFinite(c.received)) && new Set(s.cards.map(c => c.uid)).size === s.cards.length && Array.isArray(s.history) && s.history.every(e => e && typeof e.id === 'string' && Number.isFinite(e.time) && ['pack', 'upgrade', 'gift', 'market', 'shop'].includes(e.type) && typeof e.title === 'string' && typeof e.detail === 'string') && typeof s.daily === 'string' && Number.isSafeInteger(s.opened) && s.opened >= 0 && Number.isSafeInteger(s.upgrades) && s.upgrades >= 0 && typeof s.sound === 'boolean' && typeof s.reduced === 'boolean' && (s.quick === undefined || typeof s.quick === 'boolean') && (s.light === undefined || typeof s.light === 'boolean') && (s.unopened === undefined || (!!s.unopened && typeof s.unopened === 'object' && !Array.isArray(s.unopened) && packs.every(p => Number.isSafeInteger(s.unopened![p.id]) && s.unopened![p.id] >= 0)));
 }

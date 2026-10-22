@@ -2,20 +2,21 @@ import { useState } from 'react';
 import ViewportPages from './ViewportPages';
 import type { ReactNode } from 'react';
 import { Search } from 'lucide-react';
-import { getPackStock, isPackAvailable } from './game';
+import { getPackStock, isPackAvailable, MAX_INVENTORY_OPEN } from './game';
 import type { Pack, Save } from './game';
 
 type Props = {
   save: Save;
   packs: Pack[];
   onUse: (pack: Pack) => void;
+  onShop: () => void;
+  onUseSelected: (packs: Pack[]) => void;
   renderArt: (pack: Pack) => ReactNode;
   testMode?: boolean;
   onReceiveTest?: (pack: Pack) => void;
 };
 type Sort = 'new' | 'old' | 'desc' | 'asc';
 const CAPACITY = 1000;
-const BATCH = 150;
 const categories = [
   { id: 'pack', label: 'Gói' },
   { id: 'player', label: 'Gói cầu thủ' },
@@ -31,7 +32,7 @@ const sorts: { id: Sort; label: string }[] = [{ id: 'new', label: 'Mới nhất'
 // Mọi gói trong game đều là gói cầu thủ; các nhóm còn lại chưa có vật phẩm.
 const categoryOf = (_: Pack) => ['pack', 'player'];
 
-export default function Inventory({ save, packs, onUse, renderArt, testMode, onReceiveTest }: Props) {
+export default function Inventory({ save, packs, onUse, onShop, onUseSelected, renderArt, testMode, onReceiveTest }: Props) {
   const [checked, setChecked] = useState<string[]>(['player']);
   const [sort, setSort] = useState<Sort>('new');
   const [selected, setSelected] = useState<string[]>([]);
@@ -47,8 +48,9 @@ export default function Inventory({ save, packs, onUse, renderArt, testMode, onR
   });
   const toggleCategory = (id: string) => setChecked(list => list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
   const toggleItem = (id: string) => setSelected(list => list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
-  const selectedStock = owned.filter(x => selected.includes(x.pack.id)).reduce((sum, x) => sum + x.stock, 0);
-  const first = shown.find(x => selected.includes(x.pack.id));
+  const selectedItems = shown.filter(x => selected.includes(x.pack.id));
+  const selectedStock = Math.min(MAX_INVENTORY_OPEN, selectedItems.reduce((sum, x) => sum + x.stock, 0));
+  const allSelected = shown.length > 0 && selectedItems.length === shown.length;
 
   return <section className="workspace inv-workspace" aria-labelledby="inv-title">
     <div className="inv-top"><h1 id="inv-title">Kho vật phẩm</h1><div className="inv-tab"><span>Vật phẩm</span></div><p className="inv-capacity">Số loại đang sở hữu <b>{owned.length} / {CAPACITY.toLocaleString('vi-VN')}</b> cái</p></div>
@@ -74,14 +76,14 @@ export default function Inventory({ save, packs, onUse, renderArt, testMode, onR
             <span className="inv-count">SL:{stock}</span>
             {hover === pack.id && <div className="inv-tip" role="tooltip"><b>{pack.name} {pack.range}</b><em>SL:{stock}</em><p>Bạn sẽ nhận được 1 cầu thủ thuộc {pack.name} với chỉ số OVR {pack.range}.</p></div>}
           </article>;
-        })}</ViewportPages> : <div className="inv-empty"><Search size={30}/><h2>Kho đang trống</h2><p>{owned.length ? 'Không có vật phẩm thuộc nhóm đã chọn.' : 'Bạn chưa sở hữu gói cầu thủ nào.'}</p>{testMode && <button className="secondary-button" onClick={() => packs[0] && onReceiveTest?.(packs[0])}>Nhận gói thử</button>}</div>}
+        })}</ViewportPages> : <div className="inv-empty"><Search size={30}/><h2>Kho đang trống</h2><p>{owned.length ? 'Không có vật phẩm thuộc nhóm đã chọn.' : 'Bạn chưa sở hữu gói cầu thủ nào.'}</p><button className="secondary-button" onClick={onShop}>Đến shop mua gói</button></div>}
       </div>
     </div>
     <div className="inv-foot">
       <button className="inv-foot-btn" disabled={!selected.length} onClick={() => setSelected([])}>Hủy</button>
-      <button className="inv-foot-btn" disabled={!shown.length} onClick={() => setSelected(selected.length === shown.length ? [] : shown.map(x => x.pack.id))}>{selected.length && selected.length === shown.length ? 'Bỏ chọn' : 'Chọn tất cả'}</button>
-      <span className="inv-selected">Số lượng lựa chọn : {selectedStock} / {BATCH} món</span>
-      <button className="inv-foot-btn inv-open" disabled={!first} onClick={() => first && onUse(first.pack)}>Chọn VP để mở</button>
+      <button className="inv-foot-btn" disabled={!shown.length} onClick={() => setSelected(allSelected ? [] : shown.map(x => x.pack.id))}>{allSelected ? 'Bỏ chọn' : 'Chọn tất cả'}</button>
+      <span className="inv-selected">Số lượng lựa chọn : {selectedStock} / {MAX_INVENTORY_OPEN} món</span>
+      <button className="inv-foot-btn inv-open" disabled={!selectedStock} onClick={() => onUseSelected(selectedItems.map(x => x.pack))}>{selectedStock ? `Mở ${selectedStock} vật phẩm` : 'Chọn VP để mở'}</button>
     </div>
   </section>;
 }

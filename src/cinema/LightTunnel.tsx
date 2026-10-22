@@ -8,20 +8,22 @@ export default function LightTunnel({ phase, season, nation, position, team, fla
   useEffect(() => {
     const canvas = canvasRef.current; const ctx = canvas?.getContext('2d'); if (!canvas || !ctx) return;
     const board = document.createElement('canvas'); board.width = 384; board.height = 192; const boardCtx = board.getContext('2d'); let boardKey = '';
-    let frame = 0, last = 0, progress = 0, startedAt: number | null = null, prepared = false, wasPlaying = false;
+    let frame = 0, last = 0, progress = 0, startedAt: number | null = null, prepared = false, wasPlaying = false, skipped = false;
     const draw = (now: number) => {
       frame = requestAnimationFrame(draw);
       if (document.hidden || now - last < 33) return;
       const dt = last ? Math.min((now - last) / 1000, .1) : 0;
       last = now;
       const { phase, season, nation, position, team, flag, teamLogo, back, intro, accent, quick, onReady, onPrepared, playing, getElapsed } = latest.current;
-      if (playing !== wasPlaying) { if (!playing) { prepared = false; startedAt = null; progress = 0; } wasPlaying = playing; }
+      if (playing !== wasPlaying) { if (!playing) { prepared = false; startedAt = null; progress = 0; skipped = false; } wasPlaying = playing; }
       if (!playing && prepared) return;
       const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
       if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
       const elapsed = getElapsed?.() ?? (startedAt === null ? 0 : now - startedAt);
       const duration = OPENING_CUES[quick ? 'quick' : 'standard'][8];
-      progress = phase >= 9 && elapsed < duration - 150 ? progress + (1 - progress) * (1 - Math.exp(-9 * dt)) : cameraProgress(elapsed, quick);
+      // Bỏ qua: lướt tới cuối rồi giữ đó, không quay về đường cong gốc (tránh chạy lại lần hai).
+      if (phase >= 9 && elapsed < duration - 150) skipped = true;
+      progress = skipped ? progress + (1 - progress) * (1 - Math.exp(-9 * dt)) : cameraProgress(elapsed, quick);
       const cx = w * .5, cy = h * .47, gold = accent ?? '#e5c991';
       ctx.fillStyle = phase === 0 ? '#020408' : '#060c13'; ctx.fillRect(0, 0, w, h);
       const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(w, h) * .65); glow.addColorStop(0, phase >= 7 ? '#8d9f9a44' : '#d8bf8420'); glow.addColorStop(1, '#03070c00'); ctx.fillStyle = glow; ctx.fillRect(0, 0, w, h);

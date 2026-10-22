@@ -1,0 +1,72 @@
+[
+  {
+    "club": "Estoril",
+    "name": "Estoril",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/12216.png",
+    "page": "https://www.espn.com/soccer/club/_/id/12216/estoril",
+    "asset": "/assets/clubs/12216.png"
+  },
+  {
+    "club": "Celta",
+    "name": "Celta Vigo",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/85.png",
+    "page": "https://www.espn.com/soccer/club/_/id/85/celta-vigo",
+    "asset": "/assets/clubs/85.png"
+  },
+  {
+    "club": "Brighton",
+    "name": "Brighton & Hove Albion",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/331.png",
+    "page": "https://www.espn.com/soccer/club/_/id/331/brighton-hove-albion",
+    "asset": "/assets/clubs/331.png"
+  },
+  {
+    "club": "San Diego FC",
+    "name": "San Diego FC",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/22529.png",
+    "page": "https://www.espn.com/soccer/club/_/id/22529/san-diego-fc",
+    "asset": "/assets/clubs/22529.png"
+  },
+  {
+    "club": "Marseille",
+    "name": "Marseille",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/176.png",
+    "page": "https://www.espn.com/soccer/club/_/id/176/marseille",
+    "asset": "/assets/clubs/176.png"
+  },
+  {
+    "club": "Al Shabab",
+    "name": "Al Shabab",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/793.png",
+    "page": "https://www.espn.com/soccer/club/_/id/793/al-shabab",
+    "asset": "/assets/clubs/793.png"
+  },
+  {
+    "club": "Benfica",
+    "name": "Benfica",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/1929.png",
+    "page": "https://www.espn.com/soccer/club/_/id/1929/benfica",
+    "asset": "/assets/clubs/1929.png"
+  },
+  {
+    "club": "Nashville SC",
+    "name": "Nashville SC",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/18986.png",
+    "page": "https://www.espn.com/soccer/club/_/id/18986/nashville-sc",
+    "asset": "/assets/clubs/18986.png"
+  },
+  {
+    "club": "Feyenoord",
+    "name": "Feyenoord Rotterdam",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/142.png",
+    "page": "https://www.espn.com/soccer/club/_/id/142/feyenoord-rotterdam",
+    "asset": "/assets/clubs/142.png"
+  },
+  {
+    "club": "Strasbourg",
+    "name": "Strasbourg",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/180.png",
+    "page": "https://www.espn.com/soccer/club/_/id/180/strasbourg",
+    "asset": "/assets/clubs/180.png"
+  }
+]

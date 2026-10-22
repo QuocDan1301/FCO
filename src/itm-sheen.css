@@ -22,16 +22,16 @@
     transparent 56%);
   opacity: 0;
   transform: translate3d(-42%, 0, 0);
-  animation: itm-sheen-pass 4.8s cubic-bezier(.4, 0, .2, 1) infinite;
+  animation: itm-sheen-pass 2.4s cubic-bezier(.4, 0, .2, 1) infinite;
   animation-delay: var(--itm-sheen-delay, 0s);
 }
-.compact .itm-sheen-streak { animation-duration: 5.4s; }
+.compact .itm-sheen-streak { animation-duration: 2.7s; }
 .face-art-ovr, .face-art-level { z-index: 2; }
 @keyframes itm-sheen-pass {
   0%, 5% { opacity: 0; transform: translate3d(-42%, 0, 0); }
   8% { opacity: .72; }
-  28% { opacity: .72; transform: translate3d(42%, 0, 0); }
-  32%, 100% { opacity: 0; transform: translate3d(42%, 0, 0); }
+  55% { opacity: .72; transform: translate3d(42%, 0, 0); }
+  60%, 100% { opacity: 0; transform: translate3d(42%, 0, 0); }
 }
 .reduced-motion .itm-sheen,
 .opening-reduced .itm-sheen,
