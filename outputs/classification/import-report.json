@@ -1,0 +1,11 @@
+{
+  "source": "phan_loai_cau_thu_fco.csv",
+  "matched": 310,
+  "counts": {
+    "1": 83,
+    "2": 96,
+    "3": 131
+  },
+  "missing": [],
+  "errors": []
+}

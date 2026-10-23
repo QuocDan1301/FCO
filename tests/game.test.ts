@@ -12,17 +12,17 @@ const cardWith = (rating: number, level = 1, skip: number[] = []) => {
   if (!player) throw new Error(`Không có cầu thủ OVR ${rating} ở +${level}`);
   return { ...makeCard(player.id), level };
 };
-test('310 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7; mọi gói công bố đủ 100%', () => {
-  assert.equal(players.length, 310);
+test('370 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7 và 60 INFINITE PRIME; mọi gói đủ 100%', () => {
+  assert.equal(players.length, 370);
+  assert.equal(players.filter(p => p.tier === 'prime').length, 60);
   assert.equal(players.filter(p => p.tier === 'origin').length, 24);
   assert.equal(players.filter(p => p.tier === 'stellar').length, 160);
   assert.equal(players.filter(p => p.tier === 'eternal').length, 126);
   for (const p of packs) assert.equal(p.weights.reduce((a, b) => a + b, 0), 100);
 });
-test('Cả ba gói mở đúng mùa; toàn bộ 24 thẻ NO.7 có thể nhận và lưu lại', () => {
-  // Gói INFINITE PRIME chưa có cầu thủ nên chưa mở được; các gói còn lại phải mở được.
+test('Cả bốn gói mở đúng mùa; toàn bộ 24 thẻ NO.7 có thể nhận và lưu lại', () => {
   assert.equal(isPackAvailable(packs.find(p => p.id === 'prime')!), players.some(p => p.tier === 'prime'));
-  for (const pack of packs.filter(p => p.id !== 'prime')) {
+  for (const pack of packs) {
     assert.equal(isPackAvailable(pack), true);
     for (const value of [0, .5, .999999]) assert.equal(getPlayer(draw(pack, () => value)).tier, pack.id);
   }
@@ -328,12 +328,11 @@ test('Mở mọi số lượng 1–10 nhận đúng số thẻ và tính đúng 
 test('Mở lựa chọn trong kho gộp mọi loại gói và giới hạn tổng 150 thẻ', () => {
   const before = initialSave();
   const all = openSelectedPacks(before, packs, () => .99, true);
-  assert.equal(all.cards.length, 45);
-  assert.equal(all.state.cards.length, before.cards.length + 45);
-  // Chỉ xét gói đã có cầu thủ (gói INFINITE PRIME chưa mở được thì bỏ qua).
   const openable = packs.filter(isPackAvailable);
+  assert.equal(all.cards.length, 60);
+  assert.equal(all.state.cards.length, before.cards.length + 60);
   assert.ok(openable.every(pack => all.state.unopened?.[pack.id] === 0));
-  assert.equal(new Set(all.cards.map(card => getPlayer(card).tier)).size, 3);
+  assert.equal(new Set(all.cards.map(card => getPlayer(card).tier)).size, 4);
   assert.equal(before.opened, 0);
   assert.ok(openable.every(pack => before.unopened?.[pack.id] === 15));
 
@@ -341,11 +340,11 @@ test('Mở lựa chọn trong kho gộp mọi loại gói và giới hạn tổn
   const capped = openSelectedPacks(stocked, packs);
   assert.equal(capped.cards.length, 150);
   assert.equal(new Set(capped.cards.map(card => card.uid)).size, 150);
-  assert.deepEqual(openable.map(pack => capped.state.unopened?.[pack.id]), [0, 10, 80]);
+  assert.deepEqual(openable.map(pack => capped.state.unopened?.[pack.id]), [0, 10, 80, 80]);
   assert.equal(capped.state.balance, stocked.balance - 80 * packs[0].price - 70 * packs[1].price);
   assert.equal(capped.state.opened, 150);
   assert.ok(validateSave(capped.state));
-  assert.deepEqual(openable.map(pack => stocked.unopened[pack.id]), [80, 80, 80]);
+  assert.deepEqual(openable.map(pack => stocked.unopened[pack.id]), [80, 80, 80, 80]);
 
   const single = openSelectedPacks({ ...stocked, unopened: { [packs[0].id]: 151 } }, [packs[0], packs[0]], () => 0, true);
   assert.equal(single.cards.length, 150);
@@ -357,7 +356,7 @@ test('Mở lựa chọn trong kho gộp mọi loại gói và giới hạn tổn
   const insufficient = { ...stocked, balance: packs[0].price * 80 };
   assert.throws(() => openSelectedPacks(insufficient, packs), /Không đủ xu/);
   assert.equal(insufficient.opened, 0);
-  assert.deepEqual(openable.map(pack => insufficient.unopened[pack.id]), [80, 80, 80]);
+  assert.deepEqual(openable.map(pack => insufficient.unopened[pack.id]), [80, 80, 80, 80]);
 });
 
 test('Kho gói trừ đúng lượng đã mở, chặn mở quá số còn lại và giữ bản cũ', () => {

@@ -49,3 +49,28 @@ npm.cmd run preview
 Tỷ lệ chỉ thuộc trò chơi giả lập này. Tên CLB minh họa giai đoạn sự nghiệp, không phải dữ liệu đội hình hiện tại. Dữ liệu trình duyệt có thể chỉnh sửa, nên không phù hợp thi đấu hoặc kinh tế có giá trị. Xóa dữ liệu trang hoặc đổi trình duyệt sẽ mất tiến trình.
 
 Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.
+# Mô hình giá nâng cấp
+
+Giá BP chấp nhận số nguyên từ 0: nhập `0` trong Excel là giá 0 BP và có thể mua/bán; để trống là chưa có giá. OVR vẫn phải lớn hơn 0.
+
+Mọi thẻ thêm vào game đều phải có trong `gia-cau-thu-bp.xlsx`. `npm run dev`, `npm run build` và `npm run prices:import` tự bổ sung các ID còn thiếu vào cuối trang Giá cầu thủ, giữ nguyên các dòng, giá, OVR sửa tay và công thức đã có. Thẻ mới có đủ OVR +1…+13; giá chưa có dữ liệu được để trống, tô vàng. Không dùng `prices:export` chỉ để thêm thẻ vì lệnh đó dựng lại cả bảng. Hiện bảng gồm 370 thẻ, bao gồm 60 INFINITE PRIME.
+
+Đã cập nhật `gia-cau-thu-bp.xlsx` theo phân nhóm CSV. Giá +1 được giữ nguyên; các cột +2…+13 là công thức có kết quả lưu sẵn, khớp game. Bản sao trước cập nhật ở `outputs/classification/gia-cau-thu-bp.before-csv.xlsx`. Tab Hướng dẫn ghi các giả định và nhóm của từng ID; dòng dữ liệu được hiện lại để xem giá. Kiểm tra đồng bộ bằng `node --import tsx scripts/verify-price-sync.mjs`.
+
+Nhập lại nhóm bằng `node --import tsx scripts/import-classification.mjs <đường-dẫn-CSV>`, rồi build game. Nếu đổi phân nhóm sau này, cần cập nhật lại công thức Excel tương ứng; bước nhập nhóm không tự ghi đè Excel. Các hệ số so với sàn trong CSV là tham chiếu, ô thiếu giữ null, không được dùng làm giá BP sàn.
+
+Phân nhóm tự động theo bốn tiêu chí trong `src/player-classification.ts`. `src/player-classification-facts.json` lưu dữ liệu bổ sung theo ID mùa thẻ: chân không thuận, sút má ngoài, chiều cao, thể hình/tốc độ, đánh giá AI và Tier Team Color đã kiểm chứng. Các trường hợp hai chân 5-5 + Tier 1 hoặc ít nhất ba tiêu chí tốt vào Nhóm 1; ít nhất hai tiêu chí xấu vào Nhóm 3; còn lại Nhóm 2. Tên quốc dân trong danh sách người dùng chỉ đóng góp một tiêu chí AI. Nếu chưa đủ dữ liệu, Nhóm 2 hiển thị “Tạm tính, thiếu dữ liệu tiêu chí”. Không coi dữ liệu trống là điểm trừ; CLB nhỏ hiện tại không chứng minh toàn bộ Team Color là Tier 3. Với chân yếu, cần biết không có sút má ngoài (`outsideFootShot: false`) trước khi tính điểm trừ. Nhóm gán riêng trong `pricing-config.json` được ưu tiên hơn kết quả tự động.
+
+Phân nhóm hiện tại đã nhập từ CSV người dùng: 83 Nhóm 1, 96 Nhóm 2, 131 Nhóm 3; đủ 310 ID và mùa thẻ. `player-classification-groups.json` là nguồn nhóm ưu tiên hơn suy luận chỉ số, không còn nhãn tạm tính cho các dòng đã nhập. Dữ liệu chỉ số bổ sung vẫn độc lập; không coi lời giải thích trong CSV là bằng chứng chân/thể hình thực tế. Để nhập thông tin, ví dụ cấu trúc một bản ghi là `"ID": { "weakFoot": 5, "heightCm": 190, "source": "Nguồn và mùa thẻ đã đối chiếu" }`; đây chỉ là ví dụ định dạng, không phải chỉ số của cầu thủ cụ thể. Các dấu hiệu nhanh/chậm/dẻo/thăng bằng dùng đánh giá có nguồn, chưa áp ngưỡng số tự đặt.
+
+Giá giao dịch +1 giữ nguyên từ `gia-cau-thu-bp.xlsx`. Giá +2 đến +13 trong game được tính từ giá +1 bằng `src/pricing.ts`, thay cho các ô giá cùng cấp cũ trong Excel. File Excel gốc không bị ghi đè. Ngày dữ liệu trong game là ngày của giá gốc, không phải ngày quan sát TTCN trực tiếp.
+
+Chỉnh `src/pricing-config.json`, rồi chạy `npm run build` để cập nhật `mothe.html`. Nhóm lấy từ CSV đã nhập; chỉ các thẻ chưa có phân nhóm mới dùng bộ suy luận dự phòng. +2 mặc định tăng 63,7%. `overrides` dùng ID cầu thủ, ví dụ `"1": { "group": 1, "metaHeatPercent": 25 }`. Các tham số đều có thể ghi đè riêng cho mỗi ID.
+
+- Nhóm 1: mặc định biên nhiệt 25%; bằng 0 là giữ chuẩn, ngoài ra cho phép 15–35%. Biên áp dụng từ +5 và giữ ở các cấp sau, không nhân chồng thêm tại +8.
+- Nhóm 2: nhân đúng hệ số từng bước, làm tròn BP một lần ở kết quả cuối.
+- Nhóm 3: mặc định +2–+4 giảm 20%, +5 bằng 7,5 lần giá +1, +8 giảm 45%. +6/+7 nội suy biên giảm giữa +5 và +8; +9 trở lên giữ biên +8 và ghi “Đóng băng thanh khoản”. Đây là giá tham chiếu theo mức giảm, chưa phải giá sàn OVR vì chưa có dữ liệu giá sàn. Ghi chú thanh khoản không vô hiệu hóa giao dịch mô phỏng.
+
+Phí bảo hiểm báo riêng khi xem thẻ +8 đến +12: giá thẻ hiện tại × 95% / 80% / 60% theo OVR gốc ≤92 / 93–100 / ≥101. Không cộng phí vào giá thẻ, không thay đổi cơ chế thực hiện nâng cấp hay tự trừ phí bảo hiểm. OVR cộng theo cấp đã khớp `[0,1,2,4,6,8,11,15,17,19,21,24,27]`. Các quyền Team Color/chỉ số ẩn chưa được triển khai bởi mô hình giá này.
+
+Các hướng dẫn cũ bên dưới về việc dùng nguyên giá Excel ở mọi cấp được thay thế bởi quy tắc trên. `npm run prices:export` xuất giá game đang dùng; không chạy ghi đè khi muốn giữ bảng nguồn cũ.

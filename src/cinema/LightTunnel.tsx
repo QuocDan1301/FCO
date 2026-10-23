@@ -2,9 +2,9 @@ import { useEffect, useRef } from 'react';
 import { cameraProgress, OPENING_CUES } from './timeline';
 import { drawBadge, infoVisibility } from './sceneBadge';
 
-export default function LightTunnel({ phase, season, nation, position, team, flag, teamLogo, back, intro, accent, quick, onReady, onPrepared, playing = true, getElapsed }: { phase: number; season: string; nation: string; position: string; team: string; flag: string; teamLogo?: string; back?: string; intro?: string; accent?: string; quick: boolean; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number }) {
+export default function LightTunnel({ phase, season, nation, position, team, flag, teamLogo, back, intro, accent, stage, quick, onReady, onPrepared, playing = true, getElapsed }: { phase: number; season: string; nation: string; position: string; team: string; flag: string; teamLogo?: string; back?: string; intro?: string; accent?: string; stage?: { top: string; ring: string; led?: string }; quick: boolean; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const latest = useRef({ phase, season, nation, position, team, flag, teamLogo, back, intro, accent, quick, onReady, onPrepared, playing, getElapsed }); latest.current = { phase, season, nation, position, team, flag, teamLogo, back, intro, accent, quick, onReady, onPrepared, playing, getElapsed };
+  const latest = useRef({ phase, season, nation, position, team, flag, teamLogo, back, intro, accent, stage, quick, onReady, onPrepared, playing, getElapsed }); latest.current = { phase, season, nation, position, team, flag, teamLogo, back, intro, accent, stage, quick, onReady, onPrepared, playing, getElapsed };
   useEffect(() => {
     const canvas = canvasRef.current; const ctx = canvas?.getContext('2d'); if (!canvas || !ctx) return;
     const board = document.createElement('canvas'); board.width = 384; board.height = 192; const boardCtx = board.getContext('2d'); let boardKey = '';
@@ -14,7 +14,7 @@ export default function LightTunnel({ phase, season, nation, position, team, fla
       if (document.hidden || now - last < 33) return;
       const dt = last ? Math.min((now - last) / 1000, .1) : 0;
       last = now;
-      const { phase, season, nation, position, team, flag, teamLogo, back, intro, accent, quick, onReady, onPrepared, playing, getElapsed } = latest.current;
+      const { phase, season, nation, position, team, flag, teamLogo, back, intro, accent, stage, quick, onReady, onPrepared, playing, getElapsed } = latest.current;
       if (playing !== wasPlaying) { if (!playing) { prepared = false; startedAt = null; progress = 0; skipped = false; } wasPlaying = playing; }
       if (!playing && prepared) return;
       const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
@@ -40,7 +40,9 @@ export default function LightTunnel({ phase, season, nation, position, team, fla
         const bw = w * .2, bh = bw / 2, shown = .07 + .93 * infoVisibility(phase, back);
         for (const side of [-1, 1]) { ctx.save(); ctx.globalAlpha = shown; ctx.translate(cx + side * w * .36, cy); ctx.transform(1, side * -.12, 0, 1, 0, 0); ctx.drawImage(board, -bw / 2, -bh / 2, bw, bh); ctx.restore(); }
       } else {
-        ctx.fillStyle = '#1b2630'; ctx.beginPath(); ctx.ellipse(cx, h * .79, w * .4, h * .09, 0, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = gold; ctx.lineWidth = 2; ctx.stroke();
+        // Thẻ đã hiện: bục và viền đổi sang màu riêng của mùa thẻ.
+        const look = phase >= 9 ? stage : undefined;
+        ctx.fillStyle = look?.top ?? '#1b2630'; ctx.beginPath(); ctx.ellipse(cx, h * .79, w * .4, h * .09, 0, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = look?.ring ?? gold; ctx.lineWidth = 2; ctx.stroke();
         for (const side of [-1, 1]) { ctx.fillStyle = '#f4d99511'; ctx.beginPath(); ctx.moveTo(cx + side * w * .32, h * .78); ctx.lineTo(cx + side * w * .48, h * .13); ctx.lineTo(cx + side * w * .1, h * .13); ctx.closePath(); ctx.fill(); }
       }
       const reflection = ctx.createLinearGradient(0, h * .57, 0, h); reflection.addColorStop(0, '#e8d49e00'); reflection.addColorStop(.7, '#e8d49e0b'); reflection.addColorStop(1, '#050b1300'); ctx.fillStyle = reflection; ctx.fillRect(w * .15, h * .57, w * .7, h * .43);

@@ -1,8 +1,9 @@
 import { getPlayer, makeCard, money, ovr, players, MAX_LEVEL, uid } from './game';
 import type { Card, Entry, Save } from './game';
 import priceData from './player-prices.json';
+import { calculatePrice, insuranceRate, playerPricingOptions, playerClassification } from './pricing';
 
-// Bảng giá BP lấy từ gia-cau-thu-bp.xlsx (npm run prices:import): theo id cầu thủ, giá +1 … +13, null là chưa có giá.
+// Giá +1 lấy từ Excel; +2…+13 tính theo pricing.ts và cấu hình nhóm người dùng.
 export const PRICE_AS_OF = priceData.updatedAt;
 const recordedPrices: Record<string, (number | null)[]> = priceData.players;
 export const formatMarketPrice = (price: number | null) => price === null ? 'Chưa có giá' : `${money(price)} BP`;
@@ -16,12 +17,16 @@ export function compareMarketPrices(a: Pick<Card, 'playerId' | 'level'>, b: Pick
 export type MarketTrade = { kind: 'buy' | 'sell'; card: Card };
 export const MARKET_FEE_PERCENT = 5;
 
-// Giá theo bảng giá, đúng cầu thủ và cấp thẻ; null là chưa có giá.
+// Không có giá +1 thì không suy đoán giá các cấp sau. Bảo hiểm chỉ là báo phí, không cộng vào giá thẻ.
 export function marketQuote(card: Pick<Card, 'playerId' | 'level'>) {
   const player = players.find(p => p.id === card.playerId);
   if (!player || !Number.isInteger(card.level) || card.level < 1 || card.level > MAX_LEVEL) throw new Error('Cầu thủ hoặc cấp thẻ không hợp lệ.');
-  const price = recordedPrices[String(player.id)]?.[card.level - 1] ?? null;
-  const metadata = { asOfDate: PRICE_AS_OF };
+  const calculated = calculatePrice(recordedPrices[String(player.id)]?.[0] ?? null, card.level, playerPricingOptions(player.id, player));
+  const { price } = calculated;
+  const rate = insuranceRate(player.ovr);
+  const classification = playerClassification(player);
+  const groupNote = `Nhóm ${calculated.group}${classification.provisional && calculated.group === classification.group ? ' · Tạm tính, thiếu dữ liệu tiêu chí' : ''}`;
+  const metadata = { groupNote, classification, asOfDate: PRICE_AS_OF, group: calculated.group, liquidityNote: calculated.liquidityNote, insuranceRate: rate, insuranceFee: price !== null && card.level >= 8 && card.level < MAX_LEVEL ? Math.round(price * rate) : null };
   if (price === null) return { ...metadata, available: false as const, price: null, fee: null, proceeds: null, reason: `Chưa có giá ${player.name} +${card.level} trong bảng giá.` };
   const fee = Math.floor(price * MARKET_FEE_PERCENT / 100);
   return { ...metadata, available: true as const, price, fee, proceeds: price - fee, reason: null };

@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
+    "dev": "node --import tsx scripts/import-prices.mjs && vite --host 127.0.0.1",
     "build": "node --import tsx scripts/import-prices.mjs && tsc -b && vite build && node scripts/standalone.mjs",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "tsx --test tests/game.test.ts tests/market.test.ts tests/shop.test.ts tests/flags.test.tsx",
+    "test": "tsx --test tests/game.test.ts tests/market.test.ts tests/shop.test.ts tests/flags.test.tsx tests/pricing.test.ts tests/player-classification.test.ts tests/classification-import.test.ts tests/fifaaddict.test.ts tests/prime.test.ts tests/upgrade-bridge.test.ts tests/upgrade-bridge-audit.test.ts tests/excel-roster.test.ts",
     "prices:import": "node --import tsx scripts/import-prices.mjs",
     "prices:export": "node --import tsx scripts/export-prices.mjs"
   },

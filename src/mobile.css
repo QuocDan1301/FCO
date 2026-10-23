@@ -106,8 +106,8 @@
 }
 
 @media (max-width: 900px) and (orientation: landscape) and (max-height: 500px) {
-  .pack-ready-modal .ready-art { top: 45%; height: 42dvh; }
-  .pack-ready-modal .ready-art .ready-flip, .pack-ready-modal .ready-art .ready-flip.tm-flip { height: 40dvh; width: 28dvh; }
+  .pack-ready-modal .ready-art { top: 51%; height: 46dvh; }
+  .pack-ready-modal .ready-art .ready-flip, .pack-ready-modal .ready-art .ready-flip.tm-flip { height: 44dvh; width: 30.8dvh; }
   .ready-count { top: 64px; }
   .reveal-scene { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
   .reveal-card { --rw: min(200px, 45dvh); }

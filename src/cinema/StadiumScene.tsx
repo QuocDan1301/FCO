@@ -4,7 +4,7 @@ import { Reflector } from 'three/addons/objects/Reflector.js';
 import { CAMERA_HOLD, cameraPose, cameraProgress, GATE_CROSS, gateZ, OPENING_CUES, STAGE_Z, TUNNEL_EXTRA as EXTRA } from './timeline';
 import { drawBadge, infoVisibility } from './sceneBadge';
 
-type Props = { phase: number; quick: boolean; nation: string; position: string; team: string; season: string; flag: string; teamLogo?: string; back?: string; intro?: string; accent?: string; onFallback: () => void; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number };
+type Props = { phase: number; quick: boolean; nation: string; position: string; team: string; season: string; flag: string; teamLogo?: string; back?: string; intro?: string; accent?: string; stage?: { top: string; ring: string; led?: string }; onFallback: () => void; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number };
 
 export default function StadiumScene(props: Props) {
   const host = useRef<HTMLDivElement>(null);
@@ -100,7 +100,8 @@ export default function StadiumScene(props: Props) {
     }
     // Sân khấu và khán đài ở cuối đường hầm; không dựng cửa hoặc thẻ áo trắng.
     const stageGeo = new THREE.CylinderGeometry(8.2, 8.6, .35, mobile ? 32 : 64); geometries.add(stageGeo);
-    const stage = new THREE.Mesh(stageGeo, metal); stage.position.set(0, .18, STAGE_Z); stage.receiveShadow = true; scene.add(stage);
+    const stageMat = new THREE.MeshStandardMaterial({ color: '#2b3949', metalness: .4, roughness: .42 });
+    const stage = new THREE.Mesh(stageGeo, stageMat); stage.position.set(0, .18, STAGE_Z); stage.receiveShadow = true; scene.add(stage);
     const ringMaterial = basic('#ead29a');
     for (const radius of [7.9, 6.9]) {
       const geo = new THREE.TorusGeometry(radius, .025, 4, mobile ? 48 : 80); geometries.add(geo);
@@ -183,13 +184,15 @@ export default function StadiumScene(props: Props) {
     };
     resize(); const observer = new ResizeObserver(resize); observer.observe(container);
     const onLost = (event: Event) => { event.preventDefault(); state.current.onFallback(); }; renderer.domElement.addEventListener('webglcontextlost', onLost);
-    let appliedAccent: string | undefined = '';
+    let appliedAccent: string | undefined = '', stageMix = 0;
+    // Màu gốc theo accent; khi thẻ xuất hiện trộn dần sang màu bục / LED riêng của mùa thẻ (pack.stage).
+    const baseLight = new THREE.Color(), baseRing = new THREE.Color(), baseStage = new THREE.Color('#2b3949'), revealColor = new THREE.Color(), white = new THREE.Color('#ffffff');
     const GOLD = { light: '#f1dba3', trim: '#a89a77', strip: '#d9c391', ring: '#ead29a', stage: '#ffe5ae', spot: '#fff2d2', dust: '#f5dfad', spark: '#ffe8a5' };
     const applyAccent = (accent?: string) => {
       appliedAccent = accent;
       const tone = (gold: string, mixWhite: number, dim = 1) => accent ? new THREE.Color(accent).lerp(new THREE.Color('#ffffff'), mixWhite).multiplyScalar(dim) : new THREE.Color(gold);
-      lightColor.copy(tone(GOLD.light, .35)); trim.color.copy(tone(GOLD.trim, .1, .75)); floorStrip.color.copy(tone(GOLD.strip, .3));
-      ringMaterial.color.copy(tone(GOLD.ring, .3)); stageLight.color.copy(tone(GOLD.stage, .5)); spotlight.color.copy(tone(GOLD.spot, .6));
+      baseLight.copy(tone(GOLD.light, .35)); trim.color.copy(tone(GOLD.trim, .1, .75)); floorStrip.color.copy(tone(GOLD.strip, .3));
+      baseRing.copy(tone(GOLD.ring, .3)); stageLight.color.copy(tone(GOLD.stage, .5)); spotlight.color.copy(tone(GOLD.spot, .6));
       dustMaterial.color.copy(tone(GOLD.dust, .45)); sparkMaterial.color.copy(tone(GOLD.spark, .4));
     };
     let paintedBack: string | undefined;
@@ -208,7 +211,7 @@ export default function StadiumScene(props: Props) {
       const playing = state.current.playing !== false;
       if (playing !== wasPlaying) {
         if (!playing) {
-          prepared = false; startedAt = null; progress = 0; lastPhase = -1; ledSmooth = .03; skipped = false; fog.density = DARK_FOG;
+          prepared = false; startedAt = null; progress = 0; lastPhase = -1; ledSmooth = .03; skipped = false; stageMix = 0; fog.density = DARK_FOG;
           lookTarget.set(0, 3.3, cameraPose(0).lookZ);
           stageLight.intensity = 35; spotlight.intensity = 120; ambient.intensity = .025; renderer.toneMappingExposure = .12;
           ribs.forEach(rib => { rib.brightness = .015; });
@@ -243,14 +246,22 @@ export default function StadiumScene(props: Props) {
       // Qua vùng sáng: ánh trắng tan dần trong lúc sương cũng tan, để trắng hòa thẳng vào đường hầm, không chớp tối giữa chừng.
       const quickMode = state.current.quick, crossed = playing ? elapsed - GATE_CROSS[quickMode ? 'quick' : 'standard'] : -1;
       const smooth = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * (3 - 2 * c); };
-      const flash = crossed < 0 ? Math.max(0, 1 - ahead / 6) ** 2 : 1 - smooth(crossed / (quickMode ? 200 : 300));
-      fog.density = crossed < 0 ? DARK_FOG : DARK_FOG * (CLEAR_FOG / DARK_FOG) ** smooth(crossed / (quickMode ? 170 : 250));
+      const flash = crossed < 0 ? Math.max(0, 1 - ahead / 6) ** 2 : 1 - smooth(crossed / (quickMode ? 140 : 210));
+      fog.density = crossed < 0 ? DARK_FOG : DARK_FOG * (CLEAR_FOG / DARK_FOG) ** smooth(crossed / (quickMode ? 120 : 175));
       gateFlash.style.opacity = playing && phase < 9 ? (flash * GATE_FLASH_PEAK).toFixed(3) : '0';
       stageLight.intensity = THREE.MathUtils.damp(stageLight.intensity, phase >= 8 ? 130 : 35, 4, dt);
       spotlight.intensity = THREE.MathUtils.damp(spotlight.intensity, phase >= 8 ? 350 : 120, 4, dt);
       ambient.intensity = THREE.MathUtils.damp(ambient.intensity, phase === 0 ? .025 : phase === 6 ? .035 : phase >= 8 ? .9 : .6, 5, dt);
       const exposure = phase === 0 ? .12 + Math.min(age, .7) * .22 : phase === 6 ? .42 : phase >= 8 ? 1.2 : .9;
       renderer.toneMappingExposure = THREE.MathUtils.damp(renderer.toneMappingExposure, exposure, 5, dt);
+      const look = state.current.stage;
+      stageMix = THREE.MathUtils.damp(stageMix, look && phase >= 9 ? 1 : 0, 3, dt);
+      lightColor.copy(baseLight); ringMaterial.color.copy(baseRing); stageMat.color.copy(baseStage); stageMat.emissive.setScalar(0);
+      if (look && stageMix > .001) {
+        if (look.led) lightColor.lerp(revealColor.set(look.led).lerp(white, .2), stageMix);
+        ringMaterial.color.lerp(revealColor.set(look.ring), stageMix);
+        stageMat.color.lerp(revealColor.set(look.top), stageMix); stageMat.emissive.copy(revealColor).multiplyScalar(.35 * stageMix);
+      }
       ribs.forEach((rib, i) => {
         const lit = phase >= 2 || (phase === 1 && i <= age * 12);
         rib.brightness = THREE.MathUtils.damp(rib.brightness, lit ? .8 + .18 * Math.sin(now * .002 - i * .45) : .01, 7, dt);

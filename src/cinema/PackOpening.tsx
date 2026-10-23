@@ -3,7 +3,8 @@ import type { CSSProperties, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowRight, Check, ChevronDown, ChevronLeft, ChevronRight, Layers3, PackageOpen, Shield, SlidersHorizontal, Volume2, VolumeX, X } from 'lucide-react';
 import type { Card, Pack } from '../game';
-import { getPlayer, ovr, seasons } from '../game';
+import { getPlayer, money, ovr, seasons } from '../game';
+import { marketQuote } from '../market';
 import { OpeningAudio } from './audio';
 import { INFO_GAP, OPENING_CUES } from './timeline';
 import { AUDIO_ENABLED } from '../config';
@@ -22,6 +23,9 @@ export default function PackOpening(props: Props) {
   const [best, ...secondaryCards] = sortedCards;
   const player = getPlayer(best);
   const season = seasons[player.tier], icon = player.tier === 'eternal';
+  const price = marketQuote(best).price;
+  const displayPrice = price === null ? 'Chưa có giá' : price >= 1e9 ? `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(price / 1e9)}B` : money(price);
+  const seasonLogo = icon ? asset('/assets/itm-team.png') : player.tier === 'prime' ? asset('/assets/prime-team.png') : player.tier === 'origin' ? asset('/assets/no7-team.png') : null;
   // Les cartes ICON représentent la sélection nationale, cohérente avec le portrait de Messi.
   const team = icon ? player.nation : player.club;
   const teamLogo = getTeamLogo(player);
@@ -97,7 +101,15 @@ export default function PackOpening(props: Props) {
           <strong className="reveal-ovr">{ovr(best)}</strong>
           <dl className="reveal-stats">{statsList.map(s => <div key={s.label}><dt>{s.label}</dt><dd>{s.value}</dd></div>)}</dl>
         </div>
-        <div className="reveal-panel reveal-panel-right" aria-hidden="true"><div className="reveal-crest">{teamCrest}</div><span className="reveal-pos">{player.pos}</span></div>
+        <div className="reveal-panel reveal-panel-right" role="group" aria-label={`Thông tin ${player.name}`}>
+          <div className="reveal-player-info">
+            <div className="reveal-rating-row">
+              <strong className="reveal-info-ovr" aria-label={`OVR ${ovr(best)}`}>{ovr(best)}</strong>
+              {seasonLogo ? <img className="reveal-season-logo" src={seasonLogo} alt={season}/> : <span className="reveal-season-badge">{season}</span>}
+            </div>
+            <div className="reveal-price"><span className="reveal-price-label">BP</span><strong className={price === null ? 'is-unpriced' : undefined}>{displayPrice}</strong></div>
+          </div>
+        </div>
         <motion.div className="opening-best-card reveal-card" initial={reduced ? false : { opacity: 0, y: 24, scale: .94 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: reduced ? 0 : quick ? .5 : .95, ease: [.22, 1, .36, 1], opacity: { duration: reduced ? 0 : quick ? .2 : .35 } }}>{props.renderCard(best)}{!player.cardFace && <div className="card-edge-sweep"/>}</motion.div>
         <div className="reveal-podium" aria-hidden="true">{[0, 1, 2].map(i => <span key={i}>{season}</span>)}</div>
         <p className="reveal-name">{player.name}<span>·</span>{team}</p>

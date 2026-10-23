@@ -120,8 +120,19 @@
 .reveal-panel { --led: #1f3fd8; --led2: #0c1f8f; position: absolute; top: 26%; height: 62%; width: 38%; display: flex; align-items: center; border: 2px solid #ffffff22; background: radial-gradient(ellipse at 30% 40%, #ffffff22, transparent 55%), linear-gradient(160deg, var(--led), var(--led2)); box-shadow: 0 0 60px #2a5bff55, inset 0 0 80px #0008; color: #fff; }
 .reveal-icon .reveal-panel { --led: #b8954f; --led2: #3c2c12; box-shadow: 0 0 60px #e2c27a44, inset 0 0 80px #0008; }
 .reveal-origin .reveal-panel { --led: #5b6b7d; --led2: #1d2630; box-shadow: 0 0 50px #a6b5c533, inset 0 0 80px #0008; }
+.reveal-prime .reveal-panel { --led: #b3202c; --led2: #4a070d; border-color: #ffd98a66; box-shadow: 0 0 60px #e0473f55, inset 0 0 80px #0008; }
+.reveal-prime .reveal-stats dt { color: #ffe7b8; }
 .reveal-panel-left { left: 2%; transform: rotateY(16deg); transform-origin: left center; border-radius: 26px 0 0 26px; padding: 0 3% 0 4%; gap: 4%; }
-.reveal-panel-right { right: 2%; transform: rotateY(-16deg); transform-origin: right center; border-radius: 0 26px 26px 0; justify-content: flex-end; padding-right: 6%; gap: 6%; }
+.reveal-panel-right { right: 2%; transform: rotateY(-16deg); transform-origin: right center; border-radius: 0 26px 26px 0; justify-content: flex-end; padding: 0 4% 0 8%; }
+.reveal-player-info { width: 100%; min-width: 0; font-family: var(--display); text-align: left; }
+.reveal-rating-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.reveal-info-ovr { font-size: clamp(54px, 7vw, 110px); font-weight: 700; line-height: 1; }
+.reveal-season-logo { width: clamp(44px, 4.8vw, 76px); height: clamp(52px, 5.8vw, 92px); object-fit: contain; flex: none; }
+.reveal-season-badge { flex: none; padding: 4px 7px; border: 2px solid currentColor; font-size: clamp(16px, 1.8vw, 28px); font-weight: 700; line-height: 1; }
+.reveal-price { margin-top: clamp(12px, 2vh, 24px); }
+.reveal-price-label { display: block; font-size: clamp(12px, 1.1vw, 18px); font-weight: 500; line-height: 1.2; }
+.reveal-price strong { display: block; margin-top: 3px; font-size: clamp(26px, 3.4vw, 54px); font-weight: 700; line-height: 1.1; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.reveal-price strong.is-unpriced { font-size: clamp(20px, 2.4vw, 36px); }
 .reveal-crest { flex: none; width: clamp(80px, 9vw, 150px); aspect-ratio: 1; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px #0006; }
 .reveal-crest img { width: 78%; height: 78%; object-fit: contain; }
 .reveal-club { font-family: var(--display); font-weight: 800; font-size: clamp(22px, 2.6vw, 44px); color: #14306b; letter-spacing: -1px; }
@@ -137,6 +148,8 @@
 .reveal-podium { position: absolute; left: 28%; right: 28%; bottom: 6%; height: 9%; display: flex; justify-content: space-around; align-items: center; border-radius: 50%/40%; background: linear-gradient(180deg, #2b56e8, #13298f); border-top: 3px solid #8fb0ff; box-shadow: 0 10px 30px #0009, 0 0 40px #2a5bff66; z-index: 2; }
 .reveal-icon .reveal-podium { background: linear-gradient(180deg, #caa65c, #5a4219); border-top-color: #fff0c2; box-shadow: 0 10px 30px #0009, 0 0 40px #e2c27a55; }
 .reveal-origin .reveal-podium { background: linear-gradient(180deg, #6d7e90, #28323d); border-top-color: #d5e1eb; }
+.reveal-prime .reveal-podium { background: linear-gradient(180deg, #b3202c, #5a0a12); border-top-color: #ffd98a; box-shadow: 0 10px 30px #0009, 0 0 40px #e0473f66; }
+.reveal-prime .reveal-podium span { color: #ffe7b8; }
 .reveal-podium span { font-family: var(--display); font-weight: 700; font-size: clamp(13px, 1.5vw, 24px); color: #fff; text-transform: uppercase; }
 .reveal-podium span:nth-child(2) { font-size: clamp(16px, 1.9vw, 30px); }
 .reveal-name { position: absolute; left: 0; right: 0; bottom: -1%; margin: 0; font-family: var(--display); font-size: 15px; color: #dfe6ef; display: flex; justify-content: center; gap: 8px; z-index: 3; }

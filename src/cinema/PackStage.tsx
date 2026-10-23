@@ -22,7 +22,7 @@ export default function PackStage(props: Props) {
   const scene = {
     phase: playing ? props.phase : 0, playing, quick,
     season: player ? seasons[player.tier] : seasons[pack.id as Tier] || pack.name,
-    nation: player?.nation || '', position: player?.pos || '', flag: player?.flag || '', back: pack.back, intro: pack.tunnel, accent: pack.accent,
+    nation: player?.nation || '', position: player?.pos || '', flag: player?.flag || '', back: pack.back, intro: pack.tunnel, accent: pack.accent, stage: pack.stage,
     teamLogo: player ? getTeamLogo(player) : undefined,
     team: player ? player.tier === 'eternal' ? 'ICON The Moment' : player.tier === 'prime' ? 'Infinite Prime' : player.club : '',
     getElapsed: () => playbackStart.current === null ? 0 : performance.now() - playbackStart.current,

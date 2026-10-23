@@ -1,0 +1,13 @@
+{
+  "players": 370,
+  "prices": 4810,
+  "ovrs": 4810,
+  "counts": {
+    "1": 83,
+    "2": 156,
+    "3": 131
+  },
+  "provisional": 60,
+  "roundingDifferences": 32,
+  "status": "PASS: full roster, OVR and base prices; upgrade prices within floating-point rounding"
+}

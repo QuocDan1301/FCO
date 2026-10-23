@@ -1,0 +1,23 @@
+.bridge-status{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.bridge-roles{display:inline-flex;gap:4px;padding:3px;border-radius:999px;background:#0d1116;justify-self:start}
+.bridge-roles button{padding:5px 14px;border-radius:999px;color:#aeb6c2;font-size:12px}
+.bridge-roles button.on{background:#2a3038;color:#f0f1f3}
+.bridge-rate,.bridge-last{margin:0;font-size:12px;line-height:1.5;color:#aeb6c2}
+.bridge-rate b,.bridge-last b{color:#f0f1f3}
+.bridge-signal{color:#1fe36b;font-weight:600}
+.bridge-muted{color:#7f8a98}
+.bridge-last .is-win{color:#1fe36b}
+.bridge-last .is-loss{color:#ff8a7a}
+.bridge-lab{display:flex;flex-direction:column;gap:14px}
+.bridge-lab p{margin:0;font-size:13px;line-height:1.5}
+.bridge-field{display:flex;align-items:center;gap:10px;font-size:13px;color:#aeb6c2}
+.bridge-manual{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.bridge-check{display:flex;align-items:center;gap:8px;font-size:13px;color:#aeb6c2}
+.bridge-dev{display:grid;gap:6px;margin:0;padding:12px;border-radius:8px;background:#0d1116}
+.bridge-dev div{display:flex;justify-content:space-between;gap:12px;font-size:13px}
+.bridge-dev dt{color:#7f8a98}
+.bridge-dev dd{margin:0;color:#f0f1f3;font-weight:600}
+.bridge-reset{align-self:flex-start}
+.fco-upgrade .bridge-status .fco-row{grid-template-columns:110px 1fr}
+/* Thêm nút Kiểm thử cầu: hàng nút phụ trên điện thoại chia 3 cột. */
+@media(max-width:640px){.bridge-rate,.bridge-last{font-size:11px}.fco-actions{grid-template-columns:repeat(3,minmax(0,1fr))}}

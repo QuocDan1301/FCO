@@ -1,6 +1,8 @@
 import { readFile, writeFile, access } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import ExcelJS from 'exceljs';
+import { syncRosterRows } from './excel-roster.mjs';
+import { readNumber } from './excel-values.mjs';
 
 // Run with: npm run prices:import
 // gia-cau-thu-bp.xlsx là nguồn giá BP duy nhất: mọi ô "Giá BP" được ghi vào src/player-prices.json (ô trống = chưa có giá).
@@ -20,6 +22,15 @@ const workbook = new ExcelJS.Workbook();
 await workbook.xlsx.readFile(workbookPath);
 const sheet = workbook.getWorksheet('Giá cầu thủ');
 if (!sheet) throw new Error('Không thấy trang "Giá cầu thủ" trong file Excel.');
+const added = syncRosterRows(workbook, players, priceData.players);
+if (added.length) {
+  try {
+    await access(`${root}~$gia-cau-thu-bp.xlsx`);
+    throw new Error('Excel đang mở bảng giá. Lưu và đóng file để bổ sung thẻ mới.');
+  } catch (error) { if (error.code !== 'ENOENT') throw error; }
+  await workbook.xlsx.writeFile(workbookPath);
+  console.log(`Đã bổ sung ${added.length} thẻ mới vào Excel.`);
+}
 
 // Dòng 1 có "+1" … "+13" (ô gộp), dòng 2 có "OVR" / "Giá BP": dò theo tiêu đề thay vì cố định số cột.
 const columns = { OVR: new Map(), 'Giá BP': new Map() };
@@ -32,21 +43,8 @@ for (let column = 1; column <= sheet.columnCount; column++) {
 }
 for (const [name, map] of Object.entries(columns)) if (map.size !== MAX_LEVEL) throw new Error(`Cần đủ ${MAX_LEVEL} cột "${name}" dưới tiêu đề +1 … +${MAX_LEVEL}, chỉ thấy ${map.size}.`);
 
-const readNumber = (cell, where, min, max) => {
-  let value = cell.value;
-  if (value && typeof value === 'object' && 'result' in value) value = value.result;
-  if (value === null || value === undefined || value === '') return null;
-  if (typeof value === 'string') {
-    const digits = value.replace(/[\s.,]/g, '');
-    if (!/^\d+$/.test(digits)) throw new Error(`${where}: "${value}" không phải số.`);
-    value = Number(digits);
-  }
-  if (!Number.isSafeInteger(value) || value < min || value > max) throw new Error(`${where}: cần số nguyên từ ${min} tới ${max}, đang là ${value}.`);
-  return value;
-};
-
 const known = new Set(players.map(player => player.id));
-// Cầu thủ chưa có dòng trong Excel (vd. vừa thêm vào game) giữ bảng giá cũ cho tới khi xuất lại Excel.
+// Mọi cầu thủ đã có dòng trong Excel; thẻ mới được bổ sung phía trên, giữ giá đã có hoặc để trống.
 const prices = Object.fromEntries(players.map(player => [player.id, priceData.players[player.id] ?? Array(MAX_LEVEL).fill(null)]));
 const ovrs = {}, warnings = [];
 for (let rowNumber = 3; rowNumber <= sheet.rowCount; rowNumber++) {
@@ -56,7 +54,7 @@ for (let rowNumber = 3; rowNumber <= sheet.rowCount; rowNumber++) {
   const name = row.getCell(2).value;
   const rowPrices = [], rowOvrs = [];
   for (let grade = 1; grade <= MAX_LEVEL; grade++) {
-    rowPrices.push(readNumber(row.getCell(columns['Giá BP'].get(grade)), `${name} Giá BP +${grade} (dòng ${rowNumber})`, 1, Number.MAX_SAFE_INTEGER));
+    rowPrices.push(readNumber(row.getCell(columns['Giá BP'].get(grade)), `${name} Giá BP +${grade} (dòng ${rowNumber})`, 0, Number.MAX_SAFE_INTEGER));
     const auto = baseOvr({ playerId: id, level: grade });
     const value = readNumber(row.getCell(columns.OVR.get(grade)), `${name} OVR +${grade} (dòng ${rowNumber})`, 1, 250);
     if (value !== null && value !== auto) (ovrs[id] ??= {})[grade] = value;
@@ -67,7 +65,7 @@ for (let rowNumber = 3; rowNumber <= sheet.rowCount; rowNumber++) {
   let previous = null;
   rowPrices.forEach((price, index) => {
     if (price === null) return;
-    if (previous && price <= previous.price) warnings.push(`${name}: Giá BP +${index + 1} (${price.toLocaleString('vi-VN')}) không đắt hơn +${previous.grade} (${previous.price.toLocaleString('vi-VN')})`);
+    if (previous && price <= previous.price && (price !== 0 || previous.price !== 0)) warnings.push(`${name}: Giá BP +${index + 1} (${price.toLocaleString('vi-VN')}) không đắt hơn +${previous.grade} (${previous.price.toLocaleString('vi-VN')})`);
     previous = { grade: index + 1, price };
   });
   rowOvrs.forEach((value, index) => { if (index && value < rowOvrs[index - 1]) warnings.push(`${name}: OVR +${index + 1} (${value}) thấp hơn +${index} (${rowOvrs[index - 1]})`); });

@@ -17,6 +17,7 @@ let js = await readFile(path.join(assetsDir, jsFile), 'utf8');
 let css = await readFile(path.join(assetsDir, cssFile), 'utf8');
 if (base !== '/') { js = js.replaceAll(`${base}assets/`, '/assets/'); css = css.replaceAll(`${base}assets/`, '/assets/'); }
 const resources = [
+  ['background-music.mp3', 'audio/mpeg'],
   ['mark.svg', 'image/svg+xml'],
   ['silhouette.svg', 'image/svg+xml'],
   ['messi.jpg', 'image/jpeg'],
@@ -52,6 +53,7 @@ const resources = [
   ['itm-tunnel.webp', 'image/webp'],
   ['ts26-tunnel.webp', 'image/webp'],
   ['no7-tunnel.webp', 'image/webp'],
+  ['prime-tunnel.webp', 'image/webp'],
   ['ts-kane-card.webp', 'image/webp'],
   ['ts-mbappe-card.webp', 'image/webp'],
   ['ts-yamal-card.webp', 'image/webp'],

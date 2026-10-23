@@ -1,0 +1,4 @@
+{
+  "note": "Bổ sung dữ liệu đúng mùa thẻ theo ID. Chưa có chứng cứ thì để trống; không suy đoán chân/thể hình từ tên hoặc OVR. weakFoot là chân còn lại, chân chính mặc định 5. physical/ai chỉ ghi khi đã đánh giá; teamColorTier=3 chỉ khi đã kiểm tra toàn bộ Team Color. source ghi nguồn dữ liệu.",
+  "players": {}
+}

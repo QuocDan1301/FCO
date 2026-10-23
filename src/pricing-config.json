@@ -1,0 +1,10 @@
+{
+  "note": "Mô hình mô phỏng theo quy tắc người dùng, không phải giá TTCN trực tiếp. overrides dùng ID cầu thủ; mặc định Nhóm 2.",
+  "defaultGroup": 2,
+  "plus2IncreasePercent": 63.7,
+  "metaHeatPercent": 25,
+  "fodderEarlyDiscountPercent": 20,
+  "fodderPlus5Multiple": 7.5,
+  "fodderPlus8DiscountPercent": 45,
+  "overrides": {}
+}

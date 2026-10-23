@@ -1,0 +1,1742 @@
+[
+  {
+    "id": 323,
+    "slug": "hung-dung",
+    "name": "Đỗ Hùng Dũng",
+    "ovr": 124,
+    "pos": "CM",
+    "wage": 29,
+    "flag": "VN",
+    "nation": "Việt Nam",
+    "sourceFile": "Gemini_Generated_Image_txyn4ntxyn4ntxyn.png",
+    "cardFace": "/assets/prime-hung-dung-card.png",
+    "width": 1840,
+    "height": 2304,
+    "analysisWidth": 479,
+    "analysisHeight": 600,
+    "level": [
+      85,
+      362,
+      175,
+      421
+    ],
+    "rating": [
+      93,
+      137,
+      166,
+      181
+    ],
+    "ratingBackground": "#e4cbb6"
+  },
+  {
+    "id": 324,
+    "slug": "quang-hai",
+    "name": "Nguyễn Quang Hải",
+    "ovr": 124,
+    "pos": "CAM",
+    "wage": 30,
+    "flag": "VN",
+    "nation": "Việt Nam",
+    "sourceFile": "Gemini_Generated_Image_i9ex02i9ex02i9ex.png",
+    "cardFace": "/assets/prime-quang-hai-card.png",
+    "width": 1920,
+    "height": 2192,
+    "analysisWidth": 500,
+    "analysisHeight": 571,
+    "level": [
+      94,
+      353,
+      183,
+      407
+    ],
+    "rating": [
+      104,
+      131,
+      174,
+      173
+    ],
+    "ratingBackground": "#ecd7c5"
+  },
+  {
+    "id": 325,
+    "slug": "cech",
+    "name": "P. Čech",
+    "ovr": 130,
+    "pos": "GK",
+    "wage": 30,
+    "flag": "CZ",
+    "nation": "CH Séc",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212853.png",
+    "cardFace": "/assets/prime-cech-card.png",
+    "width": 280,
+    "height": 316,
+    "analysisWidth": 280,
+    "analysisHeight": 316,
+    "level": [
+      58,
+      193,
+      105,
+      222
+    ],
+    "rating": [
+      62,
+      72,
+      102,
+      96
+    ],
+    "ratingBackground": "#e8d3bd"
+  },
+  {
+    "id": 326,
+    "slug": "van-der-sar",
+    "name": "E. van der Sar",
+    "ovr": 133,
+    "pos": "GK",
+    "wage": 32,
+    "flag": "NL",
+    "nation": "Hà Lan",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212847.png",
+    "cardFace": "/assets/prime-van-der-sar-card.png",
+    "width": 290,
+    "height": 312,
+    "analysisWidth": 290,
+    "analysisHeight": 312,
+    "level": [
+      65,
+      190,
+      112,
+      219
+    ],
+    "rating": [
+      69,
+      69,
+      108,
+      93
+    ],
+    "ratingBackground": "#ead5be"
+  },
+  {
+    "id": 327,
+    "slug": "buffon",
+    "name": "G. Buffon",
+    "ovr": 136,
+    "pos": "GK",
+    "wage": 33,
+    "flag": "IT",
+    "nation": "Ý",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212841.png",
+    "cardFace": "/assets/prime-buffon-card.png",
+    "width": 290,
+    "height": 312,
+    "analysisWidth": 290,
+    "analysisHeight": 312,
+    "level": [
+      65,
+      192,
+      112,
+      221
+    ],
+    "rating": [
+      69,
+      71,
+      108,
+      95
+    ],
+    "ratingBackground": "#e7d0b9"
+  },
+  {
+    "id": 328,
+    "slug": "zambrotta",
+    "name": "G. Zambrotta",
+    "ovr": 132,
+    "pos": "RB",
+    "wage": 34,
+    "flag": "IT",
+    "nation": "Ý",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212834.png",
+    "cardFace": "/assets/prime-zambrotta-card.png",
+    "width": 283,
+    "height": 312,
+    "analysisWidth": 283,
+    "analysisHeight": 312,
+    "level": [
+      65,
+      192,
+      112,
+      221
+    ],
+    "rating": [
+      69,
+      71,
+      108,
+      95
+    ],
+    "ratingBackground": "#e7d2bc"
+  },
+  {
+    "id": 329,
+    "slug": "lucio",
+    "name": "Lúcio",
+    "ovr": 129,
+    "pos": "CB",
+    "wage": 32,
+    "flag": "BR",
+    "nation": "Brazil",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212827.png",
+    "cardFace": "/assets/prime-lucio-card.png",
+    "width": 270,
+    "height": 318,
+    "analysisWidth": 270,
+    "analysisHeight": 318,
+    "level": [
+      51,
+      193,
+      98,
+      222
+    ],
+    "rating": [
+      55,
+      72,
+      94,
+      96
+    ],
+    "ratingBackground": "#e7d2bb"
+  },
+  {
+    "id": 330,
+    "slug": "stam",
+    "name": "J. Stam",
+    "ovr": 132,
+    "pos": "CB",
+    "wage": 34,
+    "flag": "NL",
+    "nation": "Hà Lan",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212821.png",
+    "cardFace": "/assets/prime-stam-card.png",
+    "width": 280,
+    "height": 320,
+    "analysisWidth": 280,
+    "analysisHeight": 320,
+    "level": [
+      58,
+      195,
+      105,
+      224
+    ],
+    "rating": [
+      62,
+      74,
+      101,
+      98
+    ],
+    "ratingBackground": "#e7d2bd"
+  },
+  {
+    "id": 331,
+    "slug": "marquinhos",
+    "name": "Marquinhos",
+    "ovr": 132,
+    "pos": "CB",
+    "wage": 35,
+    "flag": "BR",
+    "nation": "Brazil",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212814.png",
+    "cardFace": "/assets/prime-marquinhos-card.png",
+    "width": 280,
+    "height": 316,
+    "analysisWidth": 280,
+    "analysisHeight": 316,
+    "level": [
+      63,
+      194,
+      110,
+      223
+    ],
+    "rating": [
+      67,
+      73,
+      106,
+      97
+    ],
+    "ratingBackground": "#e7d3bd"
+  },
+  {
+    "id": 332,
+    "slug": "desailly",
+    "name": "M. Desailly",
+    "ovr": 133,
+    "pos": "CB",
+    "wage": 35,
+    "flag": "FR",
+    "nation": "Pháp",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212808.png",
+    "cardFace": "/assets/prime-desailly-card.png",
+    "width": 272,
+    "height": 312,
+    "analysisWidth": 272,
+    "analysisHeight": 312,
+    "level": [
+      51,
+      189,
+      98,
+      218
+    ],
+    "rating": [
+      55,
+      68,
+      94,
+      92
+    ],
+    "ratingBackground": "#e7d3bd"
+  },
+  {
+    "id": 333,
+    "slug": "hierro",
+    "name": "Fernando Hierro",
+    "ovr": 133,
+    "pos": "CB",
+    "wage": 34,
+    "flag": "ES",
+    "nation": "Tây Ban Nha",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212802.png",
+    "cardFace": "/assets/prime-hierro-card.png",
+    "width": 288,
+    "height": 317,
+    "analysisWidth": 288,
+    "analysisHeight": 317,
+    "level": [
+      65,
+      195,
+      112,
+      224
+    ],
+    "rating": [
+      69,
+      74,
+      108,
+      98
+    ],
+    "ratingBackground": "#e7d3bd"
+  },
+  {
+    "id": 334,
+    "slug": "blanc",
+    "name": "L. Blanc",
+    "ovr": 133,
+    "pos": "CB",
+    "wage": 34,
+    "flag": "FR",
+    "nation": "Pháp",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212755.png",
+    "cardFace": "/assets/prime-blanc-card.png",
+    "width": 272,
+    "height": 315,
+    "analysisWidth": 272,
+    "analysisHeight": 315,
+    "level": [
+      53,
+      192,
+      100,
+      221
+    ],
+    "rating": [
+      57,
+      71,
+      96,
+      95
+    ],
+    "ratingBackground": "#ead5be"
+  },
+  {
+    "id": 335,
+    "slug": "ferdinand",
+    "name": "R. Ferdinand",
+    "ovr": 135,
+    "pos": "CB",
+    "wage": 37,
+    "flag": "EN",
+    "nation": "Anh",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212748.png",
+    "cardFace": "/assets/prime-ferdinand-card.png",
+    "width": 295,
+    "height": 316,
+    "analysisWidth": 295,
+    "analysisHeight": 316,
+    "level": [
+      63,
+      192,
+      110,
+      221
+    ],
+    "rating": [
+      67,
+      71,
+      106,
+      95
+    ],
+    "ratingBackground": "#e7d0ba"
+  },
+  {
+    "id": 336,
+    "slug": "moore",
+    "name": "B. Moore",
+    "ovr": 135,
+    "pos": "CB",
+    "wage": 36,
+    "flag": "EN",
+    "nation": "Anh",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212742.png",
+    "cardFace": "/assets/prime-moore-card.png",
+    "width": 287,
+    "height": 321,
+    "analysisWidth": 287,
+    "analysisHeight": 321,
+    "level": [
+      60,
+      198,
+      107,
+      227
+    ],
+    "rating": [
+      64,
+      77,
+      103,
+      101
+    ],
+    "ratingBackground": "#e7d0ba"
+  },
+  {
+    "id": 337,
+    "slug": "beckenbauer",
+    "name": "F. Beckenbauer",
+    "ovr": 136,
+    "pos": "CB",
+    "wage": 37,
+    "flag": "DE",
+    "nation": "Đức",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212736.png",
+    "cardFace": "/assets/prime-beckenbauer-card.png",
+    "width": 282,
+    "height": 318,
+    "analysisWidth": 282,
+    "analysisHeight": 318,
+    "level": [
+      65,
+      193,
+      112,
+      222
+    ],
+    "rating": [
+      69,
+      72,
+      108,
+      96
+    ],
+    "ratingBackground": "#e7d0b9"
+  },
+  {
+    "id": 338,
+    "slug": "roberto-carlos",
+    "name": "Roberto Carlos",
+    "ovr": 135,
+    "pos": "LB",
+    "wage": 36,
+    "flag": "BR",
+    "nation": "Brazil",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212727.png",
+    "cardFace": "/assets/prime-roberto-carlos-card.png",
+    "width": 277,
+    "height": 318,
+    "analysisWidth": 277,
+    "analysisHeight": 318,
+    "level": [
+      60,
+      198,
+      107,
+      227
+    ],
+    "rating": [
+      64,
+      77,
+      103,
+      101
+    ],
+    "ratingBackground": "#e7d1ba"
+  },
+  {
+    "id": 339,
+    "slug": "maldini",
+    "name": "P. Maldini",
+    "ovr": 136,
+    "pos": "LB",
+    "wage": 37,
+    "flag": "IT",
+    "nation": "Ý",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212719.png",
+    "cardFace": "/assets/prime-maldini-card.png",
+    "width": 257,
+    "height": 317,
+    "analysisWidth": 257,
+    "analysisHeight": 317,
+    "level": [
+      43,
+      197,
+      90,
+      226
+    ],
+    "rating": [
+      47,
+      76,
+      86,
+      100
+    ],
+    "ratingBackground": "#e7d0b9"
+  },
+  {
+    "id": 340,
+    "slug": "essien",
+    "name": "M. Essien",
+    "ovr": 131,
+    "pos": "CDM",
+    "wage": 34,
+    "flag": "GH",
+    "nation": "Ghana",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212712.png",
+    "cardFace": "/assets/prime-essien-card.png",
+    "width": 282,
+    "height": 312,
+    "analysisWidth": 282,
+    "analysisHeight": 312,
+    "level": [
+      60,
+      188,
+      107,
+      217
+    ],
+    "rating": [
+      66,
+      67,
+      100,
+      91
+    ],
+    "ratingBackground": "#ecd7c1"
+  },
+  {
+    "id": 341,
+    "slug": "gattuso",
+    "name": "G. Gattuso",
+    "ovr": 132,
+    "pos": "CDM",
+    "wage": 34,
+    "flag": "IT",
+    "nation": "Ý",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212704.png",
+    "cardFace": "/assets/prime-gattuso-card.png",
+    "width": 281,
+    "height": 311,
+    "analysisWidth": 281,
+    "analysisHeight": 311,
+    "level": [
+      58,
+      188,
+      105,
+      217
+    ],
+    "rating": [
+      62,
+      67,
+      101,
+      91
+    ],
+    "ratingBackground": "#e7d3bd"
+  },
+  {
+    "id": 342,
+    "slug": "casemiro",
+    "name": "Casemiro",
+    "ovr": 134,
+    "pos": "CDM",
+    "wage": 35,
+    "flag": "BR",
+    "nation": "Brazil",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212657.png",
+    "cardFace": "/assets/prime-casemiro-card.png",
+    "width": 282,
+    "height": 307,
+    "analysisWidth": 282,
+    "analysisHeight": 307,
+    "level": [
+      60,
+      187,
+      107,
+      217
+    ],
+    "rating": [
+      64,
+      67,
+      104,
+      91
+    ],
+    "ratingBackground": "#e9d5be"
+  },
+  {
+    "id": 343,
+    "slug": "vieira",
+    "name": "P. Vieira",
+    "ovr": 135,
+    "pos": "CDM",
+    "wage": 36,
+    "flag": "FR",
+    "nation": "Pháp",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212649.png",
+    "cardFace": "/assets/prime-vieira-card.png",
+    "width": 272,
+    "height": 317,
+    "analysisWidth": 272,
+    "analysisHeight": 317,
+    "level": [
+      55,
+      197,
+      102,
+      226
+    ],
+    "rating": [
+      59,
+      76,
+      98,
+      100
+    ],
+    "ratingBackground": "#e7d1ba"
+  },
+  {
+    "id": 344,
+    "slug": "beckham",
+    "name": "D. Beckham",
+    "ovr": 135,
+    "pos": "RM",
+    "wage": 36,
+    "flag": "EN",
+    "nation": "Anh",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212642.png",
+    "cardFace": "/assets/prime-beckham-card.png",
+    "width": 280,
+    "height": 311,
+    "analysisWidth": 280,
+    "analysisHeight": 311,
+    "level": [
+      55,
+      189,
+      102,
+      218
+    ],
+    "rating": [
+      59,
+      68,
+      98,
+      92
+    ],
+    "ratingBackground": "#e7d2bb"
+  },
+  {
+    "id": 345,
+    "slug": "marchisio",
+    "name": "C. Marchisio",
+    "ovr": 128,
+    "pos": "CM",
+    "wage": 31,
+    "flag": "IT",
+    "nation": "Ý",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212636.png",
+    "cardFace": "/assets/prime-marchisio-card.png",
+    "width": 295,
+    "height": 315,
+    "analysisWidth": 295,
+    "analysisHeight": 315,
+    "level": [
+      61,
+      192,
+      108,
+      221
+    ],
+    "rating": [
+      65,
+      71,
+      104,
+      95
+    ],
+    "ratingBackground": "#e7d2ba"
+  },
+  {
+    "id": 346,
+    "slug": "lampard",
+    "name": "F. Lampard",
+    "ovr": 134,
+    "pos": "CM",
+    "wage": 36,
+    "flag": "EN",
+    "nation": "Anh",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212630.png",
+    "cardFace": "/assets/prime-lampard-card.png",
+    "width": 292,
+    "height": 312,
+    "analysisWidth": 292,
+    "analysisHeight": 312,
+    "level": [
+      50,
+      192,
+      97,
+      221
+    ],
+    "rating": [
+      54,
+      71,
+      94,
+      95
+    ],
+    "ratingBackground": "#ead6bf"
+  },
+  {
+    "id": 347,
+    "slug": "gerrard",
+    "name": "S. Gerrard",
+    "ovr": 134,
+    "pos": "CM",
+    "wage": 36,
+    "flag": "EN",
+    "nation": "Anh",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212623.png",
+    "cardFace": "/assets/prime-gerrard-card.png",
+    "width": 278,
+    "height": 315,
+    "analysisWidth": 278,
+    "analysisHeight": 315,
+    "level": [
+      50,
+      192,
+      97,
+      221
+    ],
+    "rating": [
+      54,
+      71,
+      94,
+      95
+    ],
+    "ratingBackground": "#ecd7c1"
+  },
+  {
+    "id": 348,
+    "slug": "kroos",
+    "name": "T. Kroos",
+    "ovr": 134,
+    "pos": "CM",
+    "wage": 36,
+    "flag": "DE",
+    "nation": "Đức",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212616.png",
+    "cardFace": "/assets/prime-kroos-card.png",
+    "width": 293,
+    "height": 317,
+    "analysisWidth": 293,
+    "analysisHeight": 317,
+    "level": [
+      55,
+      193,
+      102,
+      222
+    ],
+    "rating": [
+      59,
+      72,
+      99,
+      96
+    ],
+    "ratingBackground": "#e8d5be"
+  },
+  {
+    "id": 349,
+    "slug": "xavi",
+    "name": "Xavi",
+    "ovr": 135,
+    "pos": "CM",
+    "wage": 35,
+    "flag": "ES",
+    "nation": "Tây Ban Nha",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212610.png",
+    "cardFace": "/assets/prime-xavi-card.png",
+    "width": 290,
+    "height": 315,
+    "analysisWidth": 290,
+    "analysisHeight": 315,
+    "level": [
+      58,
+      192,
+      105,
+      221
+    ],
+    "rating": [
+      62,
+      71,
+      101,
+      95
+    ],
+    "ratingBackground": "#e7d1ba"
+  },
+  {
+    "id": 350,
+    "slug": "ze-roberto",
+    "name": "Zé Roberto",
+    "ovr": 129,
+    "pos": "LM",
+    "wage": 32,
+    "flag": "BR",
+    "nation": "Brazil",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212602.png",
+    "cardFace": "/assets/prime-ze-roberto-card.png",
+    "width": 281,
+    "height": 313,
+    "analysisWidth": 281,
+    "analysisHeight": 313,
+    "level": [
+      60,
+      194,
+      107,
+      223
+    ],
+    "rating": [
+      64,
+      73,
+      103,
+      97
+    ],
+    "ratingBackground": "#e7d2bb"
+  },
+  {
+    "id": 351,
+    "slug": "park-ji-sung",
+    "name": "Park Ji Sung",
+    "ovr": 130,
+    "pos": "LM",
+    "wage": 33,
+    "flag": "KR",
+    "nation": "Hàn Quốc",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212555.png",
+    "cardFace": "/assets/prime-park-ji-sung-card.png",
+    "width": 275,
+    "height": 316,
+    "analysisWidth": 275,
+    "analysisHeight": 316,
+    "level": [
+      55,
+      189,
+      102,
+      218
+    ],
+    "rating": [
+      59,
+      68,
+      99,
+      92
+    ],
+    "ratingBackground": "#e8d3bd"
+  },
+  {
+    "id": 352,
+    "slug": "pires",
+    "name": "R. Pirès",
+    "ovr": 131,
+    "pos": "LM",
+    "wage": 34,
+    "flag": "FR",
+    "nation": "Pháp",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212549.png",
+    "cardFace": "/assets/prime-pires-card.png",
+    "width": 296,
+    "height": 311,
+    "analysisWidth": 296,
+    "analysisHeight": 311,
+    "level": [
+      63,
+      189,
+      110,
+      218
+    ],
+    "rating": [
+      69,
+      68,
+      103,
+      92
+    ],
+    "ratingBackground": "#ecd7c1"
+  },
+  {
+    "id": 353,
+    "slug": "litmanen",
+    "name": "J. Litmanen",
+    "ovr": 131,
+    "pos": "CAM",
+    "wage": 34,
+    "flag": "FI",
+    "nation": "Phần Lan",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212542.png",
+    "cardFace": "/assets/prime-litmanen-card.png",
+    "width": 268,
+    "height": 320,
+    "analysisWidth": 268,
+    "analysisHeight": 320,
+    "level": [
+      50,
+      193,
+      97,
+      222
+    ],
+    "rating": [
+      56,
+      72,
+      90,
+      96
+    ],
+    "ratingBackground": "#f1d8c4"
+  },
+  {
+    "id": 354,
+    "slug": "riquelme",
+    "name": "Riquelme",
+    "ovr": 131,
+    "pos": "CAM",
+    "wage": 33,
+    "flag": "AR",
+    "nation": "Argentina",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212534.png",
+    "cardFace": "/assets/prime-riquelme-card.png",
+    "width": 283,
+    "height": 312,
+    "analysisWidth": 283,
+    "analysisHeight": 312,
+    "level": [
+      60,
+      192,
+      107,
+      221
+    ],
+    "rating": [
+      66,
+      71,
+      100,
+      95
+    ],
+    "ratingBackground": "#f1d8c4"
+  },
+  {
+    "id": 355,
+    "slug": "hagi",
+    "name": "G. Hagi",
+    "ovr": 133,
+    "pos": "CAM",
+    "wage": 35,
+    "flag": "RO",
+    "nation": "Romania",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212525.png",
+    "cardFace": "/assets/prime-hagi-card.png",
+    "width": 290,
+    "height": 320,
+    "analysisWidth": 290,
+    "analysisHeight": 320,
+    "level": [
+      61,
+      195,
+      108,
+      224
+    ],
+    "rating": [
+      65,
+      74,
+      104,
+      98
+    ],
+    "ratingBackground": "#e7d3bd"
+  },
+  {
+    "id": 356,
+    "slug": "rivaldo",
+    "name": "Rivaldo",
+    "ovr": 134,
+    "pos": "CAM",
+    "wage": 35,
+    "flag": "BR",
+    "nation": "Brazil",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212517.png",
+    "cardFace": "/assets/prime-rivaldo-card.png",
+    "width": 267,
+    "height": 321,
+    "analysisWidth": 267,
+    "analysisHeight": 321,
+    "level": [
+      50,
+      197,
+      97,
+      226
+    ],
+    "rating": [
+      54,
+      76,
+      94,
+      100
+    ],
+    "ratingBackground": "#e8d5bd"
+  },
+  {
+    "id": 357,
+    "slug": "zico",
+    "name": "Zico",
+    "ovr": 136,
+    "pos": "CAM",
+    "wage": 36,
+    "flag": "BR",
+    "nation": "Brazil",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212509.png",
+    "cardFace": "/assets/prime-zico-card.png",
+    "width": 285,
+    "height": 307,
+    "analysisWidth": 285,
+    "analysisHeight": 307,
+    "level": [
+      60,
+      183,
+      107,
+      212
+    ],
+    "rating": [
+      64,
+      62,
+      103,
+      86
+    ],
+    "ratingBackground": "#e7d2bb"
+  },
+  {
+    "id": 358,
+    "slug": "del-piero",
+    "name": "A. Del Piero",
+    "ovr": 133,
+    "pos": "CF",
+    "wage": 35,
+    "flag": "IT",
+    "nation": "Ý",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212500.png",
+    "cardFace": "/assets/prime-del-piero-card.png",
+    "width": 276,
+    "height": 312,
+    "analysisWidth": 276,
+    "analysisHeight": 312,
+    "level": [
+      55,
+      188,
+      102,
+      217
+    ],
+    "rating": [
+      59,
+      67,
+      98,
+      91
+    ],
+    "ratingBackground": "#f0d7c4"
+  },
+  {
+    "id": 359,
+    "slug": "cruyff",
+    "name": "J. Cruyff",
+    "ovr": 136,
+    "pos": "CF",
+    "wage": 38,
+    "flag": "NL",
+    "nation": "Hà Lan",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212453.png",
+    "cardFace": "/assets/prime-cruyff-card.png",
+    "width": 277,
+    "height": 311,
+    "analysisWidth": 277,
+    "analysisHeight": 311,
+    "level": [
+      58,
+      187,
+      105,
+      216
+    ],
+    "rating": [
+      62,
+      66,
+      101,
+      90
+    ],
+    "ratingBackground": "#efd7c1"
+  },
+  {
+    "id": 360,
+    "slug": "bale",
+    "name": "G. Bale",
+    "ovr": 133,
+    "pos": "RW",
+    "wage": 35,
+    "flag": "WL",
+    "nation": "Wales",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212443.png",
+    "cardFace": "/assets/prime-bale-card.png",
+    "width": 303,
+    "height": 312,
+    "analysisWidth": 303,
+    "analysisHeight": 312,
+    "level": [
+      70,
+      189,
+      117,
+      218
+    ],
+    "rating": [
+      74,
+      68,
+      113,
+      92
+    ],
+    "ratingBackground": "#ead5be"
+  },
+  {
+    "id": 361,
+    "slug": "figo",
+    "name": "Luís Figo",
+    "ovr": 135,
+    "pos": "RW",
+    "wage": 37,
+    "flag": "PT",
+    "nation": "Bồ Đào Nha",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212432.png",
+    "cardFace": "/assets/prime-figo-card.png",
+    "width": 285,
+    "height": 315,
+    "analysisWidth": 285,
+    "analysisHeight": 315,
+    "level": [
+      61,
+      188,
+      108,
+      217
+    ],
+    "rating": [
+      65,
+      67,
+      104,
+      91
+    ],
+    "ratingBackground": "#e9d3bd"
+  },
+  {
+    "id": 362,
+    "slug": "best",
+    "name": "G. Best",
+    "ovr": 136,
+    "pos": "RW",
+    "wage": 37,
+    "flag": "NI",
+    "nation": "Bắc Ireland",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212423.png",
+    "cardFace": "/assets/prime-best-card.png",
+    "width": 276,
+    "height": 312,
+    "analysisWidth": 276,
+    "analysisHeight": 312,
+    "level": [
+      56,
+      188,
+      103,
+      217
+    ],
+    "rating": [
+      60,
+      67,
+      99,
+      91
+    ],
+    "ratingBackground": "#e9d5be"
+  },
+  {
+    "id": 363,
+    "slug": "makaay",
+    "name": "Roy Makaay",
+    "ovr": 130,
+    "pos": "ST",
+    "wage": 33,
+    "flag": "NL",
+    "nation": "Hà Lan",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212357.png",
+    "cardFace": "/assets/prime-makaay-card.png",
+    "width": 292,
+    "height": 310,
+    "analysisWidth": 292,
+    "analysisHeight": 310,
+    "level": [
+      61,
+      188,
+      108,
+      217
+    ],
+    "rating": [
+      65,
+      67,
+      105,
+      91
+    ],
+    "ratingBackground": "#e7d0b9"
+  },
+  {
+    "id": 364,
+    "slug": "zamorano",
+    "name": "Iván Zamorano",
+    "ovr": 130,
+    "pos": "ST",
+    "wage": 33,
+    "flag": "CL",
+    "nation": "Chile",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212348.png",
+    "cardFace": "/assets/prime-zamorano-card.png",
+    "width": 272,
+    "height": 311,
+    "analysisWidth": 272,
+    "analysisHeight": 311,
+    "level": [
+      50,
+      189,
+      97,
+      218
+    ],
+    "rating": [
+      54,
+      68,
+      94,
+      92
+    ],
+    "ratingBackground": "#ead6be"
+  },
+  {
+    "id": 365,
+    "slug": "crespo",
+    "name": "H. Crespo",
+    "ovr": 131,
+    "pos": "ST",
+    "wage": 34,
+    "flag": "AR",
+    "nation": "Argentina",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212340.png",
+    "cardFace": "/assets/prime-crespo-card.png",
+    "width": 290,
+    "height": 311,
+    "analysisWidth": 290,
+    "analysisHeight": 311,
+    "level": [
+      60,
+      189,
+      107,
+      218
+    ],
+    "rating": [
+      66,
+      68,
+      100,
+      92
+    ],
+    "ratingBackground": "#e7d3bc"
+  },
+  {
+    "id": 366,
+    "slug": "klose",
+    "name": "M. Klose",
+    "ovr": 132,
+    "pos": "ST",
+    "wage": 35,
+    "flag": "DE",
+    "nation": "Đức",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212332.png",
+    "cardFace": "/assets/prime-klose-card.png",
+    "width": 285,
+    "height": 308,
+    "analysisWidth": 285,
+    "analysisHeight": 308,
+    "level": [
+      61,
+      184,
+      108,
+      213
+    ],
+    "rating": [
+      65,
+      63,
+      104,
+      87
+    ],
+    "ratingBackground": "#e7d2bc"
+  },
+  {
+    "id": 367,
+    "slug": "torres",
+    "name": "Fernando Torres",
+    "ovr": 132,
+    "pos": "ST",
+    "wage": 35,
+    "flag": "ES",
+    "nation": "Tây Ban Nha",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212322.png",
+    "cardFace": "/assets/prime-torres-card.png",
+    "width": 270,
+    "height": 310,
+    "analysisWidth": 270,
+    "analysisHeight": 310,
+    "level": [
+      48,
+      183,
+      95,
+      212
+    ],
+    "rating": [
+      52,
+      62,
+      91,
+      86
+    ],
+    "ratingBackground": "#e7d2bc"
+  },
+  {
+    "id": 368,
+    "slug": "wright",
+    "name": "I. Wright",
+    "ovr": 132,
+    "pos": "ST",
+    "wage": 34,
+    "flag": "EN",
+    "nation": "Anh",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212313.png",
+    "cardFace": "/assets/prime-wright-card.png",
+    "width": 298,
+    "height": 308,
+    "analysisWidth": 298,
+    "analysisHeight": 308,
+    "level": [
+      78,
+      188,
+      125,
+      217
+    ],
+    "rating": [
+      82,
+      67,
+      121,
+      91
+    ],
+    "ratingBackground": "#f7dfc7"
+  },
+  {
+    "id": 369,
+    "slug": "etoo",
+    "name": "S. Eto'o",
+    "ovr": 133,
+    "pos": "ST",
+    "wage": 35,
+    "flag": "CM",
+    "nation": "Cameroon",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212301.png",
+    "cardFace": "/assets/prime-etoo-card.png",
+    "width": 308,
+    "height": 322,
+    "analysisWidth": 308,
+    "analysisHeight": 322,
+    "level": [
+      71,
+      198,
+      118,
+      227
+    ],
+    "rating": [
+      75,
+      77,
+      114,
+      101
+    ],
+    "ratingBackground": "#f2dac4"
+  },
+  {
+    "id": 370,
+    "slug": "lineker",
+    "name": "G. Lineker",
+    "ovr": 133,
+    "pos": "ST",
+    "wage": 35,
+    "flag": "EN",
+    "nation": "Anh",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212254.png",
+    "cardFace": "/assets/prime-lineker-card.png",
+    "width": 287,
+    "height": 322,
+    "analysisWidth": 287,
+    "analysisHeight": 322,
+    "level": [
+      63,
+      198,
+      110,
+      227
+    ],
+    "rating": [
+      67,
+      77,
+      106,
+      101
+    ],
+    "ratingBackground": "#f2dac4"
+  },
+  {
+    "id": 371,
+    "slug": "shearer",
+    "name": "A. Shearer",
+    "ovr": 134,
+    "pos": "ST",
+    "wage": 35,
+    "flag": "EN",
+    "nation": "Anh",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212244.png",
+    "cardFace": "/assets/prime-shearer-card.png",
+    "width": 267,
+    "height": 328,
+    "analysisWidth": 267,
+    "analysisHeight": 328,
+    "level": [
+      56,
+      203,
+      103,
+      232
+    ],
+    "rating": [
+      60,
+      82,
+      100,
+      106
+    ],
+    "ratingBackground": "#f2dac4"
+  },
+  {
+    "id": 372,
+    "slug": "van-persie",
+    "name": "R. van Persie",
+    "ovr": 134,
+    "pos": "ST",
+    "wage": 36,
+    "flag": "NL",
+    "nation": "Hà Lan",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212237.png",
+    "cardFace": "/assets/prime-van-persie-card.png",
+    "width": 287,
+    "height": 315,
+    "analysisWidth": 287,
+    "analysisHeight": 315,
+    "level": [
+      70,
+      188,
+      117,
+      217
+    ],
+    "rating": [
+      74,
+      67,
+      114,
+      91
+    ],
+    "ratingBackground": "#f4dec6"
+  },
+  {
+    "id": 373,
+    "slug": "henry",
+    "name": "T. Henry",
+    "ovr": 135,
+    "pos": "ST",
+    "wage": 37,
+    "flag": "FR",
+    "nation": "Pháp",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212230.png",
+    "cardFace": "/assets/prime-henry-card.png",
+    "width": 295,
+    "height": 318,
+    "analysisWidth": 295,
+    "analysisHeight": 318,
+    "level": [
+      71,
+      193,
+      118,
+      222
+    ],
+    "rating": [
+      75,
+      72,
+      114,
+      96
+    ],
+    "ratingBackground": "#f3d8c5"
+  },
+  {
+    "id": 374,
+    "slug": "van-nistelrooy",
+    "name": "R. van Nistelrooy",
+    "ovr": 135,
+    "pos": "ST",
+    "wage": 36,
+    "flag": "NL",
+    "nation": "Hà Lan",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212223.png",
+    "cardFace": "/assets/prime-van-nistelrooy-card.png",
+    "width": 297,
+    "height": 322,
+    "analysisWidth": 297,
+    "analysisHeight": 322,
+    "level": [
+      73,
+      198,
+      120,
+      227
+    ],
+    "rating": [
+      77,
+      77,
+      116,
+      101
+    ],
+    "ratingBackground": "#e9d3bd"
+  },
+  {
+    "id": 375,
+    "slug": "raul",
+    "name": "Raúl",
+    "ovr": 135,
+    "pos": "ST",
+    "wage": 37,
+    "flag": "ES",
+    "nation": "Tây Ban Nha",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212215.png",
+    "cardFace": "/assets/prime-raul-card.png",
+    "width": 312,
+    "height": 323,
+    "analysisWidth": 312,
+    "analysisHeight": 323,
+    "level": [
+      78,
+      198,
+      125,
+      227
+    ],
+    "rating": [
+      82,
+      77,
+      121,
+      101
+    ],
+    "ratingBackground": "#ecd6bf"
+  },
+  {
+    "id": 376,
+    "slug": "rooney",
+    "name": "W. Rooney",
+    "ovr": 135,
+    "pos": "ST",
+    "wage": 37,
+    "flag": "EN",
+    "nation": "Anh",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212208.png",
+    "cardFace": "/assets/prime-rooney-card.png",
+    "width": 312,
+    "height": 316,
+    "analysisWidth": 312,
+    "analysisHeight": 316,
+    "level": [
+      83,
+      192,
+      130,
+      221
+    ],
+    "rating": [
+      87,
+      71,
+      126,
+      95
+    ],
+    "ratingBackground": "#efd7c1"
+  },
+  {
+    "id": 377,
+    "slug": "ronaldo",
+    "name": "Ronaldo",
+    "ovr": 136,
+    "pos": "ST",
+    "wage": 37,
+    "flag": "BR",
+    "nation": "Brazil",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212201.png",
+    "cardFace": "/assets/prime-ronaldo-card.png",
+    "width": 293,
+    "height": 316,
+    "analysisWidth": 293,
+    "analysisHeight": 316,
+    "level": [
+      75,
+      192,
+      122,
+      221
+    ],
+    "rating": [
+      79,
+      71,
+      118,
+      95
+    ],
+    "ratingBackground": "#ead6be"
+  },
+  {
+    "id": 378,
+    "slug": "van-basten",
+    "name": "M. van Basten",
+    "ovr": 136,
+    "pos": "ST",
+    "wage": 38,
+    "flag": "NL",
+    "nation": "Hà Lan",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212154.png",
+    "cardFace": "/assets/prime-van-basten-card.png",
+    "width": 305,
+    "height": 322,
+    "analysisWidth": 305,
+    "analysisHeight": 322,
+    "level": [
+      70,
+      199,
+      117,
+      228
+    ],
+    "rating": [
+      74,
+      78,
+      113,
+      102
+    ],
+    "ratingBackground": "#f2d9c4"
+  },
+  {
+    "id": 379,
+    "slug": "barnes",
+    "name": "J. Barnes",
+    "ovr": 130,
+    "pos": "LW",
+    "wage": 34,
+    "flag": "EN",
+    "nation": "Anh",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212146.png",
+    "cardFace": "/assets/prime-barnes-card.png",
+    "width": 312,
+    "height": 316,
+    "analysisWidth": 312,
+    "analysisHeight": 316,
+    "level": [
+      85,
+      189,
+      132,
+      218
+    ],
+    "rating": [
+      89,
+      68,
+      129,
+      92
+    ],
+    "ratingBackground": "#e7d0b9"
+  },
+  {
+    "id": 380,
+    "slug": "futre",
+    "name": "Paulo Futre",
+    "ovr": 131,
+    "pos": "LW",
+    "wage": 34,
+    "flag": "PT",
+    "nation": "Bồ Đào Nha",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212135.png",
+    "cardFace": "/assets/prime-futre-card.png",
+    "width": 287,
+    "height": 313,
+    "analysisWidth": 287,
+    "analysisHeight": 313,
+    "level": [
+      63,
+      188,
+      110,
+      217
+    ],
+    "rating": [
+      69,
+      67,
+      103,
+      91
+    ],
+    "ratingBackground": "#e7d2bb"
+  },
+  {
+    "id": 381,
+    "slug": "neymar",
+    "name": "Neymar Jr",
+    "ovr": 135,
+    "pos": "LW",
+    "wage": 37,
+    "flag": "BR",
+    "nation": "Brazil",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212126.png",
+    "cardFace": "/assets/prime-neymar-card.png",
+    "width": 292,
+    "height": 317,
+    "analysisWidth": 292,
+    "analysisHeight": 317,
+    "level": [
+      73,
+      193,
+      120,
+      222
+    ],
+    "rating": [
+      77,
+      72,
+      116,
+      96
+    ],
+    "ratingBackground": "#f3d8c5"
+  },
+  {
+    "id": 382,
+    "slug": "ronaldinho",
+    "name": "Ronaldinho",
+    "ovr": 136,
+    "pos": "LW",
+    "wage": 37,
+    "flag": "BR",
+    "nation": "Brazil",
+    "sourceFile": "Screenshots/Screenshot 2026-10-22 212112.png",
+    "cardFace": "/assets/prime-ronaldinho-card.png",
+    "width": 280,
+    "height": 312,
+    "analysisWidth": 280,
+    "analysisHeight": 312,
+    "level": [
+      70,
+      188,
+      117,
+      217
+    ],
+    "rating": [
+      74,
+      67,
+      113,
+      91
+    ],
+    "ratingBackground": "#e7d0b9"
+  }
+]
