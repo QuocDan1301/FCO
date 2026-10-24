@@ -1,0 +1,34 @@
+{
+  "1440x900": {
+    "count": 4,
+    "packHeight": 340,
+    "scrollHeight": 627,
+    "height": 627,
+    "pagination": true,
+    "overflow": false
+  },
+  "768x900": {
+    "count": 2,
+    "packHeight": 340,
+    "scrollHeight": 500,
+    "height": 500,
+    "pagination": true,
+    "overflow": false
+  },
+  "390x844": {
+    "count": 1,
+    "packHeight": 339,
+    "scrollHeight": 479,
+    "height": 479,
+    "pagination": true,
+    "overflow": false
+  },
+  "390x667": {
+    "count": 1,
+    "packHeight": 162,
+    "scrollHeight": 302,
+    "height": 302,
+    "pagination": true,
+    "overflow": false
+  }
+}

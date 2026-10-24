@@ -40,3 +40,5 @@ Huy hiệu đội NO.7 (public/assets/no7-team.png) dùng ảnh Screenshot 2026-
 
 
 10 mặt thẻ 26TS bổ sung ngày 22/10/2026 (Mailson, D. St. Clair, R. Koeman Jr., O. Baumann, L. Carević, D. Nejašmić, A. Stiller, M. Akliouche, B. André và M. Perrone) dùng ảnh chụp do người dùng cung cấp. Theo lựa chọn của người dùng, Python chỉ tách nền ngoài khung và xóa số OVR/cấp in sẵn để game hiển thị giá trị động; bản PNG trong suốt giữ nguyên dữ liệu màu của ảnh gốc. Nguồn logo Al Taawoun, Telstar, Famalicão và Lille: ESPN, ghi trong `public/assets/clubs/sources.json`. Cờ Canada và Montenegro: flag-icons v7.5.0, giấy phép MIT.
+
+Logo LA Galaxy, Tottenham, Everton, Bologna, Genoa, Levante, Freiburg, Başakşehir, Panathinaikos, Albacete, FC Copenhagen, Ulsan HD, Suwon Samsung và Seongnam FC trong `public/assets/clubs/` do người dùng cung cấp (24/10/2026), chỉ cắt sát và giữ nền trong suốt. Logo và nhãn hiệu thuộc về các CLB tương ứng.

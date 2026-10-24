@@ -25,9 +25,9 @@ export default function PackOpening(props: Props) {
   const season = seasons[player.tier], icon = player.tier === 'eternal';
   const price = marketQuote(best).price;
   const displayPrice = price === null ? 'Chưa có giá' : price >= 1e9 ? `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(price / 1e9)}B` : money(price);
-  const seasonLogo = icon ? asset('/assets/itm-team.png') : player.tier === 'prime' ? asset('/assets/prime-team.png') : player.tier === 'origin' ? asset('/assets/no7-team.png') : null;
+  const seasonLogo = icon ? asset('/assets/itm-team.png') : player.tier === 'prime' ? asset('/assets/prime-team.png') : player.tier === 'vietnam' ? asset('/assets/vietnam-team.png') : player.tier === 'prm' ? asset('/assets/prm-team.png') : player.tier === 'mdl' ? asset('/assets/mdl-team.png') : player.tier === 'amb' ? asset('/assets/amb-team.png') : player.tier === 'origin' ? asset('/assets/no7-team.png') : null;
   // Les cartes ICON représentent la sélection nationale, cohérente avec le portrait de Messi.
-  const team = icon ? player.nation : player.club;
+  const team = icon || player.tier === 'vietnam' ? player.nation : player.club;
   const teamLogo = getTeamLogo(player);
   // Giải mã ảnh trong lúc chạy đường hầm để không khựng ở khung hình hiện thẻ đầu tiên.
   useEffect(() => {

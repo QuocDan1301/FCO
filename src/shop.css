@@ -33,3 +33,8 @@
 .shop-product button:focus-visible,.shop-product input:focus-visible{outline:2px solid #e1c792;outline-offset:-2px}
 @media(max-width:1050px){.shop-grid{gap:12px}.shop-product{padding:14px}.shop-product-heading{align-items:flex-start;flex-direction:column;gap:5px}.shop-product-heading h2{font-size:22px}.shop-art{height:clamp(130px,22dvh,200px)}.shop-pack-details{font-size:10px}}
 @media(max-width:700px){.shop-heading{align-items:flex-start}.shop-heading h1{font-size:24px}.shop-heading p{font-size:11px}.shop-heading>.secondary-button{font-size:11px;min-height:40px;padding:8px 10px}.shop-grid{grid-template-columns:minmax(0,1fr);gap:12px}.shop-product{padding:16px}.shop-product-heading{flex-direction:row;align-items:center}.shop-art{height:180px;margin:10px 0}.shop-stepper button,.shop-stepper input{height:42px}.shop-presets button{min-height:40px}.shop-description{min-height:0}.main-nav .nav-inner>button{min-width:0}.main-nav .nav-short{font-size:10px}}
+
+/* Gói chưa có cầu thủ: hiện mờ, nút mua tắt. */
+.shop-upcoming .shop-art{opacity:.6;filter:saturate(.75)}
+.shop-upcoming-badge{padding:3px 10px;border-radius:999px;background:#3a2a12;color:#f2c75c !important;font-weight:600}
+.shop-upcoming .shop-buy{margin-top:auto}

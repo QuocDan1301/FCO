@@ -1,0 +1,10 @@
+/* Thẻ mùa VIETNAM: ảnh 174×276 đặt giữa khung 254×276 (cùng tỉ lệ 666/725 với mọi thẻ khác)
+   để các màn đặt kích thước theo chiều rộng (hiện thẻ, nâng cấp, chi tiết) không làm thẻ cao vọt.
+   Ảnh cùng khung nên một bộ vị trí dùng chung cho cả mùa; tọa độ tính theo khung 254 px.
+   Cấp +1 hiện nguyên OVR và ô cấp in trên ảnh; từ +2 lớp HTML phủ lên OVR mới và huy hiệu cấp. */
+.rarity-dot.vietnam{background:#e8453c}
+.player-card.face-art.season-vietnam{aspect-ratio:254/276}
+.player-card.face-art.season-vietnam>.face-art-img{filter:drop-shadow(0 0 4px #ffd66b66) drop-shadow(0 0 14px #e8453c55)}
+.season-vietnam[data-level="1"] .face-art-ovr,.season-vietnam[data-level="1"] .face-art-level{visibility:hidden}
+.season-vietnam .face-art-ovr{left:19.29%;top:16.3%;width:16.93%;height:9.4%;font-size:11.3cqw;background:#960c02;color:#fff;transform:none;display:flex;align-items:center;justify-content:center;letter-spacing:-.03em;line-height:1}
+.season-vietnam .face-art-level{left:18.5%;top:61.6%;width:18.11%;height:10.1%;transform:none;object-fit:fill}

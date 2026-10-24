@@ -1,11 +1,15 @@
 import { asset } from './asset';
 import excelOverrides from './excel-overrides.json';
 import { primePlayers } from './primePlayers';
+import { vietnamPlayers } from './vietnamPlayers';
+import { prmPlayers } from './prmPlayers';
+import { mdlPlayers } from './mdlPlayers';
+import { ambPlayers } from './ambPlayers';
 import { emptyBridge, isBridgeState, resolveUpgrade, type BridgeState, type UpgradeRole } from './upgrade/engine';
 import type { Rng } from './upgrade/rng';
-export type Tier = 'origin' | 'stellar' | 'eternal' | 'prime';
+export type Tier = 'origin' | 'stellar' | 'eternal' | 'prime' | 'vietnam' | 'prm' | 'mdl' | 'amb';
 // Thứ tự mùa khớp với Pack.weights (tỷ lệ % ra từng mùa).
-export const TIERS: readonly Tier[] = ['origin', 'stellar', 'eternal', 'prime'];
+export const TIERS: readonly Tier[] = ['origin', 'stellar', 'eternal', 'prime', 'vietnam', 'prm', 'mdl', 'amb'];
 export type Player = { id: number; name: string; ovr: number; pos: string; nation: string; flag: string; club: string; tier: Tier; image?: string; value?: number; wage?: number; cardFace?: string; teamLogo?: string };
 export type Card = { uid: string; playerId: number; level: number; received: number };
 export type Entry = { id: string; time: number; type: 'pack' | 'upgrade' | 'gift' | 'market' | 'shop'; title: string; detail: string; success?: boolean };
@@ -14,9 +18,9 @@ export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[
 // tunnel: ảnh nền chỉ hiện một lần trên cặp màn LED ở cửa hầm; các màn phía sau tắt.
 // accent: màu đèn LED / khung của đường hầm khi mở gói; không có thì dùng màu vàng mặc định.
 // stage: màu bục sân khấu (top) và vòng viền (ring) khi thẻ xuất hiện; led: màu khung LED đổi sang lúc đó (bỏ trống thì giữ accent).
-export type Pack = { id: string; name: string; short: string; price: number; weights: [number, number, number, number]; description: string; range: string; color: string; back?: string; tunnel?: string; accent?: string; stage?: { top: string; ring: string; led?: string } };
+export type Pack = { id: string; name: string; short: string; price: number; weights: [number, number, number, number, number, number, number, number]; description: string; range: string; color: string; back?: string; tunnel?: string; accent?: string; stage?: { top: string; ring: string; led?: string } };
 const no7TeamLogo = asset('/assets/no7-team.png');
-export const seasons: Record<Tier, string> = { origin: 'NO.7', stellar: '26TS', eternal: 'ICON TM', prime: 'INFINITE PRIME' };
+export const seasons: Record<Tier, string> = { origin: 'NO.7', stellar: '26TS', eternal: 'ICON TM', prime: 'INFINITE PRIME', vietnam: 'VIETNAM', prm: 'PRIME', mdl: 'MEDALIST', amb: 'FC AMBASSADOR' };
 export const players: Player[] = [
   { id: 1, name: 'Ronaldo', ovr: 126, pos: 'ST', nation: 'Brazil', flag: 'BR', club: 'Milano', tier: 'eternal', value: 1800000, wage: 34, cardFace: asset('/assets/ronaldo-card.png') },
   { id: 31, name: 'Pelé', ovr: 127, pos: 'CF', nation: 'Brazil', flag: 'BR', club: 'Santos', tier: 'eternal', value: 1300000, wage: 34, cardFace: asset('/assets/pele-card.png') },
@@ -329,12 +333,20 @@ export const players: Player[] = [
   { id: 234, name: 'A. Shevchenko', ovr: 118, pos: 'ST', nation: 'Ukraine', flag: 'UA', club: 'Milano', tier: 'origin', wage: 31, cardFace: asset('/assets/no7-shevchenko-card.webp'), teamLogo: no7TeamLogo },
   { id: 235, name: 'Cristiano Ronaldo', ovr: 119, pos: 'RW', nation: 'Bồ Đào Nha', flag: 'PT', club: 'Al Nassr', tier: 'origin', wage: 32, cardFace: asset('/assets/no7-ronaldo-card.webp') },
   ...primePlayers,
+  ...vietnamPlayers,
+  ...prmPlayers,
+  ...mdlPlayers,
+  ...ambPlayers,
 ];
 export const packs: Pack[] = [
-  { id: 'eternal', name: 'ICONTM (ALL)', short: 'TM', price: 1500000, weights: [0, 0, 100, 0], description: 'Nơi những huyền thoại trở lại.', range: '117–127', color: 'gold', back: asset('/assets/icon-tm-back.png'), tunnel: asset('/assets/itm-tunnel.webp'), accent: '#ffd23f', stage: { top: '#b8893a', ring: '#fff0c2' } },
-  { id: 'stellar', name: '26TS (ALL)', short: '26TS', price: 500000, weights: [0, 100, 0, 0], description: 'Tỏa sáng cùng những ngôi sao.', range: '118–126', color: 'blue', back: asset('/assets/ts26-back.png'), tunnel: asset('/assets/ts26-tunnel.webp'), accent: '#4f8dff', stage: { top: '#1f45c8', ring: '#8fb0ff' } },
-  { id: 'origin', name: 'NO.7 (ALL)', short: 'NO.7', price: 100000, weights: [100, 0, 0, 0], description: '24 ngôi sao mang dấu ấn số 7.', range: '115–119', color: 'silver', back: asset('/assets/no7-back.webp'), tunnel: asset('/assets/no7-tunnel.webp'), stage: { top: '#5b6b7d', ring: '#d5e1eb' } },
-  { id: 'prime', name: 'INFINITE PRIME (ALL)', short: 'IP', price: 2000000, weights: [0, 0, 0, 100], description: 'Đỉnh cao không giới hạn.', range: '124–136', color: 'gold', back: asset('/assets/prime-back.png'), tunnel: asset('/assets/prime-tunnel.webp'), accent: '#e0473f', stage: { top: '#8e1420', ring: '#ffd98a', led: '#ffcf6b' } },
+  { id: 'eternal', name: 'ICONTM (ALL)', short: 'TM', price: 1500000, weights: [0, 0, 100, 0, 0, 0, 0, 0], description: 'Nơi những huyền thoại trở lại.', range: '117–127', color: 'gold', back: asset('/assets/icon-tm-back.png'), tunnel: asset('/assets/itm-tunnel.webp'), accent: '#ffd23f', stage: { top: '#b8893a', ring: '#fff0c2' } },
+  { id: 'stellar', name: '26TS (ALL)', short: '26TS', price: 500000, weights: [0, 100, 0, 0, 0, 0, 0, 0], description: 'Tỏa sáng cùng những ngôi sao.', range: '118–126', color: 'blue', back: asset('/assets/ts26-back.png'), tunnel: asset('/assets/ts26-tunnel.webp'), accent: '#4f8dff', stage: { top: '#1f45c8', ring: '#8fb0ff' } },
+  { id: 'origin', name: 'NO.7 (ALL)', short: 'NO.7', price: 100000, weights: [100, 0, 0, 0, 0, 0, 0, 0], description: '24 ngôi sao mang dấu ấn số 7.', range: '115–119', color: 'silver', back: asset('/assets/no7-back.webp'), tunnel: asset('/assets/no7-tunnel.webp'), stage: { top: '#5b6b7d', ring: '#d5e1eb' } },
+  { id: 'prime', name: 'INFINITE PRIME (ALL)', short: 'IP', price: 2000000, weights: [0, 0, 0, 100, 0, 0, 0, 0], description: 'Đỉnh cao không giới hạn.', range: '124–136', color: 'gold', back: asset('/assets/prime-back.png'), tunnel: asset('/assets/prime-tunnel.webp'), accent: '#e0473f', stage: { top: '#8e1420', ring: '#ffd98a', led: '#ffcf6b' } },
+  { id: 'vietnam', name: 'VIETNAM (ALL)', short: 'VN', price: 1000000, weights: [0, 0, 0, 0, 100, 0, 0, 0], description: 'Những ngôi sao mang màu cờ sắc áo Việt Nam.', range: '105–119', color: 'red', back: asset('/assets/vietnam-back.png'), tunnel: asset('/assets/vietnam-tunnel.webp'), accent: '#e8453c', stage: { top: '#a3121c', ring: '#f2c75c', led: '#ffd66b' } },
+  { id: 'prm', name: 'PRIME (ALL)', short: 'PRM', price: 1800000, weights: [0, 0, 0, 0, 0, 100, 0, 0], description: 'Những ngôi sao rực lửa của mùa PRIME.', range: '119–126', color: 'red', back: asset('/assets/prm-back.png'), tunnel: asset('/assets/prm-tunnel.webp'), accent: '#f06a2a', stage: { top: '#7d1208', ring: '#f3c56b', led: '#ffb24a' } },
+  { id: 'mdl', name: 'MEDALIST (ALL)', short: 'MDL', price: 800000, weights: [0, 0, 0, 0, 0, 0, 100, 0], description: 'Những nhà vô địch mang huy chương.', range: '100–115', color: 'gold', back: asset('/assets/mdl-back.png'), tunnel: asset('/assets/mdl-tunnel.webp'), accent: '#d8b45a', stage: { top: '#1f2a5c', ring: '#f0d38a', led: '#f4dc9c' } },
+  { id: 'amb', name: 'FC AMBASSADOR (ALL)', short: 'FC', price: 900000, weights: [0, 0, 0, 0, 0, 0, 0, 100], description: 'Những đại sứ của FC.', range: '106–112', color: 'green', back: asset('/assets/amb-back.png'), tunnel: asset('/assets/amb-tunnel.webp'), accent: '#2fd35a', stage: { top: '#0d5a22', ring: '#8dffa8', led: '#6dff8f' } },
 ];
 
 export function isPackAvailable(pack: Pack): boolean {
@@ -374,7 +386,7 @@ export const uid = () => crypto.randomUUID();
 export function random() { return crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296; }
 export function makeCard(playerId: number): Card { return { uid: uid(), playerId, level: 1, received: Date.now() }; }
 export function initialSave(): Save {
-  return { version: 1, unopened: { eternal: 15, stellar: 15, origin: 15, prime: 15 }, balance: 15000000, cards: [11, 15].map(makeCard), history: [], daily: '', opened: 0, upgrades: 0, sound: false, reduced: typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches };
+  return { version: 1, unopened: { eternal: 15, stellar: 15, origin: 15, prime: 15, vietnam: 15, prm: 15, mdl: 15, amb: 15 }, balance: 15000000, cards: [11, 15].map(makeCard), history: [], daily: '', opened: 0, upgrades: 0, sound: false, reduced: typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches };
 }
 export function draw(pack: Pack, rng = random): Card {
   if (!isPackAvailable(pack)) throw new Error(`${pack.name} chưa có cầu thủ. Vui lòng chờ cập nhật.`);
@@ -405,7 +417,7 @@ export function buyPacks(state: Save, requested: Pack, count: number, free = fal
   return {
     ...state,
     balance: free ? state.balance : state.balance - cost,
-    unopened: { eternal: 15, stellar: 15, origin: 15, prime: 15, ...state.unopened, [pack.id]: stock },
+    unopened: { eternal: 15, stellar: 15, origin: 15, prime: 15, vietnam: 15, prm: 15, mdl: 15, amb: 15, ...state.unopened, [pack.id]: stock },
     prepaid: { ...state.prepaid, [pack.id]: prepaid },
     history: [entry, ...state.history].slice(0, 200),
   };
@@ -440,7 +452,7 @@ export function openPacks(state: Save, pack: Pack, count: number, rng = random, 
   const cards = Array.from({ length: count }, () => draw(pack, rng));
   const best = [...cards].sort((a, b) => ovr(b) - ovr(a))[0];
   const entry: Entry = { id: uid(), time: Date.now(), type: 'pack', title: `Mở ${count} ${pack.name.toLowerCase()}`, detail: `${getPlayer(best).name} · OVR ${ovr(best)} · ${free ? 'Thử nghiệm · Không trừ xu' : cost === 0 ? 'Gói đã thanh toán · Không trừ thêm xu' : `−${money(cost)} xu`}` };
-  return { state: { ...state, unopened: { eternal: 15, stellar: 15, origin: 15, prime: 15, ...state.unopened, [pack.id]: available - count }, ...(state.prepaid ? { prepaid: { ...state.prepaid, [pack.id]: Math.max(0, (state.prepaid[pack.id] ?? 0) - count) } } : {}), balance: state.balance - cost, cards: [...cards, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + count }, cards };
+  return { state: { ...state, unopened: { eternal: 15, stellar: 15, origin: 15, prime: 15, vietnam: 15, prm: 15, mdl: 15, amb: 15, ...state.unopened, [pack.id]: available - count }, ...(state.prepaid ? { prepaid: { ...state.prepaid, [pack.id]: Math.max(0, (state.prepaid[pack.id] ?? 0) - count) } } : {}), balance: state.balance - cost, cards: [...cards, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + count }, cards };
 }
 export function upgradeInfo(target: Card, materials: Card[]) {
   const targetOvr = ovr(target);

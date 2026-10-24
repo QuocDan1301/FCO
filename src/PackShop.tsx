@@ -20,7 +20,15 @@ export default function PackShop({ save, packs, free, onBuy, onInventory, render
   return <section className="workspace shop-workspace" aria-labelledby="shop-title">
     <div className="page-heading shop-heading"><div><h1 id="shop-title">Shop gói cầu thủ</h1><p>Chọn gói, mua số lượng bạn muốn và mở trong kho vật phẩm.</p></div><button className="secondary-button" onClick={onInventory}>Kho vật phẩm<ArrowRight size={17}/></button></div>
     <div className="shop-grid" aria-label="Các gói đang bán">
-      {packs.filter(isPackAvailable).map(pack => {
+      {packs.map(pack => {
+        // Gói chưa có cầu thủ vẫn hiện để báo trước, nhưng không mua được (buyPacks cũng chặn).
+        if (!isPackAvailable(pack)) return <article className="shop-product shop-upcoming" key={pack.id} data-pack={pack.id} aria-disabled="true">
+          <div className="shop-product-heading"><h2>{pack.name}</h2><span className="shop-upcoming-badge">Sắp ra mắt</span></div>
+          <p className="shop-description">{pack.description}</p>
+          <div className="shop-art">{renderArt(pack)}</div>
+          <p className="shop-note">Gói chưa có cầu thủ. Sẽ mở bán khi cập nhật danh sách thẻ.</p>
+          <button className="shop-buy primary-button" disabled><ShoppingBag size={17}/>Sắp ra mắt</button>
+        </article>;
         const quantity = quantities[pack.id] ?? '1';
         const count = Number(quantity);
         const valid = quantity.trim() !== '' && Number.isInteger(count) && count >= 1 && count <= MAX_INVENTORY_OPEN;

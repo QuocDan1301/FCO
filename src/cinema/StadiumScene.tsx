@@ -247,7 +247,10 @@ export default function StadiumScene(props: Props) {
       const quickMode = state.current.quick, crossed = playing ? elapsed - GATE_CROSS[quickMode ? 'quick' : 'standard'] : -1;
       const smooth = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * (3 - 2 * c); };
       const flash = crossed < 0 ? Math.max(0, 1 - ahead / 6) ** 2 : 1 - smooth(crossed / (quickMode ? 140 : 210));
-      fog.density = crossed < 0 ? DARK_FOG : DARK_FOG * (CLEAR_FOG / DARK_FOG) ** smooth(crossed / (quickMode ? 120 : 175));
+      // Sương tan theo tầm nhìn (1 / mật độ) với smootherstep: tầm nhìn mở đều từ gần ra xa, không đứng yên rồi bung vọt ở cuối.
+      // Lâu hơn ánh trắng một chút nhưng lúc ánh trắng tắt hẳn sương đã mỏng ~3/4 nên không lộ khoảng tối.
+      const smoother = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * c * (c * (c * 6 - 15) + 10); };
+      fog.density = crossed < 0 ? DARK_FOG : 1 / (1 / DARK_FOG + (1 / CLEAR_FOG - 1 / DARK_FOG) * smoother(crossed / (quickMode ? 200 : 320)));
       gateFlash.style.opacity = playing && phase < 9 ? (flash * GATE_FLASH_PEAK).toFixed(3) : '0';
       stageLight.intensity = THREE.MathUtils.damp(stageLight.intensity, phase >= 8 ? 130 : 35, 4, dt);
       spotlight.intensity = THREE.MathUtils.damp(spotlight.intensity, phase >= 8 ? 350 : 120, 4, dt);

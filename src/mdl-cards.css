@@ -1,0 +1,8 @@
+/* Thẻ mùa MEDALIST: ảnh 174×276 đặt giữa khung 254×276 (cùng tỉ lệ 666/725 với mọi thẻ khác), bố cục giống hệt nhau nên dùng chung một bộ vị trí.
+   Cấp +1 hiện nguyên OVR và ô cấp in trên ảnh; từ +2 lớp HTML phủ lên OVR mới và huy hiệu cấp. */
+.rarity-dot.mdl{background:#c9a24a}
+.player-card.face-art.season-mdl{aspect-ratio:254/276}
+.player-card.face-art.season-mdl>.face-art-img{filter:drop-shadow(0 0 4px #f4dc9c80) drop-shadow(0 0 14px #c9a24a55)}
+.season-mdl[data-level="1"] .face-art-ovr,.season-mdl[data-level="1"] .face-art-level{visibility:hidden}
+.season-mdl .face-art-ovr{left:19.29%;top:16.3%;width:16.93%;height:9.4%;font-size:11.3cqw;background:#ece8e1;color:#25306a;transform:none;display:flex;align-items:center;justify-content:center;letter-spacing:-.03em;line-height:1}
+.season-mdl .face-art-level{left:18.5%;top:61.6%;width:18.11%;height:10.1%;transform:none;object-fit:fill}

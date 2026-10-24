@@ -106,7 +106,7 @@ const levelBadge = (level: number) => levelBadges[Math.min(levelBadges.length, M
 
 function PlayerCard({ card, className = '', compact = false }: { card: Card; className?: string; compact?: boolean }) {
   const player = getPlayer(card);
-  const cardTeam = player.tier === 'eternal' || player.tier === 'prime' ? player.nation : player.club;
+  const cardTeam = player.tier === 'eternal' || player.tier === 'prime' || player.tier === 'vietnam' ? player.nation : player.club;
   const [failed, setFailed] = useState(false);
   const theme = card.level >= 5 ? 'enhanced' : card.level > 1 ? 'upgraded' : player.tier;
   const sheen = player.tier === 'eternal' || player.tier === 'prime' ? <span className={`itm-sheen ${player.cardFace ? 'itm-sheen-masked' : ''}`} aria-hidden="true" style={{ '--itm-sheen-mask': player.cardFace ? `url("${player.cardFace}")` : undefined, '--itm-sheen-delay': `${-(player.id % 11) * .47}s` } as CSSProperties}><span className="itm-sheen-streak"/></span> : null;
@@ -117,7 +117,7 @@ function PlayerCard({ card, className = '', compact = false }: { card: Card; cla
   return <div className={`player-card ${theme} ${compact ? 'compact' : ''} ${className}`} aria-label={`${player.name}, OVR ${ovr(card)}, ${player.pos}, ${seasons[player.tier]}, cộng ${card.level}`}>
     <div className="card-inside"><div className="card-etching"/><div className="card-topline">{seasons[player.tier]}<span>◆</span></div><div className="card-rating"><strong>{ovr(card)}</strong><span>{player.pos}</span><Flag code={player.flag}/><div className="club-mini" title={cardTeam}>{player.tier === 'eternal' ? player.flag : cardTeam.slice(0, 2).toUpperCase()}</div></div>
       <img className={`player-photo ${!player.image || failed ? 'placeholder-photo' : ''}`} src={failed || !player.image ? asset('/assets/silhouette.svg') : player.image} onError={() => setFailed(true)} alt={player.image && !failed ? player.name : `Hình đại diện ${player.name}`} loading={compact ? 'lazy' : 'eager'}/>
-      <div className="season-crest">{player.tier === 'eternal' ? 'TM' : player.tier === 'prime' ? 'IP' : player.tier === 'stellar' ? 'TT' : 'N7'}</div>
+      <div className="season-crest">{player.tier === 'eternal' ? 'TM' : player.tier === 'prime' ? 'IP' : player.tier === 'vietnam' ? 'VN' : player.tier === 'prm' ? 'PRM' : player.tier === 'mdl' ? 'MDL' : player.tier === 'amb' ? 'FC' : player.tier === 'stellar' ? 'TT' : 'N7'}</div>
       <div className="card-bottom"><img className="card-level" src={levelBadge(card.level)} alt={`+${card.level}`}/><strong className="player-name">{player.name}</strong><span className="card-club">{cardTeam}</span><div className="card-stats">{['Tốc độ', 'Dứt điểm', 'Chuyền'].map((s, i) => <span key={s}><b>{Math.max(60, ovr(card) - i * 3 + (player.pos === 'ST' ? 2 : 0))}</b>{s}</span>)}</div></div>
     </div>{sheen}
   </div>;
@@ -314,7 +314,7 @@ export default function App() {
     if (!UNLIMITED_COINS || busy.current) return;
     const count = getPackStock(latest.current, selectedPack);
     if (!Number.isSafeInteger(count + 10)) return;
-    if (commit({ ...latest.current, unopened: { eternal: 15, stellar: 15, origin: 15, prime: 15, ...latest.current.unopened, [selectedPack.id]: count + 10 } })) notify(`Đã nhận thêm 10 ${selectedPack.name.toLowerCase()} để thử.`);
+    if (commit({ ...latest.current, unopened: { eternal: 15, stellar: 15, origin: 15, prime: 15, vietnam: 15, prm: 15, mdl: 15, amb: 15, ...latest.current.unopened, [selectedPack.id]: count + 10 } })) notify(`Đã nhận thêm 10 ${selectedPack.name.toLowerCase()} để thử.`);
   };
   const updateSetting = (key: 'sound' | 'reduced' | 'quick' | 'light', value: boolean) => { if (commit({ ...latest.current, [key]: value }) && key === 'sound' && value) playSound('click', true); };
   useEffect(() => {

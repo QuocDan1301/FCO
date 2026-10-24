@@ -122,6 +122,14 @@
 .reveal-origin .reveal-panel { --led: #5b6b7d; --led2: #1d2630; box-shadow: 0 0 50px #a6b5c533, inset 0 0 80px #0008; }
 .reveal-prime .reveal-panel { --led: #b3202c; --led2: #4a070d; border-color: #ffd98a66; box-shadow: 0 0 60px #e0473f55, inset 0 0 80px #0008; }
 .reveal-prime .reveal-stats dt { color: #ffe7b8; }
+.reveal-vietnam .reveal-panel { --led: #c8141f; --led2: #520609; border-color: #f2c75c66; box-shadow: 0 0 60px #e8453c55, inset 0 0 80px #0008; }
+.reveal-vietnam .reveal-stats dt { color: #ffe39a; }
+.reveal-prm .reveal-panel { --led: #a8200c; --led2: #3d0603; border-color: #f3c56b66; box-shadow: 0 0 60px #f06a2a55, inset 0 0 80px #0008; }
+.reveal-prm .reveal-stats dt { color: #ffd9a0; }
+.reveal-mdl .reveal-panel { --led: #2a3a7a; --led2: #0f1633; border-color: #f0d38a66; box-shadow: 0 0 60px #d8b45a44, inset 0 0 80px #0008; }
+.reveal-mdl .reveal-stats dt { color: #f4dc9c; }
+.reveal-amb .reveal-panel { --led: #15913a; --led2: #052c12; border-color: #8dffa866; box-shadow: 0 0 60px #2fd35a44, inset 0 0 80px #0008; }
+.reveal-amb .reveal-stats dt { color: #c9ffd6; }
 .reveal-panel-left { left: 2%; transform: rotateY(16deg); transform-origin: left center; border-radius: 26px 0 0 26px; padding: 0 3% 0 4%; gap: 4%; }
 .reveal-panel-right { right: 2%; transform: rotateY(-16deg); transform-origin: right center; border-radius: 0 26px 26px 0; justify-content: flex-end; padding: 0 4% 0 8%; }
 .reveal-player-info { width: 100%; min-width: 0; font-family: var(--display); text-align: left; }
@@ -150,6 +158,14 @@
 .reveal-origin .reveal-podium { background: linear-gradient(180deg, #6d7e90, #28323d); border-top-color: #d5e1eb; }
 .reveal-prime .reveal-podium { background: linear-gradient(180deg, #b3202c, #5a0a12); border-top-color: #ffd98a; box-shadow: 0 10px 30px #0009, 0 0 40px #e0473f66; }
 .reveal-prime .reveal-podium span { color: #ffe7b8; }
+.reveal-vietnam .reveal-podium { background: linear-gradient(180deg, #c8141f, #5e0a0f); border-top-color: #f2c75c; box-shadow: 0 10px 30px #0009, 0 0 40px #e8453c66; }
+.reveal-vietnam .reveal-podium span { color: #ffe39a; }
+.reveal-prm .reveal-podium { background: linear-gradient(180deg, #b3260f, #4a0804); border-top-color: #f3c56b; box-shadow: 0 10px 30px #0009, 0 0 40px #f06a2a66; }
+.reveal-prm .reveal-podium span { color: #ffd9a0; }
+.reveal-mdl .reveal-podium { background: linear-gradient(180deg, #2f3f86, #121a3d); border-top-color: #f0d38a; box-shadow: 0 10px 30px #0009, 0 0 40px #d8b45a55; }
+.reveal-mdl .reveal-podium span { color: #f4dc9c; }
+.reveal-amb .reveal-podium { background: linear-gradient(180deg, #1ba845, #063816); border-top-color: #8dffa8; box-shadow: 0 10px 30px #0009, 0 0 40px #2fd35a55; }
+.reveal-amb .reveal-podium span { color: #e6ffec; }
 .reveal-podium span { font-family: var(--display); font-weight: 700; font-size: clamp(13px, 1.5vw, 24px); color: #fff; text-transform: uppercase; }
 .reveal-podium span:nth-child(2) { font-size: clamp(16px, 1.9vw, 30px); }
 .reveal-name { position: absolute; left: 0; right: 0; bottom: -1%; margin: 0; font-family: var(--display); font-size: 15px; color: #dfe6ef; display: flex; justify-content: center; gap: 8px; z-index: 3; }

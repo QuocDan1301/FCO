@@ -1,15 +1,17 @@
 from pathlib import Path
+import sys
 from zipfile import ZipFile, ZIP_DEFLATED
 import xml.etree.ElementTree as ET
 from copy import deepcopy
 
 # ExcelJS's XML reader expects the SpreadsheetML default namespace.
 # Normalize prefixes only; the authored workbook contents are unchanged.
-path = Path('outputs/excel-sync/proposed.xlsx')
+directory = Path(sys.argv[1] if len(sys.argv) > 1 else 'outputs/excel-sync')
+path = directory / 'proposed.xlsx'
 ns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
 ET.register_namespace('', ns)
 ET.register_namespace('r', 'http://schemas.openxmlformats.org/officeDocument/2006/relationships')
-with ZipFile('outputs/excel-sync/before.xlsx') as original:
+with ZipFile(directory / 'before.xlsx') as original:
     original_entries = [(item, original.read(item.filename)) for item in original.infolist()]
     cached = {}
     views = {}

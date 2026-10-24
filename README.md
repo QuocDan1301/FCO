@@ -53,7 +53,7 @@ Dự án giả lập do người hâm mộ thực hiện, không liên kết v�
 
 Giá BP chấp nhận số nguyên từ 0: nhập `0` trong Excel là giá 0 BP và có thể mua/bán; để trống là chưa có giá. OVR vẫn phải lớn hơn 0.
 
-Mọi thẻ thêm vào game đều phải có trong `gia-cau-thu-bp.xlsx`. `npm run dev`, `npm run build` và `npm run prices:import` tự bổ sung các ID còn thiếu vào cuối trang Giá cầu thủ, giữ nguyên các dòng, giá, OVR sửa tay và công thức đã có. Thẻ mới có đủ OVR +1…+13; giá chưa có dữ liệu được để trống, tô vàng. Không dùng `prices:export` chỉ để thêm thẻ vì lệnh đó dựng lại cả bảng. Hiện bảng gồm 370 thẻ, bao gồm 60 INFINITE PRIME.
+Mọi thẻ thêm vào game đều phải có trong `gia-cau-thu-bp.xlsx`. `npm run dev`, `npm run build` và `npm run prices:import` tự bổ sung các ID còn thiếu vào cuối trang Giá cầu thủ, giữ nguyên các dòng, giá, OVR sửa tay và công thức đã có. Thẻ mới có đủ OVR +1…+13; giá chưa có dữ liệu được để trống, tô vàng. Không dùng `prices:export` chỉ để thêm thẻ vì lệnh đó dựng lại cả bảng. Hiện bảng gồm 479 thẻ, bao gồm 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST và 9 FC AMBASSADOR.
 
 Đã cập nhật `gia-cau-thu-bp.xlsx` theo phân nhóm CSV. Giá +1 được giữ nguyên; các cột +2…+13 là công thức có kết quả lưu sẵn, khớp game. Bản sao trước cập nhật ở `outputs/classification/gia-cau-thu-bp.before-csv.xlsx`. Tab Hướng dẫn ghi các giả định và nhóm của từng ID; dòng dữ liệu được hiện lại để xem giá. Kiểm tra đồng bộ bằng `node --import tsx scripts/verify-price-sync.mjs`.
 
