@@ -92,7 +92,7 @@ export default function SquadManager({ save, onAdd, onRemove, onDetail, onDelete
       </header>
       <div className="squad-list" role="table" aria-label="Cầu thủ trong đội hình">
         {lineup.length ? lineup.map(c => <Row key={c.uid} card={c} inSquad onMove={() => onRemove(c.uid)} {...rowProps(c)}/>)
-          : <p className="squad-empty">Chưa có cầu thủ trong đội hình.<br/>Rê chuột vào cầu thủ bên phải rồi bấm Chuyển để thêm.</p>}
+          : <p className="squad-empty">Chưa có cầu thủ trong đội hình.<br/>Chọn Chuyển ở cầu thủ đang sở hữu để thêm vào đội hình.</p>}
       </div>
     </div>
     <div className="squad-panel squad-right">

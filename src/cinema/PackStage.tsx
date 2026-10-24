@@ -14,7 +14,9 @@ export default function PackStage(props: Props) {
   if (!playing) playbackStart.current = null;
   const best = cards?.length ? [...cards].sort((a, b) => ovr(b) - ovr(a))[0] : undefined;
   const player = best ? getPlayer(best) : undefined;
-  const weak = navigator.hardwareConcurrency <= 2 || ((navigator as Navigator & { deviceMemory?: number }).deviceMemory || 8) <= 2;
+  const phone = matchMedia('(pointer: coarse) and (max-width: 900px)').matches;
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+  const weak = navigator.hardwareConcurrency <= 2 || (memory ?? 8) <= 2 || (phone && (navigator.hardwareConcurrency <= 4 || (memory ?? 8) <= 4));
   useEffect(() => {
     if (prepared || reduced) latest.current.onPrepared();
     if (reduced && playing) latest.current.onReady();

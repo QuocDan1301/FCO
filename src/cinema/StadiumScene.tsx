@@ -15,7 +15,8 @@ export default function StadiumScene(props: Props) {
     const build = () => {
     const container = host.current;
     if (!container) return;
-    let mobile = matchMedia('(max-width: 700px)').matches;
+    const touchPhone = matchMedia('(pointer: coarse) and (max-width: 900px)').matches;
+    let mobile = touchPhone || matchMedia('(max-width: 700px)').matches;
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({ antialias: !mobile, powerPreference: 'high-performance', alpha: false });
@@ -171,7 +172,7 @@ export default function StadiumScene(props: Props) {
     let startedAt: number | null = null, prepared = false, wasPlaying = false, qualityChangedAt = -Infinity, ledSmooth = .03, skipped = false;
     const resize = () => {
       const width = container.clientWidth || innerWidth, height = container.clientHeight || innerHeight;
-      const compact = width <= 700;
+      const compact = width <= 700 || (matchMedia('(pointer: coarse)').matches && width <= 900);
       if (compact !== mobile) {
         mobile = compact; renderer.setPixelRatio(Math.min(devicePixelRatio, 1));
         const resolution = mobile ? 128 : 256; reflector.getRenderTarget().setSize(resolution, resolution);

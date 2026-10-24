@@ -1,0 +1,262 @@
+[
+  {
+    "view": "main-content view-packs",
+    "width": 360,
+    "overflow": false,
+    "mainHeight": 596,
+    "mainScroll": false,
+    "smallButtons": 2,
+    "clipped": [],
+    "height": 740
+  },
+  {
+    "view": "main-content view-upgrade",
+    "width": 360,
+    "overflow": false,
+    "mainHeight": 596,
+    "mainScroll": false,
+    "smallButtons": 5,
+    "clipped": [],
+    "height": 740
+  },
+  {
+    "view": "main-content view-collection",
+    "width": 360,
+    "overflow": false,
+    "mainHeight": 596,
+    "mainScroll": true,
+    "smallButtons": 5,
+    "clipped": [],
+    "height": 740
+  },
+  {
+    "view": "main-content view-inventory",
+    "width": 360,
+    "overflow": false,
+    "mainHeight": 596,
+    "mainScroll": false,
+    "smallButtons": 19,
+    "clipped": [],
+    "height": 740
+  },
+  {
+    "view": "main-content view-market",
+    "width": 360,
+    "overflow": false,
+    "mainHeight": 596,
+    "mainScroll": false,
+    "smallButtons": 10,
+    "clipped": [],
+    "height": 740
+  },
+  {
+    "view": "main-content view-shop",
+    "width": 360,
+    "overflow": false,
+    "mainHeight": 596,
+    "mainScroll": false,
+    "smallButtons": 0,
+    "clipped": [],
+    "height": 740
+  },
+  {
+    "width": 360,
+    "height": 740,
+    "errors": []
+  },
+  {
+    "view": "main-content view-packs",
+    "width": 390,
+    "overflow": false,
+    "mainHeight": 700,
+    "mainScroll": false,
+    "smallButtons": 2,
+    "clipped": [],
+    "height": 844
+  },
+  {
+    "view": "main-content view-upgrade",
+    "width": 390,
+    "overflow": false,
+    "mainHeight": 700,
+    "mainScroll": false,
+    "smallButtons": 5,
+    "clipped": [],
+    "height": 844
+  },
+  {
+    "view": "main-content view-collection",
+    "width": 390,
+    "overflow": false,
+    "mainHeight": 700,
+    "mainScroll": true,
+    "smallButtons": 5,
+    "clipped": [],
+    "height": 844
+  },
+  {
+    "view": "main-content view-inventory",
+    "width": 390,
+    "overflow": false,
+    "mainHeight": 700,
+    "mainScroll": false,
+    "smallButtons": 19,
+    "clipped": [],
+    "height": 844
+  },
+  {
+    "view": "main-content view-market",
+    "width": 390,
+    "overflow": false,
+    "mainHeight": 700,
+    "mainScroll": false,
+    "smallButtons": 11,
+    "clipped": [],
+    "height": 844
+  },
+  {
+    "view": "main-content view-shop",
+    "width": 390,
+    "overflow": false,
+    "mainHeight": 700,
+    "mainScroll": false,
+    "smallButtons": 0,
+    "clipped": [],
+    "height": 844
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "errors": []
+  },
+  {
+    "view": "main-content view-packs",
+    "width": 844,
+    "overflow": false,
+    "mainHeight": 238,
+    "mainScroll": false,
+    "smallButtons": 3,
+    "clipped": [],
+    "height": 390
+  },
+  {
+    "view": "main-content view-upgrade",
+    "width": 844,
+    "overflow": false,
+    "mainHeight": 238,
+    "mainScroll": false,
+    "smallButtons": 7,
+    "clipped": [],
+    "height": 390
+  },
+  {
+    "view": "main-content view-collection",
+    "width": 844,
+    "overflow": false,
+    "mainHeight": 238,
+    "mainScroll": true,
+    "smallButtons": 6,
+    "clipped": [],
+    "height": 390
+  },
+  {
+    "view": "main-content view-inventory",
+    "width": 844,
+    "overflow": false,
+    "mainHeight": 238,
+    "mainScroll": false,
+    "smallButtons": 19,
+    "clipped": [],
+    "height": 390
+  },
+  {
+    "view": "main-content view-market",
+    "width": 844,
+    "overflow": false,
+    "mainHeight": 238,
+    "mainScroll": false,
+    "smallButtons": 5,
+    "clipped": [],
+    "height": 390
+  },
+  {
+    "view": "main-content view-shop",
+    "width": 844,
+    "overflow": false,
+    "mainHeight": 238,
+    "mainScroll": false,
+    "smallButtons": 48,
+    "clipped": [],
+    "height": 390
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "errors": []
+  },
+  {
+    "view": "main-content view-packs",
+    "width": 1440,
+    "overflow": false,
+    "mainHeight": 748,
+    "mainScroll": false,
+    "smallButtons": 3,
+    "clipped": [],
+    "height": 900
+  },
+  {
+    "view": "main-content view-upgrade",
+    "width": 1440,
+    "overflow": false,
+    "mainHeight": 748,
+    "mainScroll": false,
+    "smallButtons": 6,
+    "clipped": [],
+    "height": 900
+  },
+  {
+    "view": "main-content view-collection",
+    "width": 1440,
+    "overflow": false,
+    "mainHeight": 748,
+    "mainScroll": false,
+    "smallButtons": 6,
+    "clipped": [],
+    "height": 900
+  },
+  {
+    "view": "main-content view-inventory",
+    "width": 1440,
+    "overflow": false,
+    "mainHeight": 748,
+    "mainScroll": false,
+    "smallButtons": 8,
+    "clipped": [],
+    "height": 900
+  },
+  {
+    "view": "main-content view-market",
+    "width": 1440,
+    "overflow": false,
+    "mainHeight": 748,
+    "mainScroll": false,
+    "smallButtons": 5,
+    "clipped": [],
+    "height": 900
+  },
+  {
+    "view": "main-content view-shop",
+    "width": 1440,
+    "overflow": false,
+    "mainHeight": 748,
+    "mainScroll": false,
+    "smallButtons": 48,
+    "clipped": [],
+    "height": 900
+  },
+  {
+    "width": 1440,
+    "height": 900,
+    "errors": []
+  }
+]

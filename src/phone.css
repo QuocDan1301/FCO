@@ -1,0 +1,166 @@
+/* Loaded last: touch layouts must take precedence over desktop viewport fitting. */
+@media (max-width: 640px), (max-width: 900px) and (max-height: 500px) {
+  .app { padding-top: env(safe-area-inset-top); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  .app > .topbar { height: 52px; padding: 0 12px; }
+  .app > .main-nav { height: 60px; }
+  .main-nav .nav-inner { height: 100%; padding: 0 4px; gap: 0; }
+  .main-nav .nav-inner > button { flex: 1; min-width: 0; min-height: 48px; flex-direction: column; justify-content: center; gap: 5px; padding: 4px 1px; }
+  .main-nav .nav-inner > button > svg { width: 18px; height: 18px; }
+  .main-nav .nav-full { display: none; }
+  .main-nav .nav-short { display: inline; font-size: 10px; }
+  .main-nav button > small { display: none; }
+  .app > footer { height: auto; min-height: 36px; padding: 2px 12px calc(2px + env(safe-area-inset-bottom)); }
+  .app > footer > div { display: none; }
+  .app > footer > span { width: 100%; max-width: none; justify-content: space-between; }
+  .app > footer button { min-height: 32px; font-size: 11px; }
+  .app > footer button[aria-label] { min-width: 44px; }
+  button, a, input, select { touch-action: manipulation; }
+  input:not([type=checkbox]):not([type=range]), select, textarea { font-size: 16px !important; }
+  .main-content { overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; scroll-padding: 12px; }
+  .main-content button:focus-visible { outline: 2px solid #7bc9ff; outline-offset: -2px; }
+  .main-content .text-action, .main-content .secondary-button, .main-content .primary-button { min-height: 44px; }
+  .main-content .page-heading { flex-wrap: wrap; }
+  .main-content .page-heading p { font-size: 12px; line-height: 1.5; }
+  .modal-panel { max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; }
+  .modal-heading .icon-button { width: 44px; height: 44px; flex-shrink: 0; }
+  .modal-panel .setting-row { min-height: 64px; gap: 16px; }
+  .modal-panel .setting-row small { line-height: 1.5; }
+  .viewport-pagination { min-height: 52px; gap: 12px; }
+  .viewport-pagination button { min-height: 44px; min-width: 64px; }
+
+  /* Upgrade: give the target, energy and selected materials their own space. */
+  .main-content > .fco-upgrade { display: flex; height: auto; min-height: 100%; overflow: visible; }
+  .fco-upgrade .fco-left { flex: none; overflow: visible; padding: 12px; gap: 8px; }
+  .fco-upgrade .fco-left .fco-row.fco-perk { grid-template-columns: minmax(120px, 1fr) minmax(0, 1.2fr); min-height: 32px; }
+  .fco-upgrade .fco-left .fco-perk > b, .fco-upgrade .fco-perk-btn { justify-self: end; font-size: 14px; gap: 5px; }
+  .fco-upgrade .fco-perk-btn { min-height: 44px; }
+  .fco-upgrade .fco-target { flex: none; display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 14px; }
+  .fco-upgrade .fco-target-card { height: 140px; }
+  .fco-upgrade .fco-stats h2 { font-size: 23px; margin-bottom: 8px; overflow-wrap: anywhere; }
+  .fco-upgrade .fco-stats dl { display: block; }
+  .fco-upgrade .fco-stats dl > div { font-size: 12px; padding: 3px 0; }
+  .fco-upgrade .fco-stats dl b { font-size: 17px; }
+  .fco-upgrade .fco-change { min-height: 44px; font-size: 14px; }
+  .fco-upgrade .fco-row { grid-template-columns: minmax(120px, 1fr) minmax(0, 1.2fr); font-size: 12px; min-height: 36px; gap: 8px; }
+  .fco-upgrade .fco-row > span { min-width: 0; }
+  .fco-upgrade .fco-row .fco-help { min-width: 28px; min-height: 28px; }
+  .fco-upgrade .fco-energy { gap: 4px; }
+  .fco-upgrade .fco-energy i { height: 26px; }
+  .fco-upgrade .fco-used { display: flex; }
+  .fco-upgrade .fco-stack { width: min(100%, 220px); height: auto; aspect-ratio: 2.907; }
+  .fco-upgrade .fco-rule { font-size: 12px; }
+  .fco-upgrade .fco-right { height: auto; min-height: 400px; flex: 1 0 auto; }
+  .fco-upgrade .fco-tabs button { font-size: 18px; min-height: 44px; }
+  .fco-upgrade .fco-hint { padding: 8px 12px; }
+  .fco-upgrade .fco-hint p { font-size: 12px; }
+  .fco-upgrade .fco-head { min-height: 44px; }
+  .fco-upgrade .fco-head, .fco-upgrade .fco-line { grid-template-columns: 28px 30px minmax(0, 1fr) 36px 30px 28px; padding: 0 10px; gap: 4px; }
+  .fco-upgrade .fco-cost, .fco-upgrade .fco-head > span:nth-child(6) { display: none; }
+  .fco-upgrade .fco-line { height: 56px; min-height: 56px; }
+  .fco-upgrade .fco-name b { font-size: 16px; overflow: hidden; text-overflow: ellipsis; }
+  .fco-upgrade .fco-pos { font-size: 14px; }
+  .fco-upgrade .fco-ovr { font-size: 20px; }
+  .fco-upgrade .fco-body { flex: none; min-height: 168px; max-height: 45dvh; overflow-y: auto; overscroll-behavior-y: auto; }
+  .fco-upgrade .fco-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; }
+  .fco-upgrade .fco-ghost { min-height: 44px; font-size: 13px; }
+  .fco-upgrade .fco-go { grid-column: 1 / -1; width: 100%; min-height: 48px; font-size: 16px; }
+  .tp-panel { max-height: calc(100dvh - 24px); overflow-y: auto; }
+  .tp-columns, .tp-row { grid-template-columns: 34px 28px minmax(0, 1fr) 34px 30px 18px 52px; gap: 3px; padding: 0 8px; }
+  .tp-head { flex-wrap: wrap; }
+  .tp-filters button, .tp-col { min-height: 44px; }
+  .tp-row { min-height: 56px; }
+  .tp-name .squad-season { display: none; }
+  .tp-price { font-size: 12px; }
+
+  /* Both squad panels remain reachable; touch actions are visible on every row. */
+  .main-content > .workspace.squad-workspace { display: flex; height: auto; min-height: 100%; margin: 0; border: 0; border-radius: 0; overflow: visible; }
+  .squad-panel { flex: none; }
+  .squad-head { padding: 12px; gap: 12px; }
+  .squad-head h1, .squad-head h2 { font-size: 23px; }
+  .squad-head p { font-size: 12px; }
+  .squad-right .squad-head > h2 { flex: 1 0 100%; }
+  .squad-search { height: 44px; max-width: none; }
+  .squad-owned { flex-shrink: 0; }
+  .squad-list { flex: none; max-height: 55dvh; overflow-y: auto; overscroll-behavior-y: auto; }
+  .squad-empty { margin: 20px 12px; font-size: 12px; }
+  .squad-columns { display: none; }
+  .squad-row, .squad-left .squad-row { grid-template-columns: 36px 36px minmax(0, 1fr) 28px 34px 30px; grid-template-rows: 48px 48px; gap: 4px; padding: 8px 12px; }
+  .squad-name strong { font-size: 16px; }
+  .squad-season { display: none; }
+  .squad-row .squad-stat, .squad-row:hover .squad-stat, .squad-row:focus-within .squad-stat { display: flex; align-items: center; justify-content: center; }
+  .squad-row .squad-price, .squad-row .squad-stat:empty { display: none; }
+  .squad-row .squad-hover { grid-column: 1 / -1; grid-row: 2; display: flex; gap: 6px; justify-content: space-between; overflow-x: auto; }
+  .squad-hover button { width: 44px; height: 44px; flex-shrink: 0; }
+  .squad-hover .squad-move { min-width: 64px; margin: 0; padding: 0 8px; font-size: 14px; }
+  .squad-face { width: 36px; height: 44px; }
+
+  .main-content > .inv-workspace { min-height: 600px; }
+  .inv-compact-filters select { height: 44px; }
+  .inv-workspace .inv-foot-btn, .inv-workspace .inv-use { min-height: 44px; height: auto; }
+  .inv-workspace .inv-item-action { min-height: 72px; display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+  .inv-workspace .inv-item-action h3 { min-height: 20px; }
+  .inv-workspace .inv-tick { width: 44px; height: 44px; background: transparent; border: 0; top: 0; right: 0; }
+  .inv-workspace .inv-tick::before { content: ''; position: absolute; width: 22px; height: 22px; top: 11px; left: 11px; border: 2px solid #65758a; background: #0d141b; }
+  .inv-workspace .inv-tick i { left: 19px; top: 13px; z-index: 1; }
+  .inv-workspace .inv-item h3 { visibility: visible; font-size: 13px; }
+  .inv-workspace .inv-grid { grid-auto-rows: 240px; }
+  .inv-workspace .inv-item { height: 240px; }
+  .main-content > .market-workspace { min-height: 640px; }
+  .market-workspace .market-filters > .search-field, .market-workspace .market-filter-toggle { min-height: 44px; height: 44px; }
+  .market-workspace .market-tabs > button, .market-workspace .market-pagination > button, .market-workspace .market-row-action { min-height: 44px; }
+  .market-workspace .market-list { --page-item-height: 104; }
+  .market-workspace .market-row { height: 104px; }
+  .market-workspace .market-player b { font-size: 14px; }
+  .market-workspace .market-player small, .market-workspace .market-price b { font-size: 12px; }
+  .shop-stepper button, .shop-stepper input, .shop-presets button { min-height: 44px; }
+  .shop-product { content-visibility: auto; contain-intrinsic-size: auto 580px; }
+
+  /* Ambient decoration is cheaper on phones; gameplay animations remain available. */
+  .particles, .stadium-fog, .hero-orbit { display: none; }
+  .collection-card .itm-sheen, .fco-used-card .itm-sheen, .secondary-player .itm-sheen { display: none; }
+  .fco-line { content-visibility: auto; contain-intrinsic-size: auto 56px; }
+  .modal-backdrop { backdrop-filter: none; }
+}
+
+@media (max-width: 640px) {
+  .view-packs { overflow-y: auto; display: block; }
+  .view-packs > .hero { min-height: 470px; height: max(470px, 65dvh); }
+  .view-packs .hero-content { grid-template-columns: 1fr !important; grid-template-rows: auto minmax(0, 1fr) !important; padding: 18px 18px 0 !important; }
+  .view-packs .hero-copy { align-items: center !important; text-align: center; }
+  .view-packs .hero-copy > p { font-size: 12px !important; }
+  .view-packs .hero-price { font-size: 12px !important; }
+  .view-packs .hero-card-front { width: min(46cqw, calc(82cqh * .78)) !important; }
+  .view-packs .hero-card-back { width: min(34cqw, calc(66cqh * .78)) !important; }
+  .home-activity .text-action { min-height: 44px; font-size: 12px; }
+  .uc-screen { grid-template-rows: minmax(220px, 42dvh) minmax(0, 1fr); }
+  .uc-panel { overflow-y: auto; justify-content: flex-start; padding: 16px 12px max(16px, env(safe-area-inset-bottom)); }
+  .uc-panel h2 { font-size: 24px; }
+  .uc-materials { height: 120px; min-height: 120px; }
+  .uc-material { width: 86px; }
+  .uc-row { font-size: 12px; flex-wrap: wrap; gap: 8px; }
+  .uc-go, .uc-back, .uc-next { min-height: 48px; }
+  .uc-card { width: min(36vw, 17dvh); margin-top: 0; }
+  .uc-podium { width: 62%; }
+  .uc-podium .uc-base { height: 60px; }
+  .uc-led svg { height: 40px; }
+  .uc-screen.is-charging .uc-card { width: min(44vw, 26dvh); }
+  .uc-result { max-height: 48dvh; overflow-y: auto; padding: 18px 12px max(12px, env(safe-area-inset-bottom)); }
+  .uc-win h2 { font-size: 25px; gap: 8px; }
+  .uc-result-row { gap: 12px; }
+}
+
+@media (max-width: 900px) and (max-height: 500px) {
+  .app > .topbar { height: 44px; }
+  .app > .main-nav { height: 52px; }
+  .view-packs { min-height: 0; overflow-y: auto; display: block; }
+  .view-packs > .hero { height: 360px; }
+  .main-content > .fco-upgrade { display: grid; grid-template-columns: minmax(280px, .9fr) minmax(0, 1.1fr); grid-template-rows: auto; }
+  .fco-upgrade .fco-body { max-height: 280px; }
+  .uc-screen { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+  .uc-screen.is-charging { grid-template-columns: 1fr; }
+  .uc-panel { overflow-y: auto; justify-content: flex-start; }
+  .uc-card { width: min(30vw, 28dvh); margin-top: 0; }
+  .uc-podium .uc-base { height: 60px; }
+  .uc-led svg { height: 40px; }
+  .uc-materials { height: 100px; min-height: 100px; }
+}
