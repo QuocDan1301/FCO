@@ -35,33 +35,20 @@ test('Thẻ giá 0 hiển thị 0 BP, mua bán được với 0 xu; ô trống v
   } finally { table[playerId] = previous; }
 });
 
-test('Giữ giá +1 Excel; giá +2 đến +13 theo hệ số, mua bán và phí nhất quán', () => {
-  const ratios = [1, 1.637, 1.75, 2.1, 2.3, 2.6, 3.2, 4.2, 2.4, 2.5, 2.8, 3.2, 3.8];
-  for (const player of players) {
-    const basePrice = priceTable[player.id]?.[0] ?? null;
-    if (basePrice === null) {
-      for (let level = 1; level <= MAX_LEVEL; level++) {
-        const quote = marketQuote({ playerId: player.id, level });
-        assert.equal(quote.price, null);
-        assert.equal(quote.available, false);
-        assert.equal(quote.fee, null);
-        assert.equal(quote.proceeds, null);
-      }
-      continue;
-    }
-    let expected = basePrice;
-    for (let level = 1; level <= MAX_LEVEL; level++) {
-      expected *= ratios[level - 1];
-      const quote = marketQuote({ playerId: player.id, level });
-      assert.equal(quote.asOfDate, PRICE_AS_OF);
-      const factor = quote.group === 1 && level >= 5 ? 1.25 : quote.group === 3 && level > 1 ? level <= 4 ? .8 : level >= 8 ? .55 : 7.5 / (1.637 * 1.75 * 2.1 * 2.3) + (.55 - 7.5 / (1.637 * 1.75 * 2.1 * 2.3)) * (level - 5) / 3 : 1;
-      assert.equal(quote.price, Math.round(expected * factor));
-      assert.ok(quote.available);
-      if (quote.available) {
-        assert.ok(Number.isSafeInteger(quote.price));
-        assert.equal(quote.fee, Math.floor(quote.price * MARKET_FEE_PERCENT / 100));
-        assert.equal(quote.proceeds + quote.fee, quote.price);
-      }
+test('Giá từng cấp khớp bảng Excel; mua bán và phí nhất quán', () => {
+  for (const player of players) for (let level = 1; level <= MAX_LEVEL; level++) {
+    const expected = priceTable[player.id]?.[level - 1] ?? null;
+    const quote = marketQuote({ playerId: player.id, level });
+    assert.equal(quote.asOfDate, PRICE_AS_OF);
+    assert.equal(quote.price, expected, `ID ${player.id} +${level}`);
+    assert.equal(quote.available, expected !== null);
+    if (quote.available) {
+      assert.ok(Number.isSafeInteger(quote.price));
+      assert.equal(quote.fee, Math.floor(quote.price * MARKET_FEE_PERCENT / 100));
+      assert.equal(quote.proceeds + quote.fee, quote.price);
+    } else {
+      assert.equal(quote.fee, null);
+      assert.equal(quote.proceeds, null);
     }
   }
   for (const level of [0, -1, 1.5, MAX_LEVEL + 1, NaN, Infinity]) assert.throws(() => marketQuote({ playerId: players[0].id, level }), /không hợp lệ/);

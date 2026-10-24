@@ -3,7 +3,7 @@ import type { Player } from './game';
 
 // 20 thẻ mùa PRIME từ ảnh người dùng cung cấp; chưa gán giá giao dịch.
 // Logo đội theo logo in ở góc dưới phải mỗi thẻ: thẻ có khiên phượng hoàng dùng logo PRIME, còn lại dùng logo CLB.
-const prmLogo = asset('/assets/prm-team.png');
+const prmLogo = asset('/assets/prm-team.webp');
 export const prmPlayers: Player[] = [
   { id: 423, name: "Nguyễn Quang Hải", ovr: 119, pos: 'RW', nation: 'Việt Nam', flag: 'VN', club: 'Việt Nam', tier: 'prm', wage: 30, cardFace: asset('/assets/prm-nguyen-quang-hai-card.webp'), teamLogo: prmLogo },
   { id: 424, name: "L. Suárez", ovr: 125, pos: 'ST', nation: 'Uruguay', flag: 'UY', club: 'Inter Miami', tier: 'prm', wage: 34, cardFace: asset('/assets/prm-l-suarez-card.webp') },

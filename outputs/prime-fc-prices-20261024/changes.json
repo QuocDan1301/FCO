@@ -1,0 +1,170 @@
+[
+  {
+    "row": 414,
+    "id": 424,
+    "name": "L. Suárez",
+    "season": "PRIME",
+    "price": 6200000000
+  },
+  {
+    "row": 415,
+    "id": 425,
+    "name": "Maicon",
+    "season": "PRIME",
+    "price": 1480000000
+  },
+  {
+    "row": 416,
+    "id": 426,
+    "name": "E. Hazard",
+    "season": "PRIME",
+    "price": 7300000000
+  },
+  {
+    "row": 417,
+    "id": 427,
+    "name": "M. Reus",
+    "season": "PRIME",
+    "price": 3970000000
+  },
+  {
+    "row": 418,
+    "id": 428,
+    "name": "Lúcio",
+    "season": "PRIME",
+    "price": 5060000000
+  },
+  {
+    "row": 419,
+    "id": 429,
+    "name": "D. Forlán",
+    "season": "PRIME",
+    "price": 6620000000
+  },
+  {
+    "row": 420,
+    "id": 430,
+    "name": "C. Tévez",
+    "season": "PRIME",
+    "price": 7930000000
+  },
+  {
+    "row": 421,
+    "id": 431,
+    "name": "João Cancelo",
+    "season": "PRIME",
+    "price": 2540000000
+  },
+  {
+    "row": 422,
+    "id": 432,
+    "name": "Guti",
+    "season": "PRIME",
+    "price": 1210000000
+  },
+  {
+    "row": 427,
+    "id": 437,
+    "name": "T. Müller",
+    "season": "PRIME",
+    "price": 11600000000
+  },
+  {
+    "row": 428,
+    "id": 438,
+    "name": "H. Son",
+    "season": "PRIME",
+    "price": 4160000000
+  },
+  {
+    "row": 429,
+    "id": 439,
+    "name": "S. Mané",
+    "season": "PRIME",
+    "price": 4810000000
+  },
+  {
+    "row": 430,
+    "id": 440,
+    "name": "K. Benzema",
+    "season": "PRIME",
+    "price": 8360000000
+  },
+  {
+    "row": 431,
+    "id": 441,
+    "name": "Cristiano Ronaldo",
+    "season": "PRIME",
+    "price": 30500000000
+  },
+  {
+    "row": 432,
+    "id": 442,
+    "name": "L. Messi",
+    "season": "PRIME",
+    "price": 20400000000
+  },
+  {
+    "row": 473,
+    "id": 483,
+    "name": "V. van Dijk",
+    "season": "FC AMBASSADOR",
+    "price": 194000
+  },
+  {
+    "row": 474,
+    "id": 484,
+    "name": "Y. Moukoko",
+    "season": "FC AMBASSADOR",
+    "price": 32700
+  },
+  {
+    "row": 475,
+    "id": 485,
+    "name": "H. Son",
+    "season": "FC AMBASSADOR",
+    "price": 105000
+  },
+  {
+    "row": 476,
+    "id": 486,
+    "name": "F. Chiesa",
+    "season": "FC AMBASSADOR",
+    "price": 361000
+  },
+  {
+    "row": 477,
+    "id": 487,
+    "name": "J. Grealish",
+    "season": "FC AMBASSADOR",
+    "price": 206000
+  },
+  {
+    "row": 478,
+    "id": 488,
+    "name": "E. Fernández",
+    "season": "FC AMBASSADOR",
+    "price": 114000
+  },
+  {
+    "row": 479,
+    "id": 489,
+    "name": "Vini Jr.",
+    "season": "FC AMBASSADOR",
+    "price": 69700
+  },
+  {
+    "row": 480,
+    "id": 490,
+    "name": "J. Bellingham",
+    "season": "FC AMBASSADOR",
+    "price": 614000
+  },
+  {
+    "row": 481,
+    "id": 491,
+    "name": "E. Haaland",
+    "season": "FC AMBASSADOR",
+    "price": 412000
+  }
+]

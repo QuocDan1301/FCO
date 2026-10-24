@@ -27,9 +27,9 @@ test('40 thẻ MEDALIST: không trùng tên / ID, ảnh tồn tại, OVR khớp 
 });
 
 test('Logo đội MEDALIST theo logo in ở góc dưới phải từng thẻ', () => {
-  for (const name of ['Riquelme', 'Ronaldo', 'C. Puyol', 'R. Bauer', 'Park Chu Young']) assert.equal(logo(name), '/assets/mdl-team.png', name);
+  for (const name of ['Riquelme', 'Ronaldo', 'C. Puyol', 'R. Bauer', 'Park Chu Young']) assert.equal(logo(name), '/assets/mdl-team.webp', name);
   assert.equal(logo('Pedri'), logo('Dani Olmo'));
-  assert.equal(logo('J. Vásquez'), '/assets/clubs/genoa.png');
+  assert.equal(logo('J. Vásquez'), '/assets/clubs/genoa.webp');
   for (const name of ['Neymar Jr', 'C. Montes', 'G. Ochoa']) assert.equal(logo(name), undefined, `${name} là cầu thủ tự do`);
   for (const p of roster) { const l = getTeamLogo(p); if (l) assert.ok(existsSync(`public${l}`), p.name); }
 });

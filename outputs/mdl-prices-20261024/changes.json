@@ -1,0 +1,282 @@
+[
+  {
+    "row": 433,
+    "id": 443,
+    "name": "S. Gnabry",
+    "season": "MEDALIST",
+    "price": 179000
+  },
+  {
+    "row": 434,
+    "id": 444,
+    "name": "Ji Dong Won",
+    "season": "MEDALIST",
+    "price": 29600
+  },
+  {
+    "row": 435,
+    "id": 445,
+    "name": "J. Brandt",
+    "season": "MEDALIST",
+    "price": 101000
+  },
+  {
+    "row": 436,
+    "id": 446,
+    "name": "Pedri",
+    "season": "MEDALIST",
+    "price": 75000
+  },
+  {
+    "row": 437,
+    "id": 447,
+    "name": "Park Chu Young",
+    "season": "MEDALIST",
+    "price": 46800
+  },
+  {
+    "row": 438,
+    "id": 448,
+    "name": "Riquelme",
+    "season": "MEDALIST",
+    "price": 154000
+  },
+  {
+    "row": 439,
+    "id": 449,
+    "name": "Oyarzabal",
+    "season": "MEDALIST",
+    "price": 277000
+  },
+  {
+    "row": 440,
+    "id": 450,
+    "name": "U. Sadiq",
+    "season": "MEDALIST",
+    "price": 352000
+  },
+  {
+    "row": 441,
+    "id": 451,
+    "name": "Matheus Cunha",
+    "season": "MEDALIST",
+    "price": 157000
+  },
+  {
+    "row": 442,
+    "id": 452,
+    "name": "H. Crespo",
+    "season": "MEDALIST",
+    "price": 355000
+  },
+  {
+    "row": 443,
+    "id": 453,
+    "name": "Richarlison",
+    "season": "MEDALIST",
+    "price": 96100
+  },
+  {
+    "row": 444,
+    "id": 454,
+    "name": "Ronaldo",
+    "season": "MEDALIST",
+    "price": 1800000
+  },
+  {
+    "row": 445,
+    "id": 455,
+    "name": "Rafa Mir",
+    "season": "MEDALIST",
+    "price": 70300
+  },
+  {
+    "row": 446,
+    "id": 456,
+    "name": "Dani Olmo",
+    "season": "MEDALIST",
+    "price": 111000
+  },
+  {
+    "row": 447,
+    "id": 457,
+    "name": "Walace",
+    "season": "MEDALIST",
+    "price": 39000
+  },
+  {
+    "row": 448,
+    "id": 458,
+    "name": "Jung Woo Young",
+    "season": "MEDALIST",
+    "price": 19900
+  },
+  {
+    "row": 449,
+    "id": 459,
+    "name": "D. Selke",
+    "season": "MEDALIST",
+    "price": 67100
+  },
+  {
+    "row": 450,
+    "id": 460,
+    "name": "N. Kanu",
+    "season": "MEDALIST",
+    "price": 115000
+  },
+  {
+    "row": 451,
+    "id": 461,
+    "name": "Capdevila",
+    "season": "MEDALIST",
+    "price": 75700
+  },
+  {
+    "row": 452,
+    "id": 462,
+    "name": "L. Klostermann",
+    "season": "MEDALIST",
+    "price": 66100
+  },
+  {
+    "row": 453,
+    "id": 463,
+    "name": "P. Max",
+    "season": "MEDALIST",
+    "price": 18400
+  },
+  {
+    "row": 454,
+    "id": 464,
+    "name": "C. Tévez",
+    "season": "MEDALIST",
+    "price": 422000
+  },
+  {
+    "row": 455,
+    "id": 465,
+    "name": "Neymar Jr",
+    "season": "MEDALIST",
+    "price": 164000
+  },
+  {
+    "row": 456,
+    "id": 466,
+    "name": "Gabriel Jesus",
+    "season": "MEDALIST",
+    "price": 128000
+  },
+  {
+    "row": 457,
+    "id": 467,
+    "name": "C. Puyol",
+    "season": "MEDALIST",
+    "price": 167000
+  },
+  {
+    "row": 458,
+    "id": 468,
+    "name": "Juan Miranda",
+    "season": "MEDALIST",
+    "price": 52900
+  },
+  {
+    "row": 459,
+    "id": 469,
+    "name": "Roberto Carlos",
+    "season": "MEDALIST",
+    "price": 145000
+  },
+  {
+    "row": 460,
+    "id": 470,
+    "name": "C. Montes",
+    "season": "MEDALIST",
+    "price": 82800
+  },
+  {
+    "row": 461,
+    "id": 471,
+    "name": "Thiago Silva",
+    "season": "MEDALIST",
+    "price": 184000
+  },
+  {
+    "row": 462,
+    "id": 472,
+    "name": "M. Ginter",
+    "season": "MEDALIST",
+    "price": 68400
+  },
+  {
+    "row": 463,
+    "id": 473,
+    "name": "J. Zanetti",
+    "season": "MEDALIST",
+    "price": 242000
+  },
+  {
+    "row": 464,
+    "id": 474,
+    "name": "R. Bauer",
+    "season": "MEDALIST",
+    "price": 4430
+  },
+  {
+    "row": 465,
+    "id": 475,
+    "name": "Diego Carlos",
+    "season": "MEDALIST",
+    "price": 80400
+  },
+  {
+    "row": 466,
+    "id": 476,
+    "name": "Eric García",
+    "season": "MEDALIST",
+    "price": 90300
+  },
+  {
+    "row": 467,
+    "id": 477,
+    "name": "Vallejo",
+    "season": "MEDALIST",
+    "price": 55100
+  },
+  {
+    "row": 468,
+    "id": 478,
+    "name": "Ronaldinho",
+    "season": "MEDALIST",
+    "price": 234000
+  },
+  {
+    "row": 469,
+    "id": 479,
+    "name": "G. Ochoa",
+    "season": "MEDALIST",
+    "price": 72400
+  },
+  {
+    "row": 470,
+    "id": 480,
+    "name": "Hwang Seok Ho",
+    "season": "MEDALIST",
+    "price": 25800
+  },
+  {
+    "row": 471,
+    "id": 481,
+    "name": "J. Toljan",
+    "season": "MEDALIST",
+    "price": 72400
+  },
+  {
+    "row": 472,
+    "id": 482,
+    "name": "J. Vásquez",
+    "season": "MEDALIST",
+    "price": 82800
+  }
+]

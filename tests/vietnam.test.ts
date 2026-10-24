@@ -16,7 +16,7 @@ test('Gói VIETNAM (ALL) ra 100% mùa VIETNAM, có mặt sau thẻ và logo mùa
   for (const p of packs) assert.equal(p.weights.length, TIERS.length);
   assert.equal(pack.tunnel, '/assets/vietnam-tunnel.webp');
   for (const file of ['vietnam-back.png', 'vietnam-team.png', 'vietnam-tunnel.webp']) assert.ok(existsSync(`public/assets/${file}`), file);
-  assert.equal(getTeamLogo({ tier: 'vietnam', club: 'Việt Nam' }), '/assets/vietnam-team.png');
+  assert.equal(getTeamLogo({ tier: 'vietnam', club: 'Việt Nam' }), '/assets/vietnam-team.webp');
 });
 
 test('40 thẻ VIETNAM: dữ liệu hợp lệ, ảnh tồn tại, OVR khớp khoảng của gói', () => {
@@ -28,7 +28,7 @@ test('40 thẻ VIETNAM: dữ liệu hợp lệ, ảnh tồn tại, OVR khớp kh
     assert.ok(p.cardFace && existsSync(`public${p.cardFace}`), p.name);
     assert.ok(p.ovr >= 105 && p.ovr <= 119, `${p.name} ${p.ovr}`);
     assert.ok(p.wage && p.wage >= 18 && p.wage <= 29);
-    assert.equal(getTeamLogo(p), '/assets/vietnam-team.png');
+    assert.equal(getTeamLogo(p), '/assets/vietnam-team.webp');
   }
   const ovrs = roster.map(p => p.ovr);
   assert.equal(pack.range, `${Math.min(...ovrs)}–${Math.max(...ovrs)}`);

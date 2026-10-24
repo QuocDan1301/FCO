@@ -3,7 +3,6 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { draw, getPlayer, initialSave, isPackAvailable, openPacks, packs, players, seasons, TIERS, validateSave } from '../src/game.ts';
 import { getTeamLogo } from '../src/teamLogos.ts';
-import { marketQuote } from '../src/market.ts';
 
 const pack = packs.find(p => p.id === 'prm')!;
 const roster = players.filter(p => p.tier === 'prm');
@@ -17,8 +16,8 @@ test('Gói PRIME (ALL) ra 100% mùa PRIME, tách khỏi INFINITE PRIME, có nề
   for (const file of ['prm-back.png', 'prm-team.png', 'prm-tunnel.webp']) assert.ok(existsSync(`public/assets/${file}`), file);
   assert.equal(pack.tunnel, '/assets/prm-tunnel.webp');
   // Logo mùa (cạnh OVR) vẫn là khiên phượng hoàng; logo đội là logo CLB riêng của từng cầu thủ.
-  assert.equal(getTeamLogo({ tier: 'prm', club: 'Inter Miami' }), '/assets/clubs/20232.png');
-  assert.equal(getTeamLogo({ tier: 'prm', club: 'Việt Nam' }), '/assets/vietnam-team.png');
+  assert.equal(getTeamLogo({ tier: 'prm', club: 'Inter Miami' }), '/assets/clubs/20232.webp');
+  assert.equal(getTeamLogo({ tier: 'prm', club: 'Việt Nam' }), '/assets/vietnam-team.webp');
   assert.notEqual(getTeamLogo({ tier: 'prm', club: 'Al Nassr' }), getTeamLogo({ tier: 'prm', club: 'Inter Miami' }));
 });
 
@@ -31,7 +30,6 @@ test('20 thẻ PRIME: không trùng ID / tên, ảnh tồn tại, có CSS vị t
     assert.ok(p.cardFace && existsSync(`public${p.cardFace}`), p.name);
     assert.ok(p.ovr >= 119 && p.ovr <= 126, `${p.name} ${p.ovr}`);
     assert.match(css, new RegExp(`\\.face-${p.id}\\{--prm-ovr-x:`), `CSS ${p.name}`);
-    assert.equal(marketQuote({ playerId: p.id, level: 1 }).price, null, 'Chưa có giá');
   }
   const ovrs = roster.map(p => p.ovr);
   assert.equal(pack.range, `${Math.min(...ovrs)}–${Math.max(...ovrs)}`);
@@ -47,9 +45,9 @@ test('Gói PRIME mở được, mỗi thẻ đều rút được, gói khác kh�
 });
 test('Logo đội mùa PRIME theo logo in ở góc dưới phải từng thẻ', () => {
   const logo = (name: string) => getTeamLogo(roster.find(p => p.name === name)!);
-  for (const name of ['Nguyễn Quang Hải', 'Maicon', 'E. Hazard', 'Lúcio', 'D. Forlán', 'C. Tévez', 'Guti', 'Nguyễn Xuân Son', 'Nguyễn Công Phượng', 'Lê Huỳnh Đức', 'Nguyễn Hoàng Đức']) assert.equal(logo(name), '/assets/prm-team.png', name);
-  assert.equal(logo('M. Reus'), '/assets/clubs/la-galaxy.png');
-  assert.equal(logo('L. Messi'), '/assets/clubs/20232.png');
+  for (const name of ['Nguyễn Quang Hải', 'Maicon', 'E. Hazard', 'Lúcio', 'D. Forlán', 'C. Tévez', 'Guti', 'Nguyễn Xuân Son', 'Nguyễn Công Phượng', 'Lê Huỳnh Đức', 'Nguyễn Hoàng Đức']) assert.equal(logo(name), '/assets/prm-team.webp', name);
+  assert.equal(logo('M. Reus'), '/assets/clubs/la-galaxy.webp');
+  assert.equal(logo('L. Messi'), '/assets/clubs/20232.webp');
   assert.equal(logo('Cristiano Ronaldo'), logo('S. Mané'));
   for (const p of roster) assert.ok(existsSync(`public${getTeamLogo(p)}`), p.name);
 });

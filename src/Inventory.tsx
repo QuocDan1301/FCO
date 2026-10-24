@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import ViewportPages from './ViewportPages';
 import type { ReactNode } from 'react';
 import { Search } from 'lucide-react';
 import { getPackStock, isPackAvailable, MAX_INVENTORY_OPEN } from './game';
@@ -63,7 +62,7 @@ export default function Inventory({ save, packs, onUse, onShop, onUseSelected, r
         <ul>{sorts.map(s => <li key={s.id}><label><input type="radio" name="inv-sort" checked={sort === s.id} onChange={() => setSort(s.id)}/><span className="inv-radio"/>{s.label}</label></li>)}</ul>
       </aside>
       <div className="inv-main">
-        {shown.length ? <ViewportPages className="inv-grid" itemWidth={230} itemHeight={300} gap={12} resetKey={`${checked.join()}-${sort}`}>{shown.map(({ pack, stock }) => {
+        {shown.length ? <div key={`${checked.join()}-${sort}`} className="inv-grid" role="region" aria-label="Danh sách vật phẩm" tabIndex={0}>{shown.map(({ pack, stock }) => {
           const isSelected = selected.includes(pack.id);
           return <article key={pack.id} className={`inv-item ${pack.color} ${isSelected ? 'is-selected' : ''}`} onMouseEnter={() => setHover(pack.id)} onMouseLeave={() => setHover('')}>
             <span className="inv-new">Mới</span>
@@ -76,7 +75,7 @@ export default function Inventory({ save, packs, onUse, onShop, onUseSelected, r
             <span className="inv-count">SL:{stock}</span>
             {hover === pack.id && <div className="inv-tip" role="tooltip"><b>{pack.name} {pack.range}</b><em>SL:{stock}</em><p>Bạn sẽ nhận được 1 cầu thủ thuộc {pack.name} với chỉ số OVR {pack.range}.</p></div>}
           </article>;
-        })}</ViewportPages> : <div className="inv-empty"><Search size={30}/><h2>Kho đang trống</h2><p>{owned.length ? 'Không có vật phẩm thuộc nhóm đã chọn.' : 'Bạn chưa sở hữu gói cầu thủ nào.'}</p><button className="secondary-button" onClick={onShop}>Đến shop mua gói</button></div>}
+        })}</div> : <div className="inv-empty"><Search size={30}/><h2>Kho đang trống</h2><p>{owned.length ? 'Không có vật phẩm thuộc nhóm đã chọn.' : 'Bạn chưa sở hữu gói cầu thủ nào.'}</p><button className="secondary-button" onClick={onShop}>Đến shop mua gói</button></div>}
       </div>
     </div>
     <div className="inv-foot">

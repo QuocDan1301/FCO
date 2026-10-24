@@ -3,9 +3,10 @@ import { fileURLToPath } from 'node:url';
 import ExcelJS from 'exceljs';
 import { syncRosterRows } from './excel-roster.mjs';
 import { readNumber } from './excel-values.mjs';
+import { applyUpgradePrices } from './price-overlay.mjs';
 
 // Run with: npm run prices:import
-// gia-cau-thu-bp.xlsx là nguồn giá BP duy nhất: mọi ô "Giá BP" được ghi vào src/player-prices.json (ô trống = chưa có giá).
+// +1 và OVR lấy từ gia-cau-thu-bp.xlsx; giá +2…+13 ưu tiên gia-cau-thu-bp2.xlsx khi có file.
 // Ô "OVR" khác OVR game tự tính (OVR gốc + phần tăng theo cấp) được ghi vào src/excel-overrides.json.
 const root = fileURLToPath(new URL('../', import.meta.url));
 const workbookPath = `${root}gia-cau-thu-bp.xlsx`;
@@ -72,13 +73,23 @@ for (let rowNumber = 3; rowNumber <= sheet.rowCount; rowNumber++) {
 }
 if (warnings.length) console.warn(`Lưu ý: ${warnings.length} chỗ cấp cao không cao hơn cấp thấp (vẫn nạp theo Excel).\n- ${warnings.join('\n- ')}`);
 
+let upgradePricesLoaded = false;
+try { await access(`${root}gia-cau-thu-bp2.xlsx`); upgradePricesLoaded = true; }
+catch (error) { if (error.code !== 'ENOENT') throw error; }
+if (upgradePricesLoaded) {
+  const upgradeWorkbook = new ExcelJS.Workbook();
+  await upgradeWorkbook.xlsx.readFile(`${root}gia-cau-thu-bp2.xlsx`);
+  const result = applyUpgradePrices(upgradeWorkbook.getWorksheet('Giá cầu thủ'), prices, MAX_LEVEL);
+  console.log(`Bảng giá bp2: ${result.players} cầu thủ, ${result.cells} ô giá +2…+${MAX_LEVEL}.`);
+}
+
 const save = async (path, data) => {
   const output = JSON.stringify(data, null, 2) + '\n';
   if (await readFile(path, 'utf8').catch(() => '') === output) return false;
   await writeFile(path, output); return true;
 };
 const pricesChanged = JSON.stringify(prices) !== JSON.stringify(priceData.players);
-const wrotePrices = await save(pricesPath, { note: 'Bảng giá BP từ gia-cau-thu-bp.xlsx (npm run prices:import), theo id cầu thủ: giá +1 … +13, null là chưa có giá.', updatedAt: pricesChanged ? new Date().toISOString().slice(0, 10) : priceData.updatedAt, players: prices });
+const wrotePrices = await save(pricesPath, { note: upgradePricesLoaded ? 'Giá +1 từ gia-cau-thu-bp.xlsx; +2…+13 từ gia-cau-thu-bp2.xlsx (npm run prices:import), theo id cầu thủ; null là chưa có giá.' : 'Bảng giá BP từ gia-cau-thu-bp.xlsx (npm run prices:import), theo id cầu thủ: giá +1 … +13, null là chưa có giá.', updatedAt: pricesChanged ? new Date().toISOString().slice(0, 10) : priceData.updatedAt, players: prices });
 const wroteOvrs = await save(overridesPath, { note: 'OVR sửa tay từ gia-cau-thu-bp.xlsx (npm run prices:import), theo id cầu thủ rồi cấp thẻ; ưu tiên hơn OVR tự tính.', ovrs });
 const filled = Object.values(prices).flat().filter(price => price !== null).length;
 const summary = `${filled} ô có giá, ${Object.values(ovrs).reduce((total, levels) => total + Object.keys(levels).length, 0)} ô OVR sửa tay`;

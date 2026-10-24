@@ -21,3 +21,50 @@
 .fco-upgrade .bridge-status .fco-row{grid-template-columns:110px 1fr}
 /* Thêm nút Kiểm thử cầu: hàng nút phụ trên điện thoại chia 3 cột. */
 @media(max-width:640px){.bridge-rate,.bridge-last{font-size:11px}.fco-actions{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* Cột trái lò nâng cấp: các dòng tăng tỉ lệ / bảo vệ (nhãn trái, giá trị phải) và khung cầu thủ sử dụng nằm bên phải nhãn. */
+.fco-upgrade .fco-left .fco-row.fco-perk{grid-template-columns:minmax(110px,150px) 1fr}
+.fco-perk>b{justify-self:end;display:flex;align-items:center;gap:8px;font-family:var(--display);font-size:18px;font-weight:600;color:#6b737d}
+.fco-perk>b svg{color:#5a626c}
+.fco-perk.is-on>b,.fco-perk.is-on>b svg{color:#1fe36b}
+.fco-help{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-left:8px;border-radius:3px;background:#1fbf5a;color:#06210f;font-style:normal;font-size:12px;font-weight:700;cursor:help;vertical-align:middle}
+.fco-upgrade .fco-left .fco-row.fco-used{display:grid;grid-template-columns:minmax(110px,150px) 1fr;align-items:center}
+.fco-upgrade .fco-left .fco-used .fco-stack{max-width:none;width:100%}
+@media(max-width:640px){.fco-upgrade .fco-left .fco-row.fco-perk,.fco-upgrade .fco-left .fco-row.fco-used{grid-template-columns:1fr}.fco-perk>b{justify-self:start;font-size:15px}}
+
+/* Phôi cùng cầu thủ với thẻ chính: dấu ⊕ góc trên trái báo đang bảo vệ cầu thủ. */
+.fco-twin-mark{position:absolute;top:4%;left:12%;z-index:3;display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#4a515b;border:2px solid #d8dde4;color:#fff;box-shadow:0 2px 6px #0008}
+
+/* Mức tăng khi nâng cấp thành công, hiện cạnh cấp thẻ và OVR lúc đã chọn phôi. */
+.fco-delta{display:inline-block;font-family:var(--display);font-size:15px;font-weight:700;color:#1fe36b;font-variant-numeric:tabular-nums;animation:fco-delta-in .45s cubic-bezier(.22,1,.36,1) both,fco-delta-glow 1.1s ease-out .2s both}
+/* Số tăng trượt lên và hiện dần, rồi lóe sáng nhẹ một nhịp; giá trị cấp kế tiếp đổi màu êm. */
+@keyframes fco-delta-in{from{opacity:0;transform:translateY(6px) scale(.85)}to{opacity:1;transform:none}}
+@keyframes fco-delta-glow{0%{text-shadow:0 0 0 #1fe36b00}35%{text-shadow:0 0 10px #1fe36bcc}100%{text-shadow:0 0 0 #1fe36b00}}
+.fco-stats dd b,.fco-stats dd .fco-badge{transition:color .35s ease,filter .35s ease,transform .35s cubic-bezier(.22,1,.36,1)}
+.fco-preview dd b{animation:fco-value-pop .4s cubic-bezier(.22,1,.36,1)}
+@keyframes fco-value-pop{from{transform:translateY(3px);opacity:.4}to{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.fco-delta,.fco-preview dd b{animation:none}.fco-stats dd b,.fco-stats dd .fco-badge{transition:none}}
+
+/* Bảo vệ nâng cấp: dòng bấm được trong cột trái và hộp chọn mức %. */
+.fco-perk-btn{justify-self:end;display:flex;align-items:center;gap:8px;padding:4px 10px;border-radius:4px;font-family:var(--display);font-size:18px;font-weight:600;color:#aeb6c2;background:#232a33}
+.fco-perk-btn:hover{background:#2e3640;color:#f0f1f3}
+.fco-perk.is-on .fco-perk-btn{color:#1fe36b;background:#16301f}
+.modal-heading h2:has(>svg){display:flex;align-items:center;gap:8px}
+.modal-heading h2>svg{flex:none;color:#1fe36b}
+.protect-body{display:flex;flex-direction:column;gap:14px}
+.protect-card{margin:0;font-size:14px;color:#aeb6c2}
+.protect-card b{color:#f0f1f3}
+.protect-steps{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.protect-steps button{padding:8px 0;border-radius:4px;background:#232a33;color:#aeb6c2;font-family:var(--display);font-size:15px;font-weight:600}
+.protect-steps button.on{background:#1fe36b;color:#06210f}
+.protect-range{width:100%;accent-color:#1fe36b}
+.protect-summary{display:grid;gap:8px;margin:0;padding:12px;border-radius:6px;background:#0d1116}
+.protect-summary div{display:flex;justify-content:space-between;gap:12px;font-size:13px}
+.protect-summary dt{color:#7f8a98}
+.protect-summary dd{margin:0;text-align:right;color:#f0f1f3;font-weight:600}
+.protect-note{margin:0;font-size:12px;line-height:1.5;color:#7f8a98}
+.protect-note.is-warn{color:#ff8a7a}
+.protect-fixed{display:flex;align-items:center;gap:8px;font-size:13px;color:#d4d9e0}
+.protect-fixed input{accent-color:#1fe36b;width:16px;height:16px}
+.protect-done{align-self:flex-end}
+@media(max-width:640px){.protect-steps{grid-template-columns:repeat(4,1fr)}.fco-perk-btn{justify-self:start;font-size:15px}}

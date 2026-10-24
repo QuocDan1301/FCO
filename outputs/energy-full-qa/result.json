@@ -1,0 +1,17 @@
+{
+  "state": {
+    "full": true,
+    "picked": 3,
+    "available": 0
+  },
+  "colors": [
+    "rgb(31, 227, 107)",
+    "rgb(169, 225, 126)",
+    "rgb(245, 223, 145)"
+  ],
+  "removed": {
+    "full": false,
+    "available": 5
+  },
+  "errors": []
+}

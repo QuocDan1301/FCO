@@ -37,7 +37,7 @@ export function BridgeStatus({ bridge, currentLevel, baseRate, role, onRole }: {
 }
 
 // Công cụ kiểm thử: nhập tay kết quả, reset mô phỏng, xem cầu ngầm đã chọn sau lượt đập (developer).
-export function BridgeLab({ bridge, onManual, onReset, onClose }: { bridge: BridgeState; onManual: (currentLevel: number, outcome: ManualOutcome) => void; onReset: () => void; onClose: () => void }) {
+export function BridgeLab({ bridge, role, onRole, onManual, onReset, onClose }: { bridge: BridgeState; role: UpgradeRole; onRole: (role: UpgradeRole) => void; onManual: (currentLevel: number, outcome: ManualOutcome) => void; onReset: () => void; onClose: () => void }) {
   const [currentLevel, setCurrentLevel] = useState(7);
   const [drop, setDrop] = useState(1);
   const [reveal, setReveal] = useState(false);
@@ -46,6 +46,9 @@ export function BridgeLab({ bridge, onManual, onReset, onClose }: { bridge: Brid
   return <>
     <div className="modal-heading"><h2>Kiểm thử bắt cầu</h2><button className="icon-button" aria-label="Đóng kiểm thử" onClick={onClose}><X/></button></div>
     <div className="bridge-lab">
+      <div className="fco-row"><span>Thẻ đem đập</span><div className="bridge-roles" role="radiogroup" aria-label="Vai trò thẻ đem đập">
+        {([['material', 'Phôi dò cầu'], ['main', 'Thẻ chính']] as const).map(([value, label]) => <button key={value} role="radio" aria-checked={role === value} className={role === value ? 'on' : ''} onClick={() => onRole(value)}>{label}</button>)}
+      </div></div>
       <p className="bridge-muted">Ghi kết quả vào dây như một lượt thật nhưng không roll và không thay đổi thẻ. Dùng để dựng tình huống kiểm thử.</p>
       <label className="bridge-field">Cấp nâng<select value={currentLevel} onChange={e => { const level = Number(e.target.value); setCurrentLevel(level); setDrop(d => Math.min(d, dropRange(level).max)); }}>
         {Array.from({ length: BRIDGE_CONFIG.maxLevel - 1 }, (_, i) => <option key={i} value={i + 1}>+{i + 1} → +{i + 2}</option>)}

@@ -21,8 +21,8 @@ export const MARKET_FEE_PERCENT = 5;
 export function marketQuote(card: Pick<Card, 'playerId' | 'level'>) {
   const player = players.find(p => p.id === card.playerId);
   if (!player || !Number.isInteger(card.level) || card.level < 1 || card.level > MAX_LEVEL) throw new Error('Cầu thủ hoặc cấp thẻ không hợp lệ.');
-  const calculated = calculatePrice(recordedPrices[String(player.id)]?.[0] ?? null, card.level, playerPricingOptions(player.id, player));
-  const { price } = calculated;
+  const calculated = calculatePrice(null, card.level, playerPricingOptions(player.id, player));
+  const price = recordedPrices[String(player.id)]?.[card.level - 1] ?? null;
   const rate = insuranceRate(player.ovr);
   const classification = playerClassification(player);
   const groupNote = `Nhóm ${calculated.group}${classification.provisional && calculated.group === classification.group ? ' · Tạm tính, thiếu dữ liệu tiêu chí' : ''}`;
@@ -44,6 +44,7 @@ export function buyPlayer(state: Save, playerId: number, level: number, free = f
 export function sellPlayer(state: Save, cardId: string, free = false) {
   const card = state.cards.find(c => c.uid === cardId);
   if (!card) throw new Error('Thẻ này không còn trong kho. Hãy chọn lại cầu thủ.');
+  if (state.locked?.includes(cardId)) throw new Error('Thẻ đang bị khóa. Mở khóa trước khi bán.');
   const quote = marketQuote(card);
   if (!quote.available) throw new Error(quote.reason);
   const balance = free ? state.balance : state.balance + quote.proceeds;

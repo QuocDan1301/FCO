@@ -63,9 +63,9 @@ Phân nhóm tự động theo bốn tiêu chí trong `src/player-classification.
 
 Phân nhóm hiện tại đã nhập từ CSV người dùng: 83 Nhóm 1, 96 Nhóm 2, 131 Nhóm 3; đủ 310 ID và mùa thẻ. `player-classification-groups.json` là nguồn nhóm ưu tiên hơn suy luận chỉ số, không còn nhãn tạm tính cho các dòng đã nhập. Dữ liệu chỉ số bổ sung vẫn độc lập; không coi lời giải thích trong CSV là bằng chứng chân/thể hình thực tế. Để nhập thông tin, ví dụ cấu trúc một bản ghi là `"ID": { "weakFoot": 5, "heightCm": 190, "source": "Nguồn và mùa thẻ đã đối chiếu" }`; đây chỉ là ví dụ định dạng, không phải chỉ số của cầu thủ cụ thể. Các dấu hiệu nhanh/chậm/dẻo/thăng bằng dùng đánh giá có nguồn, chưa áp ngưỡng số tự đặt.
 
-Giá giao dịch +1 giữ nguyên từ `gia-cau-thu-bp.xlsx`. Giá +2 đến +13 trong game được tính từ giá +1 bằng `src/pricing.ts`, thay cho các ô giá cùng cấp cũ trong Excel. File Excel gốc không bị ghi đè. Ngày dữ liệu trong game là ngày của giá gốc, không phải ngày quan sát TTCN trực tiếp.
+Giá giao dịch +1 giữ nguyên từ `gia-cau-thu-bp.xlsx`. Giá +2 đến +13 lấy trực tiếp từng ô trong `gia-cau-thu-bp2.xlsx`, ghép theo ID cầu thủ. `npm run prices:import`, `dev` và `build` nạp bảng mới vào `src/player-prices.json`; thị trường, lò nâng cấp và phí bảo hiểm cùng dùng giá của cấp tương ứng. Hai file Excel gốc không bị ghi đè khi nhập giá. Công thức thiếu kết quả chỉ được suy ra 0 khi có nhánh `IF(ô=0,0,...)` và ô tham chiếu đúng bằng 0; các trường hợp thiếu kết quả khác bị báo lỗi. Ngày dữ liệu trong game là ngày của giá gốc, không phải ngày quan sát TTCN trực tiếp.
 
-Chỉnh `src/pricing-config.json`, rồi chạy `npm run build` để cập nhật `mothe.html`. Nhóm lấy từ CSV đã nhập; chỉ các thẻ chưa có phân nhóm mới dùng bộ suy luận dự phòng. +2 mặc định tăng 63,7%. `overrides` dùng ID cầu thủ, ví dụ `"1": { "group": 1, "metaHeatPercent": 25 }`. Các tham số đều có thể ghi đè riêng cho mỗi ID.
+Sửa bảng giá Excel tương ứng, rồi chạy `npm run build` để cập nhật `mothe.html`. `src/pricing-config.json` và các hệ số dưới đây là mô hình tham khảo cũ, không ghi đè giá Excel từng cấp; cấu hình nhóm vẫn dùng cho ghi chú phân loại và thanh khoản. Nhóm lấy từ CSV đã nhập; chỉ các thẻ chưa có phân nhóm mới dùng bộ suy luận dự phòng. +2 mặc định tăng 63,7%. `overrides` dùng ID cầu thủ, ví dụ `"1": { "group": 1, "metaHeatPercent": 25 }`. Các tham số đều có thể ghi đè riêng cho mỗi ID.
 
 - Nhóm 1: mặc định biên nhiệt 25%; bằng 0 là giữ chuẩn, ngoài ra cho phép 15–35%. Biên áp dụng từ +5 và giữ ở các cấp sau, không nhân chồng thêm tại +8.
 - Nhóm 2: nhân đúng hệ số từng bước, làm tròn BP một lần ở kết quả cuối.
@@ -73,4 +73,4 @@ Chỉnh `src/pricing-config.json`, rồi chạy `npm run build` để cập nh�
 
 Phí bảo hiểm báo riêng khi xem thẻ +8 đến +12: giá thẻ hiện tại × 95% / 80% / 60% theo OVR gốc ≤92 / 93–100 / ≥101. Không cộng phí vào giá thẻ, không thay đổi cơ chế thực hiện nâng cấp hay tự trừ phí bảo hiểm. OVR cộng theo cấp đã khớp `[0,1,2,4,6,8,11,15,17,19,21,24,27]`. Các quyền Team Color/chỉ số ẩn chưa được triển khai bởi mô hình giá này.
 
-Các hướng dẫn cũ bên dưới về việc dùng nguyên giá Excel ở mọi cấp được thay thế bởi quy tắc trên. `npm run prices:export` xuất giá game đang dùng; không chạy ghi đè khi muốn giữ bảng nguồn cũ.
+Bảng bp2 là nguồn giá +2…+13 ưu tiên, thay cho hệ số mô hình cũ ở trên. Kiểm tra toàn bộ giá bằng `node --import tsx scripts/verify-price-sync.mjs`. `npm run prices:export` xuất giá game đang dùng; không chạy ghi đè khi muốn giữ bảng nguồn cũ.

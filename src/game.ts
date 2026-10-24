@@ -13,39 +13,39 @@ export const TIERS: readonly Tier[] = ['origin', 'stellar', 'eternal', 'prime', 
 export type Player = { id: number; name: string; ovr: number; pos: string; nation: string; flag: string; club: string; tier: Tier; image?: string; value?: number; wage?: number; cardFace?: string; teamLogo?: string };
 export type Card = { uid: string; playerId: number; level: number; received: number };
 export type Entry = { id: string; time: number; type: 'pack' | 'upgrade' | 'gift' | 'market' | 'shop'; title: string; detail: string; success?: boolean };
-export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; prepaid?: Record<string, number>; bridge?: BridgeState };
+export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; prepaid?: Record<string, number>; bridge?: BridgeState; squad?: string[]; locked?: string[]; protection?: { pct: number; fixed: boolean } };
 // back: ảnh mặt sau thẻ của gói (hiện ở danh sách gói và màn chuẩn bị mở); không có thì dùng hình gói mặc định.
 // tunnel: ảnh nền chỉ hiện một lần trên cặp màn LED ở cửa hầm; các màn phía sau tắt.
 // accent: màu đèn LED / khung của đường hầm khi mở gói; không có thì dùng màu vàng mặc định.
 // stage: màu bục sân khấu (top) và vòng viền (ring) khi thẻ xuất hiện; led: màu khung LED đổi sang lúc đó (bỏ trống thì giữ accent).
 export type Pack = { id: string; name: string; short: string; price: number; weights: [number, number, number, number, number, number, number, number]; description: string; range: string; color: string; back?: string; tunnel?: string; accent?: string; stage?: { top: string; ring: string; led?: string } };
-const no7TeamLogo = asset('/assets/no7-team.png');
+const no7TeamLogo = asset('/assets/no7-team.webp');
 export const seasons: Record<Tier, string> = { origin: 'NO.7', stellar: '26TS', eternal: 'ICON TM', prime: 'INFINITE PRIME', vietnam: 'VIETNAM', prm: 'PRIME', mdl: 'MEDALIST', amb: 'FC AMBASSADOR' };
 export const players: Player[] = [
-  { id: 1, name: 'Ronaldo', ovr: 126, pos: 'ST', nation: 'Brazil', flag: 'BR', club: 'Milano', tier: 'eternal', value: 1800000, wage: 34, cardFace: asset('/assets/ronaldo-card.png') },
-  { id: 31, name: 'Pelé', ovr: 127, pos: 'CF', nation: 'Brazil', flag: 'BR', club: 'Santos', tier: 'eternal', value: 1300000, wage: 34, cardFace: asset('/assets/pele-card.png') },
-  { id: 32, name: 'J. Cruyff', ovr: 126, pos: 'CF', nation: 'Hà Lan', flag: 'NL', club: 'Ajax', tier: 'eternal', value: 1200000, wage: 33, cardFace: asset('/assets/cruyff-card.png') },
-  { id: 33, name: 'R. Gullit', ovr: 125, pos: 'CF', nation: 'Hà Lan', flag: 'NL', club: 'Milano', tier: 'eternal', value: 2000000, wage: 34, cardFace: asset('/assets/gullit-card.png') },
-  { id: 5, name: 'T. Henry', ovr: 124, pos: 'ST', nation: 'Pháp', flag: 'FR', club: 'Arsenal', tier: 'eternal', value: 850000, wage: 32, cardFace: asset('/assets/henry-card.png') },
-  { id: 34, name: 'Eusébio', ovr: 125, pos: 'ST', nation: 'Bồ Đào Nha', flag: 'PT', club: 'Benfica', tier: 'eternal', value: 900000, wage: 33, cardFace: asset('/assets/eusebio-card.png') },
-  { id: 35, name: 'W. Rooney', ovr: 124, pos: 'ST', nation: 'Anh', flag: 'EN', club: 'Manchester Đỏ', tier: 'eternal', value: 500000, wage: 32, cardFace: asset('/assets/rooney-card.png') },
-  { id: 36, name: 'D. Drogba', ovr: 124, pos: 'ST', nation: 'Bờ Biển Ngà', flag: 'CI', club: 'Chelsea', tier: 'eternal', value: 450000, wage: 33, cardFace: asset('/assets/drogba-card.png') },
-  { id: 37, name: 'Fernando Torres', ovr: 122, pos: 'ST', nation: 'Tây Ban Nha', flag: 'ES', club: 'Liverpool', tier: 'eternal', value: 350000, wage: 32, cardFace: asset('/assets/torres-card.png') },
+  { id: 1, name: 'Ronaldo', ovr: 126, pos: 'ST', nation: 'Brazil', flag: 'BR', club: 'Milano', tier: 'eternal', value: 1800000, wage: 34, cardFace: asset('/assets/ronaldo-card.webp') },
+  { id: 31, name: 'Pelé', ovr: 127, pos: 'CF', nation: 'Brazil', flag: 'BR', club: 'Santos', tier: 'eternal', value: 1300000, wage: 34, cardFace: asset('/assets/pele-card.webp') },
+  { id: 32, name: 'J. Cruyff', ovr: 126, pos: 'CF', nation: 'Hà Lan', flag: 'NL', club: 'Ajax', tier: 'eternal', value: 1200000, wage: 33, cardFace: asset('/assets/cruyff-card.webp') },
+  { id: 33, name: 'R. Gullit', ovr: 125, pos: 'CF', nation: 'Hà Lan', flag: 'NL', club: 'Milano', tier: 'eternal', value: 2000000, wage: 34, cardFace: asset('/assets/gullit-card.webp') },
+  { id: 5, name: 'T. Henry', ovr: 124, pos: 'ST', nation: 'Pháp', flag: 'FR', club: 'Arsenal', tier: 'eternal', value: 850000, wage: 32, cardFace: asset('/assets/henry-card.webp') },
+  { id: 34, name: 'Eusébio', ovr: 125, pos: 'ST', nation: 'Bồ Đào Nha', flag: 'PT', club: 'Benfica', tier: 'eternal', value: 900000, wage: 33, cardFace: asset('/assets/eusebio-card.webp') },
+  { id: 35, name: 'W. Rooney', ovr: 124, pos: 'ST', nation: 'Anh', flag: 'EN', club: 'Manchester Đỏ', tier: 'eternal', value: 500000, wage: 32, cardFace: asset('/assets/rooney-card.webp') },
+  { id: 36, name: 'D. Drogba', ovr: 124, pos: 'ST', nation: 'Bờ Biển Ngà', flag: 'CI', club: 'Chelsea', tier: 'eternal', value: 450000, wage: 33, cardFace: asset('/assets/drogba-card.webp') },
+  { id: 37, name: 'Fernando Torres', ovr: 122, pos: 'ST', nation: 'Tây Ban Nha', flag: 'ES', club: 'Liverpool', tier: 'eternal', value: 350000, wage: 32, cardFace: asset('/assets/torres-card.webp') },
   { id: 3, name: 'Z. Zidane', ovr: 126, pos: 'CAM', nation: 'Pháp', flag: 'FR', club: 'Madrid', tier: 'eternal', value: 1100000, wage: 34, cardFace: asset('/assets/zidane-card.webp') },
-  { id: 4, name: 'Ronaldinho', ovr: 125, pos: 'LW', nation: 'Brazil', flag: 'BR', club: 'Barcelona', tier: 'eternal', value: 950000, wage: 32, cardFace: asset('/assets/ronaldinho-card.png') },
-  { id: 8, name: 'D. Beckham', ovr: 124, pos: 'RM', nation: 'Anh', flag: 'EN', club: 'Manchester Đỏ', tier: 'eternal', value: 600000, wage: 32, cardFace: asset('/assets/beckham-card.png') },
-  { id: 38, name: 'Kaká', ovr: 124, pos: 'CAM', nation: 'Brazil', flag: 'BR', club: 'Milano', tier: 'eternal', value: 600000, wage: 33, cardFace: asset('/assets/kaka-card.png') },
-  { id: 39, name: 'P. Vieira', ovr: 123, pos: 'CDM', nation: 'Pháp', flag: 'FR', club: 'Arsenal', tier: 'eternal', value: 800000, wage: 32, cardFace: asset('/assets/vieira-card.png') },
-  { id: 40, name: 'M. Ballack', ovr: 123, pos: 'CAM', nation: 'Đức', flag: 'DE', club: 'Chelsea', tier: 'eternal', value: 500000, wage: 32, cardFace: asset('/assets/ballack-card.png') },
-  { id: 41, name: 'S. Gerrard', ovr: 123, pos: 'CAM', nation: 'Anh', flag: 'EN', club: 'Liverpool', tier: 'eternal', value: 400000, wage: 32, cardFace: asset('/assets/gerrard-card.png') },
+  { id: 4, name: 'Ronaldinho', ovr: 125, pos: 'LW', nation: 'Brazil', flag: 'BR', club: 'Barcelona', tier: 'eternal', value: 950000, wage: 32, cardFace: asset('/assets/ronaldinho-card.webp') },
+  { id: 8, name: 'D. Beckham', ovr: 124, pos: 'RM', nation: 'Anh', flag: 'EN', club: 'Manchester Đỏ', tier: 'eternal', value: 600000, wage: 32, cardFace: asset('/assets/beckham-card.webp') },
+  { id: 38, name: 'Kaká', ovr: 124, pos: 'CAM', nation: 'Brazil', flag: 'BR', club: 'Milano', tier: 'eternal', value: 600000, wage: 33, cardFace: asset('/assets/kaka-card.webp') },
+  { id: 39, name: 'P. Vieira', ovr: 123, pos: 'CDM', nation: 'Pháp', flag: 'FR', club: 'Arsenal', tier: 'eternal', value: 800000, wage: 32, cardFace: asset('/assets/vieira-card.webp') },
+  { id: 40, name: 'M. Ballack', ovr: 123, pos: 'CAM', nation: 'Đức', flag: 'DE', club: 'Chelsea', tier: 'eternal', value: 500000, wage: 32, cardFace: asset('/assets/ballack-card.webp') },
+  { id: 41, name: 'S. Gerrard', ovr: 123, pos: 'CAM', nation: 'Anh', flag: 'EN', club: 'Liverpool', tier: 'eternal', value: 400000, wage: 32, cardFace: asset('/assets/gerrard-card.webp') },
   { id: 42, name: 'Park Ji-sung', ovr: 122, pos: 'CAM', nation: 'Hàn Quốc', flag: 'KR', club: 'Manchester Đỏ', tier: 'eternal', value: 300000, wage: 31, cardFace: asset('/assets/park-card.webp') },
-  { id: 6, name: 'P. Maldini', ovr: 125, pos: 'LB', nation: 'Ý', flag: 'IT', club: 'Milano', tier: 'eternal', value: 700000, wage: 32, cardFace: asset('/assets/maldini-card.png') },
-  { id: 43, name: 'R. Ferdinand', ovr: 123, pos: 'CB', nation: 'Anh', flag: 'EN', club: 'Manchester Đỏ', tier: 'eternal', value: 480000, wage: 32, cardFace: asset('/assets/ferdinand-card.png') },
-  { id: 44, name: 'N. Vidić', ovr: 122, pos: 'CB', nation: 'Serbia', flag: 'RS', club: 'Manchester Đỏ', tier: 'eternal', value: 300000, wage: 31, cardFace: asset('/assets/vidic-card.png') },
+  { id: 6, name: 'P. Maldini', ovr: 125, pos: 'LB', nation: 'Ý', flag: 'IT', club: 'Milano', tier: 'eternal', value: 700000, wage: 32, cardFace: asset('/assets/maldini-card.webp') },
+  { id: 43, name: 'R. Ferdinand', ovr: 123, pos: 'CB', nation: 'Anh', flag: 'EN', club: 'Manchester Đỏ', tier: 'eternal', value: 480000, wage: 32, cardFace: asset('/assets/ferdinand-card.webp') },
+  { id: 44, name: 'N. Vidić', ovr: 122, pos: 'CB', nation: 'Serbia', flag: 'RS', club: 'Manchester Đỏ', tier: 'eternal', value: 300000, wage: 31, cardFace: asset('/assets/vidic-card.webp') },
   { id: 45, name: 'Roberto Carlos', ovr: 124, pos: 'LB', nation: 'Brazil', flag: 'BR', club: 'Madrid', tier: 'eternal', value: 250000, wage: 32, cardFace: asset('/assets/rcarlos-card.webp') },
-  { id: 46, name: 'L. Yashin', ovr: 126, pos: 'GK', nation: 'Nga', flag: 'RU', club: 'Dynamo', tier: 'eternal', value: 200000, wage: 29, cardFace: asset('/assets/yashin-card.png') },
-  { id: 47, name: 'E. van der Sar', ovr: 121, pos: 'GK', nation: 'Hà Lan', flag: 'NL', club: 'Manchester Đỏ', tier: 'eternal', value: 280000, wage: 27, cardFace: asset('/assets/vandersar-card.png') },
-  { id: 48, name: 'P. Čech', ovr: 122, pos: 'GK', nation: 'Séc', flag: 'CZ', club: 'Chelsea', tier: 'eternal', value: 250000, wage: 27, cardFace: asset('/assets/cech-card.png') },
+  { id: 46, name: 'L. Yashin', ovr: 126, pos: 'GK', nation: 'Nga', flag: 'RU', club: 'Dynamo', tier: 'eternal', value: 200000, wage: 29, cardFace: asset('/assets/yashin-card.webp') },
+  { id: 47, name: 'E. van der Sar', ovr: 121, pos: 'GK', nation: 'Hà Lan', flag: 'NL', club: 'Manchester Đỏ', tier: 'eternal', value: 280000, wage: 27, cardFace: asset('/assets/vandersar-card.webp') },
+  { id: 48, name: 'P. Čech', ovr: 122, pos: 'GK', nation: 'Séc', flag: 'CZ', club: 'Chelsea', tier: 'eternal', value: 250000, wage: 27, cardFace: asset('/assets/cech-card.webp') },
   { id: 49, name: 'D. Maradona', ovr: 127, pos: 'CAM', nation: 'Argentina', flag: 'AR', club: 'Napoli', tier: 'eternal', wage: 33, cardFace: asset('/assets/maradona-card.webp') },
   { id: 50, name: 'M. van Basten', ovr: 126, pos: 'ST', nation: 'Hà Lan', flag: 'NL', club: 'Milano', tier: 'eternal', wage: 34, cardFace: asset('/assets/vanbasten-card.webp') },
   { id: 51, name: 'G. Müller', ovr: 126, pos: 'ST', nation: 'Đức', flag: 'DE', club: 'Bayern', tier: 'eternal', wage: 34, cardFace: asset('/assets/muller-card.webp') },
@@ -339,14 +339,14 @@ export const players: Player[] = [
   ...ambPlayers,
 ];
 export const packs: Pack[] = [
-  { id: 'eternal', name: 'ICONTM (ALL)', short: 'TM', price: 1500000, weights: [0, 0, 100, 0, 0, 0, 0, 0], description: 'Nơi những huyền thoại trở lại.', range: '117–127', color: 'gold', back: asset('/assets/icon-tm-back.png'), tunnel: asset('/assets/itm-tunnel.webp'), accent: '#ffd23f', stage: { top: '#b8893a', ring: '#fff0c2' } },
-  { id: 'stellar', name: '26TS (ALL)', short: '26TS', price: 500000, weights: [0, 100, 0, 0, 0, 0, 0, 0], description: 'Tỏa sáng cùng những ngôi sao.', range: '118–126', color: 'blue', back: asset('/assets/ts26-back.png'), tunnel: asset('/assets/ts26-tunnel.webp'), accent: '#4f8dff', stage: { top: '#1f45c8', ring: '#8fb0ff' } },
+  { id: 'eternal', name: 'ICONTM (ALL)', short: 'TM', price: 1500000, weights: [0, 0, 100, 0, 0, 0, 0, 0], description: 'Nơi những huyền thoại trở lại.', range: '117–127', color: 'gold', back: asset('/assets/icon-tm-back.webp'), tunnel: asset('/assets/itm-tunnel.webp'), accent: '#ffd23f', stage: { top: '#b8893a', ring: '#fff0c2' } },
+  { id: 'stellar', name: '26TS (ALL)', short: '26TS', price: 500000, weights: [0, 100, 0, 0, 0, 0, 0, 0], description: 'Tỏa sáng cùng những ngôi sao.', range: '118–126', color: 'blue', back: asset('/assets/ts26-back.webp'), tunnel: asset('/assets/ts26-tunnel.webp'), accent: '#4f8dff', stage: { top: '#1f45c8', ring: '#8fb0ff' } },
   { id: 'origin', name: 'NO.7 (ALL)', short: 'NO.7', price: 100000, weights: [100, 0, 0, 0, 0, 0, 0, 0], description: '24 ngôi sao mang dấu ấn số 7.', range: '115–119', color: 'silver', back: asset('/assets/no7-back.webp'), tunnel: asset('/assets/no7-tunnel.webp'), stage: { top: '#5b6b7d', ring: '#d5e1eb' } },
-  { id: 'prime', name: 'INFINITE PRIME (ALL)', short: 'IP', price: 2000000, weights: [0, 0, 0, 100, 0, 0, 0, 0], description: 'Đỉnh cao không giới hạn.', range: '124–136', color: 'gold', back: asset('/assets/prime-back.png'), tunnel: asset('/assets/prime-tunnel.webp'), accent: '#e0473f', stage: { top: '#8e1420', ring: '#ffd98a', led: '#ffcf6b' } },
-  { id: 'vietnam', name: 'VIETNAM (ALL)', short: 'VN', price: 1000000, weights: [0, 0, 0, 0, 100, 0, 0, 0], description: 'Những ngôi sao mang màu cờ sắc áo Việt Nam.', range: '105–119', color: 'red', back: asset('/assets/vietnam-back.png'), tunnel: asset('/assets/vietnam-tunnel.webp'), accent: '#e8453c', stage: { top: '#a3121c', ring: '#f2c75c', led: '#ffd66b' } },
-  { id: 'prm', name: 'PRIME (ALL)', short: 'PRM', price: 1800000, weights: [0, 0, 0, 0, 0, 100, 0, 0], description: 'Những ngôi sao rực lửa của mùa PRIME.', range: '119–126', color: 'red', back: asset('/assets/prm-back.png'), tunnel: asset('/assets/prm-tunnel.webp'), accent: '#f06a2a', stage: { top: '#7d1208', ring: '#f3c56b', led: '#ffb24a' } },
-  { id: 'mdl', name: 'MEDALIST (ALL)', short: 'MDL', price: 800000, weights: [0, 0, 0, 0, 0, 0, 100, 0], description: 'Những nhà vô địch mang huy chương.', range: '100–115', color: 'gold', back: asset('/assets/mdl-back.png'), tunnel: asset('/assets/mdl-tunnel.webp'), accent: '#d8b45a', stage: { top: '#1f2a5c', ring: '#f0d38a', led: '#f4dc9c' } },
-  { id: 'amb', name: 'FC AMBASSADOR (ALL)', short: 'FC', price: 900000, weights: [0, 0, 0, 0, 0, 0, 0, 100], description: 'Những đại sứ của FC.', range: '106–112', color: 'green', back: asset('/assets/amb-back.png'), tunnel: asset('/assets/amb-tunnel.webp'), accent: '#2fd35a', stage: { top: '#0d5a22', ring: '#8dffa8', led: '#6dff8f' } },
+  { id: 'prime', name: 'INFINITE PRIME (ALL)', short: 'IP', price: 2000000, weights: [0, 0, 0, 100, 0, 0, 0, 0], description: 'Đỉnh cao không giới hạn.', range: '124–136', color: 'gold', back: asset('/assets/prime-back.webp'), tunnel: asset('/assets/prime-tunnel.webp'), accent: '#e0473f', stage: { top: '#8e1420', ring: '#ffd98a', led: '#ffcf6b' } },
+  { id: 'vietnam', name: 'VIETNAM (ALL)', short: 'VN', price: 1000000, weights: [0, 0, 0, 0, 100, 0, 0, 0], description: 'Những ngôi sao mang màu cờ sắc áo Việt Nam.', range: '105–119', color: 'red', back: asset('/assets/vietnam-back.webp'), tunnel: asset('/assets/vietnam-tunnel.webp'), accent: '#e8453c', stage: { top: '#a3121c', ring: '#f2c75c', led: '#ffd66b' } },
+  { id: 'prm', name: 'PRIME (ALL)', short: 'PRM', price: 1800000, weights: [0, 0, 0, 0, 0, 100, 0, 0], description: 'Những ngôi sao rực lửa của mùa PRIME.', range: '119–126', color: 'red', back: asset('/assets/prm-back.webp'), tunnel: asset('/assets/prm-tunnel.webp'), accent: '#f06a2a', stage: { top: '#7d1208', ring: '#f3c56b', led: '#ffb24a' } },
+  { id: 'mdl', name: 'MEDALIST (ALL)', short: 'MDL', price: 800000, weights: [0, 0, 0, 0, 0, 0, 100, 0], description: 'Những nhà vô địch mang huy chương.', range: '100–115', color: 'gold', back: asset('/assets/mdl-back.webp'), tunnel: asset('/assets/mdl-tunnel.webp'), accent: '#d8b45a', stage: { top: '#1f2a5c', ring: '#f0d38a', led: '#f4dc9c' } },
+  { id: 'amb', name: 'FC AMBASSADOR (ALL)', short: 'FC', price: 900000, weights: [0, 0, 0, 0, 0, 0, 0, 100], description: 'Những đại sứ của FC.', range: '106–112', color: 'green', back: asset('/assets/amb-back.webp'), tunnel: asset('/assets/amb-tunnel.webp'), accent: '#2fd35a', stage: { top: '#0d5a22', ring: '#8dffa8', led: '#6dff8f' } },
 ];
 
 export function isPackAvailable(pack: Pack): boolean {
@@ -470,24 +470,34 @@ export function upgradeInfo(target: Card, materials: Card[]) {
   return { energy, chance: Math.round(base * energy / 100 * 10) / 10, cost: target.level * 100000 };
 }
 // rng quyết định thành công / mức rớt; patternRng chọn cầu ngầm. Tách hai luồng để chuỗi roll kết quả giữ nguyên khi thêm bắt cầu.
-export function upgrade(state: Save, targetId: string, materialIds: string[], rng: Rng = random, free = false, options: { role?: UpgradeRole; patternRng?: Rng } = {}) {
+// protection: bảo vệ nâng cấp (thẻ từ +8) — pct% cơ hội giữ nguyên cấp khi thất bại, cost xu trả trước dù kết quả thế nào; tính phí ở insurance.ts.
+export const PROTECT_MIN_LEVEL = 8;
+export function upgrade(state: Save, targetId: string, materialIds: string[], rng: Rng = random, free = false, options: { role?: UpgradeRole; patternRng?: Rng; protection?: { pct: number; cost: number } } = {}) {
   const target = state.cards.find(c => c.uid === targetId);
   if (!target || target.level >= MAX_LEVEL) throw new Error(`Chọn thẻ chính có cấp cộng dưới +${MAX_LEVEL}.`);
   if (materialIds.length < 1 || materialIds.length > 5 || new Set(materialIds).size !== materialIds.length || materialIds.includes(targetId)) throw new Error('Cần chọn từ 1 đến 5 thẻ nguyên liệu khác nhau.');
   const materials = materialIds.map(id => state.cards.find(c => c.uid === id));
   if (materials.some(c => !c)) throw new Error('Nguyên liệu không còn trong kho.');
   const selected = materials as Card[];
+  const lockedMaterial = selected.find(c => state.locked?.includes(c.uid));
+  if (lockedMaterial) throw new Error(`${getPlayer(lockedMaterial).name} đang bị khóa, không dùng làm nguyên liệu được.`);
   const info = upgradeInfo(target, selected);
-  if (!free && state.balance < info.cost) throw new Error('Bạn không đủ xu nâng cấp.');
+  const protection = options.protection && options.protection.pct > 0 ? options.protection : null;
+  if (protection && (!Number.isInteger(protection.pct) || protection.pct > 100 || !Number.isSafeInteger(protection.cost) || protection.cost < 0)) throw new Error('Mức bảo vệ nâng cấp không hợp lệ.');
+  if (protection && target.level < PROTECT_MIN_LEVEL) throw new Error(`Bảo vệ nâng cấp chỉ áp dụng cho thẻ từ +${PROTECT_MIN_LEVEL}.`);
+  const protectCost = protection?.cost ?? 0;
+  if (!free && state.balance < info.cost + protectCost) throw new Error(protectCost ? 'Bạn không đủ xu cho phí nâng cấp và phí bảo vệ.' : 'Bạn không đủ xu nâng cấp.');
   // Tỷ lệ gốc = bảng UPGRADE_LEVELS theo năng lượng nguyên liệu; engine bắt cầu cộng thưởng rồi roll.
   const turn = resolveUpgrade(state.bridge ?? emptyBridge(), { currentLevel: target.level, baseRate: info.chance, role: options.role ?? 'main' }, { outcome: rng, pattern: options.patternRng ?? random });
   const { success, drop: droppedLevel } = turn;
   const recoveryFloor = Math.max(0, ...selected.filter(card => card.playerId === target.playerId).map(card => card.level));
-  const restoredLevel = droppedLevel !== null && recoveryFloor > droppedLevel ? recoveryFloor : null;
-  const result = { ...target, level: success ? target.level + 1 : restoredLevel ?? droppedLevel! };
-  const transition = restoredLevel !== null ? `+${target.level} → +${droppedLevel} → +${result.level} · Phục hồi bằng phôi trùng` : `+${target.level} → +${result.level}`;
-  const entry: Entry = { id: uid(), time: Date.now(), type: 'upgrade', success, title: `${success ? 'Thành công' : 'Thất bại'} · ${getPlayer(target).name}`, detail: `${transition} · ${materials.length} nguyên liệu · ${free ? 'Thử nghiệm · Không trừ xu' : `−${money(info.cost)} xu`}` };
-  return { state: { ...state, balance: free ? state.balance : state.balance - info.cost, cards: state.cards.filter(c => !materialIds.includes(c.uid)).map(c => c.uid === targetId ? result : c), history: [entry, ...state.history].slice(0, 200), upgrades: state.upgrades + 1, bridge: turn.bridge }, result, success, info, droppedLevel, restoredLevel, turn: turn.turn };
+  // Roll bảo vệ chỉ xảy ra khi thất bại và có bảo vệ, nên chuỗi RNG của các lượt không bảo vệ giữ nguyên.
+  const shielded = !success && !!protection && rng() * 100 < protection.pct;
+  const restoredLevel = !shielded && droppedLevel !== null && recoveryFloor > droppedLevel ? recoveryFloor : null;
+  const result = { ...target, level: success ? target.level + 1 : shielded ? target.level : restoredLevel ?? droppedLevel! };
+  const transition = shielded ? `+${target.level} → giữ nguyên +${target.level} · Bảo vệ nâng cấp` : restoredLevel !== null ? `+${target.level} → +${droppedLevel} → +${result.level} · Phục hồi bằng phôi trùng` : `+${target.level} → +${result.level}`;
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'upgrade', success, title: `${success ? 'Thành công' : 'Thất bại'} · ${getPlayer(target).name}`, detail: `${transition} · ${materials.length} nguyên liệu${protection ? ` · Bảo vệ ${protection.pct}%` : ''} · ${free ? 'Thử nghiệm · Không trừ xu' : `−${money(info.cost + protectCost)} xu`}` };
+  return { state: { ...state, balance: free ? state.balance : state.balance - info.cost - protectCost, cards: state.cards.filter(c => !materialIds.includes(c.uid)).map(c => c.uid === targetId ? result : c), history: [entry, ...state.history].slice(0, 200), upgrades: state.upgrades + 1, bridge: turn.bridge }, result, success, info, droppedLevel, restoredLevel, shielded, protectCost, turn: turn.turn };
 }
 export function dayKey(date = new Date()) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date); }
 export function claimDaily(state: Save): Save {
@@ -508,6 +518,17 @@ export function validateSave(data: unknown): data is Save {
   }
   // Trạng thái cầu hỏng thì bỏ, engine bắt đầu lại; không làm mất cả bản lưu.
   if (s.bridge !== undefined && !isBridgeState(s.bridge)) delete s.bridge;
+  // Đội hình riêng (Quản lí CT): bỏ dữ liệu sai kiểu, thẻ không còn trong kho và uid trùng.
+  if (s.squad !== undefined) {
+    const owned = new Set(Array.isArray(s.cards) ? s.cards.map(c => c?.uid) : []);
+    if (Array.isArray(s.squad)) s.squad = [...new Set(s.squad.filter(uid => typeof uid === 'string' && owned.has(uid)))]; else delete s.squad;
+  }
+  // Mức bảo vệ nâng cấp đã lưu: sai kiểu thì bỏ.
+  if (s.protection !== undefined && !(s.protection && Number.isInteger(s.protection.pct) && s.protection.pct >= 0 && s.protection.pct <= 100 && s.protection.pct % 10 === 0 && typeof s.protection.fixed === 'boolean')) delete s.protection;
+  if (s.locked !== undefined) {
+    const owned = new Set(Array.isArray(s.cards) ? s.cards.map(c => c?.uid) : []);
+    if (Array.isArray(s.locked)) s.locked = [...new Set(s.locked.filter(uid => typeof uid === 'string' && owned.has(uid)))]; else delete s.locked;
+  }
   if (s.prepaid !== undefined && (!s.prepaid || typeof s.prepaid !== 'object' || Array.isArray(s.prepaid) || !Object.entries(s.prepaid).every(([id, count]) => { const pack = packs.find(p => p.id === id); return !!pack && Number.isSafeInteger(count) && count >= 0 && count <= getPackStock(s, pack); }))) return false;
   return s.version === 1 && Number.isSafeInteger(s.balance) && s.balance >= 0 && Array.isArray(s.cards) && s.cards.every(c => c && typeof c.uid === 'string' && players.some(p => p.id === c.playerId) && Number.isInteger(c.level) && c.level >= 1 && c.level <= MAX_LEVEL && Number.isFinite(c.received)) && new Set(s.cards.map(c => c.uid)).size === s.cards.length && Array.isArray(s.history) && s.history.every(e => e && typeof e.id === 'string' && Number.isFinite(e.time) && ['pack', 'upgrade', 'gift', 'market', 'shop'].includes(e.type) && typeof e.title === 'string' && typeof e.detail === 'string') && typeof s.daily === 'string' && Number.isSafeInteger(s.opened) && s.opened >= 0 && Number.isSafeInteger(s.upgrades) && s.upgrades >= 0 && typeof s.sound === 'boolean' && typeof s.reduced === 'boolean' && (s.quick === undefined || typeof s.quick === 'boolean') && (s.light === undefined || typeof s.light === 'boolean') && (s.unopened === undefined || (!!s.unopened && typeof s.unopened === 'object' && !Array.isArray(s.unopened) && packs.every(p => s.unopened![p.id] === undefined || (Number.isSafeInteger(s.unopened![p.id]) && s.unopened![p.id] >= 0))));
 }

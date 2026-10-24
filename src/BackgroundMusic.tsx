@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { asset } from './asset';
 
+const tracks = ['/assets/background-music.mp3', '/assets/RTI.mp3', '/assets/SGD.mp3'];
+
 export default function BackgroundMusic() {
+  const trackIndex = useRef(0);
   const audioRef = useRef<HTMLAudioElement>(null);
   const autoStartWanted = useRef(true);
   const [playing, setPlaying] = useState(false);
@@ -61,10 +64,26 @@ export default function BackgroundMusic() {
     }
   };
 
+  const playNextTrack = async () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    trackIndex.current = (trackIndex.current + 1) % tracks.length;
+    audio.src = asset(tracks[trackIndex.current]);
+    setError('');
+    setLoading(true);
+    try {
+      await audio.play();
+    } catch {
+      setError('Không phát được nhạc. Nhấn nút bật nhạc để thử lại.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const label = loading ? 'Đang tải nhạc' : playing ? 'Tắt nhạc' : 'Bật nhạc';
 
   return <>
-    <audio ref={audioRef} src={asset('/assets/background-music.mp3')} loop preload="auto"
+    <audio ref={audioRef} src={asset(tracks[0])} onEnded={playNextTrack} preload="auto"
       onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)}
       onError={() => { setPlaying(false); setLoading(false); setError('Không tải được nhạc. Nhấn nút bật nhạc để thử lại.'); }}/>
     <button className="icon-button music-button" type="button" aria-label={label} title={label}

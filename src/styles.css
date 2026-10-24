@@ -206,7 +206,7 @@
 .face-1 .face-art-ovr{left:26.8%;top:18.2%;font-size:10.9cqw}
 .face-1 .face-art-level{left:27.1%;top:62.8%;width:16.6%}
 /* Máº·t sÃ¡ng lÃºc láº­t tháº» ICON láº¥y Ä‘Ãºng dÃ¡ng tháº» thay cho khá»‘i chá»¯ nháº­t */
-:root{--tm-mask:url(/assets/icon-tm-back.png)}
+:root{--tm-mask:url(/assets/icon-tm-back.webp)}
 .tm-flip .flip-back,.is-flipping .tm-flip .flip-back{border:0;box-shadow:none;background:#fff;-webkit-mask:var(--tm-mask) center/contain no-repeat;mask:var(--tm-mask) center/contain no-repeat}
 .tm-flip .flip-back:before{display:none}
 .is-flipping .tm-flip .flip-back{filter:drop-shadow(0 0 18px #f4faffcc) drop-shadow(0 0 40px #c9e7ff88)}
@@ -522,6 +522,17 @@ img.card-level{background:none;border:0;padding:0;border-radius:0;height:20px;wi
 .fco-stats b{font-family:var(--display);font-size:22px;font-weight:600;color:#fff;line-height:1}
 .fco-stats em{font-style:normal;color:#2be27a;font-weight:700;font-size:14px}
 .fco-stats .fco-price{font-size:24px}
+.rolling-money,.rolling-money-digits{display:inline-flex;vertical-align:bottom;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rolling-money-cell{display:block;overflow:hidden;height:1.15em;line-height:1.15em}
+.rolling-money-cell.is-digit{width:.6em;text-align:center}
+.rolling-money-reel{display:flex;flex-direction:column;will-change:transform}
+.rolling-money-digit{display:block;flex:none;height:1.15em;line-height:1.15em}
+.upgrade-price-change{margin:14px auto 0;text-align:center}
+.upgrade-price-change>span{font-size:12px;color:#aeb6c2}
+.upgrade-price-change>div{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:7px;font-variant-numeric:tabular-nums}
+.upgrade-price-change s{color:#aeb6c2;font-size:16px}
+.upgrade-price-change strong{display:inline-flex;align-items:baseline;white-space:pre;color:#2be27a;font-size:26px;font-weight:600;line-height:1.15}
+@media(max-width:640px){.upgrade-price-change strong{font-size:22px}.upgrade-price-change s{font-size:14px}}
 .fco-badge{height:22px;width:auto;display:block}
 .fco-change{display:flex;align-items:center;justify-content:center;gap:10px;width:calc(100% + 52px);margin:4px -26px 6px;padding:13px;background:#2a3038;font-family:var(--display);font-size:17px;font-weight:600;color:#fff}
 .fco-change:hover{background:#343b45}
@@ -530,14 +541,31 @@ img.card-level{background:none;border:0;padding:0;border-radius:0;height:20px;wi
 @property --fco-fill{syntax:"<color>";inherits:true;initial-value:#1fe36b}
 @property --fco-fill-stripe{syntax:"<color>";inherits:true;initial-value:#18c95c}
 .fco-energy{--fco-fill:#1fe36b;--fco-fill-stripe:#18c95c;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;transition:--fco-energy var(--energy-duration,.4s) cubic-bezier(.22,1,.36,1),--fco-fill .9s ease,--fco-fill-stripe .9s ease}
-.fco-energy.is-full{--fco-fill:#f5df91;--fco-fill-stripe:#c39436}
-.reduced-motion .fco-energy{transition:none}
+/* Vàng kim quét từ vạch 5 về vạch 1 rồi phát sáng khi đủ năng lượng. */
+.fco-energy.is-full{--fco-fill:#f5df91;--fco-fill-stripe:#c39436;transition:none;animation:fco-energy-full-colors 1.5s linear both}
+@keyframes fco-energy-full-colors{0%,15%{--fco-fill:#1fe36b;--fco-fill-stripe:#18c95c}45%,65%{--fco-fill:#a9e17e;--fco-fill-stripe:#8cbd50}100%{--fco-fill:#f5df91;--fco-fill-stripe:#c39436}}
+.fco-energy.is-full i{overflow:hidden;background:#1fe36b;animation:fco-energy-gold-glow .3s ease-out 1.5s both}
+.fco-energy.is-full i:nth-child(1){--gold-delay:.26s}
+.fco-energy.is-full i:nth-child(2){--gold-delay:.195s}
+.fco-energy.is-full i:nth-child(3){--gold-delay:.13s}
+.fco-energy.is-full i:nth-child(4){--gold-delay:.065s}
+.fco-energy.is-full i:nth-child(5){--gold-delay:0s}
+.fco-energy.is-full i::before{animation:fco-energy-gold-fill .19s linear var(--gold-delay) both}
+.fco-energy.is-full i::after{left:0;right:0;background:linear-gradient(90deg,transparent 20%,#fff5ca 52%,transparent 85%);opacity:0;animation:fco-energy-gold-shine .19s linear var(--gold-delay) both;clip-path:inset(0)}
+@keyframes fco-energy-gold-fill{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0)}}
+@keyframes fco-energy-gold-shine{0%{opacity:0;transform:translateX(100%)}20%{opacity:.9}80%{opacity:.9}100%{opacity:0;transform:translateX(-100%)}}
+@keyframes fco-energy-gold-glow{0%{box-shadow:0 0 0 #f5d57700}45%{box-shadow:0 0 15px #ffd76b99,inset 0 0 5px #fff4c9}100%{box-shadow:0 0 9px #edbd4b66,inset 0 0 3px #fff1b477}}
+.reduced-motion .fco-energy.is-full i,.reduced-motion .fco-energy.is-full i::before,.reduced-motion .fco-energy.is-full i::after{animation:none}
+.reduced-motion .fco-energy.is-full i{box-shadow:0 0 9px #edbd4b66}
+.reduced-motion .fco-energy.is-full i::after{display:none}
+@media(prefers-reduced-motion:reduce){.fco-energy.is-full i,.fco-energy.is-full i::before,.fco-energy.is-full i::after{animation:none}.fco-energy.is-full i{box-shadow:0 0 9px #edbd4b66}.fco-energy.is-full i::after{display:none}}
+.reduced-motion .fco-energy{transition:none;animation:none}
 .fco-energy i{height:28px;background:#2a3038;position:relative;display:flex;align-items:center;padding-left:6px;font-style:normal}
 .fco-energy i b{font-family:var(--display);font-size:19px;color:#0b0e12;position:relative;z-index:1;transition:color var(--energy-duration,.4s) ease}
 .fco-energy i:not(.full):not(.part) b{color:#59626e}
 .fco-energy i::before{content:'';position:absolute;left:0;top:0;bottom:0;width:clamp(0%,calc((var(--fco-energy) - var(--energy-start))*5%),100%);background:repeating-linear-gradient(135deg,var(--fco-fill) 0 7px,var(--fco-fill-stripe) 7px 9px)}
 .fco-energy i::after{content:'';position:absolute;top:0;bottom:0;left:clamp(0%,calc((var(--fco-energy) - var(--energy-start))*5%),100%);right:calc(100% - clamp(0%,calc((var(--fco-preview-energy,var(--fco-energy)) - var(--energy-start))*5%),100%));background:repeating-linear-gradient(135deg,#fff 0 7px,#e5e7eb 7px 9px);opacity:.35;pointer-events:none}
-@media(prefers-reduced-motion:reduce){.fco-energy,.fco-energy i b{transition:none}}
+@media(prefers-reduced-motion:reduce){.fco-energy,.fco-energy i b{transition:none;animation:none}}
 .fco-used{grid-template-columns:1fr;align-items:start;gap:8px}
 /* Phôi xếp chồng: thẻ rộng W = 100%/4.12, thẻ sau lùi 0.78W (đè 22%) nên 5 thẻ vừa khít khung; tỷ lệ khung = 4.12 × 230/326 (phần thẻ nhìn thấy; viền hiệu ứng trong suốt của ảnh tràn ra hai bên). */
 .fco-stack{position:relative;isolation:isolate;width:100%;margin-inline:auto;aspect-ratio:2.907;min-width:0;padding:0}

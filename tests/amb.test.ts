@@ -25,8 +25,8 @@ test('9 thẻ FC AMBASSADOR: ảnh tồn tại, OVR khớp khoảng gói, logo �
   assert.equal(pack.range, `${Math.min(...ovrs)}–${Math.max(...ovrs)}`);
   assert.equal(logo('V. van Dijk'), logo('F. Chiesa'));
   assert.equal(logo('Vini Jr.'), logo('J. Bellingham'));
-  assert.equal(logo('J. Grealish'), '/assets/clubs/everton.png');
-  assert.equal(logo('Y. Moukoko'), '/assets/clubs/fc-copenhagen.png');
+  assert.equal(logo('J. Grealish'), '/assets/clubs/everton.webp');
+  assert.equal(logo('Y. Moukoko'), '/assets/clubs/fc-copenhagen.webp');
 });
 
 test('Gói FC AMBASSADOR mở được, mỗi thẻ đều rút được, gói khác không ra nhầm', () => {

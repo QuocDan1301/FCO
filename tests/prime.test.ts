@@ -24,7 +24,7 @@ test('60 thẻ INFINITE PRIME có ID riêng, đúng khoảng OVR, đủ ảnh v�
     assert.ok(p.cardFace?.startsWith('/assets/prime-'));
     assert.ok(existsSync(new URL(`../public${p.cardFace}`, import.meta.url)));
     assert.ok(p.wage && p.wage >= 29 && p.wage <= 38);
-    assert.equal(getTeamLogo(p), '/assets/prime-team.png');
+    assert.equal(getTeamLogo(p), '/assets/prime-team.webp');
   }
 });
 
@@ -50,18 +50,22 @@ test('Mọi thẻ mới đều mở được trong gói PRIME, lưu được và
   assert.ok(validateSave(JSON.parse(JSON.stringify(upgraded.state))));
 });
 
-test('Thẻ PRIME chưa có giá ở +1…+13; chặn mua/bán kể cả chế độ thử', () => {
+test('Thẻ PRIME giao dịch theo giá từng cấp; chỉ chặn ô chưa có giá', () => {
   const state = initialSave();
   assert.equal(formatMarketPrice(null), 'Chưa có giá');
   for (const p of roster) {
     for (let level = 1; level <= MAX_LEVEL; level++) {
       const card = { ...makeCard(p.id), level };
       const quote = marketQuote(card);
-      assert.equal(quote.price, null);
-      assert.equal(quote.available, false);
-      assert.equal(quote.proceeds, null);
-      assert.throws(() => buyPlayer(state, p.id, level, true), /Chưa có giá/);
-      assert.throws(() => sellPlayer({ ...state, cards: [card] }, card.uid, true), /Chưa có giá/);
+      if (!quote.available) {
+        assert.equal(quote.price, null);
+        assert.equal(quote.proceeds, null);
+        assert.throws(() => buyPlayer(state, p.id, level, true), /Chưa có giá/);
+        assert.throws(() => sellPlayer({ ...state, cards: [card] }, card.uid, true), /Chưa có giá/);
+      } else {
+        assert.equal(buyPlayer(state, p.id, level, true).card.level, level);
+        assert.ok(!sellPlayer({ ...state, cards: [card] }, card.uid, true).state.cards.some(c => c.uid === card.uid));
+      }
     }
   }
 });

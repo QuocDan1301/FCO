@@ -1,0 +1,72 @@
+[
+  {
+    "sel": ".fco-left",
+    "x": 1,
+    "y": 117,
+    "w": 596.171875,
+    "h": 536,
+    "scrollHeight": 536,
+    "display": "flex",
+    "grid": "none"
+  },
+  {
+    "sel": ".fco-target",
+    "x": 19,
+    "y": 135,
+    "w": 560.171875,
+    "h": 146.34375,
+    "scrollHeight": 257,
+    "display": "grid",
+    "grid": "212.859px 331.312px"
+  },
+  {
+    "sel": ".fco-stats",
+    "x": 247.859375,
+    "y": 135,
+    "w": 331.3125,
+    "h": 256.59375,
+    "scrollHeight": 257,
+    "display": "block",
+    "grid": "none"
+  },
+  {
+    "sel": ".fco-change",
+    "x": 19,
+    "y": 291.34375,
+    "w": 560.171875,
+    "h": 37.5,
+    "scrollHeight": 38,
+    "display": "flex",
+    "grid": "none"
+  },
+  {
+    "sel": ".fco-perk",
+    "x": 19,
+    "y": 338.84375,
+    "w": 560.171875,
+    "h": 27,
+    "scrollHeight": 27,
+    "display": "grid",
+    "grid": "150px 398.172px"
+  },
+  {
+    "sel": ".fco-used",
+    "x": 19,
+    "y": 496.65625,
+    "w": 560.171875,
+    "h": 138.34375,
+    "scrollHeight": 138,
+    "display": "grid",
+    "grid": "150px 402.172px"
+  },
+  {
+    "sel": ".fco-stack",
+    "x": 177,
+    "y": 496.65625,
+    "w": 402.171875,
+    "h": 138.34375,
+    "scrollHeight": 138,
+    "display": "block",
+    "grid": "none"
+  }
+]

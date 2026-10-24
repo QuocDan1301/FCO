@@ -1,0 +1,282 @@
+[
+  {
+    "row": 373,
+    "id": 383,
+    "name": "Đỗ Hùng Dũng",
+    "ovr": 105,
+    "price": 789000
+  },
+  {
+    "row": 374,
+    "id": 384,
+    "name": "Đỗ Hoàng Hên",
+    "ovr": 119,
+    "price": 11300000
+  },
+  {
+    "row": 375,
+    "id": 385,
+    "name": "Đỗ Duy Mạnh",
+    "ovr": 115,
+    "price": 915000
+  },
+  {
+    "row": 376,
+    "id": 386,
+    "name": "Đặng Văn Lâm",
+    "ovr": 109,
+    "price": 2970000
+  },
+  {
+    "row": 377,
+    "id": 387,
+    "name": "Đoàn Văn Hậu",
+    "ovr": 114,
+    "price": 672000
+  },
+  {
+    "row": 378,
+    "id": 388,
+    "name": "Vũ Văn Thanh",
+    "ovr": 111,
+    "price": 1990000
+  },
+  {
+    "row": 379,
+    "id": 389,
+    "name": "Trần Đình Trọng",
+    "ovr": 116,
+    "price": 825000
+  },
+  {
+    "row": 380,
+    "id": 390,
+    "name": "Trần Trung Kiên",
+    "ovr": 117,
+    "price": 4670000
+  },
+  {
+    "row": 381,
+    "id": 391,
+    "name": "Quế Ngọc Hải",
+    "ovr": 116,
+    "price": 576000
+  },
+  {
+    "row": 382,
+    "id": 392,
+    "name": "Phạm Đức Huy",
+    "ovr": 113,
+    "price": 636000
+  },
+  {
+    "row": 383,
+    "id": 393,
+    "name": "Phạm Xuân Mạnh",
+    "ovr": 113,
+    "price": 35800000
+  },
+  {
+    "row": 384,
+    "id": 394,
+    "name": "Phạm Tuấn Hải",
+    "ovr": 116,
+    "price": 682000
+  },
+  {
+    "row": 385,
+    "id": 395,
+    "name": "Phạm Thành Lương",
+    "ovr": 115,
+    "price": 71300000
+  },
+  {
+    "row": 386,
+    "id": 396,
+    "name": "Phan Văn Đức",
+    "ovr": 108,
+    "price": 96300
+  },
+  {
+    "row": 387,
+    "id": 397,
+    "name": "Phan Văn Tài Em",
+    "ovr": 114,
+    "price": 17300000
+  },
+  {
+    "row": 388,
+    "id": 398,
+    "name": "Phan Tuấn Tài",
+    "ovr": 109,
+    "price": 1480000
+  },
+  {
+    "row": 389,
+    "id": 399,
+    "name": "Nhâm Mạnh Dũng",
+    "ovr": 107,
+    "price": 55600
+  },
+  {
+    "row": 390,
+    "id": 400,
+    "name": "Nguyễn Đình Bắc",
+    "ovr": 118,
+    "price": 34000000
+  },
+  {
+    "row": 391,
+    "id": 401,
+    "name": "Nguyễn Xuân Son",
+    "ovr": 117,
+    "price": 13400000
+  },
+  {
+    "row": 392,
+    "id": 402,
+    "name": "Nguyễn Văn Tùng",
+    "ovr": 110,
+    "price": 108000
+  },
+  {
+    "row": 393,
+    "id": 403,
+    "name": "Nguyễn Văn Trường",
+    "ovr": 112,
+    "price": 427000
+  },
+  {
+    "row": 394,
+    "id": 404,
+    "name": "Nguyễn Văn Toản",
+    "ovr": 107,
+    "price": 52100
+  },
+  {
+    "row": 395,
+    "id": 405,
+    "name": "Nguyễn Văn Quyết",
+    "ovr": 112,
+    "price": 247000
+  },
+  {
+    "row": 396,
+    "id": 406,
+    "name": "Nguyễn Trọng Hoàng",
+    "ovr": 111,
+    "price": 972000
+  },
+  {
+    "row": 397,
+    "id": 407,
+    "name": "Nguyễn Tiến Linh",
+    "ovr": 115,
+    "price": 18400000
+  },
+  {
+    "row": 398,
+    "id": 408,
+    "name": "Nguyễn Thành Chung",
+    "ovr": 110,
+    "price": 606000
+  },
+  {
+    "row": 399,
+    "id": 409,
+    "name": "Nguyễn Thanh Bình",
+    "ovr": 111,
+    "price": 166000
+  },
+  {
+    "row": 400,
+    "id": 410,
+    "name": "Nguyễn Quốc Việt",
+    "ovr": 112,
+    "price": 147000
+  },
+  {
+    "row": 401,
+    "id": 411,
+    "name": "Nguyễn Quang Hải",
+    "ovr": 118,
+    "price": 20700000
+  },
+  {
+    "row": 402,
+    "id": 412,
+    "name": "Nguyễn Minh Phương",
+    "ovr": 116,
+    "price": 9780000
+  },
+  {
+    "row": 403,
+    "id": 413,
+    "name": "Nguyễn Hồng Sơn",
+    "ovr": 116,
+    "price": 56300000
+  },
+  {
+    "row": 404,
+    "id": 414,
+    "name": "Nguyễn Hoàng Đức",
+    "ovr": 119,
+    "price": 33400000
+  },
+  {
+    "row": 405,
+    "id": 415,
+    "name": "Nguyễn Hai Long",
+    "ovr": 117,
+    "price": 4140000
+  },
+  {
+    "row": 406,
+    "id": 416,
+    "name": "Nguyễn Công Phượng",
+    "ovr": 109,
+    "price": 3740000
+  },
+  {
+    "row": 407,
+    "id": 417,
+    "name": "Nguyễn Anh Đức",
+    "ovr": 115,
+    "price": 11900000
+  },
+  {
+    "row": 408,
+    "id": 418,
+    "name": "Lương Xuân Trường",
+    "ovr": 110,
+    "price": 601000
+  },
+  {
+    "row": 409,
+    "id": 419,
+    "name": "Lê Viktor",
+    "ovr": 113,
+    "price": 402000
+  },
+  {
+    "row": 410,
+    "id": 420,
+    "name": "Lê Phước Tứ",
+    "ovr": 113,
+    "price": 618000
+  },
+  {
+    "row": 411,
+    "id": 421,
+    "name": "Lê Huỳnh Đức",
+    "ovr": 118,
+    "price": 25100000
+  },
+  {
+    "row": 412,
+    "id": 422,
+    "name": "Lê Công Vinh",
+    "ovr": 117,
+    "price": 5480000
+  }
+]

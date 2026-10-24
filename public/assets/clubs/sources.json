@@ -1,8 +1,8 @@
 [
-  {"club":"Al Taawoun","url":"https://a.espncdn.com/i/teamlogos/soccer/500/18459.png","asset":"/assets/clubs/18459.png"},
-  {"club":"Telstar","url":"https://a.espncdn.com/i/teamlogos/soccer/500/3735.png","asset":"/assets/clubs/3735.png"},
-  {"club":"Famalicão","url":"https://a.espncdn.com/i/teamlogos/soccer/500/12698.png","asset":"/assets/clubs/12698.png"},
-  {"club":"Lille","url":"https://a.espncdn.com/i/teamlogos/soccer/500/166.png","asset":"/assets/clubs/166.png"},
+  {"club":"Al Taawoun","url":"https://a.espncdn.com/i/teamlogos/soccer/500/18459.png","asset":"/assets/clubs/18459.webp"},
+  {"club":"Telstar","url":"https://a.espncdn.com/i/teamlogos/soccer/500/3735.png","asset":"/assets/clubs/3735.webp"},
+  {"club":"Famalicão","url":"https://a.espncdn.com/i/teamlogos/soccer/500/12698.png","asset":"/assets/clubs/12698.webp"},
+  {"club":"Lille","url":"https://a.espncdn.com/i/teamlogos/soccer/500/166.png","asset":"/assets/clubs/166.webp"},
   {
     "club": "Ajax",
     "name": "Ajax Amsterdam",

@@ -1,0 +1,27 @@
+import fs from 'node:fs/promises';
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+const require = createRequire('C:/Users/Admin/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/loader.cjs');
+const { FileBlob, SpreadsheetFile } = await import(pathToFileURL(require.resolve('@oai/artifact-tool')).href);
+const dir = 'outputs/vietnam-prices-20261024';
+const wb = await SpreadsheetFile.importXlsx(await FileBlob.load('gia-cau-thu-bp.xlsx'));
+const sheet = wb.worksheets.getItemAt(0);
+const prices = [789000,11300000,915000,2970000,672000,1990000,825000,4670000,576000,636000,35800000,682000,71300000,96300,17300000,1480000,55600,34000000,13400000,108000,427000,52100,247000,972000,18400000,606000,166000,147000,20700000,9780000,56300000,33400000,4140000,3740000,11900000,601000,402000,618000,25100000,5480000];
+const values = sheet.getUsedRange().values;
+const targets = values.flatMap((r,i) => r[2] === 'VIETNAM' ? [{row:i+1,id:r[0],name:r[1],ovr:r[4]}] : []);
+if(targets.length !== 40 || targets.some((r,i)=>r.id!==383+i)) throw Error('Unexpected VIETNAM roster');
+await fs.copyFile('gia-cau-thu-bp.xlsx',`${dir}/before.xlsx`);
+const preview = async name => {
+ const img = await wb.render({sheetName:sheet.name,range:'A373:J379',scale:1.5,format:'png'});
+ await fs.writeFile(`${dir}/${name}.png`,new Uint8Array(await img.arrayBuffer()));
+};
+await preview('before');
+if(!process.argv.includes('--write')) process.exit(0);
+for(let i=0;i<targets.length;i++) sheet.getRange(`J${targets[i].row}`).values=[[prices[i]]];
+wb.recalculate();
+for(let i=0;i<targets.length;i++) if(sheet.getRange(`J${targets[i].row}`).values[0][0]!==prices[i]) throw Error('Price verification failed');
+await preview('after');
+await fs.writeFile(`${dir}/changes.json`,JSON.stringify(targets.map((t,i)=>({...t,price:prices[i]})),null,2));
+const file = await SpreadsheetFile.exportXlsx(wb);
+await file.save(`${dir}/authored.xlsx`);
+console.log('Updated and verified 40 base prices.');
