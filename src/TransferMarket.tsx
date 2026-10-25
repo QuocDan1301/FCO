@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { usePageCapacity } from './ViewportPages';
 import type { ReactNode } from 'react';
 import { ArrowLeftRight, ArrowRight, ChevronLeft, ChevronRight, History, Search } from 'lucide-react';
@@ -20,6 +20,11 @@ type Props = {
 const normalize = (value: string) => value.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').trim();
 
 
+// Bộ so sánh tiếng Việt tạo một lần + tên đã chuẩn hoá theo cầu thủ: localeCompare('vi') tạo collator mỗi lần gọi nên sắp xếp 479 cầu thủ rất chậm.
+const collator = new Intl.Collator('vi');
+const normalizedNames = new Map<number, string>();
+const normalizedName = (id: number, name: string) => { let value = normalizedNames.get(id); if (value === undefined) { value = normalize(name); normalizedNames.set(id, value); } return value; };
+
 export default function TransferMarket({ save, free, onTrade, onHistory, onOpenPacks, renderCard }: Props) {
   const [mode, setMode] = useState<'buy' | 'sell'>('buy');
   const listRef = useRef<HTMLDivElement>(null);
@@ -35,13 +40,15 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [unavailableOnly, setUnavailableOnly] = useState(false);
   const buying = mode === 'buy';
+  const filtered = useMemo(() => {
   const cards: Card[] = buying ? players.map(p => ({ uid: `market-${p.id}-${buyLevel}`, playerId: p.id, level: Number(buyLevel), received: 0 })) : save.cards;
-  const filtered = cards.filter(c => {
+  const needle = normalize(query);
+  return cards.filter(c => {
     const p = getPlayer(c);
-    return normalize(p.name).includes(normalize(query)) && (!position || p.pos === position) && (!season || p.tier === season) && (buying || !sellLevel || c.level === Number(sellLevel)) && (!unavailableOnly || !marketQuote(c).available);
+    return normalizedName(p.id, p.name).includes(needle) && (!position || p.pos === position) && (!season || p.tier === season) && (buying || !sellLevel || c.level === Number(sellLevel)) && (!unavailableOnly || !marketQuote(c).available);
   }).sort((a, b) => {
     const pa = getPlayer(a), pb = getPlayer(b);
-    const byName = pa.name.localeCompare(pb.name, 'vi');
+    const byName = collator.compare(pa.name, pb.name);
     switch (sort) {
       case 'price': return compareMarketPrices(a, b) || byName;
       case 'price-desc': return compareMarketPrices(a, b, true) || byName;
@@ -55,6 +62,7 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
       default: return 0;
     }
   });
+  }, [buying, buyLevel, save.cards, query, position, season, sellLevel, unavailableOnly, sort]);
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
   const visible = filtered.slice(currentPage * pageSize, (currentPage + 1) * pageSize);

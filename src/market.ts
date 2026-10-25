@@ -17,15 +17,27 @@ export function compareMarketPrices(a: Pick<Card, 'playerId' | 'level'>, b: Pick
 export type MarketTrade = { kind: 'buy' | 'sell'; card: Card };
 export const MARKET_FEE_PERCENT = 5;
 
-// Không có giá +1 thì không suy đoán giá các cấp sau. Bảo hiểm chỉ là báo phí, không cộng vào giá thẻ.
-export function marketQuote(card: Pick<Card, 'playerId' | 'level'>) {
-  const player = players.find(p => p.id === card.playerId);
+// Phần không đổi của báo giá (phân loại, nhóm giá, tỷ lệ bảo hiểm) chỉ phụ thuộc cầu thủ + cấp nên tính một lần;
+// giá vẫn đọc trực tiếp từ bảng mỗi lần gọi.
+const quoteBases = new Map<string, { player: typeof players[number]; calculated: ReturnType<typeof calculatePrice>; rate: number; classification: ReturnType<typeof playerClassification>; groupNote: string }>();
+function quoteBase(card: Pick<Card, 'playerId' | 'level'>) {
+  const key = `${card.playerId}:${card.level}`;
+  let base = quoteBases.get(key);
+  if (base) return base;
+  const player = getPlayer(card);
   if (!player || !Number.isInteger(card.level) || card.level < 1 || card.level > MAX_LEVEL) throw new Error('Cầu thủ hoặc cấp thẻ không hợp lệ.');
   const calculated = calculatePrice(null, card.level, playerPricingOptions(player.id, player));
-  const price = recordedPrices[String(player.id)]?.[card.level - 1] ?? null;
-  const rate = insuranceRate(player.ovr);
   const classification = playerClassification(player);
   const groupNote = `Nhóm ${calculated.group}${classification.provisional && calculated.group === classification.group ? ' · Tạm tính, thiếu dữ liệu tiêu chí' : ''}`;
+  base = { player, calculated, rate: insuranceRate(player.ovr), classification, groupNote };
+  quoteBases.set(key, base);
+  return base;
+}
+
+// Không có giá +1 thì không suy đoán giá các cấp sau. Bảo hiểm chỉ là báo phí, không cộng vào giá thẻ.
+export function marketQuote(card: Pick<Card, 'playerId' | 'level'>) {
+  const { player, calculated, rate, classification, groupNote } = quoteBase(card);
+  const price = recordedPrices[String(player.id)]?.[card.level - 1] ?? null;
   const metadata = { groupNote, classification, asOfDate: PRICE_AS_OF, group: calculated.group, liquidityNote: calculated.liquidityNote, insuranceRate: rate, insuranceFee: price !== null && card.level >= 8 && card.level < MAX_LEVEL ? Math.round(price * rate) : null };
   if (price === null) return { ...metadata, available: false as const, price: null, fee: null, proceeds: null, reason: `Chưa có giá ${player.name} +${card.level} trong bảng giá.` };
   const fee = Math.floor(price * MARKET_FEE_PERCENT / 100);
@@ -51,4 +63,10 @@ export function sellPlayer(state: Save, cardId: string, free = false) {
   if (!Number.isSafeInteger(balance)) throw new Error('Số dư đã đạt giới hạn. Không thể bán thêm thẻ.');
   const entry: Entry = { id: uid(), time: Date.now(), type: 'market', title: `Bán · ${getPlayer(card).name} +${card.level}`, detail: `OVR ${ovr(card)} · Giá ${money(quote.price)} BP · Phí ${MARKET_FEE_PERCENT}%: ${money(quote.fee)} BP · ${free ? 'Thử nghiệm · Không cộng xu' : `+${money(quote.proceeds)} BP`}` };
   return { state: { ...state, balance, cards: state.cards.filter(c => c.uid !== cardId), history: [entry, ...state.history].slice(0, 200) }, card, quote };
+}
+
+// Thẻ giá trị nhất đứng đầu (thẻ chưa có giá xếp sau); bằng giá thì OVR cao hơn đứng trước.
+export function byMarketValue<T extends Pick<Card, 'playerId' | 'level'>>(cards: readonly T[]): T[] {
+  const value = (card: T) => marketQuote(card).price ?? -1;
+  return [...cards].sort((a, b) => value(b) - value(a) || ovr(b) - ovr(a));
 }

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, Lock } from 'lucide-react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import { getPlayer, MAX_LEVEL, money, ovr } from './game';
 import type { Card, Save, Tier } from './game';
 import { marketQuote } from './market';
@@ -45,6 +45,12 @@ export default function TargetPicker({ save, targetId, onPick, onClose, top, lev
   const rows = useMemo(() => others
     .filter(c => (filter === 'squad') === squad.has(c.uid))
     .sort((a, b) => (sort.desc ? -1 : 1) * compare(a, b, sort.key) || ovr(b) - ovr(a) || b.level - a.level), [others, squad, filter, sort]);
+  // Đặt danh sách ngay dưới mép trên nút "Thay đổi cầu thủ" (đo sau khi hiển thị; lúc vừa mở trang ref của nút chưa có nên không dùng được giá trị top truyền vào).
+  useLayoutEffect(() => {
+    const place = () => { const el = panel.current, btn = el?.parentElement?.querySelector<HTMLElement>('.fco-change'); if (el) el.style.top = `${btn ? btn.offsetTop : top}px`; };
+    place(); window.addEventListener('resize', place);
+    return () => window.removeEventListener('resize', place);
+  });
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     document.addEventListener('keydown', onKey);
@@ -52,7 +58,7 @@ export default function TargetPicker({ save, targetId, onPick, onClose, top, lev
   }, []);
   const header = (key: SortKey, label: string) => <button className={`tp-col ${sort.key === key ? 'on' : ''}`} aria-sort={sort.key === key ? (sort.desc ? 'descending' : 'ascending') : 'none'} onClick={() => setSort(s => ({ key, desc: s.key === key ? !s.desc : true }))}>{label}{sort.key === key && <ChevronDown size={12} className={sort.desc ? '' : 'up'}/>}</button>;
   const chips: [Filter, string, string][] = [['squad', `Đội hình (${inSquad})`, 'Cầu thủ trong đội hình chính'], ['free', `Chưa ĐK (${others.length - inSquad})`, 'Cầu thủ chưa có trong đội hình']];
-  return <div className="tp-panel" ref={panel} style={{ top }} role="dialog" aria-label="Chọn cầu thủ để nâng cấp">
+  return <div className="tp-panel" ref={panel} role="dialog" aria-label="Chọn cầu thủ để nâng cấp">
     <div className="tp-head">
       <h3>Chọn cầu thủ</h3>
       <div className="tp-filters" role="tablist" aria-label="Lọc cầu thủ">{chips.map(([value, label, hint]) => <button key={value} role="tab" aria-selected={filter === value} title={hint} className={filter === value ? 'on' : ''} onClick={() => setFilter(value)}>{label}</button>)}</div>
@@ -73,5 +79,6 @@ export default function TargetPicker({ save, targetId, onPick, onClose, top, lev
       })}
       {!rows.length && <p className="tp-empty">{filter === 'squad' ? 'Đội hình chưa có cầu thủ. Thêm cầu thủ ở mục Quản lí CT.' : 'Không còn cầu thủ nào chưa có trong đội hình.'}</p>}
     </div>
+    <button className="tp-close" onClick={onClose}>Đóng<ChevronUp size={16}/></button>
   </div>;
 }

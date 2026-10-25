@@ -3,7 +3,6 @@ import type { CSSProperties, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowBigUp, ArrowLeftRight, ArrowRight, Check, CirclePlus, ShieldPlus, ChevronDown, ChevronRight, Coins, Gift, History, Info, Layers3, Maximize2, PackageOpen, Plus, Search, Settings2, Shield, ShoppingBag, Sparkles, Trophy, X, Zap } from 'lucide-react';
 import { MAX_LEVEL, TIERS, UPGRADE_LEVELS, buyPacks, claimDaily, dayKey, getPackOpeningCost, getPackStock, getPlayer, initialSave, isPackAvailable, money, openPacks, openSelectedPacks, ovr, packs, players, seasons, STORAGE_KEY, uid, upgrade, upgradeInfo, validateSave } from './game';
-import { emptyBridge, previewUpgrade } from './upgrade/engine';
 import SquadManager from './SquadManager';
 import TargetPicker from './TargetPicker';
 import UpgradeProtection from './UpgradeProtection';
@@ -207,8 +206,10 @@ export default function App() {
   const [loadNotice] = useState(() => { try { const raw = localStorage.getItem(STORAGE_KEY); return raw && !validateSave(JSON.parse(raw)) ? 'Dữ liệu cũ không hợp lệ. Đã mở bộ dữ liệu khởi đầu.' : ''; } catch { return 'Không đọc được dữ liệu đã lưu. Kiểm tra quyền lưu trữ của trình duyệt.'; } });
   // Bản lưu thô gần nhất mà tab này đã đọc hoặc ghi; khác với localStorage nghĩa là tab khác vừa ghi.
   const storedRaw = useRef<string | null>(null);
+  // Kết quả đập thẻ đã lưu nhưng chưa đưa vào state: màn đập thẻ che kín App nên hoãn vẽ lại (rất nặng) tới khi đóng màn đó.
+  const pendingSave = useRef<Save | null>(null);
   const [save, setSave] = useState<Save>(() => { try { const raw = localStorage.getItem(STORAGE_KEY); storedRaw.current = raw; const value: unknown = raw ? JSON.parse(raw) : null; if (validateSave(value)) return value; } catch { /* Hiển thị thông báo và bộ dữ liệu khởi đầu. */ } return initialSave(); });
-  const latest = useRef(save); latest.current = save;
+  const latest = useRef(save); latest.current = pendingSave.current ?? save;
   const busy = useRef(false);
   const [view, setView] = useState<View>('packs');
   const mainRef = useRef<HTMLElement>(null);
@@ -291,11 +292,12 @@ export default function App() {
     storedRaw.current = raw;
     try { const data: unknown = raw ? JSON.parse(raw) : null; if (validateSave(data)) { latest.current = data; setSave(data); setMaterialIds([]); } } catch { /* Bản lưu hỏng: lần ghi sau sẽ thay thế. */ }
   };
-  const commit = (next: Save) => {
+  // deferRender: vẫn lưu localStorage ngay, nhưng giữ state ở pendingSave tới closeConfirm (không vẽ lại App giữa lúc hiệu ứng chạy).
+  const commit = (next: Save, deferRender = false) => {
     let current: string | null = storedRaw.current;
     try { current = localStorage.getItem(STORAGE_KEY); } catch { /* Không đọc được thì để setItem bên dưới báo lỗi. */ }
     if (current !== storedRaw.current) { adoptStored(current); notify('Dữ liệu vừa thay đổi ở tab khác nên thao tác này chưa được lưu. Đã tải lại dữ liệu mới nhất, hãy thử lại.'); return false; }
-    try { const raw = JSON.stringify(next); localStorage.setItem(STORAGE_KEY, raw); storedRaw.current = raw; latest.current = next; setSave(next); return true; }
+    try { const raw = JSON.stringify(next); localStorage.setItem(STORAGE_KEY, raw); storedRaw.current = raw; latest.current = next; if (deferRender) pendingSave.current = next; else { pendingSave.current = null; setSave(next); } return true; }
     catch { notify('Không thể lưu dữ liệu. Hãy cho phép lưu trữ hoặc giải phóng bộ nhớ trước khi chơi tiếp.'); return false; }
   };
   const requestTrade = (pending: MarketTrade) => {
@@ -382,14 +384,18 @@ export default function App() {
   };
   const upgradeFromSquad = (uid: string) => { switchView('upgrade'); setTargetId(uid); };
   // inline: không mở màn kết quả cũ, trả kết quả về để màn xác nhận tự hiện thẻ lên / rớt ngay trên sân khấu.
+  const closeConfirm = () => {
+    setConfirm(null);
+    const pending = pendingSave.current;
+    if (pending) { pendingSave.current = null; setSave(pending); setMaterialIds([]); }
+  };
   const enhance = (inline = false) => {
     if (busy.current || !target) return null;
     busy.current = true;
     try {
       const result = upgradeWithProtection(latest.current, targetId, materialIds, undefined, UNLIMITED_COINS, { role: 'main', pct: activeProtection(latest.current, target) });
-      if (!commit(result.state)) { busy.current = false; return null; }
-      setMaterialIds([]);
-      if (inline) { busy.current = false; playSound(result.success ? 'success' : 'fail', latest.current.sound); return result; }
+      if (!commit(result.state, inline)) { busy.current = false; return null; }
+      if (inline) { busy.current = false; return result; }
       // Hiệu ứng dồn năng lượng đã chạy ở màn xác nhận: vào thẳng màn kết quả (bỏ các pha đập cũ).
       setMaterialIds([]); setPhase(result.restoredLevel !== null ? 4 : 3); setAnimation({ id: uid(), kind: 'upgrade', card: result.result, success: result.success, before: target.level, droppedLevel: result.shielded ? null : result.droppedLevel, restoredLevel: result.restoredLevel, shielded: result.shielded });
       return result;
@@ -427,8 +433,8 @@ export default function App() {
     return p.name.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(query.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '')) && (!position || p.pos === position) && (!season || p.tier === season) && (!level || c.level === Number(level)) && (!minOvr || ovr(c) >= Number(minOvr));
   });
   const navItems: { id: View; label: string; icon: typeof PackageOpen }[] = [{ id: 'packs', label: 'Trang chủ', icon: PackageOpen }, { id: 'upgrade', label: 'Nâng cấp thẻ', icon: Zap }, { id: 'collection', label: 'Quản lí CT', icon: Layers3 }, { id: 'inventory', label: 'Kho vật phẩm', icon: PackageOpen }, { id: 'history', label: 'Lịch sử', icon: History }, { id: 'market', label: 'Thị trường', icon: ArrowLeftRight }, { id: 'shop', label: 'Shop gói', icon: ShoppingBag }];
-  // Mỗi lần vào Nâng cấp thẻ: để trống thẻ chính và phôi (không tự chọn cầu thủ).
-  const switchView = (next: View) => { if (next === 'upgrade' && view !== 'upgrade') { setTargetId(''); setMaterialIds([]); setTargetOpen(false); } setView(next); mainRef.current?.scrollTo({ top: 0, behavior: 'instant' }); };
+  // Mỗi lần vào Nâng cấp thẻ: để trống thẻ chính và phôi (không tự chọn cầu thủ), mở sẵn danh sách chọn cầu thủ.
+  const switchView = (next: View) => { if (next === 'upgrade' && view !== 'upgrade') { setTargetId(''); setMaterialIds([]); setTargetOpen(true); } setView(next); mainRef.current?.scrollTo({ top: 0, behavior: 'instant' }); };
   const daily = () => { try { if (commit(claimDaily(latest.current))) { notify('Điểm danh thành công! Đã nhận 1.000.000 xu.'); playSound('success', save.sound); } } catch (e) { notify((e as Error).message); } };
   const resetFilters = () => { setQuery(''); setPosition(''); setSeason(''); setLevel(''); setMinOvr(''); setSort('ovr'); };
 
@@ -447,9 +453,10 @@ export default function App() {
       {view === 'upgrade' && <section className="workspace upgrade-workspace fco-upgrade">
         <div className="fco-left">
           <div className="fco-target">
-            <button className="fco-target-card" onClick={() => setTargetOpen(open => !open)} aria-label="Chọn thẻ cầu thủ chính">{target ? <PlayerCard card={target}/> : <span className="empty-card"><Plus size={38}/>Chọn cầu thủ</span>}</button>
+            <button className="fco-target-card" onClick={() => setTargetOpen(open => !open)} aria-label="Chọn thẻ cầu thủ chính">{target ? <PlayerCard card={target}/> : <span className="empty-card fco-placeholder" aria-hidden="true"><img src={asset('/assets/fc-empty-card.svg')} alt=""/></span>}</button>
             <div className="fco-stats">
-              <h2>{target ? getPlayer(target).name : 'Chưa chọn cầu thủ'}</h2>
+              <h2>{target ? getPlayer(target).name : 'Chọn cầu thủ'}</h2>
+              {!target && <dl className="fco-empty-stats">{['Cấp thẻ', 'C.Số', 'Tỷ lệ thành công', 'Phí nâng cấp', 'Giá'].map(label => <div key={label}><dt>{label}</dt><dd><b>–</b></dd></div>)}</dl>}
               {target && (() => { // Có phôi đưa vào thì hiện thẳng giá trị của cấp kế tiếp (màu xanh); chưa có phôi thì hiện giá trị hiện tại.
                 const preview = target.level < MAX_LEVEL && materials.length > 0; const shown = preview ? { ...target, level: target.level + 1 } : target; return <dl className={preview ? 'fco-preview' : ''}>
                 <div><dt>Cấp thẻ</dt><dd><img className="fco-badge" src={levelBadge(shown.level)} alt={`+${shown.level}`}/>{preview && <span className="fco-delta">+1</span>}</dd></div>
@@ -461,13 +468,12 @@ export default function App() {
             </div>
           </div>
           <button ref={changeRef} className={`fco-change ${targetOpen ? 'is-open' : ''}`} aria-expanded={targetOpen} onClick={() => setTargetOpen(open => !open)}>Thay đổi cầu thủ<ChevronDown size={16}/></button>
-          {targetOpen && <TargetPicker save={save} targetId={targetId} top={(changeRef.current?.offsetTop ?? 0) + (changeRef.current?.offsetHeight ?? 0)} onPick={uid => { setTargetId(uid); setMaterialIds([]); setTargetOpen(false); }} onClose={() => setTargetOpen(false)} levelBadge={levelBadge} seasonShort={seasonShort}/>}
-          {(() => { // Tăng tỉ lệ = thưởng cầu công khai đang khớp; bảo vệ cầu thủ = phôi trùng giữ cấp tối thiểu; chưa có vật phẩm bảo vệ nâng cấp.
-            const bridgePreview = target && target.level < MAX_LEVEL ? previewUpgrade(save.bridge ?? emptyBridge(), target.level, info.chance) : null;
+          {targetOpen && <TargetPicker save={save} targetId={targetId} top={changeRef.current?.offsetTop ?? 0} onPick={uid => { setTargetId(uid); setMaterialIds([]); setTargetOpen(false); }} onClose={() => setTargetOpen(false)} levelBadge={levelBadge} seasonShort={seasonShort}/>}
+          {(() => { // Tăng tỉ lệ luôn hiển thị không áp dụng; bảo vệ cầu thủ = phôi trùng giữ cấp tối thiểu.
             const twins = target ? materials.filter(m => m.playerId === target.playerId) : [];
             const perk = (label: ReactNode, icon: ReactNode, value: string | null, hint?: string, onClick?: () => void) => <div className={`fco-row fco-perk ${value ? 'is-on' : ''}`}><span>{label}</span>{onClick ? <button className="fco-perk-btn" title={hint} onClick={onClick}>{icon}{value ?? 'Chọn mức bảo vệ'}</button> : <b title={hint}>{icon}{value ?? 'Không áp dụng'}</b>}</div>;
             const guard = target && protectionApplies(target) ? activeProtection(save, target) : null, guardCost = target && guard ? protectionCost(target, guard) : null;
-            return <>{perk('Tăng tỉ lệ nâng cấp', <ArrowBigUp size={22}/>, bridgePreview?.publicBonus ? `+${String(bridgePreview.publicBonus).replace('.', ',')}% · khớp cầu ${bridgePreview.publicLength} số` : null)}
+            return <>{perk('Tăng tỉ lệ nâng cấp', <ArrowBigUp size={22}/>, null)}
               {perk(<>Bảo vệ cầu thủ<i className="fco-help" title="Dùng phôi cùng cầu thủ: nếu thất bại, thẻ vẫn giữ tối thiểu cấp của phôi trùng cao nhất.">?</i></>, <CirclePlus size={20}/>, twins.length ? 'Áp dụng' : null, twins.length ? `Thất bại vẫn giữ tối thiểu +${Math.max(...twins.map(m => m.level))}` : undefined)}
               {perk('Bảo vệ nâng cấp', <ShieldPlus size={20}/>, guard ? `Áp dụng ${guard}%${guardCost ? ` · ${shortPrice(guardCost)}` : ''}` : null, guard === null ? 'Áp dụng cho thẻ từ +8' : 'Chọn mức bảo vệ khi thất bại', guard === null ? undefined : () => setProtectOpen(true))}</>;
           })()}
@@ -491,7 +497,7 @@ export default function App() {
               <span className="fco-check">{picked && <Check size={18}/>}</span>
             </button>; })}{save.cards.length <= 1 ? <p className="fine-print">Kho chưa có thẻ nào để làm nguyên liệu.</p> : null}</div>
           </div>
-          <div className="fco-actions"><button className="fco-ghost" onClick={() => setMaterialIds([])} disabled={!materials.length}><X size={15}/>Bỏ chọn</button><button className="fco-ghost" onClick={() => setHelp(true)}><Info size={15}/>Hướng dẫn</button><button className="fco-go" onClick={() => { if (!target) return; setTargetOpen(false); setConfirm({ target, materials }); }} disabled={!target || !materials.length || (!UNLIMITED_COINS && save.balance < info.cost) || target.level >= MAX_LEVEL}>{target?.level === MAX_LEVEL ? 'Đã đạt cấp tối đa' : 'Nâng cấp'}<ArrowRight size={18}/></button></div>
+          <div className="fco-actions"><button className="fco-ghost" onClick={() => setMaterialIds([])} disabled={!materials.length}><X size={15}/>Bỏ chọn</button><button className="fco-ghost" onClick={() => setHelp(true)}><Info size={15}/>Hướng dẫn</button><button className="fco-go" onClick={() => { if (!target) return; setTargetOpen(false); setConfirm({ target, materials }); }} disabled={!target || !materials.length || (!UNLIMITED_COINS && save.balance < info.cost) || target.level >= MAX_LEVEL}>{target?.level === MAX_LEVEL ? 'Đã đạt cấp tối đa' : 'Tiếp theo'}<ArrowRight size={18}/></button></div>
         </div>
       </section>}
       {view === 'collection' && <SquadManager save={save} onAdd={addSquad} onRemove={removeSquad} onDetail={setDetail} onDelete={deleteCard} onSell={card => requestTrade({ kind: 'sell', card })} onUpgrade={upgradeFromSquad} onLock={lockCard} levelBadge={levelBadge} seasonShort={seasonShort}/>}
@@ -513,7 +519,7 @@ export default function App() {
       </Modal>}
       {odds && <Modal label={`Tỷ lệ ${odds.name}`} onClose={() => setOdds(null)}><div className="modal-heading"><h2>{odds.name}</h2><button className="icon-button" onClick={() => setOdds(null)} aria-label="Đóng bảng tỷ lệ"><X/></button></div><p className="modal-description">{isPackAvailable(odds) ? `Mỗi gói nhận đúng 1 thẻ +1. Giá ${money(odds.price)} xu.` : 'Gói chưa có cầu thủ. Tính năng mở gói sẽ được bật sau khi cập nhật danh sách.'}</p><div className="odds-table">{TIERS.map((tier, i) => { const pool = players.filter(p => p.tier === tier); return <div key={tier}><span className={`rarity-dot ${tier}`}/><div><b>{seasons[tier]}</b><small>OVR {pool.length ? `${Math.min(...pool.map(p => p.ovr))}–${Math.max(...pool.map(p => p.ovr))}` : 'Chưa cập nhật'} · {pool.length} cầu thủ</small></div><strong>{odds.weights[i]}%</strong></div>; })}</div><p className="fine-print">Mỗi cầu thủ trong cùng mùa có xác suất bằng nhau: tỷ lệ mùa ÷ số cầu thủ hiện có trong mùa. Mở 10 gói là 10 lượt độc lập, không có bảo đảm thẻ hiếm. Đây là tỷ lệ của trò chơi giả lập, không phải tỷ lệ chính thức của FC Online.</p><h3 className="reward-list-title">Danh sách phần thưởng</h3><div className="reward-list">{players.filter(p => odds.weights[TIERS.indexOf(p.tier)] > 0).map(p => <div key={p.id}><span>{p.name}<small>{seasons[p.tier]}</small></span><b>{p.ovr}</b></div>)}</div><button className="primary-button modal-bottom-button" onClick={() => { setSelectedPack(odds); setOdds(null); }}>Chọn gói này<Check size={17}/></button></Modal>}
       {settings && <Modal label="Cài đặt trò chơi" onClose={() => setSettings(false)}><div className="modal-heading"><h2>Cài đặt trò chơi</h2><button className="icon-button" aria-label="Đóng cài đặt" onClick={() => setSettings(false)}><X/></button></div>{([{ key: 'sound' as const, title: 'Âm thanh', description: AUDIO_ENABLED ? 'Âm thanh điện tử khi mở gói và nâng cấp.' : 'Âm thanh đã tắt trong phiên bản này.' }, { key: 'reduced' as const, title: 'Giảm chuyển động', description: 'Bỏ hoạt cảnh dài, khói và hạt sáng chuyển động.' }, { key: 'quick' as const, title: 'Mở thẻ nhanh', description: 'Rút hoạt cảnh từ khoảng 10 giây xuống 3,5 giây.' }, { key: 'light' as const, title: 'Hiệu ứng nhẹ', description: 'Dùng đường hầm 2D nhẹ, phù hợp khi máy nóng hoặc hình chuyển động chậm.' }]).map(s => <label className="setting-row" key={s.key}><span><b>{s.title}</b><small>{s.description}</small></span><input type="checkbox" disabled={s.key === 'sound' && !AUDIO_ENABLED} checked={s.key === 'sound' ? AUDIO_ENABLED && !!save.sound : !!save[s.key]} onChange={e => updateSetting(s.key, e.target.checked)}/></label>)}<div className="storage-notice"><Shield size={20}/><p>Tiến trình được lưu trên trình duyệt này. Xóa dữ liệu trang sẽ xóa kho thẻ. Không cần đăng nhập và không có thanh toán bằng tiền thật.</p></div></Modal>}
-      {confirm && <UpgradeConfirm target={confirm.target} materials={confirm.materials} energy={upgradeInfo(confirm.target, confirm.materials).energy} protection={protectionApplies(confirm.target) ? { pct: activeProtection(save, confirm.target), cost: protectionCost(confirm.target, activeProtection(save, confirm.target)) } : null} reduced={save.reduced} renderCard={(card, compact) => <PlayerCard card={card} compact={compact}/>} seasonShort={seasonShort} onBack={() => setConfirm(null)} levelBadge={levelBadge} onConfirm={() => { const result = enhance(true); if (!result) { setConfirm(null); return null; } return { success: result.success, card: result.result, before: confirm.target.level }; }}/>}
+      {confirm && <UpgradeConfirm target={confirm.target} materials={confirm.materials} energy={upgradeInfo(confirm.target, confirm.materials).energy} protection={protectionApplies(confirm.target) ? { pct: activeProtection(save, confirm.target), cost: protectionCost(confirm.target, activeProtection(save, confirm.target)) } : null} reduced={save.reduced} renderCard={(card, compact) => <PlayerCard card={card} compact={compact}/>} seasonShort={seasonShort} onBack={closeConfirm} onReveal={success => playSound(success ? 'success' : 'fail', latest.current.sound)} levelBadge={levelBadge} onConfirm={() => { const result = enhance(true); if (!result) { setConfirm(null); return null; } return { success: result.success, card: result.result, before: confirm.target.level }; }}/>}
       {protectOpen && target && protectionApplies(target) && <Modal label="Bảo vệ nâng cấp" onClose={() => setProtectOpen(false)}><UpgradeProtection card={target} pct={save.protection?.pct ?? 0} fixed={save.protection?.fixed ?? false} balance={save.balance} free={UNLIMITED_COINS} onChange={(pct, fixed) => { try { commit(setProtection(latest.current, pct, fixed)); } catch (e) { notify((e as Error).message); } }} onClose={() => setProtectOpen(false)}/></Modal>}
       {help && <Modal label="Hướng dẫn và thông tin" onClose={() => setHelp(false)}><div className="modal-heading"><h2>Chơi theo cách của bạn</h2><button className="icon-button" aria-label="Đóng hướng dẫn" onClick={() => setHelp(false)}><X/></button></div><div className="help-content"><h3>Mở gói cầu thủ</h3><p>Bắt đầu với 15.000.000 xu và 2 thẻ tặng sẵn. Mỗi loại có sẵn 15 gói chưa mở để thử. Vào Kho vật phẩm, nhấn Dùng trên gói muốn mở, rồi nhấn Mở 1 vật phẩm hoặc mở tất cả số còn lại, tối đa 10 thẻ mỗi lượt. Mở bao nhiêu trừ bấy nhiêu gói; có thể nhận thêm 10 gói thử ở bên ngoài. Kết quả được tính theo tỷ lệ công bố và lưu trước khi hoạt cảnh bắt đầu. Bỏ qua không thay đổi kết quả.</p><h3>Nâng cấp thẻ</h3><p>Chọn thẻ chính và 1–5 nguyên liệu từ kho. Một vạch tương ứng 20% năng lượng. Với nguyên liệu bằng OVR hiện tại của thẻ chính: OVR từ 125 trở lên được 1 vạch; OVR 124 được 1,25 vạch; OVR 123 được 1,5 vạch. Mỗi OVR thấp hơn 125 tăng thêm 0,25 vạch. Phôi thấp OVR hơn thẻ chính bị giảm năng lượng theo tỷ lệ: mỗi OVR thấp hơn giảm khoảng 20,5%; thấp hơn 7 OVR còn 1/5 mức cùng OVR. Ví dụ phôi 122 đập thẻ 129 được 4% năng lượng (0,2 vạch). Phôi cao hơn thẻ chính được cộng 1,2 điểm phần trăm mỗi OVR. Năng lượng từng phôi làm tròn đến 0,1%, tối đa 100%. Thẻ trùng cầu thủ áp dụng cùng quy tắc. Tổng tối đa 5 vạch (100%).</p><p>Năng lượng nguyên liệu ảnh hưởng đến cơ hội nâng cấp. Phí = cấp cộng hiện tại × 100.000 xu.</p><div className="upgrade-rate-table">{UPGRADE_LEVELS.slice(1).map((rule, i) => <span key={i}><b>+{i + 1} → +{i + 2}</b>OVR +{rule.ovrGain}</span>)}</div><p>Thành công: tăng 1 cấp cộng; OVR tăng thêm theo bảng trên và cộng dồn từ cấp +1. Thất bại: thẻ rớt ngẫu nhiên xuống một cấp thấp hơn, tối thiểu +1. Nếu có phôi cùng cầu thủ, cấp cuối không thấp hơn cấp phôi trùng cao nhất: rớt thấp hơn thì tự phục hồi lên cấp phôi; rớt bằng hoặc cao hơn thì giữ cấp rớt. Mọi kết quả đều tiêu hao nguyên liệu và phí, trừ phí xu trong chế độ thử. Cấp tối đa +{MAX_LEVEL}.</p><h3>Thị trường chuyển nhượng</h3><p>Mua cầu thủ từ danh sách hoặc bán từng thẻ trong kho. Chọn đúng cấp thẻ trước khi xác nhận. Giá mô phỏng cố định theo OVR gốc và cấp thẻ; phí bán 5%, số xu thực nhận hiển thị trước khi bán. Thẻ và lịch sử được lưu ngay trên trình duyệt. Khi bật xu vô hạn, mua/bán không thay đổi số dư. Đây là thị trường với hệ thống trong game, không kết nối người chơi khác.</p><h3>Quà mỗi ngày</h3><p>Nhận 1.000.000 xu mỗi ngày theo giờ Việt Nam (UTC+7). Ngày mới bắt đầu lúc 00:00. Không có mua xu bằng tiền thật.</p><h3>Dữ liệu và nguồn ảnh</h3><p>{players.length} cầu thủ mẫu, mùa giải và chỉ số do dự án đặt cho trải nghiệm giả lập. Tên CLB minh họa giai đoạn sự nghiệp, không đại diện đội hình hiện tại. Khung thẻ, huy hiệu, hình đại diện và sân vận động được thiết kế riêng.</p><p>Ảnh <a href="https://commons.wikimedia.org/wiki/File:Lionel_Messi_WC2022.jpg" target="_blank" rel="noreferrer">Lionel Messi WC2022</a> — Hossein Zohrevand / Tasnim News Agency, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>. Ảnh được cắt và áp dụng mặt nạ hiển thị; phần ảnh biến đổi theo giấy phép gốc. Cầu thủ chưa có ảnh dùng hình đại diện do dự án vẽ.</p><p>Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.</p></div></Modal>}
       {detail && <Modal className="detail-modal" label="Chi tiết cầu thủ" onClose={() => setDetail(null)}><div className="modal-heading"><h2>Chi tiết cầu thủ</h2><button className="icon-button" aria-label="Đóng chi tiết" onClick={() => setDetail(null)}><X/></button></div><div className="detail-card"><PlayerCard card={detail}/></div><div className="detail-data"><span>Quốc tịch<b><Flag code={getPlayer(detail).flag}/>{getPlayer(detail).nation}</b></span><span>{['eternal', 'prime'].includes(getPlayer(detail).tier) ? 'Đội tuyển' : 'CLB minh họa'}<b>{['eternal', 'prime'].includes(getPlayer(detail).tier) ? getPlayer(detail).nation : getPlayer(detail).club}</b></span><span>Mùa giải<b>{seasons[getPlayer(detail).tier]}</b></span><span>Cấp cộng<b>+{detail.level} / +{MAX_LEVEL}</b></span></div><button className="primary-button" disabled={detail.level >= MAX_LEVEL} onClick={() => { setTargetId(detail.uid); setMaterialIds([]); setDetail(null); switchView('upgrade'); }}><Zap size={18}/>Nâng cấp cầu thủ này</button></Modal>}

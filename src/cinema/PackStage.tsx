@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Card, Pack, Tier } from '../game';
-import { getPlayer, ovr, seasons } from '../game';
+import { getPlayer, packs, seasons, TIERS } from '../game';
+import { byMarketValue } from '../market';
 import StadiumScene from './StadiumScene';
 import LightTunnel from './LightTunnel';
 import { getTeamLogo } from '../teamLogos';
@@ -12,8 +13,10 @@ export default function PackStage(props: Props) {
   const [prepared, setPrepared] = useState(false), [fallback, setFallback] = useState(false);
   const { pack, cards, playing, quick, reduced, light } = props;
   if (!playing) playbackStart.current = null;
-  const best = cards?.length ? [...cards].sort((a, b) => ovr(b) - ovr(a))[0] : undefined;
+  // Thông tin trong hầm là của cầu thủ giá trị nhất; mở hỗn hợp nhiều gói thì nền hầm / màu LED theo mùa của cầu thủ đó.
+  const best = cards?.length ? byMarketValue(cards)[0] : undefined;
   const player = best ? getPlayer(best) : undefined;
+  const theme = (player && packs.find(p => p.weights[TIERS.indexOf(player.tier)] === 100)) || pack;
   const phone = matchMedia('(pointer: coarse) and (max-width: 900px)').matches;
   const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   const weak = navigator.hardwareConcurrency <= 2 || (memory ?? 8) <= 2 || (phone && (navigator.hardwareConcurrency <= 4 || (memory ?? 8) <= 4));
@@ -24,7 +27,7 @@ export default function PackStage(props: Props) {
   const scene = {
     phase: playing ? props.phase : 0, playing, quick,
     season: player ? seasons[player.tier] : seasons[pack.id as Tier] || pack.name,
-    nation: player?.nation || '', position: player?.pos || '', flag: player?.flag || '', back: pack.back, intro: pack.tunnel, accent: pack.accent, stage: pack.stage,
+    nation: player?.nation || '', position: player?.pos || '', flag: player?.flag || '', back: theme.back, intro: theme.tunnel, accent: theme.accent, stage: theme.stage,
     teamLogo: player ? getTeamLogo(player) : undefined,
     team: player ? player.tier === 'eternal' ? 'ICON The Moment' : player.tier === 'prime' ? 'Infinite Prime' : player.tier === 'vietnam' ? player.nation : player.club : '',
     getElapsed: () => playbackStart.current === null ? 0 : performance.now() - playbackStart.current,

@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { ArrowRight, Check, ChevronDown, ChevronLeft, ChevronRight, Layers3, PackageOpen, Shield, SlidersHorizontal, Volume2, VolumeX, X } from 'lucide-react';
 import type { Card, Pack } from '../game';
 import { getPlayer, money, ovr, seasons } from '../game';
-import { marketQuote } from '../market';
+import { byMarketValue, marketQuote } from '../market';
 import { OpeningAudio } from './audio';
 import { INFO_GAP, OPENING_CUES } from './timeline';
 import { AUDIO_ENABLED } from '../config';
@@ -19,7 +19,8 @@ type Props = {
 };
 export default function PackOpening(props: Props) {
   const { cards, pack, phase, quick, reduced, light, sound } = props;
-  const sortedCards = useMemo(() => [...cards].sort((a, b) => ovr(b) - ovr(a)), [cards]);
+  // Thẻ chính hiện ra là cầu thủ giá trị nhất (khớp thông tin trong hầm); các thẻ còn lại xếp OVR cao đến thấp.
+  const sortedCards = useMemo(() => { const [top, ...rest] = byMarketValue(cards); return [top, ...rest.sort((a, b) => ovr(b) - ovr(a))]; }, [cards]);
   const [best, ...secondaryCards] = sortedCards;
   const player = getPlayer(best);
   const season = seasons[player.tier], icon = player.tier === 'eternal';

@@ -42,3 +42,12 @@
   .tp-price{font-size:13px}
   .tp-filters button{padding:7px 9px;font-size:12px}
 }
+/* Chưa chọn thẻ chính: thẻ trống xám có logo mờ, các chỉ số hiện "–"; danh sách chọn cầu thủ có thanh Đóng ở đáy. */
+.fco-target-card .empty-card.fco-placeholder{border:0;border-radius:0;background:none;aspect-ratio:168/264;height:auto;width:100%;gap:0}
+.fco-placeholder img{display:block;width:100%;height:100%;object-fit:contain}
+.fco-empty-stats{display:grid;gap:12px;margin:0}
+.fco-empty-stats div{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#aeb6c2}
+.fco-empty-stats dd{margin:0}
+.fco-empty-stats dd b{color:#d4d9e0;font-weight:700}
+.tp-close{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:8px;height:42px;background:#2a3038;color:#f0f1f3;font-family:var(--display);font-size:17px;font-weight:600;border-top:1px solid #343c46}
+.tp-close:hover{background:#343b45}

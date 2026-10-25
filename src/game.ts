@@ -371,7 +371,9 @@ export const UPGRADE_LEVELS = [
 ] as const;
 const levelOvrBonuses = UPGRADE_LEVELS.map((_, index) => UPGRADE_LEVELS.slice(0, index + 1).reduce((total, row) => total + row.ovrGain, 0));
 export const MAX_LEVEL = UPGRADE_LEVELS.length;
-export const getPlayer = (card: Card) => players.find(p => p.id === card.playerId)!;
+// Tra cầu thủ theo id bằng Map (players.find mỗi lần gọi rất chậm khi sắp xếp/lọc hàng trăm thẻ).
+const playerIndex = new Map(players.map(p => [p.id, p]));
+export const getPlayer = (card: Pick<Card, 'playerId'>) => playerIndex.get(card.playerId)!;
 // OVR game tự tính: OVR gốc + phần tăng theo cấp. OVR sửa tay trong gia-cau-thu-bp.xlsx (npm run prices:import) được ưu tiên.
 export const baseOvr = (card: Pick<Card, 'playerId' | 'level'>) => players.find(p => p.id === card.playerId)!.ovr + (levelOvrBonuses[card.level - 1] ?? 0);
 const manualOvrs: Record<string, Record<string, number>> = excelOverrides.ovrs;

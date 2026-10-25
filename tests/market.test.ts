@@ -132,3 +132,13 @@ test('Giữ tối đa 200 lịch sử, đọc lại được bản lưu cũ và 
   Object.assign(malformed.history[0], { type: 'unknown' });
   assert.equal(validateSave(malformed), false);
 });
+
+test('byMarketValue: thẻ giá cao nhất đứng đầu, thẻ chưa có giá xếp sau, bằng giá thì OVR cao hơn', async () => {
+  const { byMarketValue } = await import('../src/market.ts');
+  const priced = players.filter(p => marketQuote({ playerId: p.id, level: 1 }).price !== null).slice(0, 6).map(p => makeCard(p.id));
+  const sorted = byMarketValue(priced);
+  for (let i = 1; i < sorted.length; i++) assert.ok((marketQuote(sorted[i - 1]).price ?? -1) >= (marketQuote(sorted[i]).price ?? -1));
+  const unpriced = players.find(p => marketQuote({ playerId: p.id, level: 1 }).price === null);
+  if (unpriced) assert.equal(byMarketValue([makeCard(unpriced.id), priced[0]])[0].playerId, priced[0].playerId);
+  assert.deepEqual(priced.map(c => c.uid), priced.map(c => c.uid), 'Không sửa mảng gốc');
+});
