@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { draw, getPlayer, initialSave, isPackAvailable, openPacks, packs, players, seasons, TIERS, validateSave } from '../src/game.ts';
 import { getTeamLogo } from '../src/teamLogos.ts';
+import { rngFor } from './pack-rng.ts';
 
 const pack = packs.find(p => p.id === 'prm')!;
 const roster = players.filter(p => p.tier === 'prm');
@@ -37,7 +38,7 @@ test('20 thẻ PRIME: không trùng ID / tên, ảnh tồn tại, có CSS vị t
 
 test('Gói PRIME mở được, mỗi thẻ đều rút được, gói khác không ra nhầm thẻ PRIME', () => {
   assert.equal(isPackAvailable(pack), true);
-  roster.forEach((player, i) => assert.equal(draw(pack, () => (i + .5) / roster.length).playerId, player.id));
+  roster.forEach(player => assert.equal(draw(pack, rngFor(pack, player.id)).playerId, player.id));
   const result = openPacks(initialSave(), pack, 15, Math.random, true);
   assert.ok(result.cards.every(c => getPlayer(c).tier === 'prm'));
   assert.ok(validateSave(JSON.parse(JSON.stringify(result.state))));

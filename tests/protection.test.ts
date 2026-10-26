@@ -3,13 +3,14 @@ import assert from 'node:assert/strict';
 import { initialSave, makeCard, players, upgrade, validateSave } from '../src/game.ts';
 import { marketQuote } from '../src/market.ts';
 import { activeProtection, protectionApplies, protectionCost, setProtection, upgradeWithProtection } from '../src/insurance.ts';
+import { fodderTier } from '../src/restore.ts';
 import type { Rng } from '../src/upgrade/rng.ts';
 
 const script = (...values: number[]): Rng => () => { if (!values.length) throw new Error('Hết RNG kịch bản'); return values.shift()!; };
 const priced = players.find(p => marketQuote({ playerId: p.id, level: 8 }).insuranceFee)!;
 const unpriced = players.find(p => marketQuote({ playerId: p.id, level: 8 }).price === null);
 const setup = (level = 8, playerId = priced.id) => {
-  const target = { ...makeCard(playerId), level }, material = { ...makeCard(players.find(p => p.id !== playerId)!.id), level: 13 }; // phôi mạnh để tỉ lệ thành công > 0
+  const target = { ...makeCard(playerId), level }, material = { ...makeCard(players.find(p => fodderTier({ playerId }, { playerId: p.id }) === 'normal')!.id), level: 13 }; // phôi mạnh để tỉ lệ thành công > 0; phôi thường nên không có khôi phục
   return { target, material, state: { ...initialSave(), balance: 10_000_000_000_000, cards: [target, material] } };
 };
 
@@ -67,7 +68,7 @@ test('Cố định chi phí giữ mức cho lần sau; không cố định thì 
   const ok = JSON.parse(JSON.stringify(fixed)); assert.ok(validateSave(ok)); assert.deepEqual(ok.protection, { pct: 60, fixed: true });
 });
 
-test('Chặn bảo vệ cho thẻ dưới +8, thẻ chưa có giá, hoặc không đủ xu', () => {
+test('Chặn bảo vệ cho thẻ dưới +8, thẻ chưa có giá, hoặc không đủ BP', () => {
   const low = setup(7);
   assert.throws(() => upgradeWithProtection(low.state, low.target.uid, [low.material.uid], script(0), true, { pct: 50 }), /từ \+8/);
   assert.throws(() => upgrade(low.state, low.target.uid, [low.material.uid], script(0), true, { protection: { pct: 50, cost: 1 } }), /từ \+8/);

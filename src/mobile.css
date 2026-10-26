@@ -39,10 +39,6 @@
   .topbar { padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(12px, env(safe-area-inset-right)); }
   .topbar-actions { gap: 6px; }
   .daily-button, .icon-button { min-width: 44px; min-height: 44px; }
-  .main-nav { height: 60px; }
-  .main-nav .nav-inner { padding: 0 8px; gap: 0; }
-  .main-nav .nav-inner > button { flex: 1; flex-direction: column; gap: 4px; font-size: 11px; min-width: 0; padding: 5px 2px; }
-  .main-nav .nav-inner > button > svg { width: 18px; height: 18px; }
   .primary-button, .secondary-button, .pack-buy, .text-action, .collection-card-action { min-height: 44px; }
   .pack-buy { min-width: 44px; }
   .page-heading { flex-wrap: wrap; }

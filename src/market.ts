@@ -47,9 +47,9 @@ export function marketQuote(card: Pick<Card, 'playerId' | 'level'>) {
 export function buyPlayer(state: Save, playerId: number, level: number, free = false) {
   const quote = marketQuote({ playerId, level });
   if (!quote.available) throw new Error(quote.reason);
-  if (!free && state.balance < quote.price) throw new Error('Không đủ xu để mua thẻ này. Hãy bán thẻ khác hoặc nhận quà điểm danh.');
+  if (!free && state.balance < quote.price) throw new Error('Không đủ BP để mua thẻ này. Hãy bán thẻ khác hoặc nhận quà điểm danh.');
   const card: Card = { ...makeCard(playerId), level };
-  const entry: Entry = { id: uid(), time: Date.now(), type: 'market', title: `Mua · ${getPlayer(card).name} +${level}`, detail: `OVR ${ovr(card)} · Giá ${money(quote.price)} BP · ${free ? 'Thử nghiệm · Không trừ xu' : `−${money(quote.price)} BP`}` };
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'market', title: `Mua · ${getPlayer(card).name} +${level}`, detail: `OVR ${ovr(card)} · Giá ${money(quote.price)} BP · ${free ? 'Thử nghiệm · Không trừ BP' : `−${money(quote.price)} BP`}` };
   return { state: { ...state, balance: free ? state.balance : state.balance - quote.price, cards: [card, ...state.cards], history: [entry, ...state.history].slice(0, 200) }, card, quote };
 }
 
@@ -61,7 +61,7 @@ export function sellPlayer(state: Save, cardId: string, free = false) {
   if (!quote.available) throw new Error(quote.reason);
   const balance = free ? state.balance : state.balance + quote.proceeds;
   if (!Number.isSafeInteger(balance)) throw new Error('Số dư đã đạt giới hạn. Không thể bán thêm thẻ.');
-  const entry: Entry = { id: uid(), time: Date.now(), type: 'market', title: `Bán · ${getPlayer(card).name} +${card.level}`, detail: `OVR ${ovr(card)} · Giá ${money(quote.price)} BP · Phí ${MARKET_FEE_PERCENT}%: ${money(quote.fee)} BP · ${free ? 'Thử nghiệm · Không cộng xu' : `+${money(quote.proceeds)} BP`}` };
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'market', title: `Bán · ${getPlayer(card).name} +${card.level}`, detail: `OVR ${ovr(card)} · Giá ${money(quote.price)} BP · Phí ${MARKET_FEE_PERCENT}%: ${money(quote.fee)} BP · ${free ? 'Thử nghiệm · Không cộng BP' : `+${money(quote.proceeds)} BP`}` };
   return { state: { ...state, balance, cards: state.cards.filter(c => c.uid !== cardId), history: [entry, ...state.history].slice(0, 200) }, card, quote };
 }
 

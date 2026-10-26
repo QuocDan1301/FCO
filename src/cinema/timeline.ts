@@ -28,12 +28,19 @@ export function sceneProgress(phase: number) {
 
 // Hầm dài thêm TUNNEL_EXTRA so với bản đầu; sân khấu dời ra xa tương ứng.
 export const TUNNEL_EXTRA = 48;
-export const STAGE_Z = -59 - TUNNEL_EXTRA;
-const CAMERA_START_Z = 13, TUNNEL_END_Z = -38 - TUNNEL_EXTRA, CAMERA_END_Z = STAGE_Z + 9.5;
+// Đoạn hầm nối dài sau chỗ camera ra hầm lúc hết logo đội (z = -38 - TUNNEL_EXTRA): đủ chỗ đặt bảng logo trong hầm.
+// Sân khấu dời ra xa tương ứng. Đường đi / tốc độ camera giữ như cũ (tính theo sân khấu gốc PATH_STAGE_Z); đúng lúc qua cửa hầm
+// (mốc 6, màn đang trắng hẳn) camera nhảy qua đoạn nối — xem cameraPose — nên màn mở thẻ vẫn thấy sân khấu như cũ.
+export const TUNNEL_TAIL = 16;
+const PATH_STAGE_Z = -59 - TUNNEL_EXTRA;
+export const STAGE_Z = PATH_STAGE_Z - TUNNEL_TAIL;
+const CAMERA_START_Z = 13, TUNNEL_END_Z = -38 - TUNNEL_EXTRA, CAMERA_END_Z = PATH_STAGE_Z + 9.5;
 // Phần quãng đường nằm trong hầm; camera chạm cửa hầm đúng lúc hết logo đội.
 const TUNNEL_SHARE = (CAMERA_START_Z - TUNNEL_END_Z) / (CAMERA_START_Z - CAMERA_END_Z);
 // Sau khi thẻ hiện, camera còn lướt ra sân khấu thêm một đoạn.
 export const CAMERA_EXIT = { standard: 1500, quick: 700 } as const;
+// Tiến độ camera (0 → 1) khi camera ở đúng vị trí z.
+export const progressAtZ = (z: number) => (CAMERA_START_Z - z) / (CAMERA_START_Z - CAMERA_END_Z);
 export const cameraEnd = (quick: boolean) => OPENING_CUES[quick ? 'quick' : 'standard'][8] + CAMERA_EXIT[quick ? 'quick' : 'standard'];
 
 // Hermite hai đoạn: [0 → hết logo] trong hầm, [hết logo → cuối] ra sân khấu; vận tốc liền mạch, bắt đầu và dừng êm.
@@ -57,12 +64,14 @@ export function cameraPose(progress: number) {
   const t = Math.min(1, Math.max(0, (progress - TUNNEL_SHARE) / (1 - TUNNEL_SHARE)));
   const approach = t * t * (3 - 2 * t);
   const z = CAMERA_START_Z - progress * (CAMERA_START_Z - CAMERA_END_Z);
+  // Qua cửa hầm theo đường đi thì nhảy qua đoạn hầm nối (vị trí và điểm nhìn cùng dời nên góc nhìn không đổi).
+  const tail = z < TUNNEL_END_Z ? TUNNEL_TAIL : 0;
   return {
     x: Math.sin(progress * Math.PI) * .18,
     y: 3.1 + approach * .25,
-    z,
+    z: z - tail,
     // Nhìn xa phía trước trong hầm; khi ra khỏi hầm điểm nhìn dừng ở tâm sân khấu.
-    lookZ: z - 19.5 + approach * 10,
+    lookZ: z - 19.5 + approach * 10 - tail,
   };
 }
 

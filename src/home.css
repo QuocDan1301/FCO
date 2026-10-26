@@ -1,0 +1,85 @@
+/* Trang chủ phong cách Luxury Dark (ICON TM): CTA dưới tiêu đề, hover cụm thẻ + bục phát sáng, ví BP dạng pill,
+   trạng thái mục đang mở của thanh menu dưới, thanh Live Ticker. Nạp sau cùng để đè các luật cũ cùng độ ưu tiên. */
+:root{--gold-1:#ffe27a;--gold-2:#d4af37;--gold-3:#aa771c;--ease-lux:cubic-bezier(.22,1,.36,1)}
+
+/* 1. Mô tả phụ + 2 nút hành động. */
+.hero-copy>.hero-sub{max-width:440px;margin-top:14px;color:#a0aab2;font-size:15px;line-height:1.55}
+.hero-cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:24px}
+.cta-gold,.cta-glass{position:relative;isolation:isolate;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;height:46px;padding:0 26px;border-radius:4px;font-family:var(--display);font-size:15px;letter-spacing:.06em;white-space:nowrap;cursor:pointer;transition:transform .3s var(--ease-lux),box-shadow .35s var(--ease-lux),border-color .35s var(--ease-lux),background-color .35s var(--ease-lux)}
+.cta-gold{border:0;color:#140e02;font-weight:800;background:linear-gradient(135deg,var(--gold-1) 0%,var(--gold-2) 42%,var(--gold-3) 100%);box-shadow:0 4px 14px #aa771c55,inset 0 1px 0 #ffffff70}
+/* Vệt sáng lướt qua: nằm giữa nền nút và chữ (z-index âm trong ngữ cảnh xếp lớp của nút). */
+.cta-gold::after{content:'';position:absolute;top:0;bottom:0;left:-50%;z-index:-1;width:40%;background:linear-gradient(100deg,transparent,#ffffffa6 50%,transparent);transform:skewX(-20deg);animation:cta-shimmer 3.4s var(--ease-lux) infinite}
+@keyframes cta-shimmer{0%{translate:0 0}45%,100%{translate:420% 0}}
+.cta-gold:hover,.cta-gold:focus-visible{transform:translateY(-2px);box-shadow:0 0 0 1px #ffe27a80,0 0 26px #d4af3799,0 8px 22px #aa771c66,inset 0 1px 0 #ffffff80}
+.cta-glass{color:#f3f5f7;font-weight:700;background-color:#0a0e16b3;border:1px solid #e8cd8c59;backdrop-filter:blur(8px)}
+.cta-glass:hover,.cta-glass:focus-visible{border-color:#f3d27a;background-color:#0a0e16d9;box-shadow:0 0 0 1px #f3d27a59,0 0 20px #d4af3759,inset 0 0 12px #d4af371f;transform:translateY(-2px)}
+.cta-gold:active,.cta-glass:active{transform:translateY(0)}
+
+/* 2. Cụm 3 thẻ: rê chuột vào thẻ nào thì thẻ đó nổi lên, phóng nhẹ, viền phát sáng vàng kim; Pelé ở giữa lơ lửng.
+   (Hoạt cảnh lơ lửng cũ đặt trên khung thẻ bị translate !important vô hiệu: chuyển xuống chính thẻ.) */
+.view-packs .hero-card-front{animation:none}
+.view-packs .hero-card-front>.player-card{animation:hero-float 5.5s ease-in-out infinite}
+@keyframes hero-float{0%,100%{translate:0 0}50%{translate:0 -9px}}
+.view-packs .hero-cards .player-card{transition:scale .45s var(--ease-lux),filter .45s var(--ease-lux)}
+.view-packs .hero-card-back{transition:opacity .4s var(--ease-lux),filter .4s var(--ease-lux)}
+.view-packs .hero-card-back:hover{z-index:5;opacity:1;filter:none}
+.view-packs .hero-card-front:hover{z-index:6}
+.view-packs .hero-cards>div:hover>.player-card{scale:1.06;filter:drop-shadow(0 0 2px #ffd700b3) drop-shadow(0 0 16px #d4af3799)}
+/* Bục sân khấu: vòng elip mảnh vàng đồng phát sáng + quầng sáng mềm, đặt ngay dưới chân thẻ Pelé (--fw: bề rộng thẻ giữa,
+   cùng công thức với .hero-card-front; thẻ ảnh cao 1,09 × rộng, tâm thẻ ở 47% khung). */
+.view-packs .hero-cards{--fw:min(43cqw,calc(80cqh * .78))}
+.view-packs .card-pedestal{top:calc(47% + var(--fw) * .5);bottom:auto;left:50%;width:calc(var(--fw) * 1.6);max-width:96%;height:calc(var(--fw) * .17);margin-left:0;translate:-50% 0}
+.view-packs .featured-note{top:calc(47% + var(--fw) * .67 + 8px);bottom:auto}
+.view-packs .card-pedestal{border:0;background:radial-gradient(ellipse at 50% 50%,#d4af3740 0%,#aa771c1f 38%,transparent 68%);box-shadow:0 0 0 1px #d6aa5a8c,0 0 16px #d4af3766,0 0 42px #aa771c33,inset 0 0 18px #d4af3740}
+.view-packs .card-pedestal::after{content:'';position:absolute;inset:-40% -12%;border-radius:50%;background:radial-gradient(ellipse,#d4af3726,transparent 65%);pointer-events:none}
+
+/* 3. Ví BP dạng pill; ∞ BP vàng kim cùng đồng BP vàng. */
+.wallet{padding:5px 16px 5px 5px;border-radius:999px;background:#141824;border:1px solid #2a3042;box-shadow:inset 0 1px 0 #ffffff0d,0 4px 14px #0006}
+.wallet .coin-icon{width:28px;height:28px;border:0;color:#3a2806;font-size:11px;font-weight:800;letter-spacing:-.02em;background:radial-gradient(circle at 35% 30%,#fff3b0,#ffd700 38%,#d4af37 62%,#aa771c);box-shadow:0 0 0 1px #ffe27a99,0 0 10px #ffd70073}
+.wallet small{color:#8f99ab}
+.wallet b{color:#ffd700;text-shadow:0 0 12px #ffd70059}
+.wallet b span{color:#ffd700cc}
+
+/* 4. Thanh menu dưới: mỗi mục cao trọn thanh; vạch ngăn là đường ngắn ở giữa; mục đang mở có vạch vàng phát sáng sát cạnh trên
+   + nền sáng nhẹ từ dưới lên (rê chuột hiện mờ hơn). Chấm xanh vẫn riêng là báo có thứ mới. */
+.app>.app-dock{align-items:stretch}
+.app-dock-items,.app-dock-icons{align-self:stretch}
+.app-dock-items>button,.app-dock-icons>button{height:100%;transition:color .2s,text-shadow .2s,background .3s var(--ease-lux)}
+.app-dock-items>button+button{border-left:0}
+.app-dock-items>button+button::before{content:'';position:absolute;left:0;top:50%;width:1px;height:24px;translate:0 -50%;background:#ffffff24}
+.app-dock-items>button::after,.app-dock-icons>button::after{content:'';position:absolute;left:16%;right:16%;top:0;height:3px;border-radius:0 0 3px 3px;background:linear-gradient(90deg,transparent,var(--gold-1) 30%,var(--gold-2) 70%,transparent);box-shadow:0 0 10px #d4af37cc,0 0 2px #ffe27a;opacity:0;scale:.35 1;transition:opacity .3s var(--ease-lux),scale .35s var(--ease-lux)}
+.app-dock-items>button:hover,.app-dock-icons>button:hover,.app-dock-items>button:focus-visible,.app-dock-icons>button:focus-visible{background:linear-gradient(0deg,#d4af3714,transparent 80%)}
+.app-dock-items>button:hover::after,.app-dock-icons>button:hover::after,.app-dock-items>button:focus-visible::after,.app-dock-icons>button:focus-visible::after{opacity:.55;scale:.8 1}
+.app-dock-items>button.active,.app-dock-icons>button.active{background:linear-gradient(0deg,#d4af372e,transparent 85%)}
+.app-dock-items>button.active::after,.app-dock-icons>button.active::after{opacity:1;scale:1 1}
+.app-dock-dot{top:calc(50% - 13px)}
+.app-dock-icons b{top:7px}
+
+/* 5. Live Ticker ở đầu khung sân (dưới header); nội dung khung sân lùi xuống đúng chiều cao thanh. */
+.view-packs>.hero{--ticker-h:30px}
+.view-packs .hero-content{padding-top:calc(12px + var(--ticker-h))}
+.live-ticker{position:absolute;top:0;left:0;right:0;z-index:5;height:var(--ticker-h);display:flex;align-items:center;gap:12px;padding:0 4%;background:linear-gradient(90deg,#070a10e6,#0a0e16a6 18%,#0a0e16a6 82%,#070a10e6);color:#cdd4dc;font-size:13px;overflow:hidden}
+.live-ticker::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,#d4af3780,transparent)}
+.live-ticker-tag{flex:none;display:inline-flex;align-items:center;gap:6px;height:18px;padding:0 8px;border-radius:2px;background:#d4af371f;border:1px solid #d4af3766;color:#f3d27a;font-family:var(--display);font-size:10.5px;font-weight:700;letter-spacing:.14em}
+.live-ticker-tag i{width:6px;height:6px;border-radius:50%;background:#ff5252;box-shadow:0 0 6px #ff5252;animation:ticker-pulse 1.6s ease-in-out infinite}
+@keyframes ticker-pulse{50%{opacity:.35}}
+.live-ticker-msg{flex:1;min-width:0;margin:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-weight:500}
+.live-ticker-msg.is-animated{animation:ticker-in .7s var(--ease-lux) both}
+@keyframes ticker-in{from{opacity:0;translate:0 10px}to{opacity:1;translate:0 0}}
+
+/* Màn nhỏ. */
+@media(max-width:900px){.hero-copy>.hero-sub{font-size:13px}.cta-gold,.cta-glass{height:40px;padding:0 18px;font-size:13px}.hero-cta{gap:10px;margin-top:16px}}
+@media(max-width:640px){
+.view-packs>.hero{--ticker-h:26px}
+.view-packs .hero-cards{--fw:min(46cqw,calc(82cqh * .78))}
+.view-packs .hero-content{padding-top:calc(14px + var(--ticker-h))!important}
+.hero-cta{justify-content:center}
+.cta-gold,.cta-glass{height:36px;padding:0 14px;font-size:12px}
+.live-ticker{gap:8px;padding:0 12px;font-size:11px}
+.live-ticker-tag{height:16px;padding:0 6px;font-size:9px}
+.wallet{padding:3px 10px 3px 3px}
+.wallet .coin-icon{width:22px;height:22px;font-size:9px}
+}
+/* Giảm chuyển động. */
+.reduced-motion .view-packs .hero-card-front>.player-card,.reduced-motion .cta-gold::after,.reduced-motion .live-ticker-tag i{animation:none}
+@media(prefers-reduced-motion:reduce){.view-packs .hero-card-front>.player-card,.cta-gold::after,.live-ticker-tag i,.live-ticker-msg.is-animated{animation:none}}

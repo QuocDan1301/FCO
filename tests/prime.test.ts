@@ -4,6 +4,7 @@ import { existsSync } from 'node:fs';
 import { draw, getPlayer, initialSave, isPackAvailable, makeCard, MAX_LEVEL, openPacks, packs, players, upgrade, validateSave } from '../src/game';
 import { buyPlayer, formatMarketPrice, marketQuote, sellPlayer } from '../src/market';
 import { getTeamLogo } from '../src/teamLogos';
+import { rngFor } from './pack-rng.ts';
 
 const pack = packs.find(p => p.id === 'prime')!;
 const roster = players.filter(p => p.tier === 'prime');
@@ -30,8 +31,8 @@ test('60 thẻ INFINITE PRIME có ID riêng, đúng khoảng OVR, đủ ảnh v�
 
 test('Mọi thẻ mới đều mở được trong gói PRIME, lưu được và tương thích tiến trình cũ', () => {
   assert.ok(isPackAvailable(pack));
-  const cards = roster.map((p, index) => {
-    const card = draw(pack, () => (index + .5) / roster.length);
+  const cards = roster.map(p => {
+    const card = draw(pack, rngFor(pack, p.id));
     assert.equal(card.playerId, p.id);
     assert.equal(card.level, 1);
     return card;

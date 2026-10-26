@@ -1,5 +1,5 @@
 import { BRIDGE_CONFIG } from './config';
-import { dropRange, endsWith, tail, uniquePatterns, type Chain } from './dropTracking';
+import { dropRange, dropReach, endsWith, tail, uniquePatterns, type Chain } from './dropTracking';
 import { pick, type Rng } from './rng';
 
 export const HIDDEN_KINDS = ['historical', 'sum3', 'quad', 'backToBack'] as const;
@@ -7,7 +7,7 @@ export type HiddenKind = typeof HIDDEN_KINDS[number];
 // Mẫu đang hoạt động của từng loại cầu ngầm có mẫu; chọn lại sau mỗi chu kỳ thành công, không đổi sau khi đã roll.
 export type HiddenPatterns = { historical: number[] | null; sum3: number[] | null; quad: number[] | null };
 
-// Mức rớt lớn nhất khi đập lên cấp mục tiêu (đập từ target - 1).
+// Mức rớt lớn nhất hợp lệ khi đập lên cấp mục tiêu (đập từ target - 1); kiểm tra bản lưu dùng phạm vi này.
 const maxDrop = (targetLevel: number) => dropRange(targetLevel - 1).max;
 
 // Cầu lịch sử từ một dây nổ: đuôi 3 và 4 số cuối, thuận và đảo; dây dưới 3 mức rớt không dùng được.
@@ -21,23 +21,24 @@ export function historicalCandidates(chain: Chain) {
 }
 
 // Cầu tổng 3: A B 2 với A + B + 2 = cấp mục tiêu, mọi số nằm trong phạm vi mức rớt; không đảo.
-export function sum3Candidates(targetLevel: number) {
-  const max = maxDrop(targetLevel), last = BRIDGE_CONFIG.sumLast, rest = targetLevel - last;
+export function sum3Candidates(targetLevel: number, max = maxDrop(targetLevel)) {
+  const last = BRIDGE_CONFIG.sumLast, rest = targetLevel - last;
   if (last > max) return [];
   const result: number[][] = [];
   for (let a = 1; a <= max; a++) { const b = rest - a; if (b >= 1 && b <= max) result.push([a, b, last]); }
   return result;
 }
 
-export function quadCandidates(targetLevel: number) {
-  return Array.from({ length: maxDrop(targetLevel) }, (_, i) => Array<number>(BRIDGE_CONFIG.quadLength).fill(i + 1));
+export function quadCandidates(targetLevel: number, max = maxDrop(targetLevel)) {
+  return Array.from({ length: max }, (_, i) => Array<number>(BRIDGE_CONFIG.quadLength).fill(i + 1));
 }
 
 // Thứ tự gọi RNG cố định (lịch sử: dây rồi mẫu → tổng 3 → tứ quý) để seed tái hiện được.
 export function choosePatterns(history: readonly Chain[], targetLevel: number, rng: Rng): HiddenPatterns {
   const eligible = history.filter(chain => historicalCandidates(chain).length);
   const historical = eligible.length ? pick(historicalCandidates(pick(eligible, rng)), rng) : null;
-  const sums = sum3Candidates(targetLevel), quads = quadCandidates(targetLevel);
+  // Chỉ chọn mẫu tạo được từ các mức thật sự có thể rớt (bảng trọng số), để cầu ngầm luôn có cơ hội khớp.
+  const reach = dropReach(targetLevel - 1), sums = sum3Candidates(targetLevel, reach), quads = quadCandidates(targetLevel, reach);
   return { historical, sum3: sums.length ? pick(sums, rng) : null, quad: quads.length ? pick(quads, rng) : null };
 }
 

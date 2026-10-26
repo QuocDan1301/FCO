@@ -1,0 +1,16 @@
+.uc-panel:has(.uc-music){justify-content:safe center}
+@media(max-width:900px){.uc-panel:has(.uc-music){justify-content:flex-start}}
+.uc-music{flex-shrink:0;color:#e9eaed;font-size:13px}
+.uc-music-controls{display:flex;align-items:center;gap:8px}
+.uc-music-toggle,.uc-music-stop{display:flex;align-items:center;justify-content:center;gap:10px;min-height:44px;border:1px solid #505258;border-radius:4px;background:#242529;color:#e9eaed;padding:0 14px}
+.uc-music-toggle:hover,.uc-music-stop:hover{background:#303136;border-color:#777a82}
+.uc-music-toggle[aria-expanded=true]{border-color:#d9ba76}
+.uc-music-toggle[aria-expanded=true]>svg:last-child{transform:rotate(180deg)}
+.uc-music-stop{width:44px;padding:0}
+.uc-music-status{margin:8px 0 0;color:#b8bcc5;font-size:12px;line-height:1.5}
+.uc-music-list{margin-top:10px;border:1px solid #45474c;border-radius:4px;background:#202125;overflow:hidden}
+.uc-music-list button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:44px;padding:0 14px;text-align:left;font-size:13px}
+.uc-music-list button+button{border-top:1px solid #35373c}
+.uc-music-list button:hover{background:#303136}
+.uc-music-list button[aria-pressed=true]{color:#e5cf9a;background:#2c2b26}
+.uc-music button:focus-visible{outline:2px solid #e5cf9a;outline-offset:-3px}

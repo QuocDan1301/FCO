@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import UpgradeMusic from './UpgradeMusic';
 import type { CSSProperties, ReactNode } from 'react';
-import { ArrowUp, RefreshCcw, ShieldPlus, Smile } from 'lucide-react';
+import { ArrowUp, CirclePlus, RefreshCcw, ShieldPlus, SkipForward, Smile } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
 import { marketQuote } from './market';
 import type { Card, Tier } from './game';
@@ -12,14 +13,17 @@ type Props = {
   materials: Card[];
   energy: number;
   protection: { pct: number; cost: number | null } | null;
+  // Khôi phục khi thất bại: chance% cơ hội, giữ tối thiểu +floor; null nếu thẻ dưới +5.
+  restore: { chance: number; floor: number } | null;
   reduced: boolean;
   renderCard: (card: Card, compact?: boolean) => ReactNode;
   seasonShort: (tier: Tier) => string;
   levelBadge: (level: number) => string;
   onBack: () => void;
   // Đập thật; trả về kết quả để màn này tự hiện thẻ lên / rớt, hoặc null nếu lỗi.
-  onConfirm: () => { success: boolean; card: Card; before: number } | null;
+  onConfirm: () => { success: boolean; card: Card; before: number; restored?: boolean } | null;
   onReveal?: (success: boolean) => void;
+  onMusicActiveChange: (active: boolean) => void;
 };
 
 // Bục LED: lưới tam giác 3 dải. Mỗi chu kỳ: tối → dải giữa sáng từ hai đầu vào tâm (hai dải bên ửng hồng theo)
@@ -151,13 +155,13 @@ function LedPodium({ reduced, charging, off = false, full = false }: { reduced: 
 const winPrice = (card: Card) => { const price = marketQuote(card).price; return price === null ? 'Chưa có giá' : `${new Intl.NumberFormat('en-US').format(price)} BP`; };
 // Thanh thông báo kết quả ở đáy màn hình (theo FC Online): cấp thẻ, chỉ số và mức thay đổi, giá, nút Tiếp.
 // Đặc điểm / Huấn luyện / Kỹ thuật chưa có trong game nên hiện giá trị cố định, không đổi khi nâng cấp.
-function ResultBar({ before, after, success, pending, levelBadge, onNext }: { before: Card; after: Card; success: boolean; pending: boolean; levelBadge: (level: number) => string; onNext: () => void }) {
+function ResultBar({ before, after, success, restored, pending, levelBadge, onNext }: { before: Card; after: Card; success: boolean; restored?: boolean; pending: boolean; levelBadge: (level: number) => string; onNext: () => void }) {
   const next = useRef<HTMLButtonElement>(null);
   useEffect(() => { if (!pending) next.current?.focus(); }, [pending]);
   const delta = (n: number) => <em className={n > 0 ? 'up' : n < 0 ? 'down' : ''}>{n > 0 ? `+${n}` : n}</em>;
   const price = marketQuote(after).price;
   return <div className={`uc-result ${success ? 'is-up' : 'is-down'}${pending ? ' is-pre' : ''}`} role={pending ? undefined : 'status'} aria-hidden={pending || undefined}>
-    <h3>{success ? 'Nâng cấp thành công' : 'Nâng cấp thất bại'}</h3>
+    <h3>{success ? 'Nâng cấp thành công' : restored ? 'Nâng cấp thất bại · Đã khôi phục cấp thẻ' : 'Nâng cấp thất bại'}</h3>
     <div className="uc-result-row">
       <dl>
         <div><dt>Cấp thẻ</dt><dd><img src={levelBadge(after.level)} alt={`+${after.level}`}/>{delta(after.level - before.level)}</dd></div>
@@ -181,10 +185,12 @@ const CHARGE_MS = 5600;
 // Tính kết quả + dựng sẵn hiệu ứng kết quả (ẩn, hoạt cảnh tạm dừng) trước lúc lộ một khoảng, khi thẻ đã gần trắng hẳn:
 // khung hình lộ kết quả chỉ còn bật hiện, không phải chạy logic/lưu dữ liệu/dựng DOM/vẽ lớp mới cùng lúc (gây khựng).
 const PREPARE_LEAD = 600;
-export default function UpgradeConfirm({ target, materials, energy, protection, reduced, renderCard, seasonShort, levelBadge, onBack, onConfirm, onReveal }: Props) {
+export default function UpgradeConfirm({ target, materials, energy, protection, restore, reduced, renderCard, seasonShort, levelBadge, onBack, onConfirm, onReveal, onMusicActiveChange }: Props) {
   const p = getPlayer(target);
+  const goButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => { goButton.current?.focus({ preventScroll: true }); }, []);
   const [charging, setCharging] = useState(false);
-  const [prepared, setPrepared] = useState<{ success: boolean; card: Card; before: number } | null>(null);
+  const [prepared, setPrepared] = useState<ReturnType<Props['onConfirm']>>(null);
   const [revealed, setRevealed] = useState(false);
   const outcome = revealed ? prepared : null;
   const failed = outcome && !outcome.success ? outcome : null, won = outcome?.success ? outcome : null;
@@ -198,11 +204,12 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
   }, [onBack, charging, outcome]);
   // Tải + giải mã sẵn ảnh cấp thẻ có thể ra (rớt về +1 … lên +1) và ảnh khói để lúc hiện kết quả không khựng vì decode ảnh.
   useEffect(() => {
-    const urls = [...Array.from({ length: target.level + 1 }, (_, i) => levelBadge(i + 1)), ...[1, 2, 3].map(n => asset(`/assets/uc-smoke-${n}.webp`))];
+    const urls = [...Array.from({ length: target.level + 1 }, (_, i) => levelBadge(i + 1)), ...[1, 2, 3].map(n => asset(`/assets/uc-smoke-${n}.webp`)), asset('/assets/uc-beam.webp')];
     for (const url of urls) { const img = new Image(); img.src = url; void img.decode?.().catch(() => {}); }
   }, []);
   // Rung thẻ khi dồn năng lượng: lắc ngẫu nhiên mỗi khung hình, biên độ tăng dần từ giây 1,4 (≈1 px) tới cuối pha (≈9 px); có kết quả thì dừng.
   const shake = useRef<HTMLDivElement>(null);
+  const timers = useRef<number[]>([]);
   useEffect(() => {
     const el = shake.current;
     if (!charging || outcome || reduced || !el) { if (el) el.style.transform = ''; return; }
@@ -220,8 +227,16 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
     if (!charging) return;
     const prepare = window.setTimeout(() => { const result = onConfirm(); if (result) setPrepared(result); }, reduced ? 0 : CHARGE_MS - PREPARE_LEAD);
     const reveal = window.setTimeout(() => setRevealed(true), reduced ? 0 : CHARGE_MS);
+    timers.current = [prepare, reveal];
     return () => { clearTimeout(prepare); clearTimeout(reveal); };
   }, [charging]);
+  // Bỏ qua pha dồn năng lượng: huỷ hẹn giờ, tính kết quả ngay (nếu chưa tính) rồi lộ luôn.
+  const skip = () => {
+    if (!charging || revealed) return;
+    timers.current.forEach(clearTimeout); timers.current = [];
+    if (!prepared) { const result = onConfirm(); if (!result) return; setPrepared(result); }
+    setRevealed(true);
+  };
   useEffect(() => { if (outcome) onReveal?.(outcome.success); }, [outcome]);
   return <div className={`uc-screen ${reduced ? 'uc-reduced' : ''} ${charging ? 'is-charging' : ''} ${failed ? 'is-failed' : ''} ${won ? 'is-success' : ''}`} data-tier={levelTier(target.level + 1)} role="dialog" aria-modal="true" aria-label={`Xác nhận nâng cấp ${p.name}`} aria-busy={charging}>
     <div className="uc-stage" aria-hidden="true">
@@ -238,8 +253,10 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
     </div>
     <header className="uc-title"><h1>Nâng cấp cầu thủ</h1><p>Tiếp tục nâng cấp cầu thủ</p></header>
     {pWon && <header className={`uc-win${pre}`} role={pre ? undefined : 'status'} aria-hidden={pre ? true : undefined}><h2><img src={levelBadge(pWon.card.level)} alt={`+${pWon.card.level}`}/>Nâng cấp thành công</h2><p>{winPrice(pWon.card)}</p></header>}
-    {prepared && <ResultBar before={target} after={prepared.card} success={prepared.success} pending={!revealed} levelBadge={levelBadge} onNext={onBack}/>}
+    {prepared && <ResultBar before={target} after={prepared.card} success={prepared.success} restored={prepared.restored} pending={!revealed} levelBadge={levelBadge} onNext={onBack}/>}
+    {charging && !revealed && !reduced && <button className="uc-skip" onClick={skip} autoFocus>Bỏ qua<SkipForward size={18}/></button>}
     <aside className="uc-panel">
+      <UpgradeMusic onActiveChange={onMusicActiveChange}/>
       <h2><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b>{p.name}</h2>
       <div className="uc-materials" aria-label={`${materials.length} cầu thủ sử dụng`}>
         {materials.map((m, i) => <div key={m.uid} className="uc-material" style={{ '--i': i, zIndex: i + 1 } as CSSProperties}>{renderCard(m, true)}</div>)}
@@ -248,10 +265,11 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
         <div className="uc-energy" aria-label={`Năng lượng ${energy}%`}>{[1, 2, 3, 4, 5].map(n => <i key={n} style={{ '--fill': `${Math.min(100, Math.max(0, energy - (n - 1) * 20) * 5)}%` } as CSSProperties}/>)}</div>
       </div>
       <div className="uc-row"><span><ShieldPlus size={20}/>Bảo vệ cấp độ nâng cấp</span><b className={protection?.pct ? 'on' : ''}>{protection?.pct ? `${protection.pct}%${protection.cost ? ` · ${money(protection.cost)} BP` : ''}` : 'Không sử dụng'}</b></div>
+      {restore !== null && <div className="uc-row"><span><CirclePlus size={20}/>Khôi phục cấp thẻ</span><b className={restore.chance ? 'on' : ''}>{restore.chance ? `${restore.chance}% · giữ +${restore.floor}` : 'Không có'}</b></div>}
       <div className="uc-row"><span><RefreshCcw size={20}/>Thẻ nâng cấp lại</span><b>0 cái trong kho</b></div>
       <div className="uc-actions">
         <button className="uc-back" onClick={onBack} disabled={charging}>Trở lại</button>
-        <button className="uc-go" onClick={() => setCharging(true)} disabled={charging} autoFocus>Nâng cấp</button>
+        <button className="uc-go" onClick={() => setCharging(true)} disabled={charging} ref={goButton}>Nâng cấp</button>
       </div>
     </aside>
   </div>;

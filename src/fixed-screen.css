@@ -3,8 +3,13 @@ html,body,#root{height:100%;overflow:hidden}
 *{scrollbar-width:none}*::-webkit-scrollbar{display:none;width:0;height:0}
 .app{display:flex;flex-direction:column;height:100dvh;min-height:0;overflow:hidden}
 .app>.topbar{height:64px;flex-shrink:0}
-.app>.main-nav{height:52px;position:relative;top:auto;flex-shrink:0}
-.app>footer{flex-shrink:0;padding:8px 4%;min-height:36px;line-height:1.4}
+/* Thanh đầu: khẩu hiệu + ghi chú dự án người hâm mộ (thay cho chân trang đã bỏ). */
+.header-tag{flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.header-tag>span{display:flex;align-items:center;gap:8px}
+.header-tag>small{max-width:100%;font-size:10px;line-height:1.3;color:#6f7b8b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.settings-help{display:flex;align-items:center;gap:10px;width:100%;margin-top:12px;padding:12px 14px;border:1px solid #2b3a4c;border-radius:6px;background:#162232;color:#dce3eb;font-size:13px;font-weight:600}
+.settings-help:hover{border-color:#e1c79280}
+.settings-help>svg:last-child{margin-left:auto;color:#8e98a7}
 .main-content{flex:1;min-height:0;min-width:0;overflow:hidden}
 .main-content>.workspace{height:100%;min-height:0;display:flex;flex-direction:column;padding:18px 4% 12px;overflow:hidden}
 .main-content .page-heading{flex-shrink:0;margin-bottom:12px}
@@ -20,7 +25,7 @@ html,body,#root{height:100%;overflow:hidden}
 /* Home */
 .view-packs{display:flex;flex-direction:column}
 .view-packs>.hero{height:auto;flex:1;min-height:0}
-.view-packs .hero-content{height:calc(100% - 36px);padding:12px 6%;display:grid;grid-template-columns:44% 56%;min-height:0}
+.view-packs .hero-content{height:100%;padding:12px 6%;display:grid;grid-template-columns:44% 56%;min-height:0}
 .view-packs .hero-copy{padding-top:0}
 .view-packs .hero h1{font-size:clamp(36px,4.5vw,64px)}
 .view-packs .hero-copy>p{margin-top:10px}
@@ -35,21 +40,21 @@ html,body,#root{height:100%;overflow:hidden}
 .view-packs .back-right{right:10%;left:auto}
 .view-packs .card-pedestal{bottom:24px;max-width:80%;height:24px}
 .view-packs .featured-note{bottom:3px;font-size:10px}
-.view-packs .hero-bottom{height:36px}
-.view-packs>.home-activity{flex-shrink:0;width:100%;padding:14px 4%}
-.home-activity .activity-sidebar{gap:20px}
-.home-activity .activity-empty{padding:6px 0;gap:4px}
-.home-activity .activity-empty>svg{width:20px;height:20px}
-.home-activity .activity-empty p{line-height:1.5}
-.home-activity .journey-panel{padding-bottom:0;border-bottom:0}
-.home-activity .journey-stats{padding:6px 0;margin:0}
-.home-activity .journey-stats span{margin-top:4px}
-.home-activity .recent-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.home-activity .recent-item{padding:0;gap:5px}
-.home-activity .recent-item p{font-size:11px}
-.home-activity .recent-item time{font-size:10px}
-.home-activity .section-heading{margin-bottom:8px}
-.home-activity .text-action{margin-top:8px}
+/* Thanh menu dưới (kiểu FC Online), luôn hiện ở mọi màn giữa nội dung và chân trang: dải tối, mục chữ ngăn bằng vạch mảnh;
+   chấm xanh = có thứ mới (quà chưa nhận, gói chưa mở); mục của màn đang mở sáng vàng; biểu tượng bên phải, chuông kèm số hoạt động hôm nay. */
+.app{--dock-h:48px}
+.app>.app-dock{position:relative;z-index:2;flex-shrink:0;height:var(--dock-h);display:flex;align-items:center;justify-content:center;gap:clamp(16px,2.4vw,40px);padding:0 4%;background:linear-gradient(180deg,#16231bf2,#0a120e);border-top:1px solid #ffffff14;box-shadow:0 -10px 28px #0006}
+.app-dock-items{display:flex;align-items:center;min-width:0}
+.app-dock-items>button{position:relative;display:flex;align-items:center;height:26px;padding:0 clamp(12px,1.8vw,30px);border:0;background:none;color:#eef1ef;font-family:var(--display);font-size:clamp(14px,1.08vw,17px);font-weight:500;letter-spacing:.01em;white-space:nowrap;text-shadow:0 1px 3px #000c;cursor:pointer;transition:color .15s,text-shadow .15s}
+.app-dock-items>button+button{border-left:1px solid #ffffff24}
+.app-dock-items>button:hover,.app-dock-items>button:focus-visible{color:#fff;text-shadow:0 0 14px #ffffff59,0 1px 3px #000c}
+.app-dock-items>button.active{color:#ecd28f}
+.app-dock-dot{position:absolute;left:calc(clamp(12px,1.8vw,30px) - 8px);top:1px;width:7px;height:7px;border-radius:50%;background:#2fe06d;box-shadow:0 0 6px #2fe06dcc}
+.app-dock-icons{display:flex;align-items:center;gap:clamp(6px,1vw,16px)}
+.app-dock-icons>button{position:relative;display:grid;place-items:center;width:36px;height:36px;border:0;background:none;color:#cfd4d6;cursor:pointer;filter:drop-shadow(0 2px 2px #000b);transition:color .15s}
+.app-dock-icons>button:hover,.app-dock-icons>button:focus-visible{color:#fff}
+.app-dock-icons>button.active{color:#ecd28f}
+.app-dock-icons b{position:absolute;right:-1px;top:0;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#1690ff;color:#fff;font-size:10px;font-weight:700;line-height:17px;text-align:center;box-shadow:0 0 0 2px #0b130f}
 /* Inventory */
 .main-content>.inv-workspace{padding:0 4%}
 .inv-workspace>.inv-top,.inv-workspace>.inv-foot{flex-shrink:0}
@@ -96,6 +101,10 @@ html,body,#root{height:100%;overflow:hidden}
 .fco-upgrade .fco-row{flex-shrink:0;grid-template-columns:110px 1fr;font-size:12px}
 .fco-upgrade .fco-used{display:flex;flex-direction:column;align-items:stretch}
 .fco-upgrade .fco-stack{max-width:440px;margin-inline:auto}
+/* Ô "Cầu thủ sử dụng" lấp phần chiều cao còn lại của cột trái; dải thẻ co theo chiều cao ô (100cqh) nên luôn hiện trọn thẻ
+   kể cả khi thanh menu dưới lấy bớt chiều cao màn. */
+.fco-upgrade .fco-left .fco-row.fco-used{flex:1 1 72px;min-height:72px;container-type:size}
+.fco-upgrade .fco-left .fco-used .fco-stack{width:min(100%,440px,100cqh * 2.907);align-self:center}
 .fco-upgrade .fco-rule{font-size:11px;line-height:1.5;margin:0}
 .fco-upgrade .fco-right{height:100%;min-height:0}
 .fco-upgrade .fco-tabs{padding:0 16px}
@@ -237,9 +246,6 @@ html,body,#root{height:100%;overflow:hidden}
 @media(prefers-reduced-motion:reduce){.secondary-toggle>svg:last-child{transition:none}}
 /* Narrow screens */
 @media(max-width:1050px), (max-height:800px){
-.app>footer{flex-direction:row;padding:6px 3%;gap:10px;min-height:36px}
-.app>footer>div{max-width:58%;font-size:10px;line-height:1.4}
-.app>footer>span{margin:0;gap:10px;font-size:10px;justify-content:flex-end}
 .inv-workspace>.inv-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
 .inv-workspace .inv-side{display:block;background:transparent;border:0;padding:8px 0}
 .inv-workspace .inv-side>h2,.inv-workspace .inv-side>ul{display:none}
@@ -253,21 +259,23 @@ html,body,#root{height:100%;overflow:hidden}
 .inv-workspace .inv-use{visibility:visible;pointer-events:auto}
 .inv-workspace .inv-item h3{visibility:hidden}
 .inv-workspace .inv-tick{display:block}
-.home-activity .activity-sidebar{grid-template-columns:1fr 1fr;gap:10px 20px}
-.home-activity .upgrade-teaser{grid-column:1/-1;padding:10px 14px}
-.home-activity .recent-list{grid-template-columns:1fr}
-.home-activity .recent-item:nth-child(n+2){display:none}
+.app{--dock-h:42px}
+/* Màn thấp: thu gọn lề / khoảng cách cột trái màn nâng cấp để ô "Cầu thủ sử dụng" còn chỗ hiện trọn dải thẻ. */
+.fco-upgrade .fco-left{padding:12px 16px;gap:6px}
+.fco-upgrade .fco-stats h2{font-size:22px}
+.fco-upgrade .fco-stats dl>div{padding:3px 0}
+.fco-upgrade .fco-left .fco-perk>b,.fco-upgrade .fco-left .fco-perk-btn{font-size:15px}
+.fco-upgrade .fco-left .fco-perk-btn{padding:2px 8px}
+.fco-upgrade .fco-change{padding:4px}
+.app>.app-dock{gap:12px;padding:0 16px}
+.app-dock-items>button{padding:0 12px;font-size:13px}
+.app-dock-dot{left:4px}
+.app-dock-icons>button{width:32px;height:32px}
+.app-dock-icons svg{width:20px;height:20px}
 .market-workspace .market-preview{display:none}
 }
 @media(max-width:640px){
 .app>.topbar{height:56px}
-.app>.main-nav{height:54px}
-.app>footer{height:34px;min-height:34px;padding:4px 12px}
-.app>footer>div{max-width:45%;min-width:0;gap:5px}
-.app>footer>div>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}
-.app>footer img{width:12px;margin:0}
-.app>footer>span{font-size:0;gap:10px;flex-wrap:nowrap}
-.app>footer button{font-size:10px}
 .main-content>.workspace{padding:12px 14px 6px}
 .main-content .page-heading{gap:8px;flex-wrap:nowrap;margin-bottom:8px}
 .main-content .page-heading h1{font-size:23px}
@@ -280,22 +288,19 @@ html,body,#root{height:100%;overflow:hidden}
 .view-packs .hero-copy>p{font-size:11px;line-height:1.5;margin-top:8px}
 .view-packs .hero-price{font-size:10px;margin-top:6px}
 .view-packs .hero-cards{width:100%;min-height:0}
-.view-packs .hero-bottom>span{font-size:6px}
 .view-packs .hero-card-front{width:min(42cqw,calc(82cqh * .78))}
 .view-packs .hero-card-back{width:min(31cqw,calc(64cqh * .78))}
-.view-packs>.home-activity{padding:10px 14px}
-.home-activity .activity-sidebar{grid-template-columns:1fr 1fr;gap:8px 14px}
-.home-activity .section-heading h2{font-size:12px}
-.home-activity .section-heading>svg{width:14px;height:14px}
-.home-activity .journey-stats strong{font-size:22px}
-.home-activity .journey-stats span{font-size:9px}
-.home-activity .activity-empty>svg{display:none}
-.home-activity .activity-empty p,.home-activity .activity-empty>span{font-size:10px}
-.home-activity .activity-empty{padding:4px 0}
-.home-activity .text-action{font-size:10px;min-height:28px;margin:0}
-.home-activity .upgrade-teaser{min-height:44px;padding:7px 10px}
-.home-activity .upgrade-teaser small{display:none}
-.home-activity .recent-item b,.home-activity .recent-item p{font-size:10px}
+.app{--dock-h:40px}
+.app>.app-dock{justify-content:flex-start;gap:4px;padding:0 8px;overflow-x:auto;scrollbar-width:none}
+.app>.app-dock::-webkit-scrollbar{display:none}
+/* Điện thoại: Cài đặt mở từ nút HLV trên thanh đầu, Thông tin & nguồn ảnh nằm trong Cài đặt nên ẩn hai biểu tượng đó; các mục không co đè lên nhau, thiếu chỗ thì cuộn ngang. */
+.app-dock-items,.app-dock-icons{flex-shrink:0}
+.app-dock-icons>.dock-optional{display:none}
+.app-dock-items>button{padding:0 6px;font-size:11px}
+.app-dock-dot{left:0;width:6px;height:6px}
+.app-dock-icons{gap:0}
+.app-dock-icons>button{width:30px;height:30px}
+.app-dock-icons svg{width:18px;height:18px}
 .main-content>.inv-workspace{padding:0 14px}
 .inv-workspace .inv-top{gap:12px;padding-top:10px;flex-wrap:wrap}
 .inv-workspace .inv-top h1{font-size:23px;padding-bottom:6px}

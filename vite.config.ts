@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import type { Plugin } from "vite";
 import { execFile } from "node:child_process";
 import path from "node:path";
+import { readdirSync } from "node:fs";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -29,9 +30,24 @@ function excelPrices(): Plugin {
   };
 }
 
+// Danh sách được tạo từ thư mục thật để ảnh/nhạc mới tự tham gia bước tải đầu trang.
+function preloadAssets(): Plugin {
+  const virtualId = 'virtual:preload-assets', resolvedId = '\0' + virtualId;
+  const root = path.resolve('public/assets');
+  const files = (dir: string): string[] => readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
+    const full = path.join(dir, entry.name);
+    return entry.isDirectory() ? files(full) : /\.(?:png|webp|jpe?g|svg|mp3|wav|woff2?|ttf|otf|json)$/i.test(entry.name) ? [path.relative(root, full).split(path.sep).join('/')] : [];
+  });
+  return {
+    name: 'preload-assets',
+    resolveId(id) { if (id === virtualId) return resolvedId; },
+    load(id) { if (id === resolvedId) return `export default ${JSON.stringify(files(root).sort())};`; },
+  };
+}
+
 export default defineConfig({
   base: "/FCO/",
-  plugins: [react(), tailwindcss(), excelPrices()],
+  plugins: [react(), tailwindcss(), excelPrices(), preloadAssets()],
   // Biên dịch sẵn module chính và gói thư viện khi khởi động để lần mở trang đầu không phải chờ.
   server: {
     warmup: { clientFiles: ["./src/main.tsx", "./src/App.tsx", "./src/cinema/*.tsx"] },

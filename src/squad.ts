@@ -42,7 +42,7 @@ export function toggleLock(state: Save, uid: string): Save {
   return { ...state, locked: locked.includes(uid) ? locked.filter(id => id !== uid) : [...locked, uid] };
 }
 
-// Xóa hẳn thẻ khỏi kho (không nhận xu); bỏ luôn khỏi đội hình.
+// Xóa hẳn thẻ khỏi kho (không nhận BP); bỏ luôn khỏi đội hình.
 export function releaseCard(state: Save, uid: string): Save {
   const card = state.cards.find(c => c.uid === uid);
   if (!card) throw new Error('Thẻ không còn trong kho.');

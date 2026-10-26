@@ -8,7 +8,7 @@ import mutablePriceData from '../src/player-prices.json';
 // Bảng giá lấy từ Excel (src/player-prices.json): game phải trả đúng từng ô, kể cả ô trống.
 const priceTable: Record<string, (number | null)[]> = JSON.parse(readFileSync(new URL('../src/player-prices.json', import.meta.url), 'utf8')).players;
 
-test('Thẻ giá 0 hiển thị 0 BP, mua bán được với 0 xu; ô trống vẫn khóa giao dịch', () => {
+test('Thẻ giá 0 hiển thị 0 BP, mua bán được với 0 BP; ô trống vẫn khóa giao dịch', () => {
   const table = mutablePriceData.players as Record<string, (number | null)[]>;
   const playerId = 47;
   const previous = table[playerId];
@@ -56,7 +56,7 @@ test('Giá từng cấp khớp bảng Excel; mua bán và phí nhất quán', ()
   assert.ok(compareMarketPrices({ playerId: 1, level: 1 }, { playerId: 1, level: 13 }) < 0);
 });
 
-test('Mua đúng cấp thẻ, trừ đúng xu, tạo UID riêng, giữ dữ liệu cũ và lưu lịch sử hợp lệ', () => {
+test('Mua đúng cấp thẻ, trừ đúng BP, tạo UID riêng, giữ dữ liệu cũ và lưu lịch sử hợp lệ', () => {
   const before = { ...initialSave(), balance: 1000000000000000 };
   const snapshot = structuredClone(before);
   const quote = marketQuote({ playerId: 47, level: 3 });
@@ -72,11 +72,11 @@ test('Mua đúng cấp thẻ, trừ đúng xu, tạo UID riêng, giữ dữ li�
   assert.ok(validateSave(JSON.parse(JSON.stringify(result.state))));
   const second = buyPlayer(result.state, 47, 3);
   assert.notEqual(second.card.uid, result.card.uid);
-  assert.throws(() => buyPlayer({ ...before, balance: quote.price - 1 }, 47, 3), /Không đủ xu/);
+  assert.throws(() => buyPlayer({ ...before, balance: quote.price - 1 }, 47, 3), /Không đủ BP/);
   assert.equal(buyPlayer({ ...before, balance: quote.price }, 47, 3).state.balance, 0);
 });
 
-test('Bán đúng bản sao thẻ, nhận xu sau phí; chặn bán lại và tràn số dư', () => {
+test('Bán đúng bản sao thẻ, nhận BP sau phí; chặn bán lại và tràn số dư', () => {
   const first = makeCard(11), duplicate = makeCard(11);
   first.level = 5;
   const before = { ...initialSave(), cards: [first, duplicate] };
@@ -107,7 +107,7 @@ test('Mua rồi bán mất đúng phí; không tạo lợi nhuận và giữ ngu
   assert.equal(sold.state.history.length, 2);
 });
 
-test('Xu vô hạn: giao dịch vẫn thêm/xóa thẻ nhưng không đổi số dư, kể cả khi hết xu', () => {
+test('BP vô hạn: giao dịch vẫn thêm/xóa thẻ nhưng không đổi số dư, kể cả khi hết BP', () => {
   const before = { ...initialSave(), balance: 0 };
   const bought = buyPlayer(before, players[0].id, 5, true);
   assert.equal(bought.state.balance, 0);
@@ -116,14 +116,14 @@ test('Xu vô hạn: giao dịch vẫn thêm/xóa thẻ nhưng không đổi số
   assert.equal(sold.state.balance, 0);
   assert.deepEqual(sold.state.cards, before.cards);
   assert.ok(validateSave(sold.state));
-  assert.match(bought.state.history[0].detail, /Không trừ xu/);
-  assert.match(sold.state.history[0].detail, /Không cộng xu/);
+  assert.match(bought.state.history[0].detail, /Không trừ BP/);
+  assert.match(sold.state.history[0].detail, /Không cộng BP/);
 });
 
 test('Giữ tối đa 200 lịch sử, đọc lại được bản lưu cũ và bản lưu có giao dịch', () => {
   const before = { ...initialSave(), balance: 1000000000000000 };
   assert.ok(validateSave(before));
-  before.history = Array.from({ length: 200 }, (_, i) => ({ id: `old-${i}`, type: 'gift', time: 1, title: 'Điểm danh', detail: 'Xu' }));
+  before.history = Array.from({ length: 200 }, (_, i) => ({ id: `old-${i}`, type: 'gift', time: 1, title: 'Điểm danh', detail: 'BP' }));
   const bought = buyPlayer(before, 47, 1);
   assert.equal(bought.state.history.length, 200);
   assert.equal(bought.state.history.at(-1)?.id, 'old-198');

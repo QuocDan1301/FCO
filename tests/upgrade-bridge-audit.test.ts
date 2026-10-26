@@ -21,6 +21,13 @@ const playChain = (bridge: BridgeState, currentLevel: number, drops: number[], r
   return recordOutcome(bridge, currentLevel, { success: true }, rng);
 };
 const baseRate = (currentLevel: number) => UPGRADE_LEVELS[currentLevel].chance;
+// Số RNG rơi giữa đoạn trọng số của mức rớt cần có.
+const dropRoll = (currentLevel: number, drop: number) => {
+  const weights = BRIDGE_CONFIG.dropWeights[currentLevel], total = weights.reduce((sum, [, weight]) => sum + weight, 0);
+  let below = 0;
+  for (const [level, weight] of weights) { if (level === drop) return (below + weight / 2) / total; below += weight; }
+  throw new Error(`+${currentLevel} không rớt về +${drop}`);
+};
 
 test('RNG: luồng kết quả chỉ bị gọi 1 lần khi thành công, 2 lần khi thất bại, bất kể cầu ngầm', () => {
   const states = [emptyBridge(), playChain(playChain(emptyBridge(), 7, [1, 2, 3, 4]), 7, [5, 5, 5]), bridgeWith(8, { chain: [1, 5, 2], patterns: { historical: null, sum3: [1, 5, 2], quad: [5, 5, 5, 5] } }, { backToBack: 8 })];
@@ -47,13 +54,13 @@ test('RNG: đổi seed cầu ngầm không làm lệch chuỗi roll kết quả 
   assert.ok(!run(1).includes('bonus'));
 });
 
-test('Dây rớt: cứu thẻ bằng phôi trùng vẫn ghi mức rớt gốc do engine roll', () => {
+test('Dây rớt: khôi phục cấp thẻ vẫn ghi mức rớt gốc do engine roll', () => {
   const target = { ...makeCard(33), level: 8 };
   const materials = [{ ...makeCard(33), level: 5 }, { ...makeCard(34), level: 1 }];
   const state = { ...initialSave(), cards: [target, ...materials] };
-  const result = upgrade(state, target.uid, materials.map(c => c.uid), script(.999999, 0), true, { patternRng: always(.5) });
-  assert.equal(result.droppedLevel, 1); assert.equal(result.restoredLevel, 5); assert.equal(result.result.level, 5);
-  assert.deepEqual(result.state.bridge!.levels['9'].chain, [1], 'Ghi +1 (mức rớt), không ghi +5 (sau khi cứu)');
+  const result = upgrade(state, target.uid, materials.map(c => c.uid), script(.999999, 0, .1), true, { patternRng: always(.5), restore: { chance: 50, floor: 8 } });
+  assert.equal(result.droppedLevel, 1); assert.equal(result.restoredLevel, 8); assert.equal(result.result.level, 8);
+  assert.deepEqual(result.state.bridge!.levels['9'].chain, [1], 'Ghi +1 (mức rớt), không ghi +8 (sau khi khôi phục)');
   assert.equal(result.turn.drop, 1);
 });
 
@@ -61,7 +68,7 @@ test('Dây rớt: 12145 = 7 lưu chu kỳ, dây chuẩn 2145, phôi và thẻ ch
   let bridge = emptyBridge();
   const drops = [1, 2, 1, 4, 5];
   drops.forEach((drop, i) => {
-    const r = resolveUpgrade(bridge, { currentLevel: 6, baseRate: 15, role: i % 2 ? 'main' : 'material' }, { outcome: script(.99, (drop - .5) / 5), pattern: always(.5) });
+    const r = resolveUpgrade(bridge, { currentLevel: 6, baseRate: 15, role: i % 2 ? 'main' : 'material' }, { outcome: script(.99, dropRoll(6, drop)), pattern: always(.5) });
     assert.equal(r.drop, drop); bridge = r.bridge;
   });
   assert.deepEqual(bridge.levels['7'].chain, drops, 'Thất bại không reset dây');
@@ -194,8 +201,8 @@ test('Bản lưu: reload khôi phục đúng; dữ liệu cũ / hỏng / bị s�
 });
 
 test('Tương thích: OVR, năng lượng nguyên liệu và tỷ lệ gốc không đổi; không nhân đôi thẻ', () => {
-  assert.deepEqual(UPGRADE_LEVELS.map(l => l.chance), [0, 100, 81, 64, 50, 26, 15, 7, 5, 4, 3, 2, 1]);
-  const target = { ...makeCard(11), level: 6 }, materials = Array.from({ length: 5 }, () => ({ ...makeCard(11), level: 6 }));
+  assert.deepEqual(UPGRADE_LEVELS.map(l => l.chance), [0, 100, 81, 64, 50, 26, 15, 7, 4, 2, 1, .7, .5]);
+  const target = { ...makeCard(11), level: 6 }, materials = Array.from({ length: 5 }, () => ({ ...makeCard(11), level: 13 }));
   const state = { ...initialSave(), cards: [target, ...materials] };
   assert.equal(upgradeInfo(target, materials).chance, 15);
   for (const roll of [0, .99]) {

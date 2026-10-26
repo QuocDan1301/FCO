@@ -200,5 +200,9 @@
 .reveal-podium { bottom: 19%; }
 @media (max-width: 900px) { .reveal-card { --rw: min(240px, 62vw); margin-left: 0; } }
 
-@keyframes opening-information-fade { 0% { opacity: 0; transform: translateY(10px) scale(.97); } 14% { opacity: 1; transform: none; } 86% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-6px) scale(1.01); } }
-.opening-information { animation-timing-function: ease-out; animation-fill-mode: both; }
+@keyframes opening-information-fade { 0% { opacity: 0; transform: translateY(10px) scale(.95); } 30% { opacity: 1; transform: none; } 70% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-6px) scale(1.03); } }
+.opening-information { animation-timing-function: ease-in-out; animation-fill-mode: both; }
+/* Màn kết quả dựng sẵn trước lúc hiện thẻ (PackOpening): không bắt chuột. Hoạt cảnh lặp vẫn chạy (vẽ sẵn lớp ở cỡ thật, khuất sau màn trắng);
+   hoạt cảnh chạy một lần (vệt sáng viền thẻ) dừng ở khung đầu tới khi hiện thật. */
+.opening-result.is-pre{pointer-events:none}
+.opening-result.is-pre .card-edge-sweep{animation-play-state:paused!important}

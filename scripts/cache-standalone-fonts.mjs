@@ -1,5 +1,5 @@
 import { writeFile } from 'node:fs/promises';
-const endpoint = 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap';
+const endpoint = 'https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap';
 const response = await fetch(endpoint, { headers: { 'User-Agent': 'Mozilla/5.0 Chrome/130.0.0.0 Safari/537.36' } });
 if (!response.ok) throw new Error(`Không tải được font CSS: ${response.status}`);
 let css = await response.text();

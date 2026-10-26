@@ -1,0 +1,146 @@
+/* TTCN phong cách FC Online: header một hàng (số dư dạng badge vàng + nút quy tắc có tooltip), danh sách dày (badge vị trí / mùa / cấp),
+   thẻ chưa định giá làm mờ, panel chi tiết có chọn nhanh cấp + nút mua vàng, tab Tâm điểm 3 cột nền kẻ sọc chéo.
+   Nạp sau market.css / fixed-screen.css để đè các luật cũ cùng độ ưu tiên. */
+
+/* 1. Header một hàng. */
+.market-workspace .market-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:6px}
+.market-workspace .market-heading h1{font-size:26px;line-height:1.15}
+.market-workspace .market-heading p{font-size:12px;color:#8f99ab;margin-top:2px}
+.market-head-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px}
+.market-balance{display:inline-flex;align-items:center;gap:10px;height:38px;padding:0 16px 0 14px;border-radius:999px;background:#141824;border:1px solid #2a3042;box-shadow:inset 0 1px 0 #ffffff0d}
+.market-balance>span{font-size:11px;color:#8f99ab}
+.market-balance>b{display:inline-flex;align-items:baseline;gap:5px;font-family:var(--display);font-size:20px;font-weight:700;color:#ffd700;text-shadow:0 0 12px #ffd70059;font-variant-numeric:tabular-nums}
+.market-balance>b small{font-size:11px;font-weight:600;color:#ffd700bf}
+.market-rules{position:relative;display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:999px;border:1px solid #2a3042;background:#10141c;color:#b8c2ce;font-size:12px;cursor:help;transition:border-color .2s,color .2s}
+.market-rules:hover,.market-rules:focus-visible{border-color:#d4af3780;color:#f3d27a}
+.market-rules-tip{position:absolute;right:0;top:calc(100% + 8px);z-index:30;width:320px;padding:10px 12px;border-radius:6px;background:#0d1118f5;border:1px solid #d4af3759;box-shadow:0 12px 30px #000a;font-size:12px;line-height:1.6;color:#cfd6de;text-align:left;white-space:normal;cursor:default;opacity:0;visibility:hidden;translate:0 -4px;transition:opacity .2s,translate .2s,visibility .2s;pointer-events:none}
+.market-rules:hover .market-rules-tip,.market-rules:focus-visible .market-rules-tip{opacity:1;visibility:visible;translate:0 0}
+.market-workspace .market-heading .text-action{min-height:38px;font-size:12px;flex-shrink:0}
+.market-tab-spotlight{color:#d9be7c!important}
+.market-tab-spotlight[aria-pressed=true]{color:#ffd700!important;border-bottom-color:#ffd700!important}
+
+/* 2–3. Danh sách kiểu bảng Quản lí CT: vị trí (vạch màu tuyến, lớp squad-pos) · ảnh thẻ · mùa + tên · lương (lục giác squad-wage) · OVR ·
+   huy hiệu cấp · giá · thao tác; tiêu đề cột bấm để sắp xếp. */
+.market-badges{display:flex;align-items:center;gap:5px;min-width:0;flex-wrap:nowrap}
+.market-columns,.market-workspace .market-row{display:grid;grid-template-columns:62px 44px minmax(0,1fr) 46px 54px 48px minmax(84px,120px) 72px;align-items:center;gap:8px}
+.market-columns{flex-shrink:0;height:32px;padding:0 12px;background:#232a33;border-radius:4px 4px 0 0;font-size:12px;color:#aeb6c2}
+.market-col{display:flex;align-items:center;gap:3px;padding:0;background:none;border:0;font-size:12px;color:inherit;white-space:nowrap;cursor:pointer}
+.market-col:hover,.market-col.on{color:#f0f1f3}
+.market-col.on{font-weight:600}
+.market-col svg.up{transform:rotate(180deg)}
+.market-col.is-center{justify-content:center}
+.market-col.is-end{justify-content:flex-end}
+.market-workspace .market-row{padding:0 12px;border-top:0;border-bottom:1px solid #1f262f;cursor:pointer;transition:background-color .15s}
+.market-workspace .market-row:hover{background:#1c232c}
+.market-workspace .market-row.is-selected{background:linear-gradient(90deg,#d4af371f,#171b21 40%);box-shadow:inset 3px 0 0 #d4af37}
+.market-row .squad-pos{font-size:17px}
+.market-face{display:flex;align-items:center;justify-content:center;height:100%;min-width:0}
+.market-face img{max-width:100%;max-height:40px;object-fit:contain}
+.market-workspace .market-player{display:flex;align-items:center;gap:7px;min-width:0;min-height:0;padding:0;text-align:left;background:none;border:0;cursor:pointer}
+.market-workspace .market-player b{font-family:var(--display);font-size:16px;font-weight:600;line-height:1.2;color:#f0f1f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.market-row .squad-wage{justify-self:center;width:28px;height:28px;font-size:13px}
+.market-workspace .market-ovr{text-align:center;font-family:var(--display);font-size:20px;font-weight:600;color:#f0f1f3;font-variant-numeric:tabular-nums}
+.market-level{display:flex;justify-content:center}
+.market-level img{width:32px;height:auto}
+.market-workspace .market-price{text-align:right;min-width:0;padding-left:0}
+.market-workspace .market-price b{display:block;font-family:var(--display);font-size:16px;font-weight:600;line-height:1.2;color:#f0f1f3;font-variant-numeric:tabular-nums}
+.market-workspace .market-price small{display:block;font-size:10px;line-height:1.2;color:#8f99ab}
+.market-price.is-unpriced b,.market-preview dd.is-unpriced{color:#7d8794}
+.market-price.is-unpriced small,.market-preview dd.is-unpriced small{color:#6b7480;font-style:italic}
+.market-workspace .market-row-action{justify-content:flex-end;min-height:30px}
+@media(min-width:641px){
+/* Phụ đề, ô lọc, tab, dòng đếm, phân trang gọn lại để danh sách hiện nhiều cầu thủ mỗi trang. */
+.market-workspace .market-heading p{display:none}
+.market-workspace .market-tabs{margin-top:4px}
+.market-workspace .market-tabs>button{min-height:34px}
+.market-workspace .market-filters{margin-top:8px;gap:10px}
+.market-workspace .market-filter-fields>label{gap:3px;font-size:11px}
+.market-workspace .market-filters select,.market-workspace .market-filters>.search-field{height:36px}
+.market-workspace .market-count{padding:2px 0}
+.market-workspace .market-pagination{height:34px}
+.market-workspace .market-list{--page-item-height:48}
+.market-workspace .market-row{height:48px}
+}
+@media(max-width:1100px) and (min-width:641px){
+.market-columns,.market-workspace .market-row{grid-template-columns:54px 36px minmax(0,1fr) 38px 46px 40px minmax(70px,96px) 56px;gap:6px}
+.market-workspace .market-player b{font-size:14px}
+}
+/* Điện thoại: bỏ cột lương và cấp thẻ; huỷ bố cục 2 dòng cũ của hàng (market.css / fixed-screen.css / phone.css). */
+@media(max-width:640px){
+.market-columns,.market-workspace .market-row{grid-template-columns:44px 30px minmax(0,1fr) 34px 64px 48px;gap:5px}
+.market-columns{padding:0 8px}
+.market-columns>.market-col:nth-of-type(3),.market-columns>.market-col:nth-of-type(5),.market-row .squad-wage,.market-row .market-level{display:none}
+.market-workspace .market-list{--page-item-height:52}
+.market-workspace .market-row{height:52px;min-height:0;padding:0 8px}
+.market-workspace .market-row>*{grid-column:auto;grid-row:auto}
+.market-row .squad-pos{font-size:14px;padding-left:6px}
+.market-face img{max-height:36px}
+.market-workspace .market-player b{font-size:14px}
+.market-workspace .market-player .season-badge{display:none}
+.market-workspace .market-ovr{font-size:17px}
+.market-workspace .market-ovr:before{content:none}
+.market-workspace .market-price{display:block;padding-left:0;text-align:right}
+.market-workspace .market-price b{font-size:14px}
+.market-workspace .market-row-action{min-width:0;min-height:44px;font-size:12px}
+}
+/* Panel chi tiết luôn hiện trên màn rộng (luật cũ ẩn nó khi màn thấp hơn 800px làm cột phải bỏ trống). */
+@media(min-width:1051px){.market-workspace .market-preview{display:flex}}
+
+/* 4. Panel chi tiết: dải badge, chọn nhanh cấp +1 → +13, nút mua vàng. */
+.market-preview-badges{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:6px}
+.market-preview-badges .pos-badge,.market-preview-badges .season-badge{font-size:12px}
+/* Ảnh khung mức thẻ (+1 → +13) như các trang khác. */
+.market-level-img{display:block;flex:none;width:30px;height:auto}
+.market-badges .market-level-img{width:26px}
+.market-preview-ovr{font-size:12px;color:#a5afbc}
+.market-preview-ovr b{font-family:var(--display);font-size:15px;color:#f2f4f6;margin-left:2px}
+.market-grades{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:10px}
+.market-grades>button{display:grid;place-items:center;height:26px;padding:0;border-radius:4px;background:#0f141b;border:1px solid transparent;opacity:.7;cursor:pointer;transition:opacity .15s,border-color .15s,box-shadow .2s}
+.market-grades>button:hover{opacity:1}
+.market-grades>button[aria-pressed=true]{opacity:1;border-color:#ffd700;box-shadow:0 0 8px #d4af3766}
+.market-grades .market-level-img{pointer-events:none}
+.market-primary{position:relative;overflow:hidden;border:0;background:linear-gradient(135deg,#ffe27a 0%,#d4af37 45%,#aa771c 100%);color:#140e02;font-weight:800;letter-spacing:.03em;box-shadow:0 4px 14px #aa771c55,inset 0 1px 0 #ffffff70;transition:transform .25s cubic-bezier(.22,1,.36,1),box-shadow .3s}
+.market-primary:hover:not(:disabled),.market-primary:focus-visible{transform:translateY(-1px);box-shadow:0 0 0 1px #ffe27a80,0 0 22px #d4af3799,0 6px 18px #aa771c66,inset 0 1px 0 #ffffff80}
+.market-primary:disabled{filter:grayscale(.6)}
+
+/* 5. Tâm điểm thị trường: 3 cột, nền kẻ sọc chéo + quầng màu riêng từng cột. */
+.market-spotlight{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:12px}
+.spotlight-item{--spot:#d4af37;position:relative;display:flex;flex-direction:column;min-height:0;padding:14px 16px 16px;border-radius:8px;overflow:hidden;border:1px solid #ffffff12;border-top:3px solid var(--spot);background:repeating-linear-gradient(135deg,#ffffff07 0 2px,transparent 2px 15px),radial-gradient(ellipse at 50% 38%,color-mix(in srgb,var(--spot) 22%,transparent),transparent 62%),linear-gradient(170deg,#18202c,#0d1218);transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s}
+.spotlight-item:hover{transform:translateY(-3px);box-shadow:0 14px 34px #0009,0 0 0 1px color-mix(in srgb,var(--spot) 45%,transparent)}
+.spotlight-0{--spot:#ff6b35}
+.spotlight-1{--spot:#d4af37}
+.spotlight-2{--spot:#e8453c}
+.spotlight-item>header{display:flex;align-items:center;gap:12px}
+.spotlight-rank{flex:none;font-family:var(--display);font-size:34px;font-weight:800;font-style:italic;line-height:1;color:var(--spot);text-shadow:0 0 14px color-mix(in srgb,var(--spot) 55%,transparent)}
+.spotlight-item h3{font-family:var(--display);font-size:17px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#f2f4f6}
+.spotlight-item header small{display:block;font-size:11px;color:#8f99ab;margin-top:2px}
+.spotlight-card{flex:1;min-height:120px;container-type:size;display:flex;align-items:center;justify-content:center;margin:10px 0}
+.spotlight-card>.player-card{height:min(100cqh,calc(100cqw * 1.09));width:auto;transition:scale .35s cubic-bezier(.22,1,.36,1)}
+.spotlight-item:hover .spotlight-card>.player-card{scale:1.04}
+.spotlight-info{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.spotlight-info>b{font-family:var(--display);font-size:18px;font-weight:700;color:#f2f4f6}
+.spotlight-ovr{font-size:11px;color:#a5afbc}
+.spotlight-ovr b{font-family:var(--display);font-size:14px;color:#f2f4f6}
+.spotlight-price{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px;padding-top:10px;border-top:1px solid #ffffff14;font-size:12px;color:#a5afbc}
+.spotlight-price b{font-family:var(--display);font-size:20px;font-weight:700;color:#f0dba8;font-variant-numeric:tabular-nums}
+.spotlight-price.is-unpriced b{color:#7d8794}
+.spotlight-price small{margin-left:8px;font-size:11px;font-style:italic;color:#6b7480}
+.spotlight-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.spotlight-actions>button{min-height:38px;justify-content:center}
+.spotlight-actions>.market-primary{display:flex;align-items:center;gap:8px;border-radius:4px;font-size:13px}
+
+/* Màn hẹp / điện thoại. */
+@media(max-width:900px){.market-workspace .market-heading{flex-wrap:wrap}.market-head-actions{justify-content:flex-start}.market-spotlight{grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;overflow-y:auto;padding-bottom:8px}.spotlight-card{flex:none;height:230px}}
+@media(max-width:640px){.market-workspace .market-heading{align-items:flex-start}.market-workspace .market-heading p{display:none}.market-balance{height:32px;padding:0 12px}.market-balance>b{font-size:16px}.market-rules{height:32px;padding:0 10px;font-size:11px}.market-rules-tip{width:min(300px,80vw);left:0;right:auto}.market-badges .season-badge{display:none}}
+@media(prefers-reduced-motion:reduce){.spotlight-item,.spotlight-card>.player-card,.market-primary{transition:none}}
+/* Màn rộng nhưng thấp (≤800px): ảnh thẻ sang trái, tên + badge + bảng giá bên phải, để ảnh không bị ép còn vài pixel. */
+@media(min-width:1051px) and (max-height:800px){
+.market-workspace .market-preview{display:grid;grid-template-columns:110px minmax(0,1fr);align-content:start;column-gap:12px;text-align:left}
+.market-workspace .market-preview-card{grid-column:1;grid-row:1/4;flex:none;height:120px}
+.market-workspace .market-preview h2{grid-column:2;grid-row:1;align-self:end;margin-top:0;font-size:17px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.market-workspace .market-preview-badges{grid-column:2;grid-row:2;align-self:start;justify-content:flex-start;margin-top:4px}
+.market-workspace .market-preview dl{grid-column:2;grid-row:3;align-self:start;margin-top:4px}
+.market-workspace .market-preview dl>div{padding:3px 0}
+.market-workspace .market-preview>.market-grades,.market-workspace .market-preview>.market-primary,.market-workspace .market-preview>small{grid-column:1/-1}
+.market-workspace .market-preview>.market-grades{margin-top:10px}
+}

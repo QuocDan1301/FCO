@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buyPacks, getPackOpeningCost, getPackStock, initialSave, openPacks, openSelectedPacks, packs, validateSave } from '../src/game.ts';
 
-test('Shop trừ đúng xu, thêm gói vào kho, lưu lịch sử và không sửa bản lưu gốc', () => {
+test('Shop trừ đúng BP, thêm gói vào kho, lưu lịch sử và không sửa bản lưu gốc', () => {
   const before = initialSave();
   const next = buyPacks(before, packs[1], 10);
   assert.equal(next.balance, before.balance - packs[1].price * 10);
@@ -17,7 +17,7 @@ test('Shop trừ đúng xu, thêm gói vào kho, lưu lịch sử và không s�
   assert.equal(next.upgrades, before.upgrades);
 });
 
-test('Gói đã mua không trừ xu lần hai; dùng hết gói trả trước mới tính phí gói có sẵn', () => {
+test('Gói đã mua không trừ BP lần hai; dùng hết gói trả trước mới tính phí gói có sẵn', () => {
   const paid = buyPacks(initialSave(), packs[1], 3);
   const opened = openPacks(paid, packs[1], 2);
   assert.equal(opened.state.balance, paid.balance);
@@ -43,11 +43,11 @@ test('Mua và mở hết 150 gói trả trước khi số dư còn 0, kể cả 
   assert.ok(validateSave(opened.state));
 });
 
-test('Shop chặn số lượng sai, thiếu xu, gói không có và tràn kho; lỗi giữ nguyên bản lưu', () => {
+test('Shop chặn số lượng sai, thiếu BP, gói không có và tràn kho; lỗi giữ nguyên bản lưu', () => {
   const before = initialSave();
   const snapshot = JSON.stringify(before);
   for (const count of [0, -1, 151, 1.5, NaN, Infinity]) assert.throws(() => buyPacks(before, packs[0], count, true));
-  assert.throws(() => buyPacks(before, packs[0], 150), /Không đủ xu/);
+  assert.throws(() => buyPacks(before, packs[0], 150), /Không đủ BP/);
   assert.throws(() => buyPacks(before, { ...packs[0], id: 'unknown' }, 1), /chưa có/);
   assert.throws(() => buyPacks({ ...before, unopened: { eternal: Number.MAX_SAFE_INTEGER, stellar: 0, origin: 0 } }, packs[0], 1, true), /giới hạn/);
   assert.equal(JSON.stringify(before), snapshot);
@@ -55,7 +55,7 @@ test('Shop chặn số lượng sai, thiếu xu, gói không có và tràn kho; 
   assert.equal(canonical.balance, before.balance - packs[0].price);
 });
 
-test('Shop giữ số dư trong chế độ xu vô hạn, cộng dồn gói và giữ tối đa 200 lịch sử', () => {
+test('Shop giữ số dư trong chế độ BP vô hạn, cộng dồn gói và giữ tối đa 200 lịch sử', () => {
   const before = { ...initialSave(), balance: 0 };
   const first = buyPacks(before, packs[0], 150, true);
   const second = buyPacks(first, packs[0], 150, true);
@@ -65,7 +65,7 @@ test('Shop giữ số dư trong chế độ xu vô hạn, cộng dồn gói và 
   const opened = openPacks(second, packs[0], 150, undefined, true);
   assert.equal(opened.state.prepaid?.eternal, 150);
   assert.ok(validateSave(opened.state));
-  const fullHistory = { ...before, history: Array.from({ length: 200 }, (_, i) => ({ id: String(i), time: i, type: 'gift' as const, title: 'Quà', detail: 'Xu' })) };
+  const fullHistory = { ...before, history: Array.from({ length: 200 }, (_, i) => ({ id: String(i), time: i, type: 'gift' as const, title: 'Quà', detail: 'BP' })) };
   assert.equal(buyPacks(fullHistory, packs[0], 1, true).history.length, 200);
 });
 

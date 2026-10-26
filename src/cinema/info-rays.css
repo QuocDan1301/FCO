@@ -1,0 +1,21 @@
+/* Tia sáng chiếu vào thông tin giữa hầm (quốc tịch / vị trí / đội bóng): vệt vàng toả ra từ tâm thông tin + hai chùm tia trắng
+   chiếu từ hai bên vách vào. Gradient vẽ một lần; chỉ hoạt cảnh opacity/transform, hiện/tắt cùng nhịp với .opening-information. */
+.info-rays{--ry:calc(47% + 50px);position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:0;will-change:opacity,transform;transform-origin:50% var(--ry);animation:info-rays var(--information-duration,1.2s) ease-in-out both}
+@keyframes info-rays{0%{opacity:0;transform:scale(1.14)}30%{opacity:1;transform:none}70%{opacity:1}100%{opacity:0;transform:scale(1.02)}}
+.info-rays i{position:absolute;inset:0}
+/* Vệt vàng: hai lớp conic lặp với chu kỳ khác nhau cho khoảng cách không đều; khoét mềm vùng giữa sau bảng thông tin. */
+/* Hộp nới 150% (xoay không lộ góc): tâm thông tin trong hộp = (25% + 47%) / 1,5 = 48% chiều cao + 50px. */
+.ir-burst{--by:calc(48% + 50px);inset:-25%!important;transform-origin:50% var(--by);background:repeating-conic-gradient(from 4deg at 50% var(--by),transparent 0deg,#ffe23ad9 .15deg .75deg,transparent .9deg 17deg),repeating-conic-gradient(from 9deg at 50% var(--by),transparent 0deg,#ffd02aa6 .1deg .45deg,transparent .55deg 29deg);-webkit-mask:radial-gradient(ellipse 18% 24% at 50% var(--by),transparent 55%,#000 100%);mask:radial-gradient(ellipse 18% 24% at 50% var(--by),transparent 55%,#000 100%);will-change:transform;animation:ir-turn var(--information-duration,1.2s) linear both}
+@keyframes ir-turn{from{transform:rotate(-1.2deg)}to{transform:rotate(1.2deg)}}
+/* Tia trắng: mỗi bên một nguồn sáng trên vách, chùm tia mảnh xoè ±11° hướng vào bảng; chỉ hiện đoạn từ nguồn tới gần bảng. */
+.ir-beams{background:
+  radial-gradient(ellipse 4% 8% at 11% var(--ry),#ffffffb0,#ffffff30 45%,transparent 72%),
+  radial-gradient(ellipse 4% 8% at 89% var(--ry),#ffffffb0,#ffffff30 45%,transparent 72%),
+  conic-gradient(from 0deg at 11% var(--ry),transparent 0 79.8deg,#ffffffa0 80deg 80.2deg,transparent 80.4deg 82.8deg,#ffffff80 83deg 83.15deg,transparent 83.3deg 85.6deg,#ffffffb0 85.8deg 86deg,transparent 86.2deg 88.3deg,#ffffff90 88.5deg 88.65deg,transparent 88.8deg 90.6deg,#ffffffc0 90.8deg 91deg,transparent 91.2deg 93.4deg,#ffffff80 93.6deg 93.75deg,transparent 93.9deg 96.2deg,#ffffffa0 96.4deg 96.6deg,transparent 96.8deg 99.1deg,#ffffff80 99.3deg 99.45deg,transparent 99.6deg 101deg,#ffffff70 101.2deg 101.35deg,transparent 101.5deg),
+  conic-gradient(from 0deg at 89% var(--ry),transparent 0 258.8deg,#ffffff70 259deg 259.15deg,transparent 259.3deg 260.4deg,#ffffff80 260.6deg 260.75deg,transparent 260.9deg 263.2deg,#ffffffa0 263.4deg 263.6deg,transparent 263.8deg 266.1deg,#ffffff80 266.3deg 266.45deg,transparent 266.6deg 268.8deg,#ffffffc0 269deg 269.2deg,transparent 269.4deg 271.2deg,#ffffff90 271.4deg 271.55deg,transparent 271.7deg 273.8deg,#ffffffb0 274deg 274.2deg,transparent 274.4deg 276.7deg,#ffffff80 276.9deg 277.05deg,transparent 277.2deg 279.6deg,#ffffffa0 279.8deg 280deg,transparent 280.2deg);
+  -webkit-mask:linear-gradient(90deg,transparent 8%,#000 12%,#000 27%,transparent 37%,transparent 63%,#000 73%,#000 88%,transparent 92%);mask:linear-gradient(90deg,transparent 8%,#000 12%,#000 27%,transparent 37%,transparent 63%,#000 73%,#000 88%,transparent 92%)}
+@media(max-width:700px){.info-rays{--ry:calc(46% + 40px)}.ir-burst{--by:calc(47.33% + 40px)}}
+@media(prefers-reduced-motion:reduce){.info-rays{display:none}}
+/* Cảnh 3D tự vẽ thông tin + tia sáng trong hầm: ẩn lớp phủ (visibility, không đổi opacity vì màn LED đọc opacity để sáng cùng nhịp).
+   Bản nhẹ (LightTunnel) không có đánh dấu này nên vẫn dùng lớp phủ. */
+.cinema-modal:has(.three-stadium[data-world-info]) .opening-information,.cinema-modal:has(.three-stadium[data-world-info]) .info-rays{visibility:hidden}

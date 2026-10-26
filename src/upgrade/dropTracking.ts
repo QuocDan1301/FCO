@@ -4,9 +4,17 @@ import { unit, type Rng } from './rng';
 // Dây rớt: các mức thẻ rớt về liên tiếp khi đập cùng một cấp, tính tới phát thành công.
 export type Chain = readonly number[];
 
-// Đập từ +N thất bại rớt về một mức trong 1 … N-1 (thấp nhất +1).
+// Phạm vi mức rớt hợp lệ khi đập từ +N: 1 … N-1 (thấp nhất +1); dùng để kiểm tra bản lưu và nhập tay.
 export function dropRange(currentLevel: number) {
   return { min: 1, max: Math.max(1, currentLevel - 1) };
+}
+
+// Bảng trọng số rớt của cấp đang đập; mức thật sự có thể rớt tới là mức lớn nhất trong bảng.
+export function dropWeights(currentLevel: number) {
+  return BRIDGE_CONFIG.dropWeights[currentLevel] ?? [[1, 100]] as const;
+}
+export function dropReach(currentLevel: number) {
+  return Math.max(...dropWeights(currentLevel).map(([level]) => level));
 }
 
 export function isValidDrop(currentLevel: number, drop: number) {
@@ -14,8 +22,12 @@ export function isValidDrop(currentLevel: number, drop: number) {
   return Number.isInteger(drop) && drop >= min && drop <= max;
 }
 
+// Luôn đọc đúng một số từ RNG rồi chọn theo trọng số.
 export function rollDrop(currentLevel: number, rng: Rng) {
-  return 1 + Math.floor(unit(rng) * dropRange(currentLevel).max);
+  const weights = dropWeights(currentLevel);
+  let left = unit(rng) * weights.reduce((sum, [, weight]) => sum + weight, 0);
+  for (const [level, weight] of weights) { if (left < weight) return level; left -= weight; }
+  return weights[weights.length - 1][0];
 }
 
 export function tail(chain: Chain, size: number = BRIDGE_CONFIG.tail) {

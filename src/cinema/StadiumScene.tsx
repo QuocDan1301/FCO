@@ -1,14 +1,25 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
-import { CAMERA_HOLD, cameraPose, cameraProgress, GATE_CROSS, gateZ, OPENING_CUES, STAGE_Z, TUNNEL_EXTRA as EXTRA } from './timeline';
-import { drawBadge, infoVisibility } from './sceneBadge';
+import { CAMERA_HOLD, cameraPose, cameraProgress, GATE_CROSS, gateZ, INFO_GAP, OPENING_CUES, STAGE_Z, TUNNEL_EXTRA, TUNNEL_TAIL } from './timeline';
+import { drawBadge, drawWorldInfo, infoVisibility } from './sceneBadge';
+import { FLAME_REF_DISTANCE, FLAME_X, FLAME_Y, FLAME_Z } from './flames';
+import type { FlamePlacement } from './flames';
+import { placeFlames } from './PackFlames';
 
-type Props = { phase: number; quick: boolean; nation: string; position: string; team: string; season: string; flag: string; teamLogo?: string; back?: string; intro?: string; accent?: string; stage?: { top: string; ring: string; led?: string }; onFallback: () => void; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number };
+// Hình học hầm gồm cả đoạn nối sau chỗ camera ra hầm (TUNNEL_TAIL).
+const EXTRA = TUNNEL_EXTRA + TUNNEL_TAIL;
+
+type Props = { phase: number; quick: boolean; nation: string; position: string; team: string; season: string; flag: string; teamLogo?: string; back?: string; intro?: string; accent?: string; stage?: { top: string; ring: string; led?: string }; onFallback: () => void; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number; flames?: { current: HTMLDivElement | null } };
 
 export default function StadiumScene(props: Props) {
   const host = useRef<HTMLDivElement>(null);
   const state = useRef(props); state.current = props;
+  // Vòng vẽ tự ngủ khi không còn gì để vẽ (chưa chạy / màn kết quả đã che cảnh); mỗi lần props đổi thì đánh thức lại.
+  // Không giữ requestAnimationFrame chạy không: một callback rAF mỗi khung buộc luồng chính dựng khung và tính lại style
+  // của mọi hoạt cảnh CSS đang chạy trên màn kết quả (pháo hoa, máy phun…), dù các hoạt cảnh đó vốn chỉ cần compositor.
+  const wake = useRef<() => void>(() => {});
+  useEffect(() => { wake.current(); });
   useEffect(() => {
     let dispose: (() => void) | undefined;
     const launch = window.setTimeout(() => { dispose = build(); }, 320);
@@ -22,6 +33,8 @@ export default function StadiumScene(props: Props) {
       renderer = new THREE.WebGLRenderer({ antialias: !mobile, powerPreference: 'high-performance', alpha: false });
     } catch { state.current.onFallback(); return; }
     renderer.setPixelRatio(Math.min(devicePixelRatio, 1));
+    // Shader đều là shader dựng sẵn của three.js: bỏ kiểm tra lỗi biên dịch (mỗi shader lần đầu dùng phải chờ GPU trả log, gây khựng).
+    renderer.debug.checkShaderErrors = false;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.15;
@@ -55,8 +68,9 @@ export default function StadiumScene(props: Props) {
     box(.5, 7.6, 55 + EXTRA, -5.3, 3.8, -10.5 - EXTRA / 2, darkMetal); box(.5, 7.6, 55 + EXTRA, 5.3, 3.8, -10.5 - EXTRA / 2, darkMetal);
     box(11, .35, 55 + EXTRA, 0, 7.65, -10.5 - EXTRA / 2, darkMetal);
     const ribs: { material: THREE.MeshBasicMaterial; z: number; brightness: number }[] = [];
+    let lastRibZ = 15;
     for (let i = 0; i < 13 + EXTRA / 4; i++) {
-      const z = 15 - i * 4;
+      const z = 15 - i * 4; lastRibZ = z;
       const led = basic('#efdbad'); led.color.multiplyScalar(.015); ribs.push({ material: led, z, brightness: .015 });
       for (const x of [-5, 5]) {
         box(.26, 7.3, .25, x, 3.65, z); box(.06, 5.9, .09, x + (x < 0 ? .16 : -.16), 3.6, z + .16, led);
@@ -123,6 +137,82 @@ export default function StadiumScene(props: Props) {
     // Đồng bộ với .rt-gate-light ở phòng chờ để qua cửa không bị chớp trắng.
     const GATE_FLASH_PEAK = .45;
     const gateFlash = document.createElement('div'); gateFlash.className = 'gate-flash'; container.appendChild(gateFlash);
+
+    // Thông tin giữa hầm (cờ → vị trí → logo đội) là tấm bảng ghim trong hầm, kèm chùm tia trắng từ hai bên vách chiếu vào
+    // mép bảng (bật / tắt theo từng thông tin). Mỗi thông tin đặt bảng cách
+    // vị trí camera ở giữa lượt hiện INFO_AHEAD đơn vị (camera tiến tới nên bảng to dần), hiện / tắt cùng nhịp chữ.
+    // Bảng không vượt quá INFO_MAX_Z (ngay trước lối ra sáng ở khung cuối): logo đội hiện lúc camera đã gần cuối hầm nên bảng gần hơn;
+    // bảng bị giới hạn thì thu nhỏ theo khoảng cách (giữ cỡ nhìn ~1/3 màn hình thay vì phình to), camera tới sát (dưới INFO_NEAR[1])
+    // thì mờ dần, tắt hẳn ở INFO_NEAR[0].
+    const INFO_W = 8, INFO_H = INFO_W / 1.5, INFO_Y = 3.5, INFO_AHEAD = 22, INFO_PX = [768, 512] as const, INFO_MAX_Z = lastRibZ + .5, INFO_FIT = 16, INFO_NEAR = [3, 5] as const;
+    // Ba mặt bảng vẽ và tải lên GPU sẵn từ đầu lượt mở; đổi thông tin chỉ đổi texture, không vẽ / tải lại giữa chừng.
+    // Đổi cầu thủ thì xếp hàng: mỗi khung hình vẽ + tải một mặt (dồn cả ba vào một khung gây khựng lúc bắt đầu cảnh).
+    const infoFaces = [3, 4, 5].map(() => makeCanvas(INFO_PX[0], INFO_PX[1]));
+    let infoQueue: number[] = [];
+    const paintFace = (i: number) => { const face = infoFaces[i]; drawWorldInfo(face.ctx, { ...state.current, phase: 3 + i }, INFO_PX[0], INFO_PX[1], () => { if (!infoQueue.includes(i)) infoQueue.push(i); }); face.texture.needsUpdate = true; renderer.initTexture(face.texture); };
+    const paintInfo = () => { infoQueue = [0, 1, 2]; };
+    const infoMaterial = new THREE.MeshBasicMaterial({ map: infoFaces[0].texture, transparent: true, opacity: 0, depthWrite: false, toneMapped: false, fog: false });
+    const infoGroup = new THREE.Group(); infoGroup.visible = false; scene.add(infoGroup);
+    const infoGeo = new THREE.PlaneGeometry(INFO_W, INFO_H); geometries.add(infoGeo);
+    const infoBoard = new THREE.Mesh(infoGeo, infoMaterial); infoBoard.position.y = INFO_Y; infoBoard.renderOrder = 3; infoGroup.add(infoBoard);
+    const rayGeo = new THREE.CylinderGeometry(1, 1, 1, 5, 1, true); geometries.add(rayGeo);
+    const rayMaterial = (color: string) => new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, fog: false });
+    const whiteRay = rayMaterial('#ffffff');
+    const rayUp = new THREE.Vector3(0, 1, 0);
+    const beam = (from: THREE.Vector3, to: THREE.Vector3, radius: number, material: THREE.Material, parent: THREE.Object3D = infoGroup) => {
+      const dir = to.clone().sub(from), mesh = new THREE.Mesh(rayGeo, material);
+      mesh.position.copy(from).addScaledVector(dir, .5); mesh.scale.set(radius, dir.length(), radius); mesh.quaternion.setFromUnitVectors(rayUp, dir.normalize());
+      mesh.renderOrder = 2; parent.add(mesh);
+    };
+    // Tia trắng: mỗi bên một nguồn sáng trên vách (dựng ở trước bảng 9 đơn vị), 9 tia mảnh chụm vào mép bảng. Cả cụm co theo trục z
+    // khi bảng gần camera (logo đội ở cuối hầm) để nguồn sáng vẫn nằm trên vách trong khung hình, không chiếu từ ngoài mép màn hình vào.
+    const WHITE_REACH = 9, whiteGroup = new THREE.Group(); infoGroup.add(whiteGroup);
+    const rayGlowMaterial = new THREE.SpriteMaterial({ map: gateGlow.texture, blending: THREE.AdditiveBlending, transparent: true, opacity: 0, depthWrite: false, toneMapped: false, fog: false });
+    for (const side of [-1, 1]) {
+      const source = new THREE.Vector3(side * 4.85, 3.3, WHITE_REACH);
+      for (let i = 0; i < 9; i++) beam(source, new THREE.Vector3(side * (INFO_W / 2 - .1), INFO_Y - INFO_H / 2 + .4 + i * (INFO_H - .8) / 8, .02), .012, whiteRay, whiteGroup);
+      const glow = new THREE.Sprite(rayGlowMaterial); glow.scale.set(1.1, 1.1, 1); glow.position.copy(source); whiteGroup.add(glow);
+    }
+    const ease = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * (3 - 2 * c); };
+    // Hiện / ẩn dần trong INFO_FADE đầu và cuối mỗi lượt, đường cong smootherstep (khởi đầu và kết thúc êm).
+    const INFO_FADE = .3, soft = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * c * (c * (c * 6 - 15) + 10); };
+    let infoKey = '', infoPhase = -1, infoClamped = false;
+
+    // Dải LED vàng gắn dọc vách / trần / sàn suốt chiều dài hầm (phối cảnh thành các vệt toả về tâm hầm): tối lúc đầu,
+    // thông tin đầu tiên (cờ) hiện thì toàn bộ bật sáng và giữ sáng; kèm lớp quầng cộng màu mờ quanh mỗi dải.
+    // Chạy từ khung đầu tới khung cuối của hầm (không thò qua khung cuối ra đoạn tối ở miệng hầm).
+    const STRIP_ON = new THREE.Color('#ffd23a'), STRIP_FROM = 15, stripLength = STRIP_FROM - lastRibZ, stripZ = (STRIP_FROM + lastRibZ) / 2;
+    const stripMaterial = new THREE.MeshBasicMaterial({ color: STRIP_ON.clone().multiplyScalar(.035), toneMapped: false });
+    const stripGlow = new THREE.MeshBasicMaterial({ color: '#ffc21a', transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+    const strip = (x: number, y: number, w: number, h: number) => { box(w, h, stripLength, x, y, stripZ, stripMaterial); box(w * 3, h * 3, stripLength, x, y, stripZ, stripGlow).renderOrder = 1; };
+    for (const side of [-1, 1]) for (const y of [.6, 1.5, 2.6, 4.3, 5.4, 6.4]) strip(side * 4.84, y, .05, .07);
+    for (const x of [-3.6, -2.2, -.8, .8, 2.2, 3.6]) { strip(x, 6.98, .07, .05); strip(x * .95, .03, .07, .03); }
+    // Bật sáng dần trong STRIP_RISE ms tính từ lúc cờ bắt đầu hiện (cùng nhịp với cờ), đường cong smootherstep.
+    const STRIP_RISE = { standard: 900, quick: 450 };
+    let stripLevel = 0;
+
+    // Cuối hầm là lối ra sáng trắng (ánh đèn sân vận động): tấm sáng vừa khít lòng khung cuối của hầm (không bị sương làm mờ nên từ xa đã thấy
+    // ánh sáng cuối đường) + quầng sáng và đèn chiếu sáng vách đoạn cuối. Hiện sau khi qua cửa hầm; camera lao vào vùng sáng
+    // thì màn trắng dần (lớp gate-flash) trong EXIT_WHITE ms trước mốc 6 (mở thẻ), giữ trắng EXIT_HOLD ms (che cú nhảy camera qua đoạn
+    // hầm nối và các mốc 6–9 chuyển liên tiếp) rồi tan trong EXIT_CLEAR ms; cả hai chiều theo smootherstep.
+    const EXIT_Z = lastRibZ - .15, EXIT_WHITE = { standard: 700, quick: 350 }, EXIT_HOLD = { standard: 120, quick: 70 }, EXIT_CLEAR = { standard: 650, quick: 350 };
+    const exitFace = makeCanvas(512, 384);
+    {
+      const g = exitFace.ctx, w = 512, h = 384, glow = g.createRadialGradient(w / 2, h * .56, 8, w / 2, h * .56, w * .72);
+      glow.addColorStop(0, '#ffffff'); glow.addColorStop(.55, '#f2f6fa'); glow.addColorStop(1, '#c9d3de'); g.fillStyle = glow; g.fillRect(0, 0, w, h);
+      // Mép mái sân và dàn đèn mờ phía trên.
+      g.fillStyle = '#dbe3ec'; g.fillRect(0, h * .17, w, h * .018);
+      g.fillStyle = '#ffffff'; for (let i = 0; i < 7; i++) g.fillRect(w * (.12 + i * .127) - 13, h * .085, 26, 6);
+      exitFace.texture.needsUpdate = true;
+    }
+    // depthWrite: che hẳn sân khấu / bục phía sau miệng hầm (kể cả vật trong suốt vẽ sau).
+    const exitMaterial = new THREE.MeshBasicMaterial({ map: exitFace.texture, transparent: true, opacity: 0, depthWrite: true, toneMapped: false, fog: false });
+    const exitGeo = new THREE.PlaneGeometry(9.9, 7.1); geometries.add(exitGeo);
+    const exitPlane = new THREE.Mesh(exitGeo, exitMaterial); exitPlane.position.set(0, 3.55, EXIT_Z); scene.add(exitPlane);
+    const exitHaloMaterial = new THREE.SpriteMaterial({ map: gateGlow.texture, blending: THREE.AdditiveBlending, transparent: true, opacity: 0, depthWrite: false, toneMapped: false, fog: false });
+    const exitHalo = new THREE.Sprite(exitHaloMaterial); exitHalo.scale.set(18, 14, 1); exitHalo.position.set(0, 3.55, EXIT_Z + .5); scene.add(exitHalo);
+    const exitLight = new THREE.PointLight('#f4f8ff', 0, 26, 1.2); exitLight.position.set(0, 4.2, EXIT_Z + 3); scene.add(exitLight);
+    let exitLevel = 0;
     const lampMaterial = new THREE.SpriteMaterial({ map: glow.texture, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false });
     for (let i = 0; i < 16; i++) {
       const angle = i / 16 * Math.PI * 2;
@@ -168,10 +258,13 @@ export default function StadiumScene(props: Props) {
       batch.instanceMatrix.needsUpdate = true; batch.computeBoundingSphere(); scene.add(batch);
     });
     const lookTarget = new THREE.Vector3(0, 3.3, cameraPose(0).lookZ);
+    const flamePoint = new THREE.Vector3(), flameFov = Math.tan(THREE.MathUtils.degToRad(27)) / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
     let frame = 0, previous = performance.now(), phaseSince = previous, lastPhase = -1, progress = 0, alive = true, average = 16, slowFrames = 0;
     let startedAt: number | null = null, prepared = false, wasPlaying = false, qualityChangedAt = -Infinity, ledSmooth = .03, skipped = false;
+    const view = { w: 1, h: 1 };
     const resize = () => {
       const width = container.clientWidth || innerWidth, height = container.clientHeight || innerHeight;
+      view.w = width; view.h = height;
       const compact = width <= 700 || (matchMedia('(pointer: coarse)').matches && width <= 900);
       if (compact !== mobile) {
         mobile = compact; renderer.setPixelRatio(Math.min(devicePixelRatio, 1));
@@ -197,12 +290,18 @@ export default function StadiumScene(props: Props) {
       dustMaterial.color.copy(tone(GOLD.dust, .45)); sparkMaterial.color.copy(tone(GOLD.spark, .4));
     };
     let paintedBack: string | undefined;
+    // Nội dung màn LED chỉ đổi ở mốc 3–5 (quốc tịch, vị trí, đội bóng); các mốc khác giống nhau nên không vẽ lại
+    // (vẽ + tải 2 canvas 1024×576 lên GPU đúng lúc qua cửa hầm làm khựng nhịp tan sương).
+    const ledContent = (phase: number) => phase >= 3 && phase <= 5 ? phase : 0;
     const paintLed = (phase: number) => {
-      const info = { ...state.current, phase }, redraw = () => { if (lastPhase === phase) paintLed(phase); };
+      const info = { ...state.current, phase }, redraw = () => { if (ledContent(lastPhase) === ledContent(phase)) paintLed(phase); };
       drawBadge(intro.ctx, info.intro ? { ...info, back: info.intro } : info, 1024, 576, redraw);
       drawBadge(panel.ctx, info.intro ? { ...info, off: true } : info, 1024, 576, redraw);
       panel.texture.needsUpdate = true; intro.texture.needsUpdate = true;
     };
+    let sleeping = false;
+    const sleep = () => { cancelAnimationFrame(frame); sleeping = true; };
+    wake.current = () => { if (!alive || !sleeping) return; sleeping = false; previous = performance.now(); frame = requestAnimationFrame(animate); };
     const animate = (now: number) => {
       if (!alive) return;
       frame = requestAnimationFrame(animate);
@@ -219,11 +318,19 @@ export default function StadiumScene(props: Props) {
         }
         wasPlaying = playing;
       }
-      if (!playing && prepared) return;
+      if (!playing && prepared) { sleep(); return; }
       const phase = playing ? state.current.phase : 0;
       if (state.current.accent !== appliedAccent) applyAccent(state.current.accent);
-      if (phase !== lastPhase || `${state.current.back}|${state.current.intro}` !== paintedBack) { lastPhase = phase; phaseSince = now; paintedBack = `${state.current.back}|${state.current.intro}`; paintLed(phase); }
+      const backKey = `${state.current.back}|${state.current.intro}`;
+      if (phase !== lastPhase || backKey !== paintedBack) {
+        const repaint = ledContent(phase) !== ledContent(lastPhase) || backKey !== paintedBack;
+        lastPhase = phase; phaseSince = now; paintedBack = backKey;
+        if (repaint) paintLed(phase);
+      }
       const age = (now - phaseSince) / 1000;
+      // Màn kết quả đã hiện hẳn (phông sân vận động của màn hiện thẻ che kín cảnh 3D): ngừng vẽ cho đỡ tốn GPU / CPU;
+      // lượt mở mới (mốc < 9) vẽ lại bình thường.
+      if (phase >= 9 && age > 1.2) { sleep(); return; }
       // Màn LED sáng/tắt cùng lúc với chữ giữa màn hình; giữ chút ánh nền để màn không tắt hẳn.
       // Trước khi camera xuyên qua vùng sáng ở cửa hầm (mốc 1), các màn LED còn tối.
       ledSmooth = THREE.MathUtils.damp(ledSmooth, phase < 1 ? .03 : .07 + .93 * infoVisibility(phase, state.current.back), 6, dt); const ledLevel = ledSmooth; panelMat.color.setScalar(ledLevel); introMat.color.setScalar(ledLevel); container.dataset.ledLevel = ledLevel.toFixed(2);
@@ -247,12 +354,16 @@ export default function StadiumScene(props: Props) {
       // Qua vùng sáng: ánh trắng tan dần trong lúc sương cũng tan, để trắng hòa thẳng vào đường hầm, không chớp tối giữa chừng.
       const quickMode = state.current.quick, crossed = playing ? elapsed - GATE_CROSS[quickMode ? 'quick' : 'standard'] : -1;
       const smooth = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * (3 - 2 * c); };
-      const flash = crossed < 0 ? Math.max(0, 1 - ahead / 6) ** 2 : 1 - smooth(crossed / (quickMode ? 140 : 210));
-      // Sương tan theo tầm nhìn (1 / mật độ) với smootherstep: tầm nhìn mở đều từ gần ra xa, không đứng yên rồi bung vọt ở cuối.
-      // Lâu hơn ánh trắng một chút nhưng lúc ánh trắng tắt hẳn sương đã mỏng ~3/4 nên không lộ khoảng tối.
-      const smoother = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * c * (c * (c * 6 - 15) + 10); };
-      fog.density = crossed < 0 ? DARK_FOG : 1 / (1 / DARK_FOG + (1 / CLEAR_FOG - 1 / DARK_FOG) * smoother(crossed / (quickMode ? 200 : 320)));
-      gateFlash.style.opacity = playing && phase < 9 ? (flash * GATE_FLASH_PEAK).toFixed(3) : '0';
+      const flash = crossed < 0 ? Math.max(0, 1 - ahead / 6) ** 2 : 1 - smooth(crossed / (quickMode ? 170 : 250));
+      // Sương tan theo log mật độ (mắt cảm nhận độ mỏng của sương theo tỉ lệ, không theo hiệu số) trong ~0,4 s theo smoothstep (khởi đầu và kết thúc êm, không bật một phát):
+      // ánh trắng tắt dần trong ~0,25 s chồng lên lúc sương mỏng đi nên trắng chuyển thẳng sang hầm, không chợt tối giữa chừng.
+      fog.density = crossed < 0 ? DARK_FOG : DARK_FOG * (CLEAR_FOG / DARK_FOG) ** smooth(crossed / (quickMode ? 260 : 400));
+      // Lối ra sáng cuối hầm: sáng lên sau khi qua cửa hầm; camera tới gần thì màn trắng dần, qua khỏi (mốc 6, mở thẻ) thì tắt.
+      exitLevel = playing && phase >= 1 && phase < 6 ? Math.max(exitLevel, smooth(crossed / 500)) : playing ? THREE.MathUtils.damp(exitLevel, 0, 12, dt) : 0;
+      exitMaterial.opacity = exitLevel; exitHaloMaterial.opacity = exitLevel * .5; exitLight.intensity = exitLevel * 45;
+      const speedKey = state.current.quick ? 'quick' : 'standard', toExit = OPENING_CUES[speedKey][5] - elapsed;
+      const exitFlash = !playing || skipped || phase < 1 ? 0 : toExit > 0 ? soft(1 - toExit / EXIT_WHITE[speedKey]) : soft(1 - (-toExit - EXIT_HOLD[speedKey]) / EXIT_CLEAR[speedKey]);
+      gateFlash.style.opacity = playing && (phase < 9 || exitFlash > 0) ? Math.max(phase < 9 ? flash * GATE_FLASH_PEAK : 0, exitFlash).toFixed(3) : '0';
       stageLight.intensity = THREE.MathUtils.damp(stageLight.intensity, phase >= 8 ? 130 : 35, 4, dt);
       spotlight.intensity = THREE.MathUtils.damp(spotlight.intensity, phase >= 8 ? 350 : 120, 4, dt);
       ambient.intensity = THREE.MathUtils.damp(ambient.intensity, phase === 0 ? .025 : phase === 6 ? .035 : phase >= 8 ? .9 : .6, 5, dt);
@@ -278,7 +389,43 @@ export default function StadiumScene(props: Props) {
         velocities.forEach((v, i) => { const t = Math.max(0, age - v.delay); sparkPositions[i * 3] = v.side * 5.4 + v.x * t; sparkPositions[i * 3 + 1] = age < v.delay ? -5 : Math.max(-1, .5 + v.y * t - 3.2 * t * t); sparkPositions[i * 3 + 2] = STAGE_Z + 2 + v.z * t; });
         sparkGeo.attributes.position.needsUpdate = true; sparkMaterial.opacity = Math.max(0, 1 - age / 4);
       }
+      // Tấm bảng thông tin + tia sáng 3D theo mốc 3–5.
+      const facesKey = `${state.current.flag}|${state.current.nation}|${state.current.position}|${state.current.team}|${state.current.teamLogo}`;
+      if (facesKey !== infoKey) { infoKey = facesKey; paintInfo(); }
+      const nextFace = infoQueue.shift(); if (nextFace !== undefined) paintFace(nextFace);
+      const infoCues = OPENING_CUES[state.current.quick ? 'quick' : 'standard'], infoGap = INFO_GAP[state.current.quick ? 'quick' : 'standard'];
+      let infoFade = 0;
+      if (playing && !skipped && phase >= 3 && phase <= 5) {
+        const start = infoCues[phase - 1], span = infoCues[phase] - start - infoGap;
+        if (infoPhase !== phase) {
+          infoPhase = phase;
+          const midZ = cameraPose(cameraProgress(start + span / 2, state.current.quick)).z;
+          infoClamped = midZ - INFO_AHEAD < INFO_MAX_Z; infoGroup.position.z = Math.max(INFO_MAX_Z, midZ - INFO_AHEAD); infoMaterial.map = infoFaces[phase - 3].texture;
+          whiteGroup.scale.z = Math.min(1, Math.max(.33, (midZ - infoGroup.position.z) * .4 / WHITE_REACH));
+        }
+        const t = (elapsed - start) / span;
+        infoFade = t <= 0 || t >= 1 ? 0 : soft(Math.min(t / INFO_FADE, (1 - t) / INFO_FADE, 1)) * (infoClamped ? ease((camera.position.z - infoGroup.position.z - INFO_NEAR[0]) / (INFO_NEAR[1] - INFO_NEAR[0])) : 1);
+        const infoDistance = camera.position.z - infoGroup.position.z, fit = infoClamped ? Math.min(1, Math.max(.4, infoDistance / INFO_FIT)) : 1;
+        // Hiện: nở nhẹ từ 90% lên đúng cỡ; ẩn: lớn thêm chút trong lúc mờ đi (cảm giác trôi qua).
+        infoBoard.scale.setScalar((.9 + .1 * soft(t / INFO_FADE)) * (1 + .04 * soft((t - (1 - INFO_FADE)) / INFO_FADE)) * fit);
+      } else infoPhase = -1;
+      infoGroup.visible = infoFade > 0;
+      // Dải LED vàng: sáng dần từ lúc hiện cờ (mốc 3) và giữ sáng; bỏ qua thì sáng ngay; lượt mở mới (chưa phát) thì tắt.
+      stripLevel = !playing || phase < 3 ? 0 : skipped ? 1 : soft((elapsed - infoCues[2]) / STRIP_RISE[state.current.quick ? 'quick' : 'standard']);
+      stripMaterial.color.copy(STRIP_ON).multiplyScalar(.035 + .965 * stripLevel); stripGlow.opacity = stripLevel * .22;
+      infoMaterial.opacity = infoFade; whiteRay.opacity = infoFade * .55; rayGlowMaterial.opacity = infoFade * .45;
       try { renderer.render(scene, camera); } catch { alive = false; state.current.onFallback(); return; }
+      // Máy phun lửa ghim trên sàn hầm: chiếu vị trí ra màn hình, tỉ lệ theo khoảng cách; đi qua camera thì ẩn.
+      const flameRoot = state.current.flames?.current;
+      if (flameRoot) {
+        const w = view.w, h = view.h, distance = camera.position.z - FLAME_Z;
+        const at = (side: number): FlamePlacement => {
+          if (distance < 1.2) return null;
+          flamePoint.set(side * FLAME_X, FLAME_Y, FLAME_Z).project(camera);
+          return { x: (flamePoint.x + 1) / 2 * w, y: (1 - flamePoint.y) / 2 * h, k: FLAME_REF_DISTANCE / distance * flameFov };
+        };
+        placeFlames(flameRoot, at(-1), at(1));
+      }
       if (!prepared) { prepared = true; container.dataset.prepared = 'true'; state.current.onPrepared?.(); }
       if (playing && startedAt === null) { startedAt = performance.now(); state.current.onReady(); }
       container.dataset.drawCalls = String(renderer.info.render.calls);
@@ -294,14 +441,24 @@ export default function StadiumScene(props: Props) {
       container.dataset.cameraZ = camera.position.z.toFixed(2); container.dataset.reflection = mobile ? '128' : '256';
     };
     camera.position.set(0, 3.1, 13); camera.lookAt(lookTarget); renderer.toneMappingExposure = .12;
-    paintLed(0); sparks.visible = false;
-    // Biên dịch shader trước khi chạy đồng hồ; vẫn cho phép Bỏ qua khi chờ.
-    void renderer.compileAsync(scene, camera).catch(() => {}).then(() => {
+    // Tia lửa sân khấu bật (để biên dịch shader cùng cảnh); vòng animate ẩn lại ngay khung đầu tới lúc hiện thẻ.
+    paintLed(0); sparks.visible = true;
+    // Bảng thông tin + tia sáng đang ẩn vẫn phải được biên dịch shader cùng cảnh (compileAsync bỏ qua vật thể ẩn) và vẽ mặt bảng sẵn,
+    // kẻo lần đầu hiện (mốc 3) mới biên dịch / tải texture gây khựng; vòng animate sẽ ẩn lại ngay khung đầu.
+    infoKey = `${state.current.flag}|${state.current.nation}|${state.current.position}|${state.current.team}|${state.current.teamLogo}`; [0, 1, 2].forEach(paintFace); infoGroup.visible = true;
+    // Biên dịch shader trước khi chạy đồng hồ; vẫn cho phép Bỏ qua khi chờ. Lượt vẽ phản chiếu sàn vẽ vào render target (không tone mapping)
+    // nên cần biến thể shader riêng: biên dịch cả biến thể đó, kẻo vật lần đầu lọt vào phản chiếu (bảng thông tin, tia lửa) gây khựng.
+    const compileMain = renderer.compileAsync(scene, camera);
+    renderer.setRenderTarget(reflector.getRenderTarget()); const compileReflection = renderer.compileAsync(scene, camera); renderer.setRenderTarget(null);
+    void Promise.all([compileMain, compileReflection]).catch(() => {}).then(() => {
       if (!alive) return;
+      // Vẽ thử một khung (bị màn chờ che) khi mọi vật còn đang bật, cả lượt phản chiếu sàn: lần dùng đầu của từng shader
+      // (tra uniform / attribute, phải chờ GPU) xong từ giờ thay vì giữa lúc hiện cờ / hiện thẻ.
+      try { renderer.render(scene, camera); } catch { /* Lỗi ngữ cảnh WebGL do vòng animate xử lý (onFallback). */ }
       previous = performance.now(); frame = requestAnimationFrame(animate);
     });
     return () => {
-      alive = false; cancelAnimationFrame(frame); observer.disconnect(); renderer.domElement.removeEventListener('webglcontextlost', onLost);
+      alive = false; wake.current = () => {}; cancelAnimationFrame(frame); observer.disconnect(); renderer.domElement.removeEventListener('webglcontextlost', onLost);
       const materials = new Set<THREE.Material>();
       scene.traverse(object => { if (object instanceof THREE.Mesh || object instanceof THREE.Points || object instanceof THREE.Sprite) { if ('geometry' in object) geometries.add(object.geometry); const material = object.material; (Array.isArray(material) ? material : [material]).forEach(m => materials.add(m)); } });
       gateFlash.remove(); reflector.dispose(); geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose()); textures.forEach(t => t.dispose()); renderer.dispose(); renderer.domElement.remove();
@@ -309,5 +466,6 @@ export default function StadiumScene(props: Props) {
     };
     return () => { clearTimeout(launch); dispose?.(); };
   }, []);
-  return <div className="three-stadium" ref={host} data-renderer="three"/>;
+  // data-world-info: thông tin giữa hầm vẽ trong cảnh 3D nên ẩn lớp chữ / tia sáng phủ màn hình (xem info-rays.css).
+  return <div className="three-stadium" ref={host} data-renderer="three" data-world-info="true"/>;
 }

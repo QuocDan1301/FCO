@@ -144,7 +144,7 @@ test('Thất bại không reset dây; thẻ chính và phôi cùng nối mức r
     assert.equal(result.success, false); assert.equal(result.drop, rollDrop(7, always(roll)));
     bridge = result.bridge;
   }
-  assert.deepEqual(bridge.levels['8'].chain, [1, 5, 3]);
+  assert.deepEqual(bridge.levels['8'].chain, [2, 4, 3], '+7: 0,1 → +2, 0,7 → +4, 0,4 → +3 theo bảng trọng số');
   assert.equal(bridge.log.length, 3); assert.equal(bridge.turn, 3);
 });
 
@@ -167,11 +167,11 @@ test('Test 9 — 100.000 lượt mỗi trạng thái cố định: tỷ lệ qua
   // Dây khớp tổng 3; tổng 3 và tứ quý đủ điều kiện → mỗi loại được chọn 1/2: kỳ vọng 7 + 30/2 = 22%.
   near(observe(bridgeWith(8, { chain: [1, 5, 2], patterns: quiet }), 7, 7, 4), 22, 'Cầu ngầm chọn ngẫu nhiên');
   near(observe(bridgeWith(6, { patterns: { historical: null, sum3: null, quad: null } }), 5, 50, 5), 50, 'Gốc 50%');
-  // Phân bố mức rớt đều trong 1 … N-1.
+  // Phân bố mức rớt theo bảng trọng số của +8 (rớt về +1 … +6, không bao giờ +7).
   const rng = seededRng(77), counts = new Array(8).fill(0);
   for (let i = 0; i < N; i++) counts[rollDrop(8, rng)]++;
-  assert.equal(counts[0], 0);
-  for (let level = 1; level <= 7; level++) near(counts[level] / N, 100 / 7, `Rớt về +${level}`);
+  assert.equal(counts[0], 0); assert.equal(counts[7], 0);
+  for (const [level, weight] of BRIDGE_CONFIG.dropWeights[8]) near(counts[level] / N, weight, `Rớt về +${level}`);
 });
 
 test('Test 10 — Seeded RNG tái hiện chính xác chuỗi kết quả; trạng thái đầu vào không bị sửa', () => {
@@ -212,7 +212,8 @@ test('Xem trước chỉ tính cầu công khai, không tiết lộ cầu ngầm
 });
 
 test('Tích hợp game.upgrade: thưởng cầu đổi kết quả roll, trạng thái cầu lưu/khôi phục cùng bản lưu', () => {
-  const target = { ...makeCard(11), level: 7 }, materials = Array.from({ length: 5 }, () => ({ ...makeCard(11), level: 7 }));
+  // Phôi cùng thẻ ở +13 đủ 5 vạch nên tỷ lệ gốc đúng 7%.
+  const target = { ...makeCard(11), level: 7 }, materials = Array.from({ length: 5 }, () => ({ ...makeCard(11), level: 13 }));
   const ids = materials.map(c => c.uid);
   const plain = { ...initialSave(), cards: [target, ...materials] };
   const bridged = { ...plain, bridge: bridgeWith(8, { chain: [2, 1, 4, 5], publicSource: [2, 1, 4, 5], patterns: { historical: null, sum3: null, quad: null } }) };

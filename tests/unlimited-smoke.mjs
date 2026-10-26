@@ -8,7 +8,7 @@ try {
   const url = pathToFileURL(path.resolve('mothe.html')).href;
   await page.goto(url, { settleMs: 500 });
   const click = async selector => { await page.eval(s => { const b = document.querySelector(s); if (!b || b.disabled) throw new Error('Không bấm được: ' + s); b.click(); }, selector); await sleep(100); };
-  await click('.sound-button'); // Ghi bản lưu khởi đầu để mô phỏng tiến trình cũ hết xu.
+  await click('.sound-button'); // Ghi bản lưu khởi đầu để mô phỏng tiến trình cũ hết BP.
   await page.eval(() => { const key = 'arena-huyen-thoai-v1'; const data = JSON.parse(localStorage.getItem(key)); data.balance = 0; data.reduced = true; data.sound = false; localStorage.setItem(key, JSON.stringify(data)); });
   await page.goto(url, { settleMs: 300 });
   assert.match(await page.eval(() => document.querySelector('.wallet').textContent), /∞/);
@@ -27,7 +27,7 @@ try {
   assert.equal(data.opened, 10);
   assert.equal(data.upgrades, 1);
   assert.equal(data.cards.length, 21);
-  assert.match(data.history[0].detail, /Không trừ xu/);
+  assert.match(data.history[0].detail, /Không trừ BP/);
   assert.deepEqual(page.consoleErrors, []);
-  console.log('PASS: tiến trình cũ 0 xu vẫn mở 10 gói và nâng cấp; ví hiển thị ∞; số dư gốc được giữ nguyên.');
+  console.log('PASS: tiến trình cũ 0 BP vẫn mở 10 gói và nâng cấp; ví hiển thị ∞; số dư gốc được giữ nguyên.');
 } finally { await browser.close(); }

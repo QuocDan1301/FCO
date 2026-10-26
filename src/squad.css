@@ -1,4 +1,4 @@
-/* Quản lí CT: khung trái là đội hình riêng, khung phải là cầu thủ đang sở hữu; mỗi khung tự cuộn. */
+/* Quản lí CT: khung trái là đội hình riêng (hàng 2 tầng), khung phải là kho cầu thủ (hàng 1 tầng mảnh); mỗi khung tự cuộn. */
 .squad-workspace{display:grid;grid-template-columns:minmax(0,46fr) minmax(0,54fr);gap:0;padding:0!important;max-width:1440px;background:#11161c;border:1px solid #232c37;border-radius:6px;overflow:hidden;height:calc(100dvh - 174px);min-height:420px}
 /* Tăng độ ưu tiên để thắng .main-content>.workspace{display:flex;flex-direction:column} trong fixed-screen.css. */
 .main-content>.workspace.squad-workspace{display:grid;grid-template-columns:minmax(0,46fr) minmax(0,54fr);grid-template-rows:minmax(0,1fr);height:calc(100% - 24px);min-height:0;margin:12px 4%;padding:0;overflow:hidden}
@@ -8,94 +8,148 @@
 .squad-head{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px 20px;border-bottom:1px solid #232c37;flex-shrink:0}
 .squad-head h1,.squad-head h2{margin:0;font-family:var(--display);font-size:24px;font-weight:600;color:#f0f1f3}
 .squad-head p{margin:2px 0 0;font-size:13px;color:#929cab}
-.squad-meter{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.squad-meter>strong,.squad-wage-total strong{font-family:var(--display);font-size:24px;color:#f0f1f3;font-variant-numeric:tabular-nums}
+
+/* Header đội hình: tiêu đề · cặp huy hiệu màu đội · thanh tuyến + sĩ số + lương. */
+.squad-head-lineup{gap:12px 16px;padding:14px 18px 12px}
+.squad-head-lineup h1{font-size:22px;white-space:nowrap}
+.squad-title{display:flex;flex-direction:column;gap:3px}
+.squad-title p{margin:0;letter-spacing:.02em}
+.squad-crests{display:flex;align-items:center;gap:8px}
+.squad-crest{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#2b3440,#161b22);box-shadow:inset 0 0 0 1px #ffffff1a,0 2px 6px #0007;overflow:hidden}
+.squad-crest img{width:76%;height:76%;object-fit:contain}
+.squad-crest-flag img{width:100%;height:100%;object-fit:cover}
+.squad-meter{display:flex;flex:1 1 auto;align-items:center;justify-content:flex-end;gap:12px;min-width:0}
+.squad-size,.squad-wage-total strong{font-family:var(--display);font-size:22px;white-space:nowrap;font-weight:600;color:#f0f1f3;font-variant-numeric:tabular-nums}
 .squad-meter small{color:#929cab;font-size:.75em}
-.squad-wage-total{display:flex;align-items:baseline;gap:8px;font-size:13px;color:#929cab}
+.squad-wage-total{display:flex;align-items:center;gap:5px;flex:none;padding:2px 6px;border-radius:4px;font-size:12px;color:#929cab;transition:box-shadow .2s,background-color .2s}
 .squad-wage-total strong.near-cap{color:#ffb347}
-.squad-wage-total strong.over-cap{color:#ff6b5e}
-.squad-bar{display:flex;width:clamp(140px,16vw,240px);height:26px;margin-top:14px;background:#232a33;border-radius:3px;font-family:var(--display);font-weight:700}
-.squad-bar>span{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;flex-basis:0;color:#fff;font-size:13px}
+.squad-wage-total strong.over-cap{color:#ff5a4e;text-shadow:0 0 10px #ff3b3b8c}
+/* Lố lương: viền + glow đỏ nhẹ kèm biểu tượng cảnh báo. */
+.squad-wage-total.is-over{color:#ff8a7e;background:#ff3b3b14;box-shadow:0 0 0 1px #ff5a4e59,0 0 14px #ff3b3b38}
+.squad-wage-total.is-over svg{color:#ff5a4e}
+/* Thanh tuyến: 4 ô rộng tỷ lệ với số cầu thủ mỗi tuyến, chữ FW/MF/DF/GK cùng màu nằm trên ô. */
+.squad-bar{display:flex;gap:2px;flex:1 1 210px;min-width:96px;max-width:240px;height:22px;margin-top:14px;font-family:var(--display);font-weight:700}
+.squad-bar>span{position:relative;display:flex;align-items:center;justify-content:center;min-width:18px;flex-basis:0;border-radius:2px;color:#fff;font-size:13px}
 .squad-bar>span[style*="flex-grow: 0"]{display:none}
-.squad-bar i{position:absolute;top:-15px;left:2px;font-style:normal;font-size:10px}
-.squad-bar .seg-fw{background:#e5484d}.squad-bar .seg-fw i{color:#ff7a7e}
-.squad-bar .seg-mf{background:#2fb85a}.squad-bar .seg-mf i{color:#5be083}
-.squad-bar .seg-df{background:#3d7cf2}.squad-bar .seg-df i{color:#7aa8ff}
-.squad-bar .seg-gk{background:#f2b632;color:#2a1f00}.squad-bar .seg-gk i{color:#ffd166}
-.squad-bar .seg-empty{justify-content:flex-end;padding-right:6px;color:#7f8a98;font-size:10px;font-weight:600}
+.squad-bar i{position:absolute;bottom:100%;left:50%;translate:-50% -1px;font-style:normal;font-size:10px;line-height:1.2}
+.squad-bar .seg-fw{background:#e63946}.squad-bar .seg-fw i{color:#ff6b75}
+.squad-bar .seg-mf{background:#2ecc71}.squad-bar .seg-mf i{color:#5be38e}
+.squad-bar .seg-df{background:#3498db}.squad-bar .seg-df i{color:#6cb6ea}
+.squad-bar .seg-gk{background:#f1c40f;color:#2a1f00}.squad-bar .seg-gk i{color:#f7d64a}
+.squad-bar.is-empty{background:#232a33;border-radius:2px}
+.squad-bar .seg-empty{flex:1;color:#7f8a98;font-size:11px;font-weight:600}
+
 .squad-search{display:flex;align-items:center;gap:7px;padding:0 10px;height:34px;border-radius:999px;background:#0d1116;color:#7f8a98;flex:1;max-width:260px}
 .squad-search input{flex:1;min-width:0;background:none;border:0;color:#f0f1f3;font-size:13px;outline:none}
 .squad-owned{text-align:right;line-height:1.1}
 .squad-owned span{display:block;font-size:12px;color:#929cab}
 .squad-owned strong{font-family:var(--display);font-size:24px;color:#f0f1f3}
-.squad-list{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin}
-.squad-columns,.squad-row{display:grid;grid-template-columns:58px 52px minmax(0,1fr) 46px 52px 46px minmax(74px,96px) 66px;align-items:center;gap:8px;padding:0 14px}
-.squad-columns{height:34px;background:#232a33;flex-shrink:0;font-size:12px;color:#aeb6c2}
+
+/* Lọc nhanh theo tuyến + công tắc gộp thẻ trùng. */
+.squad-tools{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px 14px;border-bottom:1px solid #232c37;flex-shrink:0}
+.squad-lines{display:flex;gap:6px;flex-wrap:wrap}
+.squad-lines button{--line:#d8dde4;display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border:1px solid transparent;border-radius:999px;background:#1d242d;color:#aeb6c2;font-family:var(--display);font-size:13px;font-weight:600}
+.squad-lines small{font-size:11px;font-weight:500;color:#7f8a98;font-variant-numeric:tabular-nums}
+.squad-lines .line-fw{--line:#e63946}.squad-lines .line-mf{--line:#2ecc71}.squad-lines .line-df{--line:#3498db}.squad-lines .line-gk{--line:#f1c40f}
+.squad-lines button:hover{color:#f0f1f3}
+.squad-lines button[aria-pressed=true]{border-color:var(--line);background:color-mix(in srgb,var(--line) 20%,#1d242d);color:#fff}
+.squad-lines button[aria-pressed=true] small{color:#d6dde6}
+.squad-merge{position:relative;display:inline-flex;align-items:center;gap:8px;font-size:12px;color:#aeb6c2;cursor:pointer;user-select:none}
+.squad-merge input{position:absolute;width:1px;height:1px;opacity:0}
+.squad-merge span{position:relative;width:30px;height:16px;border-radius:999px;background:#2a323c;transition:background-color .2s}
+.squad-merge span::after{content:'';position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#aeb6c2;transition:transform .2s,background-color .2s}
+.squad-merge input:checked+span{background:#1fae5a}
+.squad-merge input:checked+span::after{transform:translateX(14px);background:#fff}
+.squad-merge input:focus-visible+span{outline:2px solid #1fe36b80;outline-offset:2px}
+
+/* Thanh cuộn mảnh, tối màu; cột tiêu đề giữ chỗ thanh cuộn để thẳng cột với các hàng. */
+.squad-list{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#3a4452 transparent;scrollbar-gutter:stable}
+.squad-list::-webkit-scrollbar{display:block;width:6px}
+.squad-list::-webkit-scrollbar-thumb{background:#3a4452;border-radius:3px}
+.squad-list::-webkit-scrollbar-thumb:hover{background:#4d5867}
+.squad-list::-webkit-scrollbar-track{background:transparent}
+.squad-columns{overflow:hidden;scrollbar-width:thin;scrollbar-gutter:stable}
+
+/* Kho cầu thủ: 1 hàng mảnh 44px — bánh răng · vị trí · chân dung · mùa + tên · lương · OVR · thẻ · giá. */
+.squad-columns,.squad-row-bench{display:grid;grid-template-columns:18px 50px 40px minmax(0,1fr) 36px 46px 44px minmax(70px,92px);align-items:center;gap:8px;padding:0 12px}
+.squad-columns{height:32px;background:#232a33;flex-shrink:0;font-size:12px;color:#aeb6c2}
 .squad-col{display:flex;align-items:center;gap:3px;color:inherit;font-size:12px;padding:0}
 .squad-col.on{color:#f0f1f3}
 .squad-col svg.up{transform:rotate(180deg)}
-.squad-columns>.squad-col:nth-of-type(6){justify-content:flex-end}
-.squad-row{min-height:62px;border-bottom:1px solid #1f262f}
-.squad-row:hover{background:#1c232c}
+.squad-columns>.squad-col:nth-of-type(3),.squad-columns>.squad-col:nth-of-type(4),.squad-columns>.squad-col:nth-of-type(5){justify-content:center}
+.squad-columns>.squad-col:last-child{justify-content:flex-end}
+.squad-row{position:relative;outline:none;border-bottom:1px solid #1f262f}
+.squad-row:hover,.squad-row:focus-within{background:#1c232c}
+.squad-row:focus-visible{box-shadow:inset 0 0 0 2px #1fe36b66}
+.squad-row-bench{height:44px}
+.squad-row-bench .squad-pos{font-size:16px}
+.squad-row-bench .squad-stat{display:flex;justify-content:center}
+.squad-row-bench .squad-price{justify-content:flex-end}
+.squad-gear{display:grid;place-items:center;width:18px;height:18px;padding:0;border-radius:3px;color:#6f7a88}
+.squad-gear:hover,.squad-gear:focus-visible{color:#f0f1f3;background:#2a313a}
+
+/* Vị trí: vạch màu theo tuyến + tên vị trí đậm. */
 .squad-pos{display:flex;flex-direction:column;justify-content:center;padding-left:8px;border-left:3px solid;font-family:var(--display);font-size:18px;font-weight:600;line-height:1.05;color:#f0f1f3}
 .squad-pos small{font-size:11px;font-weight:400;color:#929cab}
-.squad-pos.pos-fw{border-color:#e5484d}.squad-pos.pos-mf{border-color:#2fb85a}.squad-pos.pos-df{border-color:#3d7cf2}.squad-pos.pos-gk{border-color:#f2b632}
-.squad-face{width:52px;height:56px;padding:0;display:flex;align-items:center;justify-content:center}
-.squad-face img{max-width:100%;max-height:100%;object-fit:contain}
+.squad-pos.pos-fw{border-color:#e63946}.squad-pos.pos-mf{border-color:#2ecc71}.squad-pos.pos-df{border-color:#3498db}.squad-pos.pos-gk{border-color:#f1c40f}
+
+/* Chân dung: phóng mặt thẻ đầy đủ rồi cắt vào đầu – vai (tâm ảnh ~ 55% ngang, 35% dọc của mặt thẻ chuẩn hoá 666×725). */
+.squad-face{--zoom:2.05;--fx:.555;--fy:.36;position:relative;flex:none;display:block;width:40px;height:40px;padding:0;overflow:hidden;border-radius:4px;background:radial-gradient(circle at 50% 30%,#2b3440,#141920);box-shadow:inset 0 0 0 1px #ffffff12;container-type:size}
+.squad-face img{position:absolute;max-width:none;width:calc(var(--zoom) * 100cqw);height:auto;left:calc(50cqw - var(--fx) * var(--zoom) * 100cqw);top:calc(50cqh - var(--fy) * var(--zoom) * 108.86cqw);transition:transform .2s}
+.squad-face:hover img{transform:scale(1.06)}
+
+.squad-name-cell{min-width:0}
 .squad-name{display:flex;align-items:center;gap:7px;min-width:0}
-.squad-name strong{font-family:var(--display);font-size:17px;font-weight:600;color:#f0f1f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.squad-name strong{font-family:var(--display);font-size:16px;font-weight:700;color:#f6f7f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .squad-season{flex:none;padding:1px 4px;border:1px solid currentColor;border-radius:2px;font-family:var(--display);font-size:11px;line-height:1.2;color:#c9b27a}
 .season-tag-stellar{color:#7aa8ff}.season-tag-origin{color:#c4ccd6}.season-tag-eternal{color:#e6c46a}.season-tag-prime{color:#ff7a6e}.season-tag-vietnam{color:#ff8c7a}.season-tag-prm{color:#ffab5e}.season-tag-mdl{color:#e8cf8a}.season-tag-amb{color:#5be083}
-.squad-wage{justify-self:center;display:flex;align-items:center;justify-content:center;width:30px;height:30px;clip-path:polygon(25% 4%,75% 4%,100% 50%,75% 96%,25% 96%,0 50%);background:#d8dde4;color:#12161c;font-family:var(--display);font-size:14px;font-weight:700}
-.squad-ovr{font-family:var(--display);font-size:22px;font-weight:600;color:#f0f1f3;text-align:center;font-variant-numeric:tabular-nums}
-.squad-level{display:flex;justify-content:center}
-.squad-level img{width:34px;height:auto}
-.squad-price{text-align:right;font-family:var(--display);font-size:17px;font-weight:600;color:#f0f1f3;white-space:nowrap;font-variant-numeric:tabular-nums}
-.squad-price.is-unpriced{font-size:13px;font-weight:500;color:#7f8a98}
-.squad-actions{display:flex;justify-content:flex-end;gap:6px}
-.squad-info,.squad-toggle{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;padding:0}
-.squad-info{color:#7f8a98}
-.squad-info:hover{color:#f0f1f3;background:#2a3038}
-.squad-toggle.add{background:#1fe36b;color:#06210f}
-.squad-toggle.remove{background:#3a2226;color:#ff8a7a}
-.squad-toggle:hover{filter:brightness(1.12)}
-.squad-left .squad-row{grid-template-columns:58px 52px minmax(0,1fr) 46px 52px 46px minmax(74px,96px) 66px}
-.squad-empty{margin:40px 20px;text-align:center;font-size:13px;line-height:1.8;color:#7f8a98}
-.squad-empty svg{vertical-align:-2px}
-@media(max-width:1100px){
-  .squad-columns,.squad-row,.squad-left .squad-row{grid-template-columns:50px 42px minmax(0,1fr) 34px 42px 38px 70px 60px;gap:6px;padding:0 10px}
-  .squad-name strong{font-size:15px}
-  .squad-ovr{font-size:19px}
-}
-@media(max-width:900px){
-  .squad-workspace,.main-content>.workspace.squad-workspace{grid-template-columns:1fr;grid-template-rows:auto auto;height:auto;margin:12px 16px;overflow:visible}
-  .squad-left{border-right:0;border-bottom:1px solid #232c37}
-  .squad-list{max-height:60dvh}
-}
-@media(max-width:640px){
-  .squad-columns,.squad-row,.squad-left .squad-row{grid-template-columns:44px 36px minmax(0,1fr) 30px 36px 32px 34px;gap:5px;padding:0 8px}
-  .squad-columns>.squad-col:nth-of-type(6),.squad-price{display:none}
-  .squad-info{display:none}
-  .squad-head{padding:12px}
-  .squad-face{width:36px;height:42px}
-  .squad-name strong{font-size:14px}
-  .squad-season{display:none}
-}
-
-/* Rê chuột / chạm / Tab vào hàng: ẩn chỉ số, hiện thanh thao tác (xóa, bán, nâng cấp, khóa, thông tin, chuyển). */
-.squad-row{position:relative;outline:none}
-.squad-hover{grid-column:4 / -1;grid-row:1;display:none;align-items:center;justify-content:flex-end;gap:6px}
-.squad-row:hover .squad-stat,.squad-row:focus-within .squad-stat{display:none}
-.squad-row:hover .squad-hover,.squad-row:focus-within .squad-hover{display:flex}
-.squad-row:focus-visible{box-shadow:inset 0 0 0 2px #1fe36b66}
-.squad-hover button{display:flex;align-items:center;justify-content:center;gap:8px;width:42px;height:36px;padding:0;border-radius:4px;background:#3a4048;color:#1fe36b}
-.squad-hover button:hover:not(:disabled){background:#4a515b}
-.squad-hover button:disabled{color:#5c6570;cursor:not-allowed}
-.squad-hover button.on{color:#ffd166}
-.squad-hover .squad-move{width:auto;min-width:118px;margin-left:8px;padding:0 16px;background:#1fe36b;color:#06210f;font-family:var(--display);font-size:17px;font-weight:700}
-.squad-hover .squad-move:hover{background:#4dfa8c}
+.squad-dup{flex:none;padding:0 5px;border-radius:3px;background:#2a323c;font-style:normal;font-family:var(--display);font-size:12px;font-weight:700;color:#d6dde6}
+/* Lương: lục giác nền xám tối, viền sáng mảnh (lớp ::before nằm dưới chữ), chữ trắng đậm. */
+.squad-wage{position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%);background:#79828f;color:#fff;font-family:var(--display);font-size:13px;font-weight:800}
+.squad-wage::before{content:'';position:absolute;inset:1.5px;z-index:-1;clip-path:inherit;background:linear-gradient(180deg,#363b46,#2a2e37)}
+.squad-wage b{font-weight:800}
+.squad-ovr{font-family:var(--display);font-size:20px;font-weight:700;color:#fff;text-align:center;font-variant-numeric:tabular-nums}
+/* Huy hiệu mức thẻ dùng ảnh như cũ (+1 → +13). */
+.squad-level-img{display:block;width:32px;height:auto}
+.squad-price{font-family:var(--display);font-size:16px;font-weight:700;color:#f0f1f3;white-space:nowrap;font-variant-numeric:tabular-nums}
+.squad-price.is-unpriced{font-size:12px;font-weight:500;color:#7f8a98}
 .squad-lock-mark{flex:none;color:#ffd166}
 .squad-row.is-locked .squad-name strong{color:#ffe3a3}
+
+/* Đội hình chính: hàng 2 tầng — cụm vị trí · chân dung cao trọn hàng · (mùa + tên / Lương · OVR · Thẻ) · Giá. */
+.squad-row-lineup{display:grid;grid-template-columns:54px 56px minmax(0,1fr) minmax(76px,104px);align-items:center;gap:10px;min-height:72px;padding:5px 14px}
+.squad-row-lineup .squad-pos{align-self:stretch;gap:1px}
+.squad-row-lineup .squad-pos b{font-size:19px;font-weight:700}
+.squad-pos-icons{display:flex;align-items:center;gap:3px;margin-top:1px}
+.squad-form{color:#2ecc71}
+.squad-row-lineup .squad-gear{width:16px;height:16px}
+.squad-row-lineup .squad-face{width:56px;height:60px}
+.squad-info{display:flex;flex-direction:column;gap:3px;min-width:0}
+.squad-info .squad-name strong{font-size:17px}
+.squad-stats{display:flex;align-items:flex-end;gap:16px}
+.squad-stats>span{display:flex;flex-direction:column;align-items:center;gap:1px}
+.squad-stats small,.squad-price-block small{font-size:10px;line-height:1;color:#7f8a98}
+.squad-stats .squad-wage{width:24px;height:24px;font-size:12px}
+.squad-stats .squad-ovr{font-size:22px;line-height:24px}
+.squad-stats .squad-level-img{width:30px}
+.squad-price-block{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:0}
+.squad-price-block .squad-price{font-size:17px}
+
+.squad-empty{margin:40px 20px;text-align:center;font-size:13px;line-height:1.8;color:#7f8a98}
+
+/* Thao tác nhanh: rê chuột / chạm / Tab / bánh răng — thanh phủ lên phần chỉ số bên phải. */
+.squad-hover{position:absolute;top:0;right:0;bottom:0;display:none;align-items:center;justify-content:flex-end;gap:5px;padding:0 12px 0 56px;background:linear-gradient(90deg,#1c232c00,#1c232c 48px)}
+.squad-row:hover .squad-hover,.squad-row:focus-within .squad-hover{display:flex}
+.squad-hover button{display:flex;align-items:center;justify-content:center;gap:5px;width:30px;height:30px;padding:0;border-radius:4px;background:#2f363f;color:#c9d2dc;font-family:var(--display);font-size:13px;font-weight:700;white-space:nowrap}
+.squad-hover button:hover:not(:disabled){background:#3d4550;color:#fff}
+.squad-hover button:disabled{color:#5c6570;cursor:not-allowed}
+.squad-hover button.on{color:#ffd166}
+.squad-hover .squad-act{width:auto;padding:0 10px}
+.squad-hover .squad-act-upgrade{color:#f5b942}
+.squad-hover .squad-act-upgrade svg{fill:#f5b94240}
+.squad-hover .squad-move{width:auto;min-width:92px;margin-left:4px;padding:0 12px;background:#1fe36b;color:#06210f;font-size:14px}
+.squad-hover .squad-move:hover{background:#4dfa8c;color:#06210f}
+
 .squad-confirm{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:16px;background:#000a}
 .squad-confirm-box{width:min(380px,100%);padding:22px;border:1px solid #2f3843;border-radius:8px;background:#161b22}
 .squad-confirm-box h3{margin:0 0 8px;font-family:var(--display);font-size:22px;color:#f0f1f3}
@@ -103,5 +157,35 @@
 .squad-confirm-box p b{color:#f0f1f3}
 .squad-confirm-box>div{display:flex;justify-content:flex-end;gap:10px}
 .squad-confirm-delete{display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:999px;background:#e5484d;color:#fff;font-weight:600}
-@media(max-width:1100px){.squad-hover button{width:34px;height:32px}.squad-hover .squad-move{min-width:0;padding:0 10px;font-size:15px}}
-@media(max-width:640px){.squad-hover{gap:3px}.squad-hover button{width:30px;height:30px}.squad-hover .squad-move{margin-left:2px;padding:0 8px;font-size:13px;gap:3px}}
+
+@media(max-width:1100px){
+  .squad-columns,.squad-row-bench{grid-template-columns:16px 44px 36px minmax(0,1fr) 32px 40px 40px 70px;gap:6px;padding:0 10px}
+  .squad-row-lineup{grid-template-columns:48px 50px minmax(0,1fr) 78px;gap:8px;padding:6px 10px}
+  .squad-row-lineup .squad-face{width:50px;height:58px}
+  .squad-stats{gap:12px}
+  .squad-name strong{font-size:15px}
+  .squad-hover .squad-act span{display:none}
+  .squad-hover .squad-act{width:30px;padding:0}
+}
+@media(max-width:900px){
+  .squad-workspace,.main-content>.workspace.squad-workspace{grid-template-columns:1fr;grid-template-rows:auto auto;height:auto;margin:12px 16px;overflow:visible}
+  .squad-left{border-right:0;border-bottom:1px solid #232c37}
+  .squad-list{max-height:60dvh}
+}
+@media(max-width:640px){
+  .squad-columns,.squad-row-bench{grid-template-columns:16px 40px 34px minmax(0,1fr) 30px 36px 36px;gap:5px;padding:0 8px}
+  .squad-columns>.squad-col:last-child,.squad-row-bench .squad-price{display:none}
+  .squad-head{padding:12px}
+  .squad-crests{display:none}
+  .squad-row-lineup{grid-template-columns:44px 46px minmax(0,1fr) 64px;gap:6px;padding:6px 8px}
+  .squad-row-lineup .squad-face{width:46px;height:54px}
+  .squad-row-lineup .squad-pos b{font-size:17px}
+  .squad-name strong,.squad-info .squad-name strong{font-size:14px}
+  .squad-season{display:none}
+  .squad-stats{gap:9px}
+  .squad-stats .squad-ovr{font-size:19px}
+  .squad-price-block .squad-price{font-size:14px}
+  .squad-hover{gap:3px;padding:0 8px 0 32px}
+  .squad-hover button{width:28px;height:28px}
+  .squad-hover .squad-move{min-width:0;margin-left:2px;padding:0 8px;font-size:13px}
+}

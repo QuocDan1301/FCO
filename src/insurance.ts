@@ -1,6 +1,7 @@
 import { MAX_LEVEL, PROTECT_MIN_LEVEL, random, upgrade } from './game';
 import type { Card, Save } from './game';
 import { marketQuote } from './market';
+import { evaluateRestore } from './restore';
 import type { UpgradeRole } from './upgrade/engine';
 import type { Rng } from './upgrade/rng';
 
@@ -24,6 +25,7 @@ export function setProtection(state: Save, pct: number, fixed: boolean): Save {
 export const activeProtection = (state: Pick<Save, 'protection'>, card: Pick<Card, 'level'> | undefined) => card && protectionApplies(card) ? state.protection?.pct ?? 0 : 0;
 
 // Nâng cấp kèm bảo vệ: tính phí từ giá thị trường rồi gọi game.upgrade; chưa "cố định chi phí" thì mức tự về 0% sau lượt đập.
+// Khôi phục cấp thẻ (thẻ từ +5, theo bậc phôi) cũng tính ở đây nên mọi lượt đập trong game đều đi qua hàm này.
 export function upgradeWithProtection(state: Save, targetId: string, materialIds: string[], rng: Rng = random, free = false, options: { role?: UpgradeRole; patternRng?: Rng; pct?: number } = {}) {
   const target = state.cards.find(c => c.uid === targetId);
   const pct = options.pct ?? 0;
@@ -33,7 +35,9 @@ export function upgradeWithProtection(state: Save, targetId: string, materialIds
     if (cost === null) throw new Error(protectionApplies(target) ? 'Thẻ chưa có giá nên không dùng được bảo vệ nâng cấp.' : `Bảo vệ nâng cấp chỉ áp dụng cho thẻ từ +${PROTECT_MIN_LEVEL}.`);
     protection = { pct, cost };
   }
-  const result = upgrade(state, targetId, materialIds, rng, free, { role: options.role, patternRng: options.patternRng, protection });
+  const materials = materialIds.map(id => state.cards.find(c => c.uid === id)).filter((c): c is Card => !!c);
+  const restore = target ? evaluateRestore(target, materials) : undefined;
+  const result = upgrade(state, targetId, materialIds, rng, free, { role: options.role, patternRng: options.patternRng, protection, restore });
   if (protection && !state.protection?.fixed) result.state = { ...result.state, protection: { pct: 0, fixed: false } };
   return result;
 }

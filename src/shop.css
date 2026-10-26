@@ -1,40 +1,114 @@
+/* Tông màu riêng từng mùa (viền, ánh sáng sau ảnh gói, khung xem trước). */
+[data-pack]{--shop-tone:#8b96a5;--shop-tone2:#d5dde6}
+[data-pack=prime],[data-pack=prm]{--shop-tone:#e63946;--shop-tone2:#d4af37}
+[data-pack=eternal]{--shop-tone:#f5d061;--shop-tone2:#fff3b0}
+[data-pack=vietnam]{--shop-tone:#da251d;--shop-tone2:#ffff00}
+[data-pack=stellar]{--shop-tone:#2563eb;--shop-tone2:#60a5fa}
+[data-pack=amb]{--shop-tone:#10b981;--shop-tone2:#6ee7b7}
+[data-pack=origin]{--shop-tone:#aab4c0;--shop-tone2:#e3e8ee}
+[data-pack=mdl]{--shop-tone:#c08a3e;--shop-tone2:#e8c27a}
+
+/* Header: tiêu đề + badge ví, nút kho có số gói chưa mở. */
 .shop-heading{align-items:center;gap:16px}
-.shop-heading>.secondary-button{flex-shrink:0;gap:10px}
-.shop-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:8px;align-items:start}
-.shop-product{display:flex;flex-direction:column;min-width:0;background:#151d26;padding:20px;border-radius:6px}
-.shop-product-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.shop-product-heading h2{font-family:var(--display);font-size:24px;line-height:1.2;color:#f2f4f6}
+.shop-title-row{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px}
+.shop-wallet{display:inline-flex;align-items:center;gap:7px;height:28px;padding:0 12px;border-radius:999px;background:linear-gradient(180deg,#2a2213,#15110a);border:1px solid #d4af3766;box-shadow:inset 0 1px 0 #ffe9b01a;color:#f0dba8;font-size:12px;font-weight:500;white-space:nowrap}
+.shop-wallet>b{font-size:18px;line-height:1;color:#f5c542}
+.shop-wallet>svg{color:#f5c542}
+.shop-heading>.shop-inventory{flex-shrink:0;gap:10px}
+.shop-inventory-count{min-width:24px;height:22px;padding:0 7px;display:inline-grid;place-items:center;border-radius:999px;background:#f5b942;color:#1b1408;font-size:12px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+
+/* Lưới gói: mỗi khung chiếm 8 hàng con (subgrid) nên các khung cùng hàng cao bằng nhau và từng phần thẳng hàng. */
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:8px}
+.shop-product{position:relative;display:grid;grid-row:span 8;grid-template-rows:subgrid;grid-template-columns:minmax(0,1fr);row-gap:0;min-width:0;padding:14px 16px;border-radius:8px;border:1px solid color-mix(in srgb,var(--shop-tone) 20%,#243041);background:radial-gradient(120% 55% at 50% 0%,color-mix(in srgb,var(--shop-tone) 12%,transparent),transparent 70%),#141b24;transition:border-color .2s,box-shadow .2s}
+.shop-product:hover,.shop-product:focus-within{border-color:color-mix(in srgb,var(--shop-tone) 65%,transparent);box-shadow:0 12px 32px -14px color-mix(in srgb,var(--shop-tone) 60%,transparent)}
+.shop-product-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.shop-product-heading h2{min-width:0;font-family:var(--display);font-size:19px;line-height:1.2;color:#f2f4f6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .shop-product-heading>span{font-size:11px;color:#aebdcc;white-space:nowrap}
-.shop-product-heading b{font-variant-numeric:tabular-nums;color:#e7edf2;margin-left:5px}
-.shop-description{font-size:12px;color:#aebdcc;margin-top:7px;line-height:1.5;min-height:18px}
-.shop-art{height:clamp(150px,24dvh,240px);display:flex;justify-content:center;align-items:center;margin:16px 0}
-.shop-art>.pack-art{height:100%;width:auto;aspect-ratio:.7;margin:0;transform:none}
-.shop-pack-details{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#aebdcc;font-size:11px;margin-bottom:12px}
-.shop-pack-details b{color:#e7d3a4;font-weight:500}
-.shop-price,.shop-quantity,.shop-total{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px;font-size:12px;color:#aebdcc}
-.shop-price>b{font-size:17px;font-variant-numeric:tabular-nums;color:#e8edf2}
+/* Mô tả chiếm trọn bề ngang khung, xuống dòng khi cần (không cắt "…"). */
+.shop-description{margin-top:4px;font-size:12px;line-height:1.4;color:#aebdcc;text-wrap:pretty}
+
+/* Ảnh gói: ánh sáng màu mùa phía sau, nổi lên khi rê chuột; bấm để xem trước cầu thủ. */
+.shop-art{position:relative;isolation:isolate;height:clamp(100px,16dvh,170px);display:flex;justify-content:center;align-items:center;margin:10px 0;padding:0;background:none;border:0;border-radius:6px;cursor:pointer}
+.shop-art::before{content:'';position:absolute;inset:-4% 4%;z-index:-1;background:radial-gradient(closest-side,color-mix(in srgb,var(--shop-tone) 45%,transparent),color-mix(in srgb,var(--shop-tone2) 14%,transparent) 62%,transparent);opacity:.7;transition:opacity .25s}
+.shop-product:hover .shop-art::before{opacity:1}
+.shop-art>.pack-art{height:100%;width:auto;aspect-ratio:.7;margin:0;transform:none;transition:transform .25s cubic-bezier(.2,.8,.3,1),filter .25s}
+.shop-product:hover .shop-art>.pack-art,.shop-art:focus-visible>.pack-art{transform:translateY(-4px) scale(1.04);filter:drop-shadow(0 12px 14px #000a) drop-shadow(0 0 16px color-mix(in srgb,var(--shop-tone) 45%,transparent))}
+.shop-stock{position:absolute;top:2px;right:0;z-index:1;display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 9px;border-radius:999px;background:#05090ea6;backdrop-filter:blur(6px);border:1px solid #ffffff1f;color:#aebdcc;font-size:11px;white-space:nowrap}
+.shop-stock b{color:#e7edf2;font-variant-numeric:tabular-nums}
+.shop-stock.has-stock{border-color:#f5c54299;color:#f5d68a}
+.shop-stock.has-stock b{color:#ffe08a}
+.shop-art-hint{position:absolute;left:50%;bottom:0;z-index:1;translate:-50% 4px;display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 10px;border-radius:999px;background:#05090ecc;border:1px solid #ffffff26;color:#e7edf2;font-size:11px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s,translate .2s}
+.shop-art:hover .shop-art-hint,.shop-art:focus-visible .shop-art-hint{opacity:1;translate:-50% 0}
+
+.shop-quantity{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:34px;font-size:12px;color:#aebdcc}
 .shop-product small{font-size:11px;font-weight:400;color:#aebdcc}
 .shop-stepper{display:flex;align-items:center;gap:0;background:#0d141b;border-radius:4px;overflow:hidden}
-.shop-stepper button{width:36px;height:38px;display:grid;place-items:center;color:#e8edf2}
+.shop-stepper button{width:30px;height:30px;display:grid;place-items:center;color:#e8edf2}
 .shop-stepper button:hover:not(:disabled){background:#2b3742}
 .shop-stepper button:disabled{opacity:.3}
-.shop-stepper input{width:58px;height:38px;background:transparent;color:#fff;border:0;text-align:center;font-size:14px;font-variant-numeric:tabular-nums;appearance:textfield;-moz-appearance:textfield}
+.shop-stepper input{width:46px;height:30px;background:transparent;color:#fff;border:0;text-align:center;font-size:14px;font-variant-numeric:tabular-nums;appearance:textfield;-moz-appearance:textfield}
 .shop-stepper input::-webkit-inner-spin-button,.shop-stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-.shop-presets{display:flex;gap:6px;margin:10px 0}
-.shop-presets button{flex:1;min-height:34px;background:#202c38;color:#bccad7;border-radius:3px;font-size:11px}
+.shop-presets{display:flex;gap:5px;margin:6px 0}
+.shop-presets button{flex:1;min-height:28px;background:#202c38;color:#bccad7;border-radius:3px;font-size:11px}
 .shop-presets button[aria-pressed=true]{background:#e1c792;color:#1b1913}
-.shop-total{padding-top:8px}
-.shop-total strong{font-family:var(--display);font-size:28px;font-weight:600;color:#f0dba8;font-variant-numeric:tabular-nums}
-.shop-note{font-size:11px;color:#aebdcc;line-height:1.5;min-height:17px;margin:4px 0 12px}
+/* Chỉ còn một dòng tổng: số lớn, vàng kim. */
+.shop-total{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:2px;padding-top:6px;border-top:1px solid #ffffff12;font-size:12px;color:#aebdcc}
+.shop-total strong{font-family:var(--display);font-size:26px;font-weight:700;line-height:1.1;color:#f5b942;font-variant-numeric:tabular-nums;text-shadow:0 0 18px #f5b94233}
+.shop-total strong small{color:#d9b25a}
+.shop-note{font-size:11px;color:#aebdcc;line-height:1.4;margin:4px 0 0}
+.shop-note:empty{margin:0}
 .shop-note.shop-error{color:#f5a7a7}
-.shop-buy{width:100%;justify-content:center;gap:10px;min-height:44px}
-.shop-buy>svg:last-child{margin-left:auto}
-.shop-buy>svg:first-child{margin-right:auto}
-.shop-product button:focus-visible,.shop-product input:focus-visible{outline:2px solid #e1c792;outline-offset:-2px}
-@media(max-width:1050px){.shop-grid{gap:12px}.shop-product{padding:14px}.shop-product-heading{align-items:flex-start;flex-direction:column;gap:5px}.shop-product-heading h2{font-size:22px}.shop-art{height:clamp(130px,22dvh,200px)}.shop-pack-details{font-size:10px}}
-@media(max-width:700px){.shop-heading{align-items:flex-start}.shop-heading h1{font-size:24px}.shop-heading p{font-size:11px}.shop-heading>.secondary-button{font-size:11px;min-height:40px;padding:8px 10px}.shop-grid{grid-template-columns:minmax(0,1fr);gap:12px}.shop-product{padding:16px}.shop-product-heading{flex-direction:row;align-items:center}.shop-art{height:180px;margin:10px 0}.shop-stepper button,.shop-stepper input{height:42px}.shop-presets button{min-height:40px}.shop-description{min-height:0}.main-nav .nav-inner>button{min-width:0}.main-nav .nav-short{font-size:10px}}
 
-/* Gói chưa có cầu thủ: hiện mờ, nút mua tắt. */
-.shop-upcoming .shop-art{opacity:.6;filter:saturate(.75)}
+/* Nút mua (vàng, thêm vào kho) + nút Mở ngay (mua rồi vào mở luôn). */
+.shop-actions{display:flex;gap:8px;margin-top:10px;align-self:end}
+.shop-buy,.shop-open-now{min-width:0;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 10px;border-radius:5px;white-space:nowrap}
+.shop-buy{flex:1.4 1 0;gap:8px;background:linear-gradient(180deg,#f6e2b0,#e1c792 45%,#c8a056);color:#1b1408;font-size:14px;font-weight:700;box-shadow:inset 0 1px 0 #fff6,0 6px 16px -8px #e1c792aa;transition:filter .15s,transform .15s}
+.shop-buy:hover:not(:disabled){filter:brightness(1.07)}
+.shop-buy:active:not(:disabled){transform:translateY(1px)}
+.shop-buy.is-added{background:linear-gradient(180deg,#86efb5,#22b36b);color:#062012}
+.shop-open-now{flex:1 1 0;gap:6px;background:#1a2430;border:1px solid #e1c79259;color:#f3dca6;font-size:13px;font-weight:600;transition:background-color .15s,border-color .15s}
+.shop-open-now>svg{color:#f5c542;fill:#f5c54233}
+.shop-open-now:hover:not(:disabled){background:#243243;border-color:#e1c792}
+.shop-buy:disabled,.shop-open-now:disabled{background:#232c36;border-color:transparent;color:#7d8794;box-shadow:none;cursor:not-allowed}
+.shop-open-now:disabled>svg{color:inherit;fill:none}
+.shop-product button:focus-visible,.shop-product input:focus-visible,.pack-preview button:focus-visible{outline:2px solid #e1c792;outline-offset:-2px}
+
+@media(max-width:1050px){.shop-grid{gap:12px}.shop-product{padding:14px}.shop-product-heading{align-items:flex-start;flex-direction:column;gap:5px}.shop-product-heading h2{font-size:18px}.shop-art{height:clamp(96px,15dvh,150px)}.shop-total strong{font-size:23px}}
+@media(max-width:700px){.shop-heading{align-items:flex-start}.shop-heading h1{font-size:24px}.shop-heading p{font-size:11px}.shop-wallet{height:24px;padding:0 9px;font-size:11px}.shop-heading>.shop-inventory{font-size:11px;min-height:40px;padding:8px 10px}.shop-grid{grid-template-columns:minmax(0,1fr);gap:12px}.shop-product{display:flex;flex-direction:column;grid-row:auto;padding:16px}.shop-product-heading{flex-direction:row;align-items:center}.shop-art{height:140px;margin:8px 0}.shop-stepper button,.shop-stepper input{height:42px}.shop-presets button{min-height:40px}.shop-actions{align-self:stretch}.shop-buy,.shop-open-now{min-height:44px}}
+
+/* Màn thấp: ảnh gói nhỏ hơn để cả khung (tới nút mua) vừa một màn. */
+@media(max-height:800px) and (min-width:701px){.shop-art{height:clamp(90px,13dvh,140px);margin:8px 0}}
+
+/* Gói chưa có cầu thủ: hiện mờ, nút mua tắt; ghi chú lấp các hàng giá/số lượng, nút ở hàng cuối. */
+.shop-upcoming .shop-art{opacity:.6;filter:saturate(.75);cursor:default}
 .shop-upcoming-badge{padding:3px 10px;border-radius:999px;background:#3a2a12;color:#f2c75c !important;font-weight:600}
-.shop-upcoming .shop-buy{margin-top:auto}
+.shop-upcoming>.shop-note{grid-row:4/8;align-self:center}
+.shop-upcoming>.shop-actions{grid-row:8}
+
+/* Xem trước gói (modal): top 10 cầu thủ OVR cao nhất. */
+.pack-preview-modal .modal-panel{width:560px;padding:22px 22px 18px}
+.pack-preview::before{content:'';position:absolute;inset:0 0 auto;height:200px;pointer-events:none;border-radius:inherit;background:radial-gradient(90% 100% at 50% 0%,color-mix(in srgb,var(--shop-tone) 20%,transparent),transparent 70%)}
+.pack-preview>*{position:relative}
+.pack-preview .modal-heading{margin-bottom:10px}
+.pack-preview-kicker{display:block;margin-bottom:2px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--shop-tone2) 70%,#aebdcc)}
+.pack-preview-sub{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.pack-preview-sub>span{padding:3px 10px;border-radius:999px;background:#ffffff0d;border:1px solid #ffffff14;font-size:12px;color:#aebdcc}
+.pack-preview-sub b{font-weight:600;color:#f2f4f6}
+/* Tỷ lệ cấp thẻ: huy hiệu cấp + phần trăm. */
+.pack-preview-levels{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:14px}
+.pack-preview-levels>span{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#dce3eb;font-variant-numeric:tabular-nums}
+.pack-preview-levels .grade-badge{font-size:11px}
+.pack-preview-title{margin-bottom:6px;font-size:13px;font-weight:600;color:#dce3eb}
+.pack-preview-list{list-style:none;margin:0;padding:0;border-top:1px solid #ffffff12}
+.pack-preview-list>li{display:grid;grid-template-columns:22px 34px 42px minmax(0,1fr) 40px 62px 80px;align-items:center;gap:8px;height:46px;border-bottom:1px solid #ffffff0f}
+.pack-preview-rank{font-family:var(--display);font-size:15px;font-weight:600;color:#7d8794;text-align:center}
+.pack-preview-list>li:nth-child(-n+3) .pack-preview-rank{color:#f5b942}
+.pack-preview-list img{width:34px;height:40px;object-fit:contain}
+.pack-preview-list .pos-badge{justify-self:start}
+.pack-preview-name{min-width:0;font-family:var(--display);font-size:15px;font-weight:600;color:#f0f1f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pack-preview-ovr{font-family:var(--display);font-size:19px;font-weight:700;color:#fff;text-align:center;font-variant-numeric:tabular-nums}
+.pack-preview-price{font-size:12px;color:#d6c08a;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pack-preview-chance{font-size:12px;color:#aebdcc;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.pack-preview .fine-print{margin-top:10px}
+.pack-preview-actions{margin-top:14px}
+@media(max-width:640px){.pack-preview-modal .modal-panel{padding:18px 14px 14px}.pack-preview-list>li{grid-template-columns:18px 30px 36px minmax(0,1fr) 32px 56px 64px;gap:5px}.pack-preview-name{font-size:14px}}

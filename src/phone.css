@@ -2,18 +2,9 @@
 @media (max-width: 640px), (max-width: 900px) and (max-height: 500px) {
   .app { padding-top: env(safe-area-inset-top); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
   .app > .topbar { height: 52px; padding: 0 12px; }
-  .app > .main-nav { height: 60px; }
-  .main-nav .nav-inner { height: 100%; padding: 0 4px; gap: 0; }
-  .main-nav .nav-inner > button { flex: 1; min-width: 0; min-height: 48px; flex-direction: column; justify-content: center; gap: 5px; padding: 4px 1px; }
-  .main-nav .nav-inner > button > svg { width: 18px; height: 18px; }
-  .main-nav .nav-full { display: none; }
-  .main-nav .nav-short { display: inline; font-size: 10px; }
-  .main-nav button > small { display: none; }
-  .app > footer { height: auto; min-height: 36px; padding: 2px 12px calc(2px + env(safe-area-inset-bottom)); }
-  .app > footer > div { display: none; }
-  .app > footer > span { width: 100%; max-width: none; justify-content: space-between; }
-  .app > footer button { min-height: 32px; font-size: 11px; }
-  .app > footer button[aria-label] { min-width: 44px; }
+  /* Không còn chân trang: thanh dock nhận phần đệm vùng an toàn phía dưới; nút HLV (mở Cài đặt) hiện lại. */
+  .app > .app-dock { height: calc(var(--dock-h) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); }
+  .topbar .avatar { display: inline-block; flex-shrink: 0; }
   button, a, input, select { touch-action: manipulation; }
   input:not([type=checkbox]):not([type=range]), select, textarea { font-size: 16px !important; }
   .main-content { overflow-y: auto; overflow-x: hidden; overscroll-behavior-y: contain; scroll-padding: 12px; }
@@ -72,7 +63,7 @@
   .tp-name .squad-season { display: none; }
   .tp-price { font-size: 12px; }
 
-  /* Both squad panels remain reachable; touch actions are visible on every row. */
+  /* Quản lí CT trên màn cảm ứng: hai khung xếp dọc, mỗi khung tự cuộn; chạm bánh răng hoặc hàng để hiện thanh thao tác (nút 40px). */
   .main-content > .workspace.squad-workspace { display: flex; height: auto; min-height: 100%; margin: 0; border: 0; border-radius: 0; overflow: visible; }
   .squad-panel { flex: none; }
   .squad-head { padding: 12px; gap: 12px; }
@@ -81,18 +72,20 @@
   .squad-right .squad-head > h2 { flex: 1 0 100%; }
   .squad-search { height: 44px; max-width: none; }
   .squad-owned { flex-shrink: 0; }
+  .squad-lines button { height: 34px; }
   .squad-list { flex: none; max-height: 55dvh; overflow-y: auto; overscroll-behavior-y: auto; }
   .squad-empty { margin: 20px 12px; font-size: 12px; }
-  .squad-columns { display: none; }
-  .squad-row, .squad-left .squad-row { grid-template-columns: 36px 36px minmax(0, 1fr) 28px 34px 30px; grid-template-rows: 48px 48px; gap: 4px; padding: 8px 12px; }
-  .squad-name strong { font-size: 16px; }
+  .squad-columns, .squad-row-bench { grid-template-columns: 28px 40px 34px minmax(0, 1fr) 30px 36px 36px; gap: 5px; padding: 0 8px; }
+  .squad-columns > .squad-col:last-child, .squad-row-bench .squad-price { display: none; }
+  .squad-row-bench { height: 52px; }
+  .squad-row-bench .squad-pos { font-size: 14px; padding-left: 5px; }
+  .squad-gear, .squad-row-lineup .squad-gear { width: 28px; height: 28px; }
   .squad-season { display: none; }
-  .squad-row .squad-stat, .squad-row:hover .squad-stat, .squad-row:focus-within .squad-stat { display: flex; align-items: center; justify-content: center; }
-  .squad-row .squad-price, .squad-row .squad-stat:empty { display: none; }
-  .squad-row .squad-hover { grid-column: 1 / -1; grid-row: 2; display: flex; gap: 6px; justify-content: space-between; overflow-x: auto; }
-  .squad-hover button { width: 44px; height: 44px; flex-shrink: 0; }
+  .squad-hover { gap: 4px; padding: 0 8px 0 28px; }
+  .squad-hover button { width: 40px; height: 40px; flex-shrink: 0; }
+  .squad-hover .squad-act span { display: none; }
+  .squad-hover .squad-act { width: 40px; padding: 0; }
   .squad-hover .squad-move { min-width: 64px; margin: 0; padding: 0 8px; font-size: 14px; }
-  .squad-face { width: 36px; height: 44px; }
 
   .main-content > .inv-workspace { min-height: 600px; }
   .inv-compact-filters select { height: 44px; }
@@ -105,13 +98,9 @@
   .inv-workspace .inv-item h3 { visibility: visible; font-size: 13px; }
   .inv-workspace .inv-grid { grid-auto-rows: 240px; }
   .inv-workspace .inv-item { height: 240px; }
-  .main-content > .market-workspace { min-height: 640px; }
+  .main-content > .market-workspace { min-height: 480px; }
   .market-workspace .market-filters > .search-field, .market-workspace .market-filter-toggle { min-height: 44px; height: 44px; }
   .market-workspace .market-tabs > button, .market-workspace .market-pagination > button, .market-workspace .market-row-action { min-height: 44px; }
-  .market-workspace .market-list { --page-item-height: 104; }
-  .market-workspace .market-row { height: 104px; }
-  .market-workspace .market-player b { font-size: 14px; }
-  .market-workspace .market-player small, .market-workspace .market-price b { font-size: 12px; }
   .shop-stepper button, .shop-stepper input, .shop-presets button { min-height: 44px; }
   .shop-product { content-visibility: auto; contain-intrinsic-size: auto 580px; }
 
@@ -123,16 +112,16 @@
 }
 
 @media (max-width: 640px) {
-  .view-packs { overflow-y: auto; display: block; }
-  .view-packs > .hero { min-height: 470px; height: max(470px, 65dvh); }
+  /* Trang chủ chỉ còn khung sân + thanh menu dưới: khung sân giãn hết chiều cao còn lại (cuộn khi màn quá thấp). */
+  .view-packs { overflow-y: auto; display: flex; }
+  .view-packs > .hero { flex: 1 0 auto; min-height: 470px; height: auto; }
   .view-packs .hero-content { grid-template-columns: 1fr !important; grid-template-rows: auto minmax(0, 1fr) !important; padding: 18px 18px 0 !important; }
   .view-packs .hero-copy { align-items: center !important; text-align: center; }
   .view-packs .hero-copy > p { font-size: 12px !important; }
   .view-packs .hero-price { font-size: 12px !important; }
   .view-packs .hero-card-front { width: min(46cqw, calc(82cqh * .78)) !important; }
   .view-packs .hero-card-back { width: min(34cqw, calc(66cqh * .78)) !important; }
-  .home-activity .text-action { min-height: 44px; font-size: 12px; }
-  .uc-screen { grid-template-rows: minmax(220px, 42dvh) minmax(0, 1fr); }
+    .uc-screen { grid-template-rows: minmax(220px, 42dvh) minmax(0, 1fr); }
   .uc-panel { overflow-y: auto; justify-content: flex-start; padding: 16px 12px max(16px, env(safe-area-inset-bottom)); }
   .uc-panel h2 { font-size: 24px; }
   .uc-materials { height: 120px; min-height: 120px; }
@@ -151,9 +140,8 @@
 
 @media (max-width: 900px) and (max-height: 500px) {
   .app > .topbar { height: 44px; }
-  .app > .main-nav { height: 52px; }
-  .view-packs { min-height: 0; overflow-y: auto; display: block; }
-  .view-packs > .hero { height: 360px; }
+  .view-packs { min-height: 0; overflow-y: auto; display: flex; }
+  .view-packs > .hero { flex: 1 0 auto; min-height: 360px; height: auto; }
   .main-content > .fco-upgrade { display: grid; grid-template-columns: minmax(280px, .9fr) minmax(0, 1.1fr); grid-template-rows: auto; }
   .fco-upgrade .fco-body { max-height: 280px; }
   .uc-screen { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }

@@ -2,17 +2,182 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&amp;family=Be+Vietnam+Pro:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&amp;display=swap"
+      rel="stylesheet"
+    />
     <meta name="theme-color" content="#080b10" />
-    <meta name="description" content="FCO VIP — Mở gói cầu thủ, nâng cấp thẻ và xây dựng bộ sưu tập. Trò chơi giả lập miễn phí bằng tiếng Việt." />
+    <meta
+      name="description"
+      content="FCO VIP — Mở gói cầu thủ, nâng cấp thẻ và xây dựng bộ sưu tập. Trò chơi giả lập miễn phí bằng tiếng Việt."
+    />
     <title>FCO VIP · Mở gói cầu thủ</title>
-    <link rel="icon" type="image/svg+xml" href="/assets/mark.svg" />
+    <link rel="icon" type="image/png" href="/assets/fco-vip-logo.png" />
+    <style>
+      .boot-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #080b10;
+        color: #f0f1f3;
+        font-family: "Roboto Condensed", Arial, sans-serif;
+      }
+      .boot-content {
+        width: min(360px, 100%);
+        text-align: center;
+      }
+      .boot-logo {
+        display: block;
+        width: 96px;
+        height: 96px;
+        object-fit: contain;
+        margin: 0 auto 24px;
+      }
+      .boot-content h1 {
+        font-size: 24px;
+        letter-spacing: 2px;
+        margin: 0 0 12px;
+      }
+      .boot-content p {
+        font-size: 14px;
+        color: #b8bcc5;
+        line-height: 1.6;
+        margin: 0 0 24px;
+      }
+      .boot-track {
+        height: 5px;
+        background: #252b34;
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .boot-fill {
+        height: 100%;
+        width: 0;
+        background: #d9ba76;
+        transition: width 0.15s;
+      }
+      .boot-detail {
+        display: block;
+        margin: 12px 0 24px;
+        color: #b8bcc5;
+        font-size: 12px;
+        min-height: 16px;
+      }
+      .boot-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-width: 180px;
+        min-height: 44px;
+        padding: 0 20px;
+        border: 1px solid #625536;
+        border-radius: 4px;
+        background: #242016;
+        color: #e5cf9a;
+        font-size: 14px;
+      }
+      .boot-action:disabled {
+        cursor: wait;
+        opacity: 1;
+      }
+      .boot-action:not(:disabled) {
+        cursor: pointer;
+      }
+      .boot-action:focus-visible {
+        outline: 2px solid #e5cf9a;
+        outline-offset: 4px;
+      }
+      .boot-spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #625536;
+        border-top-color: #e5cf9a;
+        border-radius: 50%;
+        animation: boot-spin 0.8s linear infinite;
+      }
+      .boot-action[hidden] {
+        display: none;
+      }
+      @keyframes boot-spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot-spinner {
+          animation: none;
+        }
+        .boot-fill {
+          transition: none;
+        }
+      }
+    </style>
   </head>
   <body>
+    <div
+      id="startup"
+      class="boot-screen"
+      aria-labelledby="boot-title"
+      aria-busy="true"
+    >
+      <div class="boot-content">
+        <img
+          class="boot-logo"
+          src="/assets/fco-vip-logo.png"
+          alt=""
+          width="96"
+          height="96"
+        />
+        <h1 id="boot-title">FCO VIP</h1>
+        <p id="boot-status" role="status">Đang tải game…</p>
+        <div
+          id="boot-progress"
+          class="boot-track"
+          role="progressbar"
+          aria-label="Tiến độ tải game"
+          aria-valuemin="0"
+          aria-valuemax="100"
+        >
+          <div id="boot-fill" class="boot-fill"></div>
+        </div>
+        <span id="boot-detail" class="boot-detail"
+          >Đang tải dữ liệu trò chơi</span
+        >
+        <button id="boot-loading" class="boot-action" type="button" disabled>
+          <span class="boot-spinner" aria-hidden="true"></span>Đang tải…
+        </button>
+        <button
+          id="boot-retry"
+          class="boot-action"
+          type="button"
+          hidden
+          onclick="location.reload()"
+        >
+          Thử lại
+        </button>
+      </div>
+    </div>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script
+      type="module"
+      src="/src/main.tsx"
+      onerror="
+        document.getElementById('boot-status').textContent =
+          'Không tải được game. Hãy kiểm tra kết nối rồi thử lại.';
+        document.getElementById('boot-loading').hidden = true;
+        document.getElementById('boot-retry').hidden = false;
+        document.getElementById('startup').setAttribute('aria-busy', 'false');
+      "
+    ></script>
   </body>
 </html>

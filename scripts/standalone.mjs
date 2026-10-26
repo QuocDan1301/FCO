@@ -18,9 +18,13 @@ let css = await readFile(path.join(assetsDir, cssFile), 'utf8');
 if (base !== '/') { js = js.replaceAll(`${base}assets/`, '/assets/'); css = css.replaceAll(`${base}assets/`, '/assets/'); }
 const resources = [
   ['background-music.mp3', 'audio/mpeg'],
+  ['NAMGAO.mp3', 'audio/mpeg'],
+  ['TABI.mp3', 'audio/mpeg'],
+  ['HSM.mp3', 'audio/mpeg'],
   ['RTI.mp3', 'audio/mpeg'],
   ['SGD.mp3', 'audio/mpeg'],
-  ['mark.svg', 'image/svg+xml'],
+  ['fco-vip-logo.png', 'image/png'],
+  ['fco-vip-opening-logo.png', 'image/png'],
   ['silhouette.svg', 'image/svg+xml'],
   ['messi.jpg', 'image/jpeg'],
   ['icon-tm.svg', 'image/svg+xml'],
@@ -315,7 +319,7 @@ try { fonts = await readFile(path.join(root, 'public/assets/fonts-inline.css'), 
 html = html.replace(/<script\b[^>]*\bsrc="[^"]+"[^>]*><\/script>/g, '');
 html = html.replace(/<link\b[^>]*\bhref="\/assets\/[^" ]+\.css"[^>]*>/g, '');
 html = html.replace('</head>', () => `\n<style>\n${fonts}\n${css.replace(/<\/style/gi, '<\\/style')}\n</style>\n</head>`);
-html = html.replace('</body>', () => `\n<!-- React, Motion và toàn bộ logic trò chơi đã nhúng bên dưới. -->\n<script>\n(function(){\n${js.replace(/<\/script/gi, '<\\/script')}\n})();\n</script>\n</body>`);
+html = html.replace('</body>', () => `\n<!-- React, Motion và toàn bộ logic trò chơi đã nhúng bên dưới. -->\n<script>\n(function(){\nwindow.__FCO_STANDALONE__ = true;\n${js.replace(/<\/script/gi, '<\\/script')}\n})();\n</script>\n</body>`);
 html = html.replace('<!doctype html>', '<!doctype html>\n<!-- BẢN ĐỘC LẬP: mở trực tiếp mothe.html. CSS, JavaScript, hình ảnh đã nhúng. -->\n');
 if (/<script\b[^>]*\bsrc=|<link\b[^>]*\brel="stylesheet"|(?:src|href)="\/assets\//.test(html)) throw new Error('HTML vẫn còn phụ thuộc tài nguyên ngoài.');
 await writeFile(path.join(root, 'mothe.html'), html, 'utf8');

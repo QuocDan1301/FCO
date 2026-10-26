@@ -68,7 +68,7 @@ test('Khóa thẻ: không xóa, không bán, không dùng làm nguyên liệu; m
   const released = releaseCard(state, material.uid);
   assert.deepEqual(released.cards.map(c => c.uid), [target.uid]);
   assert.deepEqual(squadCards(released), []);
-  assert.equal(released.balance, state.balance, 'Xóa không cộng xu');
+  assert.equal(released.balance, state.balance, 'Xóa không cộng BP');
   const dirty = JSON.parse(JSON.stringify({ ...released, locked: [material.uid, target.uid, target.uid, 5] }));
   assert.ok(validateSave(dirty)); assert.deepEqual(dirty.locked, [target.uid]);
 });

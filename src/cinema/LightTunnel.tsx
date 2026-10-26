@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { cameraProgress, OPENING_CUES } from './timeline';
+import { cameraProgress, OPENING_CUES, progressAtZ } from './timeline';
+import { FLAME_REF_DISTANCE, FLAME_Z } from './flames';
+import { placeFlames } from './PackFlames';
 import { drawBadge, infoVisibility } from './sceneBadge';
 
-export default function LightTunnel({ phase, season, nation, position, team, flag, teamLogo, back, intro, accent, stage, quick, onReady, onPrepared, playing = true, getElapsed }: { phase: number; season: string; nation: string; position: string; team: string; flag: string; teamLogo?: string; back?: string; intro?: string; accent?: string; stage?: { top: string; ring: string; led?: string }; quick: boolean; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number }) {
+export default function LightTunnel({ phase, season, nation, position, team, flag, teamLogo, back, intro, accent, stage, quick, onReady, onPrepared, playing = true, getElapsed, flames }: { phase: number; season: string; nation: string; position: string; team: string; flag: string; teamLogo?: string; back?: string; intro?: string; accent?: string; stage?: { top: string; ring: string; led?: string }; quick: boolean; onReady: () => void; onPrepared?: () => void; playing?: boolean; getElapsed?: () => number; flames?: { current: HTMLDivElement | null } }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const latest = useRef({ phase, season, nation, position, team, flag, teamLogo, back, intro, accent, stage, quick, onReady, onPrepared, playing, getElapsed }); latest.current = { phase, season, nation, position, team, flag, teamLogo, back, intro, accent, stage, quick, onReady, onPrepared, playing, getElapsed };
+  const latest = useRef({ phase, season, nation, position, team, flag, teamLogo, back, intro, accent, stage, quick, onReady, onPrepared, playing, getElapsed, flames }); latest.current = { phase, season, nation, position, team, flag, teamLogo, back, intro, accent, stage, quick, onReady, onPrepared, playing, getElapsed, flames };
   useEffect(() => {
     const canvas = canvasRef.current; const ctx = canvas?.getContext('2d'); if (!canvas || !ctx) return;
     const board = document.createElement('canvas'); board.width = 384; board.height = 192; const boardCtx = board.getContext('2d'); let boardKey = '';
@@ -46,6 +48,14 @@ export default function LightTunnel({ phase, season, nation, position, team, fla
         for (const side of [-1, 1]) { ctx.fillStyle = '#f4d99511'; ctx.beginPath(); ctx.moveTo(cx + side * w * .32, h * .78); ctx.lineTo(cx + side * w * .48, h * .13); ctx.lineTo(cx + side * w * .1, h * .13); ctx.closePath(); ctx.fill(); }
       }
       const reflection = ctx.createLinearGradient(0, h * .57, 0, h); reflection.addColorStop(0, '#e8d49e00'); reflection.addColorStop(.7, '#e8d49e0b'); reflection.addColorStop(1, '#050b1300'); ctx.fillStyle = reflection; ctx.fillRect(w * .15, h * .57, w * .7, h * .43);
+      // Máy phun lửa ghim trong hầm: độ sâu theo phần tiến độ còn lại tới máy (27 đơn vị vòng cho cả quãng), đặt ở góc sàn của vòng tại độ sâu đó.
+      const flameRoot = latest.current.flames?.current;
+      if (flameRoot) {
+        const depth = (progressAtZ(FLAME_Z) - progress) * 27, ring = (d: number) => 1 / (1 + Math.max(.1, d) * .2);
+        const scale = ring(depth), k = scale / ring((progressAtZ(FLAME_Z) - progressAtZ(FLAME_Z + FLAME_REF_DISTANCE)) * 27);
+        const at = (side: number) => depth < .3 ? null : { x: cx + side * w * 1.3 * scale / 2 * .82, y: cy + h * 1.12 * scale / 2 * .96, k };
+        placeFlames(flameRoot, at(-1), at(1));
+      }
       canvas.dataset.progress = progress.toFixed(4);
       if (!prepared) { prepared = true; onPrepared?.(); }
       if (playing && startedAt === null) { startedAt = now; onReady(); }

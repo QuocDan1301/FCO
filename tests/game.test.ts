@@ -2,7 +2,10 @@ import { test } from 'node:test';
 import { existsSync } from 'node:fs';
 import { getTeamLogo } from '../src/teamLogos.ts';
 import assert from 'node:assert/strict';
-import { baseOvr, ovr, MAX_LEVEL, UPGRADE_LEVELS, claimDaily, dayKey, draw, getPlayer, initialSave, isPackAvailable, makeCard, openPacks, openSelectedPacks, packs, players, upgrade, upgradeInfo, validateSave } from '../src/game.ts';
+import { baseOvr, ovr, GAUGE_OFFSETS, MAX_LEVEL, PACK_LEVELS, PACK_ODDS, UPGRADE_LEVELS, claimDaily, dayKey, draw, getPlayer, initialSave, isPackAvailable, makeCard, materialGauge, openPacks, openSelectedPacks, packOdds, packs, players, upgrade, upgradeInfo, validateSave } from '../src/game.ts';
+import priceData from '../src/player-prices.json';
+import { rngFor, seeded } from './pack-rng.ts';
+import { BRIDGE_CONFIG } from '../src/upgrade/config.ts';
 
 
 // Thẻ mẫu theo OVR: chọn cầu thủ có OVR tự tính ở cấp đó đúng bằng giá trị cần thử và không bị sửa tay trong Excel,
@@ -34,8 +37,8 @@ test('Cả bốn gói mở đúng mùa; toàn bộ 24 thẻ NO.7 có thể nhậ
   const no7 = packs[2], pool = players.filter(p => p.tier === 'origin');
   assert.equal(no7.name, 'NO.7 (ALL)');
   assert.equal(no7.range, '115–119');
-  pool.forEach((player, index) => {
-    const card = draw(no7, () => (index + .5) / pool.length);
+  pool.forEach(player => {
+    const card = draw(no7, rngFor(no7, player.id));
     assert.equal(card.playerId, player.id);
     assert.equal(card.level, 1);
     assert.ok(player.cardFace?.includes('/assets/no7-'));
@@ -51,6 +54,38 @@ test('Cả bốn gói mở đúng mùa; toàn bộ 24 thẻ NO.7 có thể nhậ
 });
 
 
+test('Tỷ lệ gói: OVR cao hơn sàn và giá +1 đắt hơn thì hiếm hơn; gói (ALL) chỉ ra +1, gói ghi khoảng cấp mỗi cấp hiếm hơn ~3,2 lần', () => {
+  const prices: Record<string, (number | null)[]> = priceData.players;
+  for (const pack of packs.filter(isPackAvailable)) {
+    const { pool, levels } = packOdds(pack);
+    assert.ok(Math.abs(pool.reduce((sum, row) => sum + row.chance, 0) - 1) < 1e-9, pack.name);
+    assert.ok(pool.every(row => row.chance > 0), `${pack.name}: mọi cầu thủ đều có thể ra`);
+    // Đúng công thức: trọng số = ovrDecay^(OVR +1 − OVR sàn) ÷ max(1, giá +1 ÷ giá rẻ nhất)^priceAlpha, chuẩn hoá về tổng 1.
+    const rows = pool.map(({ player }) => ({ value: ovr({ playerId: player.id, level: 1 }), price: prices[String(player.id)]?.[0] ?? 0 }));
+    const floor = Math.min(...rows.map(r => r.value)), cheapest = Math.min(...rows.map(r => r.price).filter(p => p > 0));
+    const weights = rows.map(r => PACK_ODDS.ovrDecay ** (r.value - floor) / Math.max(1, r.price > 0 ? r.price / cheapest : 1) ** PACK_ODDS.priceAlpha);
+    const total = weights.reduce((sum, w) => sum + w, 0);
+    pool.forEach((row, i) => assert.ok(Math.abs(row.chance - weights[i] / total) < 1e-12, `${pack.name} · ${row.player.name}`));
+    assert.deepEqual(levels, [{ level: 1, chance: 1 }], `${pack.name}: gói (ALL) chỉ ra +1`);
+  }
+  assert.deepEqual(PACK_LEVELS, [1, 1]);
+  const ip = packs.find(p => p.id === 'prime')!, first = packOdds(ip).pool[0].player.id;
+  assert.equal(draw(ip, rngFor(ip, first, .999999)).level, 1);
+  // Gói ghi khoảng cấp +1~+5: mỗi cấp hiếm hơn cấp trước levelDecay lần.
+  const ranged: typeof ip = { ...ip, levels: [1, 5] }, { levels } = packOdds(ranged);
+  assert.deepEqual(levels.map(l => l.level), [1, 2, 3, 4, 5]);
+  assert.ok(Math.abs(levels.reduce((sum, l) => sum + l.chance, 0) - 1) < 1e-12);
+  levels.slice(1).forEach((l, i) => assert.ok(Math.abs(l.chance / levels[i].chance - PACK_ODDS.levelDecay) < 1e-12));
+  assert.equal(draw(ranged, rngFor(ranged, first, 0)).level, 1);
+  assert.equal(draw(ranged, rngFor(ranged, first, levels[0].chance + 1e-9)).level, 2);
+  assert.equal(draw(ranged, rngFor(ranged, first, .999999)).level, 5);
+  // 20.000 lượt mở (rng có hạt giống) khớp bảng tỷ lệ công bố.
+  const rng = seeded(7), counts = new Map<number, number>(), levelCounts = [0, 0, 0, 0, 0, 0];
+  for (let i = 0; i < 20000; i++) { const card = draw(ranged, rng); counts.set(card.playerId, (counts.get(card.playerId) ?? 0) + 1); levelCounts[card.level]++; }
+  for (const { player, chance } of packOdds(ip).pool.filter(row => row.chance > .05)) assert.ok(Math.abs((counts.get(player.id) ?? 0) / 20000 - chance) < .015, player.name);
+  levels.forEach(({ level, chance }) => assert.ok(Math.abs(levelCounts[level] / 20000 - chance) < .015, `+${level}`));
+});
+
 test('43 thẻ 26TS bổ sung mở được, lưu lại được và có đủ mặt thẻ/logo CLB', () => {
   const pack = packs.find(p => p.id === 'stellar')!;
   const pool = players.filter(p => p.tier === 'stellar');
@@ -59,8 +94,7 @@ test('43 thẻ 26TS bổ sung mở được, lưu lại được và có đủ m
   assert.equal(new Set(players.map(p => p.id)).size, players.length);
   assert.equal(pack.range, `${Math.min(...pool.map(p => p.ovr))}–${Math.max(...pool.map(p => p.ovr))}`);
   const cards = added.map(player => {
-    const index = pool.indexOf(player);
-    const card = draw(pack, () => (index + .5) / pool.length);
+    const card = draw(pack, rngFor(pack, player.id));
     assert.equal(card.playerId, player.id);
     assert.equal(baseOvr(card), player.ovr);
     assert.equal(baseOvr({ ...card, level: 2 }), player.ovr + 1);
@@ -73,9 +107,9 @@ test('43 thẻ 26TS bổ sung mở được, lưu lại được và có đủ m
   assert.equal(validateSave(JSON.parse(JSON.stringify({ ...initialSave(), cards }))), true);
 });
 
-test('Bản lưu cũ bỏ thẻ Khởi nguyên và giữ thẻ khác, xu, lịch sử, kho gói', () => {
+test('Bản lưu cũ bỏ thẻ Khởi nguyên và giữ thẻ khác, BP, lịch sử, kho gói', () => {
   const kept = { ...makeCard(11), level: 7 };
-  const saved = { ...initialSave(), balance: 123456, opened: 42, upgrades: 8, cards: [kept, ...Array.from({ length: 10 }, (_, i) => makeCard(21 + i))], history: [{ id: 'old', type: 'gift' as const, time: 1, title: 'Quà', detail: 'Xu' }] };
+  const saved = { ...initialSave(), balance: 123456, opened: 42, upgrades: 8, cards: [kept, ...Array.from({ length: 10 }, (_, i) => makeCard(21 + i))], history: [{ id: 'old', type: 'gift' as const, time: 1, title: 'Quà', detail: 'BP' }] };
   const before = structuredClone(saved);
   assert.equal(validateSave(saved), true);
   assert.deepEqual(saved, { ...before, cards: [kept] });
@@ -89,15 +123,20 @@ test('Mở 10 trừ đúng tiền, thêm đủ thẻ riêng biệt và không s�
   assert.equal(result.state.opened, 10); assert.equal(result.state.history.length, 1);
   assert.equal(new Set(result.cards.map(c => c.uid)).size, 10);
   assert.ok(result.cards.every(c => getPlayer(c).tier === 'eternal'));
-  assert.throws(() => openPacks(result.state, packs[2], 1), /Không đủ xu/);
+  assert.throws(() => openPacks(result.state, packs[2], 1), /Không đủ BP/);
   assert.throws(() => openPacks(before, packs[2], -1));
 });
-test('Tỷ lệ theo bảng ảnh, ranh giới thành công/thất bại ở đủ năng lượng cho cả 12 bước', () => {
-  const rates = [100, 81, 64, 50, 26, 15, 7, 5, 4, 3, 2, 1];
+// Phôi rất mạnh (OVR cao nhất ở +13): mỗi viên nạp tối đa 2,5 vạch nên 5 viên luôn đủ 5 vạch ở mọi cấp.
+const strongMaterial = () => {
+  const best = players.reduce((a, b) => ovr({ playerId: b.id, level: 13 }) > ovr({ playerId: a.id, level: 13 }) ? b : a);
+  return { ...makeCard(best.id), level: 13 };
+};
+test('Tỷ lệ theo bảng, ranh giới thành công/thất bại ở đủ năng lượng cho cả 12 bước', () => {
+  const rates = [100, 81, 64, 50, 26, 15, 7, 4, 2, 1, .7, .5];
   const gains = [1, 1, 2, 2, 2, 3, 4, 2, 2, 2, 3, 3];
   for (let level = 1; level < MAX_LEVEL; level++) {
     const target = { ...makeCard(11), level };
-    const materials = Array.from({ length: 5 }, () => ({ ...makeCard(11), level }));
+    const materials = Array.from({ length: 5 }, strongMaterial);
     const state = { ...initialSave(), cards: [target, ...materials] };
     const info = upgradeInfo(target, materials);
     assert.equal(info.energy, 100);
@@ -110,8 +149,7 @@ test('Tỷ lệ theo bảng ảnh, ranh giới thành công/thất bại ở đ�
     if (rates[level - 1] < 100) {
       const failure = upgrade(state, target.uid, materials.map(c => c.uid), () => rates[level - 1] / 100);
       assert.equal(failure.success, false);
-      assert.equal(failure.result.level, level);
-      assert.equal(ovr(failure.result), ovr(target));
+      assert.ok(failure.result.level <= Math.max(1, level - 1));
       assert.equal(failure.state.cards.length, 1);
     }
     assert.equal(state.cards[0].level, level);
@@ -129,86 +167,83 @@ test('OVR cộng dồn đúng đến cấp sao +13; giữ cấp thẻ trong bả
   assert.equal(ovr(saved.cards[0]), getPlayer(original).ovr + 27);
 });
 
-test('Tỷ lệ vẫn tăng theo năng lượng nguyên liệu; +1 lên +2 đủ năng lượng luôn thành công', () => {
+test('Tỷ lệ tăng theo năng lượng nguyên liệu; +1 lên +2 đủ năng lượng luôn thành công', () => {
   const target = makeCard(11), equal = makeCard(11);
   assert.equal(upgradeInfo(target, Array.from({ length: 5 }, () => equal)).chance, 100);
   const high = { ...target, level: 7 };
-  assert.equal(upgradeInfo(high, Array.from({ length: 5 }, () => ({ ...equal, level: 7 }))).chance, 7);
+  const weak = upgradeInfo(high, Array.from({ length: 5 }, () => ({ ...equal, level: 7 })));
+  assert.ok(weak.energy < 100);
+  assert.equal(weak.chance, Math.round(7 * weak.energy) / 100);
+  assert.equal(upgradeInfo(high, Array.from({ length: 5 }, strongMaterial)).chance, 7);
   const materials = Array.from({ length: 5 }, () => makeCard(11));
   const result = upgrade({ ...initialSave(), cards: [target, ...materials] }, target.uid, materials.map(c => c.uid), () => .999999999);
   assert.equal(result.success, true);
 });
 
-test('Nguyên liệu cùng OVR từ 125 được 1 vạch; dưới 125 tăng 0,25 vạch mỗi OVR', () => {
-  const cases = [[1, 126, 20], [1, 125, 20], [1, 124, 25], [1, 123, 30], [1, 122, 35], [1, 121, 40], [2, 125, 20], [2, 124, 25]];
-  for (const [level, rating, energy] of cases) {
-    const target = cardWith(rating, level);
-    assert.equal(ovr(target), rating);
-    assert.equal(upgradeInfo(target, [{ ...makeCard(target.playerId), level }]).energy, energy, `OVR ${rating}`);
-  }
-  const target = cardWith(125), other = () => cardWith(125, 1, [target.playerId]);
-  assert.equal(upgradeInfo(target, [other()]).energy, 20, 'Không phụ thuộc trùng cầu thủ');
+test('Vạch phôi theo độ lệch OVR chuẩn của từng cấp: đúng chuẩn 1 vạch, ×1,28 / ×0,72 mỗi OVR', () => {
+  assert.deepEqual(GAUGE_OFFSETS, [-2, -.5, 0, .3, 1, 1.8, 2.5, 3.3, 4.1, 5, 6, 7]);
+  // Mức chuẩn: +1 thấp hơn 2 OVR, +3 bằng OVR, +5 cao hơn 1 OVR, +12 cao hơn 7 OVR.
+  assert.equal(materialGauge(130, 1, 128), 1);
+  assert.equal(materialGauge(130, 3, 130), 1);
+  assert.equal(materialGauge(130, 5, 131), 1);
+  assert.equal(materialGauge(130, 12, 137), 1);
+  assert.equal(materialGauge(130, 13, 137), 1, 'Ngoài bảng dùng độ lệch 7');
+  assert.equal(materialGauge(130, 3, 131), 1.28);
+  assert.equal(materialGauge(130, 3, 129), .72);
+  assert.equal(materialGauge(130, 2, 129), .849, '+2: phôi thấp hơn 1 OVR ≈ 0,85 vạch');
+  assert.equal(materialGauge(130, 4, 130), .906, '+4: phôi cùng OVR ≈ 0,9 vạch');
+  assert.equal(materialGauge(130, 1, 140), 2.5, 'Tối đa 2,5 vạch mỗi phôi');
+  assert.equal(materialGauge(130, 1, 124), .02, 'Thấp hơn thẻ chính từ 6 OVR chỉ còn 0,02 vạch');
+  assert.equal(materialGauge(130, 12, 125), .02, 'Không thấp hơn 0,02 vạch');
+});
+
+test('Năng lượng: mỗi phôi = số vạch × 20% (làm tròn 0,1%), cộng dồn tối đa 5 vạch', () => {
+  // +2: 5 phôi thấp hơn 1 OVR ≈ 4,25 vạch.
+  const t2 = cardWith(125, 2), lower = cardWith(124);
+  assert.equal(upgradeInfo(t2, [lower]).energy, 17);
+  assert.equal(upgradeInfo(t2, Array.from({ length: 5 }, () => lower)).energy, 85);
+  // +4: 5 phôi cùng OVR ≈ 4,5 vạch; 3 phôi cùng OVR + 2 phôi cao hơn 1 OVR đủ 5 vạch.
+  const t4 = cardWith(129, 4), same = { ...makeCard(t4.playerId), level: 4 }, above = cardWith(130, 4);
+  assert.equal(upgradeInfo(t4, [same]).energy, 18.1);
+  assert.equal(upgradeInfo(t4, [same, same, same]).energy, 54.3, 'Cộng đúng phần 0,1% hiển thị ở từng phôi');
+  assert.equal(upgradeInfo(t4, Array.from({ length: 5 }, () => same)).energy, 90.5);
+  assert.equal(upgradeInfo(t4, [above]).energy, 23.8);
+  assert.equal(upgradeInfo(t4, [same, same, same, above, above]).energy, 100);
+  assert.equal(upgradeInfo(t4, [same, same, same, above, above]).chance, 50);
+  // Không phụ thuộc trùng cầu thủ; phôi cao OVR hơn nạp nhiều hơn.
+  const target = cardWith(125), other = cardWith(125, 1, [target.playerId]);
+  assert.equal(upgradeInfo(target, [other]).energy, upgradeInfo(target, [makeCard(target.playerId)]).energy);
+  assert.equal(upgradeInfo(target, [other]).energy, 32.8);
+  const low = upgradeInfo(t4, [cardWith(127)]).energy, high = upgradeInfo(t4, [above]).energy;
+  assert.ok(low < upgradeInfo(t4, [same]).energy && upgradeInfo(t4, [same]).energy < high);
   assert.equal(upgradeInfo(target, []).chance, 0);
-  assert.equal(upgradeInfo(target, Array.from({ length: 5 }, other)).energy, 100);
 });
-
-test('Phôi thấp hơn 7 OVR đóng góp 1/5 mức cùng OVR; 122 đập 129 được 0,2 vạch', () => {
-  const target = cardWith(129, 4);
-  assert.equal(ovr(target), 129);
-  const cases = [[4, 129, 20], [3, 128, 15.9], [1, 127, 12.6], [1, 126, 10], [1, 125, 8], [1, 124, 6.3], [1, 123, 5], [1, 122, 4], [1, 121, 3.2]];
-  for (const [level, rating, energy] of cases) {
-    const material = cardWith(rating, level);
-    assert.equal(ovr(material), rating);
-    assert.equal(upgradeInfo(target, [material]).energy, energy, `${rating} → 129`);
-  }
-  const materials = Array.from({ length: 5 }, () => cardWith(122));
-  assert.equal(upgradeInfo(target, materials).energy, 20, '5 phôi 122 bằng 1 vạch khi đập 129');
-  assert.equal(upgradeInfo(target, [cardWith(122)]).chance, 2, 'Tỷ lệ thành công dùng đúng năng lượng mới');
-  const higher = cardWith(130, 4);
-  assert.equal(ovr(higher), 130);
-  assert.equal(upgradeInfo(target, [higher]).energy, 21.2);
-});
-
-test('Năng lượng phôi thấp OVR vẫn tính từ mức cùng OVR và cộng đúng phần xem trước', () => {
-  const target = cardWith(124);
-  assert.equal(upgradeInfo(target, [cardWith(123)]).energy, 19.9);
-  const materials = Array.from({ length: 3 }, () => cardWith(123));
-  assert.equal(upgradeInfo(target, materials).energy, 59.7);
-  assert.equal(upgradeInfo(cardWith(126), [cardWith(123)]).energy, 10);
-});
-
-test('Năng lượng tăng theo OVR nguyên liệu và cộng dồn tối đa 5 vạch', () => {
-  const target = cardWith(124);
-  const low = upgradeInfo(target, [cardWith(123)]).energy;
-  const equal = upgradeInfo(target, [cardWith(124, 1, [target.playerId])]).energy;
-  const high = upgradeInfo(target, [cardWith(125)]).energy;
-  assert.ok(low < equal && equal < high);
-  assert.equal(upgradeInfo(target, [cardWith(124, 1, [target.playerId]), cardWith(124, 1, [target.playerId])]).energy, 50);
-  assert.equal(upgradeInfo(target, Array.from({ length: 5 }, () => cardWith(124, 1, [target.playerId]))).energy, 100);
-});
-test('Thành công tăng +1; thất bại phục hồi theo phôi trùng, cả hai tiêu hao nguyên liệu và phí', () => {
+test('Thành công tăng +1; thất bại rớt cấp, cả hai tiêu hao nguyên liệu và phí', () => {
   const target = { ...makeCard(33), level: 2 };
   const materialCards = Array.from({ length: 5 }, () => ({ ...makeCard(33), level: 2 }));
   const before = { ...initialSave(), cards: [target, ...materialCards] };
   const materials = materialCards.map(c => c.uid);
   for (const success of [true, false]) {
     const result = upgrade(before, target.uid, materials, () => success ? 0 : .999999);
-    assert.equal(result.success, success); assert.equal(result.result.level, success ? 3 : 2);
+    assert.equal(result.success, success); assert.equal(result.result.level, success ? 3 : 1);
     assert.equal(result.state.cards.length, before.cards.length - 5);
     assert.equal(result.state.balance, before.balance - 200000);
     assert.equal(result.state.history[0].success, success);
     assert.equal(before.cards[0].level, 2);
   }
 });
-test('Thất bại không có phôi trùng rơi ngẫu nhiên xuống mọi cấp thấp hơn, thấp nhất +1', () => {
+test('Thất bại rớt cấp theo bảng trọng số của từng cấp, không rớt quá +8, thấp nhất +1', () => {
   for (let level = 1; level < MAX_LEVEL; level++) {
     const target = { ...makeCard(33), level };
     const material = makeCard(34);
     const state = { ...initialSave(), cards: [target, material] };
     const snapshot = structuredClone(state);
-    const range = Math.max(1, level - 1);
-    for (let expected = 1; expected <= range; expected++) {
-      const rolls = [.999999, (expected - .5) / range];
+    const weights = BRIDGE_CONFIG.dropWeights[level], total = weights.reduce((sum, [, weight]) => sum + weight, 0);
+    assert.equal(total, 100);
+    assert.ok(Math.max(...weights.map(([drop]) => drop)) <= Math.min(8, Math.max(1, level - 1)));
+    let below = 0;
+    for (const [expected, weight] of weights) {
+      const rolls = [.999999, (below + weight / 2) / total]; below += weight;
       const result = upgrade(state, target.uid, [material.uid], () => rolls.shift()!);
       assert.equal(result.success, false);
       assert.equal(result.result.level, expected);
@@ -224,24 +259,32 @@ test('Thất bại không có phôi trùng rơi ngẫu nhiên xuống mọi cấ
   }
 });
 
-test('Phôi trùng chỉ phục hồi khi rớt dưới cấp phôi; lấy phôi trùng cao nhất', () => {
-  const target = { ...makeCard(33), level: 8 };
-  const materials = [{ ...makeCard(33), level: 3 }, { ...makeCard(33), level: 5 }, { ...makeCard(34), level: 13 }];
-  for (const order of [materials, [...materials].reverse()]) {
-    const state = { ...initialSave(), cards: [target, ...order] };
-    for (const [dropRoll, dropped, final, restored] of [[0, 1, 5, 5], [.5, 4, 5, 5], [.8, 6, 6, null], [.999999, 7, 7, null]] as const) {
-      const rolls = [.999999, dropRoll];
-      const result = upgrade(state, target.uid, order.map(c => c.uid), () => rolls.shift()!);
-      assert.equal(result.success, false);
-      assert.equal(result.droppedLevel, dropped);
-      assert.equal(result.result.level, final);
-      assert.equal(result.restoredLevel, restored);
-      assert.equal(result.state.cards.length, 1);
-      assert.equal(result.state.cards[0].playerId, 33);
-      assert.ok(validateSave(JSON.parse(JSON.stringify(result.state))));
-      if (restored !== null) assert.ok(result.state.history[0].detail.includes(`+8 → +${dropped} → +5`));
-    }
-  }
+test('Khôi phục từ +5: trúng thì thẻ không rớt dưới mức giữ; chỉ roll một lần khi thất bại và có cơ hội', () => {
+  const target = { ...makeCard(33), level: 8 }, material = makeCard(34);
+  const state = { ...initialSave(), cards: [target, material] };
+  const run = (card: typeof target, restore: { chance: number; floor: number }, ...values: number[]) => {
+    let calls = 0;
+    const result = upgrade({ ...state, cards: [card, material] }, card.uid, [material.uid], () => { calls++; if (!values.length) throw new Error('Hết RNG'); return values.shift()!; }, false, { restore });
+    return { result, calls };
+  };
+  const kept = run(target, { chance: 50, floor: 8 }, .999999, 0, .3);
+  assert.equal(kept.result.droppedLevel, 1); assert.equal(kept.result.restoredLevel, 8); assert.equal(kept.result.result.level, 8); assert.equal(kept.calls, 3);
+  assert.ok(kept.result.state.history[0].detail.includes('+8 → +1 → +8 · Khôi phục cấp thẻ'));
+  assert.ok(validateSave(JSON.parse(JSON.stringify(kept.result.state))));
+  const floor = run(target, { chance: 50, floor: 5 }, .999999, 0, .3);
+  assert.equal(floor.result.restoredLevel, 5); assert.equal(floor.result.result.level, 5);
+  // Rớt về +6 cao hơn mức giữ +5: coi như rớt thường.
+  const above = run(target, { chance: 50, floor: 5 }, .999999, .999, .3);
+  assert.equal(above.result.droppedLevel, 6); assert.equal(above.result.restoredLevel, null); assert.equal(above.result.result.level, 6);
+  const missed = run(target, { chance: 50, floor: 8 }, .999999, 0, .5);
+  assert.equal(missed.result.restoredLevel, null); assert.equal(missed.result.result.level, 1); assert.equal(missed.calls, 3);
+  assert.equal(run(target, { chance: 100, floor: 8 }, .999999, 0, .999999).result.result.level, 8, '100% vẫn roll một số');
+  assert.equal(run(target, { chance: 0, floor: 8 }, .999999, 0).calls, 2, 'Không có cơ hội khôi phục: chỉ roll thành công + mức rớt');
+  assert.equal(run(target, { chance: 50, floor: 8 }, 0).calls, 1, 'Thành công không roll khôi phục');
+  const low = run({ ...target, level: 4 }, { chance: 50, floor: 4 }, .999999, 0);
+  assert.equal(low.calls, 2, 'Dưới +5 bỏ qua khôi phục'); assert.equal(low.result.result.level, 1);
+  for (const bad of [{ chance: 101, floor: 8 }, { chance: 50, floor: 9 }, { chance: 50, floor: 0 }, { chance: NaN, floor: 8 }])
+    assert.throws(() => upgrade(state, target.uid, [material.uid], () => 0, false, { restore: bad }), /khôi phục/);
 });
 
 test('Nâng cấp thành công không rớt hoặc phục hồi và chỉ tăng đúng một cấp', () => {
@@ -281,18 +324,18 @@ test('Bản lưu hợp lệ; dữ liệu hỏng bị từ chối', () => {
   assert.equal(validateSave(null), false);
 });
 
-test('Chế độ thử mở gói/nâng cấp với 0 xu và không thay đổi số dư gốc', () => {
+test('Chế độ thử mở gói/nâng cấp với 0 BP và không thay đổi số dư gốc', () => {
   const before = { ...initialSave(), balance: 0 };
   const opened = openPacks(before, packs[0], 10, () => .99, true);
   assert.equal(opened.state.balance, 0);
   assert.equal(opened.cards.length, 10);
-  assert.match(opened.state.history[0].detail, /Không trừ xu/);
+  assert.match(opened.state.history[0].detail, /Không trừ BP/);
   assert.throws(() => openPacks(before, packs[0], -1, () => 0, true));
   for (const outcome of [0, .99999]) {
     const result = upgrade(before, before.cards[0].uid, [before.cards[1].uid], () => outcome, true);
     assert.equal(result.state.balance, 0);
     assert.equal(result.state.cards.length, before.cards.length - 1);
-    assert.match(result.state.history[0].detail, /Không trừ xu/);
+    assert.match(result.state.history[0].detail, /Không trừ BP/);
   }
 });
 
@@ -359,7 +402,7 @@ test('Mở lựa chọn trong kho gộp mọi loại gói và giới hạn tổn
   assert.throws(() => openSelectedPacks(before, []));
   assert.throws(() => openSelectedPacks(all.state, packs, () => 0, true));
   const insufficient = { ...stocked, balance: packs[0].price * 80 };
-  assert.throws(() => openSelectedPacks(insufficient, packs), /Không đủ xu/);
+  assert.throws(() => openSelectedPacks(insufficient, packs), /Không đủ BP/);
   assert.equal(insufficient.opened, 0);
   assert.deepEqual(openable.map(pack => insufficient.unopened[pack.id]), [80, 80, 80, 80, 80, 80, 80, 80]);
 });

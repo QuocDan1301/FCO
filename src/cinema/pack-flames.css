@@ -1,0 +1,31 @@
+/* Máy phun lửa hai bên hầm (cầu thủ ≥ 100M): lớp phủ trên cảnh 3D/2D, bật khi camera vào hầm, tắt khi ra sân khấu.
+   Bật/tắt chỉ bằng opacity của khung: lửa chạy sẵn khi còn ẩn, lúc bật không tạo/khởi động lại hoạt cảnh nào (tránh khựng một nhịp). */
+.pack-flames{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .4s ease-out}
+.pack-flames.is-on{opacity:1;transition-duration:.25s}
+.pack-flames.tone-red{--f1:url(/assets/pf-flame-red-1.webp);--f2:url(/assets/pf-flame-red-2.webp);--f3:url(/assets/pf-flame-red-3.webp);--glow:255 110 30;--core:#ffd34d;--edge:#ff3a10}
+.pack-flames.tone-purple{--f1:url(/assets/pf-flame-purple-1.webp);--f2:url(/assets/pf-flame-purple-2.webp);--f3:url(/assets/pf-flame-purple-3.webp);--glow:190 80 255;--core:#ffb8ff;--edge:#9a3cff}
+
+/* Mỗi máy ghim trên sàn hầm (cảnh tính vị trí/tỉ lệ mỗi khung hình qua placeFlames): trục +x của khung là hướng phun (chéo lên vào giữa hầm);
+   máy phải lật gương. Miệng phun ở mép trái giữa khung; cỡ theo vh vì phối cảnh tỉ lệ theo chiều cao màn hình. */
+.pf-jet{--w:56vh;--h:34vh;position:absolute;left:0;top:0;width:var(--w);height:var(--h);margin-top:calc(var(--h) / -2);transform-origin:0 50%;opacity:0;will-change:transform,opacity}
+/* Thân máy phun. */
+.pf-jet::before{content:'';position:absolute;left:-34px;top:50%;width:50px;height:24px;translate:0 -50%;background:linear-gradient(180deg,#3a3e46,#121316 60%,#24262b);clip-path:polygon(0 12%,100% 30%,100% 70%,0 88%)}
+.pf-glow{position:absolute;left:-12%;top:50%;width:80%;aspect-ratio:1.6;translate:0 -50%;border-radius:50%;background:radial-gradient(ellipse at 30% 50%,rgb(var(--glow) / .6),rgb(var(--glow) / .2) 45%,transparent 70%);will-change:opacity;animation:pf-flicker .12s ease-in-out infinite alternate}
+@keyframes pf-flicker{from{opacity:.72}to{opacity:1}}
+/* Lõi luồng lửa: vệt sáng gắt thuôn dài từ miệng phun (trắng → màu lõi → màu viền), nằm trên các cụm lửa, co giãn nhấp nháy. */
+.pf-core{position:absolute;left:-2%;top:50%;z-index:2;width:38%;height:24%;translate:0 -50%;transform-origin:0 50%;border-radius:50%;background:radial-gradient(ellipse 100% 50% at 0% 50%,#fff 0,#fffaf0 12%,var(--core) 30%,var(--edge) 55%,transparent 75%);opacity:.95;will-change:transform,opacity;animation:pf-core .09s ease-in-out infinite alternate}
+@keyframes pf-core{from{transform:scaleX(.88) scaleY(.9);opacity:.85}to{transform:scaleX(1.06) scaleY(1.08);opacity:1}}
+
+/* Cụm lửa: một phần tử duy nhất (ảnh lửa làm nền) vừa bay dọc trục phun (nhanh ở miệng, chậm dần), vừa nở to, xoay và tắt dần.
+   Không lồng hoạt cảnh cha/con (::before trong phần tử đang chạy) — kiểu đó trình duyệt phải vẽ lại mỗi khung hình. */
+.pf-jet i{--dist:calc(var(--w) * .52);position:absolute;left:0;top:50%;width:calc(var(--w) * var(--s) / 100);aspect-ratio:1;margin:calc(var(--w) * var(--s) / -200) 0 0 calc(var(--w) * var(--s) / -200);background:var(--f1) center/contain no-repeat;opacity:0;will-change:transform,opacity;animation:pf-puff .7s cubic-bezier(.15,.65,.35,1) infinite;animation-delay:var(--d)}
+.pf-jet i:nth-of-type(3n+2){background-image:var(--f2);animation-name:pf-puff-b}
+.pf-jet i:nth-of-type(3n){background-image:var(--f3)}
+@keyframes pf-puff{0%{opacity:0;transform:translate(0,0) scale(.14) rotate(0deg)}8%{opacity:1}45%{opacity:.9}80%{opacity:.35}100%{opacity:0;transform:translate(var(--dist),calc(var(--dist) * -.08)) scale(.85) rotate(45deg)}}
+@keyframes pf-puff-b{0%{opacity:0;transform:translate(0,0) scale(.14) rotate(0deg)}8%{opacity:1}45%{opacity:.9}80%{opacity:.35}100%{opacity:0;transform:translate(var(--dist),calc(var(--dist) * -.12)) scale(.95) rotate(-40deg)}}
+/* Khói bốc lên từ đầu ngọn lửa. */
+.pf-jet s{position:absolute;left:72%;top:40%;width:52%;aspect-ratio:1;translate:-50% -50%;background:url(/assets/uc-smoke-2.webp) center/contain no-repeat;opacity:0;text-decoration:none;will-change:transform,opacity;animation:pf-smoke 1.6s ease-out infinite;animation-delay:var(--d)}
+.pf-jet s:nth-of-type(2n){background-image:url(/assets/uc-smoke-3.webp)}
+@keyframes pf-smoke{0%{opacity:0;transform:translate(0,0) scale(.5)}25%{opacity:.2}100%{opacity:0;transform:translate(30%,-75%) scale(1.6)}}
+
+@media(prefers-reduced-motion:reduce){.pack-flames{display:none}}

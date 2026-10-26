@@ -1,0 +1,1410 @@
+{
+ "url": "http://127.0.0.1:5175/FCO/outputs/upgrade-music/preview.html",
+ "at": "2026-10-25T17:37:52.523Z",
+ "allow": [
+  "gradient",
+  "text-shadow",
+  "edge-text",
+  "panel-void"
+ ],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 1,
+   "filled": [
+    1
+   ],
+   "motion": {
+    "elements": 7,
+    "css": 6,
+    "transitions": 1,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 900,
+     "screens": 1,
+     "words": 51,
+     "img": 0,
+     "video": 0,
+     "canvas": 1,
+     "svg": 6,
+     "sections": 0,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 0,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Nâng cấp cầu thủ",
+     "words": 4,
+     "chars": 16,
+     "lines": 1,
+     "size": 24,
+     "vw": 1.7,
+     "font": "Barlow Condensed",
+     "weight": 600,
+     "tracking": 0,
+     "leading": 1.5,
+     "top": 54,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Nâng cấp cầu thủ",
+     "words": 4,
+     "lines": 1,
+     "size": 24.5,
+     "font": "Barlow Condensed"
+    },
+    "headings": [
+     {
+      "text": "Ronaldo +5",
+      "words": 2,
+      "chars": 10,
+      "lines": 1,
+      "size": 28,
+      "vw": 1.9,
+      "font": "Be Vietnam Pro",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.5,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 0,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "TM Ronaldo",
+      "words": 2,
+      "chars": 10,
+      "lines": 1,
+      "size": 28.8,
+      "vw": 2,
+      "font": "Barlow Condensed",
+      "weight": 600,
+      "tracking": 0,
+      "leading": 1.5,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.34,
+      "top": 240,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Ronaldo +5",
+      "words": 2,
+      "chars": 10,
+      "lines": 2,
+      "size": 28,
+      "vw": 1.9,
+      "font": "Be Vietnam Pro",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.5,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.34,
+      "top": 308,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 3,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 2,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.55,
+       "mono": false
+      },
+      {
+       "family": "Barlow Condensed",
+       "share": 0.45,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      12,
+      13,
+      16,
+      17,
+      18,
+      22,
+      25,
+      28,
+      29
+     ],
+     "sizeCount": 9,
+     "notLoaded": [],
+     "body": null,
+     "measureChars": null,
+     "max": {
+      "size": 28.8,
+      "vw": 2,
+      "font": "Barlow Condensed",
+      "text": "Ronaldo"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.13,
+     "smallText": 1
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#080b10",
+     "bodyBgHsl": {
+      "h": 218,
+      "s": 0.33,
+      "l": 0.05
+     },
+     "dark": true,
+     "sectionBgs": [
+      {
+       "color": "#15120f",
+       "top": 0,
+       "hsl": {
+        "h": 30,
+        "s": 0.17,
+        "l": 0.07
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#aeb6c2",
+       "share": 0.26
+      },
+      {
+       "color": "#f0f1f3",
+       "share": 0.14
+      },
+      {
+       "color": "#b8bcc5",
+       "share": 0.14
+      },
+      {
+       "color": "#8a929c",
+       "share": 0.14
+      },
+      {
+       "color": "#e4e6ea",
+       "share": 0.12
+      }
+     ],
+     "button": {
+      "bg": "#242529",
+      "hsl": {
+       "h": 228,
+       "s": 0.06,
+       "l": 0.15
+      },
+      "fg": "#e9eaed"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 3,
+     "inHero": 3,
+     "radius": "pill",
+     "height": 54,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Nhạc đập thẻ",
+      "Trở lại",
+      "Nâng cấp"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 2,
+     "shadowOverlay": 1,
+     "shadowSamples": [
+      "div.uc-led → rgba(205, 220, 245, 0.15) 0px 0px 10px 0px, rgba(0, 0, 0, 0.667) 0px 0px 18px 0p",
+      "i.uc-rail → rgba(0, 0, 0, 0.533) 0px 1px 2px 0px"
+     ],
+     "gradients": 12,
+     "scrims": 1,
+     "gradientSamples": [
+      "div.uc-stage → linear-gradient(rgb(15, 22, 38) 0%, rgb(23, 34, 56) 22%, rgb(29, 34, 50) 34%, rgb(42, 36, 32) 60%, rgb(27, 21,",
+      "div.uc-crowd → radial-gradient(31.25% 37.8% at 50% 55.9%, rgba(58, 74, 110, 0.333), rgba(0, 0, 0, 0) 70%), linear-gradient(rg",
+      "div.uc-floor → linear-gradient(rgb(42, 33, 28), rgb(18, 14, 12) 70%)",
+      "div.uc-fog.left → radial-gradient(rgba(167, 176, 189, 0.667), rgba(106, 114, 128, 0.333) 32%, rgba(0, 0, 0, 0) 68%)"
+     ],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 1,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 2,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "svg",
+      "ratio": 0.25
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": true,
+     "height": 900,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": []
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 900,
+    "margins": {
+     "left": 0,
+     "right": 1400
+    },
+    "sections": [],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Nâng cấp cầu thủ",
+      "size": 24,
+      "top": 54,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [],
+    "leftBlocks": 0,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0.12,
+    "voidBox": {
+     "x": 1080,
+     "y": 120,
+     "w": 360,
+     "h": 420
+    }
+   },
+   "app": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "dark": true,
+    "ground": "#080b10",
+    "sidebar": null,
+    "topbar": {
+     "h": 40
+    },
+    "canvas": {
+     "left": 0,
+     "right": 80
+    },
+    "hero": {
+     "text": "Nâng cấp cầu thủ",
+     "words": 4,
+     "chars": 16,
+     "lines": 1,
+     "size": 24,
+     "vw": 1.7,
+     "font": "Barlow Condensed",
+     "weight": 600,
+     "tracking": 0,
+     "leading": 1.5,
+     "top": 54,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 0,
+    "layout": {
+     "panels": 1,
+     "firstScreen": 1,
+     "ragged": [],
+     "voids": [
+      {
+       "gap": 124,
+       "at": 328,
+       "panel": "Ronaldo +5"
+      }
+     ]
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 1,
+     "radii": [
+      [
+       0,
+       1
+      ]
+     ],
+     "heavyBorders": 1,
+     "borderSamples": [
+      "#777777 on #292a2d (3.2:1)"
+     ],
+     "heavyShadows": 0,
+     "softShadows": 0,
+     "shadowSamples": [],
+     "glass": 0
+    },
+    "chips": {
+     "count": 0,
+     "hues": 0,
+     "samples": []
+    },
+    "numbers": {
+     "cells": 0,
+     "leftAligned": 0,
+     "figures": 0,
+     "tabularShare": null,
+     "kpiMax": null
+    },
+    "rows": null,
+    "chartHues": 1,
+    "placeholders": [],
+    "type": {
+     "under13": 0.14,
+     "tiny": 0,
+     "tinySamples": [],
+     "sizes": [
+      12,
+      13,
+      16,
+      17,
+      18,
+      22,
+      24,
+      28,
+      29
+     ]
+    },
+    "title": {
+     "text": "Nâng cấp cầu thủ",
+     "size": 24,
+     "top": 54
+    },
+    "colourShare": 0.017
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 1,
+   "filled": [
+    1
+   ],
+   "motion": {
+    "elements": 7,
+    "css": 6,
+    "transitions": 1,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 1024,
+     "screens": 1,
+     "words": 51,
+     "img": 0,
+     "video": 0,
+     "canvas": 1,
+     "svg": 6,
+     "sections": 0,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 0,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Nâng cấp cầu thủ",
+     "words": 4,
+     "chars": 16,
+     "lines": 1,
+     "size": 22,
+     "vw": 2.9,
+     "font": "Barlow Condensed",
+     "weight": 600,
+     "tracking": 0,
+     "leading": 1.5,
+     "top": 12,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Nâng cấp cầu thủ",
+     "words": 4,
+     "lines": 1,
+     "size": 22,
+     "font": "Barlow Condensed"
+    },
+    "headings": [
+     {
+      "text": "Ronaldo +5",
+      "words": 2,
+      "chars": 10,
+      "lines": 1,
+      "size": 28,
+      "vw": 3.6,
+      "font": "Be Vietnam Pro",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.5,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 0,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "Ronaldo +5",
+      "words": 2,
+      "chars": 10,
+      "lines": 2,
+      "size": 28,
+      "vw": 3.6,
+      "font": "Be Vietnam Pro",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.5,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.64,
+      "top": 688,
+      "tag": "div",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 2,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": 2,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.55,
+       "mono": false
+      },
+      {
+       "family": "Barlow Condensed",
+       "share": 0.45,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      12,
+      13,
+      14,
+      15,
+      18,
+      22,
+      24,
+      28
+     ],
+     "sizeCount": 8,
+     "notLoaded": [],
+     "body": null,
+     "measureChars": null,
+     "max": {
+      "size": 28,
+      "vw": 3.6,
+      "font": "Be Vietnam Pro",
+      "text": "Ronaldo +5"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.13,
+     "smallText": 1
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#080b10",
+     "bodyBgHsl": {
+      "h": 218,
+      "s": 0.33,
+      "l": 0.05
+     },
+     "dark": true,
+     "sectionBgs": [
+      {
+       "color": "#15120f",
+       "top": 0,
+       "hsl": {
+        "h": 30,
+        "s": 0.17,
+        "l": 0.07
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#aeb6c2",
+       "share": 0.26
+      },
+      {
+       "color": "#f0f1f3",
+       "share": 0.14
+      },
+      {
+       "color": "#b8bcc5",
+       "share": 0.14
+      },
+      {
+       "color": "#8a929c",
+       "share": 0.14
+      },
+      {
+       "color": "#e4e6ea",
+       "share": 0.12
+      }
+     ],
+     "button": {
+      "bg": "#242529",
+      "hsl": {
+       "h": 228,
+       "s": 0.06,
+       "l": 0.15
+      },
+      "fg": "#e9eaed"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 3,
+     "inHero": 3,
+     "radius": "pill",
+     "height": 54,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Nhạc đập thẻ",
+      "Trở lại",
+      "Nâng cấp"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 2,
+     "shadowOverlay": 1,
+     "shadowSamples": [
+      "div.uc-led → rgba(205, 220, 245, 0.15) 0px 0px 10px 0px, rgba(0, 0, 0, 0.667) 0px 0px 18px 0p",
+      "i.uc-rail → rgba(0, 0, 0, 0.533) 0px 1px 2px 0px"
+     ],
+     "gradients": 10,
+     "scrims": 1,
+     "gradientSamples": [
+      "div.uc-stage → linear-gradient(rgb(15, 22, 38) 0%, rgb(23, 34, 56) 22%, rgb(29, 34, 50) 34%, rgb(42, 36, 32) 60%, rgb(27, 21,",
+      "div.uc-crowd → radial-gradient(31.25% 37.8% at 50% 55.9%, rgba(58, 74, 110, 0.333), rgba(0, 0, 0, 0) 70%), linear-gradient(rg",
+      "div.uc-floor → linear-gradient(rgb(42, 33, 28), rgb(18, 14, 12) 70%)",
+      "div.uc-fog.left → radial-gradient(rgba(167, 176, 189, 0.667), rgba(106, 114, 128, 0.333) 32%, rgba(0, 0, 0, 0) 68%)"
+     ],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 1,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 2,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "svg",
+      "ratio": 0.16
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": true,
+     "height": 1024,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": []
+   },
+   "layout": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "pageH": 1024,
+    "margins": {
+     "left": 0,
+     "right": 728
+    },
+    "sections": [],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Nâng cấp cầu thủ",
+      "size": 22,
+      "top": 12,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [
+     {
+      "text": "Ronaldo",
+      "side": "left",
+      "px": 12
+     }
+    ],
+    "edges": [],
+    "leftBlocks": 0,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "dark": true,
+    "ground": "#080b10",
+    "sidebar": null,
+    "topbar": {
+     "h": 40
+    },
+    "canvas": {
+     "left": 0,
+     "right": 0
+    },
+    "hero": {
+     "text": "Nâng cấp cầu thủ",
+     "words": 4,
+     "chars": 16,
+     "lines": 1,
+     "size": 22,
+     "vw": 2.9,
+     "font": "Barlow Condensed",
+     "weight": 600,
+     "tracking": 0,
+     "leading": 1.5,
+     "top": 12,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 0,
+    "layout": {
+     "panels": 1,
+     "firstScreen": 1,
+     "ragged": [],
+     "voids": [
+      {
+       "gap": 124,
+       "at": 163,
+       "panel": "Ronaldo +5"
+      }
+     ]
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 1,
+     "radii": [
+      [
+       0,
+       1
+      ]
+     ],
+     "heavyBorders": 1,
+     "borderSamples": [
+      "#777777 on #292a2d (3.2:1)"
+     ],
+     "heavyShadows": 0,
+     "softShadows": 0,
+     "shadowSamples": [],
+     "glass": 0
+    },
+    "chips": {
+     "count": 0,
+     "hues": 0,
+     "samples": []
+    },
+    "numbers": {
+     "cells": 0,
+     "leftAligned": 0,
+     "figures": 0,
+     "tabularShare": null,
+     "kpiMax": null
+    },
+    "rows": null,
+    "chartHues": 1,
+    "placeholders": [],
+    "type": {
+     "under13": 0.14,
+     "tiny": 0,
+     "tinySamples": [],
+     "sizes": [
+      12,
+      13,
+      14,
+      15,
+      18,
+      22,
+      24,
+      28
+     ]
+    },
+    "title": {
+     "text": "Nâng cấp cầu thủ",
+     "size": 22,
+     "top": 12
+    },
+    "colourShare": 0.023
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 1,
+   "filled": [
+    1
+   ],
+   "motion": {
+    "elements": 7,
+    "css": 6,
+    "transitions": 1,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 844,
+     "screens": 1,
+     "words": 51,
+     "img": 0,
+     "video": 0,
+     "canvas": 1,
+     "svg": 6,
+     "sections": 0,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 0,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Nâng cấp cầu thủ",
+     "words": 4,
+     "chars": 16,
+     "lines": 1,
+     "size": 22,
+     "vw": 5.6,
+     "font": "Barlow Condensed",
+     "weight": 600,
+     "tracking": 0,
+     "leading": 1.5,
+     "top": 12,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Nâng cấp cầu thủ",
+     "words": 4,
+     "lines": 1,
+     "size": 22,
+     "font": "Barlow Condensed"
+    },
+    "headings": [
+     {
+      "text": "Ronaldo +5",
+      "words": 2,
+      "chars": 10,
+      "lines": 1,
+      "size": 28,
+      "vw": 7.2,
+      "font": "Be Vietnam Pro",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.5,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 1,
+      "top": 0,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "Nâng cấp cầu thủ",
+      "words": 4,
+      "chars": 16,
+      "lines": 1,
+      "size": 22,
+      "vw": 5.6,
+      "font": "Barlow Condensed",
+      "weight": 600,
+      "tracking": 0,
+      "leading": 1.5,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.4,
+      "top": 12,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "TM Ronaldo",
+      "words": 2,
+      "chars": 10,
+      "lines": 1,
+      "size": 24,
+      "vw": 6.2,
+      "font": "Barlow Condensed",
+      "weight": 600,
+      "tracking": 0,
+      "leading": 1.5,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.92,
+      "top": 541,
+      "tag": "h2",
+      "kind": "heading"
+     },
+     {
+      "text": "Ronaldo +5",
+      "words": 2,
+      "chars": 10,
+      "lines": 2,
+      "size": 28,
+      "vw": 7.2,
+      "font": "Be Vietnam Pro",
+      "weight": 400,
+      "tracking": 0,
+      "leading": 1.5,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.92,
+      "top": 595,
+      "tag": "div",
+      "kind": "heading"
+     },
+     {
+      "text": "Trở lại",
+      "words": 2,
+      "chars": 7,
+      "lines": 1,
+      "size": 22,
+      "vw": 5.6,
+      "font": "Barlow Condensed",
+      "weight": 600,
+      "tracking": 0,
+      "leading": 1.5,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "left",
+      "widthRatio": 0.44,
+      "top": 766,
+      "tag": "button",
+      "kind": "heading"
+     },
+     {
+      "text": "Nâng cấp",
+      "words": 2,
+      "chars": 8,
+      "lines": 1,
+      "size": 22,
+      "vw": 5.6,
+      "font": "Barlow Condensed",
+      "weight": 600,
+      "tracking": 0,
+      "leading": 1.5,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "center",
+      "position": "right",
+      "widthRatio": 0.44,
+      "top": 766,
+      "tag": "button",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 6,
+     "maxLines": 2,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 2,
+     "medianWords": 2,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Be Vietnam Pro",
+       "share": 0.55,
+       "mono": false
+      },
+      {
+       "family": "Barlow Condensed",
+       "share": 0.45,
+       "mono": false
+      }
+     ],
+     "familyCount": 2,
+     "sizes": [
+      12,
+      13,
+      14,
+      15,
+      18,
+      22,
+      24,
+      28
+     ],
+     "sizeCount": 8,
+     "notLoaded": [],
+     "body": null,
+     "measureChars": null,
+     "max": {
+      "size": 28,
+      "vw": 7.2,
+      "font": "Be Vietnam Pro",
+      "text": "Ronaldo +5"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.13,
+     "smallText": 1
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#080b10",
+     "bodyBgHsl": {
+      "h": 218,
+      "s": 0.33,
+      "l": 0.05
+     },
+     "dark": true,
+     "sectionBgs": [
+      {
+       "color": "#15120f",
+       "top": 0,
+       "hsl": {
+        "h": 30,
+        "s": 0.17,
+        "l": 0.07
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#aeb6c2",
+       "share": 0.26
+      },
+      {
+       "color": "#f0f1f3",
+       "share": 0.14
+      },
+      {
+       "color": "#b8bcc5",
+       "share": 0.14
+      },
+      {
+       "color": "#8a929c",
+       "share": 0.14
+      },
+      {
+       "color": "#e4e6ea",
+       "share": 0.12
+      }
+     ],
+     "button": {
+      "bg": "#242529",
+      "hsl": {
+       "h": 228,
+       "s": 0.06,
+       "l": 0.15
+      },
+      "fg": "#e9eaed"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 3,
+     "inHero": 3,
+     "radius": "pill",
+     "height": 54,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Nhạc đập thẻ",
+      "Trở lại",
+      "Nâng cấp"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 1,
+     "shadowOverlay": 1,
+     "shadowSamples": [
+      "div.uc-led → rgba(205, 220, 245, 0.15) 0px 0px 10px 0px, rgba(0, 0, 0, 0.667) 0px 0px 18px 0p"
+     ],
+     "gradients": 10,
+     "scrims": 1,
+     "gradientSamples": [
+      "div.uc-stage → linear-gradient(rgb(15, 22, 38) 0%, rgb(23, 34, 56) 22%, rgb(29, 34, 50) 34%, rgb(42, 36, 32) 60%, rgb(27, 21,",
+      "div.uc-crowd → radial-gradient(31.25% 37.8% at 50% 55.9%, rgba(58, 74, 110, 0.333), rgba(0, 0, 0, 0) 70%), linear-gradient(rg",
+      "div.uc-floor → linear-gradient(rgb(42, 33, 28), rgb(18, 14, 12) 70%)",
+      "div.uc-fog.left → radial-gradient(rgba(167, 176, 189, 0.667), rgba(106, 114, 128, 0.333) 32%, rgba(0, 0, 0, 0) 68%)"
+     ],
+     "gradientText": 0,
+     "hairlines": 0,
+     "hairlineSamples": [],
+     "outlinedBoxes": 1,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 0,
+     "boxRadius": 0,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 2,
+     "cardRows": []
+    },
+    "heroMedia": [
+     {
+      "type": "svg",
+      "ratio": 0.16
+     }
+    ],
+    "nav": {
+     "links": 0,
+     "fixed": true,
+     "height": 844,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": []
+   },
+   "layout": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "pageH": 844,
+    "margins": {
+     "left": 0,
+     "right": 350
+    },
+    "sections": [],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Nâng cấp cầu thủ",
+      "size": 22,
+      "top": 12,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [
+     {
+      "text": "Ronaldo",
+      "side": "left",
+      "px": 12
+     }
+    ],
+    "edges": [],
+    "leftBlocks": 0,
+    "bodySize": 16,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "dark": true,
+    "ground": "#080b10",
+    "sidebar": null,
+    "topbar": {
+     "h": 40
+    },
+    "canvas": {
+     "left": 0,
+     "right": 0
+    },
+    "hero": {
+     "text": "Nâng cấp cầu thủ",
+     "words": 4,
+     "chars": 16,
+     "lines": 1,
+     "size": 22,
+     "vw": 5.6,
+     "font": "Barlow Condensed",
+     "weight": 600,
+     "tracking": 0,
+     "leading": 1.5,
+     "top": 12,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 0,
+    "layout": {
+     "panels": 1,
+     "firstScreen": 1,
+     "ragged": [],
+     "voids": [
+      {
+       "gap": 124,
+       "at": 120,
+       "panel": "Ronaldo +5"
+      }
+     ]
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 1,
+     "radii": [
+      [
+       0,
+       1
+      ]
+     ],
+     "heavyBorders": 1,
+     "borderSamples": [
+      "#777777 on #292a2d (3.2:1)"
+     ],
+     "heavyShadows": 0,
+     "softShadows": 0,
+     "shadowSamples": [],
+     "glass": 0
+    },
+    "chips": {
+     "count": 0,
+     "hues": 0,
+     "samples": []
+    },
+    "numbers": {
+     "cells": 0,
+     "leftAligned": 0,
+     "figures": 0,
+     "tabularShare": null,
+     "kpiMax": null
+    },
+    "rows": null,
+    "chartHues": 1,
+    "placeholders": [],
+    "type": {
+     "under13": 0.14,
+     "tiny": 0,
+     "tinySamples": [],
+     "sizes": [
+      12,
+      13,
+      14,
+      15,
+      18,
+      22,
+      24,
+      28
+     ]
+    },
+    "title": {
+     "text": "Nâng cấp cầu thủ",
+     "size": 22,
+     "top": 12
+    },
+    "colourShare": 0.038
+   },
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "WARN",
+   "id": "dev-server",
+   "width": 1440,
+   "message": "This page is served by a development server (Vite, webpack or Next in dev mode).",
+   "fix": "Run the last gate on the production build too (vite build && vite preview, next build && next start, or the built index.html): minifiers and bundlers change the CSS a visitor receives.",
+   "alsoAt": [
+    768,
+    390
+   ]
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\outputs\\upgrade-music\\inspect\\desktop-fold.jpg",
+   "pages": [
+    "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\outputs\\upgrade-music\\inspect\\desktop-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\outputs\\upgrade-music\\inspect\\tablet-fold.jpg",
+   "pages": [
+    "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\outputs\\upgrade-music\\inspect\\tablet-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\outputs\\upgrade-music\\inspect\\mobile-fold.jpg",
+   "pages": [
+    "C:\\Users\\Admin\\OneDrive\\Tài liệu\\FCOvv\\outputs\\upgrade-music\\inspect\\mobile-page-01.jpg"
+   ],
+   "film": []
+  }
+ ]
+}
