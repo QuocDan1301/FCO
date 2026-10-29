@@ -1,0 +1,76 @@
+/* Tab Mua cầu thủ / Mua hàng loạt ở màn nâng cấp (UpgradeMarket.tsx). File nạp trước styles.css nên bộ chọn cần cụ thể hơn các luật .fco-upgrade. */
+.fco-upgrade .fco-tabs.um-tabs{justify-content:flex-start;gap:30px;overflow-x:auto;scrollbar-width:none}
+.fco-upgrade .fco-tabs.um-tabs::-webkit-scrollbar{display:none}
+.fco-upgrade .fco-tabs.um-tabs button{flex:none;white-space:nowrap;color:#9aa4b1;font-weight:500;border-bottom:3px solid transparent}
+.fco-upgrade .fco-tabs.um-tabs button:hover{color:#fff}
+.fco-upgrade .fco-tabs.um-tabs button.active{color:#fff;font-weight:600;border-bottom-color:#fff}
+
+.um-filters{flex-shrink:0;display:flex;align-items:center;gap:14px;padding:10px 16px;position:relative;z-index:4}
+.um-pair{display:flex;align-items:center;gap:6px}
+.um-pair>i{font-style:normal;color:#aeb6c2;font-size:18px}
+.um-drop{position:relative}
+.um-drop-btn{display:flex;align-items:center;justify-content:space-between;gap:10px;height:36px;min-width:88px;padding:0 10px 0 14px;background:#2a3038;color:#fff}
+.um-drop-btn:hover{background:#333a44}
+.um-drop-level img,.um-drop-level .um-drop-list img{height:18px;width:auto;display:block}
+.um-drop-ovr b{font-family:var(--display);font-size:19px;font-weight:600;color:#2be27a}
+.um-drop-list{position:absolute;left:0;right:0;top:calc(100% + 2px);z-index:20;max-height:260px;overflow-y:auto;background:#1d232b;border:1px solid #3a434e;box-shadow:0 10px 24px #0009;scrollbar-width:thin}
+.um-drop-list button{display:flex;align-items:center;justify-content:center;width:100%;height:32px}
+.um-drop-list button:hover{background:#2b3540}
+.um-drop-list button[aria-selected=true]{background:#18303a}
+
+.um-classes{position:relative;flex:1 1 150px;min-width:130px}
+.um-class-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:36px;padding:0 12px;background:#2a3038;color:#aeb6c2;font-size:14px}
+.um-class-btn span{flex:1;text-align:center}
+.um-class-btn:hover,.um-class-btn.on{color:#fff}
+.um-class-btn.on{background:#1f3a2c}
+.um-class-menu{position:absolute;right:0;top:calc(100% + 2px);z-index:20;width:min(420px,80vw);background:#1d232b;border:1px solid #3a434e;box-shadow:0 10px 24px #0009}
+.um-class-head{display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #2e3843}
+.um-class-head button{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;background:#2a3038;color:#aeb6c2;font-size:12px}
+.um-class-head button.on{background:#1fe36b;color:#06210f;font-weight:600}
+.um-class-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:4px;max-height:260px;overflow-y:auto;padding:8px;scrollbar-width:thin}
+.um-class-grid button{display:flex;align-items:center;gap:6px;min-width:0;padding:6px;border:1px solid #2e3843;border-radius:3px;color:#aeb6c2;font-size:11px;text-align:left}
+.um-class-grid button span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.um-class-grid button[aria-pressed=true]{background:#18303a;border-color:#2be27a;color:#fff}
+
+.um-list .fco-name em{font-style:normal}
+.um-list .um-price-head{text-align:right}
+.um-list .fco-line:disabled{opacity:.45}
+.um-empty{text-align:center;padding:14px 16px;color:#7f8a98}
+.um-research{gap:10px;color:#fff;font-weight:600}
+.um-count{margin-left:auto;font-size:12px;color:#7f8a98}
+
+.um-bulk{flex:1 1 0;min-height:0;overflow-y:auto;scrollbar-width:none;padding:0 22px;color:#dfe4ea}
+.um-bulk::-webkit-scrollbar{display:none}
+.um-bulk-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;font-size:14px}
+.um-bulk-group{border-top:1px solid #353d47;padding:10px 0}
+.um-floor{padding:20px 0}
+.um-floor strong{font-family:var(--display);font-size:28px;font-weight:600;color:#aeb6c2}
+.um-max-field{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.um-max-field input{width:min(320px,48vw);height:46px;padding:0 12px;background:#3a4049;border:0;outline:0;color:#fff;text-align:right;font-family:var(--display);font-size:28px;font-weight:600}
+.um-max-field input:focus{box-shadow:inset 0 0 0 2px #2be27a}
+.um-max-field small{font-size:12px;color:#aeb6c2}
+.um-stepper{display:flex;align-items:stretch;height:46px;background:#3a4049}
+.um-stepper input{width:90px;background:none;border:0;outline:0;text-align:right;min-width:70px;padding:0 12px;display:flex;align-items:center;justify-content:flex-end;font-family:var(--display);font-size:28px;font-weight:600;color:#fff}
+.um-stepper:focus-within{box-shadow:inset 0 0 0 2px #2be27a}
+.um-stepper>span{display:flex;flex-direction:column;border-left:1px solid #2a3038}
+.um-stepper button{flex:1;width:30px;display:flex;align-items:center;justify-content:center;background:#4a515b;color:#fff}
+.um-stepper button:disabled{color:#6b737d}
+.um-total{border-top:1px solid #353d47;padding:18px 0 8px}
+.um-total strong{font-family:var(--display);font-size:34px;font-weight:700;color:#ff4b3a}
+.um-note{margin:0 0 10px;text-align:right;font-size:12px;color:#7f8a98}
+
+/* Danh sách mua luôn hiện cột giá (danh sách phôi trong kho ẩn cột này khi màn hẹp). */
+@media(max-width:1050px){
+  .fco-upgrade .um-list .fco-head,.fco-upgrade .um-list .fco-line{grid-template-columns:36px 40px minmax(0,1fr) 38px 34px 76px 0}
+  .fco-upgrade .um-list .fco-head>span:nth-child(6),.fco-upgrade .um-list .fco-cost{visibility:visible;display:block;font-size:14px}
+  .um-filters{flex-wrap:wrap;gap:8px}
+  .um-drop-btn{min-width:72px}
+}
+@media(max-width:640px){
+  .fco-upgrade .fco-tabs.um-tabs{gap:18px}
+  .um-filters{padding:8px 12px}
+  .um-bulk{padding:0 14px}
+  .um-bulk-row{font-size:12px}
+  .um-max-field input,.um-stepper input,.um-floor strong{font-size:22px}
+  .um-total strong{font-size:26px}
+}

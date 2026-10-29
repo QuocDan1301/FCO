@@ -1,0 +1,21 @@
+/* Bảng Quà mỗi ngày (App.tsx, dailyOpen): thẻ FC (ảnh fc-card của sự kiện, chữ FC in sẵn) ghi số FC dưới đồng xu, nút Nhận. */
+.daily-modal .modal-panel { width: min(420px, 94vw); }
+.daily-modal .modal-heading p { margin-top: 4px; color: #aebdcc; font-size: 13px; }
+.daily-gift { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 18px 0 22px; }
+.daily-fc-card { position: relative; display: block; width: 140px; filter: drop-shadow(0 0 18px rgba(18, 216, 108, .45)); }
+.daily-fc-card img { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 6px; }
+.daily-fc-card b { position: absolute; left: 0; right: 0; bottom: 19%; text-align: center; font-size: 21px; font-weight: 900; color: #2b2f36; line-height: 1; }
+.daily-gift strong { font-size: 20px; color: #12d86c; }
+.daily-claim { width: 100%; justify-content: center; }
+
+/* Ô FC trên thanh trên cùng (cạnh số dư BP): đồng và số màu xanh lá (đè màu vàng của .wallet trong home.css). */
+.wallet.wallet-fc .coin-icon { color: #062b14; background: radial-gradient(circle at 35% 30%, #c9ffd9, #3ddc7a 38%, #1fa855 62%, #0d6b32); box-shadow: 0 0 0 1px #8cf5b299, 0 0 10px #3ddc7a59; }
+.wallet.wallet-fc b { color: #3ddc7a; text-shadow: 0 0 12px #3ddc7a59; }
+.wallet.wallet-fc b span { color: #3ddc7acc; }
+.topbar .wallet .coin-icon.currency-icon { display: block; flex-shrink: 0; object-fit: contain; border: 0; border-radius: 0; background: none; box-shadow: none; }
+/* Màn hẹp: hai ô BP và FC cạnh nhau nên bỏ dòng nhãn nhỏ và chữ đơn vị (đồng xu đã ghi BP / FC), số trên một dòng. */
+@media (max-width: 640px) {
+  .topbar .wallet small { display: none; }
+  .topbar .wallet b { white-space: nowrap; }
+  .topbar .wallet b span { display: none; }
+}

@@ -7,7 +7,8 @@ import { matchPublic, publicPatternList } from '../src/upgrade/publicPattern.ts'
 import { choosePatterns, eligibleKinds, hiddenMatches, historicalCandidates, quadCandidates, sum3Candidates } from '../src/upgrade/hiddenPattern.ts';
 import { appliedBonus, finalRate } from '../src/upgrade/probability.ts';
 import { emptyBridge, isBridgeState, previewUpgrade, recordOutcome, resolveUpgrade, type BridgeState, type LevelBridge, type UpgradeRole } from '../src/upgrade/engine.ts';
-import { initialSave, makeCard, MAX_LEVEL, upgrade, validateSave } from '../src/game.ts';
+import { makeCard, MAX_LEVEL, upgrade, validateSave } from '../src/game.ts';
+import { initialSave } from './stocked-save.ts';
 
 const fmt = (patterns: number[][]) => patterns.map(formatChain).sort();
 const always = (value: number): Rng => () => value;

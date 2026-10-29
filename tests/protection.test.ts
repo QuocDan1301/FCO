@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { initialSave, makeCard, players, upgrade, validateSave } from '../src/game.ts';
+import { makeCard, players, upgrade, validateSave } from '../src/game.ts';
+import { initialSave } from './stocked-save.ts';
 import { marketQuote } from '../src/market.ts';
 import { activeProtection, protectionApplies, protectionCost, setProtection, upgradeWithProtection } from '../src/insurance.ts';
 import { fodderTier } from '../src/restore.ts';

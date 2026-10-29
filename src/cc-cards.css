@@ -1,0 +1,10 @@
+/* Thẻ mùa CC (CENTURY CLUB): cùng khuôn thẻ hẹp với UT / CU / GRU / RTN / DC (174×278) nên được đặt giữa một khung 259×282 (cùng tỉ lệ
+   666/725 với thẻ khác); mọi ảnh căn theo hộp bao thẻ nên một bộ vị trí dùng chung cả mùa. OVR và tên in trên ảnh đã xoá (vá bằng
+   nền khung chung của mọi thẻ): OVR luôn vẽ bằng HTML (chữ vàng kem, căn giữa như thẻ gốc); ô cấp +1 giữ ô in sẵn, từ +2 huy hiệu
+   cấp phủ đúng ô đó. Vị trí tên từng thẻ ở card-names.css. */
+.rarity-dot.cc{background:#d6b25e}
+.player-card.face-art.season-cc{aspect-ratio:259/282}
+.player-card.face-art.season-cc>.face-art-img{filter:drop-shadow(0 0 4px #ead08e55) drop-shadow(0 0 14px #5a3fb044)}
+.season-cc[data-level="1"] .face-art-level{visibility:hidden}
+.season-cc .face-art-ovr{left:27.80%;top:17.09%;font-size:11.40cqw;color:#ffe596;letter-spacing:-.03em;text-shadow:0 .03em .1em #000b,0 0 .3em #0007}
+.season-cc .face-art-level{left:18.53%;top:60.64%;width:18.53%;height:10.28%;transform:none;object-fit:fill}

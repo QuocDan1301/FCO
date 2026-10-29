@@ -1,0 +1,9 @@
+/* Thẻ mùa UC (UNTOUCHABLE CHAMPIONS): mọi ảnh căn theo ô cấp in sẵn về một khung 297×323 (cùng tỉ lệ 666/725 với thẻ khác),
+   nên một bộ vị trí dùng chung cả mùa. OVR và tên in trên ảnh đã xoá: OVR luôn vẽ bằng HTML (chữ trắng như thẻ gốc);
+   ô cấp +1 giữ ô in sẵn, từ +2 huy hiệu cấp phủ đúng ô đó. Vị trí tên từng thẻ ở card-names.css. */
+.rarity-dot.uc{background:#a855f7}
+.player-card.face-art.season-uc{aspect-ratio:297/323}
+.player-card.face-art.season-uc>.face-art-img{filter:drop-shadow(0 0 4px #d8b4fe66) drop-shadow(0 0 14px #a855f744)}
+.season-uc[data-level="1"] .face-art-level{visibility:hidden}
+.season-uc .face-art-ovr{left:30.30%;top:23.90%;font-size:9.94cqw;color:#fff;letter-spacing:-.04em;text-shadow:0 .03em .1em #000c,0 0 .3em #0008}
+.season-uc .face-art-level{left:22.90%;top:61.92%;width:15.82%;height:9.29%;transform:none;object-fit:fill}

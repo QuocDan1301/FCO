@@ -1,0 +1,2669 @@
+{
+  "packs": [
+    {
+      "id": "eternal",
+      "name": "ICONTM (ALL)",
+      "short": "TM",
+      "title": "THE MOMENT",
+      "seasons": [
+        "eternal"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 1500000,
+      "description": "Nơi những huyền thoại trở lại.",
+      "range": "117–127",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "stellar",
+      "name": "26TOTS (ALL)",
+      "short": "26TS",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 500000,
+      "description": "Tỏa sáng cùng những ngôi sao.",
+      "range": "118–126",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "origin",
+      "name": "NO.7 (ALL)",
+      "short": "NO.7",
+      "title": "NUMBER 7",
+      "seasons": [
+        "origin"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 100000,
+      "description": "24 ngôi sao mang dấu ấn số 7.",
+      "range": "115–119",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "prime",
+      "name": "INFINITE PRIME (ALL)",
+      "short": "IP",
+      "title": "INFINITE PRIME",
+      "seasons": [
+        "prime"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 2000000,
+      "description": "Đỉnh cao không giới hạn.",
+      "range": "124–136",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "vietnam",
+      "name": "VIETNAM (ALL)",
+      "short": "VN",
+      "title": "VIET NAM",
+      "seasons": [
+        "vietnam"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 1000000,
+      "description": "Những ngôi sao mang màu cờ sắc áo Việt Nam.",
+      "range": "105–119",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "prm",
+      "name": "PRIME (ALL)",
+      "short": "PRM",
+      "title": "PRIME",
+      "seasons": [
+        "prm"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 1800000,
+      "description": "Những ngôi sao rực lửa của mùa PRIME.",
+      "range": "119–126",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "mdl",
+      "name": "MEDALIST (ALL)",
+      "short": "MDL",
+      "title": "MEDALIST",
+      "seasons": [
+        "mdl"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 800000,
+      "description": "Những nhà vô địch mang huy chương.",
+      "range": "100–115",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "amb",
+      "name": "FC AMBASSADOR (ALL)",
+      "short": "FCA",
+      "title": "FC AMBASSADOR",
+      "seasons": [
+        "amb"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 900000,
+      "description": "Những đại sứ của FC.",
+      "range": "106–112",
+      "back": "/assets/custom/amb-back.webp",
+      "published": true
+    },
+    {
+      "id": "uc",
+      "name": "UC (ALL)",
+      "short": "UC",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 2000000,
+      "description": "UNTOUCHABLE CHAMPIONS · những nhà vô địch không thể chạm tới.",
+      "range": "117–126",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "wg",
+      "name": "WG (ALL)",
+      "short": "WG",
+      "title": "WG",
+      "seasons": [
+        "wg"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 92800,
+      "description": "WARRIORS OF GLORY · những chiến binh vinh quang khoác áo đội tuyển.",
+      "range": "114–123",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "ut",
+      "name": "UT (ALL)",
+      "short": "UT",
+      "title": "UT",
+      "seasons": [
+        "ut"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 12700,
+      "description": "UNEXPECTED TRANSFER · những vụ chuyển nhượng bất ngờ.",
+      "range": "106–115",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "cu",
+      "name": "CU (ALL)",
+      "short": "CU",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 14900,
+      "description": "CHAMPIONS OF EUROPE · những nhà vô địch châu Âu.",
+      "range": "108–117",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "gru",
+      "name": "GRU (ALL)",
+      "short": "GRU",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 11200,
+      "description": "GREATEST RUNNER-UPS · những á quân vĩ đại.",
+      "range": "105–117",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "rtn",
+      "name": "RTN (ALL)",
+      "short": "RTN",
+      "title": "RTN",
+      "seasons": [
+        "rtn"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 1780,
+      "description": "RETURNEES · những ngôi sao trở lại.",
+      "range": "99–110",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "dc",
+      "name": "DC (ALL)",
+      "short": "DC",
+      "title": "DC",
+      "seasons": [
+        "dc"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 5180,
+      "description": "DECADE · những ngôi sao của một thập kỷ.",
+      "range": "100–114",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "cc",
+      "name": "CC (ALL)",
+      "short": "CC",
+      "title": "CC",
+      "seasons": [
+        "cc"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 15900,
+      "description": "CENTURY CLUB · câu lạc bộ những người trăm trận.",
+      "range": "100–113",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "bld",
+      "name": "BLD (ALL)",
+      "short": "BLD",
+      "title": "BEST LEGENDS",
+      "seasons": [
+        "bld"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 3070,
+      "description": "BEST LEGENDS · những huyền thoại xuất sắc nhất.",
+      "range": "102–118",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "wb",
+      "name": "WB (ALL)",
+      "short": "WB",
+      "title": "WONDERBOYS",
+      "seasons": [
+        "wb"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 29500,
+      "description": "WONDERBOYS · những tài năng kiệt xuất.",
+      "range": "105–119",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "spt",
+      "name": "SPT (ALL)",
+      "short": "SPT",
+      "title": "SPARTAN",
+      "seasons": [
+        "spt"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 110000,
+      "description": "SPARTAN · những chiến binh Sparta.",
+      "range": "115–125",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "bdo",
+      "name": "BDO (ALL)",
+      "short": "BDO",
+      "title": "BALLON D’OR",
+      "seasons": [
+        "bdo"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 14300,
+      "description": "BALLON D’OR · những huyền thoại Quả bóng vàng.",
+      "range": "102–118",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "hw23",
+      "name": "23HW (ALL)",
+      "short": "23HW",
+      "title": "23 HARD WORKER",
+      "seasons": [
+        "hw23"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 2000,
+      "description": "23 HARD WORKER · những ngôi sao bền bỉ trên sân cỏ.",
+      "range": "103–112",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "ep24",
+      "name": "24EP (ALL)",
+      "short": "24EP",
+      "title": "24 ENERGETIC PLAYER",
+      "seasons": [
+        "ep24"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 9130,
+      "description": "24 ENERGETIC PLAYER · những cầu thủ tràn năng lượng.",
+      "range": "107–116",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "ptg",
+      "name": "PTG (ALL)",
+      "short": "PTG",
+      "title": "PATH TO GLORY",
+      "seasons": [
+        "ptg"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 51500,
+      "description": "PATH TO GLORY · con đường đến vinh quang.",
+      "range": "114–123",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "le",
+      "name": "LE (ALL)",
+      "short": "LE",
+      "title": "LEGEND OF EUROPA",
+      "seasons": [
+        "le"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 51500,
+      "description": "LEGEND OF EUROPA · những huyền thoại châu Âu.",
+      "range": "111–119",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "hg",
+      "name": "HG (ALL)",
+      "short": "HG",
+      "title": "HOME GROWN",
+      "seasons": [
+        "hg"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 15000,
+      "description": "HOME GROWN · những ngôi sao trưởng thành từ lò đào tạo.",
+      "range": "103–111",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "spl",
+      "name": "SPL (ALL)",
+      "short": "SPL",
+      "title": "SPOTLIGHT",
+      "seasons": [
+        "spl"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 1500,
+      "description": "SPOTLIGHT · những ngôi sao dưới ánh đèn sân khấu.",
+      "range": "101–108",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "ln",
+      "name": "LN (ALL)",
+      "short": "LN",
+      "title": "LEGENDARY NUMBERS",
+      "seasons": [
+        "ln"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 3500,
+      "description": "LEGENDARY NUMBERS · những số áo huyền thoại.",
+      "range": "102–109",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "fa",
+      "name": "FA (ALL)",
+      "short": "FA",
+      "title": "FREE AGENT",
+      "seasons": [
+        "fa"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 2500,
+      "description": "FREE AGENT · những ngôi sao tự do.",
+      "range": "100–107",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "lol",
+      "name": "LOL (ALL)",
+      "short": "LOL",
+      "title": "LEGEND OF THE LOAN",
+      "seasons": [
+        "lol"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 4000,
+      "description": "LEGEND OF THE LOAN · những dấu ấn từ bản hợp đồng cho mượn.",
+      "range": "99–107",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "cap",
+      "name": "CAP (ALL)",
+      "short": "CAP",
+      "title": "CAPTAIN CLASS",
+      "seasons": [
+        "cap"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 5000,
+      "description": "CAPTAIN CLASS · dấu ấn của những người thủ lĩnh.",
+      "range": "102–105",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "boe21",
+      "name": "BOE21 (ALL)",
+      "short": "E21",
+      "title": "BEST OF EUROPE 21",
+      "seasons": [
+        "boe21"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 3000,
+      "description": "BEST OF EUROPE 21 · những ngôi sao châu Âu năm 2021.",
+      "range": "99–104",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "btb",
+      "name": "BTB (ALL)",
+      "short": "BTB",
+      "title": "BACK TO BACK",
+      "seasons": [
+        "btb"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 4000,
+      "description": "BACK TO BACK · những chiến thắng nối tiếp.",
+      "range": "104–106",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "ebs",
+      "name": "EBS (ALL)",
+      "short": "EBS",
+      "title": "EUROPEAN BEST STARS",
+      "seasons": [
+        "ebs"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 5000,
+      "description": "EUROPEAN BEST STARS · những ngôi sao hàng đầu châu Âu.",
+      "range": "100–105",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "juventus",
+      "name": "JVA (ALL)",
+      "short": "JUVENTUS",
+      "title": "AMBASSADOR JUVENTUS",
+      "seasons": [
+        "juventus"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 6000,
+      "description": "AMBASSADOR JUVENTUS · những dấu ấn của Bà đầm già.",
+      "range": "108–114",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "jnm",
+      "name": "JNM (ALL)",
+      "short": "JNM",
+      "title": "JOURNEYMAN",
+      "seasons": [
+        "jnm"
+      ],
+      "minOvr": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 6000,
+      "description": "JOURNEYMAN · những hành trình làm nên huyền thoại.",
+      "range": "107–114",
+      "back": null,
+      "published": true
+    },
+    {
+      "id": "top-price-8",
+      "name": "TOP PRICE 350 +8",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "gru",
+        "cu",
+        "ut"
+      ],
+      "minOvr": null,
+      "topPrice": 350,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 33700000,
+      "description": "Gói hỗn hợp GRU · CU · UT, 350 cầu thủ giá cao nhất, thẻ +8.",
+      "range": "122–132",
+      "back": "/assets/custom/top-price-8-back.webp",
+      "published": true
+    },
+    {
+      "id": "event-multi-118",
+      "name": "UC, SPT, 26TOTS 118+ (+2~+4)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "uc",
+        "spt",
+        "stellar"
+      ],
+      "minOvr": 118,
+      "topPrice": null,
+      "levels": [
+        2,
+        4
+      ],
+      "price": 1020000,
+      "description": "Gói hỗn hợp UC · SPT · 26TS, cầu thủ OVR từ 118, thẻ +2 đến +4. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "119–130",
+      "back": "/assets/custom/event-multi-118-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-multi-107",
+      "name": "BDO, BLD, GRU 107+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru"
+      ],
+      "minOvr": 107,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 15700000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU, cầu thủ OVR từ 107, thẻ +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "122–133",
+      "back": "/assets/custom/event-multi-107-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-top-250",
+      "name": "BDO, BLD, GRU, CU Top Price 250 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 250,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 49400000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU, 250 cầu thủ giá cao nhất, thẻ +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "119–133",
+      "back": "/assets/custom/event-top-250-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-2-118",
+      "name": "UC, SPT, 26TOTS, PTG, WG 118+ (+5)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "uc",
+        "spt",
+        "stellar",
+        "ptg",
+        "wg"
+      ],
+      "minOvr": 118,
+      "topPrice": null,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 3610000,
+      "description": "Gói hỗn hợp UC · SPT · 26TS · PTG · WG, cầu thủ OVR từ 118, thẻ +5. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "124–132",
+      "back": "/assets/custom/event-2-118-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-2-108",
+      "name": "BDO, BLD, GRU 108+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 22500000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU, cầu thủ OVR từ 108, thẻ +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "123–133",
+      "back": "/assets/custom/event-2-108-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-2-112",
+      "name": "BDO, BLD, GRU 112+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 55500000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU, cầu thủ OVR từ 112, thẻ +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–133",
+      "back": "/assets/custom/event-2-112-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-2-uc80",
+      "name": "UC chỉ định 80 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": null,
+      "topPrice": 80,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 11800000,
+      "description": "Gói chỉ định UC: tự chọn 1 trong 80 cầu thủ giá cao nhất, thẻ +5. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–132",
+      "back": "/assets/custom/event-2-uc80-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "event-3-top250",
+      "name": "GRU, CU, UT Top Price 250 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "gru",
+        "cu",
+        "ut"
+      ],
+      "minOvr": null,
+      "topPrice": 250,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 44400000,
+      "description": "Gói hỗn hợp GRU · CU · UT, 250 cầu thủ giá cao nhất, thẻ +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "123–132",
+      "back": "/assets/custom/event-3-top250-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-3-108",
+      "name": "CU, 24EP, UT, MDL, DC 108+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ep24",
+        "ut",
+        "mdl",
+        "dc"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 29000000,
+      "description": "Gói hỗn hợp CU · 24EP · UT · MEDALIST · DC, cầu thủ OVR từ 108, thẻ +9. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "125–134",
+      "back": "/assets/custom/event-3-108-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-3-113",
+      "name": "BDO, BLD, GRU, CU, UT 113+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu",
+        "ut"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 71200000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU · UT, cầu thủ OVR từ 113, thẻ +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–133",
+      "back": "/assets/custom/event-3-113-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-3-112",
+      "name": "GRU, CU 112+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 83000000,
+      "description": "Gói hỗn hợp GRU · CU, cầu thủ OVR từ 112, thẻ +9. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "129–134",
+      "back": "/assets/custom/event-3-112-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-4-all",
+      "name": "WB, BLD, BDO, GRU All (+6~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "wb",
+        "bld",
+        "bdo",
+        "gru"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        6,
+        8
+      ],
+      "price": 884000,
+      "description": "Gói hỗn hợp WB · BLD · BDO · GRU, thẻ +6 đến +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "110–134",
+      "back": "/assets/custom/event-4-all-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-4-109",
+      "name": "CU, 24EP, UT, MDL, DC 109+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ep24",
+        "ut",
+        "mdl",
+        "dc"
+      ],
+      "minOvr": 109,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 34200000,
+      "description": "Gói hỗn hợp CU · 24EP · UT · MEDALIST · DC, cầu thủ OVR từ 109, thẻ +9. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "126–134",
+      "back": "/assets/custom/event-4-109-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-4-top150",
+      "name": "BDO, BLD, GRU, CU Top Price 150 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 150,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 76300000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU, 150 cầu thủ giá cao nhất, thẻ +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "125–133",
+      "back": "/assets/custom/event-4-top150-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-4-112",
+      "name": "BLD, GRU, CU 112+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 82600000,
+      "description": "Gói hỗn hợp BLD · GRU · CU, cầu thủ OVR từ 112, thẻ +9. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "129–135",
+      "back": "/assets/custom/event-4-112-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-5-all",
+      "name": "LE, WB, BDO, BLD, GRU All (+6~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld",
+        "gru"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        6,
+        8
+      ],
+      "price": 1340000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD · GRU, thẻ +6 đến +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "110–134",
+      "back": "/assets/custom/event-5-all-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-5-109",
+      "name": "GRU, CU, UT, MDL 109+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu",
+        "ut",
+        "mdl"
+      ],
+      "minOvr": 109,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 42900000,
+      "description": "Gói hỗn hợp GRU · CU · UT · MEDALIST, cầu thủ OVR từ 109, thẻ +9. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "126–134",
+      "back": "/assets/custom/event-5-109-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-5-110",
+      "name": "BLD, GRU, CU 110+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 53800000,
+      "description": "Gói hỗn hợp BLD · GRU · CU, cầu thủ OVR từ 110, thẻ +9. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–135",
+      "back": "/assets/custom/event-5-110-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-5-bld30",
+      "name": "BLD chỉ định 30 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "BEST LEGENDS",
+      "seasons": [
+        "bld"
+      ],
+      "minOvr": null,
+      "topPrice": 30,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 18700000,
+      "description": "Gói chỉ định BLD: tự chọn 1 trong 30 cầu thủ giá cao nhất, thẻ +9. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "121–135",
+      "back": "/assets/custom/event-5-bld30-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "event-6-108",
+      "name": "LE, WB, BDO, BLD, GRU 108+ (+6~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld",
+        "gru"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        6,
+        8
+      ],
+      "price": 3790000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD · GRU, cầu thủ OVR từ 108, thẻ +6 đến +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "116–134",
+      "back": "/assets/custom/event-6-108-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-6-110",
+      "name": "GRU, CU, UT, MDL 110+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu",
+        "ut",
+        "mdl"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 54200000,
+      "description": "Gói hỗn hợp GRU · CU · UT · MEDALIST, cầu thủ OVR từ 110, thẻ +9. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–134",
+      "back": "/assets/custom/event-6-110-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-6-111",
+      "name": "BLD, GRU, CU, 24EP 111+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu",
+        "ep24"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 62100000,
+      "description": "Gói hỗn hợp BLD · GRU · CU · 24EP, cầu thủ OVR từ 111, thẻ +9. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–135",
+      "back": "/assets/custom/event-6-111-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-6-wb",
+      "name": "WB All (+8)",
+      "short": "WB",
+      "title": "WONDERBOYS",
+      "seasons": [
+        "wb"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 15200000,
+      "description": "Gói WB, thẻ +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "120–134",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-7-108",
+      "name": "LE, WB, BDO, BLD, GRU, CU 108+ (+7~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        7,
+        8
+      ],
+      "price": 11500000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD · GRU · CU, cầu thủ OVR từ 108, thẻ +7 đến +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "119–134",
+      "back": "/assets/custom/event-7-108-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-7-113",
+      "name": "BDO, BLD, GRU, CU 113+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 72900000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU, cầu thủ OVR từ 113, thẻ +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–133",
+      "back": "/assets/custom/event-7-113-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-7-109",
+      "name": "LE, WB, BDO, BLD, GRU, CU 109+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 109,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 42700000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD · GRU · CU, cầu thủ OVR từ 109, thẻ +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "124–134",
+      "back": "/assets/custom/event-7-109-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "event-7-le",
+      "name": "LE All (+8)",
+      "short": "LE",
+      "title": "LEGEND OF EUROPA",
+      "seasons": [
+        "le"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 113000000,
+      "description": "Gói LE, thẻ +8. Chỉ nhận từ sự kiện Nâng Cấp Siêu Sao.",
+      "range": "126–134",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-1-1",
+      "name": "UC All (+3~+5)",
+      "short": "UC",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        3,
+        5
+      ],
+      "price": 2540000,
+      "description": "Gói UC, thẻ +3 đến +5. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "119–132",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-25-1",
+      "name": "CU, UT, MDL 109+ (+8~+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ut",
+        "mdl"
+      ],
+      "minOvr": 109,
+      "topPrice": null,
+      "levels": [
+        8,
+        9
+      ],
+      "price": 35100000,
+      "description": "Gói hỗn hợp CU · UT · MEDALIST, cầu thủ OVR từ 109, thẻ +8 đến +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "124–134",
+      "back": "/assets/custom/ms-25-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-50-1",
+      "name": "26TOTS chỉ định 100 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": 100,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 7490000,
+      "description": "Gói chỉ định 26TS: tự chọn 1 trong 100 cầu thủ giá cao nhất, thẻ +5. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "125–132",
+      "back": "/assets/custom/ms-50-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ms-75-1",
+      "name": "CU, UT, MDL 109+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ut",
+        "mdl"
+      ],
+      "minOvr": 109,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 46400000,
+      "description": "Gói hỗn hợp CU · UT · MEDALIST, cầu thủ OVR từ 109, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "126–134",
+      "back": "/assets/custom/ms-75-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-100-1",
+      "name": "BLD, GRU, CU, 24EP 108+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu",
+        "ep24"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 30600000,
+      "description": "Gói hỗn hợp BLD · GRU · CU · 24EP, cầu thủ OVR từ 108, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "125–135",
+      "back": "/assets/custom/ms-100-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-100-2",
+      "name": "UC 119+ (+5)",
+      "short": "UC",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": 119,
+      "topPrice": null,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 7540000,
+      "description": "Gói UC, cầu thủ OVR từ 119, thẻ +5. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "125–132",
+      "back": "/assets/custom/ms-100-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-100-3",
+      "name": "HG, RTN 102+ (+11)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "hg",
+        "rtn"
+      ],
+      "minOvr": 102,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 4340000,
+      "description": "Gói hỗn hợp HG · RTN, cầu thủ OVR từ 102, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "123–132",
+      "back": "/assets/custom/ms-100-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-150-1",
+      "name": "SPL 102+ (+11)",
+      "short": "SPL",
+      "title": "SPOTLIGHT",
+      "seasons": [
+        "spl"
+      ],
+      "minOvr": 102,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 1510000,
+      "description": "Gói SPL, cầu thủ OVR từ 102, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "123–129",
+      "back": "/assets/custom/ms-150-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-150-2",
+      "name": "SPT All (+6)",
+      "short": "SPT",
+      "title": "SPARTAN",
+      "seasons": [
+        "spt"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 7670000,
+      "description": "Gói SPT, thẻ +6. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "123–133",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-150-3",
+      "name": "UT, MDL, DC 108+ (+10)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "ut",
+        "mdl",
+        "dc"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 35800000,
+      "description": "Gói hỗn hợp UT · MEDALIST · DC, cầu thủ OVR từ 108, thẻ +10. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–134",
+      "back": "/assets/custom/ms-150-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-200-1",
+      "name": "CU, UT, MDL 110+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ut",
+        "mdl"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 57900000,
+      "description": "Gói hỗn hợp CU · UT · MEDALIST, cầu thủ OVR từ 110, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–134",
+      "back": "/assets/custom/ms-200-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-200-2",
+      "name": "LN, SPL, FA, LOL 100+ (+11)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "ln",
+        "spl",
+        "fa",
+        "lol"
+      ],
+      "minOvr": 100,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 1910000,
+      "description": "Gói hỗn hợp LN · SPL · FA · LOL, cầu thủ OVR từ 100, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "121–130",
+      "back": "/assets/custom/ms-200-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-200-3",
+      "name": "LE, WB All (+6~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        6,
+        8
+      ],
+      "price": 3590000,
+      "description": "Gói hỗn hợp LE · WB, thẻ +6 đến +8. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "113–134",
+      "back": "/assets/custom/ms-200-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-250-1",
+      "name": "SPL chỉ định 50 (+11)",
+      "short": "CHỈ ĐỊNH",
+      "title": "SPOTLIGHT",
+      "seasons": [
+        "spl"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 1900000,
+      "description": "Gói chỉ định SPL: tự chọn 1 trong 50 cầu thủ giá cao nhất, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "122–129",
+      "back": "/assets/custom/ms-250-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ms-250-2",
+      "name": "24EP chỉ định 60 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "24 ENERGETIC PLAYER",
+      "seasons": [
+        "ep24"
+      ],
+      "minOvr": null,
+      "topPrice": 60,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 40500000,
+      "description": "Gói chỉ định 24EP: tự chọn 1 trong 60 cầu thủ giá cao nhất, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "124–133",
+      "back": "/assets/custom/ms-250-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ms-250-3",
+      "name": "CU, 24EP, MDL, DC 111+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ep24",
+        "mdl",
+        "dc"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 64900000,
+      "description": "Gói hỗn hợp CU · 24EP · MEDALIST · DC, cầu thủ OVR từ 111, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–134",
+      "back": "/assets/custom/ms-250-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-300-1",
+      "name": "BLD, GRU, CU, 24EP 110+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu",
+        "ep24"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 46500000,
+      "description": "Gói hỗn hợp BLD · GRU · CU · 24EP, cầu thủ OVR từ 110, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–135",
+      "back": "/assets/custom/ms-300-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-300-2",
+      "name": "26TOTS chỉ định 60 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": 60,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 14200000,
+      "description": "Gói chỉ định 26TS: tự chọn 1 trong 60 cầu thủ giá cao nhất, thẻ +5. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–132",
+      "back": "/assets/custom/ms-300-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ms-300-3",
+      "name": "UT, MDL, DC, JNM Top Price 225 (+10)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "ut",
+        "mdl",
+        "dc",
+        "jnm"
+      ],
+      "minOvr": null,
+      "topPrice": 225,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 44700000,
+      "description": "Gói hỗn hợp UT · MEDALIST · DC · JNM, 225 cầu thủ giá cao nhất, thẻ +10. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "123–134",
+      "back": "/assets/custom/ms-300-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-350-1",
+      "name": "HG 103+ (+11)",
+      "short": "HG",
+      "title": "HOME GROWN",
+      "seasons": [
+        "hg"
+      ],
+      "minOvr": 103,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 8110000,
+      "description": "Gói HG, cầu thủ OVR từ 103, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "124–132",
+      "back": "/assets/custom/ms-350-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-350-2",
+      "name": "GRU, CU, 24EP, UT 111+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu",
+        "ep24",
+        "ut"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 60400000,
+      "description": "Gói hỗn hợp GRU · CU · 24EP · UT, cầu thủ OVR từ 111, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–134",
+      "back": "/assets/custom/ms-350-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-350-3",
+      "name": "SPT chỉ định 20 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "SPARTAN",
+      "seasons": [
+        "spt"
+      ],
+      "minOvr": null,
+      "topPrice": 20,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 12100000,
+      "description": "Gói chỉ định SPT: tự chọn 1 trong 20 cầu thủ giá cao nhất, thẻ +5. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "129–131",
+      "back": "/assets/custom/ms-350-3-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ms-400-1",
+      "name": "CAP 102+ (+11~+12)",
+      "short": "CAP",
+      "title": "CAPTAIN CLASS",
+      "seasons": [
+        "cap"
+      ],
+      "minOvr": 102,
+      "topPrice": null,
+      "levels": [
+        11,
+        12
+      ],
+      "price": 1790000,
+      "description": "Gói CAP, cầu thủ OVR từ 102, thẻ +11 đến +12. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "123–129",
+      "back": "/assets/custom/ms-400-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-400-2",
+      "name": "BLD, BDO, GRU, CU 113+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "bdo",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 72900000,
+      "description": "Gói hỗn hợp BLD · BDO · GRU · CU, cầu thủ OVR từ 113, thẻ +8. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–133",
+      "back": "/assets/custom/ms-400-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-400-3",
+      "name": "DC, JNM, CC 111+ (+10)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "dc",
+        "jnm",
+        "cc"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 49100000,
+      "description": "Gói hỗn hợp DC · JNM · CC, cầu thủ OVR từ 111, thẻ +10. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "130–133",
+      "back": "/assets/custom/ms-400-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-450-1",
+      "name": "FA 103+ (+11)",
+      "short": "FA",
+      "title": "FREE AGENT",
+      "seasons": [
+        "fa"
+      ],
+      "minOvr": 103,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 2170000,
+      "description": "Gói FA, cầu thủ OVR từ 103, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "124–128",
+      "back": "/assets/custom/ms-450-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-450-2",
+      "name": "WB 107+ (+7~+8)",
+      "short": "WB",
+      "title": "WONDERBOYS",
+      "seasons": [
+        "wb"
+      ],
+      "minOvr": 107,
+      "topPrice": null,
+      "levels": [
+        7,
+        8
+      ],
+      "price": 7910000,
+      "description": "Gói WB, cầu thủ OVR từ 107, thẻ +7 đến +8. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "118–134",
+      "back": "/assets/custom/ms-450-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-450-3",
+      "name": "GRU chỉ định 100 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": null,
+      "topPrice": 100,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 49700000,
+      "description": "Gói chỉ định GRU: tự chọn 1 trong 100 cầu thủ giá cao nhất, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "126–134",
+      "back": "/assets/custom/ms-450-3-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ms-500-1",
+      "name": "23HW, CC All (+11)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "hw23",
+        "cc"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 9110000,
+      "description": "Gói hỗn hợp 23HW · CC, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "121–134",
+      "back": "/assets/custom/ms-500-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-500-3",
+      "name": "UC, SPT, PTG 122+ (+5)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "uc",
+        "spt",
+        "ptg"
+      ],
+      "minOvr": 122,
+      "topPrice": null,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 12500000,
+      "description": "Gói hỗn hợp UC · SPT · PTG, cầu thủ OVR từ 122, thẻ +5. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–132",
+      "back": "/assets/custom/ms-500-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-600-1",
+      "name": "26TOTS All (+6)",
+      "short": "26TS",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 19800000,
+      "description": "Gói 26TS, thẻ +6. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "126–134",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-600-2",
+      "name": "HW 106+ (+11)",
+      "short": "23HW",
+      "title": "23 HARD WORKER",
+      "seasons": [
+        "hw23"
+      ],
+      "minOvr": 106,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 10000000,
+      "description": "Gói 23HW, cầu thủ OVR từ 106, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–133",
+      "back": "/assets/custom/ms-600-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-600-3",
+      "name": "BDO, BLD, GRU, CU, UT Top Price 90 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu",
+        "ut"
+      ],
+      "minOvr": null,
+      "topPrice": 90,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 104000000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU · UT, 90 cầu thủ giá cao nhất, thẻ +8. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "124–133",
+      "back": "/assets/custom/ms-600-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-700-1",
+      "name": "UC chỉ định 60 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": null,
+      "topPrice": 60,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 18000000,
+      "description": "Gói chỉ định UC: tự chọn 1 trong 60 cầu thủ giá cao nhất, thẻ +5. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–132",
+      "back": "/assets/custom/ms-700-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ms-700-2",
+      "name": "RTN chỉ định 50 (+11)",
+      "short": "CHỈ ĐỊNH",
+      "title": "RTN",
+      "seasons": [
+        "rtn"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 4510000,
+      "description": "Gói chỉ định RTN: tự chọn 1 trong 50 cầu thủ giá cao nhất, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "120–131",
+      "back": "/assets/custom/ms-700-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ms-700-3",
+      "name": "GRU 112+ (+9)",
+      "short": "GRU",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 75200000,
+      "description": "Gói GRU, cầu thủ OVR từ 112, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "129–134",
+      "back": "/assets/custom/ms-700-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-750-1",
+      "name": "CC 101+ (+11)",
+      "short": "CC",
+      "title": "CC",
+      "seasons": [
+        "cc"
+      ],
+      "minOvr": 101,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 15300000,
+      "description": "Gói CC, cầu thủ OVR từ 101, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "122–134",
+      "back": "/assets/custom/ms-750-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-750-2",
+      "name": "CU, UT, MDL Top Price 150 (+9)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "cu",
+        "ut",
+        "mdl"
+      ],
+      "minOvr": null,
+      "topPrice": 150,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 88700000,
+      "description": "Gói hỗn hợp CU · UT · MEDALIST, 150 cầu thủ giá cao nhất, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "125–134",
+      "back": "/assets/custom/ms-750-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-750-3",
+      "name": "LE, WB, VIETNAM 108+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "vietnam"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 59900000,
+      "description": "Gói hỗn hợp LE · WB · VIETNAM, cầu thủ OVR từ 108, thẻ +8. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "123–134",
+      "back": "/assets/custom/ms-750-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-800-2",
+      "name": "GRU, CU, 24EP, UT Top Price 225 (+9)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "gru",
+        "cu",
+        "ep24",
+        "ut"
+      ],
+      "minOvr": null,
+      "topPrice": 225,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 70600000,
+      "description": "Gói hỗn hợp GRU · CU · 24EP · UT, 225 cầu thủ giá cao nhất, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "125–134",
+      "back": "/assets/custom/ms-800-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-800-3",
+      "name": "LOL 103+ (+11)",
+      "short": "LOL",
+      "title": "LEGEND OF THE LOAN",
+      "seasons": [
+        "lol"
+      ],
+      "minOvr": 103,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 4260000,
+      "description": "Gói LOL, cầu thủ OVR từ 103, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "124–128",
+      "back": "/assets/custom/ms-800-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-850-1",
+      "name": "BTB, CAP, EBS, BOE21 100+ (+11~+12)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "btb",
+        "cap",
+        "ebs",
+        "boe21"
+      ],
+      "minOvr": 100,
+      "topPrice": null,
+      "levels": [
+        11,
+        12
+      ],
+      "price": 3050000,
+      "description": "Gói hỗn hợp BTB · CAP · EBS · BOE21, cầu thủ OVR từ 100, thẻ +11 đến +12. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "121–130",
+      "back": "/assets/custom/ms-850-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-850-2",
+      "name": "UC chỉ định 50 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 24200000,
+      "description": "Gói chỉ định UC: tự chọn 1 trong 50 cầu thủ giá cao nhất, thẻ +5. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–132",
+      "back": "/assets/custom/ms-850-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ms-850-3",
+      "name": "WB 108+ (+8)",
+      "short": "WB",
+      "title": "WONDERBOYS",
+      "seasons": [
+        "wb"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 33700000,
+      "description": "Gói WB, cầu thủ OVR từ 108, thẻ +8. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "123–134",
+      "back": "/assets/custom/ms-850-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-900-1",
+      "name": "UT, MDL, DC, JNM 111+ (+10)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "ut",
+        "mdl",
+        "dc",
+        "jnm"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 88300000,
+      "description": "Gói hỗn hợp UT · MEDALIST · DC · JNM, cầu thủ OVR từ 111, thẻ +10. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "130–134",
+      "back": "/assets/custom/ms-900-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-900-2",
+      "name": "RTN 105+ (+11)",
+      "short": "RTN",
+      "title": "RTN",
+      "seasons": [
+        "rtn"
+      ],
+      "minOvr": 105,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 5610000,
+      "description": "Gói RTN, cầu thủ OVR từ 105, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "126–131",
+      "back": "/assets/custom/ms-900-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-900-3",
+      "name": "BLD, GRU, CU 111+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 65800000,
+      "description": "Gói hỗn hợp BLD · GRU · CU, cầu thủ OVR từ 111, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–135",
+      "back": "/assets/custom/ms-900-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-950-1",
+      "name": "CU, 24EP, UT 113+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ep24",
+        "ut"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 103000000,
+      "description": "Gói hỗn hợp CU · 24EP · UT, cầu thủ OVR từ 113, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "130–134",
+      "back": "/assets/custom/ms-950-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-950-2",
+      "name": "BOE21 101+ (+12)",
+      "short": "BOE21",
+      "title": "BEST OF EUROPE 21",
+      "seasons": [
+        "boe21"
+      ],
+      "minOvr": 101,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 1710000,
+      "description": "Gói BOE21, cầu thủ OVR từ 101, thẻ +12. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "125–128",
+      "back": "/assets/custom/ms-950-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-950-3",
+      "name": "SPT 119+ (+6)",
+      "short": "SPT",
+      "title": "SPARTAN",
+      "seasons": [
+        "spt"
+      ],
+      "minOvr": 119,
+      "topPrice": null,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 16700000,
+      "description": "Gói SPT, cầu thủ OVR từ 119, thẻ +6. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–133",
+      "back": "/assets/custom/ms-950-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-1000-1",
+      "name": "26TOTS 120+ (+6)",
+      "short": "26TS",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": 120,
+      "topPrice": null,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 23800000,
+      "description": "Gói 26TS, cầu thủ OVR từ 120, thẻ +6. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–134",
+      "back": "/assets/custom/ms-1000-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-1000-2",
+      "name": "GRU 113+ (+9)",
+      "short": "GRU",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 100000000,
+      "description": "Gói GRU, cầu thủ OVR từ 113, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "130–134",
+      "back": "/assets/custom/ms-1000-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-1000-3",
+      "name": "JVA All (+10)",
+      "short": "JUVENTUS",
+      "title": "AMBASSADOR JUVENTUS",
+      "seasons": [
+        "juventus"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 27700000,
+      "description": "Gói JUVENTUS, thẻ +10. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–133",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-1100-1",
+      "name": "BDO, BLD, GRU, CU Top Price 50 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 120000000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU, 50 cầu thủ giá cao nhất, thẻ +8. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "128–133",
+      "back": "/assets/custom/ms-1100-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-1100-2",
+      "name": "MDL, DC, CC Top Price 50 (+10)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "mdl",
+        "dc",
+        "cc"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 57400000,
+      "description": "Gói hỗn hợp MEDALIST · DC · CC, 50 cầu thủ giá cao nhất, thẻ +10. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "122–134",
+      "back": "/assets/custom/ms-1100-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-1100-3",
+      "name": "UC chỉ định 40 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": null,
+      "topPrice": 40,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 31700000,
+      "description": "Gói chỉ định UC: tự chọn 1 trong 40 cầu thủ giá cao nhất, thẻ +5. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "129–132",
+      "back": "/assets/custom/ms-1100-3-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ms-1200-1",
+      "name": "FCA All (+11)",
+      "short": "FCA",
+      "title": "FC AMBASSADOR",
+      "seasons": [
+        "amb"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 343000000,
+      "description": "Gói FC AMBASSADOR, thẻ +11. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "127–133",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-1200-2",
+      "name": "CU, 24EP, UT, MDL, DC, JNM Top Price 125 (+9)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "cu",
+        "ep24",
+        "ut",
+        "mdl",
+        "dc",
+        "jnm"
+      ],
+      "minOvr": null,
+      "topPrice": 125,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 85300000,
+      "description": "Gói hỗn hợp CU · 24EP · UT · MEDALIST · DC · JNM, 125 cầu thủ giá cao nhất, thẻ +9. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "125–134",
+      "back": "/assets/custom/ms-1200-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ms-1200-3",
+      "name": "LE, WB 109+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb"
+      ],
+      "minOvr": 109,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 72700000,
+      "description": "Gói hỗn hợp LE · WB, cầu thủ OVR từ 109, thẻ +8. Quà tích lũy sự kiện Nâng Cấp Siêu Sao.",
+      "range": "124–134",
+      "back": "/assets/custom/ms-1200-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "multi-class-7-8",
+      "name": "MULTI CLASS (+7~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "eternal",
+        "bdo",
+        "ep24"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        7,
+        8
+      ],
+      "price": 9210000,
+      "description": "Gói hỗn hợp TM · BDO · 24EP, thẻ +7 đến +8.",
+      "range": "113–142",
+      "back": "/assets/custom/multi-class-7-8-back.webp",
+      "published": true
+    }
+  ]
+}

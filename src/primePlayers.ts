@@ -5,7 +5,7 @@ import type { Player } from './game';
 export const primePlayers: Player[] = [
   { id: 323, name: "Đỗ Hùng Dũng", ovr: 124, pos: 'CM', nation: 'Việt Nam', flag: 'VN', club: 'Việt Nam', tier: 'prime', wage: 29, cardFace: asset('/assets/prime-hung-dung-card.webp') },
   { id: 324, name: "Nguyễn Quang Hải", ovr: 124, pos: 'CAM', nation: 'Việt Nam', flag: 'VN', club: 'Việt Nam', tier: 'prime', wage: 30, cardFace: asset('/assets/prime-quang-hai-card.webp') },
-  { id: 325, name: "P. Čech", ovr: 130, pos: 'GK', nation: 'CH Séc', flag: 'CZ', club: 'CH Séc', tier: 'prime', wage: 30, cardFace: asset('/assets/prime-cech-card.webp') },
+  { id: 325, name: "P. Čech", ovr: 130, pos: 'GK', nation: 'Séc', flag: 'CZ', club: 'Séc', tier: 'prime', wage: 30, cardFace: asset('/assets/prime-cech-card.webp') },
   { id: 326, name: "E. van der Sar", ovr: 133, pos: 'GK', nation: 'Hà Lan', flag: 'NL', club: 'Hà Lan', tier: 'prime', wage: 32, cardFace: asset('/assets/prime-van-der-sar-card.webp') },
   { id: 327, name: "G. Buffon", ovr: 136, pos: 'GK', nation: 'Ý', flag: 'IT', club: 'Ý', tier: 'prime', wage: 33, cardFace: asset('/assets/prime-buffon-card.webp') },
   { id: 328, name: "G. Zambrotta", ovr: 132, pos: 'RB', nation: 'Ý', flag: 'IT', club: 'Ý', tier: 'prime', wage: 34, cardFace: asset('/assets/prime-zambrotta-card.webp') },

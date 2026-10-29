@@ -1,0 +1,82 @@
+/* ===== Màn kết quả mở gói — bố cục màn rộng (≥ 901px), theo bố cục FC Online =====
+   Thẻ chính lớn ở giữa (đỉnh ~13% chiều cao, cao ~56%), hai cánh màn LED hạ thấp phía sau (mép ngoài cao hơn mép trong, chừa giữa cho thẻ),
+   bục tối màu mùa ~75–82%, danh sách thẻ phụ cuộn ngang trải hết bề ngang đáy màn (trên hàng nút), tổng giá trị dưới tên gói.
+   Mọi vị trí tính theo khung màn hình (dvh / %), không theo một độ phân giải cố định. Bộ chọn có độ ưu tiên cao để thắng các luật cũ
+   của màn kết quả trong cinema.css / reveal-stadium.css / fixed-screen.css (nạp sau). Màn hẹp (≤ 900px) giữ bố cục cũ. */
+.reveal-fog{display:none}
+@media (min-width: 901px) {
+  .icon-opening .opening-result.reveal-stage{
+    --bar-b:clamp(12px,2.4dvh,28px);--bar-h:clamp(36px,4.2dvh,44px);
+    --strip-b:calc(var(--bar-b) + var(--bar-h) + clamp(8px,1.4dvh,16px));--strip-h:clamp(120px,21dvh,240px);
+    --side-btn:clamp(150px,10.5vw,210px);--toggle-w:clamp(180px,12.5vw,240px);
+    position:absolute;inset:0;display:block;height:auto;min-height:0;padding:0;overflow:hidden}
+
+  /* Đầu màn: tên gói góc trên trái (cùng hàng nút đóng), tổng giá trị ngay dưới tên gói; số gói sở hữu góc trên phải ngay dưới nút đóng. */
+  .icon-opening .opening-result.reveal-stage .reveal-title{top:0;left:4%;right:34%;height:85px;margin:0;display:flex;align-items:center;font-size:clamp(18px,1.6vw,30px);text-shadow:0 0 3px #000,0 2px 12px #000d}
+  .icon-opening .opening-result.reveal-stage .reveal-count{top:88px;right:4%}
+  /* Nút âm thanh / hiệu ứng thu thành biểu tượng nhỏ, mờ để không tranh với nội dung chính. */
+  .icon-opening.opening-finished .opening-controls .opening-icon-button,.icon-opening.opening-finished .opening-controls .opening-quality{width:30px;min-width:0;height:30px;min-height:30px;padding:0;background:#0a131f59;border-color:#ffffff1f;color:#93a4b5}
+  .icon-opening.opening-finished .opening-controls .opening-quality>span{display:none}
+  .icon-opening.opening-finished .opening-controls .opening-quality.selected{color:#ead09a}
+
+  /* Khung sân khấu phủ cả màn; quầng sáng màu mùa sau thẻ (trước hai cánh màn, sau thẻ và bục). */
+  .icon-opening .opening-result.reveal-stage .reveal-scene{position:absolute;inset:0;width:auto;height:auto;margin:0;perspective:none}
+  .icon-opening .opening-result.reveal-stage .reveal-scene::before{content:'';position:absolute;left:50%;top:6%;z-index:2;width:min(64vw,128dvh);height:74%;translate:-50% 0;pointer-events:none;
+    background:radial-gradient(closest-side,color-mix(in srgb,var(--stage-accent,#4f8dff) 34%,transparent),color-mix(in srgb,var(--stage-accent,#4f8dff) 10%,transparent) 55%,transparent 78%)}
+
+  /* Thẻ chính: cao ~56% màn, đỉnh ~13%, giữ đúng tỉ lệ mặt thẻ 666 × 725, căn giữa theo chiều ngang, nằm trước hai cánh màn. */
+  .icon-opening .opening-result.reveal-stage .reveal-card{--rh:clamp(300px,56dvh,780px);top:13dvh;left:50%;width:calc(var(--rh) * 666 / 725);margin-left:calc(var(--rh) * -333 / 725);z-index:3}
+  .icon-opening .opening-result.reveal-stage .reveal-card>.player-card{width:100%;max-height:none}
+  /* Tên cầu thủ đã in trên thẻ, đội bóng có logo ở hai cánh: bỏ dòng tên dưới bục. */
+  .icon-opening .opening-result.reveal-stage .reveal-name{display:none}
+
+  /* Hai cánh màn LED hạ thấp (33% → 79% chiều cao), chừa vùng giữa sau thẻ; nội dung chỉ nằm ở phần ngoài mỗi cánh để thẻ không che. */
+  .icon-opening .opening-result.reveal-stage .reveal-screen{left:12.5%;right:12.5%;top:33%;height:46%}
+  .icon-opening .opening-result.reveal-stage .reveal-screen .reveal-panel{top:9%;bottom:25%;height:auto;width:30%}
+  .icon-opening .opening-result.reveal-stage .reveal-screen .reveal-panel-left{left:3%;grid-template-rows:auto 34cqh}
+  .icon-opening .opening-result.reveal-stage .reveal-screen .reveal-panel-right{right:3%;grid-template-rows:auto 34cqh}
+  .icon-opening .opening-result.reveal-stage .reveal-screen .reveal-crest{width:22cqh}
+  .icon-opening .opening-result.reveal-stage .reveal-screen .reveal-ovr,.icon-opening .opening-result.reveal-stage .reveal-screen .reveal-info-ovr{font-size:24cqh}
+  .icon-opening .opening-result.reveal-stage .reveal-screen .reveal-stats{height:34cqh}
+  .icon-opening .opening-result.reveal-stage .reveal-screen .reveal-stats dt{font-size:max(10px,4.2cqh)}
+  .icon-opening .opening-result.reveal-stage .reveal-screen .reveal-stats dd{font-size:11.5cqh}
+  .icon-opening .opening-result.reveal-stage .reveal-screen .reveal-price-label{font-size:max(11px,4.8cqh)}
+  .icon-opening .opening-result.reveal-stage .reveal-screen .reveal-price strong{font-size:15cqh}
+
+  /* Mặt cỏ bắt đầu ngay đáy hai cánh (ít cỏ trống hơn, khán đài hiện nhiều hơn); sương nhẹ ở đáy, tối dần sát hàng nút. */
+  .icon-opening .opening-result.reveal-stage .reveal-ground{left:0;width:100%;top:79%;height:40%}
+  .icon-opening .opening-result.reveal-stage .reveal-fog{display:block;position:absolute;left:0;right:0;bottom:0;height:36%;z-index:4;pointer-events:none;
+    background:radial-gradient(ellipse 60% 55% at 50% 100%,#c8dcff2b,transparent 70%),radial-gradient(ellipse 34% 45% at 10% 100%,#c8dcff21,transparent 70%),radial-gradient(ellipse 34% 45% at 90% 100%,#c8dcff21,transparent 70%),linear-gradient(0deg,#03070dcc,#03070d4d 32%,transparent)}
+
+  /* Bục tối màu mùa (26TS: xanh đêm, viền và chữ xanh sáng), rộng theo sân khấu, mặt trên ở ~74,5% chiều cao. */
+  .icon-opening .opening-result.reveal-stage .reveal-podium{--pw:clamp(380px,36vw,760px);top:74.5%;left:50%;width:var(--pw);height:clamp(44px,7.4dvh,86px);translate:-50% 0}
+  .icon-opening .opening-result.reveal-stage .reveal-podium .rp-top{border-color:#020305;background:radial-gradient(ellipse 60% 70% at 50% 50%,color-mix(in srgb,var(--stage-ring,#8fb0ff) 55%,transparent),color-mix(in srgb,var(--stage-top,#1f45c8) 40%,#0b1220) 55%,#060a12 85%);box-shadow:0 0 24px color-mix(in srgb,var(--stage-accent,#4f8dff) 45%,transparent)}
+  .icon-opening .opening-result.reveal-stage .reveal-podium .rp-body{border-bottom-color:#020305;background:linear-gradient(90deg,#04070d,color-mix(in srgb,var(--stage-top,#1f45c8) 28%,#0a1020) 16%,color-mix(in srgb,var(--stage-top,#1f45c8) 45%,#0d1528) 50%,color-mix(in srgb,var(--stage-top,#1f45c8) 28%,#0a1020) 84%,#04070d);box-shadow:inset 0 2px 0 color-mix(in srgb,var(--stage-ring,#8fb0ff) 55%,transparent)}
+  .icon-opening .opening-result.reveal-stage .reveal-podium .rp-ring span{color:color-mix(in srgb,var(--stage-ring,#8fb0ff) 85%,#fff);text-shadow:0 0 10px color-mix(in srgb,var(--stage-accent,#4f8dff) 75%,transparent)}
+
+  /* Thẻ phụ: dải cuộn ngang trải từ mép trái sang mép phải (trên hàng nút), thẻ lớn giữ đúng tỉ lệ, không lặp tên / chỉ số ngoài thẻ.
+     Mở 10 gói ở màn 1366 / 1920 hiện đủ 9 thẻ không cần cuộn; dải che phần dưới sân khấu như FC Online, bấm "Thu gọn danh sách" để xem trọn bục.
+     Thanh công cụ tách ra: nút thu gọn về hàng nút đáy, tổng giá trị lên dưới tên gói, mũi tên cuộn nằm hai mép dải thẻ. */
+  .icon-opening .opening-result.reveal-stage .secondary-players{position:static;width:auto}
+  .icon-opening .opening-result.reveal-stage .secondary-toolbar{display:contents}
+  .icon-opening .opening-result.reveal-stage .secondary-player-list{position:absolute;z-index:8;left:3%;right:3%;width:auto;bottom:var(--strip-b);height:var(--strip-h);--secondary-card-width:calc((var(--strip-h) - 14px) * 666 / 725);gap:clamp(8px,.8vw,14px);padding:4px 2px 10px;align-items:flex-end;scrollbar-color:#71859399 transparent}
+  .icon-opening .opening-result.reveal-stage .secondary-player>span,.icon-opening .opening-result.reveal-stage .secondary-player>b{display:none}
+  .icon-opening .opening-result.reveal-stage .secondary-navigation{position:absolute;z-index:9;left:3%;right:3%;width:auto;bottom:var(--strip-b);height:var(--strip-h);display:flex;align-items:center;justify-content:space-between;padding:0 2px 10px;pointer-events:none}
+  .icon-opening .opening-result.reveal-stage .secondary-navigation>span{display:none}
+  .icon-opening .opening-result.reveal-stage .secondary-navigation>button{width:30px;height:30px;border-radius:50%;background:#0a131fcc;border:1px solid #ffffff2e;pointer-events:auto}
+  .icon-opening .opening-result.reveal-stage .secondary-navigation>button:disabled{opacity:0;pointer-events:none}
+  .icon-opening .opening-result.reveal-stage .reveal-total{position:absolute;z-index:9;top:88px;left:4%;bottom:auto;translate:none;flex-direction:column;align-items:flex-start;gap:0;padding:5px 0;line-height:1.1;font-family:var(--display);font-size:clamp(13px,1.2vw,19px);color:#e8eef2;text-shadow:0 0 3px #000,0 2px 12px #000d}
+  .icon-opening .opening-result.reveal-stage .reveal-total strong{font-size:clamp(24px,2.5vw,36px)}
+  .icon-opening .opening-result.reveal-stage .secondary-toggle{position:absolute;z-index:9;left:4%;bottom:var(--bar-b);width:var(--toggle-w);height:var(--bar-h);min-height:0;justify-content:space-between;gap:6px;padding:0 14px;border-radius:999px;background:#4a4f56d9;color:#fff;font-family:var(--display);font-size:clamp(13px,1vw,17px);font-weight:600;white-space:nowrap;overflow:hidden;box-shadow:0 6px 20px #0008}
+  .icon-opening .opening-result.reveal-stage .secondary-toggle:hover{background:#5b6168}
+  .icon-opening .opening-result.reveal-stage .secondary-toggle>svg{flex:none}
+  .icon-opening .opening-result.reveal-stage .secondary-toggle-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;text-align:left}
+
+  /* Hàng nút đáy: trái = Thu gọn danh sách + Trao đổi, giữa = Mở 1 / Mở 10, phải = Quản lí C.Thủ + Hoàn thành. */
+  .icon-opening .opening-result.reveal-stage .reveal-actions{display:flex;bottom:var(--bar-b);padding:0 4%;gap:10px}
+  .icon-opening .opening-result.reveal-stage .reveal-btn{height:var(--bar-h);min-width:var(--side-btn);gap:12px;padding:0 16px 0 20px;font-size:clamp(13px,1vw,17px)}
+  .icon-opening .opening-result.reveal-stage .reveal-again{min-width:clamp(120px,8.5vw,170px);padding:0 16px}
+  .icon-opening .opening-result.reveal-stage .reveal-trade{position:absolute;left:4%}
+  .icon-opening.has-secondary-cards .opening-result.reveal-stage .reveal-trade{left:calc(4% + var(--toggle-w) + 10px)}
+  .icon-opening .opening-result.reveal-stage .reveal-right{position:absolute;right:4%;display:flex;gap:10px}
+}

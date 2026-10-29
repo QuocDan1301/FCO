@@ -1,0 +1,10 @@
+/* Thẻ mùa BLD (BEST LEGENDS): khuôn thẻ hẹp (176×277) đặt giữa một khung 259×282 (cùng tỉ lệ 666/725 với thẻ khác); mọi ảnh căn theo
+   hộp bao thẻ nên một bộ vị trí dùng chung cả mùa. OVR và tên in trên ảnh đã xoá (vá bằng nền khung chung của mọi thẻ): OVR luôn vẽ
+   bằng HTML (chữ vàng kem, căn giữa như thẻ gốc), tên chữ trắng; ô cấp +1 giữ ô in sẵn, từ +2 huy hiệu cấp phủ đúng ô đó.
+   Vị trí tên từng thẻ ở card-names.css. */
+.rarity-dot.bld{background:#e6c27a}
+.player-card.face-art.season-bld{aspect-ratio:259/282}
+.player-card.face-art.season-bld>.face-art-img{filter:drop-shadow(0 0 4px #f2dcab55) drop-shadow(0 0 14px #40382944)}
+.season-bld[data-level="1"] .face-art-level{visibility:hidden}
+.season-bld .face-art-ovr{left:27.80%;top:16.73%;font-size:11.40cqw;color:#f1d698;letter-spacing:-.03em;text-shadow:0 .03em .1em #000b,0 0 .3em #0007}
+.season-bld .face-art-level{left:18.53%;top:59.93%;width:18.53%;height:10.64%;transform:none;object-fit:fill}

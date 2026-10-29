@@ -17,7 +17,7 @@ if (!force && await exists(`${root}~$gia-cau-thu-bp.xlsx`)) {
   process.exit(1);
 }
 const { ovrs: ovrOverrides } = JSON.parse(await readFile(`${root}src/excel-overrides.json`, 'utf8'));
-const season = { prime: 'INFINITE PRIME', eternal: 'ICON TM', stellar: '26TS', origin: 'NO.7', vietnam: 'VIETNAM', prm: 'PRIME', mdl: 'MEDALIST', amb: 'FC AMBASSADOR' }, order = { prime: 0, eternal: 1, stellar: 2, origin: 3, vietnam: 4, prm: 5, mdl: 6, amb: 7 };
+const season = { prime: 'INFINITE PRIME', eternal: 'ICON TM', stellar: '26TS', origin: 'NO.7', vietnam: 'VIETNAM', prm: 'PRIME', mdl: 'MEDALIST', amb: 'FC AMBASSADOR', uc: 'UC', wg: 'WG', ut: 'UT', cu: 'CU', gru: 'GRU', rtn: 'RTN', dc: 'DC', cc: 'CC', bld: 'BLD', wb: 'WB', spt: 'SPT', bdo: 'BDO', hw23: '23HW', ep24: '24EP', ptg: 'PTG' }, order = { prime: 0, eternal: 1, stellar: 2, origin: 3, vietnam: 4, prm: 5, mdl: 6, amb: 7, uc: 8, wg: 9, ut: 10, cu: 11, gru: 12, rtn: 13, dc: 14, cc: 15, bld: 16, wb: 17, spt: 18, bdo: 19, hw23: 20, ep24: 21, ptg: 22 };
 const list = [...players].sort((a, b) => order[a.tier] - order[b.tier] || b.ovr - a.ovr || a.name.localeCompare(b.name));
 
 const font = (extra = {}) => ({ name: 'Arial', size: 10, ...extra });

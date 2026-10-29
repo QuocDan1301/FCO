@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Card, Pack, Tier } from '../game';
-import { getPlayer, packs, seasons, TIERS } from '../game';
+import { defaultPacks, getPlayer, seasons, TIERS } from '../game';
 import { byMarketValue, marketQuote } from '../market';
 import StadiumScene from './StadiumScene';
 import LightTunnel from './LightTunnel';
@@ -19,8 +19,8 @@ export default function PackStage(props: Props) {
   // Thông tin trong hầm là của cầu thủ giá trị nhất; mở hỗn hợp nhiều gói thì nền hầm / màu LED theo mùa của cầu thủ đó.
   const best = cards?.length ? byMarketValue(cards)[0] : undefined;
   const player = best ? getPlayer(best) : undefined;
-  const theme = (player && packs.find(p => p.weights[TIERS.indexOf(player.tier)] === 100)) || pack;
-  // Máy phun lửa trong hầm theo giá cầu thủ đó (đỏ từ 100M, tím từ 1B); bật từ lúc qua cửa hầm (mốc 1) tới khi ra sân khấu (mốc 6),
+  const theme = (player && defaultPacks.find(p => p.weights[TIERS.indexOf(player.tier)] === 100)) || pack;
+  // Máy phun lửa trong hầm theo giá cầu thủ đó (thường từ 1M, bạc từ 100M, tím từ 1B); bật từ lúc qua cửa hầm (mốc 1) tới khi ra sân khấu (mốc 6),
   // gỡ hẳn từ mốc 7 (màn trắng chuyển cảnh đang che) để hoạt cảnh ẩn không chạy tiếp sau khi hiện thẻ.
   const tone = best ? flameTone(marketQuote(best).price) : null;
   const phone = matchMedia('(pointer: coarse) and (max-width: 900px)').matches;

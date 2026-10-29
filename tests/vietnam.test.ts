@@ -1,11 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { draw, getPlayer, initialSave, isPackAvailable, openPacks, packs, players, seasons, TIERS, validateSave } from '../src/game.ts';
+import { defaultPacks, draw, getPlayer, isPackAvailable, openPacks, packs, players, seasons, TIERS, validateSave } from '../src/game.ts';
+import { initialSave } from './stocked-save.ts';
 import { getTeamLogo } from '../src/teamLogos.ts';
 import { rngFor } from './pack-rng.ts';
 
-const pack = packs.find(p => p.id === 'vietnam')!;
+// Định nghĩa gốc: trang quản trị có thể đổi tên / giá / cấp hoặc ẩn gói đang bán.
+const pack = defaultPacks.find(p => p.id === 'vietnam')!;
 const roster = players.filter(p => p.tier === 'vietnam');
 
 test('Gói VIETNAM (ALL) ra 100% mùa VIETNAM, có mặt sau thẻ và logo mùa', () => {
@@ -13,7 +15,7 @@ test('Gói VIETNAM (ALL) ra 100% mùa VIETNAM, có mặt sau thẻ và logo mùa
   assert.equal(pack.name, 'VIETNAM (ALL)');
   assert.equal(seasons.vietnam, 'VIETNAM');
   assert.ok(TIERS.includes('vietnam'));
-  assert.deepEqual(pack.weights, [0, 0, 0, 0, 100, 0, 0, 0]);
+  assert.deepEqual(pack.weights, TIERS.map(t => t === 'vietnam' ? 100 : 0));
   for (const p of packs) assert.equal(p.weights.length, TIERS.length);
   assert.equal(pack.tunnel, '/assets/vietnam-tunnel.webp');
   for (const file of ['vietnam-back.png', 'vietnam-team.png', 'vietnam-tunnel.webp']) assert.ok(existsSync(`public/assets/${file}`), file);
@@ -41,5 +43,5 @@ test('Gói VIETNAM mở được và chỉ ra thẻ VIETNAM; mỗi thẻ đều 
   const result = openPacks(initialSave(), pack, 15, Math.random, true);
   assert.ok(result.cards.every(c => getPlayer(c).tier === 'vietnam'));
   assert.ok(validateSave(JSON.parse(JSON.stringify(result.state))));
-  for (const other of packs.filter(p => p.id !== 'vietnam')) for (let i = 0; i < 50; i++) { const card = draw(other); assert.notEqual(getPlayer(card).tier, 'vietnam'); }
+  for (const other of packs.filter(p => p.id !== 'vietnam' && !p.seasons?.includes('vietnam') && isPackAvailable(p))) for (let i = 0; i < 50; i++) { const card = draw(other); assert.notEqual(getPlayer(card).tier, 'vietnam'); }
 });

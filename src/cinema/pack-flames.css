@@ -1,8 +1,9 @@
-/* Máy phun lửa hai bên hầm (cầu thủ ≥ 100M): lớp phủ trên cảnh 3D/2D, bật khi camera vào hầm, tắt khi ra sân khấu.
+/* Máy phun lửa hai bên hầm (cầu thủ ≥ 1M; bạc từ 100M, tím từ 1B): lớp phủ trên cảnh 3D/2D, bật khi camera vào hầm, tắt khi ra sân khấu.
    Bật/tắt chỉ bằng opacity của khung: lửa chạy sẵn khi còn ẩn, lúc bật không tạo/khởi động lại hoạt cảnh nào (tránh khựng một nhịp). */
 .pack-flames{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .4s ease-out}
 .pack-flames.is-on{opacity:1;transition-duration:.25s}
 .pack-flames.tone-red{--f1:url(/assets/pf-flame-red-1.webp);--f2:url(/assets/pf-flame-red-2.webp);--f3:url(/assets/pf-flame-red-3.webp);--glow:255 110 30;--core:#ffd34d;--edge:#ff3a10}
+.pack-flames.tone-silver{--f1:url(/assets/pf-flame-silver-1.webp);--f2:url(/assets/pf-flame-silver-2.webp);--f3:url(/assets/pf-flame-silver-3.webp);--glow:150 195 255;--core:#f2f8ff;--edge:#6f9be0}
 .pack-flames.tone-purple{--f1:url(/assets/pf-flame-purple-1.webp);--f2:url(/assets/pf-flame-purple-2.webp);--f3:url(/assets/pf-flame-purple-3.webp);--glow:190 80 255;--core:#ffb8ff;--edge:#9a3cff}
 
 /* Mỗi máy ghim trên sàn hầm (cảnh tính vị trí/tỉ lệ mỗi khung hình qua placeFlames): trục +x của khung là hướng phun (chéo lên vào giữa hầm);

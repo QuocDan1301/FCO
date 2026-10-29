@@ -30,13 +30,13 @@
 @keyframes rg-twinkle{to{opacity:1}}
 .rg-truss s:first-of-type{right:115%}.rg-truss s:last-of-type{left:115%}
 
-/* Màn LED cong liền một tấm sau thẻ: mặt màn là nền mùa thẻ (cắt theo hình cong bằng mask), viền kim loại bạc sáng;
-   hai cạnh ngoài loe dần lên trên, đáy thẳng hạ xuống dưới đường chân trời (chân bục còn thấp hơn đáy màn). */
+/* Màn LED liền một tấm sau thẻ, chia hai cánh có phối cảnh: mặt màn là nền mùa thẻ (cắt bằng mask), viền kim loại bạc sáng;
+   mép ngoài mỗi cánh cao hơn mép trong, phần giữa (sau thẻ) thấp nhất. Vị trí / kích thước màn rộng ở reveal-layout.css. */
 .reveal-screen{position:absolute;left:10%;right:10%;top:2%;height:calc(var(--cardb,72%) + var(--cardw,0px) * .07 - 2%);z-index:1;container-type:size}
 .reveal-screen-face{position:absolute;inset:0;
   background:linear-gradient(90deg,#000a,#0003 22%,#000a 50%,#0003 78%,#000a),linear-gradient(180deg,#0006,transparent 30%,transparent 70%,#0008),var(--screen-bg,none) center/cover no-repeat,#121a26;
-  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 400' preserveAspectRatio='none'%3E%3Cpath d='M0 0Q500 50 1000 0L985 400H15Z'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;
-  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 400' preserveAspectRatio='none'%3E%3Cpath d='M0 0Q500 50 1000 0L985 400H15Z'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 400' preserveAspectRatio='none'%3E%3Cpath d='M0 0L364 70H636L1000 0V400L636 360H364L0 400Z'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 400' preserveAspectRatio='none'%3E%3Cpath d='M0 0L364 70H636L1000 0V400L636 360H364L0 400Z'/%3E%3C/svg%3E") 0 0/100% 100% no-repeat}
 .reveal-screen-bezel{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .reveal-screen-bezel path{fill:none;stroke:url(#rsSilver);stroke-width:8px;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 6px #ffffff66) drop-shadow(0 4px 10px #0009)}
 /* Nội dung hai cánh: trái = logo (mép ngoài) + OVR lớn lệch về phía thẻ, 6 chỉ số ở nửa dưới; phải = OVR + giá phía trong, logo sát mép ngoài.
@@ -90,6 +90,7 @@
 /* Thân máy lửa: hộp đen đứng trên cỏ, miệng phun ở nắp. */
 .reveal-jets .pf-jet::before{left:calc(var(--body) * -1);width:var(--body);height:calc(var(--body) * 1.5);background:linear-gradient(90deg,#08090b,#2b2f36 45%,#101114);border:1px solid #3a3f47;border-radius:2px;clip-path:none}
 .rj-spark{--spark:#ffb04a;--spark-glow:255 120 40;--base:clamp(10px,2.6cqh,22px);position:absolute;bottom:var(--base);width:2px;height:2px;pointer-events:none}
+.reveal-jets.tone-silver .rj-spark{--spark:#e2ecfa;--spark-glow:190 212 245}
 .reveal-jets.tone-purple .rj-spark{--spark:#ff8cff;--spark-glow:190 80 255}
 .rj-spark.left{left:2.4%}.rj-spark.right{right:2.4%;transform:scaleX(-1)}
 /* Thân máy phun tia + ánh sáng gắt ở miệng phun. */

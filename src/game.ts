@@ -1,27 +1,69 @@
 import { asset } from './asset';
 import excelOverrides from './excel-overrides.json';
 import priceData from './player-prices.json';
+import packData from './packs.json';
 import { primePlayers } from './primePlayers';
 import { vietnamPlayers } from './vietnamPlayers';
 import { prmPlayers } from './prmPlayers';
 import { mdlPlayers } from './mdlPlayers';
 import { ambPlayers } from './ambPlayers';
+import { ucPlayers } from './ucPlayers';
+import { wgPlayers } from './wgPlayers';
+import { utPlayers } from './utPlayers';
+import { cuPlayers } from './cuPlayers';
+import { gruPlayers } from './gruPlayers';
+import { rtnPlayers } from './rtnPlayers';
+import { dcPlayers } from './dcPlayers';
+import { ccPlayers } from './ccPlayers';
+import { bldPlayers } from './bldPlayers';
+import { wbPlayers } from './wbPlayers';
+import { sptPlayers } from './sptPlayers';
+import { bdoPlayers } from './bdoPlayers';
+import { hw23Players } from './hw23Players';
+import { ep24Players } from './ep24Players';
+import { ptgPlayers } from './ptgPlayers';
+import { lePlayers } from './lePlayers';
+import { hgPlayers } from './hgPlayers';
+import { splPlayers } from './splPlayers';
+import { lnPlayers } from './lnPlayers';
+import { faPlayers } from './faPlayers';
+import { lolPlayers } from './lolPlayers';
+import { capPlayers } from './capPlayers';
+import { boe21Players } from './boe21Players';
+import { btbPlayers } from './btbPlayers';
+import { ebsPlayers } from './ebsPlayers';
+import { juventusPlayers } from './juventusPlayers';
+import { jnmPlayers } from './jnmPlayers';
 import { emptyBridge, isBridgeState, resolveUpgrade, type BridgeState, type UpgradeRole } from './upgrade/engine';
 import type { Rng } from './upgrade/rng';
-export type Tier = 'origin' | 'stellar' | 'eternal' | 'prime' | 'vietnam' | 'prm' | 'mdl' | 'amb';
+export type Tier = 'origin' | 'stellar' | 'eternal' | 'prime' | 'vietnam' | 'prm' | 'mdl' | 'amb' | 'uc' | 'wg' | 'ut' | 'cu' | 'gru' | 'rtn' | 'dc' | 'cc' | 'bld' | 'wb' | 'spt' | 'bdo' | 'hw23' | 'ep24' | 'ptg' | 'le' | 'hg' | 'spl' | 'ln' | 'fa' | 'lol' | 'cap' | 'boe21' | 'btb' | 'ebs' | 'juventus' | 'jnm';
 // Thứ tự mùa khớp với Pack.weights (tỷ lệ % ra từng mùa).
-export const TIERS: readonly Tier[] = ['origin', 'stellar', 'eternal', 'prime', 'vietnam', 'prm', 'mdl', 'amb'];
+export const TIERS: readonly Tier[] = ['origin', 'stellar', 'eternal', 'prime', 'vietnam', 'prm', 'mdl', 'amb', 'uc', 'wg', 'ut', 'cu', 'gru', 'rtn', 'dc', 'cc', 'bld', 'wb', 'spt', 'bdo', 'hw23', 'ep24', 'ptg', 'le', 'hg', 'spl', 'ln', 'fa', 'lol', 'cap', 'boe21', 'btb', 'ebs', 'juventus', 'jnm'];
 export type Player = { id: number; name: string; ovr: number; pos: string; nation: string; flag: string; club: string; tier: Tier; image?: string; value?: number; wage?: number; cardFace?: string; teamLogo?: string };
 export type Card = { uid: string; playerId: number; level: number; received: number };
-export type Entry = { id: string; time: number; type: 'pack' | 'upgrade' | 'gift' | 'market' | 'shop'; title: string; detail: string; success?: boolean };
-export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; prepaid?: Record<string, number>; bridge?: BridgeState; squad?: string[]; locked?: string[]; protection?: { pct: number; fixed: boolean } };
+export type Entry = { id: string; time: number; type: 'pack' | 'upgrade' | 'gift' | 'market' | 'shop' | 'event'; title: string; detail: string; success?: boolean };
+// Tiến trình sự kiện Nâng Cấp Siêu Sao (src/event.ts): điểm tích lũy, tổng lượt đã chơi, số lần đã nhận từng mốc quà,
+// lượt miễn phí còn lại; day = ngày của missions (nhiệm vụ đã nhận thưởng) và paid (lượt trả FC trong ngày).
+// log = quà từng lượt chơi (mới nhất trước: cấp, hũ, điểm của hũ), gifts = quà mốc đã nhận; hiện ở popup Lịch sử nhận quà.
+export type EventReward = { bp: number } | { fc: number } | { pack: string; count: number };
+export type EventLogEntry = { time: number; level: number; jar: number; points: number; reward: EventReward };
+export type EventGiftEntry = { time: number; milestone: number; rewards: EventReward[] };
+export type EventState = { points: number; plays: number; claimed: number[]; free?: number; day?: string; missions?: string[]; paid?: number; log?: EventLogEntry[]; gifts?: EventGiftEntry[] };
+const isEventReward = (r: unknown): r is EventReward => !!r && typeof r === 'object' && ((Number.isSafeInteger((r as { bp: number }).bp) && (r as { bp: number }).bp > 0) || (Number.isSafeInteger((r as { fc: number }).fc) && (r as { fc: number }).fc > 0) || (typeof (r as { pack: string }).pack === 'string' && Number.isSafeInteger((r as { count: number }).count) && (r as { count: number }).count > 0));
+export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; prepaid?: Record<string, number>; bridge?: BridgeState; squad?: string[]; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; event?: EventState; reset?: string; bpReset?: string };
 // back: ảnh mặt sau thẻ của gói (hiện ở danh sách gói và màn chuẩn bị mở); không có thì dùng hình gói mặc định.
 // tunnel: ảnh nền chỉ hiện một lần trên cặp màn LED ở cửa hầm; các màn phía sau tắt.
 // accent: màu đèn LED / khung của đường hầm khi mở gói; không có thì dùng màu vàng mặc định.
 // stage: màu bục sân khấu (top) và vòng viền (ring) khi thẻ xuất hiện; led: màu khung LED đổi sang lúc đó (bỏ trống thì giữ accent).
-export type Pack = { id: string; name: string; short: string; price: number; weights: [number, number, number, number, number, number, number, number]; levels?: [number, number]; description: string; range: string; color: string; back?: string; tunnel?: string; accent?: string; stage?: { top: string; ring: string; led?: string } };
+// Gói hỗn hợp khai báo seasons (thứ tự = thứ tự huy hiệu trên ảnh gói, mùa đầu tiên làm khung) và minOvr (OVR +1 tối thiểu),
+// để weights toàn 0: cầu thủ đủ OVR của các mùa được gộp chung một nhóm (xem seasonPools). Ảnh gói ghép bằng scripts/compose-pack.py.
+// Gói top price (topPrice = N): nhóm chỉ còn N cầu thủ có giá +1 cao nhất trong các mùa đó; góc ảnh gói ghi N và chữ TOP PRICE.
+// tone = id gói mùa có màu Shop dùng chung; draft = gói nháp của trang quản trị (chỉ hiện khi chạy npm run dev).
+// eventOnly = gói chỉ nhận từ sự kiện: không bán trong Shop.
+// choose = gói chỉ định: mở gói thì người chơi tự chọn 1 trong topPrice cầu thủ giá cao nhất (openChosen), không rút ngẫu nhiên.
+export type Pack = { id: string; name: string; short: string; price: number; weights: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]; levels?: [number, number]; seasons?: Tier[]; minOvr?: number; topPrice?: number; eventOnly?: boolean; choose?: boolean; description: string; range: string; color: string; back?: string; tunnel?: string; accent?: string; stage?: { top: string; ring: string; led?: string }; tone?: string; draft?: boolean };
 const no7TeamLogo = asset('/assets/no7-team.webp');
-export const seasons: Record<Tier, string> = { origin: 'NO.7', stellar: '26TS', eternal: 'ICON TM', prime: 'INFINITE PRIME', vietnam: 'VIETNAM', prm: 'PRIME', mdl: 'MEDALIST', amb: 'FC AMBASSADOR' };
+export const seasons: Record<Tier, string> = { origin: 'NO.7', stellar: '26TS', eternal: 'ICON TM', prime: 'INFINITE PRIME', vietnam: 'VIETNAM', prm: 'PRIME', mdl: 'MEDALIST', amb: 'FC AMBASSADOR', uc: 'UC', wg: 'WG', ut: 'UT', cu: 'CU', gru: 'GRU', rtn: 'RTN', dc: 'DC', cc: 'CC', bld: 'BLD', wb: 'WB', spt: 'SPT', bdo: 'BDO', hw23: '23HW', ep24: '24EP', ptg: 'PTG', le: 'LE', hg: 'HG', spl: 'SPL', ln: 'LN', fa: 'FA', lol: 'LOL', cap: 'CAP', boe21: 'BOE21', btb: 'BTB', ebs: 'EBS', juventus: 'JUVENTUS', jnm: 'JNM' };
 export const players: Player[] = [
   { id: 1, name: 'Ronaldo', ovr: 126, pos: 'ST', nation: 'Brazil', flag: 'BR', club: 'Milano', tier: 'eternal', value: 1800000, wage: 34, cardFace: asset('/assets/ronaldo-card.webp') },
   { id: 31, name: 'Pelé', ovr: 127, pos: 'CF', nation: 'Brazil', flag: 'BR', club: 'Santos', tier: 'eternal', value: 1300000, wage: 34, cardFace: asset('/assets/pele-card.webp') },
@@ -265,9 +307,9 @@ export const players: Player[] = [
   { id: 276, name: 'A. Ezzalzouli', ovr: 121, pos: 'LW', nation: 'Ma-rốc', flag: 'MA', club: 'Real Betis', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-ezzalzouli-card.webp') },
   { id: 277, name: 'B. Barcola', ovr: 121, pos: 'LW', nation: 'Pháp', flag: 'FR', club: 'Paris', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-barcola-card.webp') },
   { id: 278, name: 'J. Panichelli', ovr: 121, pos: 'ST', nation: 'Argentina', flag: 'AR', club: 'Strasbourg', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-panichelli-card.webp') },
-  { id: 279, name: 'C. Roldan', ovr: 118, pos: 'CM', nation: 'Hoa Kỳ', flag: 'US', club: 'Seattle Sounders', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-roldan-card.webp') },
+  { id: 279, name: 'C. Roldan', ovr: 118, pos: 'CM', nation: 'Mỹ', flag: 'US', club: 'Seattle Sounders', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-roldan-card.webp') },
   { id: 280, name: 'F. Aursnes', ovr: 119, pos: 'CM', nation: 'Na Uy', flag: 'NO', club: 'Benfica', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-aursnes-card.webp') },
-  { id: 281, name: 'S. Berhalter', ovr: 119, pos: 'CM', nation: 'Hoa Kỳ', flag: 'US', club: 'Vancouver Whitecaps', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-berhalter-card.webp') },
+  { id: 281, name: 'S. Berhalter', ovr: 119, pos: 'CM', nation: 'Mỹ', flag: 'US', club: 'Vancouver Whitecaps', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-berhalter-card.webp') },
   { id: 282, name: 'V. Froholdt', ovr: 119, pos: 'CM', nation: 'Đan Mạch', flag: 'DK', club: 'Porto', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-froholdt-card.webp') },
   { id: 283, name: 'Aleix Febas', ovr: 120, pos: 'CM', nation: 'Tây Ban Nha', flag: 'ES', club: 'Elche', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-febas-card.webp') },
   { id: 284, name: 'N. Vlašić', ovr: 120, pos: 'CM', nation: 'Croatia', flag: 'HR', club: 'Torino FC', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-vlasic-card.webp') },
@@ -295,7 +337,7 @@ export const players: Player[] = [
   { id: 306, name: 'A. Saelemaekers', ovr: 121, pos: 'RWB', nation: 'Bỉ', flag: 'BE', club: 'Milano', tier: 'stellar', wage: 31, cardFace: asset('/assets/ts-saelemaekers-card.webp') },
   { id: 307, name: 'B. van Rooij', ovr: 119, pos: 'RB', nation: 'Hà Lan', flag: 'NL', club: 'Twente', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-vanrooij-card.webp') },
   { id: 308, name: 'A. Najar', ovr: 118, pos: 'RB', nation: 'Honduras', flag: 'HN', club: 'Nashville SC', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-najar-card.webp') },
-  { id: 309, name: 'V. Coufal', ovr: 121, pos: 'RB', nation: 'CH Séc', flag: 'CZ', club: 'Hoffenheim', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-coufal-card.webp') },
+  { id: 309, name: 'V. Coufal', ovr: 121, pos: 'RB', nation: 'Séc', flag: 'CZ', club: 'Hoffenheim', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-coufal-card.webp') },
   { id: 310, name: 'Pau Cubarsí', ovr: 121, pos: 'CB', nation: 'Tây Ban Nha', flag: 'ES', club: 'Barcelona', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-cubarsi-card.webp') },
   { id: 311, name: 'Pubill', ovr: 121, pos: 'CB', nation: 'Tây Ban Nha', flag: 'ES', club: 'Atlético', tier: 'stellar', wage: 30, cardFace: asset('/assets/ts-pubill-card.webp') },
   { id: 312, name: 'W. Pacho', ovr: 121, pos: 'CB', nation: 'Ecuador', flag: 'EC', club: 'Paris', tier: 'stellar', wage: 29, cardFace: asset('/assets/ts-pacho-card.webp') },
@@ -315,7 +357,7 @@ export const players: Player[] = [
   { id: 215, name: 'Pedro Neto', ovr: 115, pos: 'LW', nation: 'Bồ Đào Nha', flag: 'PT', club: 'Chelsea', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-neto-card.webp') },
   { id: 216, name: 'Ramires', ovr: 116, pos: 'CDM', nation: 'Brazil', flag: 'BR', club: 'Chelsea', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-ramires-card.webp'), teamLogo: no7TeamLogo },
   { id: 217, name: 'L. Díaz', ovr: 116, pos: 'LW', nation: 'Colombia', flag: 'CO', club: 'Bayern', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-diaz-card.webp') },
-  { id: 218, name: 'T. Rosický', ovr: 116, pos: 'CAM', nation: 'CH Séc', flag: 'CZ', club: 'Arsenal', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-rosicky-card.webp'), teamLogo: no7TeamLogo },
+  { id: 218, name: 'T. Rosický', ovr: 116, pos: 'CAM', nation: 'Séc', flag: 'CZ', club: 'Arsenal', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-rosicky-card.webp'), teamLogo: no7TeamLogo },
   { id: 219, name: 'H. Larsson', ovr: 116, pos: 'ST', nation: 'Thụy Điển', flag: 'SE', club: 'Celtic', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-larsson-card.webp'), teamLogo: no7TeamLogo },
   { id: 220, name: 'N. Kanté', ovr: 117, pos: 'CDM', nation: 'Pháp', flag: 'FR', club: 'Al Ittihad', tier: 'origin', wage: 28, cardFace: asset('/assets/no7-kante-card.webp') },
   { id: 221, name: 'D. Beckham', ovr: 117, pos: 'RM', nation: 'Anh', flag: 'EN', club: 'Manchester Đỏ', tier: 'origin', wage: 29, cardFace: asset('/assets/no7-beckham-card.webp'), teamLogo: no7TeamLogo },
@@ -338,19 +380,105 @@ export const players: Player[] = [
   ...prmPlayers,
   ...mdlPlayers,
   ...ambPlayers,
+  ...ucPlayers,
+  ...wgPlayers,
+  ...utPlayers,
+  ...cuPlayers,
+  ...gruPlayers,
+  ...rtnPlayers,
+  ...dcPlayers,
+  ...ccPlayers,
+  ...bldPlayers,
+  ...wbPlayers,
+  ...sptPlayers,
+  ...bdoPlayers,
+  ...hw23Players,
+  ...ep24Players,
+  ...ptgPlayers,
+  ...lePlayers,
+  ...hgPlayers,
+  ...splPlayers,
+  ...lnPlayers,
+  ...faPlayers,
+  ...lolPlayers,
+  ...capPlayers,
+  ...boe21Players,
+  ...btbPlayers,
+  ...ebsPlayers,
+  ...juventusPlayers,
+  ...jnmPlayers,
 ];
-export const packs: Pack[] = [
-  { id: 'eternal', name: 'ICONTM (ALL)', short: 'TM', price: 1500000, weights: [0, 0, 100, 0, 0, 0, 0, 0], description: 'Nơi những huyền thoại trở lại.', range: '117–127', color: 'gold', back: asset('/assets/icon-tm-back.webp'), tunnel: asset('/assets/itm-tunnel.webp'), accent: '#ffd23f', stage: { top: '#b8893a', ring: '#fff0c2' } },
-  { id: 'stellar', name: '26TS (ALL)', short: '26TS', price: 500000, weights: [0, 100, 0, 0, 0, 0, 0, 0], description: 'Tỏa sáng cùng những ngôi sao.', range: '118–126', color: 'blue', back: asset('/assets/ts26-back.webp'), tunnel: asset('/assets/ts26-tunnel.webp'), accent: '#4f8dff', stage: { top: '#1f45c8', ring: '#8fb0ff' } },
-  { id: 'origin', name: 'NO.7 (ALL)', short: 'NO.7', price: 100000, weights: [100, 0, 0, 0, 0, 0, 0, 0], description: '24 ngôi sao mang dấu ấn số 7.', range: '115–119', color: 'silver', back: asset('/assets/no7-back.webp'), tunnel: asset('/assets/no7-tunnel.webp'), stage: { top: '#5b6b7d', ring: '#d5e1eb' } },
-  { id: 'prime', name: 'INFINITE PRIME (ALL)', short: 'IP', price: 2000000, weights: [0, 0, 0, 100, 0, 0, 0, 0], description: 'Đỉnh cao không giới hạn.', range: '124–136', color: 'gold', back: asset('/assets/prime-back.webp'), tunnel: asset('/assets/prime-tunnel.webp'), accent: '#e0473f', stage: { top: '#8e1420', ring: '#ffd98a', led: '#ffcf6b' } },
-  { id: 'vietnam', name: 'VIETNAM (ALL)', short: 'VN', price: 1000000, weights: [0, 0, 0, 0, 100, 0, 0, 0], description: 'Những ngôi sao mang màu cờ sắc áo Việt Nam.', range: '105–119', color: 'red', back: asset('/assets/vietnam-back.webp'), tunnel: asset('/assets/vietnam-tunnel.webp'), accent: '#e8453c', stage: { top: '#a3121c', ring: '#f2c75c', led: '#ffd66b' } },
-  { id: 'prm', name: 'PRIME (ALL)', short: 'PRM', price: 1800000, weights: [0, 0, 0, 0, 0, 100, 0, 0], description: 'Những ngôi sao rực lửa của mùa PRIME.', range: '119–126', color: 'red', back: asset('/assets/prm-back.webp'), tunnel: asset('/assets/prm-tunnel.webp'), accent: '#f06a2a', stage: { top: '#7d1208', ring: '#f3c56b', led: '#ffb24a' } },
-  { id: 'mdl', name: 'MEDALIST (ALL)', short: 'MDL', price: 800000, weights: [0, 0, 0, 0, 0, 0, 100, 0], description: 'Những nhà vô địch mang huy chương.', range: '100–115', color: 'gold', back: asset('/assets/mdl-back.webp'), tunnel: asset('/assets/mdl-tunnel.webp'), accent: '#d8b45a', stage: { top: '#1f2a5c', ring: '#f0d38a', led: '#f4dc9c' } },
-  { id: 'amb', name: 'FC AMBASSADOR (ALL)', short: 'FC', price: 900000, weights: [0, 0, 0, 0, 0, 0, 0, 100], description: 'Những đại sứ của FC.', range: '106–112', color: 'green', back: asset('/assets/amb-back.webp'), tunnel: asset('/assets/amb-tunnel.webp'), accent: '#2fd35a', stage: { top: '#0d5a22', ring: '#8dffa8', led: '#6dff8f' } },
+// Ảnh gói / đường hầm 26TS dùng chung cho gói 26TS và 26TS +5 (mothe.html nhúng ảnh theo từng chỗ ghi đường dẫn).
+const ts26Art = { back: asset('/assets/ts26-back.webp'), tunnel: asset('/assets/ts26-tunnel.webp') };
+// Định nghĩa gốc của từng mùa: màu, ảnh gói, đường hầm, sân khấu (gói hỗn hợp lấy theo mùa đầu tiên), nhãn mùa, và mẫu để trang quản trị
+// khôi phục gói mặc định đã xoá. Danh sách gói bán trong Shop lấy từ src/packs.json (sửa ở trang quản trị).
+export const defaultPacks: Pack[] = [
+  { id: 'eternal', name: 'ICONTM (ALL)', short: 'TM', price: 1500000, weights: [0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'Nơi những huyền thoại trở lại.', range: '117–127', color: 'gold', back: asset('/assets/icon-tm-back.webp'), tunnel: asset('/assets/itm-tunnel.webp'), accent: '#ffd23f', stage: { top: '#b8893a', ring: '#fff0c2' } },
+  { id: 'stellar', name: '26TOTS (ALL)', short: '26TS', price: 500000, weights: [0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'Tỏa sáng cùng những ngôi sao.', range: '118–126', color: 'blue', ...ts26Art, accent: '#4f8dff', stage: { top: '#1f45c8', ring: '#8fb0ff' } },
+  { id: 'stellar5', name: '26TOTS (ALL) +5', short: '26TS', price: 4800000, weights: [0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], levels: [5, 5], description: 'Ngôi sao 26TS ở sẵn cấp +5.', range: '124–132', color: 'blue', ...ts26Art, accent: '#4f8dff', stage: { top: '#1f45c8', ring: '#8fb0ff' } },
+  { id: 'origin', name: 'NO.7 (ALL)', short: 'NO.7', price: 100000, weights: [100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: '24 ngôi sao mang dấu ấn số 7.', range: '115–119', color: 'silver', back: asset('/assets/no7-back.webp'), tunnel: asset('/assets/no7-tunnel.webp'), stage: { top: '#5b6b7d', ring: '#d5e1eb' } },
+  { id: 'prime', name: 'INFINITE PRIME (ALL)', short: 'IP', price: 2000000, weights: [0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'Đỉnh cao không giới hạn.', range: '124–136', color: 'gold', back: asset('/assets/prime-back.webp'), tunnel: asset('/assets/prime-tunnel.webp'), accent: '#e0473f', stage: { top: '#8e1420', ring: '#ffd98a', led: '#ffcf6b' } },
+  { id: 'vietnam', name: 'VIETNAM (ALL)', short: 'VN', price: 1000000, weights: [0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'Những ngôi sao mang màu cờ sắc áo Việt Nam.', range: '105–119', color: 'red', back: asset('/assets/vietnam-back.webp'), tunnel: asset('/assets/vietnam-tunnel.webp'), accent: '#e8453c', stage: { top: '#a3121c', ring: '#f2c75c', led: '#ffd66b' } },
+  { id: 'prm', name: 'PRIME (ALL)', short: 'PRM', price: 1800000, weights: [0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'Những ngôi sao rực lửa của mùa PRIME.', range: '119–126', color: 'red', back: asset('/assets/prm-back.webp'), tunnel: asset('/assets/prm-tunnel.webp'), accent: '#f06a2a', stage: { top: '#7d1208', ring: '#f3c56b', led: '#ffb24a' } },
+  { id: 'mdl', name: 'MEDALIST (ALL)', short: 'MDL', price: 800000, weights: [0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'Những nhà vô địch mang huy chương.', range: '100–115', color: 'gold', back: asset('/assets/mdl-back.webp'), tunnel: asset('/assets/mdl-tunnel.webp'), accent: '#d8b45a', stage: { top: '#1f2a5c', ring: '#f0d38a', led: '#f4dc9c' } },
+  { id: 'amb', name: 'FC AMBASSADOR (ALL)', short: 'FCA', price: 900000, weights: [0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'Những đại sứ của FC.', range: '106–112', color: 'green', back: asset('/assets/amb-back.webp'), tunnel: asset('/assets/amb-tunnel.webp'), accent: '#2fd35a', stage: { top: '#0d5a22', ring: '#8dffa8', led: '#6dff8f' } },
+  // Mùa UC (UNTOUCHABLE CHAMPIONS): 112 thẻ ở ucPlayers.ts.
+  { id: 'uc', name: 'UC (ALL)', short: 'UC', price: 2000000, weights: [0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'UNTOUCHABLE CHAMPIONS · những nhà vô địch không thể chạm tới.', range: '117–126', color: 'purple', back: asset('/assets/uc-back.webp'), tunnel: asset('/assets/uc-tunnel.webp'), accent: '#a855f7', stage: { top: '#4c1d95', ring: '#e9d5ff', led: '#d8b4fe' } },
+  // Mùa WG (WARRIORS OF GLORY): 155 thẻ ở wgPlayers.ts.
+  { id: 'wg', name: 'WG (ALL)', short: 'WG', price: 92800, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'WARRIORS OF GLORY · những chiến binh vinh quang khoác áo đội tuyển.', range: '114–123', color: 'gold', back: asset('/assets/wg-back.webp'), tunnel: asset('/assets/wg-tunnel.webp'), accent: '#f59e2b', stage: { top: '#7a3a10', ring: '#ffe2a6', led: '#ffc670' } },
+  // Mùa UT (UNEXPECTED TRANSFER): 134 thẻ ở utPlayers.ts.
+  { id: 'ut', name: 'UT (ALL)', short: 'UT', price: 12700, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'UNEXPECTED TRANSFER · những vụ chuyển nhượng bất ngờ.', range: '106–115', color: 'purple', back: asset('/assets/ut-back.webp'), tunnel: asset('/assets/ut-tunnel.webp'), accent: '#8b5cf6', stage: { top: '#3b1a78', ring: '#ddd6fe', led: '#c4b5fd' } },
+  // Mùa CU (CHAMPIONS OF EUROPE): 167 thẻ ở cuPlayers.ts.
+  { id: 'cu', name: 'CU (ALL)', short: 'CU', price: 14900, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'CHAMPIONS OF EUROPE · những nhà vô địch châu Âu.', range: '108–117', color: 'purple', back: asset('/assets/cu-back.webp'), tunnel: asset('/assets/cu-tunnel.webp'), accent: '#6d5cf6', stage: { top: '#2e1f78', ring: '#fde68a', led: '#c7b8ff' } },
+  // Mùa GRU (GREATEST RUNNER-UPS): 176 thẻ ở gruPlayers.ts.
+  { id: 'gru', name: 'GRU (ALL)', short: 'GRU', price: 11200, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'GREATEST RUNNER-UPS · những á quân vĩ đại.', range: '105–117', color: 'green', back: asset('/assets/gru-back.webp'), tunnel: asset('/assets/gru-tunnel.webp'), accent: '#2bb5a4', stage: { top: '#0e3b39', ring: '#f3d9b8', led: '#7fe3d4' } },
+  // Mùa RTN (RETURNEES): 135 thẻ ở rtnPlayers.ts.
+  { id: 'rtn', name: 'RTN (ALL)', short: 'RTN', price: 1780, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'RETURNEES · những ngôi sao trở lại.', range: '99–110', color: 'gold', back: asset('/assets/rtn-back.webp'), tunnel: asset('/assets/rtn-tunnel.webp'), accent: '#e0b04f', stage: { top: '#1c2f5e', ring: '#f3d79a', led: '#ffd98a' } },
+  // Mùa DC (DECADE): 135 thẻ ở dcPlayers.ts.
+  { id: 'dc', name: 'DC (ALL)', short: 'DC', price: 5180, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'DECADE · những ngôi sao của một thập kỷ.', range: '100–114', color: 'gold', back: asset('/assets/dc-back.webp'), tunnel: asset('/assets/dc-tunnel.webp'), accent: '#d4ad6a', stage: { top: '#1d1a15', ring: '#ecd3a0', led: '#f5d996' } },
+  // Mùa CC (CENTURY CLUB): 111 thẻ ở ccPlayers.ts.
+  { id: 'cc', name: 'CC (ALL)', short: 'CC', price: 15900, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'CENTURY CLUB · câu lạc bộ những người trăm trận.', range: '100–113', color: 'purple', back: asset('/assets/cc-back.webp'), tunnel: asset('/assets/cc-tunnel.webp'), accent: '#d6b25e', stage: { top: '#2a1a5e', ring: '#ead08e', led: '#f4d88f' } },
+  // Mùa BLD (BEST LEGENDS): 88 thẻ ở bldPlayers.ts.
+  { id: 'bld', name: 'BLD (ALL)', short: 'BLD', price: 3070, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'BEST LEGENDS · những huyền thoại xuất sắc nhất.', range: '102–118', color: 'gold', back: asset('/assets/bld-back.webp'), tunnel: asset('/assets/bld-tunnel.webp'), accent: '#e6c27a', stage: { top: '#1c1914', ring: '#f2dcab', led: '#f7e0a6' } },
+  // Mùa WB (WONDERBOYS): 198 thẻ ở wbPlayers.ts.
+  { id: 'wb', name: 'WB (ALL)', short: 'WB', price: 29500, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'WONDERBOYS · những tài năng kiệt xuất.', range: '105–119', color: 'purple', back: asset('/assets/wb-back.webp'), tunnel: asset('/assets/wb-tunnel.webp'), accent: '#a07cff', stage: { top: '#2c1670', ring: '#e8cf86', led: '#c9b2ff' } },
+  { id: 'hw23', name: '23HW (ALL)', short: '23HW', price: 2000, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: '23 HARD WORKER · những ngôi sao bền bỉ trên sân cỏ.', range: '103–112', color: 'purple', back: asset('/assets/hw23-back.png'), tunnel: asset('/assets/hw23-tunnel.png'), accent: '#deea49', stage: { top: '#29112c', ring: '#deea49', led: '#ee66ba' } },
+  { id: 'bdo', name: 'BDO (ALL)', short: 'BDO', price: 14300, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'BALLON D’OR · những huyền thoại Quả bóng vàng.', range: '102–118', color: 'gold', back: asset('/assets/bdo-back.png'), tunnel: asset('/assets/bdo-tunnel.png'), accent: '#d6b253', stage: { top: '#292319', ring: '#f1dca0', led: '#edc967' } },
+  // Mùa SPT (SPARTAN): 118 thẻ ở sptPlayers.ts.
+  { id: 'spt', name: 'SPT (ALL)', short: 'SPT', price: 110000, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'SPARTAN · những chiến binh Sparta.', range: '115–125', color: 'red', back: asset('/assets/spt-back.webp'), tunnel: asset('/assets/spt-tunnel.webp'), accent: '#d8452c', stage: { top: '#3a120c', ring: '#f0c27a', led: '#ff9a5c' } },
+  // Mùa 24EP (24 ENERGETIC PLAYER): 208 thẻ ở ep24Players.ts.
+  { id: 'ep24', name: '24EP (ALL)', short: '24EP', price: 9130, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: '24 ENERGETIC PLAYER · những cầu thủ tràn năng lượng.', range: '107–116', color: 'gold', back: asset('/assets/ep24-back.webp'), tunnel: asset('/assets/ep24-tunnel.webp'), accent: '#f2e21c', stage: { top: '#1c1a06', ring: '#f5e03a', led: '#fff36a' } },
+  // Mùa PTG (PATH TO GLORY): 165 thẻ ở ptgPlayers.ts.
+  { id: 'ptg', name: 'PTG (ALL)', short: 'PTG', price: 51500, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'PATH TO GLORY · con đường đến vinh quang.', range: '114–123', color: 'purple', back: asset('/assets/ptg-back.webp'), tunnel: asset('/assets/ptg-tunnel.webp'), accent: '#9b5cff', stage: { top: '#2a1066', ring: '#3df2a0', led: '#c7a6ff' } },
+  { id: 'le', name: 'LE (ALL)', short: 'LE', price: 51500, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'LEGEND OF EUROPA · những huyền thoại châu Âu.', range: '111–119', color: 'gold', back: asset('/assets/le-back.webp'), tunnel: asset('/assets/le-tunnel.webp'), accent: '#e7c874', stage: { top: '#006c70', ring: '#e7c874', led: '#12a59b' } },
+  { id: 'hg', name: 'HG (ALL)', short: 'HG', price: 15000, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'HOME GROWN · những ngôi sao trưởng thành từ lò đào tạo.', range: '103–111', color: 'purple', back: asset('/assets/hg-back.webp'), tunnel: asset('/assets/hg-tunnel.webp'), accent: '#b454ed', stage: { top: '#62216e', ring: '#ffd14a', led: '#efff36' } },
+  { id: 'spl', name: 'SPL (ALL)', short: 'SPL', price: 1500, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0, 0], description: 'SPOTLIGHT · những ngôi sao dưới ánh đèn sân khấu.', range: '101–108', color: 'purple', back: asset('/assets/spl-back.webp'), tunnel: asset('/assets/spl-tunnel.webp'), accent: '#6ff7cd', stage: { top: '#34327b', ring: '#b78cff', led: '#6ff7cd' } },
+  { id: 'ln', name: 'LN (ALL)', short: 'LN', price: 3500, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0, 0], description: 'LEGENDARY NUMBERS · những số áo huyền thoại.', range: '102–109', color: 'blue', back: asset('/assets/ln-back.webp'), tunnel: asset('/assets/ln-tunnel.webp'), accent: '#d9ff3c', stage: { top: '#172bb8', ring: '#d0daff', led: '#d9ff3c' } },
+  { id: 'fa', name: 'FA (ALL)', short: 'FA', price: 2500, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0, 0], description: 'FREE AGENT · những ngôi sao tự do.', range: '100–107', color: 'blue', back: asset('/assets/fa-back.webp'), tunnel: asset('/assets/fa-tunnel.webp'), accent: '#cad8ff', stage: { top: '#1637b0', ring: '#f7fbff', led: '#cad8ff' } },
+  { id: 'lol', name: 'LOL (ALL)', short: 'LOL', price: 4000, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0, 0], description: 'LEGEND OF THE LOAN · những dấu ấn từ bản hợp đồng cho mượn.', range: '99–107', color: 'purple', back: asset('/assets/lol-back.webp'), tunnel: asset('/assets/lol-tunnel.webp'), accent: '#e22b97', stage: { top: '#5a1c82', ring: '#ff9cdb', led: '#b96afa' } },
+  { id: 'cap', name: 'CAP (ALL)', short: 'CAP', price: 5000, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0, 0], description: 'CAPTAIN CLASS · dấu ấn của những người thủ lĩnh.', range: '102–105', color: 'blue', back: asset('/assets/cap-back.webp'), tunnel: asset('/assets/cap-tunnel.webp'), accent: '#62e8ff', stage: { top: '#123cc9', ring: '#ff7b32', led: '#62e8ff' } },
+  { id: 'boe21', name: 'BOE21 (ALL)', short: 'E21', price: 3000, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0, 0], description: 'BEST OF EUROPE 21 · những ngôi sao châu Âu năm 2021.', range: '99–104', color: 'gold', back: asset('/assets/boe21-back.webp'), tunnel: asset('/assets/boe21-tunnel.webp'), accent: '#ff981e', stage: { top: '#bd2909', ring: '#ffd053', led: '#ffb936' } },
+  { id: 'btb', name: 'BTB (ALL)', short: 'BTB', price: 4000, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0, 0], description: 'BACK TO BACK · những chiến thắng nối tiếp.', range: '104–106', color: 'green', back: asset('/assets/btb-back.webp'), tunnel: asset('/assets/btb-tunnel.webp'), accent: '#00b5b8', stage: { top: '#075659', ring: '#ff386b', led: '#f8ff38' } },
+  { id: 'ebs', name: 'EBS (ALL)', short: 'EBS', price: 5000, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0, 0], description: 'EUROPEAN BEST STARS · những ngôi sao hàng đầu châu Âu.', range: '100–105', color: 'blue', back: asset('/assets/ebs-back.webp'), tunnel: asset('/assets/ebs-tunnel.webp'), accent: '#3294ce', stage: { top: '#175694', ring: '#e8e3af', led: '#aadfff' } },
+  { id: 'juventus', name: 'JVA (ALL)', short: 'JUVENTUS', price: 6000, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100, 0], description: 'AMBASSADOR JUVENTUS · những dấu ấn của Bà đầm già.', range: '108–114', color: 'silver', back: asset('/assets/juventus-back.webp'), tunnel: asset('/assets/juventus-tunnel.webp'), accent: '#c9c8c1', stage: { top: '#343434', ring: '#f0eee2', led: '#bfc0bd' } },
+  { id: 'jnm', name: 'JNM (ALL)', short: 'JNM', price: 6000, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 100], description: 'JOURNEYMAN · những hành trình làm nên huyền thoại.', range: '107–114', color: 'gold', back: asset('/assets/jnm-back.webp'), tunnel: asset('/assets/jnm-tunnel.webp'), accent: '#d4b25d', stage: { top: '#425d1f', ring: '#ffd48a', led: '#b84ca0' } },
 ];
+// Mỗi gói trong src/packs.json: màu, đường hầm, sân khấu và màu Shop lấy theo gói gốc của mùa đầu tiên;
+// back = ảnh ghép ở trang quản trị (/assets/custom/…), null = ảnh gói gốc của mùa đầu tiên. title = chữ in khi ghép ảnh.
+export type CustomPackData = { id: string; name: string; short: string; title: string; seasons: Tier[]; minOvr: number | null; topPrice?: number | null; levels: [number, number]; price: number; description: string; range: string; back: string | null; published: boolean; eventOnly?: boolean; choose?: boolean };
+export function customPack(data: CustomPackData): Pack {
+  const theme = defaultPacks.find(p => p.weights[TIERS.indexOf(data.seasons[0])] === 100 && !p.levels) ?? defaultPacks[0];
+  return { id: data.id, name: data.name, short: data.short, price: data.price, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], levels: data.levels, seasons: data.seasons, minOvr: data.minOvr ?? undefined, topPrice: data.topPrice ?? undefined, description: data.description, range: data.range, color: theme.color, back: data.back ? asset(data.back) : theme.back, tunnel: theme.tunnel ?? theme.back, accent: theme.accent, stage: theme.stage, tone: theme.tone ?? theme.id, draft: !data.published, ...(data.eventOnly ? { eventOnly: true } : {}), ...(data.choose ? { choose: true } : {}) };
+}
+// Gói nháp chỉ hiện khi chạy npm run dev; bản build còn bỏ hẳn gói nháp khỏi JSON (publishedPacksOnly trong scripts/pack-admin.ts).
+const showDrafts = (import.meta as { env?: { DEV?: boolean } }).env?.DEV === true;
+// allPacks = mọi gói trong src/packs.json kể cả nháp (trang quản trị); packs = gói hiện trong Shop / kho.
+export const allPacks: Pack[] = (packData.packs as CustomPackData[]).map(customPack);
+export const packs: Pack[] = allPacks.filter(pack => !pack.draft || showDrafts);
+export const shopPacks: Pack[] = packs.filter(pack => !pack.eventOnly);
 
 export function isPackAvailable(pack: Pack): boolean {
+  if (pack.seasons) return mixedPool(pack).length > 0;
   return TIERS.every((tier, i) => pack.weights[i] === 0 || players.some(player => player.tier === tier));
 }
 // Cấp cộng tối đa của thẻ; mỗi cấp có một huy hiệu riêng (+1 → +13).
@@ -388,8 +516,16 @@ export const money = (n: number) => {
 export const uid = () => crypto.randomUUID();
 export function random() { return crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296; }
 export function makeCard(playerId: number): Card { return { uid: uid(), playerId, level: 1, received: Date.now() }; }
+// Kho vật phẩm của tài khoản mới trống: mọi gói 0 (người dùng bỏ 15 gói tặng sẵn ngày 2026-10-29).
+export const defaultUnopened = (): Record<string, number> => Object.fromEntries(packs.map(pack => [pack.id, 0]));
+// Đặt lại một lần cho mọi bản lưu cũ: bản lưu chưa mang mã SAVE_RESET thì kho vật phẩm (gói chưa mở, gói đã trả trước)
+// về trống, xoá tiến trình sự kiện Nâng Cấp Siêu Sao, số dư về mức khởi đầu (START_BP BP, 0 FC); thẻ và lịch sử giữ nguyên.
+// Đổi mã để đặt lại lần nữa.
+export const SAVE_RESET = '2026-10-29-empty-items-balance';
+export const START_BP = 0;
+export const BP_RESET = '2026-10-29-zero-bp';
 export function initialSave(): Save {
-  return { version: 1, unopened: { eternal: 15, stellar: 15, origin: 15, prime: 15, vietnam: 15, prm: 15, mdl: 15, amb: 15 }, balance: 15000000, cards: [11, 15].map(makeCard), history: [], daily: '', opened: 0, upgrades: 0, sound: false, reduced: typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches };
+  return { version: 1, reset: SAVE_RESET, bpReset: BP_RESET, unopened: defaultUnopened(), balance: START_BP, cards: [11, 15].map(makeCard), history: [], daily: '', opened: 0, upgrades: 0, sound: false, reduced: typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches };
 }
 // Tỷ lệ trong gói: cầu thủ nặng ovrDecay^(OVR +1 − OVR +1 thấp nhất của mùa) × (giá +1 ÷ giá +1 rẻ nhất mùa)^−priceAlpha,
 // nên thẻ OVR cao và thẻ đắt (hàng quốc dân) hiếm hơn; chưa có giá thì tính như thẻ rẻ nhất. Cấp cộng rút riêng trong
@@ -397,16 +533,38 @@ export function initialSave(): Save {
 // Gói (ALL) không ghi khoảng cấp chỉ ra +1; gói có ghi khoảng cấp (vd. +1~+5) khai báo levels: [1, 5].
 export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .35, levelDecay: .31 } as const;
 export const PACK_LEVELS: [number, number] = [1, 1];
+// Cấp cố định của gói (gói 26TS +5 → 5), hoặc null nếu gói rút cấp trong một khoảng.
+export const packLevel = (pack: Pack) => { const [min, max] = pack.levels ?? PACK_LEVELS; return min === max ? min : null; };
 const basePrices: Record<string, (number | null)[]> = priceData.players;
-const tierPools = new Map<Tier, { player: Player; weight: number }[]>();
-function tierPool(tier: Tier) {
-  let pool = tierPools.get(tier);
-  if (pool) return pool;
-  const members = players.filter(p => p.tier === tier).map(player => ({ player, value: ovr({ playerId: player.id, level: 1 }), price: basePrices[String(player.id)]?.[0] ?? 0 }));
+type PoolEntry = { player: Player; weight: number };
+function weightedPool(list: Player[]): PoolEntry[] {
+  const members = list.map(player => ({ player, value: ovr({ playerId: player.id, level: 1 }), price: basePrices[String(player.id)]?.[0] ?? 0 }));
   const floor = Math.min(...members.map(m => m.value)), cheapest = Math.min(...members.map(m => m.price).filter(price => price > 0));
-  pool = members.map(({ player, value, price }) => ({ player, weight: Math.pow(PACK_ODDS.ovrDecay, value - floor) / Math.pow(price > 0 ? Math.max(1, price / cheapest) : 1, PACK_ODDS.priceAlpha) }));
-  tierPools.set(tier, pool);
+  return members.map(({ player, value, price }) => ({ player, weight: Math.pow(PACK_ODDS.ovrDecay, value - floor) / Math.pow(price > 0 ? Math.max(1, price / cheapest) : 1, PACK_ODDS.priceAlpha) }));
+}
+const pools = new Map<string, PoolEntry[]>();
+function cachedPool(key: string, build: () => PoolEntry[]) {
+  let pool = pools.get(key);
+  if (!pool) { pool = build(); pools.set(key, pool); }
   return pool;
+}
+const tierPool = (tier: Tier) => cachedPool(tier, () => weightedPool(players.filter(p => p.tier === tier)));
+// Gói hỗn hợp: gộp cầu thủ các mùa có OVR +1 ≥ minOvr rồi tính trọng số như một mùa (sàn OVR, giá rẻ nhất lấy trên cả nhóm gộp).
+// Gói top price: sau khi lọc mùa / OVR chỉ giữ topPrice cầu thủ giá +1 cao nhất (bằng giá thì OVR cao hơn trước; chưa có giá xếp cuối).
+const mixedPool = (pack: Pack) => cachedPool(`${pack.seasons}|${pack.minOvr ?? 0}|${pack.topPrice ?? ''}`, () => {
+  const eligible = players.filter(p => pack.seasons!.includes(p.tier) && ovr({ playerId: p.id, level: 1 }) >= (pack.minOvr ?? 0));
+  const price = (p: Player) => basePrices[String(p.id)]?.[0] ?? 0;
+  return weightedPool(pack.topPrice ? [...eligible].sort((a, b) => price(b) - price(a) || ovr({ playerId: b.id, level: 1 }) - ovr({ playerId: a.id, level: 1 }) || a.id - b.id).slice(0, pack.topPrice) : eligible);
+});
+// Các mùa của gói kèm tỷ lệ mùa (0–1) và trọng số từng cầu thủ trong mùa. Gói một mùa lấy tỷ lệ mùa từ weights;
+// gói hỗn hợp lấy theo phần trọng số của mùa trong nhóm gộp (mùa không có ai đủ OVR thì bỏ), giữ thứ tự seasons.
+function seasonPools(pack: Pack) {
+  if (!pack.seasons) return TIERS.flatMap((tier, i) => pack.weights[i] > 0 ? [{ tier, weight: pack.weights[i] / 100, members: tierPool(tier) }] : []);
+  const pool = mixedPool(pack), total = pool.reduce((sum, item) => sum + item.weight, 0);
+  return pack.seasons.map(tier => {
+    const members = pool.filter(item => item.player.tier === tier);
+    return { tier, weight: members.reduce((sum, item) => sum + item.weight, 0) / total, members };
+  }).filter(season => season.members.length);
 }
 function levelOdds(pack: Pack) {
   const [min, max] = pack.levels ?? PACK_LEVELS;
@@ -422,23 +580,19 @@ function pick<T extends { weight: number }>(items: T[], value: number) {
 }
 // Bảng tỷ lệ công bố của gói (0–1): từng cầu thủ (đã nhân tỷ lệ mùa) và từng cấp cộng.
 export function packOdds(pack: Pack) {
-  const pool = TIERS.flatMap((tier, i) => {
-    if (pack.weights[i] <= 0) return [];
-    const members = tierPool(tier), total = members.reduce((sum, item) => sum + item.weight, 0);
-    return members.map(({ player, weight }) => ({ player, chance: pack.weights[i] / 100 * weight / total }));
+  const pool = seasonPools(pack).flatMap(({ weight: share, members }) => {
+    const total = members.reduce((sum, item) => sum + item.weight, 0);
+    return members.map(({ player, weight }) => ({ player, chance: share * weight / total }));
   });
   return { pool, levels: levelOdds(pack).map(({ level, chance }) => ({ level, chance })) };
 }
 export function draw(pack: Pack, rng = random): Card {
   if (!isPackAvailable(pack)) throw new Error(`${pack.name} chưa có cầu thủ. Vui lòng chờ cập nhật.`);
-  const value = rng() * 100;
-  // Cộng dồn tỷ lệ theo thứ tự TIERS; làm tròn số thực có thể vượt 100 thì lấy mùa cuối cùng có tỷ lệ.
-  let below = 0, tier: Tier = TIERS[0];
-  for (let i = 0; i < TIERS.length; i++) { if (pack.weights[i] <= 0) continue; tier = TIERS[i]; below += pack.weights[i]; if (value < below) break; }
-  const card = makeCard(pick(tierPool(tier), rng()).player.id);
+  // Lượt 1 chọn mùa theo tỷ lệ mùa, lượt 2 chọn cầu thủ trong mùa, lượt 3 chọn cấp.
+  const card = makeCard(pick(pick(seasonPools(pack), rng()).members, rng()).player.id);
   return { ...card, level: pick(levelOdds(pack), rng()).level };
 }
-export const getPackStock = (state: Save, pack: Pack): number => state.unopened?.[pack.id] ?? 15;
+export const getPackStock = (state: Save, pack: Pack): number => state.unopened?.[pack.id] ?? 0;
 
 export const MAX_INVENTORY_OPEN = 150;
 
@@ -447,7 +601,7 @@ export const getPackOpeningCost = (state: Save, pack: Pack, count: number): numb
 
 export function buyPacks(state: Save, requested: Pack, count: number, free = false): Save {
   const pack = packs.find(item => item.id === requested.id);
-  if (!pack || !isPackAvailable(pack)) throw new Error('Gói này hiện chưa có trong shop.');
+  if (!pack || pack.eventOnly || !isPackAvailable(pack)) throw new Error('Gói này hiện chưa có trong shop.');
   if (!Number.isInteger(count) || count < 1 || count > MAX_INVENTORY_OPEN) throw new Error(`Hãy chọn từ 1 đến ${MAX_INVENTORY_OPEN} gói.`);
   const cost = pack.price * count;
   const stock = getPackStock(state, pack) + count;
@@ -458,7 +612,7 @@ export function buyPacks(state: Save, requested: Pack, count: number, free = fal
   return {
     ...state,
     balance: free ? state.balance : state.balance - cost,
-    unopened: { eternal: 15, stellar: 15, origin: 15, prime: 15, vietnam: 15, prm: 15, mdl: 15, amb: 15, ...state.unopened, [pack.id]: stock },
+    unopened: { ...defaultUnopened(), ...state.unopened, [pack.id]: stock },
     prepaid: { ...state.prepaid, [pack.id]: prepaid },
     history: [entry, ...state.history].slice(0, 200),
   };
@@ -470,7 +624,7 @@ export function openSelectedPacks(state: Save, selected: Pack[], rng = random, f
   const seen = new Set<string>();
   let openingPack: Pack | undefined;
   for (const pack of selected) {
-    if (seen.has(pack.id) || !isPackAvailable(pack)) continue;
+    if (seen.has(pack.id) || pack.choose || !isPackAvailable(pack)) continue;
     seen.add(pack.id);
     const count = Math.min(getPackStock(next, pack), MAX_INVENTORY_OPEN - cards.length);
     if (count < 1) continue;
@@ -485,6 +639,7 @@ export function openSelectedPacks(state: Save, selected: Pack[], rng = random, f
 }
 
 export function openPacks(state: Save, pack: Pack, count: number, rng = random, free = false): { state: Save; cards: Card[] } {
+  if (pack.choose) throw new Error(`${pack.name} là gói chỉ định: hãy chọn cầu thủ muốn nhận.`);
   if (!Number.isInteger(count) || count < 1 || count > MAX_INVENTORY_OPEN) throw new Error(`Hãy chọn từ 1 đến ${MAX_INVENTORY_OPEN} thẻ.`);
   const cost = free ? 0 : getPackOpeningCost(state, pack, count);
   if (state.balance < cost) throw new Error('Không đủ BP để mở gói này. Hãy nhận quà điểm danh hoặc chọn gói khác.');
@@ -493,7 +648,18 @@ export function openPacks(state: Save, pack: Pack, count: number, rng = random, 
   const cards = Array.from({ length: count }, () => draw(pack, rng));
   const best = [...cards].sort((a, b) => ovr(b) - ovr(a))[0];
   const entry: Entry = { id: uid(), time: Date.now(), type: 'pack', title: `Mở ${count} ${pack.name.toLowerCase()}`, detail: `${getPlayer(best).name} +${best.level} · OVR ${ovr(best)} · ${free ? 'Thử nghiệm · Không trừ BP' : cost === 0 ? 'Gói đã thanh toán · Không trừ thêm BP' : `−${money(cost)} BP`}` };
-  return { state: { ...state, unopened: { eternal: 15, stellar: 15, origin: 15, prime: 15, vietnam: 15, prm: 15, mdl: 15, amb: 15, ...state.unopened, [pack.id]: available - count }, ...(state.prepaid ? { prepaid: { ...state.prepaid, [pack.id]: Math.max(0, (state.prepaid[pack.id] ?? 0) - count) } } : {}), balance: state.balance - cost, cards: [...cards, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + count }, cards };
+  return { state: { ...state, unopened: { ...defaultUnopened(), ...state.unopened, [pack.id]: available - count }, ...(state.prepaid ? { prepaid: { ...state.prepaid, [pack.id]: Math.max(0, (state.prepaid[pack.id] ?? 0) - count) } } : {}), balance: state.balance - cost, cards: [...cards, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + count }, cards };
+}
+// Gói chỉ định: danh sách cầu thủ được chọn (giá +1 cao nhất trước) và mở 1 gói nhận đúng cầu thủ đã chọn ở cấp của gói.
+export const choosePool = (pack: Pack): Player[] => packOdds(pack).pool.map(row => row.player).sort((a, b) => (basePrices[String(b.id)]?.[0] ?? 0) - (basePrices[String(a.id)]?.[0] ?? 0) || b.ovr - a.ovr || a.id - b.id);
+export function openChosen(state: Save, pack: Pack, playerId: number): { state: Save; card: Card } {
+  if (!pack.choose) throw new Error('Gói này không phải gói chỉ định.');
+  const available = getPackStock(state, pack);
+  if (available < 1) throw new Error('Bạn không còn gói này trong kho.');
+  if (!choosePool(pack).some(player => player.id === playerId)) throw new Error('Cầu thủ này không có trong danh sách của gói.');
+  const card = { ...makeCard(playerId), level: (pack.levels ?? PACK_LEVELS)[1] };
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'pack', title: `Mở ${pack.name}`, detail: `Chọn ${getPlayer(card).name} +${card.level} · OVR ${ovr(card)}` };
+  return { state: { ...state, unopened: { ...defaultUnopened(), ...state.unopened, [pack.id]: available - 1 }, cards: [card, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + 1 }, card };
 }
 // Độ lệch OVR chuẩn theo cấp đang đập (+1 … +12): phôi có OVR = OVR thẻ chính + độ lệch nạp đúng 1 vạch.
 export const GAUGE_OFFSETS = [-2, -.5, 0, .3, 1, 1.8, 2.5, 3.3, 4.1, 5, 6, 7] as const;
@@ -551,10 +717,12 @@ export function upgrade(state: Save, targetId: string, materialIds: string[], rn
   return { state: { ...state, balance: free ? state.balance : state.balance - info.cost - protectCost, cards: state.cards.filter(c => !materialIds.includes(c.uid)).map(c => c.uid === targetId ? result : c), history: [entry, ...state.history].slice(0, 200), upgrades: state.upgrades + 1, bridge: turn.bridge }, result, success, info, droppedLevel, restoredLevel, shielded, protectCost, turn: turn.turn };
 }
 export function dayKey(date = new Date()) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date); }
+// Quà điểm danh mỗi ngày: DAILY_FC FC (dùng để chơi sự kiện Nâng Cấp Siêu Sao); người dùng bỏ phần BP.
+export const DAILY_FC = 12_500;
 export function claimDaily(state: Save): Save {
   const today = dayKey();
   if (state.daily === today) throw new Error('Bạn đã nhận quà hôm nay. Hẹn gặp lại vào ngày mai!');
-  return { ...state, daily: today, balance: state.balance + 1000000, history: [{ id: uid(), time: Date.now(), type: 'gift' as const, title: 'Quà điểm danh mỗi ngày', detail: '+1.000.000 BP vào tài khoản' }, ...state.history].slice(0, 200) };
+  return { ...state, daily: today, fc: (state.fc ?? 0) + DAILY_FC, history: [{ id: uid(), time: Date.now(), type: 'gift' as const, title: 'Quà điểm danh mỗi ngày', detail: `+${money(DAILY_FC)} FC vào tài khoản` }, ...state.history].slice(0, 200) };
 }
 export const STORAGE_KEY = 'arena-huyen-thoai-v1';
 // Thẻ ICON cũ đã rút khỏi danh sách được đổi sang ICON mới để bản lưu cũ vẫn mở được.
@@ -580,6 +748,19 @@ export function validateSave(data: unknown): data is Save {
     const owned = new Set(Array.isArray(s.cards) ? s.cards.map(c => c?.uid) : []);
     if (Array.isArray(s.locked)) s.locked = [...new Set(s.locked.filter(uid => typeof uid === 'string' && owned.has(uid)))]; else delete s.locked;
   }
-  if (s.prepaid !== undefined && (!s.prepaid || typeof s.prepaid !== 'object' || Array.isArray(s.prepaid) || !Object.entries(s.prepaid).every(([id, count]) => { const pack = packs.find(p => p.id === id); return !!pack && Number.isSafeInteger(count) && count >= 0 && count <= getPackStock(s, pack); }))) return false;
-  return s.version === 1 && Number.isSafeInteger(s.balance) && s.balance >= 0 && Array.isArray(s.cards) && s.cards.every(c => c && typeof c.uid === 'string' && players.some(p => p.id === c.playerId) && Number.isInteger(c.level) && c.level >= 1 && c.level <= MAX_LEVEL && Number.isFinite(c.received)) && new Set(s.cards.map(c => c.uid)).size === s.cards.length && Array.isArray(s.history) && s.history.every(e => e && typeof e.id === 'string' && Number.isFinite(e.time) && ['pack', 'upgrade', 'gift', 'market', 'shop'].includes(e.type) && typeof e.title === 'string' && typeof e.detail === 'string') && typeof s.daily === 'string' && Number.isSafeInteger(s.opened) && s.opened >= 0 && Number.isSafeInteger(s.upgrades) && s.upgrades >= 0 && typeof s.sound === 'boolean' && typeof s.reduced === 'boolean' && (s.quick === undefined || typeof s.quick === 'boolean') && (s.light === undefined || typeof s.light === 'boolean') && (s.unopened === undefined || (!!s.unopened && typeof s.unopened === 'object' && !Array.isArray(s.unopened) && packs.every(p => s.unopened![p.id] === undefined || (Number.isSafeInteger(s.unopened![p.id]) && s.unopened![p.id] >= 0))));
+  if (s && typeof s === 'object' && s.reset !== SAVE_RESET) { s.unopened = defaultUnopened(); delete s.prepaid; delete s.event; s.balance = START_BP; delete s.fc; s.reset = SAVE_RESET; }
+  // FC và tiến trình sự kiện sai kiểu thì bỏ, không làm hỏng cả bản lưu.
+  if (s.fc !== undefined && !(Number.isSafeInteger(s.fc) && s.fc >= 0)) delete s.fc;
+  if (s.event !== undefined && !(s.event && Number.isSafeInteger(s.event.points) && s.event.points >= 0 && Number.isSafeInteger(s.event.plays) && s.event.plays >= 0 && Array.isArray(s.event.claimed) && s.event.claimed.every(n => Number.isSafeInteger(n) && n >= 0) && [s.event.free, s.event.paid].every(n => n === undefined || (Number.isSafeInteger(n) && n >= 0)) && (s.event.day === undefined || typeof s.event.day === 'string') && (s.event.missions === undefined || (Array.isArray(s.event.missions) && s.event.missions.every(id => typeof id === 'string'))))) delete s.event;
+  // Nhật ký quà sự kiện chỉ để xem lại: dòng hỏng thì bỏ dòng đó.
+  if (s.event) {
+    if (s.event.log !== undefined) s.event.log = Array.isArray(s.event.log) ? s.event.log.filter(e => e && Number.isFinite(e.time) && Number.isInteger(e.level) && Number.isInteger(e.jar) && Number.isInteger(e.points) && isEventReward(e.reward)) : [];
+    // Bản lưu cũ ghi 1 quà mỗi lần nhận mốc (reward): đổi sang bộ quà rewards.
+    if (s.event.gifts !== undefined) s.event.gifts = Array.isArray(s.event.gifts) ? s.event.gifts.map(e => e && !Array.isArray(e.rewards) && isEventReward((e as { reward?: unknown }).reward) ? { time: e.time, milestone: e.milestone, rewards: [(e as unknown as { reward: EventReward }).reward] } : e).filter(e => e && Number.isFinite(e.time) && Number.isInteger(e.milestone) && Array.isArray(e.rewards) && e.rewards.every(isEventReward)) : [];
+  }
+  if (s.prepaid !== undefined && (!s.prepaid || typeof s.prepaid !== 'object' || Array.isArray(s.prepaid) || !Object.entries(s.prepaid).every(([id, count]) => { const pack = packs.find(p => p.id === id); return Number.isSafeInteger(count) && count >= 0 && (!pack || count <= getPackStock(s, pack)); }))) return false;
+  const valid = s.version === 1 && Number.isSafeInteger(s.balance) && s.balance >= 0 && Array.isArray(s.cards) && s.cards.every(c => c && typeof c.uid === 'string' && players.some(p => p.id === c.playerId) && Number.isInteger(c.level) && c.level >= 1 && c.level <= MAX_LEVEL && Number.isFinite(c.received)) && new Set(s.cards.map(c => c.uid)).size === s.cards.length && Array.isArray(s.history) && s.history.every(e => e && typeof e.id === 'string' && Number.isFinite(e.time) && ['pack', 'upgrade', 'gift', 'market', 'shop', 'event'].includes(e.type) && typeof e.title === 'string' && typeof e.detail === 'string') && typeof s.daily === 'string' && Number.isSafeInteger(s.opened) && s.opened >= 0 && Number.isSafeInteger(s.upgrades) && s.upgrades >= 0 && typeof s.sound === 'boolean' && typeof s.reduced === 'boolean' && (s.quick === undefined || typeof s.quick === 'boolean') && (s.light === undefined || typeof s.light === 'boolean') && (s.unopened === undefined || (!!s.unopened && typeof s.unopened === 'object' && !Array.isArray(s.unopened) && packs.every(p => s.unopened![p.id] === undefined || (Number.isSafeInteger(s.unopened![p.id]) && s.unopened![p.id] >= 0))));
+  // Chỉ đặt BP về 0 một lần; giữ nguyên FC, kho thẻ và tiến trình hiện có.
+  if (valid && s.bpReset !== BP_RESET) { s.balance = START_BP; s.bpReset = BP_RESET; }
+  return valid;
 }

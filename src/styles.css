@@ -99,7 +99,7 @@
 /* Máº·t sau tháº» ICON The Moment */
 .pack-art.tm-back .pack-side,.pack-art.tm-back .pack-face:before{display:none}
 .pack-art.tm-back .pack-face{background:none;border:0;clip-path:none;overflow:visible}
-.pack-art.tm-back .pack-face>:not(.tm-back-img):not(.pack-shine){display:none}
+.pack-art.tm-back .pack-face>:not(.tm-back-img):not(.pack-shine):not(.pack-level-badge){display:none}
 .tm-back-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 6px 14px #0008)}
 .pack-art.tm-back .pack-shine{display:none}
 
@@ -1007,3 +1007,9 @@ img.card-level{background:none;border:0;padding:0;border-radius:0;height:20px;wi
 .rt-band i{display:flex;align-items:center;gap:16px;font-style:normal}
 .rt-band em{font-style:normal;opacity:.8}
 .rt-band img{height:1.2em;width:auto;transform:rotate(-90deg)}
+/* Gói cấp cố định (26TS +5): huy hiệu cấp ngang vai, đè lên đầu tay áo phải (như ảnh gói gốc). Ảnh gói (tỉ lệ ~0,663) hiển thị kiểu contain nên vị trí tính theo khung ảnh thật. */
+.pack-art.tm-back .pack-face{container-type:size}
+/* --behind = số bậc lùi sau huy hiệu cấp cao nhất: mỗi bậc lệch sang phải 12,5% và lên trên 19% cỡ huy hiệu (huy hiệu sau vẽ trước nên nằm dưới).
+   --stack = tổng số bậc: cả chồng dời sang trái để huy hiệu sau cùng nằm đúng chỗ huy hiệu đơn, không lấn ra sát viền khung. */
+.pack-level-badge{position:absolute;z-index:2;top:33%;right:11%;width:18%;height:auto;translate:calc((var(--behind, 0) - var(--stack, 0)) * 12.5%) calc(var(--behind, 0) * -19%);filter:drop-shadow(0 1px 2px #0009)}
+.pack-art.tm-back .pack-level-badge{--img-w:min(100cqw, 100cqh * .663);width:calc(var(--img-w) * .18);right:calc((100cqw - var(--img-w)) / 2 + var(--img-w) * .11);top:calc((100cqh - var(--img-w) / .663) / 2 + var(--img-w) / .663 * .325)}

@@ -1,0 +1,246 @@
+/* Trang sự kiện Nâng Cấp Siêu Sao (EventPage.tsx); ảnh ở public/assets/event. */
+.event-page { --ev-gold: #ffc23d; --ev-orange: #ff7a1a; --ev-purple: #2a0a5c; max-width: none; color: #fff; }
+/* Mỗi phần là một màn cố định: khung thiết kế 1440×800 (.ev-canvas) thu phóng đều theo --ev-scale (EventPage.tsx) cho vừa
+   vùng hiển thị, không xếp lại bố cục khi đổi cỡ màn hình; cuộn dọc dừng đúng từng phần. */
+.main-content > .workspace.event-page { display: block; padding: 0; overflow-x: hidden; overflow-y: auto; scroll-snap-type: y proximity; }
+.event-page h2, .event-page h3 { margin: 0; }
+.ev-screen { position: relative; height: 100%; overflow: hidden; scroll-snap-align: start; background: #12052c center / cover no-repeat; }
+.ev-canvas { position: absolute; left: 50%; top: 50%; width: 1440px; height: 800px; transform: translate(-50%, -50%) scale(var(--ev-scale, 1)); }
+.ev-logo { position: absolute; left: 1035px; top: 30px; width: 380px; filter: drop-shadow(0 8px 24px rgba(0, 0, 0, .6)); }
+.ev-witch { position: absolute; left: 1320px; top: 34px; width: 110px; animation: ev-float 4s ease-in-out infinite; pointer-events: none; }
+@keyframes ev-float { 50% { transform: translateY(-10px); } }
+.reduced-motion .ev-witch { animation: none; }
+/* Sân khấu 820px thu 80% để có chỗ cho khung HLV bên trái và khung chơi bên phải. */
+.ev-stage-wrap { position: absolute; z-index: 1; left: 335px; top: 205px; width: 820px; transform: scale(.8); transform-origin: top left; }
+.ev-side { position: absolute; z-index: 2; left: 1010px; top: 330px; width: 500px; transform: scale(.82); transform-origin: top left; }
+.ev-stats { display: flex; justify-content: center; gap: 10px; }
+.ev-currency { width: 160px; padding: 9px 10px; background: center / 100% 100% no-repeat; text-align: center; }
+.ev-currency small { display: block; font-size: 11px; color: #e7d6ff; text-transform: uppercase; letter-spacing: .06em; }
+.ev-currency b { font-size: 20px; color: var(--ev-gold); text-shadow: 0 2px 0 #6b1d00; }
+.ev-note { text-align: center; margin: 8px 0 6px; font-size: 12px; color: #d9c8ff; }
+
+/* Sân khấu: vạc bí ngô (pedestal) làm nền, vạc phép ở giữa, 8 hũ đặt theo JAR_SPOTS. */
+.ev-stage { position: relative; height: 540px; }
+/* Vạc bí ngô phóng to: mặt tím (elip) làm sàn cho các hũ, thân đỏ kéo xuống dưới thanh cấp. */
+.ev-pedestal { position: absolute; left: -120px; top: 110px; width: 1060px; max-width: none; pointer-events: none; }
+/* Hũ đứng im; quà (ảnh gói hoặc thẻ BP) cắm trong miệng hũ, phần dưới bị thân hũ che; chữ điểm đè lên thân hũ. */
+.ev-jar { position: absolute; width: 123px; transform: translate(-50%, -100%); display: flex; flex-direction: column; align-items: center; cursor: default; }
+.ev-prize { position: relative; z-index: 0; width: 54%; margin-bottom: -24%; }
+.ev-prize::before { content: ''; position: absolute; inset: -40% -60% -10%; z-index: -1; background: radial-gradient(closest-side, rgba(255, 240, 170, 1), rgba(255, 196, 70, .7) 40%, rgba(255, 150, 40, .25) 65%, transparent 80%); }
+.ev-prize > img, .ev-bp-card img { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 8px rgba(0, 0, 0, .45); }
+/* Thẻ BP (bp-card.webp): số BP chữ trắng nằm trên góc tam giác tối dưới phải. */
+.ev-bp-card { position: relative; display: block; }
+.ev-bp-card img { box-shadow: 0 2px 8px rgba(0, 0, 0, .45); }
+.ev-bp-card b { position: absolute; right: 9%; bottom: 7%; font-size: 13px; font-weight: 900; color: #fff; line-height: 1; letter-spacing: -.02em; }
+.ev-prize.large { width: 110px; margin: 0; }
+.ev-prize.large .ev-bp-card b { font-size: 20px; }
+.ev-prize.large .ev-prize-count { right: -10%; top: 6%; font-size: 15px; }
+.ev-prize-count { position: absolute; right: -14%; top: 34%; padding: 1px 6px; border-radius: 99px; background: #2a0a5c; border: 1px solid var(--ev-gold); color: var(--ev-gold); font-size: 12px; font-weight: 900; }
+.ev-jar-img { position: relative; z-index: 1; width: 100%; aspect-ratio: 1; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(0, 0, 0, .5)); }
+.ev-jar strong { position: relative; z-index: 2; margin-top: -62%; margin-bottom: 40%; font-size: 21px; font-weight: 900; color: #ffd84a; -webkit-text-stroke: 1px #7a2400; text-shadow: 0 2px 0 #7a2400, 0 0 8px rgba(255, 120, 0, .8); white-space: nowrap; }
+.ev-jar.hit .ev-jar-img { animation: ev-hit .45s ease-in-out; filter: drop-shadow(0 0 18px #ffd84a) drop-shadow(0 0 30px #ff7a1a) brightness(1.25); }
+.ev-jar.hit .ev-prize::before { inset: -45% -70%; }
+@keyframes ev-hit { 50% { transform: scale(1.12) translateY(-6px); } }
+
+.ev-levels { position: relative; z-index: 500; display: grid; grid-template-columns: repeat(7, 1fr); margin: 8px 4% 0; }
+.ev-level-line { position: absolute; left: calc(100% / 14); right: calc(100% / 14); top: 22px; height: 10px; border-radius: 99px; background: #1e1b5c; border: 1px solid rgba(255, 255, 255, .25); }
+.ev-level-line i { display: block; height: 100%; max-width: 100%; border-radius: 99px; background: linear-gradient(90deg, #c46a12, #ffb43a); }
+.ev-levels button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0; border: 0; background: none; color: #fff; font-size: 13px; font-weight: 900; text-shadow: 0 2px 0 #4a1d00; cursor: pointer; }
+.ev-level-icon { position: relative; width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(#3b2a63, #160a33); border: 2px solid #6a4ea8; }
+.ev-level-icon img:first-child { width: 34px; }
+.ev-levels .locked .ev-level-icon img:first-child { filter: grayscale(1) brightness(.6); }
+.ev-levels .ev-lock { position: absolute; width: 20px; }
+.ev-levels .current .ev-level-icon { border-color: var(--ev-gold); box-shadow: 0 0 14px var(--ev-orange); }
+.ev-levels .viewing { color: var(--ev-gold); }
+.ev-levels .viewing .ev-level-icon { transform: scale(1.1); }
+.ev-progress-text { position: relative; z-index: 500; margin: 8px 0 0; text-align: center; font-size: 13px; color: #e7d6ff; }
+.ev-progress-text b { color: var(--ev-gold); }
+
+/* Khung chơi: cột lượt miễn phí / nhiệm vụ và 4 nút trả FC. */
+.ev-play { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: 12px; padding: 34px 30px; background: center / 100% 100% no-repeat; }
+.ev-play-free { display: flex; flex-direction: column; gap: 8px; text-align: center; }
+.ev-play-free p { margin: 0; font-size: 11px; font-weight: 800; color: #e7d6ff; text-transform: uppercase; }
+.ev-play-free p b { color: var(--ev-gold); }
+.ev-play-free button { position: relative; min-height: 50px; border: 0; border-radius: 12px; font-size: 13px; font-weight: 900; text-transform: uppercase; cursor: pointer; box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .2); }
+.ev-btn-free { background: linear-gradient(#fff3b8, #f5c94a); color: #7a3c00; }
+.ev-btn-mission { background: linear-gradient(#d9ffd9, #8ee08e); color: #135a1b; }
+.ev-play-free button:disabled { filter: grayscale(1); opacity: .6; cursor: not-allowed; }
+.ev-btn-mission i { position: absolute; top: -6px; right: -6px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: #ff3d3d; color: #fff; font-style: normal; font-size: 11px; line-height: 20px; }
+/* 4 nút trả FC dạng lưới 2×2, khung màu theo mức lượt; --ev-pay = màu viền chữ và dòng số lần. */
+.ev-play-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ev-play-buttons button { --ev-pay: #33e05a; height: 72px; border: 0; background: center / 100% 100% no-repeat transparent; color: #fff; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; transition: transform .15s, filter .15s; }
+.ev-play-buttons .ev-pay-blue { --ev-pay: #22b8ff; }
+.ev-play-buttons .ev-pay-gold { --ev-pay: #ffb300; }
+.ev-play-buttons .ev-pay-orange { --ev-pay: #ff6a1f; }
+.ev-play-buttons button:hover:not(:disabled) { transform: translateY(-2px) scale(1.04); filter: brightness(1.15) drop-shadow(0 0 10px var(--ev-pay)); }
+.ev-play-buttons button:disabled { filter: grayscale(1); opacity: .6; cursor: not-allowed; }
+.ev-play-buttons b { font-size: 24px; font-weight: 900; letter-spacing: -.01em; -webkit-text-stroke: 1px var(--ev-pay); text-shadow: 0 0 8px var(--ev-pay), 0 2px 2px rgba(0, 0, 0, .7); }
+.ev-play-buttons small { margin-top: 3px; font-size: 12px; font-weight: 800; letter-spacing: .04em; color: var(--ev-pay); text-shadow: 0 1px 2px rgba(0, 0, 0, .8); filter: brightness(1.35); }
+
+.ev-ok, .ev-missions li button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 150px; padding: 10px 16px; border: 0; border-radius: 10px; background: linear-gradient(180deg, #ffd45e, #ff7a1a); color: #3a1200; font-weight: 900; cursor: pointer; box-shadow: 0 3px 0 #8a2e00; }
+.ev-missions li button:disabled { background: #4b3a63; color: #bfaedb; box-shadow: none; cursor: not-allowed; }
+
+.ev-modal { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 16px; background: rgba(6, 0, 18, .78); }
+.ev-modal-panel { position: relative; width: min(760px, 100%); max-height: 90vh; display: flex; flex-direction: column; align-items: center; padding: clamp(48px, 8vh, 70px) clamp(40px, 7vw, 76px) clamp(44px, 7vh, 62px); background: transparent center / 100% 100% no-repeat; text-align: center; }
+.ev-modal-panel h2 { font-size: 26px; font-weight: 900; color: var(--ev-gold); text-shadow: 0 2px 0 #6b1d00; }
+.ev-modal-panel > p { margin: 4px 0 14px; color: #e7d6ff; }
+.ev-modal-panel > p b { color: var(--ev-gold); }
+.ev-close { position: absolute; top: 12px; right: 12px; border: 0; background: rgba(0, 0, 0, .4); color: #fff; border-radius: 99px; width: 34px; height: 34px; display: grid; place-items: center; cursor: pointer; }
+.ev-missions ul { list-style: none; width: 100%; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+.ev-missions li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: 12px; background: rgba(0, 0, 0, .4); }
+.ev-missions li div { display: flex; flex-direction: column; gap: 2px; }
+.ev-missions li small { color: #ffcf9a; }
+.ev-missions li button { min-width: 110px; padding: 8px 12px; }
+
+/* Popup Lịch sử nhận quà: khung bí ngô, 2 tab, lưới 2 cột từng lượt chơi và bảng quà tích lũy. */
+.ev-history-open { position: relative; margin-top: 14px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: 1px solid var(--ev-gold); border-radius: 99px; background: rgba(40, 10, 80, .85); color: var(--ev-gold); font-size: 13px; font-weight: 900; cursor: pointer; }
+.ev-history { position: relative; width: min(1280px, 96vw); height: min(860px, 92vh); display: flex; flex-direction: column; align-items: center; padding: clamp(40px, 7vh, 76px) clamp(28px, 6vw, 86px) clamp(36px, 6vh, 64px); background: transparent center / 100% 100% no-repeat; color: #fff; }
+.ev-history h2 { font-size: clamp(26px, 4vw, 46px); font-weight: 900; text-transform: uppercase; text-shadow: 0 3px 0 rgba(0, 0, 0, .35); }
+.ev-history-note { margin: 4px 0 0; font-size: 14px; font-weight: 700; color: #ffe08a; }
+.ev-history-tabs { display: flex; width: 100%; margin: 16px 0 14px; border: 2px solid #ffe2c2; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+.ev-history-tabs button { flex: 1; padding: 11px; border: 0; background: transparent; color: #fff; font-size: 16px; font-weight: 900; text-transform: uppercase; cursor: pointer; }
+.ev-history-tabs button + button { border-left: 2px solid #ffe2c2; }
+.ev-history-tabs button.active { background: #f04a00; }
+.ev-history-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 14px; width: 100%; overflow-y: auto; padding-right: 4px; }
+.ev-history-grid article { display: grid; grid-template-columns: 96px 96px 60px minmax(0, 1fr); align-items: center; gap: 12px; padding: 8px 16px; background: linear-gradient(#f45a0c, #e43d00); border: 2px solid #ff7a2a; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25); }
+.ev-history-grid article.fresh { border-color: #ffe08a; box-shadow: 0 0 12px rgba(255, 224, 138, .7); }
+.ev-history-level, .ev-history-jar { position: relative; display: grid; place-items: center; }
+.ev-history-level img { width: 62px; }
+.ev-history-jar img { width: 86px; aspect-ratio: 1; object-fit: contain; }
+.ev-history-level b, .ev-history-jar b { position: absolute; font-size: 16px; font-weight: 900; color: #ffd84a; white-space: nowrap; -webkit-text-stroke: .8px #6b1d00; text-shadow: 0 2px 0 #6b1d00; }
+.ev-history-level b { color: #fff; }
+.ev-history-grid .ev-prize { width: 56px; margin: 0; }
+.ev-history-grid .ev-prize::before { display: none; }
+.ev-history-grid .ev-bp-card b { font-size: 10px; }
+.ev-history-grid .ev-prize-count { right: -20%; top: -8%; font-size: 10px; }
+.ev-history-grid article div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.ev-history-grid strong { padding-bottom: 4px; border-bottom: 1px solid rgba(255, 255, 255, .6); font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ev-history-grid small { font-size: 13px; }
+.ev-history em { font-style: normal; color: #3df27a; }
+.ev-history-table { width: 100%; overflow-y: auto; }
+.ev-history-table table { width: 100%; border-collapse: collapse; font-size: 15px; font-weight: 700; text-transform: uppercase; }
+.ev-history-table th { padding: 18px 10px; font-weight: 900; border-bottom: 1px solid rgba(255, 255, 255, .6); }
+.ev-history-table td { padding: 16px 10px; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, .6); }
+.ev-history-table tr.fresh td { background: rgba(255, 224, 138, .15); }
+.ev-history-empty { margin: 40px 0; font-size: 16px; color: #ffe2c2; }
+
+/* Hiệu ứng chơi: phù thủy (ảnh witch) bay từ trái vào giữa vạc, lơ lửng thả phép xuống từng thẻ quà trúng rồi bay đi.
+   Vị trí đứng khớp WAND trong EventPage.tsx; --dx/--dy của .ev-spell = khoảng cách từ phù thủy tới thẻ quà. */
+.ev-witch { transition: opacity .3s; }
+.ev-witch.away { opacity: 0; }
+.ev-witch-fly { position: absolute; z-index: 600; left: 360px; top: -60px; width: 140px; pointer-events: none; filter: drop-shadow(0 0 18px rgba(200, 120, 255, .6)); }
+.ev-witch-fly.in { animation: ev-fly-in .7s cubic-bezier(.2, .8, .3, 1) both; }
+.ev-witch-fly.cast { animation: ev-bob .48s ease-in-out infinite alternate; }
+.ev-witch-fly.out { animation: ev-fly-out .7s ease-in both; }
+@keyframes ev-fly-in { from { transform: translate(-620px, 60px) rotate(-10deg); opacity: 0; } 25% { opacity: 1; } to { transform: none; } }
+@keyframes ev-fly-out { to { transform: translate(760px, -120px) rotate(8deg); opacity: 0; } }
+@keyframes ev-bob { from { transform: translateY(0) rotate(-2deg); } to { transform: translateY(-8px) rotate(2deg); } }
+.ev-spell { position: absolute; z-index: 650; width: 0; height: 0; pointer-events: none; }
+.ev-spell i { position: absolute; left: -18px; top: -18px; width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle, #fff 0 18%, #ffe27a 36%, #c06bff 64%, transparent 70%); box-shadow: 0 0 22px #d68bff, 0 0 44px #ffcf4a; animation: ev-spell .42s ease-in both; }
+.ev-spell::after { content: ''; position: absolute; left: -50px; top: -50px; width: 100px; height: 100px; border-radius: 50%; border: 3px solid #ffe27a; box-shadow: 0 0 24px #ffcf4a, inset 0 0 18px #c06bff; opacity: 0; animation: ev-burst .3s ease-out .3s both; }
+@keyframes ev-spell { from { transform: translate(var(--dx), var(--dy)) scale(.4); opacity: 0; } 15% { opacity: 1; } 75% { transform: none; opacity: 1; } to { transform: scale(2.6); opacity: 0; } }
+@keyframes ev-burst { from { transform: scale(.2); opacity: 1; } to { transform: scale(1.3); opacity: 0; } }
+.ev-skip { position: absolute; z-index: 700; right: 10px; top: 0; padding: 7px 16px; border: 1px solid rgba(255, 255, 255, .6); border-radius: 99px; background: rgba(20, 5, 45, .75); color: #fff; font-size: 13px; font-weight: 800; cursor: pointer; }
+
+/* Bảng Chúc mừng sau mỗi lần chơi: cùng khung với Lịch sử, chỉ quà của lần đó; 1 quà thì một dòng lớn ở giữa. */
+.ev-won { width: min(1100px, 94vw); height: auto; max-height: 92vh; padding-top: clamp(56px, 9vh, 96px); }
+.ev-won-sub { margin: 6px 0 0; font-size: clamp(20px, 2.6vw, 32px); font-weight: 600; text-transform: uppercase; }
+.ev-won-list { width: 100%; min-height: 0; margin-top: 18px; overflow-y: auto; }
+.ev-won-list.single .ev-history-grid { grid-template-columns: minmax(0, 780px); justify-content: center; }
+.ev-won-list.single article { grid-template-columns: minmax(64px, 140px) minmax(64px, 130px) minmax(56px, 80px) minmax(150px, 1fr); gap: clamp(8px, 2vw, 18px); padding: clamp(16px, 4vh, 34px) clamp(14px, 4vw, 40px); }
+.ev-won-list.single .ev-history-level img { width: 90px; }
+.ev-won-list.single .ev-history-jar img { width: 120px; }
+.ev-won-list.single .ev-history-level b, .ev-won-list.single .ev-history-jar b { font-size: 22px; }
+.ev-won-list.single .ev-prize { width: 76px; }
+.ev-won-list.single strong { font-size: 17px; white-space: normal; }
+.ev-won-list.single small { font-size: 16px; }
+.ev-history-milestone { grid-column: span 2; position: relative; display: grid; place-items: center; }
+.ev-history-milestone img { width: 80px; }
+.ev-history-milestone b { position: absolute; bottom: -2px; font-size: 16px; font-weight: 900; color: #ffd84a; white-space: nowrap; -webkit-text-stroke: .8px #6b1d00; text-shadow: 0 2px 0 #6b1d00; }
+.ev-won-close { flex-shrink: 0; margin-top: 18px; min-width: 200px; padding: 13px 40px; border: 3px solid #e84a00; border-radius: 99px; background: linear-gradient(#fffbe8, #ffe7a8); color: #8a1a00; font-size: 20px; font-weight: 900; text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 0 rgba(0, 0, 0, .25); }
+.ev-won-close:hover { filter: brightness(1.05); }
+
+/* Trỏ chuột vào hũ: khung tối phía trên thẻ quà ghi tên gói / số BP. */
+.ev-jar:hover { z-index: 999 !important; }
+.ev-jar-tip { position: absolute; left: 50%; top: -14px; z-index: 3; transform: translate(-50%, -100%); display: none; padding: 8px 16px; font-size: 17px; font-weight: 600; color: #fff; border-radius: 8px; background: rgba(28, 28, 32, .92); box-shadow: 0 4px 14px rgba(0, 0, 0, .5); white-space: nowrap; pointer-events: none; }
+.ev-jar:hover .ev-jar-tip { display: block; }
+/* Thẻ FC (fc-card.webp của người dùng: chữ FC và đồng FC in sẵn, không có góc tối): số FC chữ tối ở giữa, dưới đồng xu. */
+.ev-bp-card.ev-fc-card b { right: 0; left: 0; bottom: 19%; text-align: center; color: #2b2f36; }
+.ev-prize.large .ev-fc-card b { font-size: 20px; }
+
+/* Quà tích lũy (màn 2): khung cao 1440×2760 thu phóng cùng tỉ lệ --ev-scale, neo mép trên; nội dung cao ~2.670px, còn lề đáy. */
+.ev-screen.ev-milestones { height: calc(2760px * var(--ev-scale, 1)); background-color: #2a0a5c; background-position: center top; }
+.ev-milestones .ev-canvas { top: 0; height: 2760px; transform: translateX(-50%) scale(var(--ev-scale, 1)); transform-origin: top center; padding-top: 40px; text-align: center; }
+.ev-title { display: block; width: 470px; margin: 0 auto; }
+.ev-sub { margin: 10px 0 0; font-size: 22px; font-weight: 600; color: #fff; }
+.ev-score { display: grid; grid-template-columns: 1fr 1fr; width: 1160px; margin: 28px auto 0; border-radius: 6px; overflow: hidden; text-align: left; }
+.ev-score b { display: grid; place-items: center; padding: 18px; background: linear-gradient(90deg, #6a12c9, #230a63); font-size: 30px; font-weight: 900; text-transform: uppercase; color: #fff4dc; }
+.ev-score span { padding: 12px 24px; background: #d24bf2; font-size: 21px; line-height: 1.35; color: #fff; }
+.ev-bundle { display: inline-flex; align-items: flex-end; }
+.ev-bundle .ev-prize { width: 104px; margin: 0; }
+.ev-bundle .ev-prize + .ev-prize { margin-left: -4px; }
+.ev-bundle .ev-prize::before { display: none; }
+.ev-bundle .ev-bp-card b { font-size: 15px; }
+.ev-bundle.large .ev-prize { width: 150px; }
+.ev-bundle.large .ev-bp-card b { font-size: 22px; }
+.ev-ms-top { display: flex; justify-content: space-around; width: 1360px; margin: 50px auto 0; padding: 40px 30px 34px; border: 6px solid #120428; border-radius: 48px; background: linear-gradient(90deg, #3a0c7c, #8a2fe0); box-shadow: inset 0 0 0 2px #b77bff55, 0 10px 30px rgba(0, 0, 0, .4); }
+.ev-ms-single { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 0; border: 0; background: none; color: #fff; cursor: pointer; }
+.ev-ms-single:disabled { cursor: default; }
+.ev-ms-label { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 230px; min-height: 66px; padding: 8px 18px; border: 3px solid #c48dff; border-radius: 10px 22px 10px 22px; background: linear-gradient(#5a1cb8, #2a0a6a); box-shadow: 0 0 0 2px #1a0638, 0 0 14px rgba(170, 100, 255, .5); }
+.ev-ms-label b { font-size: 25px; font-weight: 900; text-transform: uppercase; color: #fff4dc; white-space: nowrap; }
+.ev-ms-label small { font-size: 14px; font-weight: 800; text-transform: uppercase; color: #fff; }
+.ev-ms-grid { display: grid; grid-template-columns: repeat(3, 440px); justify-content: center; gap: 70px 40px; margin-top: 90px; }
+.ev-ms-pick { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+/* Mốc lẻ cuối cùng (một mình một hàng, vd. 1.200 điểm) đặt vào cột giữa. */
+.ev-ms-pick:last-child:nth-child(3n + 1) { grid-column: 2; }
+.ev-ms-options { display: flex; justify-content: center; gap: 8px; }
+.ev-ms-options .ev-bundle .ev-prize { width: 72px; }
+.ev-ms-options .ev-bundle .ev-prize + .ev-prize { margin-left: -3px; }
+.ev-ms-options .ev-bundle .ev-bp-card b { font-size: 11px; }
+.ev-ms-pick .ev-ms-label { width: 100%; font: inherit; color: #fff; cursor: pointer; transition: transform .15s, filter .15s; }
+/* Nút nhãn mốc chọn 1 trong 3: bấm mở popup chọn quà. */
+.ev-ms-pick .ev-ms-label:hover { transform: translateY(-2px); filter: brightness(1.15); }
+.ev-ms-pick .ev-ms-label b { font-size: 23px; }
+.ev-ms-single.ready .ev-bundle, .ev-ms-pick.ready .ev-bundle { filter: drop-shadow(0 0 12px #ffd84a); }
+.ev-ms-single.ready .ev-ms-label, .ev-ms-pick.ready .ev-ms-label { border-color: #ffd84a; box-shadow: 0 0 0 2px #1a0638, 0 0 18px #ffb43a; }
+.ev-ms-single.done .ev-bundle, .ev-ms-pick.done .ev-bundle { filter: grayscale(.7) brightness(.6); }
+/* Popup chọn 1 trong 3 quà mốc: 3 bộ quà, tên đầy đủ và nút CHỌN dưới mỗi bộ. */
+.ev-pick { width: min(1000px, 94vw); }
+.ev-pick-head { margin: 0; font-size: clamp(16px, 2vw, 22px); font-weight: 600; line-height: 1.45; text-align: center; text-transform: uppercase; color: #fff; }
+.ev-pick-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(12px, 3vw, 36px); width: 100%; margin-top: clamp(16px, 4vh, 36px); }
+.ev-pick-item { display: flex; flex-direction: column; align-items: center; gap: 14px; text-align: center; }
+.ev-pick-item p { flex: 1; margin: 0; font-size: clamp(13px, 1.5vw, 16px); line-height: 1.4; color: #fff; }
+.ev-pick-item .ev-won-close { margin-top: 0; min-width: 0; width: min(170px, 100%); padding: 9px 20px; }
+.ev-pick-item .ev-won-close:disabled { filter: grayscale(1); opacity: .55; cursor: not-allowed; }
+.ev-pick .ev-bundle.large .ev-prize { width: clamp(70px, 9vw, 110px); }
+/* Ảnh gói kèm huy hiệu cấp (.pack-level-badge dùng chung với PackArt, đặt theo % khung ảnh gói). */
+.ev-pack { position: relative; display: block; }
+.ev-prize .ev-pack > img:first-child { display: block; width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 8px rgba(0, 0, 0, .45); }
+/* Trỏ chuột vào bộ quà mốc: khung tối phía trên liệt kê từng quà trong nhóm (cùng kiểu .ev-jar-tip). */
+.ev-bundle { position: relative; }
+.ev-bundle-tip { position: absolute; left: 50%; bottom: calc(100% + 10px); z-index: 50; transform: translateX(-50%); display: none; flex-direction: column; gap: 4px; padding: 10px 18px; border-radius: 8px; background: rgba(28, 28, 32, .94); box-shadow: 0 4px 14px rgba(0, 0, 0, .5); font-size: 17px; font-weight: 600; color: #fff; text-align: left; white-space: nowrap; pointer-events: none; }
+.ev-bundle:hover .ev-bundle-tip { display: flex; }
+.ev-ms-pick:hover, .ev-ms-single:hover { position: relative; z-index: 5; }
+
+/* Giải Đặc Biệt / Mini (src/jackpot.ts): 2 ô số FC trên ảnh khung có sẵn chữ, bảng tin 2 người trúng gần nhất. */
+.ev-jackpot { position: absolute; z-index: 3; left: 20px; top: 12px; width: 470px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.ev-jackpot-boxes { display: flex; gap: 12px; }
+.ev-jackpot-boxes > div { width: 210px; height: 56px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 4px; background: center / 100% 100% no-repeat; }
+.ev-jackpot-boxes b { font-size: 23px; font-weight: 900; line-height: 1; color: #fff; text-shadow: 0 2px 0 #2a0a5c, 0 0 10px rgba(255, 255, 255, .35); }
+.ev-jackpot-feed { width: 290px; margin: 0; padding: 5px 10px; background: center / 100% 100% no-repeat; text-align: center; font-size: 13px; font-weight: 700; line-height: 1.3; color: #fff; }
+.ev-jackpot-feed.mine { color: #ffe08a; }
+/* Khung thông tin HLV (bên trái sân khấu): cấp hiện tại, điểm đang có, thanh tới cấp sau, nút lịch sử. */
+.ev-coach { position: absolute; z-index: 2; left: 22px; top: 230px; width: 300px; height: 545px; display: flex; flex-direction: column; align-items: center; padding: 26px 30px 24px; background: center / 100% 100% no-repeat; color: #fff; text-align: center; }
+.ev-coach-board { width: 230px; height: 90px; margin-top: -40px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 6px 0 0 34px; background: center / contain no-repeat; line-height: 1.1; }
+.ev-coach-board b { font-size: 22px; font-weight: 900; color: #ffe9a8; text-transform: uppercase; text-shadow: 0 2px 0 #4a1d00; }
+.ev-coach-board span { font-size: 17px; font-weight: 700; color: #fff3d0; text-shadow: 0 1px 0 #4a1d00; }
+.ev-coach-level { display: flex; align-items: center; gap: 16px; margin-top: 22px; text-align: left; }
+.ev-coach-level img { width: 78px; filter: drop-shadow(0 0 10px rgba(255, 150, 40, .6)); }
+.ev-coach-level small, .ev-coach-label { font-size: 15px; font-weight: 700; text-transform: uppercase; color: #e7d6ff; }
+.ev-coach-level b { display: block; font-size: 34px; font-weight: 900; text-transform: uppercase; }
+.ev-coach hr { width: 100%; margin: 22px 0 16px; border: 0; border-top: 1px solid rgba(255, 255, 255, .45); }
+.ev-coach-points { font-size: 42px; font-weight: 900; line-height: 1.2; }
+.ev-coach-bar { width: 100%; height: 20px; margin-top: 12px; border-radius: 6px; background: #120a40; border: 2px solid #e8e0ff; overflow: hidden; }
+.ev-coach-bar i { display: block; height: 100%; background: repeating-linear-gradient(-45deg, #ffb43a 0 8px, #e08a10 8px 16px); }
+.ev-coach-need { margin: 12px 0 0; font-size: 15px; line-height: 1.4; color: #f1e4ff; }
+.ev-coach-need b { color: var(--ev-gold); }

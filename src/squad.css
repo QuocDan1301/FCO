@@ -102,7 +102,7 @@
 .squad-name{display:flex;align-items:center;gap:7px;min-width:0}
 .squad-name strong{font-family:var(--display);font-size:16px;font-weight:700;color:#f6f7f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .squad-season{flex:none;padding:1px 4px;border:1px solid currentColor;border-radius:2px;font-family:var(--display);font-size:11px;line-height:1.2;color:#c9b27a}
-.season-tag-stellar{color:#7aa8ff}.season-tag-origin{color:#c4ccd6}.season-tag-eternal{color:#e6c46a}.season-tag-prime{color:#ff7a6e}.season-tag-vietnam{color:#ff8c7a}.season-tag-prm{color:#ffab5e}.season-tag-mdl{color:#e8cf8a}.season-tag-amb{color:#5be083}
+.season-tag-stellar{color:#7aa8ff}.season-tag-origin{color:#c4ccd6}.season-tag-eternal{color:#e6c46a}.season-tag-prime{color:#ff7a6e}.season-tag-vietnam{color:#ff8c7a}.season-tag-prm{color:#ffab5e}.season-tag-mdl{color:#e8cf8a}.season-tag-amb{color:#5be083}.season-tag-uc{color:#c08bff}.season-tag-wg{color:#f7b552}.season-tag-ut{color:#b197fc}.season-tag-cu{color:#e9c46a}.season-tag-gru{color:#5fd4c4}.season-tag-rtn{color:#ecc46a}.season-tag-dc{color:#dcbc84}.season-tag-cc{color:#c9b0ff}.season-tag-bld{color:#ecd29a}.season-tag-wb{color:#b89cff}.season-tag-spt{color:#ff8a6a}
 .squad-dup{flex:none;padding:0 5px;border-radius:3px;background:#2a323c;font-style:normal;font-family:var(--display);font-size:12px;font-weight:700;color:#d6dde6}
 /* Lương: lục giác nền xám tối, viền sáng mảnh (lớp ::before nằm dưới chữ), chữ trắng đậm. */
 .squad-wage{position:relative;isolation:isolate;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;clip-path:polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%);background:#79828f;color:#fff;font-family:var(--display);font-size:13px;font-weight:800}

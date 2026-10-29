@@ -7,7 +7,8 @@ import { matchPublic, publicPatternList } from '../src/upgrade/publicPattern.ts'
 import { historicalCandidates, hiddenMatches } from '../src/upgrade/hiddenPattern.ts';
 import { finalRate } from '../src/upgrade/probability.ts';
 import { emptyBridge, isBridgeState, recordOutcome, resolveUpgrade, type BridgeState, type LevelBridge } from '../src/upgrade/engine.ts';
-import { initialSave, makeCard, UPGRADE_LEVELS, upgrade, upgradeInfo, validateSave } from '../src/game.ts';
+import { makeCard, UPGRADE_LEVELS, upgrade, upgradeInfo, validateSave } from '../src/game.ts';
+import { initialSave } from './stocked-save.ts';
 
 const always = (value: number): Rng => () => value;
 // Đếm số lần một RNG bị gọi.

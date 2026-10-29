@@ -1,18 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { draw, getPlayer, initialSave, isPackAvailable, openPacks, packs, players, seasons, TIERS, validateSave } from '../src/game.ts';
+import { defaultPacks, draw, getPlayer, isPackAvailable, openPacks, packs, players, seasons, TIERS, validateSave } from '../src/game.ts';
+import { initialSave } from './stocked-save.ts';
 import { getTeamLogo } from '../src/teamLogos.ts';
 import { rngFor } from './pack-rng.ts';
 
-const pack = packs.find(p => p.id === 'prm')!;
+// Định nghĩa gốc: trang quản trị có thể đổi tên / giá / cấp hoặc ẩn gói đang bán.
+const pack = defaultPacks.find(p => p.id === 'prm')!;
 const roster = players.filter(p => p.tier === 'prm');
 
 test('Gói PRIME (ALL) ra 100% mùa PRIME, tách khỏi INFINITE PRIME, có nền hầm, mặt sau và logo', () => {
   assert.equal(pack.name, 'PRIME (ALL)');
   assert.equal(seasons.prm, 'PRIME');
   assert.notEqual(seasons.prime, seasons.prm);
-  assert.deepEqual(pack.weights, [0, 0, 0, 0, 0, 100, 0, 0]);
+  assert.deepEqual(pack.weights, TIERS.map(t => t === 'prm' ? 100 : 0));
   assert.equal(pack.weights.length, TIERS.length);
   for (const file of ['prm-back.png', 'prm-team.png', 'prm-tunnel.webp']) assert.ok(existsSync(`public/assets/${file}`), file);
   assert.equal(pack.tunnel, '/assets/prm-tunnel.webp');
@@ -42,7 +44,7 @@ test('Gói PRIME mở được, mỗi thẻ đều rút được, gói khác kh�
   const result = openPacks(initialSave(), pack, 15, Math.random, true);
   assert.ok(result.cards.every(c => getPlayer(c).tier === 'prm'));
   assert.ok(validateSave(JSON.parse(JSON.stringify(result.state))));
-  for (const other of packs.filter(p => p.id !== 'prm')) for (let i = 0; i < 50; i++) { const card = draw(other); assert.notEqual(getPlayer(card).tier, 'prm'); }
+  for (const other of packs.filter(p => p.id !== 'prm' && !p.seasons?.includes('prm') && isPackAvailable(p))) for (let i = 0; i < 50; i++) { const card = draw(other); assert.notEqual(getPlayer(card).tier, 'prm'); }
 });
 test('Logo đội mùa PRIME theo logo in ở góc dưới phải từng thẻ', () => {
   const logo = (name: string) => getTeamLogo(roster.find(p => p.name === name)!);

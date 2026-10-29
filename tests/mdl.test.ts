@@ -1,18 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { draw, getPlayer, initialSave, isPackAvailable, openPacks, packs, players, seasons, TIERS, validateSave } from '../src/game.ts';
+import { defaultPacks, draw, getPlayer, isPackAvailable, openPacks, packs, players, seasons, TIERS, validateSave } from '../src/game.ts';
+import { initialSave } from './stocked-save.ts';
 import { getTeamLogo } from '../src/teamLogos.ts';
 import { rngFor } from './pack-rng.ts';
 
-const pack = packs.find(p => p.id === 'mdl')!;
+// Định nghĩa gốc: trang quản trị có thể đổi tên / giá / cấp hoặc ẩn gói đang bán.
+const pack = defaultPacks.find(p => p.id === 'mdl')!;
 const roster = players.filter(p => p.tier === 'mdl');
 const logo = (name: string) => getTeamLogo(roster.find(p => p.name === name)!);
 
 test('Gói MEDALIST (ALL) ra 100% mùa MEDALIST, có mặt sau thẻ và logo mùa', () => {
   assert.equal(pack.name, 'MEDALIST (ALL)');
   assert.equal(seasons.mdl, 'MEDALIST');
-  assert.deepEqual(pack.weights, [0, 0, 0, 0, 0, 0, 100, 0]);
+  assert.deepEqual(pack.weights, TIERS.map(t => t === 'mdl' ? 100 : 0));
   assert.equal(pack.weights.length, TIERS.length);
   assert.equal(pack.tunnel, '/assets/mdl-tunnel.webp');
   for (const file of ['mdl-back.png', 'mdl-team.png', 'mdl-tunnel.webp']) assert.ok(existsSync(`public/assets/${file}`), file);
@@ -41,5 +43,5 @@ test('Gói MEDALIST mở được, mỗi thẻ đều rút được, gói khác 
   const result = openPacks(initialSave(), pack, 15, Math.random, true);
   assert.ok(result.cards.every(c => getPlayer(c).tier === 'mdl'));
   assert.ok(validateSave(JSON.parse(JSON.stringify(result.state))));
-  for (const other of packs.filter(p => p.id !== 'mdl')) for (let i = 0; i < 50; i++) { const card = draw(other); assert.notEqual(getPlayer(card).tier, 'mdl'); }
+  for (const other of packs.filter(p => p.id !== 'mdl' && !p.seasons?.includes('mdl') && isPackAvailable(p))) for (let i = 0; i < 50; i++) { const card = draw(other); assert.notEqual(getPlayer(card).tier, 'mdl'); }
 });

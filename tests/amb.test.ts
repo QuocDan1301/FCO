@@ -1,18 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { draw, getPlayer, initialSave, isPackAvailable, openPacks, packs, players, seasons, TIERS, validateSave } from '../src/game.ts';
+import { defaultPacks, draw, getPlayer, isPackAvailable, openPacks, packs, players, seasons, TIERS, validateSave } from '../src/game.ts';
+import { initialSave } from './stocked-save.ts';
 import { getTeamLogo } from '../src/teamLogos.ts';
 import { rngFor } from './pack-rng.ts';
 
-const pack = packs.find(p => p.id === 'amb')!;
+// Định nghĩa gốc: trang quản trị có thể đổi tên / giá / cấp hoặc ẩn gói đang bán.
+const pack = defaultPacks.find(p => p.id === 'amb')!;
 const roster = players.filter(p => p.tier === 'amb');
 const logo = (name: string) => getTeamLogo(roster.find(p => p.name === name)!);
 
 test('Gói FC AMBASSADOR (ALL) ra 100% mùa FC AMBASSADOR, có mặt sau thẻ và logo mùa', () => {
   assert.equal(pack.name, 'FC AMBASSADOR (ALL)');
   assert.equal(seasons.amb, 'FC AMBASSADOR');
-  assert.deepEqual(pack.weights, [0, 0, 0, 0, 0, 0, 0, 100]);
+  assert.deepEqual(pack.weights, TIERS.map(t => t === 'amb' ? 100 : 0));
   assert.equal(pack.weights.length, TIERS.length);
   assert.equal(pack.tunnel, '/assets/amb-tunnel.webp');
   for (const file of ['amb-back.png', 'amb-team.png', 'amb-tunnel.webp']) assert.ok(existsSync(`public/assets/${file}`), file);
@@ -36,5 +38,5 @@ test('Gói FC AMBASSADOR mở được, mỗi thẻ đều rút được, gói k
   const result = openPacks(initialSave(), pack, 15, Math.random, true);
   assert.ok(result.cards.every(c => getPlayer(c).tier === 'amb'));
   assert.ok(validateSave(JSON.parse(JSON.stringify(result.state))));
-  for (const other of packs.filter(p => p.id !== 'amb')) for (let i = 0; i < 50; i++) { const card = draw(other); assert.notEqual(getPlayer(card).tier, 'amb'); }
+  for (const other of packs.filter(p => p.id !== 'amb' && !p.seasons?.includes('amb') && isPackAvailable(p))) for (let i = 0; i < 50; i++) { const card = draw(other); assert.notEqual(getPlayer(card).tier, 'amb'); }
 });

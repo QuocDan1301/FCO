@@ -1,0 +1,47 @@
+/* JNM: normalized source cards with live OVR/name/upgrade badges. */
+.rarity-dot.jnm{background:#9cad38}
+.player-card.face-art.season-jnm{aspect-ratio:259/282}
+.season-jnm[data-level="1"] .face-art-level{visibility:hidden}
+.season-jnm .face-art-ovr{left:26.64%;top:16.67%;font-size:11.6cqw;color:#ffffff;letter-spacing:-.03em;text-shadow:0 .03em .1em #0b1459}
+.season-jnm .face-art-level{left:18.15%;top:60.28%;width:18.92%;height:10.64%;transform:none;object-fit:fill}
+.season-jnm{--name-size:7.6cqw;--name-color:#3d4045}
+[data-tone=jnm]{--shop-tone:#9cad38;--shop-tone2:#f5cf82}
+.season-tag-jnm{color:#cd8fff}
+.reveal-jnm .reveal-panel{--led:#9cad38;--led2:#0b1459;border-color:#f5cf8266}
+.reveal-jnm .reveal-stats dt{color:#ffffff}
+.reveal-jnm .reveal-podium{background:linear-gradient(180deg,#172bb8,#080f4a);border-top-color:#f5cf82}
+.reveal-jnm .reveal-podium span{color:#ffffff}
+.face-3737{--nx:42.08%;--nw:39.00%;--ny:81.56%}
+.face-3738{--nx:42.86%;--nw:38.22%;--ny:81.56%}
+.face-3739{--nx:36.68%;--nw:44.40%;--ny:81.56%}
+.face-3740{--nx:39.77%;--nw:41.31%;--ny:81.56%}
+.face-3741{--nx:37.45%;--nw:43.63%;--ny:81.56%}
+.face-3742{--nx:39.00%;--nw:42.08%;--ny:81.56%}
+.face-3743{--nx:42.86%;--nw:38.22%;--ny:81.56%}
+.face-3744{--nx:42.86%;--nw:38.22%;--ny:81.56%}
+.face-3745{--nx:37.45%;--nw:43.63%;--ny:81.56%}
+.face-3746{--nx:41.70%;--nw:39.38%;--ny:81.56%}
+.face-3747{--nx:40.54%;--nw:40.54%;--ny:81.56%}
+.face-3748{--nx:31.27%;--nw:49.81%;--ny:81.56%}
+.face-3749{--nx:40.93%;--nw:40.15%;--ny:81.56%}
+.face-3750{--nx:34.36%;--nw:46.72%;--ny:81.56%}
+.face-3751{--nx:34.75%;--nw:46.33%;--ny:81.56%}
+.face-3752{--nx:41.31%;--nw:39.77%;--ny:81.56%}
+.face-3753{--nx:42.08%;--nw:39.00%;--ny:81.56%}
+.face-3754{--nx:36.68%;--nw:44.40%;--ny:81.56%}
+.face-3755{--nx:45.56%;--nw:35.52%;--ny:81.56%}
+.face-3756{--nx:35.91%;--nw:45.17%;--ny:81.56%}
+.face-3757{--nx:40.54%;--nw:40.54%;--ny:81.56%}
+.face-3758{--nx:44.79%;--nw:36.29%;--ny:81.56%}
+.face-3759{--nx:39.38%;--nw:41.70%;--ny:81.56%}
+.face-3760{--nx:35.52%;--nw:45.56%;--ny:81.56%}
+.face-3761{--nx:30.50%;--nw:50.58%;--ny:81.56%}
+.face-3762{--nx:39.00%;--nw:42.08%;--ny:81.56%}
+.face-3763{--nx:42.86%;--nw:38.22%;--ny:81.56%}
+.face-3764{--nx:37.45%;--nw:43.63%;--ny:81.56%}
+.face-3765{--nx:33.98%;--nw:47.10%;--ny:81.56%}
+.face-3766{--nx:39.00%;--nw:42.08%;--ny:81.56%}
+.face-3767{--nx:36.29%;--nw:44.79%;--ny:81.56%}
+.face-3768{--nx:40.54%;--nw:40.54%;--ny:81.56%}
+.face-3769{--nx:39.38%;--nw:41.70%;--ny:81.56%}
+.face-3770{--nx:38.22%;--nw:42.86%;--ny:81.56%}

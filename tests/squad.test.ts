@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { getPlayer, initialSave, makeCard, players, upgrade, validateSave } from '../src/game.ts';
+import { getPlayer, makeCard, players, upgrade, validateSave } from '../src/game.ts';
+import { initialSave } from './stocked-save.ts';
 import { addToSquad, isLocked, releaseCard, removeFromSquad, squadCards, squadSummary, toggleLock, SQUAD_LIMIT, SQUAD_WAGE_CAP } from '../src/squad.ts';
 import { sellPlayer } from '../src/market.ts';
 

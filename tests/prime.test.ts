@@ -1,12 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { draw, getPlayer, initialSave, isPackAvailable, makeCard, MAX_LEVEL, openPacks, packs, players, upgrade, validateSave } from '../src/game';
+import { defaultPacks, draw, getPlayer, initialSave, isPackAvailable, makeCard, MAX_LEVEL, openPacks, packs, players, upgrade, validateSave } from '../src/game';
 import { buyPlayer, formatMarketPrice, marketQuote, sellPlayer } from '../src/market';
 import { getTeamLogo } from '../src/teamLogos';
 import { rngFor } from './pack-rng.ts';
 
-const pack = packs.find(p => p.id === 'prime')!;
+// Định nghĩa gốc: trang quản trị có thể đổi tên / giá / cấp hoặc ẩn gói đang bán.
+const pack = defaultPacks.find(p => p.id === 'prime')!;
 const roster = players.filter(p => p.tier === 'prime');
 
 test('60 thẻ INFINITE PRIME có ID riêng, đúng khoảng OVR, đủ ảnh và dữ liệu trên thẻ', () => {
@@ -37,7 +38,7 @@ test('Mọi thẻ mới đều mở được trong gói PRIME, lưu được và
     assert.equal(card.level, 1);
     return card;
   });
-  const legacy = initialSave();
+  const legacy = { ...initialSave(), unopened: { ...initialSave().unopened, [pack.id]: 15 } };
   const snapshot = structuredClone(legacy);
   const opened = openPacks(legacy, pack, 10, () => .9999, true);
   assert.equal(opened.cards.length, 10);

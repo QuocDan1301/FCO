@@ -1,4 +1,4 @@
-import { packs, seasons, TIERS } from './game';
+import { defaultPacks, seasons, TIERS } from './game';
 import type { Tier } from './game';
 
 // Badge dùng chung kiểu FC Online: vị trí (màu theo tuyến), mùa thẻ (khung viền màu mùa), cấp cộng (+1 → +13, màu kim loại).
@@ -7,7 +7,7 @@ import type { Tier } from './game';
 // Tuyến của vị trí: tiền đạo / tiền vệ / hậu vệ / thủ môn.
 export const posGroup = (pos: string) => pos === 'GK' ? 'gk' : ['CB', 'LB', 'RB', 'LWB', 'RWB', 'SW'].includes(pos) ? 'def' : ['ST', 'CF', 'LW', 'RW', 'LF', 'RF'].includes(pos) ? 'att' : 'mid';
 // Nhãn mùa ngắn (26TS, PRM, MDL…) lấy từ gói ra 100% mùa đó.
-export const seasonShort = (tier: Tier) => packs.find(p => p.weights[TIERS.indexOf(tier)] === 100)?.short ?? seasons[tier];
+export const seasonShort = (tier: Tier) => defaultPacks.find(p => p.weights[TIERS.indexOf(tier)] === 100)?.short ?? seasons[tier];
 // Bậc màu của cấp cộng: +1 xám, +2–+4 đồng, +5–+7 bạc, +8–+10 vàng, +11–+13 huyền thoại (tím đỏ).
 export const gradeTier = (level: number) => level <= 1 ? 'base' : level <= 4 ? 'bronze' : level <= 7 ? 'silver' : level <= 10 ? 'gold' : 'legend';
 

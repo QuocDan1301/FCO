@@ -1,4 +1,4 @@
-import { readFile, readdir, writeFile } from 'node:fs/promises';
+import { readFile, readdir, writeFile, open, copyFile, stat } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -23,6 +23,7 @@ const resources = [
   ['HSM.mp3', 'audio/mpeg'],
   ['RTI.mp3', 'audio/mpeg'],
   ['SGD.mp3', 'audio/mpeg'],
+  ['NenChill.mp3', 'audio/mpeg'],
   ['fco-vip-logo.png', 'image/png'],
   ['fco-vip-opening-logo.png', 'image/png'],
   ['silhouette.svg', 'image/svg+xml'],
@@ -289,39 +290,110 @@ const resources = [
   ['levels/lv-13.webp', 'image/webp'],
   ...['crowd', 'cue', 'gate', 'impact', 'cheer'].map(name => [`cinema-${name}.wav`, 'audio/wav']),
 ];
-for (const [name, mime] of resources) {
-  const bytes = await readFile(path.join(root, 'public/assets', name));
-  const data = `data:${mime};base64,${bytes.toString('base64')}`;
-  js = js.replaceAll(`/assets/${name}`, data);
-  css = css.replaceAll(`/assets/${name}`, data);
-  html = html.replaceAll(`/assets/${name}`, data);
-}
-// Ảnh game dùng mà không có trong resources (vd. thẻ cầu thủ mới) được tự nhúng từ public/assets, tránh ảnh vỡ trong bản độc lập.
-const imageTypes = { png: 'image/png', webp: 'image/webp', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml' };
-const referenced = [...new Set((js + css + html).match(/\/assets\/[\w./-]+\.(?:png|webp|jpe?g|svg)/g) ?? [])];
-const unembedded = [];
+// Resolve asset references before inserting base64 so the large HTML is scanned once.
+
+const imageTypes = { png: 'image/png', webp: 'image/webp', jpg: 'image/jpeg', jpeg: 'image/jpeg', svg: 'image/svg+xml', mp3: 'audio/mpeg', wav: 'audio/wav' };
+
+const assetPattern = /\/assets\/[\w./-]+\.(?:png|webp|jpe?g|svg|mp3|wav)/g;
+
+const referenced = [...new Set((js + css + html).match(assetPattern) ?? [])];
+
+const embedded = new Map(), unembedded = [];
+
 for (const ref of referenced) {
+
   const name = ref.slice('/assets/'.length);
+
   const bytes = await readFile(path.join(root, 'public/assets', name)).catch(() => null);
+
   if (!bytes) { unembedded.push(ref); continue; }
-  const data = `data:${imageTypes[name.split('.').pop().toLowerCase()]};base64,${bytes.toString('base64')}`;
-  js = js.replaceAll(ref, data); css = css.replaceAll(ref, data); html = html.replaceAll(ref, data);
+
+  embedded.set(ref, `data:${imageTypes[name.split('.').pop().toLowerCase()]};base64,${bytes.toString('base64')}`);
+
 }
-if (referenced.length > unembedded.length) console.log(`Tự nhúng thêm ${referenced.length - unembedded.length} ảnh chưa có trong resources.`);
-if (unembedded.length) console.warn(`Không tìm thấy ảnh trong public/assets (bản độc lập sẽ hiện ảnh vỡ): ${unembedded.join(', ')}`);
-// Font trực tuyến là phần trang trí; bản độc lập dùng font nhúng nếu có sẵn.
-html = html.replace(/<link\b[^>]*(?:fonts\.googleapis\.com|fonts\.gstatic\.com)[^>]*>/g, '');
-// Giữ thông tin nguồn và giấy phép của bộ cờ trong cả bản HTML phân phối độc lập.
+
+if (unembedded.length) throw new Error(`Missing assets: ${unembedded.join(', ')}`);
+
 const flagLicense = await readFile(path.join(root, 'src/flag-assets.LICENSE'), 'utf8');
-html = html.replace('</head>', () => `\n<!--\nFlag artwork: flag-icons 7.5.0 — https://github.com/lipis/flag-icons\n${flagLicense}\n-->\n</head>`);
+
 let fonts = '';
-try { fonts = await readFile(path.join(root, 'public/assets/fonts-inline.css'), 'utf8'); } catch { /* Có font hệ thống thay thế khi chưa tải font. */ }
+
+try { fonts = await readFile(path.join(root, 'public/assets/fonts-inline.css'), 'utf8'); } catch {}
+
+html = html.replace(/<link\b[^>]*(?:fonts\.googleapis\.com|fonts\.gstatic\.com)[^>]*>/g, '');
+
 html = html.replace(/<script\b[^>]*\bsrc="[^"]+"[^>]*><\/script>/g, '');
+
 html = html.replace(/<link\b[^>]*\bhref="\/assets\/[^" ]+\.css"[^>]*>/g, '');
-html = html.replace('</head>', () => `\n<style>\n${fonts}\n${css.replace(/<\/style/gi, '<\\/style')}\n</style>\n</head>`);
-html = html.replace('</body>', () => `\n<!-- React, Motion và toàn bộ logic trò chơi đã nhúng bên dưới. -->\n<script>\n(function(){\nwindow.__FCO_STANDALONE__ = true;\n${js.replace(/<\/script/gi, '<\\/script')}\n})();\n</script>\n</body>`);
-html = html.replace('<!doctype html>', '<!doctype html>\n<!-- BẢN ĐỘC LẬP: mở trực tiếp mothe.html. CSS, JavaScript, hình ảnh đã nhúng. -->\n');
-if (/<script\b[^>]*\bsrc=|<link\b[^>]*\brel="stylesheet"|(?:src|href)="\/assets\//.test(html)) throw new Error('HTML vẫn còn phụ thuộc tài nguyên ngoài.');
-await writeFile(path.join(root, 'mothe.html'), html, 'utf8');
-await writeFile(path.join(root, 'dist/mothe.html'), html, 'utf8');
-console.log(`Đã tạo mothe.html độc lập: ${(Buffer.byteLength(html) / 1024).toFixed(0)} KB, CSS + JavaScript + hình ảnh nhúng.`);
+
+html = html.replace('</head>', '\n<!-- Flag artwork: flag-icons 7.5.0 — https://github.com/lipis/flag-icons\n' + flagLicense + '\n-->\n<style>\n__FCO_FONTS__\n__FCO_CSS__\n</style>\n</head>');
+
+html = html.replace('</body>', '\n<script>\n(function(){\nwindow.__FCO_STANDALONE__ = true;\n__FCO_JS__\n})();\n</script>\n</body>');
+
+html = html.replace('<!doctype html>', '<!doctype html>\n<!-- BẢN ĐỘC LẬP: mở trực tiếp mothe.html. -->');
+
+const assetIndexes = new Map([...embedded.keys()].map((ref, i) => [ref, i]));
+// Keep image data in separate script blocks: the browser must never parse a
+// single script exceeding V8's string length limit.
+js = js.replace(/(["'])(\/assets\/[\w./-]+\.(?:png|webp|jpe?g|svg|mp3|wav))\1/g, (literal, quote, ref) =>
+  assetIndexes.has(ref) ? `window.__FCO_EMBEDDED__[${assetIndexes.get(ref)}]` : literal);
+html = html.replace('<script>\n(function()', '__FCO_DATA__\n<script>\n(function()');
+const sections = { __FCO_FONTS__: fonts, __FCO_CSS__: css.replace(/<\/style/gi, '<\\/style'), __FCO_JS__: js.replace(/<\/script/gi, '<\\/script') };
+
+const target = path.join(root, 'mothe.html');
+
+const output = await open(target + '.tmp', 'w');
+
+try {
+
+  // Write each asset separately to avoid V8's maximum string length.
+
+  const writeSection = async text => {
+
+    let offset = 0;
+
+    for (const match of text.matchAll(assetPattern)) {
+
+      await output.write(text.slice(offset, match.index));
+
+      await output.write(embedded.get(match[0]) ?? match[0]);
+
+      offset = match.index + match[0].length;
+
+    }
+
+    await output.write(text.slice(offset));
+
+  };
+
+  let offset = 0;
+
+  for (const match of html.matchAll(/__FCO_(?:FONTS|CSS|JS|DATA)__/g)) {
+
+    await writeSection(html.slice(offset, match.index));
+
+    if (match[0] === '__FCO_DATA__') {
+      await output.write('<script>window.__FCO_EMBEDDED__=[];</script>\n');
+      for (const [ref, data] of embedded) {
+        await output.write(`<script>window.__FCO_EMBEDDED__[${assetIndexes.get(ref)}]=${JSON.stringify(data)};</script>\n`);
+      }
+    } else {
+      await writeSection(sections[match[0]]);
+    }
+
+    offset = match.index + match[0].length;
+
+  }
+
+  await writeSection(html.slice(offset));
+
+} finally { await output.close(); }
+
+const { rename } = await import('node:fs/promises');
+
+await rename(target + '.tmp', target);
+
+await copyFile(target, path.join(root, 'dist/mothe.html'));
+
+console.log(`Nhúng ${embedded.size} tài nguyên; mothe.html: ${Math.round((await stat(target)).size / 1024)} KB.`);
+

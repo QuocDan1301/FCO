@@ -21,13 +21,21 @@ const BEAMS: [[number, number], [number, number]][] = [[[170, 0], [520, 620]], [
 const mirrorBeam = ([[x1, y1], [x2, y2]]: [[number, number], [number, number]]): [[number, number], [number, number]] => [[W - x1, y1], [W - x2, y2]];
 const STAND_TOP: [number, number][] = [[0, 330], [620, 380]];
 const AISLES = [70, 230, 390, 550];
+// Ảnh pháo hoa ghi đủ đường dẫn (không ghép chuỗi) để bản mothe.html tìm thấy và nhúng. Pháo bạc thay pháo vàng khi thẻ chính từ 100M.
+const FIREWORK_ART = {
+  gold: [asset('/assets/rs-fw-gold-1.webp'), asset('/assets/rs-fw-gold-2.webp')],
+  silver: [asset('/assets/rs-fw-silver-1.webp'), asset('/assets/rs-fw-silver-2.webp')],
+  white: asset('/assets/rs-fw-white.webp'),
+};
+export type FireworkTone = 'gold' | 'silver';
+// img: 0 / 1 = pháo màu (vàng hoặc bạc) kiểu 1 / 2, -1 = pháo trắng.
 const FIREWORKS = [
-  { x: 32, y: 10, s: 15, img: 'gold-1', d: 0 }, { x: 45, y: 6, s: 11, img: 'white', d: 1 }, { x: 57, y: 9, s: 16, img: 'gold-2', d: 1.8 },
-  { x: 68, y: 7, s: 12, img: 'white', d: .5 }, { x: 39, y: 15, s: 9, img: 'gold-2', d: 2.5 }, { x: 62, y: 15, s: 10, img: 'gold-1', d: 1.3 },
-  { x: 50, y: 12, s: 13, img: 'gold-1', d: 3 },
+  { x: 32, y: 10, s: 15, img: 0, d: 0 }, { x: 45, y: 6, s: 11, img: -1, d: 1 }, { x: 57, y: 9, s: 16, img: 1, d: 1.8 },
+  { x: 68, y: 7, s: 12, img: -1, d: .5 }, { x: 39, y: 15, s: 9, img: 1, d: 2.5 }, { x: 62, y: 15, s: 10, img: 0, d: 1.3 },
+  { x: 50, y: 12, s: 13, img: 0, d: 3 },
 ];
 
-export default function RevealStadium() {
+export default function RevealStadium({ fireworks = 'gold' }: { fireworks?: FireworkTone }) {
   return <div className="reveal-stadium" aria-hidden="true">
     <div className="rs-world">
       <svg className="rs-art" viewBox={`0 0 ${W} 900`} preserveAspectRatio="none">
@@ -73,8 +81,8 @@ export default function RevealStadium() {
       </svg>
       {/* Bụi sáng lơ lửng trôi chậm lên. */}
       <i className="rs-sparkles"/>
-      {/* Pháo hoa hạt sáng vàng đồng / trắng. */}
-      {FIREWORKS.map((f, i) => <i key={i} className="rs-firework" style={{ left: `${f.x}%`, top: `${f.y}%`, '--s': `${f.s}%`, '--d': `${f.d}s`, backgroundImage: `url("${asset(`/assets/rs-fw-${f.img}.webp`)}")` } as CSSProperties}/>)}
+      {/* Pháo hoa hạt sáng vàng đồng (bạc khi thẻ chính từ 100M) / trắng. */}
+      {FIREWORKS.map((f, i) => <i key={i} className="rs-firework" style={{ left: `${f.x}%`, top: `${f.y}%`, '--s': `${f.s}%`, '--d': `${f.d}s`, backgroundImage: `url("${f.img < 0 ? FIREWORK_ART.white : FIREWORK_ART[fireworks][f.img]}")` } as CSSProperties}/>)}
     </div>
   </div>;
 }
@@ -96,7 +104,7 @@ export function RevealGround() {
   </div>;
 }
 
-// Máy phun hai bên màn LED (thẻ chính từ 1M lửa đỏ, từ 1B lửa tím): phía ngoài là máy phun lửa (luồng lửa như trong hầm, phun thẳng lên),
+// Máy phun hai bên màn LED (thẻ chính từ 1M lửa thường, từ 100M lửa bạc, từ 1B lửa tím): phía ngoài là máy phun lửa (luồng lửa như trong hầm, phun thẳng lên),
 // phía trong là máy phun tia (như lúc đập thẻ thành công). Nằm trong khung màn LED nên cỡ theo chiều cao màn (cqh); chỉ hoạt cảnh transform / opacity.
 // Hoạt cảnh chạy bằng Web Animations API, không dùng @keyframes CSS: CSS animation phát sự kiện animationiteration mỗi vòng lặp
 // (React nghe ở gốc), hơn trăm tia chu kỳ ngắn khiến luồng chính phải dựng khung và tính lại style gần như mỗi khung hình.

@@ -20,7 +20,7 @@ export default function PackShop({ save, packs, free, onBuy, onOpenNow, onPrevie
   const [quantities, setQuantities] = useState<Record<string, string>>({});
   const setQuantity = (id: string, value: string) => setQuantities(current => ({ ...current, [id]: value }));
   // Tổng gói chưa mở hiện trên nút Kho vật phẩm; tổng tăng (vừa mua) thì nút nảy nhẹ.
-  const stockTotal = packs.reduce((sum, pack) => sum + getPackStock(save, pack), 0);
+  const stockTotal = packs.filter(isPackAvailable).reduce((sum, pack) => sum + getPackStock(save, pack), 0);
   const [stock, setStock] = useState({ total: stockTotal, bump: 0 });
   if (stock.total !== stockTotal) setStock({ total: stockTotal, bump: stockTotal > stock.total ? stock.bump + 1 : stock.bump });
   const inventoryRef = useRef<HTMLButtonElement>(null);
@@ -39,7 +39,7 @@ export default function PackShop({ save, packs, free, onBuy, onOpenNow, onPrevie
     <div className="shop-grid" aria-label="Các gói đang bán">
       {packs.map(pack => {
         // Gói chưa có cầu thủ vẫn hiện để báo trước, nhưng không mua được (buyPacks cũng chặn).
-        if (!isPackAvailable(pack)) return <article className="shop-product shop-upcoming" key={pack.id} data-pack={pack.id} aria-disabled="true">
+        if (!isPackAvailable(pack)) return <article className="shop-product shop-upcoming" key={pack.id} data-pack={pack.id} data-tone={pack.tone ?? pack.id} aria-disabled="true">
           <div className="shop-product-heading"><h2>{pack.name}</h2><span className="shop-upcoming-badge">Sắp ra mắt</span></div>
           <p className="shop-description">{pack.description}</p>
           <div className="shop-art">{renderArt(pack)}</div>
@@ -55,8 +55,8 @@ export default function PackShop({ save, packs, free, onBuy, onOpenNow, onPrevie
         const preview = () => onPreview(pack, valid ? count : 1);
         const justAdded = added?.id === pack.id;
         // Khung chia 8 hàng con (subgrid) để tên, ảnh, giá, nút của các gói cùng hàng luôn thẳng nhau dù mô tả dài ngắn khác nhau.
-        return <article className="shop-product" key={pack.id} data-pack={pack.id}>
-          <div className="shop-product-heading"><h2>{pack.name}</h2></div>
+        return <article className="shop-product" key={pack.id} data-pack={pack.id} data-tone={pack.tone ?? pack.id}>
+          <div className="shop-product-heading"><h2>{pack.name}</h2>{pack.draft && <span className="shop-draft-badge" title="Chỉ hiện khi chạy npm run dev, người chơi không thấy">Nháp</span>}</div>
           <p className="shop-description">{pack.description}</p>
           <button className="shop-art" onClick={preview} aria-label={`Xem trước cầu thủ trong ${pack.name} · trong kho ${inStock} gói`}>{renderArt(pack)}<span className={`shop-stock ${inStock > 0 ? 'has-stock' : ''}`}>Trong kho <b>{money(inStock)}</b></span><span className="shop-art-hint" aria-hidden="true"><Eye size={13}/>Xem cầu thủ</span></button>
           <div className="shop-quantity"><label htmlFor={`shop-quantity-${pack.id}`}>Số lượng</label><div className="shop-stepper"><button aria-label={`Giảm số lượng ${pack.name}`} disabled={!valid || count <= 1} onClick={() => setQuantity(pack.id, String(count - 1))}><Minus size={16}/></button><input id={`shop-quantity-${pack.id}`} aria-label={`Số lượng ${pack.name}`} aria-invalid={!valid} aria-describedby={`shop-note-${pack.id}`} type="number" inputMode="numeric" min={1} max={MAX_INVENTORY_OPEN} step={1} value={quantity} onChange={event => setQuantity(pack.id, event.target.value)}/><button aria-label={`Tăng số lượng ${pack.name}`} disabled={!valid || count >= MAX_INVENTORY_OPEN} onClick={() => setQuantity(pack.id, String(count + 1))}><Plus size={16}/></button></div></div>

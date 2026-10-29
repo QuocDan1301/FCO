@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { initialSave, makeCard, MAX_LEVEL, players, validateSave } from '../src/game.ts';
+import { makeCard, MAX_LEVEL, players, validateSave } from '../src/game.ts';
+import { initialSave } from './stocked-save.ts';
 import { buyPlayer, sellPlayer, marketQuote, compareMarketPrices, formatMarketPrice, MARKET_FEE_PERCENT, PRICE_AS_OF } from '../src/market.ts';
 import { readFileSync } from 'node:fs';
 import mutablePriceData from '../src/player-prices.json';

@@ -1,12 +1,24 @@
 /* Tông màu riêng từng mùa (viền, ánh sáng sau ảnh gói, khung xem trước). */
-[data-pack]{--shop-tone:#8b96a5;--shop-tone2:#d5dde6}
-[data-pack=prime],[data-pack=prm]{--shop-tone:#e63946;--shop-tone2:#d4af37}
-[data-pack=eternal]{--shop-tone:#f5d061;--shop-tone2:#fff3b0}
-[data-pack=vietnam]{--shop-tone:#da251d;--shop-tone2:#ffff00}
-[data-pack=stellar]{--shop-tone:#2563eb;--shop-tone2:#60a5fa}
-[data-pack=amb]{--shop-tone:#10b981;--shop-tone2:#6ee7b7}
-[data-pack=origin]{--shop-tone:#aab4c0;--shop-tone2:#e3e8ee}
-[data-pack=mdl]{--shop-tone:#c08a3e;--shop-tone2:#e8c27a}
+[data-tone]{--shop-tone:#8b96a5;--shop-tone2:#d5dde6}
+[data-tone=prime],[data-tone=prm]{--shop-tone:#e63946;--shop-tone2:#d4af37}
+[data-tone=eternal]{--shop-tone:#f5d061;--shop-tone2:#fff3b0}
+[data-tone=vietnam]{--shop-tone:#da251d;--shop-tone2:#ffff00}
+[data-tone=stellar],[data-tone=stellar5]{--shop-tone:#2563eb;--shop-tone2:#60a5fa}
+[data-tone=amb]{--shop-tone:#10b981;--shop-tone2:#6ee7b7}
+[data-tone=uc]{--shop-tone:#a855f7;--shop-tone2:#e9d5ff}
+[data-tone=wg]{--shop-tone:#f59e2b;--shop-tone2:#fde3a7}
+[data-tone=ut]{--shop-tone:#8b5cf6;--shop-tone2:#ddd6fe}
+[data-tone=cu]{--shop-tone:#6d5cf6;--shop-tone2:#fde68a}
+[data-tone=gru]{--shop-tone:#2bb5a4;--shop-tone2:#f3d9b8}
+[data-tone=rtn]{--shop-tone:#e0b04f;--shop-tone2:#c9d6f2}
+[data-tone=dc]{--shop-tone:#d4ad6a;--shop-tone2:#ece6da}
+[data-tone=cc]{--shop-tone:#d6b25e;--shop-tone2:#b9a2f0}
+[data-tone=bld]{--shop-tone:#e6c27a;--shop-tone2:#f4efe4}
+[data-tone=wb]{--shop-tone:#a07cff;--shop-tone2:#f0d78f}
+[data-tone=spt]{--shop-tone:#d8452c;--shop-tone2:#f0c27a}
+[data-tone=origin]{--shop-tone:#aab4c0;--shop-tone2:#e3e8ee}
+.shop-draft-badge{flex:none;padding:2px 8px;border:1px dashed #ffb35c;border-radius:999px;font-size:11px;font-weight:600;color:#ffb35c}
+[data-tone=mdl]{--shop-tone:#c08a3e;--shop-tone2:#e8c27a}
 
 /* Header: tiêu đề + badge ví, nút kho có số gói chưa mở. */
 .shop-heading{align-items:center;gap:16px}

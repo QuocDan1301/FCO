@@ -1,0 +1,9 @@
+/* Thẻ mùa WG (WARRIORS OF GLORY): mọi ảnh căn theo ô cấp in sẵn về một khung 272×296 (cùng tỉ lệ 666/725 với thẻ khác),
+   nên một bộ vị trí dùng chung cả mùa. OVR và tên in trên ảnh đã xoá (vá bằng nền khung chung của mọi thẻ): OVR luôn vẽ bằng HTML
+   (chữ kem như thẻ gốc); ô cấp +1 giữ ô in sẵn, từ +2 huy hiệu cấp phủ đúng ô đó. Vị trí tên từng thẻ ở card-names.css. */
+.rarity-dot.wg{background:#f59e2b}
+.player-card.face-art.season-wg{aspect-ratio:272/296}
+.player-card.face-art.season-wg>.face-art-img{filter:drop-shadow(0 0 4px #ffd69166) drop-shadow(0 0 14px #f59e2b44)}
+.season-wg[data-level="1"] .face-art-level{visibility:hidden}
+.season-wg .face-art-ovr{left:28.31%;top:20.98%;font-size:11.12cqw;color:#fff0b0;letter-spacing:-.03em;text-shadow:0 .03em .08em #0009}
+.season-wg .face-art-level{left:19.85%;top:62.84%;width:17.65%;height:9.80%;transform:none;object-fit:fill}

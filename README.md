@@ -1,5 +1,19 @@
 # Đấu trường huyền thoại
 
+## Mùa 23HW (23 HARD WORKER)
+
+195 thẻ 23HW (OVR 103–112) đã có trong Shop, quản lý cầu thủ, nâng cấp và TTCN; dùng ảnh gói, nền mở thẻ và logo do người dùng cung cấp. Giá +1 được nhập từ ảnh danh sách ngày 28/10/2026; +2…+13 theo công thức bp2 (117, ×1), giữ nguyên các dòng giá đã có. Những thẻ in huy hiệu chung được ghi CLB “23 Hard Worker”; logo in trên thẻ được giữ qua ảnh nguồn, các CLB có sẵn dùng logo riêng của dự án.
+
+Dữ liệu nguồn: `scripts/data/hw23.csv`; dữ liệu game: `src/hw23Players.ts`; vị trí chữ/cấp: `src/hw23-cards.css`. Nhập ảnh bằng `python scripts/import-hw23.py "<thư mục 23HW>"`; đăng ký giá/gói bằng `node --import tsx scripts/import-hw23-prices.mjs`. Các script giữ nguyên ảnh nguồn và các dòng Excel đã có. Kiểm tra mùa này bằng `tests/hw23.test.ts` và `tests/hw23-smoke.mjs`.
+
+## Mùa BDO (BALLON D’OR)
+
+Đã thêm 108 cầu thủ BDO (OVR 102–118), gói BDO (ALL), ảnh gói, nền mở thẻ và logo mùa. Ảnh R. Ferdinand lấy từ ảnh bổ sung của người dùng; ảnh số 99 trong bộ ban đầu bị trùng M. Essien. Giá +1 nhập từ ảnh danh sách ngày 28/10/2026; giá +2…+13 dùng cùng công thức bp2 (mốc 117, hệ số ×1) như các mùa mới trước đó. Các dòng giá có sẵn được giữ nguyên.
+
+Dữ liệu nguồn ở `scripts/data/bdo.csv`, danh sách game ở `src/bdoPlayers.ts`, vị trí OVR/tên/cấp trên ảnh ở `src/bdo-cards.css`. `scripts/import-bdo.py` chuẩn hoá ảnh nguồn, giữ nguyên file gốc; truyền thư mục BDO và đường dẫn ảnh Ferdinand làm hai đối số. `scripts/import-bdo-prices.mjs` đăng ký giá, bổ sung dòng BDO vào `gia-cau-thu-bp2.xlsx` và đăng ký gói bán trong `src/packs.json`.
+
+Khi thêm mùa khác, nối mùa vào `Tier`, `TIERS`, `seasons`, `players` và `defaultPacks` trong `src/game.ts`; bổ sung một cột trọng số 0 cho các gói cũ. Đăng ký tiếp ở `src/admin/pack-rules.ts`, tiêu đề quản trị/ghép ảnh, logo đội, CSS thẻ và `src/packs.json`. Chạy kiểm thử, build và kiểm tra `mothe.html`; bộ đóng gói tự nhúng các ảnh mới được tham chiếu.
+
 **Đang bật xu vô hạn để thử nghiệm:** mở gói/nâng cấp không trừ xu, áp dụng cả tiến trình cũ có số dư 0. Nguyên liệu và tỷ lệ vẫn theo quy tắc thường. Để tắt, đặt `UNLIMITED_COINS = false` trong `src/config.ts` rồi chạy `npm.cmd run build`; số dư thật được giữ nguyên.
 
 **Mở trực tiếp `mothe.html` để chơi.** File này đã chứa toàn bộ JavaScript, CSS, phông chữ và hình ảnh, không cần cài Node.js, chạy Vite hoặc có Internet. Có thể sao chép riêng file sang thư mục khác rồi mở bằng Chrome/Edge. Tiến trình của file mở trực tiếp tách biệt với bản chạy qua localhost.
@@ -51,6 +65,24 @@ Tỷ lệ chỉ thuộc trò chơi giả lập này. Tên CLB minh họa giai đ
 Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.
 # Mô hình giá nâng cấp
 
+Mùa BTB (BACK TO BACK) gồm 100 cầu thủ, OVR +1 từ 104–106, gói BTB (ALL), logo và nền neon xanh đỏ riêng. Dữ liệu và giá +1 từ bảy bảng ảnh ở `scripts/data/btb.csv`. Nhập ảnh bằng `python scripts/import-btb.py <thư-mục-tach-nen>`, rồi `node --import tsx scripts/import-btb-prices.mjs` để bổ sung giá và các dòng còn thiếu. Bộ nhập chọn đúng chuỗi ảnh BTB ngày 29/10/2026, tránh lẫn các mùa trong cùng thư mục. Giá +2…+13 theo công thức bp2 hiện có; giữ nguyên các dòng và công thức cũ.
+
+Mùa BOE21 (BEST OF EUROPE 21) gồm 90 cầu thủ, OVR +1 từ 99–104, nhãn E21, gói BOE21 (ALL), logo và nền vàng đỏ riêng. Dữ liệu và giá +1 từ sáu bảng ảnh ngày 28–29/10/2026 ở `scripts/data/boe21.csv`. Nhập ảnh bằng `python scripts/import-boe21.py <thư-mục-BOE21>`, rồi `node --import tsx scripts/import-boe21-prices.mjs` để bổ sung giá và các dòng còn thiếu. Giá +2…+13 theo công thức bp2 hiện có; giữ nguyên các dòng và công thức cũ.
+
+Mùa CAP (CAPTAIN CLASS) gồm 90 cầu thủ, OVR +1 từ 102–105, gói CAP (ALL), logo và đường hầm riêng. Dữ liệu và giá +1 từ sáu bảng ảnh ở `scripts/data/cap.csv`. Nhập ảnh bằng `python scripts/import-cap.py <thư-mục-CAP>`, rồi `node --import tsx scripts/import-cap-prices.mjs` để bổ sung giá và các dòng còn thiếu. Giá +2…+13 theo công thức bp2 hiện có; giữ nguyên các dòng và công thức cũ.
+
+Mùa LOL (LEGEND OF THE LOAN) gồm 90 cầu thủ, OVR +1 từ 99–107, gói LOL (ALL) và nền tinh thể tím hồng riêng. Dữ liệu và giá +1 từ sáu bảng ảnh ở `scripts/data/lol.csv`. Nhập ảnh bằng `python scripts/import-lol.py <thư-mục-tach-nen>`, rồi `node --import tsx scripts/import-lol-prices.mjs` để bổ sung giá và các dòng còn thiếu. Giá +2…+13 theo công thức bp2 hiện có; giữ nguyên các dòng và công thức cũ.
+
+Mùa FA (FREE AGENT) gồm 90 cầu thủ, OVR +1 từ 100–107, gói FA (ALL), logo và đường hầm riêng. Dữ liệu và giá +1 từ sáu bảng ảnh ở `scripts/data/fa.csv`; ba ảnh đại diện dạng bóng người được giữ nguyên theo nguồn. Nhập ảnh bằng `python scripts/import-fa.py <thư-mục-FA>`, rồi `node --import tsx scripts/import-fa-prices.mjs` để bổ sung giá và các dòng còn thiếu. Giá +2…+13 theo công thức bp2 hiện có; giữ nguyên các dòng và công thức cũ.
+
+Mùa LN (LEGENDARY NUMBERS) gồm 95 cầu thủ, OVR +1 từ 102–109, gói LN (ALL), logo và đường hầm riêng. Dữ liệu và giá +1 từ bảy bảng ảnh ở `scripts/data/ln.csv`. Nhập ảnh bằng `python scripts/import-ln.py <thư-mục-LN>`, rồi `node --import tsx scripts/import-ln-prices.mjs` để bổ sung giá và các dòng còn thiếu. Giá +2…+13 theo công thức bp2 hiện có; giữ nguyên các dòng và công thức cũ.
+
+Mùa SPL (SPOTLIGHT) gồm 90 cầu thủ, OVR +1 từ 101–108, gói SPL (ALL), ảnh gói và đường hầm riêng. Dữ liệu và giá +1 từ sáu ảnh danh sách ở `scripts/data/spl.csv`. Nhập ảnh bằng `python scripts/import-spl.py <thư-mục-SPL>`, rồi `node --import tsx scripts/import-spl-prices.mjs` để bổ sung giá và các dòng còn thiếu. Giá +2…+13 theo công thức bp2 hiện có; giữ nguyên các dòng và công thức cũ.
+
+Mùa HG (HOME GROWN) gồm 116 cầu thủ, OVR +1 từ 103–111, gói HG (ALL), ảnh gói và đường hầm riêng. Dữ liệu và giá +1 ở `scripts/data/hg.csv`; M. Arnold dùng 26.400 BP theo ảnh danh sách sau lúc 14:27:34. Nhập ảnh bằng `python scripts/import-hg.py <thư-mục-HG>`, rồi `node --import tsx scripts/import-hg-prices.mjs` để bổ sung giá và các dòng còn thiếu. Giá +2…+13 theo công thức bp2 hiện có; giữ nguyên các dòng và công thức cũ.
+
+Mùa LE (LEGEND OF EUROPA) gồm 165 cầu thủ, OVR +1 từ 111–119, có gói LE (ALL), ảnh gói và đường hầm riêng. Ảnh Pedro LE dùng bản bổ sung lúc 16:30 thay cho ảnh Muniain bị trùng. Dữ liệu và giá +1 từ ảnh người dùng ở `scripts/data/le.csv`; giá +2…+13 theo công thức bp2 hiện có. Nhập lại bằng `python scripts/import-le.py <thư-mục-LE>` (ảnh Pedro ở thư mục Screenshots cùng cấp), rồi `node --import tsx scripts/import-le-prices.mjs`. Lệnh nhập giá chỉ thêm các dòng còn thiếu, giữ nguyên dòng và công thức đã có.
+
 Giá BP chấp nhận số nguyên từ 0: nhập `0` trong Excel là giá 0 BP và có thể mua/bán; để trống là chưa có giá. OVR vẫn phải lớn hơn 0.
 
 Mọi thẻ thêm vào game đều phải có trong `gia-cau-thu-bp.xlsx`. `npm run dev`, `npm run build` và `npm run prices:import` tự bổ sung các ID còn thiếu vào cuối trang Giá cầu thủ, giữ nguyên các dòng, giá, OVR sửa tay và công thức đã có. Thẻ mới có đủ OVR +1…+13; giá chưa có dữ liệu được để trống, tô vàng. Không dùng `prices:export` chỉ để thêm thẻ vì lệnh đó dựng lại cả bảng. Hiện bảng gồm 479 thẻ, bao gồm 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST và 9 FC AMBASSADOR.
@@ -74,3 +106,9 @@ Sửa bảng giá Excel tương ứng, rồi chạy `npm run build` để cập 
 Phí bảo hiểm báo riêng khi xem thẻ +8 đến +12: giá thẻ hiện tại × 95% / 80% / 60% theo OVR gốc ≤92 / 93–100 / ≥101. Không cộng phí vào giá thẻ, không thay đổi cơ chế thực hiện nâng cấp hay tự trừ phí bảo hiểm. OVR cộng theo cấp đã khớp `[0,1,2,4,6,8,11,15,17,19,21,24,27]`. Các quyền Team Color/chỉ số ẩn chưa được triển khai bởi mô hình giá này.
 
 Bảng bp2 là nguồn giá +2…+13 ưu tiên, thay cho hệ số mô hình cũ ở trên. Kiểm tra toàn bộ giá bằng `node --import tsx scripts/verify-price-sync.mjs`. `npm run prices:export` xuất giá game đang dùng; không chạy ghi đè khi muốn giữ bảng nguồn cũ.
+
+Mùa EBS (EUROPEAN BEST STARS) có 100 cầu thủ, OVR 100–105, cùng ảnh thẻ, gói, logo và nền do người dùng cung cấp. Danh sách và giá +1 từ bảy bảng ảnh nằm trong `scripts/data/ebs.csv`; giá +2…+13 theo công thức bp2 hiện có (117, ×1). Nhập lại ảnh bằng `python scripts/import-ebs.py "C:/Users/Admin/OneDrive/Hình ảnh/EBS"`, sau đó chạy `node --import tsx scripts/import-ebs-prices.mjs` để đồng bộ giá và bổ sung các hàng còn thiếu vào bảng bp2.
+
+Mùa JUVENTUS có 14 cầu thủ, OVR 108–114, cùng gói AMBASSADOR JUVENTUS và nền đá đen bạc do người dùng cung cấp. Danh sách và giá +1 nằm trong `scripts/data/juventus.csv`; +2…+13 theo công thức bp2 hiện có (117, ×1). Nhập ảnh bằng `python scripts/import-juventus.py "C:/Users/Admin/OneDrive/Hình ảnh/tach-nen"`, rồi chạy `node --import tsx scripts/import-juventus-prices.mjs` để đồng bộ giá và bổ sung hàng vào bảng bp2.
+
+Mùa JNM (JOURNEYMAN) có 34 cầu thủ, OVR 107–114, cùng ảnh thẻ, gói, logo và nền do người dùng cung cấp. Danh sách và giá +1 từ ba bảng ảnh nằm trong `scripts/data/jnm.csv`; +2…+13 theo công thức bp2 hiện có (117, ×1). Nhập ảnh bằng `python scripts/import-jnm.py "C:/Users/Admin/OneDrive/Hình ảnh/JNM"`, rồi chạy `node --import tsx scripts/import-jnm-prices.mjs` để đồng bộ giá và bổ sung hàng vào bảng bp2.

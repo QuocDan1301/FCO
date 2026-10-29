@@ -1,0 +1,27 @@
+/* JUVENTUS: normalized source cards with live OVR/name/upgrade badges. */
+.rarity-dot.juventus{background:#bfc0bd}
+.player-card.face-art.season-juventus{aspect-ratio:259/282}
+.season-juventus[data-level="1"] .face-art-level{visibility:hidden}
+.season-juventus .face-art-ovr{left:26.64%;top:16.67%;font-size:11.6cqw;color:#ffffff;letter-spacing:-.03em;text-shadow:0 .03em .1em #0b1459}
+.season-juventus .face-art-level{left:18.15%;top:60.28%;width:18.92%;height:10.64%;transform:none;object-fit:fill}
+.season-juventus{--name-size:7.6cqw;--name-color:#3d4045}
+[data-tone=juventus]{--shop-tone:#bfc0bd;--shop-tone2:#e2e1da}
+.season-tag-juventus{color:#cd8fff}
+.reveal-juventus .reveal-panel{--led:#bfc0bd;--led2:#0b1459;border-color:#e2e1da66}
+.reveal-juventus .reveal-stats dt{color:#ffffff}
+.reveal-juventus .reveal-podium{background:linear-gradient(180deg,#172bb8,#080f4a);border-top-color:#e2e1da}
+.reveal-juventus .reveal-podium span{color:#ffffff}
+.face-3723{--nx:42.08%;--nw:39.00%;--ny:81.56%}
+.face-3724{--nx:41.31%;--nw:39.77%;--ny:81.56%}
+.face-3725{--nx:38.61%;--nw:42.47%;--ny:81.56%}
+.face-3726{--nx:40.54%;--nw:40.54%;--ny:81.56%}
+.face-3727{--nx:44.79%;--nw:36.29%;--ny:81.56%}
+.face-3728{--nx:36.29%;--nw:44.79%;--ny:81.56%}
+.face-3729{--nx:35.91%;--nw:45.17%;--ny:81.56%}
+.face-3730{--nx:37.07%;--nw:44.02%;--ny:81.56%}
+.face-3731{--nx:42.47%;--nw:38.61%;--ny:81.56%}
+.face-3732{--nx:37.84%;--nw:43.24%;--ny:81.56%}
+.face-3733{--nx:46.33%;--nw:34.75%;--ny:81.56%}
+.face-3734{--nx:42.08%;--nw:39.00%;--ny:81.56%}
+.face-3735{--nx:37.07%;--nw:44.02%;--ny:81.56%}
+.face-3736{--nx:36.29%;--nw:44.79%;--ny:81.56%}

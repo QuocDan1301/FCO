@@ -2,9 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { asset } from './asset';
 
-const tracks = ['/assets/SGD.mp3', '/assets/RTI.mp3', '/assets/background-music.mp3'];
+export type MusicType = 'instrumental' | 'vocals';
+const tracksByType: Record<MusicType, string[]> = {
+  instrumental: ['/assets/NenChill.mp3'],
+  vocals: ['/assets/SGD.mp3', '/assets/RTI.mp3', '/assets/background-music.mp3'],
+};
 
-export default function BackgroundMusic({ suspended = false }: { suspended?: boolean }) {
+export default function BackgroundMusic({ suspended = false, musicType = 'vocals' }: { suspended?: boolean; musicType?: MusicType }) {
+  const tracks = tracksByType[musicType];
+  const currentType = useRef(musicType);
+  const initialSource = useRef(asset(tracks[0]));
   const suspendedRef = useRef(suspended);
   suspendedRef.current = suspended;
   const resumeWanted = useRef(false);
@@ -60,6 +67,22 @@ export default function BackgroundMusic({ suspended = false }: { suspended?: boo
     }
   }, [suspended]);
 
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || currentType.current === musicType) return;
+    currentType.current = musicType;
+    const shouldPlay = !audio.paused || autoStartWanted.current;
+    audio.pause();
+    trackIndex.current = 0;
+    audio.src = asset(tracksByType[musicType][0]);
+    audio.load();
+    setError('');
+    setLoading(false);
+    if (shouldPlay && !suspendedRef.current) {
+      void audio.play().catch(() => setError('Không phát được nhạc. Nhấn nút bật nhạc để thử lại.'));
+    }
+  }, [musicType]);
+
   const toggleMusic = async () => {
     const audio = audioRef.current;
     if (!audio || loading || suspendedRef.current) return;
@@ -98,7 +121,7 @@ export default function BackgroundMusic({ suspended = false }: { suspended?: boo
   const label = suspended ? 'Nhạc game tạm dừng khi phát nhạc đập thẻ' : loading ? 'Đang tải nhạc' : playing ? 'Tắt nhạc' : 'Bật nhạc';
 
   return <>
-    <audio ref={audioRef} src={asset(tracks[0])} onEnded={playNextTrack} preload="auto"
+    <audio ref={audioRef} src={initialSource.current} onEnded={playNextTrack} preload="auto"
       onPlay={() => { if (suspendedRef.current) { audioRef.current?.pause(); return; } setPlaying(true); }} onPause={() => setPlaying(false)}
       onError={() => { setPlaying(false); setLoading(false); setError('Không tải được nhạc. Nhấn nút bật nhạc để thử lại.'); }}/>
     <button className="icon-button music-button" type="button" aria-label={label} title={label}
