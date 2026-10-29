@@ -4,3 +4,6 @@ dist/
 *.tsbuildinfo
 .taste-skill/inspect/
 .serena/
+
+# Generated standalone build (recreated by npm run build).
+/mothe.html
