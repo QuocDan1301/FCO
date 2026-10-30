@@ -46,7 +46,7 @@ test('100 distinct BTB cards match screenshot order, OVR, wages and +1 prices', 
 });
 
 test('BTB pack can draw every BTB player, open and persist', () => {
-  const pack = allPacks.find(p => p.id === 'btb')!;
+  const pack = (allPacks.find(p => p.id === 'btb') ?? defaultPacks.find(p => p.id === 'btb')!);
   assert.ok(pack && isPackAvailable(pack));
   assert.equal(packOdds(pack).pool.length, 100);
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);

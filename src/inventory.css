@@ -1,4 +1,4 @@
-.inv-workspace{max-width:1440px;margin:0 auto;padding:0 4% 0;display:flex;flex-direction:column;min-height:calc(100vh - 154px)}
+.inv-workspace{max-width:1440px;margin:0 auto;padding:0 4% 0;display:flex;flex-direction:column;min-height:calc(100dvh - 154px)}
 .inv-top{display:flex;align-items:flex-end;gap:36px;padding:26px 0 0;border-bottom:1px solid #1d2531}
 .inv-top h1{font-family:var(--display);font-size:26px;letter-spacing:.5px;padding-bottom:12px;color:#e8eef5}
 .inv-tab span{display:block;padding:0 28px 12px;font-size:14px;font-weight:600;color:#fff;border-bottom:2px solid #fff;margin-bottom:-1px}

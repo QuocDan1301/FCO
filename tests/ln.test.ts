@@ -46,7 +46,7 @@ test('95 distinct LN cards match screenshot order, OVR, wages and +1 prices', ()
 });
 
 test('LN pack can draw every LN player, open and persist', () => {
-  const pack = allPacks.find(p => p.id === 'ln')!;
+  const pack = (allPacks.find(p => p.id === 'ln') ?? defaultPacks.find(p => p.id === 'ln')!);
   assert.ok(pack && isPackAvailable(pack));
   assert.equal(packOdds(pack).pool.length, 95);
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);

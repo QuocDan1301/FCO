@@ -7,3 +7,5 @@ dist/
 
 # Generated standalone build (recreated by npm run build).
 /mothe.html
+.env.local
+.env.*.local

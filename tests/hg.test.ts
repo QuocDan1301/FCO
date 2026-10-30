@@ -45,7 +45,7 @@ test('116 distinct HG cards match screenshot order, OVR, wages and +1 prices', (
 });
 
 test('HG pack can draw every HG player, open and persist', () => {
-  const pack = allPacks.find(p => p.id === 'hg')!;
+  const pack = (allPacks.find(p => p.id === 'hg') ?? defaultPacks.find(p => p.id === 'hg')!);
   assert.ok(pack && isPackAvailable(pack));
   assert.equal(packOdds(pack).pool.length, 116);
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);

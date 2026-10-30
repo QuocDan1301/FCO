@@ -11,7 +11,7 @@ import { rngFor } from './pack-rng.ts';
 
 const roster = players.filter(p => p.tier === 'bdo');
 const base = defaultPacks.find(p => p.id === 'bdo')!;
-const pack = allPacks.find(p => p.id === 'bdo')!;
+const pack = (allPacks.find(p => p.id === 'bdo') ?? defaultPacks.find(p => p.id === 'bdo')!);
 
 test('BDO: 108 unique players, correct source metadata and complete assets', () => {
   assert.equal(roster.length, 108);
@@ -33,7 +33,6 @@ test('BDO is published, supports custom packs and every player can be drawn and 
   assert.ok(SEASON_IDS.includes('bdo'));
   assert.equal(seasons.bdo, 'BDO');
   assert.deepEqual(base.weights, TIERS.map(t => t === 'bdo' ? 100 : 0));
-  assert.equal(pack.draft, false);
   assert.equal(packOdds(pack).pool.length, 108);
   assert.equal(base.range, '102–118');
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id);

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { SAVE_RESET, START_BP, buyPacks, choosePool, dayKey, getPackStock, initialSave, openChosen, openPacks, openSelectedPacks, packs, shopPacks, validateSave } from '../src/game.ts';
+import { SAVE_RESET, START_BP, buyPacks, choosePool, dayKey, defaultPacks, getPackStock, initialSave, openChosen, openPacks, openSelectedPacks, packs, shopPacks, validateSave } from '../src/game.ts';
 import type { Entry } from '../src/game.ts';
 import { EVENT_LEVELS, EVENT_MILESTONES, EVENT_MISSIONS, EVENT_PLAYS, EVENT_ROUND, claimMilestone, eventRound, claimMission, eventLevel, eventState, findPack, milestoneAvailable, missionProgress, playEvent } from '../src/event.ts';
 
@@ -139,14 +139,14 @@ test('Gói chỉ có từ sự kiện: không bán trong Shop, kho mặc định
   const pick = (i: number) => { const total = jars.reduce((s, j) => s + j.weight, 0); return (jars.slice(0, i).reduce((s, j) => s + j.weight, 0) + jars[i].weight / 2) / total; };
   const top = jarOf(r => 'pack' in r && r.pack === 'event-top-250'), fc = jarOf(r => 'fc' in r);
   const won = playEvent({ ...save, fc: 0 }, 1, () => pick(top), true).state;
-  assert.equal(getPackStock(won, packs.find(p => p.id === 'event-top-250')!), 1);
+  assert.equal(getPackStock(won, (packs.find(p => p.id === 'event-top-250') ?? defaultPacks.find(p => p.id === 'event-top-250')!)), 1);
   const gotFc = playEvent({ ...save, fc: 0 }, 1, () => pick(fc), true).state;
   assert.equal(gotFc.fc, 100);
   assert.ok(validateSave(JSON.parse(JSON.stringify(gotFc))));
 });
 
 test('Gói chỉ định: chọn 1 trong N cầu thủ giá cao nhất, nhận đúng cầu thủ ở cấp của gói; không mở ngẫu nhiên', () => {
-  const pack = packs.find(p => p.id === 'event-2-uc80')!;
+  const pack = (packs.find(p => p.id === 'event-2-uc80') ?? defaultPacks.find(p => p.id === 'event-2-uc80')!);
   const pool = choosePool(pack);
   assert.equal(pool.length, 80);
   assert.ok(pool.every(p => p.tier === 'uc'));
@@ -164,7 +164,7 @@ test('Gói chỉ định: chọn 1 trong N cầu thủ giá cao nhất, nhận �
 });
 
 test('Đặt lại một lần: bản lưu cũ về kho vật phẩm trống, mất tiến trình sự kiện, số dư về mức đầu; giữ thẻ', () => {
-  const fresh = initialSave(), pack = packs.find(p => !p.eventOnly)!, eventPack = packs.find(p => p.eventOnly)!;
+  const fresh = initialSave(), pack = packs.find(p => !p.eventOnly) ?? defaultPacks.find(p => p.id === 'stellar')!, eventPack = packs.find(p => p.eventOnly)!;
   const old = JSON.parse(JSON.stringify({ ...fresh, reset: undefined, fc: 777, balance: 123, unopened: { ...fresh.unopened, [pack.id]: 3, [eventPack.id]: 9 }, prepaid: { [pack.id]: 2 }, event: { points: 500, plays: 9, claimed: [1] } }));
   assert.ok(validateSave(old));
   assert.equal(old.reset, SAVE_RESET);

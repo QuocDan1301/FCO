@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { MouseEvent } from 'react';
-import { AlertTriangle, ArrowLeft, ArrowRight, ChevronDown, ChevronsUp, Lock, LockOpen, Search, Settings, ShoppingCart, Trash2, Zap } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ArrowRight, ChevronDown, ChevronsUp, LayoutGrid, Lock, LockOpen, Search, Settings, ShoppingCart, Trash2 } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
 import type { Card, Player, Save, Tier } from './game';
 import { marketQuote } from './market';
@@ -19,6 +19,8 @@ type Props = {
   onSell: (card: Card) => void;
   onUpgrade: (uid: string) => void;
   onLock: (uid: string) => void;
+  onLineup: () => void;
+  onBulkSell: () => void;
   levelBadge: (level: number) => string;
   seasonShort: (tier: Tier) => string;
 };
@@ -69,7 +71,7 @@ function Row({ card, lineup, locked, count, levelBadge, seasonShort, ...act }: R
     <button onClick={act.onDetail} title="Thông tin" aria-label={`Thông tin ${p.name}`}><Search size={16}/></button>
     <button onClick={act.onDelete} disabled={locked} title={locked ? 'Thẻ đang khóa' : 'Xóa cầu thủ'} aria-label={`Xóa ${p.name}`}><Trash2 size={16}/></button>
     <button className="squad-act" onClick={act.onSell} disabled={locked} title={locked ? 'Thẻ đang khóa' : 'Bán ở TTCN'} aria-label={`Bán ${p.name}`}><ShoppingCart size={15}/><span>Bán</span></button>
-    <button className="squad-act squad-act-upgrade" onClick={act.onUpgrade} title="Đập thẻ ngay" aria-label={`Đập thẻ ${p.name}`}><Zap size={15}/><span>Đập thẻ</span></button>
+    <button className="squad-act-upgrade" onClick={act.onUpgrade} title="Đập thẻ ngay" aria-label={`Đập thẻ ${p.name}`}><svg viewBox="0 0 24 18" aria-hidden="true"><path d="M12 1.5 19.5 9H15v4.5H9V9H4.5z"/><rect x="6" y="14.5" width="12" height="2" rx=".5"/></svg></button>
     <button className="squad-move" onClick={act.onMove} aria-label={lineup ? `Đưa ${p.name} ra khỏi đội hình` : `Đưa ${p.name} vào đội hình`}>{lineup ? <><span>Rời ĐH</span><ArrowRight size={16}/></> : <><ArrowLeft size={16}/><span>Vào ĐH</span></>}</button>
   </span>;
   const className = `squad-row ${lineup ? 'squad-row-lineup' : 'squad-row-bench'} ${locked ? 'is-locked' : ''}`;
@@ -102,7 +104,7 @@ function Row({ card, lineup, locked, count, levelBadge, seasonShort, ...act }: R
   </div>;
 }
 // Quản lí CT: bên trái là đội hình riêng, bên phải là các cầu thủ đang sở hữu chưa vào đội.
-export default function SquadManager({ save, onAdd, onRemove, onDetail, onDelete, onSell, onUpgrade, onLock, levelBadge, seasonShort }: Props) {
+export default function SquadManager({ save, onAdd, onRemove, onDetail, onDelete, onSell, onUpgrade, onLock, onLineup, onBulkSell, levelBadge, seasonShort }: Props) {
   const [confirm, setConfirm] = useState<Card | null>(null);
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: 'price', desc: true });
   const [query, setQuery] = useState('');
@@ -140,6 +142,7 @@ export default function SquadManager({ save, onAdd, onRemove, onDetail, onDelete
     <div className="squad-panel squad-left">
       <header className="squad-head squad-head-lineup">
         <div className="squad-title"><h1 id="squad-title">Đội hình chính</h1><p>Đội bóng riêng của bạn</p></div>
+        <button className="squad-arrange" onClick={onLineup} title="Xếp 11 cầu thủ đá chính lên sân theo sơ đồ"><LayoutGrid size={15}/>Sắp xếp đội hình</button>
         <div className="squad-crests" title="Màu đội: logo đội và quốc tịch xuất hiện nhiều nhất trong đội hình">
           <span className="squad-crest"><img src={teamLogo ?? FCO_LOGO} alt={teamLogo ? 'Logo đội nhiều cầu thủ nhất' : 'FCO VIP'}/></span>
           <span className="squad-crest squad-crest-flag">{nation ? <img src={flagImageUrl(nation)} alt={`Quốc tịch ${nation}`}/> : <img src={FCO_LOGO} alt="FCO VIP"/>}</span>
@@ -162,6 +165,7 @@ export default function SquadManager({ save, onAdd, onRemove, onDetail, onDelete
       <header className="squad-head">
         <h2>Cầu thủ</h2>
         <label className="squad-search"><Search size={15}/><input aria-label="Tìm cầu thủ theo tên" placeholder="Tìm tên cầu thủ…" value={query} onChange={e => setQuery(e.target.value)}/></label>
+        <button className="squad-bulk-sell" onClick={onBulkSell} title="Bán nhiều cầu thủ cùng lúc"><ShoppingCart size={15}/>Bán hàng loạt</button>
         <div className="squad-owned"><span>Cầu thủ của tôi</span><strong>{save.cards.length}</strong></div>
       </header>
       <div className="squad-tools">

@@ -50,7 +50,10 @@ export type EventLogEntry = { time: number; level: number; jar: number; points: 
 export type EventGiftEntry = { time: number; milestone: number; rewards: EventReward[] };
 export type EventState = { points: number; plays: number; claimed: number[]; free?: number; day?: string; missions?: string[]; paid?: number; log?: EventLogEntry[]; gifts?: EventGiftEntry[] };
 const isEventReward = (r: unknown): r is EventReward => !!r && typeof r === 'object' && ((Number.isSafeInteger((r as { bp: number }).bp) && (r as { bp: number }).bp > 0) || (Number.isSafeInteger((r as { fc: number }).fc) && (r as { fc: number }).fc > 0) || (typeof (r as { pack: string }).pack === 'string' && Number.isSafeInteger((r as { count: number }).count) && (r as { count: number }).count > 0));
-export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; prepaid?: Record<string, number>; bridge?: BridgeState; squad?: string[]; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; event?: EventState; reset?: string; bpReset?: string };
+// Sơ đồ đội hình A/B/C (màn Đội hình): mỗi bộ gồm mã sơ đồ và 11 ô (uid thẻ trong đội hình riêng hoặc null); squad.ts chuẩn hoá khi đọc.
+export type Lineup = { formation: string; slots: (string | null)[] };
+export type Lineups = { active: number; sets: Lineup[] };
+export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; prepaid?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; event?: EventState; reset?: string; bpReset?: string };
 // back: ảnh mặt sau thẻ của gói (hiện ở danh sách gói và màn chuẩn bị mở); không có thì dùng hình gói mặc định.
 // tunnel: ảnh nền chỉ hiện một lần trên cặp màn LED ở cửa hầm; các màn phía sau tắt.
 // accent: màu đèn LED / khung của đường hầm khi mở gói; không có thì dùng màu vàng mặc định.
@@ -525,7 +528,7 @@ export const SAVE_RESET = '2026-10-29-empty-items-balance';
 export const START_BP = 0;
 export const BP_RESET = '2026-10-29-zero-bp';
 export function initialSave(): Save {
-  return { version: 1, reset: SAVE_RESET, bpReset: BP_RESET, unopened: defaultUnopened(), balance: START_BP, cards: [11, 15].map(makeCard), history: [], daily: '', opened: 0, upgrades: 0, sound: false, reduced: typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches };
+  return { version: 1, reset: SAVE_RESET, bpReset: BP_RESET, unopened: defaultUnopened(), balance: START_BP, cards: [], history: [], daily: '', opened: 0, upgrades: 0, sound: false, reduced: typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches };
 }
 // Tỷ lệ trong gói: cầu thủ nặng ovrDecay^(OVR +1 − OVR +1 thấp nhất của mùa) × (giá +1 ÷ giá +1 rẻ nhất mùa)^−priceAlpha,
 // nên thẻ OVR cao và thẻ đắt (hàng quốc dân) hiếm hơn; chưa có giá thì tính như thẻ rẻ nhất. Cấp cộng rút riêng trong
@@ -599,19 +602,20 @@ export const MAX_INVENTORY_OPEN = 150;
 export const getPackOpeningCost = (state: Save, pack: Pack, count: number): number =>
   pack.price * Math.max(0, count - (state.prepaid?.[pack.id] ?? 0));
 
-export function buyPacks(state: Save, requested: Pack, count: number, free = false): Save {
-  const pack = packs.find(item => item.id === requested.id);
+// Gói trong Shop mua bằng FC (giá gói = số FC); mở gói đã mua không trừ thêm. catalog = danh sách gói được bán (test truyền gói mẫu).
+export function buyPacks(state: Save, requested: Pack, count: number, free = false, catalog: Pack[] = shopPacks): Save {
+  const pack = catalog.find(item => item.id === requested.id);
   if (!pack || pack.eventOnly || !isPackAvailable(pack)) throw new Error('Gói này hiện chưa có trong shop.');
   if (!Number.isInteger(count) || count < 1 || count > MAX_INVENTORY_OPEN) throw new Error(`Hãy chọn từ 1 đến ${MAX_INVENTORY_OPEN} gói.`);
   const cost = pack.price * count;
   const stock = getPackStock(state, pack) + count;
   const prepaid = (state.prepaid?.[pack.id] ?? 0) + count;
   if (![cost, stock, prepaid].every(Number.isSafeInteger)) throw new Error('Số lượng gói vượt giới hạn lưu trữ.');
-  if (!free && state.balance < cost) throw new Error('Không đủ BP để mua số gói này.');
-  const entry: Entry = { id: uid(), time: Date.now(), type: 'shop', title: `Mua ${count} ${pack.name}`, detail: `Đã thêm vào kho vật phẩm · ${free ? 'Thử nghiệm · Không trừ BP' : `−${money(cost)} BP`} · Không thu thêm phí khi mở` };
+  if (!free && (state.fc ?? 0) < cost) throw new Error('Không đủ FC để mua số gói này.');
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'shop', title: `Mua ${count} ${pack.name}`, detail: `Đã thêm vào kho vật phẩm · ${free ? 'Thử nghiệm · Không trừ FC' : `−${money(cost)} FC`} · Không thu thêm phí khi mở` };
   return {
     ...state,
-    balance: free ? state.balance : state.balance - cost,
+    ...(free ? {} : { fc: (state.fc ?? 0) - cost }),
     unopened: { ...defaultUnopened(), ...state.unopened, [pack.id]: stock },
     prepaid: { ...state.prepaid, [pack.id]: prepaid },
     history: [entry, ...state.history].slice(0, 200),
@@ -661,24 +665,55 @@ export function openChosen(state: Save, pack: Pack, playerId: number): { state: 
   const entry: Entry = { id: uid(), time: Date.now(), type: 'pack', title: `Mở ${pack.name}`, detail: `Chọn ${getPlayer(card).name} +${card.level} · OVR ${ovr(card)}` };
   return { state: { ...state, unopened: { ...defaultUnopened(), ...state.unopened, [pack.id]: available - 1 }, cards: [card, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + 1 }, card };
 }
-// Độ lệch OVR chuẩn theo cấp đang đập (+1 … +12): phôi có OVR = OVR thẻ chính + độ lệch nạp đúng 1 vạch.
-export const GAUGE_OFFSETS = [-2, -.5, 0, .3, 1, 1.8, 2.5, 3.3, 4.1, 5, 6, 7] as const;
-// Số vạch một phôi nạp: mỗi OVR trên chuẩn × 1,28, dưới chuẩn × 0,72; tối đa 2,5 vạch; thấp hơn thẻ chính từ 6 OVR chỉ còn 0,02 vạch.
-export function materialGauge(targetOvr: number, currentLevel: number, materialOvr: number) {
-  const delta = materialOvr - targetOvr;
-  if (delta <= -6) return .02;
-  const diff = delta - (GAUGE_OFFSETS[currentLevel - 1] ?? 7);
-  const gauge = diff >= 0 ? Math.pow(1.28, diff) : Math.pow(.72, -diff);
-  return Math.min(2.5, Math.max(.02, Number(gauge.toFixed(3))));
+// Gói chỉ định (draft): người chơi lập danh sách đúng draftSize cầu thủ từ mọi cầu thủ hợp lệ của gói (mùa + OVR tối thiểu, không giới hạn
+// top price), mặc định là N người giá +1 cao nhất (đúng nhóm choosePool); mở gói nhận ngẫu nhiên 1 người trong danh sách ở cấp của gói.
+const draftCache = new Map<string, Player[]>();
+export function draftCandidates(pack: Pack): Player[] {
+  const key = `${pack.id}|${pack.seasons ?? pack.weights}|${pack.minOvr ?? 0}`;
+  const hit = draftCache.get(key);
+  if (hit) return hit;
+  const price = (p: Player) => basePrices[String(p.id)]?.[0] ?? 0;
+  const list = players.filter(p => (pack.seasons ? pack.seasons.includes(p.tier) : pack.weights[TIERS.indexOf(p.tier)] > 0) && ovr({ playerId: p.id, level: 1 }) >= (pack.minOvr ?? 0))
+    .sort((a, b) => price(b) - price(a) || ovr({ playerId: b.id, level: 1 }) - ovr({ playerId: a.id, level: 1 }) || a.id - b.id);
+  draftCache.set(key, list);
+  return list;
 }
-export function upgradeInfo(target: Card, materials: Card[]) {
+export const draftSize = (pack: Pack) => Math.min(pack.topPrice ?? 1, draftCandidates(pack).length);
+export const defaultDraft = (pack: Pack) => draftCandidates(pack).slice(0, draftSize(pack)).map(p => p.id);
+export function openDraft(state: Save, pack: Pack, playerIds: number[], rng = random): { state: Save; cards: Card[] } {
+  if (!pack.choose) throw new Error('Gói này không phải gói chỉ định.');
+  const available = getPackStock(state, pack);
+  if (available < 1) throw new Error('Bạn không còn gói này trong kho.');
+  const size = draftSize(pack), allowed = new Set(draftCandidates(pack).map(p => p.id));
+  if (playerIds.length !== size || new Set(playerIds).size !== size || !playerIds.every(id => allowed.has(id))) throw new Error(`Hãy chọn đúng ${size} cầu thủ thuộc ${pack.name}.`);
+  const card = { ...makeCard(playerIds[Math.min(size - 1, Math.floor(rng() * size))]), level: (pack.levels ?? PACK_LEVELS)[1] };
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'pack', title: `Mở ${pack.name}`, detail: `${getPlayer(card).name} +${card.level} · OVR ${ovr(card)} · Ngẫu nhiên 1 trong ${size} cầu thủ đã chọn` };
+  return { state: { ...state, unopened: { ...defaultUnopened(), ...state.unopened, [pack.id]: available - 1 }, cards: [card, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + 1 }, cards: [card] };
+}
+// Số vạch một phôi theo chênh OVR = OVR hiện tại của phôi − OVR hiện tại của thẻ chính (cả hai đã cộng cấp thẻ; phôi +9 OVR 125 nạp như
+// phôi +1 OVR 125). Như nhau ở mọi cấp đang đập, không có hệ số phạt theo cấp:
+// - phôi từ OVR thẻ chính đến cao hơn 10: 1 vạch + 0,15 vạch mỗi OVR; từ +10 đến +15 nội suy 2,5 → 5 vạch, tối đa 5;
+//   một phôi cao hơn 15 OVR đủ đầy thanh; 5 phôi OVR bằng thẻ chính luôn đủ 5 vạch, kể cả +11 → +12;
+// - phôi thấp hơn: tra GAUGE_BELOW theo số OVR thấp hơn (nội suy nếu lẻ); thấp hơn 2–4 OVR ≈ 0,41–0,45 vạch nên thẻ 124 + 5 phôi
+//   120–122 ≈ 2,15 vạch; thấp hơn từ 6 OVR chỉ còn 0,02 vạch.
+export const GAUGE_ABOVE_STEP = .15;
+export const GAUGE_BELOW = [1, .7, .45, .43, .41, .2, .02] as const;
+export function materialGauge(targetOvr: number, materialOvr: number) {
+  const diff = materialOvr - targetOvr;
+  // Giữ các mốc cũ đến +10 OVR; nội suy lên 5 vạch ở +15 OVR theo ảnh tham chiếu 105 / 120.
+  if (diff >= 0) return Math.min(5, Number((diff <= 10 ? 1 + diff * GAUGE_ABOVE_STEP : 2.5 + (diff - 10) * .5).toFixed(3)));
+  const below = Math.min(-diff, GAUGE_BELOW.length - 1), i = Math.floor(below);
+  const gauge = i === below ? GAUGE_BELOW[i] : GAUGE_BELOW[i] + (GAUGE_BELOW[i + 1] - GAUGE_BELOW[i]) * (below - i);
+  return Number(gauge.toFixed(3));
+}export function upgradeInfo(target: Card, materials: Card[]) {
   const targetOvr = ovr(target);
   // Một vạch = 20% năng lượng; cộng đúng phần năng lượng 0,1% hiển thị ở từng phôi, tối đa 5 vạch.
-  const total = materials.reduce((sum, material) => sum + Math.round(materialGauge(targetOvr, target.level, ovr(material)) * 200) / 10, 0);
+  const total = materials.reduce((sum, material) => sum + Math.round(materialGauge(targetOvr, ovr(material)) * 200) / 10, 0);
   const energy = Math.round(Math.min(100, total) * 10) / 10;
   const base = UPGRADE_LEVELS[target.level]?.chance ?? 0;
-  // Tỷ lệ = tỷ lệ tối đa của cấp × số vạch / 5, làm tròn 0,01% (các cấp cao chỉ còn dưới 1%).
-  return { energy, chance: Math.round(base * energy) / 100, cost: target.level * 100000 };
+  // Hai đại lượng tách riêng: bars (0–5 vạch, thanh xanh vẽ theo energy = bars / 5 × 100%) và chance = tỷ lệ tối đa của cấp × bars / 5,
+  // làm tròn 0,01% (các cấp cao chỉ còn dưới 1%).
+  return { energy, bars: energy / 20, chance: Math.round(base * energy) / 100, cost: target.level * 100000 };
 }
 // rng quyết định thành công / mức rớt; patternRng chọn cầu ngầm. Tách hai luồng để chuỗi roll kết quả giữ nguyên khi thêm bắt cầu.
 // protection: bảo vệ nâng cấp (thẻ từ +8) — pct% cơ hội giữ nguyên cấp khi thất bại, cost BP trả trước dù kết quả thế nào; tính phí ở insurance.ts.
@@ -718,7 +753,7 @@ export function upgrade(state: Save, targetId: string, materialIds: string[], rn
 }
 export function dayKey(date = new Date()) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date); }
 // Quà điểm danh mỗi ngày: DAILY_FC FC (dùng để chơi sự kiện Nâng Cấp Siêu Sao); người dùng bỏ phần BP.
-export const DAILY_FC = 12_500;
+export const DAILY_FC = 13_000;
 export function claimDaily(state: Save): Save {
   const today = dayKey();
   if (state.daily === today) throw new Error('Bạn đã nhận quà hôm nay. Hẹn gặp lại vào ngày mai!');
@@ -741,6 +776,12 @@ export function validateSave(data: unknown): data is Save {
   if (s.squad !== undefined) {
     const owned = new Set(Array.isArray(s.cards) ? s.cards.map(c => c?.uid) : []);
     if (Array.isArray(s.squad)) s.squad = [...new Set(s.squad.filter(uid => typeof uid === 'string' && owned.has(uid)))]; else delete s.squad;
+  }
+  // Sơ đồ đội hình sai cấu trúc thì bỏ (về sơ đồ mặc định); uid lạ trong ô được squad.ts lọc khi đọc.
+  if (s.lineups !== undefined) {
+    const l = s.lineups;
+    const valid = !!l && Number.isInteger(l.active) && l.active >= 0 && l.active < 3 && Array.isArray(l.sets) && l.sets.length === 3 && l.sets.every(set => !!set && typeof set.formation === 'string' && Array.isArray(set.slots) && set.slots.length === 11 && set.slots.every(uid => uid === null || typeof uid === 'string'));
+    if (!valid) delete s.lineups;
   }
   // Mức bảo vệ nâng cấp đã lưu: sai kiểu thì bỏ.
   if (s.protection !== undefined && !(s.protection && Number.isInteger(s.protection.pct) && s.protection.pct >= 0 && s.protection.pct <= 100 && s.protection.pct % 10 === 0 && typeof s.protection.fixed === 'boolean')) delete s.protection;

@@ -1,0 +1,99 @@
+/* Gói chỉ định trong hầm (DraftPicker.tsx): trái là bảng tìm / lọc cầu thủ,
+   phải là "Cầu thủ đã chọn" N/N, dưới là dòng hướng dẫn và hai nút Rời / Chọn — bố cục theo màn chọn cầu thủ của FC Online. */
+.draft{position:absolute;z-index:4;inset:clamp(64px,10vh,100px) 7% 18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,31%);grid-template-rows:minmax(0,1fr) auto;gap:12px 10px;font-family:var(--display);color:#f0f1f3}
+.dr-panel{display:flex;flex-direction:column;min-width:0;min-height:0;background:rgba(30,32,35,.97);box-shadow:0 12px 32px #000a}
+.dr-searchbar{display:flex;gap:10px;flex-shrink:0;padding:10px 12px 0}
+.dr-searchbar input{flex:1;min-width:0;height:38px;padding:0 14px;border:0;border-radius:0;background:#3a3d42;color:#fff;font-family:inherit;font-size:18px}
+.dr-searchbar input::placeholder{color:#9aa0a8}
+.dr-searchbar button{display:grid;place-items:center;width:60px;height:38px;background:#3a3d42;color:#fff}
+.dr-searchbar button:hover{background:#474b51}
+.dr-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;flex-shrink:0;padding:10px 12px}
+.dr-filters select{height:34px;padding:0 12px;border:0;border-radius:0;background:#3a3d42;color:#fff;font-family:inherit;font-size:17px}
+.dr-filters select:disabled{background:#303338;color:#62676e}
+.dr-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px;text-align:center;color:#8d939b}
+.dr-placeholder span{font-size:34px;font-weight:600;color:#a9aeb5}
+.dr-placeholder small{font-size:14px}
+
+.dr-cols{display:grid;align-items:center;gap:8px;flex-shrink:0;height:30px;padding:0 14px;background:#3a3d42;color:#c9ced5;font-size:14px;white-space:nowrap}
+.dr-rows{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#4a4f56 transparent}
+.dr-row{position:relative;display:grid;align-items:center;gap:8px;width:100%;padding:0 14px;border:0;border-bottom:1px solid #2b2e33;border-radius:0;background:none;color:#f0f1f3;font-family:inherit;text-align:left}
+.dr-row:hover{background:#2a2e34}
+.dr-row:focus-visible{outline:2px solid #7bc9ff;outline-offset:-2px}
+.dr-result-cols,.dr-result-row{grid-template-columns:54px 40px minmax(0,1fr) 40px 48px 96px 22px}
+.dr-result-row{height:48px}
+.dr-result-row.is-on{background:#1c3327}
+.dr-result-row.is-on:hover{background:#22402f}
+.dr-mark{display:flex;justify-content:center;color:#1fe36b}
+.dr-chosen-cols,.dr-chosen-row{grid-template-columns:50px 46px minmax(0,1fr) 40px 46px}
+.dr-chosen-row{height:56px}
+/* Nút Chuyển xanh lá kiểu FC Online: hiện khi rê / Tab vào hàng, phủ lên cột bên phải; trái → phải đưa vào danh sách đã chọn, phải → trái đưa ra. */
+.dr-move{position:absolute;top:50%;right:10px;z-index:1;display:flex;opacity:0;pointer-events:none;align-items:center;gap:10px;height:34px;padding:0 14px;border-radius:2px;background:#13ec6a;color:#06210f;font-family:inherit;font-size:19px;font-weight:600;box-shadow:0 2px 8px #0008;translate:0 -50%}
+.dr-move:hover{background:#4dfa8c}
+.dr-move:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.dr-row:hover .dr-move,.dr-row:focus-within .dr-move{opacity:1;pointer-events:auto}
+@media(hover:none){.dr-move{opacity:1;pointer-events:auto;height:30px;padding:0 10px;font-size:15px}}
+.dr-cols>span:nth-child(n+4){text-align:center}
+.dr-result-cols>span:nth-child(6){text-align:right}
+
+.dr-pos{padding-left:7px;border-left:3px solid;font-size:19px;font-weight:600;line-height:1.1}
+.dr-pos.pos-fw{border-color:#e63946}.dr-pos.pos-mf{border-color:#2ecc71}.dr-pos.pos-df{border-color:#3498db}.dr-pos.pos-gk{border-color:#f1c40f}
+.squad-face.dr-face{width:40px;height:44px;border-radius:3px}
+.dr-chosen-row .squad-face.dr-face{width:46px;height:50px}
+.dr-row .squad-name strong{font-size:17px;font-weight:600}
+.dr-center{display:flex;justify-content:center}
+.dr-row .squad-wage{width:26px;height:26px;font-size:12px}
+.dr-ovr{font-size:20px;font-weight:600;text-align:center;font-variant-numeric:tabular-nums}
+.dr-price{font-size:18px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dr-empty{margin:0;padding:18px;text-align:center;font-size:14px;color:#8d939b}
+
+.dr-chosen-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px 10px;flex-shrink:0;padding:18px 20px 10px}
+.dr-chosen-head h3{margin:0;font-size:19px;font-weight:500;color:#e6e9ee}
+.dr-chosen-head strong{grid-column:1/-1;justify-self:end;font-size:40px;font-weight:600;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+.dr-chosen-head strong small{font-size:inherit;color:#c9ced5}
+.dr-chosen-head strong.is-short{color:#ffc061}
+.dr-edit{display:flex;align-items:center;gap:5px;padding:4px 8px;border-radius:4px;background:#2c3036;color:#9fd8ff;font-family:inherit;font-size:13px}
+.dr-edit:hover{background:#363b42}
+
+
+.dr-foot{grid-column:1/-1;display:flex;align-items:center;gap:14px}
+.dr-foot p{flex:1;min-width:0;margin:0;font-size:18px;color:#e6e9ee;text-shadow:0 1px 4px #000}
+.dr-foot p.is-warning{color:#ffc061}
+.dr-leave,.dr-go{display:flex;align-items:center;justify-content:space-between;gap:30px;min-width:200px;height:42px;padding:0 18px 0 30px;border-radius:21px;font-family:inherit;font-size:19px;font-weight:600}
+.dr-leave{background:#3d4046;color:#fff}
+.dr-leave:hover{background:#4a4e55}
+.dr-go{background:#13e36b;color:#06210f}
+.dr-go:hover:not(:disabled){background:#3cf588}
+.dr-go:disabled{background:#2f4a3a;color:#7d9a88;cursor:not-allowed}
+
+@media(max-width:1100px){
+  .draft{inset:64px 3% 14px}
+}
+/* Màn hẹp: xếp dọc, bảng tìm / danh sách mở trên, cầu thủ đã chọn dưới. */
+@media(max-width:820px){
+  .draft{inset:56px 8px 8px;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1.25fr) minmax(0,1fr) auto}
+  .dr-result-cols,.dr-result-row{grid-template-columns:44px 36px minmax(0,1fr) 34px 40px 74px 18px;padding:0 8px;gap:6px}
+  .dr-chosen-head{padding:10px 12px 6px}
+  .dr-chosen-head strong{font-size:28px}
+  .dr-foot{flex-wrap:wrap;gap:8px}
+  .dr-foot p{flex-basis:100%;font-size:13px}
+  .dr-leave,.dr-go{flex:1;min-width:0;padding:0 16px;font-size:16px}
+}
+
+/* Màn hầm sau khi chốt danh sách (DraftSummary): nửa phải phủ tối, bảng tên gói + N cầu thủ; ảnh gói và nút Mở một vật phẩm là của màn hầm. */
+.dr-shade{position:absolute;z-index:2;top:0;right:0;bottom:0;width:40%;background:linear-gradient(90deg,rgba(6,10,14,.55),rgba(6,10,14,.82) 30%);pointer-events:none}
+.dr-summary{position:absolute;z-index:3;top:calc(13% + 92px);right:7%;bottom:calc(clamp(24px,4.5vh,40px) + 68px);width:min(29%,520px);display:flex;flex-direction:column;font-family:var(--display);color:#f0f1f3}
+.dr-summary h3{margin:0;font-size:clamp(22px,2.1vw,36px);font-weight:600;line-height:1.15;color:#fff}
+.dr-summary>p{margin:6px 0 0;font-size:clamp(13px,1vw,18px);color:#c9ced5}
+.dr-summary-head{display:flex;align-items:baseline;gap:10px;flex-shrink:0;margin-top:clamp(14px,3vh,34px);padding-bottom:6px}
+.dr-summary-head>span{font-size:16px;color:#c9ced5}
+.dr-summary-head .dr-edit{align-self:center}
+.dr-summary-head strong{margin-left:auto;font-size:26px;font-weight:600;color:#fff}
+.dr-summary .dr-rows{scrollbar-gutter:stable}
+.dr-sum-row{grid-template-columns:46px 50px minmax(0,1fr) 36px 46px;height:58px;padding:0 4px 0 14px;border-bottom-color:rgba(255,255,255,.14)}
+.dr-sum-row:hover{background:rgba(255,255,255,.04)}
+.dr-sum-row .squad-face.dr-face{width:46px;height:52px}
+.dr-sum-row .squad-name strong{font-size:19px}
+@media(max-width:820px){
+  .dr-shade{width:100%;top:auto;height:52%;background:linear-gradient(180deg,rgba(6,10,14,0),rgba(6,10,14,.85) 18%)}
+  .dr-summary{top:auto;left:12px;right:12px;width:auto;height:40%;bottom:calc(clamp(24px,4.5vh,40px) + 100px)}
+}

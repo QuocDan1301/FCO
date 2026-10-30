@@ -1,18 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { initialSave, validateSave } from '../src/game.ts';
-import { JACKPOT_MAX, JACKPOT_MIN, JACKPOT_RESET, botSpecialOdds, JACKPOT_TICK_MS, botName, grantJackpot, mini, newJackpot, rollJackpot, tickJackpot } from '../src/jackpot.ts';
+import { BOT_HUNTERS, JACKPOT_MAX, JACKPOT_MIN, JACKPOT_RESET, botSpecialOdds, JACKPOT_TICK_MS, botName, grantJackpot, mini, newJackpot, rollJackpot, tickJackpot } from '../src/jackpot.ts';
 
 const seq = (...values: number[]) => { let i = 0; return () => values[i++ % values.length]; };
 
 test('Quỹ Giải Đặc Biệt tự tăng theo thời gian, có đợt tăng nhanh; Giải Mini luôn bằng 1/10 quỹ', () => {
   const start = { ...newJackpot(0), pot: 1_000 };
   const slow = tickJackpot(start, 10 * JACKPOT_TICK_MS, () => .5);
-  assert.ok(slow.pot >= start.pot + 10 * 3 && slow.pot <= start.pot + 10 * 12);
+  assert.ok(slow.pot >= start.pot + 10 * 8 && slow.pot <= start.pot + 10 * 24);
   assert.equal(slow.at, 10 * JACKPOT_TICK_MS);
-  // rng < .03 mở đợt tăng nhanh: mỗi nhịp +40…120.
+  // rng < .05 mở đợt tăng nhanh: mỗi nhịp +80…200.
   const fast = tickJackpot(start, 5 * JACKPOT_TICK_MS, seq(.01, .5, .5, .5, .5, .5, .5, .5, .5, .5, .5));
-  assert.ok(fast.pot - start.pot >= 5 * 40);
+  assert.ok(fast.pot - start.pot >= 5 * 80);
   assert.equal(mini({ pot: 12_345 }), 1_234);
   assert.equal(tickJackpot(start, JACKPOT_TICK_MS - 1, Math.random), start);
 });
@@ -25,7 +25,7 @@ test('Bot chỉ săn được giải khi quỹ từ 10.000 FC; trúng đặc bi�
   assert.ok(high.feed[0].amount >= JACKPOT_MIN + 5_000);
   assert.equal(high.pot, JACKPOT_RESET);
   assert.match(botName(seq(.1, .2, .3, .4, .5, .6)), /^[A-Za-z]+\d*$/);
-  // Quỹ càng lớn bot càng dễ nổ; chạm 30.000 FC thì chắc chắn có bot trúng Giải Đặc Biệt.
+  // Quỹ càng lớn bot càng dễ nổ; chạm JACKPOT_MAX thì chắc chắn có bot trúng Giải Đặc Biệt.
   assert.ok(botSpecialOdds(20_000) > botSpecialOdds(12_000) && botSpecialOdds(12_000) > botSpecialOdds(10_000));
   assert.equal(botSpecialOdds(JACKPOT_MAX), 1);
   const capped = tickJackpot({ ...newJackpot(0), pot: JACKPOT_MAX + 1_000 }, JACKPOT_TICK_MS, () => .99);
@@ -56,4 +56,21 @@ test('FC trả để chơi cộng hết vào quỹ; đủ 10.000 FC mới có th
   assert.equal(grantJackpot(save, []), save);
   // Quỹ mới bắt đầu từ cùng mức với sau khi có người trúng Giải Đặc Biệt.
   assert.equal(newJackpot(0).pot, JACKPOT_RESET);
+});
+
+test('Nhiều bot cùng săn: quỹ vừa qua 10.000 FC thì Giải Đặc Biệt bị bot ăn rất nhanh (trung bình dưới 30 giây)', () => {
+  assert.ok(BOT_HUNTERS >= 30);
+  // rng cố định (LCG) để kết quả lặp lại được.
+  let seed = 12345;
+  const rng = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const waits: number[] = [];
+  for (let run = 0; run < 200; run++) {
+    let jackpot = { ...newJackpot(0), pot: JACKPOT_MIN };
+    let ticks = 0;
+    while (!jackpot.feed.some(w => w.kind === 'special') && ticks < 1_000) { ticks++; jackpot = tickJackpot(jackpot, ticks * JACKPOT_TICK_MS, rng); }
+    waits.push(ticks * JACKPOT_TICK_MS / 1000);
+  }
+  const average = waits.reduce((a, b) => a + b, 0) / waits.length;
+  assert.ok(average < 30, `trung bình ${average.toFixed(1)} giây`);
+  assert.ok([...waits].sort((a, b) => a - b)[Math.floor(waits.length * .95)] < 90, '95% số đợt mất giải trong 1,5 phút');
 });

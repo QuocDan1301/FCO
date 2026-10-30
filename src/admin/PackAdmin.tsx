@@ -104,7 +104,7 @@ function Editor({ data, config, renderArt, status, setStatus, persist, onDone }:
     !form.seasons.length && 'Chọn ít nhất một mùa.',
     minOvr !== null && !(Number.isInteger(minOvr) && minOvr >= 0 && minOvr <= 200) && 'OVR tối thiểu là số nguyên 0–200 hoặc để trống.',
     topPrice !== null && !(Number.isInteger(topPrice) && topPrice >= 1 && topPrice <= 9999) && 'Top price là số nguyên 1–9999 hoặc để trống.',
-    !/^\d+$/.test(form.price) && 'Nhập giá BP (số nguyên).',
+    !/^\d+$/.test(form.price) && 'Nhập giá FC (số nguyên).',
   ].filter(Boolean) as string[];
   // Chưa có cầu thủ nào đủ điều kiện (mùa mới chưa thêm thẻ, hoặc OVR tối thiểu quá cao): vẫn lưu được, Shop hiện "Sắp ra mắt".
   const empty = stats?.count === 0;
@@ -173,7 +173,7 @@ function Editor({ data, config, renderArt, status, setStatus, persist, onDone }:
         <label className="pa-field"><span>đến</span><select value={form.levels[1]} onChange={e => { const max = Number(e.target.value); update({ levels: [Math.min(form.levels[0], max), max] }); }}>{levelOptions.map(l => <option key={l} value={l}>+{l}</option>)}</select></label>
       </div>
       <div className="pa-row pa-price">
-        <label className="pa-field"><span>Giá (BP)</span><input inputMode="numeric" value={form.price} placeholder={suggested ? String(suggested) : ''} onChange={e => update({ price: e.target.value.replace(/\D/g, '').slice(0, 13) })}/></label>
+        <label className="pa-field"><span>Giá (FC)</span><input inputMode="numeric" value={form.price} placeholder={suggested ? String(suggested) : ''} onChange={e => update({ price: e.target.value.replace(/\D/g, '').slice(0, 13) })}/></label>
         {suggested > 0 && <button className="pa-suggest" onClick={() => update({ price: String(suggested) })}>Dùng giá gợi ý {money(suggested)}</button>}
       </div>
       <label className="pa-field"><span>Mô tả</span><textarea rows={2} maxLength={160} value={form.description} onChange={e => update({ description: e.target.value }, 'description')}/></label>

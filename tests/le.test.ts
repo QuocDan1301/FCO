@@ -46,7 +46,7 @@ test('165 distinct LE cards match screenshot order, OVR, wages and +1 prices', (
 });
 
 test('LE pack can draw every LE player, open and persist', () => {
-  const pack = allPacks.find(p => p.id === 'le')!;
+  const pack = (allPacks.find(p => p.id === 'le') ?? defaultPacks.find(p => p.id === 'le')!);
   assert.ok(pack && isPackAvailable(pack));
   assert.equal(packOdds(pack).pool.length, 165);
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);

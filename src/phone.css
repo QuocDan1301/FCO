@@ -64,7 +64,7 @@
   .tp-price { font-size: 12px; }
 
   /* Quản lí CT trên màn cảm ứng: hai khung xếp dọc, mỗi khung tự cuộn; chạm bánh răng hoặc hàng để hiện thanh thao tác (nút 40px). */
-  .main-content > .workspace.squad-workspace { display: flex; height: auto; min-height: 100%; margin: 0; border: 0; border-radius: 0; overflow: visible; }
+  .main-content > .workspace.squad-workspace { display: flex; width: 100%; height: auto; min-height: 100%; margin: 0; border: 0; border-radius: 0; overflow: visible; }
   .squad-panel { flex: none; }
   .squad-head { padding: 12px; gap: 12px; }
   .squad-head h1, .squad-head h2 { font-size: 23px; }
@@ -87,17 +87,10 @@
   .squad-hover .squad-act { width: 40px; padding: 0; }
   .squad-hover .squad-move { min-width: 64px; margin: 0; padding: 0 8px; font-size: 14px; }
 
-  .main-content > .inv-workspace { min-height: 600px; }
-  .inv-compact-filters select { height: 44px; }
   .inv-workspace .inv-foot-btn, .inv-workspace .inv-use { min-height: 44px; height: auto; }
-  .inv-workspace .inv-item-action { min-height: 72px; display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
-  .inv-workspace .inv-item-action h3 { min-height: 20px; }
   .inv-workspace .inv-tick { width: 44px; height: 44px; background: transparent; border: 0; top: 0; right: 0; }
   .inv-workspace .inv-tick::before { content: ''; position: absolute; width: 22px; height: 22px; top: 11px; left: 11px; border: 2px solid #65758a; background: #0d141b; }
   .inv-workspace .inv-tick i { left: 19px; top: 13px; z-index: 1; }
-  .inv-workspace .inv-item h3 { visibility: visible; font-size: 13px; }
-  .inv-workspace .inv-grid { grid-auto-rows: 240px; }
-  .inv-workspace .inv-item { height: 240px; }
   .main-content > .market-workspace { min-height: 480px; }
   .market-workspace .market-filters > .search-field, .market-workspace .market-filter-toggle { min-height: 44px; height: 44px; }
   .market-workspace .market-tabs > button, .market-workspace .market-pagination > button, .market-workspace .market-row-action { min-height: 44px; }

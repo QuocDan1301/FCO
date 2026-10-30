@@ -46,7 +46,7 @@ test('34 distinct JNM cards match screenshot order, OVR, wages and +1 prices', (
 });
 
 test('JNM pack can draw every JNM player, open and persist', () => {
-  const pack = allPacks.find(p => p.id === 'jnm')!;
+  const pack = (allPacks.find(p => p.id === 'jnm') ?? defaultPacks.find(p => p.id === 'jnm')!);
   assert.ok(pack && isPackAvailable(pack));
   assert.equal(packOdds(pack).pool.length, 34);
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);

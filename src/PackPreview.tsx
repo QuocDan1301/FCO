@@ -40,7 +40,7 @@ export default function PackPreview({ pack, count, free, balance, onBuy, onOpenN
     </li>)}</ol>
     <p className="fine-print">{single ? `Mỗi gói ra 1 thẻ +${levels[0].level}. Cầu thủ OVR càng cao so với mức thấp nhất của gói và giá +1 càng đắt thì càng hiếm.` : 'Mỗi gói ra 1 thẻ. Cầu thủ OVR càng cao so với mức thấp nhất của gói và giá +1 càng đắt thì càng hiếm; cấp cộng rút riêng, mỗi cấp hiếm hơn cấp trước khoảng 3,2 lần. Tỷ lệ cầu thủ tính cho mọi cấp.'} Giá là giá thẻ +{shownLevel} ở TTCN. Đây là tỷ lệ của trò chơi giả lập, không phải tỷ lệ chính thức của FC Online.</p>
     <div className="shop-actions pack-preview-actions">
-      <button className="shop-buy" disabled={!affordable} onClick={onBuy}><ShoppingBag size={17}/>Mua {count} gói · {money(cost)} BP</button>
+      <button className="shop-buy" disabled={!affordable} onClick={onBuy}><ShoppingBag size={17}/>Mua {count} gói · {money(cost)} FC</button>
       <button className="shop-open-now" disabled={!affordable} onClick={onOpenNow} aria-label={`Mua và mở ngay ${count} ${pack.name}`}><Zap size={16}/>Mở ngay</button>
     </div>
   </div>;

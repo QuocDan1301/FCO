@@ -33,8 +33,7 @@ FONT = os.environ.get('PACK_FONT', 'C:/Windows/Fonts/bahnschrift.ttf')
 # Ảnh gói từng mùa (khoá = Tier trong src/game.ts), toạ độ theo pixel ảnh gốc:
 #   badge = khung huy hiệu mùa ở góc dưới trái (x0, y0, x1, y1), title = vùng tiêu đề cần xoá (một hộp, hoặc danh sách hộp
 #   khi tiêu đề nhiều dòng nằm xen hình nền — tiêu đề mới đặt giữa hộp bao của cả danh sách),
-#   ink = điểm ảnh nào là chữ tiêu đề (để xoá và lấy màu cho tiêu đề mới),
-#   area (tuỳ chọn) = vùng tiêu đề mới được trải rộng khi chữ gốc ngắn (DECADE hẹp, mặc định bằng hộp title) — không ảnh hưởng vùng xoá.
+#   ink = điểm ảnh nào là chữ tiêu đề (để xoá và lấy màu cho tiêu đề mới).
 SEASONS = {
     'stellar': dict(art='ts26-back.png', badge=(39, 575, 103, 627), title=(86, 70, 372, 163), ink=lambda r, g, b: (r - b > 22) & (r > 120)),
     'origin': dict(art='no7-back.png', badge=(103, 1292, 239, 1398), title=(255, 240, 800, 382), ink=lambda r, g, b: (np.maximum(np.maximum(r, g), b) < 95) & (b >= r)),
@@ -50,10 +49,10 @@ SEASONS = {
     'cu': dict(art='cu-back.png', badge=(32, 610, 99, 661), title=[(128, 72, 338, 108), (136, 110, 328, 164)], ink=lambda r, g, b: (r - b > 12) & (r > 45)),
     'gru': dict(art='gru-back.png', badge=(32, 615, 95, 667), title=[(70, 76, 396, 108), (176, 116, 284, 168)], ink=lambda r, g, b: (np.minimum(np.minimum(r, g), b) > 175) & (np.maximum(np.maximum(r, g), b) - np.minimum(np.minimum(r, g), b) < 50)),
     'rtn': dict(art='rtn-back.png', badge=(30, 635, 97, 690), title=(94, 118, 366, 184), ink=lambda r, g, b: (np.minimum(np.minimum(r, g), b) > 195) & (r - b < 60)),
-    'dc': dict(art='dc-back.png', badge=(33, 612, 97, 665), title=(128, 112, 342, 174), area=(70, 112, 394, 174), ink=lambda r, g, b: (r - b > 40) & (r > 140)),
+    'dc': dict(art='dc-back.png', badge=(33, 612, 97, 665), title=(128, 112, 342, 174), ink=lambda r, g, b: (r - b > 40) & (r > 140)),
     'cc': dict(art='cc-back.png', badge=(33, 603, 97, 653), title=(46, 112, 416, 174), ink=lambda r, g, b: (r > 215) & (g > 185) & (r - b > 45) & (b < 200)),
-    # BLD: viền vàng dày nên góc OVR lùi vào (corner_edge); chữ gốc nhỏ nên tiêu đề mới được to hơn (title_scale, area).
-    'bld': dict(art='bld-back.png', title_scale=1.5, corner_edge=.935, area=(36, 88, 428, 176), badge=(44, 578, 104, 624), title=(68, 104, 399, 160), ink=lambda r, g, b: (np.minimum(np.minimum(r, g), b) > 170) & (r - b > 4) & (r - b < 80) & (r > 205)),
+    # BLD: viền vàng dày nên góc OVR lùi vào (corner_edge).
+    'bld': dict(art='bld-back.png', corner_edge=.935, badge=(44, 578, 104, 624), title=(68, 104, 399, 160), ink=lambda r, g, b: (np.minimum(np.minimum(r, g), b) > 170) & (r - b > 4) & (r - b < 80) & (r > 205)),
     'wb': dict(art='wb-back.png', badge=(32, 593, 97, 645), title=(56, 100, 410, 158), ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),
     'jnm': dict(art='jnm-back.png', badge=(195, 2100, 410, 2280), title=[(270, 430, 1450, 610)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),
     'juventus': dict(art='juventus-back.png', badge=(55, 865, 155, 945), title=[(200, 105, 490, 155), (150, 165, 540, 235)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),
@@ -151,11 +150,6 @@ def boxes(title):
     return title if isinstance(title, list) else [title]
 
 
-def union(title):
-    parts = boxes(title)
-    return (min(b[0] for b in parts), min(b[1] for b in parts), max(b[2] for b in parts), max(b[3] for b in parts))
-
-
 def fill_vertical(rgb, mask):
     """Vá vùng mask bằng nội suy dọc theo từng cột giữa điểm nền ngay trên và ngay dưới (nền gói thường chuyển màu dọc),
     nên không loang thành vệt xoáy như inpaint; cột chạm mép ảnh thì lấy điểm còn lại.
@@ -202,14 +196,6 @@ def erase_title(img, title, ink):
     top, bottom = colors[0], colors[-1]
     ys, xs = np.nonzero(mask)
     ink_box = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
-    # Dòng chữ: các dải hàng liên tục có điểm chữ (bỏ dải mỏng < 3 px là nhiễu).
-    rows = mask.any(1)
-    bands, start = [], None
-    for y, on in enumerate(list(rows) + [False]):
-        if on and start is None: start = y
-        if not on and start is not None: bands.append(y - start); start = None
-    line = max([b for b in bands if b >= 3] or [ink_box[3] - ink_box[1]])
-    lines = max(1, sum(b >= 3 for b in bands))
     k = max(5, round(9 * img.width / 462)) | 1
     mask = cv2.dilate(mask, np.ones((k, k), np.uint8))
     rgb = np.ascontiguousarray(rgba[..., 2::-1])
@@ -222,30 +208,32 @@ def erase_title(img, title, ink):
     soft = cv2.GaussianBlur(mask.astype(np.float32) / 255, (0, 0), 1.2 * img.width / 462)[..., None]
     out = (out * (1 - soft) + blur * soft).astype(np.uint8)
     rgba[..., :3] = out[..., ::-1]
-    return Image.fromarray(rgba), tuple(int(v) for v in top), tuple(int(v) for v in bottom), ink_box, line, lines
+    return Image.fromarray(rgba), tuple(int(v) for v in top), tuple(int(v) for v in bottom), ink_box
 
 
-def draw_title(img, box, text, top, bottom, ink_box, line, lines=1):
-    """Tiêu đề mới ở giữa chỗ chữ gốc: chữ hoa cao bằng dòng chữ gốc cao nhất, co lại cho vừa bề ngang chữ gốc (rộng nhất bằng vùng tiêu đề).
-    Tiêu đề gốc nhiều dòng (UC, WG, UT, CU…) mà tiêu đề mới một dòng thì được rộng tới 62% bề ngang ảnh (như tiêu đề một dòng của 26TS),
-    không thì một dòng chữ phải co theo bề ngang khối chữ gốc nên rất nhỏ (người dùng: "chữ multiclass hơi nhỏ")."""
-    x0, y0, x1, y1 = box
+# Cỡ tiêu đề mới như nhau trên mọi khung (theo bề ngang ảnh, bằng khung BDO): chữ hoa cao TITLE_CAP × bề ngang;
+# tiêu đề dài hơn TITLE_MAX_WIDTH × bề ngang mới co lại cho vừa.
+TITLE_CAP = .0968
+TITLE_MAX_WIDTH = .82
+
+
+def draw_title(img, text, top, bottom, ink_box):
+    """Tiêu đề mới ở giữa chỗ chữ gốc, cùng cỡ trên mọi khung (người dùng: "MULTI CLASS, TOP PRICE phải cùng cỡ chữ như thẻ BDO")."""
     ix0, iy0, ix1, iy1 = ink_box
     light = sum(mix(top, bottom, .5)) / 3 > 128
     # Màu chính = dòng chữ gốc nổi nhất (chữ sáng lấy dòng sáng hơn, chữ tối lấy dòng tối hơn).
     ink = max(top, bottom, key=sum) if light else min(top, bottom, key=sum)
     # Chữ trắng / xám / đen (ít màu): tô phẳng, chỉ đổ bóng nhẹ như chữ gốc; chữ màu: dải sáng–đậm và viền tối mảnh.
     neutral = max(ink) - min(ink) < 40
-    cap = min(line, (y1 - y0) * .62)
-    room = max(ix1 - ix0, (x1 - x0) * .8, img.width * .62 if lines > 1 else 0)
-    widest = max(room, (x1 - x0)) * 1.04
+    cap = img.width * TITLE_CAP
+    room = img.width * TITLE_MAX_WIDTH
     stroke = max(1, round(img.width / 462))
     outlined = light and not neutral
     for _ in range(4):
         fill, outline, cap_top, _left = render_text(text, cap / .7, 650, 84, stroke=stroke if outlined or light else 0, word_gap=.55)
-        if fill.width <= min(room * 1.02, widest):
+        if fill.width <= room:
             break
-        cap *= min(room, widest) / fill.width
+        cap *= room / fill.width
     at = ((ix0 + ix1) / 2 - fill.width / 2, (iy0 + iy1) / 2 - cap / 2 - cap_top)
     w, h = fill.size
     # Dải màu dọc: trên sáng (pha trắng), giữa đúng màu chữ gốc, dưới đậm hơn.
@@ -339,8 +327,8 @@ def compose(title, seasons, min_ovr=None, top_price=None, draft=None):
     cfg = SEASONS[first]
     img = Image.open(os.path.join(ASSETS, cfg['art'])).convert('RGBA')
     if ' '.join(title.upper().split()) != KEEP_TITLES.get(first):
-        img, top, bottom, ink_box, line, lines = erase_title(img, cfg['title'], cfg['ink'])
-        draw_title(img, cfg.get('area', union(cfg['title'])), title, top, bottom, ink_box, line * cfg.get('title_scale', 1), lines)
+        img, top, bottom, ink_box = erase_title(img, cfg['title'], cfg['ink'])
+        draw_title(img, title, top, bottom, ink_box)
     stack_badges(img, first, seasons[1:])
     # Gói top price ghi số cầu thủ ở góc thay cho ▲OVR (OVR tối thiểu vẫn lọc cầu thủ nhưng không in).
     if draft is not None:

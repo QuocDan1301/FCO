@@ -3,20 +3,25 @@ import type { Entry, Save } from './game';
 
 // Giải Đặc Biệt của sự kiện Nâng Cấp Siêu Sao: quỹ FC chung, mô phỏng trên máy người chơi.
 // - Quỹ tự tăng theo thời gian (người chơi khác), lúc chậm lúc nhanh; FC mình trả để chơi cộng thẳng vào quỹ (chia đều cho từng lượt).
-// - Giải Mini Đặc Biệt luôn bằng 1/10 quỹ. Từ JACKPOT_MIN FC trở lên, mỗi lượt chơi có tỷ lệ trúng; bot cũng săn giải.
+// - Giải Mini Đặc Biệt luôn bằng 1/10 quỹ. Từ JACKPOT_MIN FC trở lên, mỗi lượt chơi có tỷ lệ trúng; BOT_HUNTERS bot cùng săn giải.
 // - Trúng Giải Đặc Biệt (người chơi hay bot) nhận cả quỹ, quỹ quay lại từ đầu (JACKPOT_RESET, cũng là mức quỹ lúc mới tạo);
 //   trúng Giải Mini nhận 1/10 quỹ và phần đó trừ thẳng vào quỹ Giải Đặc Biệt.
 // Lưu riêng ở localStorage (JACKPOT_KEY), không nằm trong bản lưu game; FC trúng thưởng thì cộng vào bản lưu.
 export const JACKPOT_KEY = 'ncss-jackpot-v1';
 export const JACKPOT_MIN = 10_000, JACKPOT_RESET = 2_000;
 export const JACKPOT_TICK_MS = 2_000;
-// Tỷ lệ gốc mỗi lượt chơi của người chơi và mỗi nhịp của bot (khi quỹ ≥ JACKPOT_MIN). Quỹ càng lớn càng nhiều người săn:
-// tỷ lệ Giải Đặc Biệt nhân hệ số pressure (bình phương, +1 mỗi 5.000 FC trên mức 10.000), quỹ chạm JACKPOT_MAX thì chắc chắn có bot nổ.
+// Tỷ lệ gốc mỗi lượt chơi của người chơi và của TỪNG bot mỗi nhịp (khi quỹ ≥ JACKPOT_MIN). BOT_HUNTERS bot cùng săn nên giải mất rất nhanh:
+// quỹ vừa qua 10.000 FC thì trung bình ~20 giây là có bot nổ Giải Đặc Biệt (95% các đợt dưới 1 phút). Quỹ càng lớn càng nhiều người săn: tỷ lệ Giải Đặc Biệt
+// nhân hệ số pressure (bình phương, +1 mỗi 5.000 FC trên mức 10.000); quỹ chạm JACKPOT_MAX thì chắc chắn có bot nổ.
 export const PLAYER_ODDS = { special: .0005, mini: .004 } as const;
-export const BOT_ODDS = { special: .004, mini: .02 } as const;
-export const JACKPOT_MAX = 30_000;
+export const BOT_HUNTERS = 40;
+export const BOT_ODDS = { special: .002, mini: .001 } as const;
+export const JACKPOT_MAX = 20_000;
 export const pressure = (pot: number) => (1 + Math.max(0, pot - JACKPOT_MIN) / 5_000) ** 2;
-export const botSpecialOdds = (pot: number) => pot >= JACKPOT_MAX ? 1 : Math.min(.5, BOT_ODDS.special * pressure(pot));
+// Xác suất ít nhất 1 trong BOT_HUNTERS bot trúng trong một nhịp.
+const anyBot = (each: number) => 1 - (1 - each) ** BOT_HUNTERS;
+export const botSpecialOdds = (pot: number) => pot >= JACKPOT_MAX ? 1 : Math.min(.9, anyBot(Math.min(.05, BOT_ODDS.special * pressure(pot))));
+export const botMiniOdds = () => anyBot(BOT_ODDS.mini);
 export const playerSpecialOdds = (pot: number) => Math.min(.05, PLAYER_ODDS.special * pressure(pot));
 const MAX_CATCH_UP = 1_800; // tối đa 1 giờ bù khi mở lại trang
 const FEED_MAX = 10;
@@ -54,20 +59,22 @@ function win(jackpot: Jackpot, kind: JackpotWin['kind'], name: string, time: num
   return { jackpot: { ...jackpot, pot: kind === 'special' ? JACKPOT_RESET : jackpot.pot - amount, feed: [won, ...jackpot.feed].slice(0, FEED_MAX) }, won };
 }
 
-// Chạy các nhịp từ lần cập nhật trước đến now: quỹ tăng (đợt nhanh 40–120 FC, bình thường 3–12 FC mỗi nhịp; trung bình ~1.000 FC/phút), bot có thể trúng.
+// Chạy các nhịp từ lần cập nhật trước đến now: nhiều bot cùng chơi nên quỹ tăng nhanh (đợt nhanh 80–200 FC, bình thường 8–24 FC mỗi nhịp;
+// trung bình ~2.500 FC/phút, từ mức đầu tới 10.000 FC mất ~3–4 phút), bot có thể trúng.
 export function tickJackpot(jackpot: Jackpot, now: number, rng: () => number): Jackpot {
   const steps = Math.floor((now - jackpot.at) / JACKPOT_TICK_MS);
   if (steps <= 0) return jackpot;
   let next = { ...jackpot, at: jackpot.at + steps * JACKPOT_TICK_MS };
   for (let i = 0, run = Math.min(steps, MAX_CATCH_UP); i < run; i++) {
-    const speed = next.speed > 0 ? next.speed - 1 : rng() < .03 ? 10 + Math.floor(rng() * 20) : 0;
-    const gain = speed > 0 ? 40 + Math.floor(rng() * 81) : 3 + Math.floor(rng() * 10);
+    const speed = next.speed > 0 ? next.speed - 1 : rng() < .05 ? 10 + Math.floor(rng() * 20) : 0;
+    const gain = speed > 0 ? 80 + Math.floor(rng() * 121) : 8 + Math.floor(rng() * 17);
     next = { ...next, speed, pot: next.pot + gain };
     if (next.pot < JACKPOT_MIN) continue;
     const roll = rng();
     const special = botSpecialOdds(next.pot);
     if (roll < special) next = win(next, 'special', botName(rng), next.at - (run - 1 - i) * JACKPOT_TICK_MS).jackpot;
-    else if (roll < special + BOT_ODDS.mini) next = win(next, 'mini', botName(rng), next.at - (run - 1 - i) * JACKPOT_TICK_MS).jackpot;
+    // Bot chỉ lấy Giải Mini khi quỹ còn đủ JACKPOT_MIN sau khi trừ, nên cuộc săn Giải Đặc Biệt không bị gián đoạn.
+    else if (roll < special + botMiniOdds() && next.pot - mini(next) >= JACKPOT_MIN) next = win(next, 'mini', botName(rng), next.at - (run - 1 - i) * JACKPOT_TICK_MS).jackpot;
   }
   return next;
 }

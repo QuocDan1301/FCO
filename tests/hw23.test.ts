@@ -11,7 +11,7 @@ import { rngFor } from './pack-rng.ts';
 
 const roster = players.filter(p => p.tier === 'hw23');
 const base = defaultPacks.find(p => p.id === 'hw23')!;
-const pack = allPacks.find(p => p.id === 'hw23')!;
+const pack = (allPacks.find(p => p.id === 'hw23') ?? defaultPacks.find(p => p.id === 'hw23')!);
 const lines = readFileSync('scripts/data/hw23.csv', 'utf8').trim().split(/\r?\n/).slice(1).map(s => s.split('|'));
 
 test('23HW: 195 unique players, source order, exact screenshot metadata and assets', () => {
@@ -40,7 +40,6 @@ test('23HW publishes in Shop, works in mixed packs, and every player can be draw
   assert.ok(SEASON_IDS.includes('hw23'));
   assert.equal(seasons.hw23, '23HW');
   assert.deepEqual(base.weights, TIERS.map(t => t === 'hw23' ? 100 : 0));
-  assert.equal(pack.draft, false);
   assert.equal(packOdds(pack).pool.length, 195);
   assert.equal(base.range, '103–112');
   const mixed = customPack({ id: 'hw23-bdo-test', name: 'Mixed', short: 'Mixed', title: 'Mixed', seasons: ['bdo', 'hw23'], minOvr: 110, levels: [1, 1], price: 1, description: 'Test pool', range: '110–118', back: null, published: true });

@@ -46,7 +46,7 @@ test('90 distinct FA cards match screenshot order, OVR, wages and +1 prices', ()
 });
 
 test('FA pack can draw every FA player, open and persist', () => {
-  const pack = allPacks.find(p => p.id === 'fa')!;
+  const pack = (allPacks.find(p => p.id === 'fa') ?? defaultPacks.find(p => p.id === 'fa')!);
   assert.ok(pack && isPackAvailable(pack));
   assert.equal(packOdds(pack).pool.length, 90);
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);

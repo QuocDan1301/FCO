@@ -16,9 +16,19 @@ Khi thêm mùa khác, nối mùa vào `Tier`, `TIERS`, `seasons`, `players` và 
 
 **Đang bật xu vô hạn để thử nghiệm:** mở gói/nâng cấp không trừ xu, áp dụng cả tiến trình cũ có số dư 0. Nguyên liệu và tỷ lệ vẫn theo quy tắc thường. Để tắt, đặt `UNLIMITED_COINS = false` trong `src/config.ts` rồi chạy `npm.cmd run build`; số dư thật được giữ nguyên.
 
-**Mở trực tiếp `mothe.html` để chơi.** File này đã chứa toàn bộ JavaScript, CSS, phông chữ và hình ảnh, không cần cài Node.js, chạy Vite hoặc có Internet. Có thể sao chép riêng file sang thư mục khác rồi mở bằng Chrome/Edge. Tiến trình của file mở trực tiếp tách biệt với bản chạy qua localhost.
+**Mở trực tiếp `mothe.html` để chơi.** File này đã chứa toàn bộ JavaScript, CSS, phông chữ và hình ảnh, không cần cài Node.js hay chạy Vite. Chế độ khách chơi được ngoại tuyến; đăng nhập và đồng bộ tài khoản cần Internet. Có thể sao chép riêng file sang thư mục khác rồi mở bằng Chrome/Edge. Bản lưu khách của file mở trực tiếp tách biệt với localhost. Khi đăng nhập cùng tài khoản, tiến trình được đồng bộ qua Supabase.
 
-Trò chơi giả lập mở gói và nâng cấp thẻ, giao diện và nội dung tiếng Việt. React 19, TypeScript, Tailwind CSS 4, Motion và Vite. Dự án chạy cục bộ, không đăng nhập, không thanh toán thật.
+Trò chơi giả lập mở gói và nâng cấp thẻ, giao diện và nội dung tiếng Việt. React 19, TypeScript, Tailwind CSS 4, Motion và Vite. Có chế độ khách trên máy và tài khoản tên đăng nhập/mật khẩu đồng bộ nhiều thiết bị, không thanh toán thật.
+
+## Đăng ký, đăng nhập và đồng bộ
+
+Mở game, chọn **Đăng ký**, nhập tên huấn luyện viên, tên đăng nhập (3–24 ký tự a–z, số hoặc dấu gạch dưới) và mật khẩu tối thiểu 8 ký tự. Người chơi không cần nhập email. Bản thử hiện đăng ký xong vào game ngay, không cần xác nhận email. Tài khoản mới có **0 cầu thủ**. Mỗi tài khoản có kho thẻ, BP, FC, vật phẩm và tiến trình riêng; dữ liệu khách cũ vẫn được giữ riêng trên máy.
+
+Trong **Cài đặt trò chơi**, xem tên tài khoản, trạng thái đồng bộ và nút đăng xuất. Đợi **Đã đồng bộ** trước khi chuyển thiết bị. Khi mất mạng hoặc hai máy cùng sửa tiến trình, game giữ bản trên máy và cho thử lại hoặc tải bản sao; không ghi đè im lặng bản mới hơn.
+
+Trong Cài đặt, **Xóa tài khoản** yêu cầu nhập lại mật khẩu hiện tại và gõ `XOA`. Sau xác nhận, tài khoản và tiến trình trên máy chủ bị xóa vĩnh viễn; bản lưu và các bản sao của đúng tài khoản trên thiết bị này cũng được xóa. Tài khoản khác và bản chơi khách được giữ riêng.
+
+Cấu hình và migration nằm trong [supabase/README.md](supabase/README.md). `mothe.html` được tạo lại bằng build và được bỏ qua trong Git để tránh giới hạn file 100 MB của GitHub.
 
 ## Chạy thử trên Windows
 

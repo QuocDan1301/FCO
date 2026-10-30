@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react';
 import { usePageCapacity } from './ViewportPages';
 import type { ReactNode } from 'react';
-import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, History, Info, Search, Sparkles } from 'lucide-react';
+import { Layers, ArrowRight, ChevronDown, ChevronLeft, ChevronRight, History, Info, Search, Sparkles } from 'lucide-react';
 import { getPlayer, MAX_LEVEL, money, ovr, players, seasons } from './game';
 import type { Card, Save } from './game';
 import { MARKET_FEE_PERCENT, marketQuote, compareMarketPrices, formatMarketPrice, PRICE_AS_OF } from './market';
@@ -16,6 +16,7 @@ type Props = {
   free: boolean;
   onTrade: (trade: MarketTrade) => void;
   onHistory: () => void;
+  onBulkSell: () => void;
   onOpenPacks: () => void;
   renderCard: (card: Card) => ReactNode;
   levelBadge: (level: number) => string;
@@ -51,7 +52,7 @@ function spotlights() {
   return spotlightCache = picks.filter((pick): pick is [string, string, Card] => !!pick[2]).map(([label, hint, card]) => ({ label, hint, card }));
 }
 
-export default function TransferMarket({ save, free, onTrade, onHistory, onOpenPacks, renderCard, levelBadge }: Props) {
+export default function TransferMarket({ save, free, onTrade, onBulkSell, onHistory, onOpenPacks, renderCard, levelBadge }: Props) {
   const [mode, setMode] = useState<'buy' | 'sell' | 'spotlight'>('buy');
   const listRef = useRef<HTMLDivElement>(null);
   const { capacity: pageSize } = usePageCapacity(listRef, 10000, 48);
@@ -119,7 +120,7 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
         <button className="market-rules" aria-describedby="market-rules-tip"><Info size={15}/><span>Quy tắc giá{free ? ' & Chế độ thử' : ''}</span>
           <span className="market-rules-tip" id="market-rules-tip" role="tooltip">Giá +1 từ Excel ngày {priceDate} · +2–+13 theo mô hình nâng cấp · Phí bán {MARKET_FEE_PERCENT}%.{free && <><br/>Chế độ thử đang bật: mua và bán thẻ không thay đổi số dư.</>}</span>
         </button>
-        <button className="text-action" onClick={onHistory}><History size={16}/>Lịch sử giao dịch<ArrowRight size={15}/></button>
+        <button className="text-action" onClick={onBulkSell}><Layers size={16}/>Bán hàng loạt</button><button className="text-action" onClick={onHistory}><History size={16}/>Lịch sử giao dịch<ArrowRight size={15}/></button>
       </div>
     </div>
     <div className="market-tabs" role="group" aria-label="Loại giao dịch"><button aria-pressed={mode === 'buy'} onClick={() => switchMode('buy')}>Mua cầu thủ<span>{players.length}</span></button><button aria-pressed={mode === 'sell'} onClick={() => switchMode('sell')}>Bán cầu thủ<span>{save.cards.length}</span></button><button className="market-tab-spotlight" aria-pressed={mode === 'spotlight'} onClick={() => switchMode('spotlight')}><Sparkles size={14}/>Tâm điểm</button></div>

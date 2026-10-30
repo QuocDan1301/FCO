@@ -1,0 +1,136 @@
+/* Màn Đội hình (LineupBoard.tsx): trái là thanh chọn bộ / sơ đồ + sân phối cảnh, phải là thông tin cầu thủ và danh sách đá chính / Thay thế. */
+.main-content>.workspace.lineup-workspace{display:grid;grid-template-columns:minmax(0,58fr) minmax(340px,42fr);grid-template-rows:minmax(0,1fr);width:min(1440px,calc(100% - 32px));max-width:none;height:calc(100% - 24px);min-height:0;margin:12px auto;padding:0;overflow:hidden;background:#11161c;border:1px solid #232c37;border-radius:6px;box-shadow:0 0 40px rgba(0,0,0,.6)}
+.lu-main{display:flex;flex-direction:column;min-width:0;min-height:0;padding:14px 18px 8px;background:linear-gradient(180deg,#1a1f26,#12161c)}
+
+/* Thanh trên: bộ A/B/C · sơ đồ · OVR đội · giá trị · tổng lương. */
+.lu-bar{display:flex;align-items:flex-end;gap:12px 20px;flex-wrap:wrap;flex-shrink:0}
+.lu-field{display:flex;flex-direction:column;gap:5px}
+.lu-field>small,.lu-stats small{font-size:12px;color:#929cab}
+.lu-sets{display:flex;gap:2px}
+.lu-sets button{width:42px;height:32px;padding:0;border-radius:2px;background:#2a313a;color:#c9d2dc;font-family:var(--display);font-size:19px;font-weight:700}
+.lu-sets button:hover{color:#fff;background:#343c46}
+.lu-sets button[aria-pressed=true]{background:#f0f1f3;color:#11161c}
+.lu-field select{height:32px;min-width:128px;padding:0 10px;border:0;border-radius:2px;background:#2a313a;color:#f0f1f3;font-family:var(--display);font-size:17px;font-weight:600}
+.lu-stats{display:flex;gap:22px;margin-left:auto}
+.lu-stats>div{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.lu-stats strong{font-family:var(--display);font-size:25px;font-weight:600;line-height:1.05;color:#f0f1f3;white-space:nowrap;font-variant-numeric:tabular-nums}
+.lu-stats strong small{font-size:.72em;color:#929cab}
+.lu-stats .is-over strong{color:#ff5a4e;text-shadow:0 0 10px #ff3b3b8c}
+
+/* Sân: SVG kéo giãn theo khung (nét kẻ không giãn), cầu thủ đặt theo % cùng phép chiếu với nét kẻ; cỡ cầu thủ theo chiều cao sân. */
+.lu-pitch{position:relative;flex:1;min-height:0;margin-top:12px;container-type:size}
+.lu-pitch-art{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 10px 18px #0009)}
+.lu-stripe-a{fill:#5e9838}.lu-stripe-b{fill:#69a641}
+.lu-lines{fill:none;stroke:#fff;stroke-opacity:.72;stroke-width:1.6;vector-effect:non-scaling-stroke}
+.lu-token{--face:clamp(30px,10.5cqh,64px);position:absolute;z-index:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0;border:0;background:none;color:#fff;cursor:pointer;transform:translate(-50%,-40%) scale(var(--k,1));touch-action:manipulation}
+.lu-token:focus-visible{outline:none}
+.lu-token-top{position:relative;display:flex;align-items:center}
+.lu-face{--zoom:2.05;--fx:.555;--fy:.36;position:relative;display:block;width:var(--face);height:calc(var(--face) * 1.06);overflow:hidden;border-radius:6px;background:radial-gradient(circle at 50% 30%,#2b3440,#141920);box-shadow:0 0 0 1px #ffffff2e,0 4px 10px #0009;container-type:size;transition:box-shadow .15s}
+.lu-face img{position:absolute;max-width:none;width:calc(var(--zoom) * 100cqw);height:auto;left:calc(50cqw - var(--fx) * var(--zoom) * 100cqw);top:calc(50cqh - var(--fy) * var(--zoom) * 108.86cqw)}
+.lu-face-empty{display:grid;place-items:center;border-radius:50%;background:#0b0f1466;box-shadow:inset 0 0 0 2px #ffffffb3;font-size:calc(var(--face) * .5);font-weight:300;line-height:1;color:#fff}
+.lu-token .squad-wage{position:absolute;right:100%;bottom:2px;width:calc(var(--face) * .44);height:calc(var(--face) * .44);margin-right:-8px;font-size:calc(var(--face) * .21)}
+.lu-token-top>strong{position:absolute;left:100%;bottom:-2px;margin-left:-6px;font-family:var(--display);font-size:calc(var(--face) * .42);font-weight:700;line-height:1;text-shadow:0 2px 4px #000,0 0 2px #000;font-variant-numeric:tabular-nums}
+.lu-token-top>strong.is-off{color:#ffc061}
+.lu-token-name{display:flex;align-items:center;gap:4px;max-width:calc(var(--face) * 2.6);padding:1px 6px;border-radius:3px;background:#0b0f14cc;font-family:var(--display);font-size:clamp(11px,2.7cqh,15px);font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lu-token-name .squad-season{font-size:.75em;padding:0 3px}
+.lu-token.is-empty .lu-token-name{color:#e6ebf0;letter-spacing:.04em}
+.lu-token:hover .lu-face{box-shadow:0 0 0 2px #ffffffb3,0 4px 10px #0009}
+.lu-token:focus-visible .lu-face{box-shadow:0 0 0 3px #7bc9ff,0 4px 10px #0009}
+.lu-token.is-drop .lu-face{box-shadow:0 0 0 2px #ffffff80,0 0 0 4px #1fe36b40}
+.lu-token.is-picked{z-index:2}
+.lu-token.is-picked .lu-face{box-shadow:0 0 0 3px #1fe36b,0 0 18px #1fe36b99}
+.lu-pitch-actions{position:absolute;right:8px;bottom:8px;z-index:3;display:flex;gap:8px}
+.lu-pitch-actions button{display:flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1px solid #ffffff2e;border-radius:4px;background:#0b0f14e0;color:#f0f1f3;font-family:var(--display);font-size:15px;font-weight:600}
+.lu-pitch-actions button:hover:not(:disabled){background:#1b222b}
+.lu-pitch-actions button:disabled{opacity:.45;cursor:not-allowed}
+.lu-pitch-actions .lu-optimize{border-color:transparent;background:#1fe36b;color:#06210f}
+.lu-pitch-actions .lu-optimize:hover:not(:disabled){background:#4dfa8c}
+.lu-hint{flex-shrink:0;margin:6px 0 0;font-size:12px;color:#929cab;text-align:center}
+
+/* Khung phải: thông tin cầu thủ đang chọn, rồi bảng 11 vị trí + Thay thế (bảng tự cuộn). */
+.lu-side{display:flex;flex-direction:column;min-width:0;min-height:0;background:#151a21;border-left:1px solid #232c37}
+.lu-detail{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;flex-shrink:0;min-height:156px;padding:14px 16px;border-bottom:1px solid #232c37;background:linear-gradient(135deg,#1e2631,#141920)}
+.lu-detail-text{display:flex;flex-direction:column;gap:6px;min-width:0}
+.lu-detail p{margin:0}
+.lu-detail-name{display:flex;align-items:center;gap:8px;min-width:0}
+.lu-detail-name strong{font-family:var(--display);font-size:23px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lu-detail-ovr{display:flex;align-items:baseline;gap:6px;font-family:var(--display)}
+.lu-detail-ovr span{font-size:18px;font-weight:600}
+.lu-detail-ovr strong{margin-right:12px;font-size:28px;font-weight:600;line-height:1;color:#fff}
+.lu-detail-ovr strong.is-off{color:#ffc061}
+.lu-detail .pos-fw{color:#ff6b75}.lu-detail .pos-mf{color:#5be38e}.lu-detail .pos-df{color:#6cb6ea}.lu-detail .pos-gk{color:#f7d64a}
+.lu-detail-meta{display:flex;align-items:center;gap:6px;font-size:13px;color:#aeb6c2;white-space:nowrap;overflow:hidden}
+.lu-detail-meta img{width:auto;height:13px;margin-left:8px;border-radius:1px}
+.lu-detail-warn{font-size:12px;color:#ffc061}
+.lu-detail-stats{display:flex;align-items:flex-end;gap:18px;margin:2px 0 0}
+.lu-detail-stats>div{display:flex;flex-direction:column;align-items:center;gap:2px}
+.lu-detail-stats dt{font-size:10px;color:#7f8a98}
+.lu-detail-stats dd{margin:0;font-family:var(--display);font-size:16px;font-weight:700;color:#f0f1f3}
+.lu-detail-stats .squad-wage{width:24px;height:24px;font-size:12px}
+.lu-detail-actions{display:flex;gap:8px;margin-top:2px}
+.lu-detail-actions button,.lu-detail-empty button{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:4px;background:#2a313a;color:#e6ebf0;font-size:13px;font-weight:600}
+.lu-detail-actions button:hover,.lu-detail-empty button:hover{background:#353d47;color:#fff}
+.lu-detail-face{display:block;width:112px;filter:drop-shadow(0 6px 14px #000a)}
+.lu-detail-face img{display:block;width:100%;height:auto}
+.lu-detail-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:flex-start;gap:10px;font-size:13px;line-height:1.6;color:#aeb6c2}
+
+.lu-cols,.lu-row{display:grid;grid-template-columns:58px minmax(0,1fr) 34px 46px 40px;align-items:center;gap:8px;padding:0 14px}
+.lu-cols{flex-shrink:0;height:30px;background:#232a33;font-size:12px;color:#aeb6c2;scrollbar-gutter:stable;overflow:hidden}
+.lu-cols>span:nth-child(n+3){text-align:center}
+.lu-rows{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#3a4452 transparent;scrollbar-gutter:stable}
+.lu-row{width:100%;height:41px;border:0;border-bottom:1px solid #1f262f;border-radius:0;background:none;color:inherit;text-align:left;cursor:pointer}
+.lu-row:hover{background:#1c232c}
+.lu-row:focus-visible{outline:none;box-shadow:inset 0 0 0 2px #7bc9ff}
+.lu-row>span:nth-child(3),.lu-row>span:nth-child(5){display:flex;justify-content:center}
+.lu-row .squad-wage{width:24px;height:24px;font-size:12px}
+.lu-row .squad-level-img{width:30px}
+.lu-row .squad-name strong{font-size:16px}
+.lu-row em{font-style:normal;font-size:14px;color:#6f7a88}
+.lu-pos{padding-left:7px;border-left:3px solid;font-family:var(--display);font-size:18px;font-weight:700;line-height:1.15;color:#f0f1f3}
+.lu-pos.pos-fw{border-color:#e63946}.lu-pos.pos-mf{border-color:#2ecc71}.lu-pos.pos-df{border-color:#3498db}.lu-pos.pos-gk{border-color:#f1c40f}
+.lu-row-ovr{font-family:var(--display);font-size:19px;font-weight:700;color:#fff;text-align:center;font-variant-numeric:tabular-nums}
+.lu-row-ovr.is-off{color:#ffc061}
+.lu-row.is-picked{background:#eef1f4}
+.lu-row.is-picked .lu-pos,.lu-row.is-picked .squad-name strong,.lu-row.is-picked .lu-row-ovr{color:#11161c}
+.lu-row.is-picked .lu-row-ovr.is-off{color:#c46a00}
+.lu-subhead{display:flex;align-items:center;gap:6px;padding:12px 14px 6px;font-size:12px;color:#929cab}
+.lu-subhead small{padding:0 6px;border-radius:999px;background:#232a33;font-size:11px;color:#c9d2dc}
+.lu-subs-empty{margin:0;padding:14px;font-size:13px;color:#7f8a98;text-align:center}
+
+/* Team color: dải chip các nhóm đang kích hoạt (CLB xanh lá, quốc gia xanh dương, cấp thẻ vàng); huy hiệu +n ở góc ảnh cầu thủ được cộng. */
+.lu-colors{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex-shrink:0;min-height:24px;margin-top:10px}
+.lu-colors>small{margin-right:4px;font-size:12px;color:#929cab}
+.lu-color{--c:#4dfa8c;display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:999px;background:color-mix(in srgb,var(--c) 12%,#151a21);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 45%,transparent);font-size:12px;color:#e6ebf0;white-space:nowrap}
+.lu-color.kind-nation{--c:#7cc4ff}.lu-color.kind-upgrade{--c:#f7d64a}
+.lu-color i{font-style:normal;font-size:11px;color:#929cab}
+.lu-color b{font-family:var(--display);font-size:13px;color:var(--c)}
+.lu-colors-none{font-size:12px;color:#6f7a88}
+.lu-buff{position:absolute;top:-5px;right:-7px;z-index:1;padding:0 4px;border-radius:999px;background:#1fe36b;color:#06210f;font-style:normal;font-family:var(--display);font-size:clamp(9px,calc(var(--face) * .2),13px);font-weight:800;line-height:1.35;box-shadow:0 1px 3px #0009}
+.lu-detail-colors{font-size:12px;color:#7ee2a5}
+
+@media(max-width:1100px){
+  .main-content>.workspace.lineup-workspace{grid-template-columns:minmax(0,1fr) 320px}
+  .lu-stats{gap:14px}
+  .lu-stats strong{font-size:21px}
+  .lu-detail-face{width:88px}
+  .lu-cols,.lu-row{grid-template-columns:50px minmax(0,1fr) 30px 40px 36px;gap:6px;padding:0 10px}
+}
+@media(max-width:900px){
+  .main-content>.workspace.lineup-workspace{grid-template-columns:minmax(0,1fr) 280px;width:calc(100% - 20px);margin:10px auto}
+  .lu-main{padding:10px 12px 6px}
+  .lu-detail{grid-template-columns:1fr;min-height:0}
+  .lu-detail-face{display:none}
+  .lu-pitch-actions button{height:30px;padding:0 10px;font-size:13px}
+}
+/* Điện thoại: khung trang cuộn (phone.css) nên xếp dọc — sân trên, danh sách dưới, không cuộn lồng. */
+@media (max-width:640px),(max-width:900px) and (max-height:500px){
+  .main-content>.workspace.lineup-workspace{display:flex;flex-direction:column;width:100%;height:auto;min-height:100%;margin:0;border:0;border-radius:0;overflow:visible}
+  .lu-bar{gap:10px 14px}
+  .lu-stats{width:100%;justify-content:space-between;margin-left:0}
+  .lu-stats>div{align-items:flex-start}
+  .lu-pitch{flex:none;height:min(125vw,560px)}
+  .lu-side{border-left:0;border-top:1px solid #232c37}
+  .lu-rows{flex:none;overflow:visible}
+  .lu-detail-face{display:block;width:84px}
+  .lu-detail{grid-template-columns:minmax(0,1fr) auto}
+}

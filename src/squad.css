@@ -1,7 +1,7 @@
 /* Quản lí CT: khung trái là đội hình riêng (hàng 2 tầng), khung phải là kho cầu thủ (hàng 1 tầng mảnh); mỗi khung tự cuộn. */
 .squad-workspace{display:grid;grid-template-columns:minmax(0,46fr) minmax(0,54fr);gap:0;padding:0!important;max-width:1440px;background:#11161c;border:1px solid #232c37;border-radius:6px;overflow:hidden;height:calc(100dvh - 174px);min-height:420px}
 /* Tăng độ ưu tiên để thắng .main-content>.workspace{display:flex;flex-direction:column} trong fixed-screen.css. */
-.main-content>.workspace.squad-workspace{display:grid;grid-template-columns:minmax(0,46fr) minmax(0,54fr);grid-template-rows:minmax(0,1fr);height:calc(100% - 24px);min-height:0;margin:12px 4%;padding:0;overflow:hidden}
+.main-content>.workspace.squad-workspace{display:grid;grid-template-columns:minmax(0,46fr) minmax(0,54fr);grid-template-rows:minmax(0,1fr);width:min(1440px,92%);height:calc(100% - 24px);min-height:0;margin:12px auto;padding:0;overflow:hidden}
 .squad-panel{display:flex;flex-direction:column;min-height:0;min-width:0}
 .squad-left{background:linear-gradient(180deg,#1a1f26,#12161c);border-right:1px solid #232c37}
 .squad-right{background:#151a21}
@@ -14,6 +14,10 @@
 .squad-head-lineup h1{font-size:22px;white-space:nowrap}
 .squad-title{display:flex;flex-direction:column;gap:3px}
 .squad-title p{margin:0;letter-spacing:.02em}
+.squad-arrange{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:4px;background:#1fe36b;color:#06210f;font-family:var(--display);font-size:14px;font-weight:700;white-space:nowrap}
+.squad-arrange:hover{background:#4dfa8c}
+.squad-bulk-sell{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:4px;background:#2a313a;color:#e6ebf0;font-family:var(--display);font-size:14px;font-weight:600;white-space:nowrap}
+.squad-bulk-sell:hover{background:#353d47;color:#fff}
 .squad-crests{display:flex;align-items:center;gap:8px}
 .squad-crest{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#2b3440,#161b22);box-shadow:inset 0 0 0 1px #ffffff1a,0 2px 6px #0007;overflow:hidden}
 .squad-crest img{width:76%;height:76%;object-fit:contain}
@@ -145,8 +149,10 @@
 .squad-hover button:disabled{color:#5c6570;cursor:not-allowed}
 .squad-hover button.on{color:#ffd166}
 .squad-hover .squad-act{width:auto;padding:0 10px}
-.squad-hover .squad-act-upgrade{color:#f5b942}
-.squad-hover .squad-act-upgrade svg{fill:#f5b94240}
+/* Nút đập thẻ: mũi tên xanh lên. */
+.squad-hover .squad-act-upgrade{color:#2be27a;background:#262b31;box-shadow:inset 0 1px 0 #ffffff14}
+.squad-hover .squad-act-upgrade:hover{background:#30363e}
+.squad-hover .squad-act-upgrade svg{width:20px;height:15px;fill:currentColor;filter:drop-shadow(0 0 3px #2be27a55)}
 .squad-hover .squad-move{width:auto;min-width:92px;margin-left:4px;padding:0 12px;background:#1fe36b;color:#06210f;font-size:14px}
 .squad-hover .squad-move:hover{background:#4dfa8c;color:#06210f}
 
@@ -168,7 +174,7 @@
   .squad-hover .squad-act{width:30px;padding:0}
 }
 @media(max-width:900px){
-  .squad-workspace,.main-content>.workspace.squad-workspace{grid-template-columns:1fr;grid-template-rows:auto auto;height:auto;margin:12px 16px;overflow:visible}
+  .squad-workspace,.main-content>.workspace.squad-workspace{grid-template-columns:1fr;grid-template-rows:auto auto;width:calc(100% - 32px);height:auto;margin:12px auto;overflow:visible}
   .squad-left{border-right:0;border-bottom:1px solid #232c37}
   .squad-list{max-height:60dvh}
 }

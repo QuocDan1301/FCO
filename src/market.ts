@@ -65,6 +65,44 @@ export function sellPlayer(state: Save, cardId: string, free = false) {
   return { state: { ...state, balance, cards: state.cards.filter(c => c.uid !== cardId), history: [entry, ...state.history].slice(0, 200) }, card, quote };
 }
 
+// Bán theo giá tự đặt (cửa sổ Bán): giá phải nằm trong ±SELL_BAND_PERCENT% quanh giá thị trường, bán ngay theo giá đã đặt, trừ phí MARKET_FEE_PERCENT%.
+// Bán hàng loạt tối đa MAX_BULK_SELL thẻ mỗi lần, mỗi thẻ một giá riêng.
+export const SELL_BAND_PERCENT = 10;
+export const MAX_BULK_SELL = 99;
+export function sellRange(card: Pick<Card, 'playerId' | 'level'>) {
+  const quote = marketQuote(card);
+  if (!quote.available) return null;
+  return { price: quote.price, min: Math.ceil(quote.price * (100 - SELL_BAND_PERCENT) / 100), max: Math.floor(quote.price * (100 + SELL_BAND_PERCENT) / 100) };
+}
+export type SellItem = { uid: string; price: number };
+export function sellCards(state: Save, items: SellItem[], free = false) {
+  if (!items.length) throw new Error('Hãy chọn cầu thủ để bán.');
+  if (items.length > MAX_BULK_SELL) throw new Error(`Mỗi lần bán tối đa ${MAX_BULK_SELL} cầu thủ.`);
+  if (new Set(items.map(item => item.uid)).size !== items.length) throw new Error('Danh sách bán có thẻ bị trùng.');
+  const byUid = new Map(state.cards.map(card => [card.uid, card]));
+  const sold: Card[] = [];
+  let total = 0, fees = 0;
+  for (const item of items) {
+    const card = byUid.get(item.uid);
+    if (!card) throw new Error('Thẻ này không còn trong kho. Hãy chọn lại cầu thủ.');
+    const name = `${getPlayer(card).name} +${card.level}`;
+    if (state.locked?.includes(item.uid)) throw new Error(`${name} đang bị khóa. Mở khóa trước khi bán.`);
+    const range = sellRange(card);
+    if (!range) throw new Error(marketQuote(card).reason ?? `Chưa có giá ${name}.`);
+    if (!Number.isInteger(item.price) || item.price < range.min || item.price > range.max) throw new Error(`Giá bán ${name} phải từ ${money(range.min)} đến ${money(range.max)} BP.`);
+    total += item.price;
+    fees += Math.floor(item.price * MARKET_FEE_PERCENT / 100);
+    sold.push(card);
+  }
+  const proceeds = total - fees, balance = free ? state.balance : state.balance + proceeds;
+  if (!Number.isSafeInteger(balance)) throw new Error('Số dư đã đạt giới hạn. Không thể bán thêm thẻ.');
+  const tail = `Phí ${MARKET_FEE_PERCENT}%: ${money(fees)} BP · ${free ? 'Thử nghiệm · Không cộng BP' : `+${money(proceeds)} BP`}`;
+  const entry: Entry = sold.length === 1
+    ? { id: uid(), time: Date.now(), type: 'market', title: `Bán · ${getPlayer(sold[0]).name} +${sold[0].level}`, detail: `OVR ${ovr(sold[0])} · Giá ${money(total)} BP · ${tail}` }
+    : { id: uid(), time: Date.now(), type: 'market', title: `Bán hàng loạt · ${sold.length} cầu thủ`, detail: `Tổng giá ${money(total)} BP · ${tail}` };
+  const soldIds = new Set(items.map(item => item.uid));
+  return { state: { ...state, balance, cards: state.cards.filter(card => !soldIds.has(card.uid)), history: [entry, ...state.history].slice(0, 200) }, sold, total, fees, proceeds };
+}
 // Thẻ giá trị nhất đứng đầu (thẻ chưa có giá xếp sau); bằng giá thì OVR cao hơn đứng trước.
 export function byMarketValue<T extends Pick<Card, 'playerId' | 'level'>>(cards: readonly T[]): T[] {
   const value = (card: T) => marketQuote(card).price ?? -1;

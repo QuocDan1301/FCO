@@ -35,7 +35,7 @@ export function packError(input: unknown): string | null {
   if (!isText(pack.name, 60)) return 'Tên gói cần 1–60 ký tự.';
   if (!isText(pack.short, 12)) return 'Tên ngắn cần 1–12 ký tự.';
   if (!isLevels(pack.levels)) return `Cấp thẻ từ +1 đến +${MAX_PACK_LEVEL}, cấp thấp ≤ cấp cao.`;
-  if (!isInt(pack.price, 0, 1e12)) return 'Giá là số nguyên BP từ 0.';
+  if (!isInt(pack.price, 0, 1e12)) return 'Giá là số nguyên FC từ 0.';
   if (typeof pack.description !== 'string' || pack.description.length > 160) return 'Mô tả tối đa 160 ký tự.';
   if (typeof pack.range !== 'string' || !RANGE.test(pack.range)) return 'Khoảng OVR không hợp lệ.';
   // null = ảnh gói gốc của mùa đầu tiên; ảnh ghép ở trang quản trị nằm ở /assets/custom/<mã gói>-back.webp.

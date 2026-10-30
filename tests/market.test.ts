@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeCard, MAX_LEVEL, players, validateSave } from '../src/game.ts';
 import { initialSave } from './stocked-save.ts';
-import { buyPlayer, sellPlayer, marketQuote, compareMarketPrices, formatMarketPrice, MARKET_FEE_PERCENT, PRICE_AS_OF } from '../src/market.ts';
+import { buyPlayer, sellPlayer, sellCards, sellRange, marketQuote, compareMarketPrices, formatMarketPrice, MARKET_FEE_PERCENT, MAX_BULK_SELL, PRICE_AS_OF } from '../src/market.ts';
 import { readFileSync } from 'node:fs';
 import mutablePriceData from '../src/player-prices.json';
 
@@ -142,4 +142,40 @@ test('byMarketValue: thẻ giá cao nhất đứng đầu, thẻ chưa có giá 
   const unpriced = players.find(p => marketQuote({ playerId: p.id, level: 1 }).price === null);
   if (unpriced) assert.equal(byMarketValue([makeCard(unpriced.id), priced[0]])[0].playerId, priced[0].playerId);
   assert.deepEqual(priced.map(c => c.uid), priced.map(c => c.uid), 'Không sửa mảng gốc');
+});
+
+test('Bán theo giá tự đặt: trong ±10% giá thị trường, trừ phí 5%; bán hàng loạt nhiều thẻ một lần, chặn giá sai / thẻ khóa / trùng / quá 99 thẻ', () => {
+  const priced = players.filter(p => marketQuote({ playerId: p.id, level: 1 }).available).slice(0, 3);
+  const cards = priced.map(p => makeCard(p.id));
+  const state = { ...initialSave(), balance: 1_000, cards };
+  const range = sellRange(cards[0])!;
+  assert.equal(range.min, Math.ceil(range.price * .9));
+  assert.equal(range.max, Math.floor(range.price * 1.1));
+  // Bán lẻ ở giá tối đa: nhận giá − phí.
+  const single = sellCards(state, [{ uid: cards[0].uid, price: range.max }]);
+  assert.equal(single.state.balance, 1_000 + range.max - Math.floor(range.max * MARKET_FEE_PERCENT / 100));
+  assert.equal(single.state.cards.length, 2);
+  assert.match(single.state.history[0].title, /^Bán · /);
+  assert.ok(validateSave(JSON.parse(JSON.stringify(single.state))));
+  // Bán hàng loạt: mỗi thẻ một giá, một dòng lịch sử tổng.
+  const items = cards.map(c => ({ uid: c.uid, price: sellRange(c)!.min }));
+  const bulk = sellCards(state, items);
+  const total = items.reduce((s, i) => s + i.price, 0), fees = items.reduce((s, i) => s + Math.floor(i.price * MARKET_FEE_PERCENT / 100), 0);
+  assert.equal(bulk.total, total);
+  assert.equal(bulk.proceeds, total - fees);
+  assert.equal(bulk.state.balance, 1_000 + total - fees);
+  assert.equal(bulk.state.cards.length, 0);
+  assert.match(bulk.state.history[0].title, /Bán hàng loạt · 3 cầu thủ/);
+  // Chế độ thử: không cộng BP.
+  assert.equal(sellCards(state, items, true).state.balance, 1_000);
+  // Các lỗi đều giữ nguyên bản lưu.
+  assert.throws(() => sellCards(state, []), /chọn/);
+  assert.throws(() => sellCards(state, [{ uid: cards[0].uid, price: range.max + 1 }]), /phải từ/);
+  assert.throws(() => sellCards(state, [{ uid: cards[0].uid, price: range.min - 1 }]), /phải từ/);
+  assert.throws(() => sellCards(state, [{ uid: cards[0].uid, price: range.price + .5 }]), /phải từ/);
+  assert.throws(() => sellCards(state, [items[0], items[0]]), /trùng/);
+  assert.throws(() => sellCards({ ...state, locked: [cards[1].uid] }, items), /khóa/);
+  assert.throws(() => sellCards(state, [{ uid: 'không-có', price: 1 }]), /không còn/);
+  assert.throws(() => sellCards(state, Array.from({ length: MAX_BULK_SELL + 1 }, (_, i) => ({ uid: `x${i}`, price: 1 }))), /tối đa/);
+  assert.equal(state.cards.length, 3);
 });

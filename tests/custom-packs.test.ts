@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { PACK_LEVELS, TIERS, allPacks, buyPacks, customPack, defaultPacks, draw, getPackStock, getPlayer, isPackAvailable, openPacks, ovr, packOdds, packs, players, shopPacks, openChosen, validateSave } from '../src/game.ts';
+import { PACK_LEVELS, TIERS, allPacks, buyPacks, customPack, defaultPacks, draw, getPackStock, getPlayer, isPackAvailable, openPacks, ovr, packOdds, packs, players, shopPacks, openChosen, choosePool, openDraft, draftCandidates, draftSize, defaultDraft, validateSave } from '../src/game.ts';
 import { initialSave } from './stocked-save.ts';
 import type { CustomPackData, Pack } from '../src/game.ts';
 import { SEASON_IDS, customArtPath, packError } from '../src/admin/pack-rules.ts';
@@ -125,4 +125,31 @@ test('Gói top price: chỉ lấy N cầu thủ giá +1 cao nhất của các m�
   assert.equal(packError({ ...base, topPrice: 50 }), null);
   assert.match(packError({ ...base, topPrice: 0 }) ?? '', /Top price/);
   for (const _ of Array(20)) assert.ok(kept.has(draw(top, seeded(7)).playerId));
+});
+
+test('Gói chỉ định: danh sách mặc định là N người giá cao nhất; mở nhận ngẫu nhiên 1 trong N người đã chọn ở cấp của gói', () => {
+  const pack = packs.find(p => p.choose)!;
+  const size = draftSize(pack), candidates = draftCandidates(pack), initial = defaultDraft(pack);
+  assert.ok(size >= 1 && size <= candidates.length);
+  assert.ok(candidates.length > size, 'Có thêm cầu thủ ngoài nhóm mặc định để đổi');
+  assert.deepEqual([...initial].sort(), choosePool(pack).map(p => p.id).sort());
+  // Đổi người cuối danh sách lấy một người ngoài nhóm mặc định.
+  const outsider = candidates.find(p => !initial.includes(p.id))!;
+  const custom = [...initial.slice(0, -1), outsider.id];
+  const state = { ...initialSave(), unopened: { ...initialSave().unopened, [pack.id]: 2 } };
+  const last = openDraft(state, pack, custom, () => .9999999);
+  assert.equal(last.cards.length, 1);
+  assert.equal(last.cards[0].playerId, outsider.id, 'rng sát 1 lấy người cuối danh sách');
+  assert.equal(last.cards[0].level, (pack.levels ?? [1, 1])[1]);
+  assert.equal(last.state.unopened?.[pack.id], 1);
+  assert.equal(last.state.cards.length, state.cards.length + 1);
+  assert.equal(openDraft(state, pack, custom, () => 0).cards[0].playerId, custom[0]);
+  assert.ok(validateSave(JSON.parse(JSON.stringify(last.state))));
+  // Sai số lượng, trùng, người ngoài gói, hết gói, gói thường đều bị chặn.
+  assert.throws(() => openDraft(state, pack, custom.slice(1)), /đúng/);
+  assert.throws(() => openDraft(state, pack, [...custom.slice(1), custom[1]]), /đúng/);
+  const stranger = players.find(p => !candidates.some(c => c.id === p.id))!;
+  assert.throws(() => openDraft(state, pack, [...custom.slice(1), stranger.id]), /đúng/);
+  assert.throws(() => openDraft({ ...state, unopened: { [pack.id]: 0 } }, pack, custom), /không còn/);
+  assert.throws(() => openDraft(state, packs.find(p => !p.choose)!, custom), /không phải/);
 });

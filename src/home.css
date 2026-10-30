@@ -34,9 +34,12 @@
 .view-packs .card-pedestal::after{content:'';position:absolute;inset:-40% -12%;border-radius:50%;background:radial-gradient(ellipse,#d4af3726,transparent 65%);pointer-events:none}
 
 /* 3. Ví BP dạng pill; ∞ BP vàng kim cùng đồng BP vàng. */
-.wallet{padding:5px 16px 5px 5px;border-radius:999px;background:#141824;border:1px solid #2a3042;box-shadow:inset 0 1px 0 #ffffff0d,0 4px 14px #0006}
+/* Số dư BP / FC: chỉ biểu tượng + giá trị, không khung; dòng mô tả chỉ còn cho trình đọc màn hình. */
+.wallet{padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+.topbar .wallet b{font-size:17px}
+.topbar .wallet b span{display:none}
 .wallet .coin-icon{width:28px;height:28px;border:0;color:#3a2806;font-size:11px;font-weight:800;letter-spacing:-.02em;background:radial-gradient(circle at 35% 30%,#fff3b0,#ffd700 38%,#d4af37 62%,#aa771c);box-shadow:0 0 0 1px #ffe27a99,0 0 10px #ffd70073}
-.wallet small{color:#8f99ab}
+.topbar .wallet small{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .wallet b{color:#ffd700;text-shadow:0 0 12px #ffd70059}
 .wallet b span{color:#ffd700cc}
 
@@ -50,8 +53,13 @@
 .app-dock-items>button::after,.app-dock-icons>button::after{content:'';position:absolute;left:16%;right:16%;top:0;height:3px;border-radius:0 0 3px 3px;background:linear-gradient(90deg,transparent,var(--gold-1) 30%,var(--gold-2) 70%,transparent);box-shadow:0 0 10px #d4af37cc,0 0 2px #ffe27a;opacity:0;scale:.35 1;transition:opacity .3s var(--ease-lux),scale .35s var(--ease-lux)}
 .app-dock-items>button:hover,.app-dock-icons>button:hover,.app-dock-items>button:focus-visible,.app-dock-icons>button:focus-visible{background:linear-gradient(0deg,#d4af3714,transparent 80%)}
 .app-dock-items>button:hover::after,.app-dock-icons>button:hover::after,.app-dock-items>button:focus-visible::after,.app-dock-icons>button:focus-visible::after{opacity:.55;scale:.8 1}
-.app-dock-items>button.active,.app-dock-icons>button.active{background:linear-gradient(0deg,#d4af372e,transparent 85%)}
-.app-dock-items>button.active::after,.app-dock-icons>button.active::after{opacity:1;scale:1 1}
+.app-dock-icons>button.active{background:linear-gradient(0deg,#d4af372e,transparent 85%)}
+.app-dock-icons>button.active::after{opacity:1;scale:1 1}
+/* Mục chữ đang mở: nút xanh lá đặc trưng FC Online (bỏ vạch vàng và vạch ngăn hai bên). */
+.app-dock-items>button.active{align-self:center;height:auto;padding:6px 18px;border-radius:4px;background:#19b35b;color:#fff;font-weight:600;text-shadow:none}
+.app-dock-items>button.active:hover,.app-dock-items>button.active:focus-visible{background:#1fc466;color:#fff;text-shadow:none}
+.app-dock-items>button.active::before,.app-dock-items>button.active+button::before,.app-dock-items>button.active::after{display:none}
+@media(max-width:640px),(max-width:900px) and (max-height:500px){.app-dock-items>button.active{padding:4px 8px}}
 .app-dock-dot{top:calc(50% - 13px)}
 .app-dock-icons b{top:7px}
 
@@ -77,9 +85,25 @@
 .cta-gold,.cta-glass{height:36px;padding:0 14px;font-size:12px}
 .live-ticker{gap:8px;padding:0 12px;font-size:11px}
 .live-ticker-tag{height:16px;padding:0 6px;font-size:9px}
-.wallet{padding:3px 10px 3px 3px}
+.wallet{padding:0}
 .wallet .coin-icon{width:22px;height:22px;font-size:9px}
 }
 /* Giảm chuyển động. */
 .reduced-motion .view-packs .hero-card-front>.player-card,.reduced-motion .cta-gold::after,.reduced-motion .live-ticker-tag i{animation:none}
 @media(prefers-reduced-motion:reduce){.view-packs .hero-card-front>.player-card,.cta-gold::after,.live-ticker-tag i,.live-ticker-msg.is-animated{animation:none}}
+
+/* Logo chữ FCO VIP trên một hàng. */
+.brand>span{display:flex;align-items:baseline;gap:7px;font-size:19px;letter-spacing:1.8px;line-height:1;white-space:nowrap}
+.brand b{display:inline;font-size:22px}
+@media(max-width:640px){.brand>span{font-size:13px;gap:5px;letter-spacing:1px}.brand b{font-size:16px}}
+
+/* Quà mỗi ngày: hộp quà trên thanh trên cùng (thay mục ở thanh dưới); chưa nhận thì hộp vàng lắc nhẹ và có chấm đỏ. */
+.topbar-gift{position:relative;flex:none;display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:none;color:#8f99ab;cursor:pointer;transition:background-color .2s,color .2s}
+.topbar-gift:hover,.topbar-gift:focus-visible{background:#ffffff12;color:#f0f1f3}
+.topbar-gift:focus-visible{outline:2px solid #7bc9ff;outline-offset:1px}
+.topbar-gift.has-gift{color:#ffd56b}
+.topbar-gift.has-gift svg{filter:drop-shadow(0 0 6px #ffd70080);transform-origin:50% 80%;animation:gift-wiggle 2.6s ease-in-out infinite}
+@keyframes gift-wiggle{0%,70%,100%{rotate:0deg}76%{rotate:-12deg}82%{rotate:10deg}88%{rotate:-6deg}94%{rotate:3deg}}
+.topbar-gift-dot{position:absolute;top:4px;right:4px;width:8px;height:8px;border-radius:50%;background:#ff4d4f;box-shadow:0 0 0 2px #0b0f16}
+.reduced-motion .topbar-gift.has-gift svg{animation:none}
+@media(prefers-reduced-motion:reduce){.topbar-gift.has-gift svg{animation:none}}

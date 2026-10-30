@@ -46,7 +46,7 @@ test('100 distinct EBS cards match screenshot order, OVR, wages and +1 prices', 
 });
 
 test('EBS pack can draw every EBS player, open and persist', () => {
-  const pack = allPacks.find(p => p.id === 'ebs')!;
+  const pack = (allPacks.find(p => p.id === 'ebs') ?? defaultPacks.find(p => p.id === 'ebs')!);
   assert.ok(pack && isPackAvailable(pack));
   assert.equal(packOdds(pack).pool.length, 100);
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);

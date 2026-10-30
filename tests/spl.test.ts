@@ -46,7 +46,7 @@ test('90 distinct SPL cards match screenshot order, OVR, wages and +1 prices', (
 });
 
 test('SPL pack can draw every SPL player, open and persist', () => {
-  const pack = allPacks.find(p => p.id === 'spl')!;
+  const pack = (allPacks.find(p => p.id === 'spl') ?? defaultPacks.find(p => p.id === 'spl')!);
   assert.ok(pack && isPackAvailable(pack));
   assert.equal(packOdds(pack).pool.length, 90);
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);

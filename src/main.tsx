@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import AccountApp from './AccountApp';
 import files from 'virtual:preload-assets';
 import { asset } from './asset';
 import { preloadResources } from './preload';
@@ -47,6 +47,10 @@ import './phone.css';
 import './home.css';
 import './badges.css';
 import './market-fco.css';
+// Ô tick kiểu FC Online cho mọi checkbox: nạp sau cùng.
+import './tickbox.css';
+// Điện thoại / máy bảng: nạp sau cùng.
+import './responsive.css';
 const startup = document.getElementById('startup')!;
 const status = document.getElementById('boot-status')!;
 const progress = document.getElementById('boot-progress')!;
@@ -59,7 +63,7 @@ let starting = false;
 
 function ReadyGame() {
   React.useEffect(() => { startup.remove(); }, []);
-  return <App />;
+  return <AccountApp />;
 }
 
 async function start() {
