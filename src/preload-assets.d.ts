@@ -1,6 +1,6 @@
 declare module 'virtual:preload-assets' {
-  const files: string[];
-  export default files;
+  export const critical: string[];
+  export const background: string[];
 }
 
 interface Window {

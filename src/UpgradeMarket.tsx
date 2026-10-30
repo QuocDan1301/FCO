@@ -108,7 +108,7 @@ export default function UpgradeMarket({ mode, target, free, balance, onBuy, onBu
             return <button key={`${o.playerId}-${o.level}`} role="row" className="fco-line" disabled={short} title={short ? 'Không đủ BP để mua thẻ này' : `Mua ${p.name} +${o.level}`} onClick={() => onBuy(o)}>
               <span className="fco-boost" aria-label={`Tăng ${boost}% năng lượng`} title={`${boost}% năng lượng · ${Number((boost / 20).toFixed(3))} vạch`}>{[1, 2, 3, 4, 5].map(n => <i key={n} style={{ '--energy-fill': `${Math.min(100, Math.max(0, boost - (n - 1) * 20) * 5)}%` } as CSSProperties} className={boost >= n * 20 ? 'on' : boost > (n - 1) * 20 ? 'part' : ''}/>)}</span>
               <span className={`fco-pos pos-${posGroup(p.pos)}`}>{p.pos}</span>
-              <span className="fco-name"><img src={p.cardFace || p.image || asset('/assets/silhouette.svg')} alt="" loading="lazy"/><em className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</em><b>{p.name}</b></span>
+              <span className="fco-name"><img src={p.cardFace || p.image || asset('/assets/silhouette.svg')} alt=""/><em className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</em><b>{p.name}</b></span>
               <span className="fco-ovr">{o.ovr}</span>
               <span><img className="fco-badge" src={levelBadge(o.level)} alt={`+${o.level}`}/></span>
               <span className="fco-cost">{money(o.price)}</span>

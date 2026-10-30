@@ -326,6 +326,8 @@ html = html.replace(/<script\b[^>]*\bsrc="[^"]+"[^>]*><\/script>/g, '');
 
 html = html.replace(/<link\b[^>]*\bhref="\/assets\/[^" ]+\.css"[^>]*>/g, '');
 
+html = html.replace(/<link\b[^>]*\brel="(?:manifest|apple-touch-icon)"[^>]*>/g, '');
+
 html = html.replace('</head>', '\n<!-- Flag artwork: flag-icons 7.5.0 — https://github.com/lipis/flag-icons\n' + flagLicense + '\n-->\n<style>\n__FCO_FONTS__\n__FCO_CSS__\n</style>\n</head>');
 
 html = html.replace('</body>', '\n<script>\n(function(){\nwindow.__FCO_STANDALONE__ = true;\n__FCO_JS__\n})();\n</script>\n</body>');

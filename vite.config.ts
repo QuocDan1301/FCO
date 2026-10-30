@@ -6,6 +6,7 @@ import { existsSync, readFileSync, readdirSync } from "node:fs";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { packAdmin, publishedPacksOnly } from "./scripts/pack-admin.ts";
+import { assetGroup, backgroundRank, type AssetGroup } from "./src/asset-groups.ts";
 
 // Khi chạy dev: lưu gia-cau-thu-bp.xlsx là nạp lại giá BP sửa tay (scripts/import-prices.mjs) để trang tự cập nhật.
 function excelPrices(): Plugin {
@@ -31,7 +32,7 @@ function excelPrices(): Plugin {
   };
 }
 
-// Danh sách được tạo từ thư mục thật để ảnh/nhạc mới tự tham gia bước tải đầu trang.
+// Danh sách được tạo từ thư mục thật để ảnh/nhạc mới tự vào đúng nhóm tải (src/asset-groups.ts).
 function preloadAssets(): Plugin {
   const virtualId = 'virtual:preload-assets', resolvedId = '\0' + virtualId;
   const root = path.resolve('public/assets');
@@ -48,7 +49,9 @@ function preloadAssets(): Plugin {
       if (id !== resolvedId) return;
       const code = readFileSync(path.resolve('src/game.ts'), 'utf8');
       const list = files(root).filter(file => !/\.(?:png|jpe?g)$/i.test(file) || code.includes(path.basename(file)) || !existsSync(path.join(root, file.replace(/\.(?:png|jpe?g)$/i, '.webp'))));
-      return `export default ${JSON.stringify(list.sort())};`;
+      const inGroup = (group: AssetGroup) => list.filter(file => assetGroup(file) === group).sort();
+      const background = inGroup('background').sort((a, b) => backgroundRank(a) - backgroundRank(b));
+      return `export const critical = ${JSON.stringify(inGroup('critical'))};\nexport const background = ${JSON.stringify(background)};`;
     },
   };
 }

@@ -18,6 +18,8 @@ Khi thêm mùa khác, nối mùa vào `Tier`, `TIERS`, `seasons`, `players` và 
 
 **Mở trực tiếp `mothe.html` để chơi.** File này đã chứa toàn bộ JavaScript, CSS, phông chữ và hình ảnh, không cần cài Node.js hay chạy Vite. Chế độ khách chơi được ngoại tuyến; đăng nhập và đồng bộ tài khoản cần Internet. Có thể sao chép riêng file sang thư mục khác rồi mở bằng Chrome/Edge. Bản lưu khách của file mở trực tiếp tách biệt với localhost. Khi đăng nhập cùng tài khoản, tiến trình được đồng bộ qua Supabase.
 
+**Cài về máy (PWA):** mở trang GitHub Pages bằng Chrome/Edge rồi bấm biểu tượng cài đặt trên thanh địa chỉ. Ứng dụng có icon và cửa sổ riêng, dùng chung dữ liệu với trang web trên trình duyệt đó và tự cập nhật theo mỗi lần deploy. Cấu hình ở `public/manifest.webmanifest` và `public/sw.js`. Khi mất mạng chỉ chơi được chế độ khách với những ảnh đã tải; đăng nhập, đồng bộ và nhạc nền cần Internet.
+
 Trò chơi giả lập mở gói và nâng cấp thẻ, giao diện và nội dung tiếng Việt. React 19, TypeScript, Tailwind CSS 4, Motion và Vite. Có chế độ khách trên máy và tài khoản tên đăng nhập/mật khẩu đồng bộ nhiều thiết bị, không thanh toán thật.
 
 ## Đăng ký, đăng nhập và đồng bộ

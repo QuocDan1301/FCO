@@ -36,6 +36,8 @@ import { Flag } from './flags';
 import { buyPlayer, sellPlayer, sellCards, marketQuote, formatMarketPrice, compareMarketPrices, MARKET_FEE_PERCENT } from './market';
 import type { MarketTrade, SellItem } from './market';
 import SellDialog from './SellDialog';
+import { prefetchImages } from './preload';
+import { getTeamLogo } from './teamLogos';
 import { asset } from './asset';
 import LiveTicker from './LiveTicker';
 import { posGroup, seasonShort } from './badges';
@@ -265,10 +267,13 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const inventoryBatch = useRef<Pack[] | null>(null);
   // Mở lại từ màn kết quả: số gói tự mở ngay khi sân khấu chuẩn bị xong (không bấm lại ở màn chuẩn bị), và lượt đó rút ngắn chờ trước khi lật gói.
   const againCount = useRef(0), fastEntry = useRef(false), fastEntryId = useRef<string | null>(null);
+  // Ảnh thẻ không tải trước khi vào game: tải sẵn ảnh thẻ vừa rút lúc bắt đầu mở gói, hầm chạy vài giây là đủ để về kịp màn lật thẻ.
+  const prefetchCards = (cards: Card[]) => prefetchImages(cards.flatMap(card => { const p = getPlayer(card); return [p.cardFace, getTeamLogo(p)]; }));
   const prepareOpening = (pack: Pack, selection?: Pack[]) => {
     if (busy.current || !isPackAvailable(pack)) return;
     inventoryBatch.current = selection ?? null;
     autoBatch.current = !!selection;
+    prefetchImages([pack.back, pack.tunnel]);
     setPreparationId(id => id + 1); setDraftIds(null); setEntryStarted(false); setPackPrepared(false); setSelectedPack(pack); setReadyPack(pack);
   };
   const [toast, setToast] = useState(loadNotice);
@@ -488,6 +493,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     try {
       const result = selection ? openSelectedPacks(latest.current, selection, undefined, UNLIMITED_COINS) : openPacks(latest.current, pack, count, undefined, UNLIMITED_COINS);
       if (!commit(result.state)) { busy.current = false; return; }
+      prefetchCards(result.cards);
       unlockCinemaAudio(latest.current.sound);
       const id = uid(); fastEntryId.current = fastEntry.current ? id : null; fastEntry.current = false;
       setPackSkipReady(false); setFlipStarted(false); setEntryStarted(false); setSceneReady(false); setPhase(0); setAnimation({ id, kind: 'pack', cards: result.cards, pack, quick: !!latest.current.quick });
@@ -500,6 +506,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     try {
       const result = openDraft(latest.current, pack, playerIds);
       if (!commit(result.state)) { busy.current = false; return; }
+      prefetchCards(result.cards);
       unlockCinemaAudio(latest.current.sound);
       fastEntryId.current = null; fastEntry.current = false;
       setPackSkipReady(false); setFlipStarted(false); setEntryStarted(false); setSceneReady(false); setPhase(0); setAnimation({ id: uid(), kind: 'pack', cards: result.cards, pack, quick: !!latest.current.quick });

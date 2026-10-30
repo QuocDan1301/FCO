@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import AccountApp from './AccountApp';
-import files from 'virtual:preload-assets';
+import { background, critical } from 'virtual:preload-assets';
 import { asset } from './asset';
-import { preloadResources } from './preload';
+import { canLoadInBackground, preloadResources, tooManyFailed } from './preload';
 import './styles.css';
 import './prime-cards.css';
 import './vietnam-cards.css';
@@ -75,17 +75,20 @@ async function start() {
   status.textContent = 'Đang tải game…';
   try {
     // Bản độc lập đã tải toàn bộ ảnh, nhạc và dữ liệu trong chính tệp HTML.
-    const urls = window.__FCO_STANDALONE__ ? [] : files.map(file => asset('/assets/' + file));
+    const urls = window.__FCO_STANDALONE__ ? [] : critical.map(file => asset('/assets/' + file));
     const failed = await preloadResources(urls, ({ loaded, total }) => {
       const pct = total ? Math.floor(loaded / total * 100) : 100;
       progress.setAttribute('aria-valuenow', String(pct));
       fill.style.width = pct + '%';
       detail.textContent = total ? `${pct}% · ${loaded}/${total} tài nguyên` : 'Dữ liệu đã tải đầy đủ';
     }, completed);
-    if (failed.length) throw new Error(`Còn ${failed.length} tài nguyên chưa tải được. Kiểm tra kết nối rồi thử lại.`);
+    if (tooManyFailed(failed.length, urls.length)) throw new Error(`Còn ${failed.length} tài nguyên chưa tải được. Kiểm tra kết nối rồi thử lại.`);
     status.textContent = 'Đang chuẩn bị giao diện…';
     await document.fonts.ready;
     ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ReadyGame /></React.StrictMode>);
+    // Vào game rồi mới tải dần ảnh gói, hầm, hiệu ứng; lỗi ở đây không ảnh hưởng gì (trình duyệt tự tải lại khi cần).
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+    if (!window.__FCO_STANDALONE__ && canLoadInBackground(connection)) window.setTimeout(() => { void preloadResources(background.map(file => asset('/assets/' + file)), () => {}, completed, fetch, 3, 1); }, 1500);
   } catch (error) {
     status.textContent = error instanceof Error ? error.message : 'Không tải được game. Hãy thử lại.';
     loading.hidden = true;
@@ -98,3 +101,8 @@ async function start() {
 
 retry.onclick = () => { void start(); };
 void start();
+
+// Cho phép cài web thành ứng dụng trên máy; bản mothe.html và bản dev không dùng service worker.
+if (import.meta.env.PROD && !window.__FCO_STANDALONE__ && 'serviceWorker' in navigator) {
+  void navigator.serviceWorker.register(import.meta.env.BASE_URL + 'sw.js').catch(() => {});
+}
