@@ -4,7 +4,7 @@ Game dùng tên đăng nhập/mật khẩu qua Supabase Auth và bảng `public.
 
 ## Khởi tạo dự án
 
-1. Trong SQL Editor của dự án Supabase, chạy lần lượt `migrations/202610300001_fco_accounts.sql`, `migrations/202610300002_delete_own_account.sql` và `migrations/202611070001_fco_wallet.sql` một lần. Migration tạo bảng mới và hàm ghi có kiểm tra phiên bản; không thay đổi các bảng có sẵn.
+1. Trong SQL Editor của dự án Supabase, chạy lần lượt `migrations/202610300001_fco_accounts.sql`, `migrations/202610300002_delete_own_account.sql` và `migrations/202611070001_fco_wallet.sql` và `migrations/202611070002_fco_save_audit.sql` một lần. Migration tạo bảng mới và hàm ghi có kiểm tra phiên bản; không thay đổi các bảng có sẵn.
 2. Bật Email provider trong Authentication. Bản thử hiện tắt Confirm email theo lựa chọn của chủ dự án: người chơi đăng ký xong vào game ngay, email chưa được xác minh. Khi dùng chính thức, cấu hình SMTP riêng rồi bật lại Confirm email. Giao diện yêu cầu mật khẩu tối thiểu 8 ký tự.
 3. Đặt Site URL thành URL game GitHub Pages. Thêm URL game và `http://127.0.0.1:5173/FCO/` vào Redirect URLs nếu cần thử trên máy phát triển. Liên kết xác nhận email quay về game để người chơi đăng nhập.
 4. `.env` chỉ chứa Project URL và Publishable key công khai dùng trong trình duyệt. Không đưa secret key hoặc `service_role` vào các biến `VITE_*`. Có thể ghi đè cấu hình bằng `.env.local` trên máy phát triển.
@@ -37,6 +37,8 @@ Từ migration `202611070001_fco_wallet.sql`, FC chỉ do máy chủ thay đổi
 - Khách (không đăng nhập) không dùng được FC.
 - Admin: tài khoản có trong `fco_admins` thấy nút "Quản trị FC" trong Cài đặt: cộng / trừ FC theo tên đăng nhập sau khi kiểm tra bill, xem sổ cái, tạo / xoá gift code (có hiệu lực ngay). Thêm admin: `insert into public.fco_admins(user_id) select id from auth.users where email = '<tên>@players.fco.invalid';`
 - Chạy thử migration không cần Supabase: `supabase/tests/fco-wallet.pglite.mjs` (hướng dẫn ở đầu file).
+
+Theo dõi bất thường (`202611070002_fco_save_audit.sql`): mỗi lần đồng bộ, `fco_commit_save` so bản mới với bản cũ; BP, gói, thẻ hoặc cấp thẻ tăng mà không có dòng lịch sử tương ứng (bán thẻ / sự kiện / quà, Shop, mở gói / TTCN, nâng cấp) thì ghi vào `fco_save_audit`. Admin xem ở Quản trị FC → Bất thường. Chỉ phát hiện, không chặn; lỗi trong bước kiểm tra không bao giờ chặn việc lưu.
 
 Chỉ FC được bảo vệ. BP, thẻ và gói trong kho vẫn tính ở trình duyệt và nằm trong bản lưu, nên người rành kỹ thuật vẫn sửa được; muốn chặn cần chuyển việc mở gói / nâng cấp lên máy chủ.
 

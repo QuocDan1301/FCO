@@ -129,3 +129,5 @@
 .pa-plus{color:#7ff0ad}
 .pa-minus{color:#ff9aa2}
 @media(max-width:700px){.pa-body{grid-template-columns:1fr}.pa-body>.pa-list{flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line)}}
+.pa-anomalies{grid-column:2/-1;max-width:900px}
+.pa-anomaly-actions{display:flex;gap:4px;flex:none}

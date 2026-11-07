@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Coins, Gift, RotateCcw, X } from 'lucide-react';
+import { Coins, Gift, RotateCcw, ShieldAlert, X } from 'lucide-react';
 import { money, packs } from './game';
 import GiftCodeAdmin from './admin/GiftCodeAdmin';
+import Anomalies from './Anomalies';
 import { adminCredit, adminLedger } from './wallet';
 import type { LedgerRow } from './wallet';
 import './admin/pack-admin.css';
 
 // Bảng admin trong game (chỉ hiện với tài khoản trong bảng fco_admins): cộng FC sau khi kiểm tra bill chuyển khoản,
-// xem sổ cái FC và quản lý gift code. Máy chủ kiểm tra quyền admin ở mọi thao tác.
+// xem sổ cái FC, quản lý gift code và xem cảnh báo bản lưu bất thường. Máy chủ kiểm tra quyền admin ở mọi thao tác.
 type Status = { kind: 'ok' | 'error'; text: string } | null;
 const REASONS: Record<string, string> = { admin: 'Admin', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code' };
 const time = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });
@@ -61,7 +62,7 @@ function CreditFc() {
 }
 
 export default function AdminPanel({ onClose }: { onClose: () => void }) {
-  const [tab, setTab] = useState<'fc' | 'gift'>('fc');
+  const [tab, setTab] = useState<'fc' | 'gift' | 'audit'>('fc');
   useEffect(() => { const key = (event: KeyboardEvent) => event.key === 'Escape' && onClose(); addEventListener('keydown', key); return () => removeEventListener('keydown', key); }, [onClose]);
   return <div className="pack-admin" role="dialog" aria-modal="true" aria-label="Quản trị FC">
     <header className="pa-header">
@@ -72,8 +73,9 @@ export default function AdminPanel({ onClose }: { onClose: () => void }) {
       <aside className="pa-list" aria-label="Mục quản trị">
         <button className="pa-new pa-gift-nav" onClick={() => setTab('fc')} aria-pressed={tab === 'fc'}><Coins size={16}/>Nạp FC</button>
         <button className="pa-new pa-gift-nav" onClick={() => setTab('gift')} aria-pressed={tab === 'gift'}><Gift size={16}/>Gift code</button>
+        <button className="pa-new pa-gift-nav" onClick={() => setTab('audit')} aria-pressed={tab === 'audit'}><ShieldAlert size={16}/>Bất thường</button>
       </aside>
-      {tab === 'fc' ? <CreditFc/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
+      {tab === 'fc' ? <CreditFc/> : tab === 'audit' ? <Anomalies/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
     </div>
   </div>;
 }

@@ -9,6 +9,7 @@ export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
 export type EventPlayResult = { hits: { level: number; jar: number }[]; paid: number; jarFc: number; jackpotWins: { kind: 'special' | 'mini'; amount: number; time: number }[]; jackpot: ServerJackpot; wallet: Wallet };
 export type LedgerRow = { time: number; login: string; delta: number; balance: number; reason: string; note: string | null; admin: boolean };
 export type GiftCodeRow = { hash: string; hint: string; rewards: EventReward[]; expires: string | null; created: string; used: number };
+export type AnomalyRow = { id: number; time: number; login: string; flags: string[]; bpBefore: number | null; bpAfter: number; cardsBefore: number | null; cardsAfter: number; packsBefore: number | null; packsAfter: number; history: string[]; reviewed: boolean };
 export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 
 const MESSAGES: Record<string, string> = {
