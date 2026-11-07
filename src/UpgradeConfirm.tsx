@@ -182,6 +182,8 @@ function ResultBar({ before, after, success, restored, pending, levelBadge, onNe
 const levelTier = (level: number) => level >= 11 ? 'platinum' : level >= 8 ? 'gold' : level >= 5 ? 'silver' : 'bronze';
 // Thời gian pha dồn năng lượng sau khi bấm "Nâng cấp", trước khi thực sự đập (khớp với CSS uc-charge-*).
 const CHARGE_MS = 5600;
+// Tia năng lượng: số tia mỗi giây mỗi bên và thời gian bay một tia (ms), từ lúc bắt đầu dồn → lúc sắp đập.
+const RAY_RATE = [4, 130], RAY_MS = [1000, 280];
 // Tính kết quả + dựng sẵn hiệu ứng kết quả (ẩn, hoạt cảnh tạm dừng) trước lúc lộ một khoảng, khi thẻ đã gần trắng hẳn:
 // khung hình lộ kết quả chỉ còn bật hiện, không phải chạy logic/lưu dữ liệu/dựng DOM/vẽ lớp mới cùng lúc (gây khựng).
 const PREPARE_LEAD = 600;
@@ -210,6 +212,29 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
   // Rung thẻ khi dồn năng lượng: lắc ngẫu nhiên mỗi khung hình, biên độ tăng dần từ giây 1,4 (≈1 px) tới cuối pha (≈9 px); có kết quả thì dừng.
   const shake = useRef<HTMLDivElement>(null);
   const timers = useRef<number[]>([]);
+  // Tia năng lượng hai bên lúc dồn: tạo liên tục, càng về cuối càng nhiều (RAY_RATE tia/giây mỗi bên) và càng nhanh (RAY_MS).
+  const flows = useRef<(HTMLDivElement | null)[]>([]);
+  useEffect(() => {
+    if (!charging || outcome || reduced) return;
+    const start = performance.now(); let last = start, due = 0, frame = 0;
+    const spawn = (flow: HTMLDivElement, t: number) => {
+      const ray = document.createElement('span'), width = 70 + Math.random() * (90 + 140 * t);
+      ray.style.top = `${4 + Math.random() * 92}%`; ray.style.width = `${width.toFixed(0)}px`; ray.style.height = t > .65 ? '4px' : '3px';
+      flow.appendChild(ray);
+      const run = ray.animate([{ transform: 'translateX(0) scaleX(.6)', opacity: 0 }, { opacity: 1, offset: .15 }, { transform: `translateX(${(flow.clientWidth * 1.05 + width).toFixed(0)}px) scaleX(1.3)`, opacity: 0 }],
+        { duration: (RAY_MS[0] - (RAY_MS[0] - RAY_MS[1]) * t) * (.85 + Math.random() * .3), easing: 'cubic-bezier(.55,0,.9,.6)' });
+      run.onfinish = run.oncancel = () => ray.remove();
+    };
+    const tick = (now: number) => {
+      // Mốc khung hình có thể sớm hơn start vài ms: chặn âm (số âm ** 1.6 = NaN).
+      const t = Math.min(1, Math.max(0, (now - start) / (CHARGE_MS - 300)));
+      due += Math.max(0, now - last) / 1000 * (RAY_RATE[0] + (RAY_RATE[1] - RAY_RATE[0]) * t ** 1.6); last = Math.max(last, now);
+      for (; due >= 1; due--) for (const flow of flows.current) if (flow && flow.childElementCount < 90) spawn(flow, t);
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => { cancelAnimationFrame(frame); flows.current.forEach(flow => flow?.replaceChildren()); };
+  }, [charging, outcome, reduced]);
   useEffect(() => {
     const el = shake.current;
     if (!charging || outcome || reduced || !el) { if (el) el.style.transform = ''; return; }
@@ -244,7 +269,7 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
         <div className="uc-crowd"/><div className="uc-lights">{Array.from({ length: 13 }, (_, i) => <i key={i} style={{ '--d': `${(Math.abs(i - 6) * .09).toFixed(2)}s` } as CSSProperties}/>)}</div><div className="uc-wall"/><div className="uc-floor"><svg viewBox="0 0 100 40" preserveAspectRatio="none"><polyline points="2,8 50,36 98,8"/><polyline points="14,4 50,26 86,4"/></svg></div><div className="uc-fog left"/><div className="uc-fog right"/>
         <div className="uc-chevrons left"><i/><i/><i/></div>
         <div className="uc-chevrons right"><i/><i/><i/></div>
-        {charging && !outcome && <>{(['left', 'right'] as const).map(side => <div key={side} className={`uc-flow ${side}`}>{Array.from({ length: 9 }, (_, i) => <span key={i} style={{ '--y': `${18 + (i * 37) % 64}%`, '--d': `${(i * .17) % .9}s`, '--w': `${90 + (i * 53) % 110}px` } as CSSProperties}/>)}</div>)}</>}
+        {charging && !outcome && <div className="uc-flow-clip">{(['left', 'right'] as const).map((side, i) => <div key={side} className={`uc-flow ${side}`} ref={el => { flows.current[i] = el; }}/>)}</div>}
         {pFailed && ((['left', 'right'] as const).map(side => <div key={side} className={`uc-sparkler broken ${side}${pre}`}><b className="uc-sparkler-core"/>{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ '--a': `${(-14 + (i * 23) % 28).toFixed(1)}deg`, '--h': `${5 + (i * 7) % 11}vh`, '--d': `${((i * .29) % 1.6).toFixed(2)}s`, '--t': `${(.4 + (i * 13) % 4 / 10).toFixed(1)}s`, '--s': `${6 + (i * 5) % 8}px` } as CSSProperties}/>)}{Array.from({ length: 6 }, (_, i) => <s key={i} className="uc-machine-smoke" style={{ '--x': `${-18 + (i * 13) % 36}px`, '--d': `${(.5 + i * .42).toFixed(2)}s` } as CSSProperties}/>)}</div>))}
         {pWon && <><div className={`uc-warm${pre}`}/>{(['left', 'right'] as const).map(side => <div key={side} className={`uc-sparkler ${side}${pre}`}><b className="uc-sparkler-core"/>{Array.from({ length: 32 }, (_, i) => <i key={i} style={{ '--a': `${(-3.5 + (i * 29) % 8).toFixed(1)}deg`, '--h': `${30 + (i * 41) % 36}vh`, '--d': `${((i * .061) % 1.3).toFixed(2)}s`, '--t': `${(.9 + (i * 17) % 6 / 10).toFixed(1)}s`, '--s': `${10 + (i * 23) % 18}px` } as CSSProperties}/>)}</div>)}{Array.from({ length: 14 }, (_, i) => <b key={i} className={`uc-confetti${pre}`} style={{ '--x': `${6 + (i * 37) % 88}%`, '--y': `${20 + (i * 23) % 60}%`, '--d': `${(i * .4) % 4}s` } as CSSProperties}/>)}</>}
         <div className="uc-card">{pWon && <div className={`uc-rays${pre}`} aria-hidden="true">{Array.from({ length: 36 }, (_, i) => <i key={i} style={{ '--r': `${(i * 360 / 36 + (i * 7) % 5).toFixed(1)}deg`, '--d': `${(i * .037) % .22}s`, '--l': `${120 + (i * 53) % 170}px`, '--w': `${2 + (i % 3)}px` } as CSSProperties}/>)}</div>}<div className="uc-shake" ref={shake}>{renderCard(outcome?.card ?? target)}{charging && (!outcome || failed) && <div className={`uc-whiteout${failed ? ' is-ash' : ''}`} style={getPlayer(target).cardFace ? { '--mask': `url("${getPlayer(target).cardFace}")` } as CSSProperties : undefined}/>}</div>{pFailed && <div className={`uc-burn${pre}`}>{Array.from({ length: 7 }, (_, i) => <i key={i} style={{ '--x': `${12 + (i * 37) % 76}%`, '--s': `${.7 + (i * 13) % 6 / 10}`, '--d': `${(i * .06) % .4}s` } as CSSProperties}/>)}</div>}</div>

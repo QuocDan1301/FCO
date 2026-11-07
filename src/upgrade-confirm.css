@@ -99,11 +99,15 @@
 .is-charging .uc-chevrons i:nth-child(2)::after{animation-delay:.18s}
 .is-charging .uc-chevrons i:nth-child(3)::after{animation-delay:.36s}
 @keyframes uc-chevron-charge{0%,100%{opacity:0}45%{opacity:1}}
-.uc-flow{position:absolute;top:18%;bottom:18%;width:46%;z-index:2;pointer-events:none;overflow:hidden}
-.uc-flow.left{left:0}
-.uc-flow.right{right:0;transform:scaleX(-1)}
-.uc-flow span{position:absolute;left:-30%;top:var(--y);width:var(--w);height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--chev-hot) 55%,var(--chev-tip));opacity:0;will-change:transform,opacity;animation:uc-streak .9s cubic-bezier(.55,0,.9,.6) infinite;animation-delay:var(--d)}
-@keyframes uc-streak{0%{transform:translateX(0) scaleX(.6);opacity:0}15%{opacity:1}100%{transform:translateX(calc(46vw * .9)) scaleX(1.3);opacity:0}}
+/* Tia năng lượng chỉ chạy trên tấm tường: lớp bọc trùng khung .uc-wall và cắt theo cùng mép cong (mask), không tràn lên trên viền
+   hay xuống sàn. Hai khung tia trong đó nghiêng 3D như .uc-chevrons (46% bề ngang màn = 46/108 bề ngang tường). */
+/* Đáy lớp bọc = mép trên của sàn (.uc-floor cao 30%), nên elip mép cong tính lại theo chiều cao mới (58% thay vì 64% của tường). */
+.uc-flow-clip{position:absolute;left:-4%;right:-4%;top:12%;bottom:30%;z-index:2;pointer-events:none;-webkit-mask-image:radial-gradient(ellipse 50% 46.34% at 50% -11.03%,transparent 99.5%,#000 100%);mask-image:radial-gradient(ellipse 50% 46.34% at 50% -11.03%,transparent 99.5%,#000 100%)}
+.uc-flow{position:absolute;top:0;bottom:0;width:42.6%;pointer-events:none;overflow:hidden;transform-origin:center}
+.uc-flow.left{left:1.85%;transform:perspective(1200px) rotateY(14deg)}
+.uc-flow.right{right:1.85%;transform:scaleX(-1) perspective(1200px) rotateY(14deg)}
+/* Tia tạo bằng JS (UpgradeConfirm.tsx, RAY_RATE / RAY_MS): vị trí, độ dài, chuyển động đặt từng tia. */
+.uc-flow span{position:absolute;left:-30%;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--chev-hot) 55%,var(--chev-tip));opacity:0;will-change:transform,opacity;pointer-events:none}
 /* Quầng sáng sau thẻ là lớp riêng (blur cố định), chỉ đổi opacity/scale nên không phải vẽ lại thẻ mỗi khung hình. */
 .uc-card::before{content:'';position:absolute;inset:-14% -18%;z-index:-1;border-radius:40%;background:radial-gradient(ellipse at center,#fff 0,var(--chev-hot) 22%,rgb(var(--glow-rgb) / .45) 44%,rgb(var(--glow-rgb) / .14) 60%,transparent 72%);opacity:0;transform:scale(.8);pointer-events:none}
 .is-charging:not(.is-success):not(.is-failed) .uc-card::before{animation:uc-glow 5.6s ease-in forwards}
