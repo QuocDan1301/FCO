@@ -57,7 +57,8 @@ function preloadAssets(): Plugin {
 }
 
 export default defineConfig({
-  base: "/FCO/",
+  // GitHub Pages phục vụ game ở /FCO/; Render (render.yaml) đặt BASE_PATH=/ để chạy ở gốc tên miền.
+  base: process.env.BASE_PATH || "/FCO/",
   plugins: [react(), tailwindcss(), excelPrices(), preloadAssets(), packAdmin(), publishedPacksOnly()],
   // Biên dịch sẵn module chính và gói thư viện khi khởi động để lần mở trang đầu không phải chờ.
   server: {

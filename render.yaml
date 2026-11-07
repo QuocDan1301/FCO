@@ -1,0 +1,26 @@
+# Render Blueprint: web tĩnh FCO VIP (Render → New → Blueprint, chọn repo này).
+# build:web không tạo mothe.html (bản chơi offline ~380 MB, chỉ cần cho GitHub Pages / chạy file trực tiếp).
+# Supabase URL và publishable key là khoá công khai, đọc từ .env trong repo; có thể ghi đè ở Environment trên Render.
+services:
+  - type: web
+    name: fco-vip
+    runtime: static
+    branch: main
+    buildCommand: npm ci && npm run build:web
+    staticPublishPath: dist
+    envVars:
+      - key: BASE_PATH
+        value: /
+      - key: NODE_VERSION
+        value: "22"
+    headers:
+      # Tệp trong assets/ có tên cố định (không băm) nên chỉ cache ngắn; trang và service worker luôn kiểm tra bản mới.
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=86400
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache
