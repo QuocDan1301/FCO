@@ -7,7 +7,7 @@
 @media (min-width: 901px) {
   .icon-opening .opening-result.reveal-stage{
     --bar-b:clamp(12px,2.4dvh,28px);--bar-h:clamp(36px,4.2dvh,44px);
-    --strip-b:calc(var(--bar-b) + var(--bar-h) + clamp(8px,1.4dvh,16px));--strip-h:clamp(120px,21dvh,240px);
+    --strip-b:calc(var(--bar-b) + var(--bar-h) + clamp(8px,1.4dvh,16px));--strip-h:clamp(138px,calc(21dvh + 18px),258px);
     --side-btn:clamp(150px,10.5vw,210px);--toggle-w:clamp(180px,12.5vw,240px);
     position:absolute;inset:0;display:block;height:auto;min-height:0;padding:0;overflow:hidden}
 
@@ -56,10 +56,13 @@
 
   /* Thẻ phụ: dải cuộn ngang trải từ mép trái sang mép phải (trên hàng nút), thẻ lớn giữ đúng tỉ lệ, không lặp tên / chỉ số ngoài thẻ.
      Mở 10 gói ở màn 1366 / 1920 hiện đủ 9 thẻ không cần cuộn; dải che phần dưới sân khấu như FC Online, bấm "Thu gọn danh sách" để xem trọn bục.
+     Cỡ thẻ = chiều cao dải − đệm (8 + 10px) − thanh cuộn ngang (Chrome "thin" ~11px, chừa 14px): thiếu phần thanh cuộn thì thẻ canh đáy
+     (dải cao thêm 18px so với trước để thẻ giữ cỡ cũ)
+     tràn lên trên và bị dải (overflow-y:hidden) cắt mất mép đỉnh (người dùng báo 2026-11-07).
      Thanh công cụ tách ra: nút thu gọn về hàng nút đáy, tổng giá trị lên dưới tên gói, mũi tên cuộn nằm hai mép dải thẻ. */
   .icon-opening .opening-result.reveal-stage .secondary-players{position:static;width:auto}
   .icon-opening .opening-result.reveal-stage .secondary-toolbar{display:contents}
-  .icon-opening .opening-result.reveal-stage .secondary-player-list{position:absolute;z-index:8;left:3%;right:3%;width:auto;bottom:var(--strip-b);height:var(--strip-h);--secondary-card-width:calc((var(--strip-h) - 14px) * 666 / 725);gap:clamp(8px,.8vw,14px);padding:4px 2px 10px;align-items:flex-end;scrollbar-color:#71859399 transparent}
+  .icon-opening .opening-result.reveal-stage .secondary-player-list{position:absolute;z-index:8;left:3%;right:3%;width:auto;bottom:var(--strip-b);height:var(--strip-h);--secondary-card-width:calc((var(--strip-h) - 32px) * 666 / 725);gap:clamp(8px,.8vw,14px);padding:8px 2px 10px;align-items:flex-end;scrollbar-color:#71859399 transparent}
   .icon-opening .opening-result.reveal-stage .secondary-player>span,.icon-opening .opening-result.reveal-stage .secondary-player>b{display:none}
   .icon-opening .opening-result.reveal-stage .secondary-navigation{position:absolute;z-index:9;left:3%;right:3%;width:auto;bottom:var(--strip-b);height:var(--strip-h);display:flex;align-items:center;justify-content:space-between;padding:0 2px 10px;pointer-events:none}
   .icon-opening .opening-result.reveal-stage .secondary-navigation>span{display:none}

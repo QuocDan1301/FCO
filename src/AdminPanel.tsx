@@ -7,6 +7,7 @@ import Stats from './Stats';
 import { adminCredit, adminLedger } from './wallet';
 import type { LedgerRow } from './wallet';
 import './admin/pack-admin.css';
+import { TOPUP_VND_PER_1000_FC } from './config';
 
 // Bảng admin trong game (chỉ hiện với tài khoản trong bảng fco_admins): cộng FC sau khi kiểm tra bill chuyển khoản,
 // xem sổ cái FC, quản lý gift code và xem cảnh báo bản lưu bất thường. Máy chủ kiểm tra quyền admin ở mọi thao tác.
@@ -40,10 +41,10 @@ function CreditFc() {
   return <section className="pa-gift" aria-label="Nạp FC">
     <form className="pa-form" onSubmit={e => { e.preventDefault(); void submit(); }}>
       <h2 className="pa-gift-title">Cộng FC cho người chơi</h2>
-      <p className="pa-gift-note">Kiểm tra bill chuyển khoản (tỷ lệ 2.000 VND = 1.000 FC), rồi nhập tên đăng nhập trong game của người chơi. Số âm để trừ khi cộng nhầm. Mỗi lần cộng / trừ được ghi vào sổ cái.</p>
+      <p className="pa-gift-note">Kiểm tra bill chuyển khoản (tỷ lệ {TOPUP_VND_PER_1000_FC.toLocaleString('vi-VN')} VND = 1.000 FC), rồi nhập tên đăng nhập trong game của người chơi. Số âm để trừ khi cộng nhầm. Mỗi lần cộng / trừ được ghi vào sổ cái.</p>
       {status && <p className={`pa-message is-${status.kind}`} role={status.kind === 'error' ? 'alert' : 'status'}>{status.text}</p>}
       <label className="pa-field"><span>Tên đăng nhập</span><input value={login} onChange={e => setLogin(e.target.value)} placeholder="vd. player_123" autoComplete="off" spellCheck={false}/></label>
-      <label className="pa-field"><span>Số FC <small>{Number.isSafeInteger(value) && value ? `= ${money(value)} FC · ${(Math.abs(value) * 2).toLocaleString('vi-VN')} VND` : ''}</small></span><input value={amount} onChange={e => setAmount(e.target.value.replace(/[^\d-]/g, ''))} inputMode="numeric" placeholder="vd. 100000"/></label>
+      <label className="pa-field"><span>Số FC <small>{Number.isSafeInteger(value) && value ? `= ${money(value)} FC · ${Math.round(Math.abs(value) / 1000 * TOPUP_VND_PER_1000_FC).toLocaleString('vi-VN')} VND` : ''}</small></span><input value={amount} onChange={e => setAmount(e.target.value.replace(/[^\d-]/g, ''))} inputMode="numeric" placeholder="vd. 100000"/></label>
       <label className="pa-field"><span>Ghi chú <small>vd. mã giao dịch ngân hàng</small></span><input value={note} onChange={e => setNote(e.target.value)} maxLength={200}/></label>
       <div className="pa-actions"><button type="submit" className="primary-button" disabled={busy}><Coins size={16}/>{busy ? 'Đang xử lý…' : 'Xác nhận'}</button></div>
     </form>

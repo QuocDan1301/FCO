@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { SAVE_RESET, START_BP, buyPacks, choosePool, dayKey, defaultPacks, getPackStock, initialSave, openChosen, openPacks, openSelectedPacks, packs, shopPacks, validateSave } from '../src/game.ts';
 import type { Entry } from '../src/game.ts';
 import { EVENT_LEVELS, EVENT_MILESTONES, EVENT_MISSIONS, EVENT_PLAYS, EVENT_ROUND, claimMilestone, eventRound, claimMission, eventLevel, eventState, findPack, milestoneAvailable, missionProgress, playEvent } from '../src/event.ts';
@@ -128,6 +129,9 @@ test('Gói chỉ có từ sự kiện: không bán trong Shop, kho mặc định
   const eventPacks = packs.filter(p => p.eventOnly);
   // Gói chỉ có từ sự kiện = đúng các gói xuất hiện trong hũ / quà tích lũy (trừ gói đang bán như ICON TM, TOP PRICE 350 +8).
   const used = new Set([...EVENT_LEVELS.flatMap(l => l.jars.map(j => j.reward)), ...EVENT_MILESTONES.flatMap(m => m.options.flat())].flatMap(r => 'pack' in r ? [r.pack] : []));
+  // … cộng các gói quà Bi Lắc (hàng quà + quà mốc) do máy chủ cấp, lấy từ migration.
+  const bilacSql = ['202611070005_fco_bilac.sql', '202611070006_fco_bilac_prizes.sql', '202611070007_fco_bilac_milestones.sql'].map(f => readFileSync(`supabase/migrations/${f}`, 'utf8')).join('\n');
+  for (const m of bilacSql.matchAll(/"pack":"([^"]+)"/g)) used.add(m[1]);
   assert.deepEqual([...used].filter(id => packs.find(p => p.id === id)?.eventOnly).sort(), eventPacks.map(p => p.id).sort());
   const save = initialSave();
   for (const pack of eventPacks) {

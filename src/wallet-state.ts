@@ -4,7 +4,9 @@ import { eventState } from './event';
 
 // Phần thuần của ví FC (không nạp client Supabase): kiểu dữ liệu máy chủ trả về, thông báo lỗi, áp ví vào bản lưu.
 export type Checkin = { claimedToday: boolean; day: number; done: number };
-export type Wallet = { fc: number; dailyClaimed: boolean; checkin?: Checkin; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean };
+// claimed[i] = số lần đã nhận mốc i (null = chưa nhận).
+export type BilacState = { points: number; claimed: (number | null)[]; freeToday: boolean };
+export type Wallet = { fc: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean };
 export type ServerJackpotWin = { name: string; amount: number; kind: 'special' | 'mini'; time: number; mine: boolean };
 export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
 export type EventPlayResult = { hits: { level: number; jar: number }[]; paid: number; jarFc: number; jackpotWins: { kind: 'special' | 'mini'; amount: number; time: number }[]; jackpot: ServerJackpot; wallet: Wallet };
@@ -15,6 +17,14 @@ export type StatsSummary = { registered: number; registeredToday: number; regist
 export type StatsDay = { day: string; active: number; seconds: number; topupFc: number; registered: number };
 export type StatsPlayer = { login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; playSecondsToday: number; topupFc: number; fc: number };
 export type AdminStats = { summary: StatsSummary; days: StatsDay[]; players: StatsPlayer[]; now: number };
+// Bi Lắc (supabase/migrations/202611070005_fco_bilac.sql): quà {fc} / {bp} / {pack,count}; quà Giải Đặc Biệt / Phụ trả về {fc, jackpot}.
+export type BilacReward = EventReward | { fc: number; jackpot: 'special' | 'mini' } | { jackpot: 'special' | 'mini' };
+export type BilacSymbol = 'club' | 'fc' | 'special' | 'bp' | 'card';
+export type BilacRow = { id: string; symbol: BilacSymbol | null; kind: 'triple' | 'pair' | 'mixed'; points: number; rewards: BilacReward[] };
+export type BilacConfig = { symbols: { id: BilacSymbol; label: string }[]; rows: BilacRow[]; milestones: BilacMilestone[]; round: number; prices: { count: number; price: number }[] };
+export type BilacMilestone = { points: number; options: BilacReward[][]; once: boolean };
+export type BilacPlay = { balls: BilacSymbol[]; row: string; points: number; reward: BilacReward };
+export type BilacResult = { plays: BilacPlay[]; paid: number; points: number; jackpot: ServerJackpot; wallet: Wallet };
 export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 
 const MESSAGES: Record<string, string> = {
@@ -28,6 +38,9 @@ const MESSAGES: Record<string, string> = {
   FCO_NO_FREE_PLAYS: 'Bạn không có lượt chơi miễn phí. Hãy làm nhiệm vụ để nhận thêm.',
   FCO_MISSION_DONE: 'Bạn đã nhận thưởng nhiệm vụ này hôm nay.',
   FCO_MISSION_INCOMPLETE: 'Chưa hoàn thành nhiệm vụ.',
+  FCO_MILESTONE_CLAIMED: 'Bạn đã nhận quà mốc này rồi.',
+  FCO_MILESTONE_LOCKED: 'Chưa đủ điểm để nhận quà mốc này.',
+  FCO_MILESTONE_CHOICE: 'Hãy chọn một phần quà.',
   FCO_ADMIN_ONLY: 'Chỉ admin mới dùng được chức năng này.',
   FCO_USER_NOT_FOUND: 'Không tìm thấy tài khoản này.',
   FCO_BAD_AMOUNT: 'Số FC không hợp lệ.',
@@ -37,6 +50,7 @@ export function walletMessage(error: unknown) {
   const text = error instanceof Error ? error.message : typeof error === 'object' && error && 'message' in error ? String((error as { message: unknown }).message) : String(error);
   const code = Object.keys(MESSAGES).find(key => text.includes(key));
   if (code) return MESSAGES[code];
+  if (/PGRST202|Could not find the function/i.test(text)) return 'Máy chủ chưa cài chức năng này (admin cần chạy migration Supabase mới nhất).';
   if (/fetch|network|timeout|abort/i.test(text)) return 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.';
   return 'Máy chủ FC đang lỗi, hãy thử lại sau.';
 }

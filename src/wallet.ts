@@ -2,7 +2,7 @@ import { accountClient } from './account-client';
 import type { EventReward } from './game';
 import type { GiftCode } from './gift-code-rules';
 import { LOGIN_FOR_FC, walletMessage } from './wallet-state';
-import type { AdminStats, AnomalyRow, EventPlayResult, GiftCodeRow, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
+import type { AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, EventPlayResult, GiftCodeRow, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
 export * from './wallet-state';
 
 // Ví FC trên máy chủ (supabase/migrations/202611070001_fco_wallet.sql): số FC, quà ngày, gift code, lượt sự kiện và jackpot
@@ -30,3 +30,6 @@ export const adminAnomalies = () => call<AnomalyRow[]>('fco_admin_anomalies', { 
 export const adminAnomalyReview = (id: number, all = false) => call<AnomalyRow[]>('fco_admin_anomaly_review', { p_id: id, p_all: all });
 export const heartbeat = () => call<null>('fco_heartbeat');
 export const adminStats = (search?: string) => call<AdminStats>('fco_admin_stats', { p_search: search || null, p_limit: 300 });
+export const fetchBilacConfig = () => call<BilacConfig>('fco_bilac_config');
+export const playBilac = (count: number, mode: 'fc' | 'free') => call<BilacResult>('fco_bilac_play', { p_count: count, p_mode: mode });
+export const claimBilac = (index: number, choice: number | null) => call<{ rewards: BilacReward[]; wallet: Wallet }>('fco_bilac_claim', { p_index: index, p_choice: choice });

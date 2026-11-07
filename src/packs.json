@@ -2059,6 +2059,1494 @@
       "range": "124–136",
       "back": "/assets/custom/infinite-prime-back.webp",
       "published": true
+    },
+    {
+      "id": "bl-116-mix",
+      "name": "26UP, UC, SPT, WG 116+ (+2~+4)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "up26",
+        "uc",
+        "spt",
+        "wg"
+      ],
+      "minOvr": 116,
+      "topPrice": null,
+      "levels": [
+        2,
+        4
+      ],
+      "price": 695000,
+      "description": "Gói hỗn hợp 26UP · UC · SPT · WG, cầu thủ OVR từ 116, thẻ +2 đến +4. Quà sự kiện Bi Lắc.",
+      "range": "117–130",
+      "back": "/assets/custom/bl-116-mix-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-117-mix",
+      "name": "26UP, UC, SPT, 26TOTS 117+ (+1~+3)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "up26",
+        "uc",
+        "spt",
+        "stellar"
+      ],
+      "minOvr": 117,
+      "topPrice": null,
+      "levels": [
+        1,
+        3
+      ],
+      "price": 606000,
+      "description": "Gói hỗn hợp 26UP · UC · SPT · 26TOTS, cầu thủ OVR từ 117, thẻ +1 đến +3. Quà sự kiện Bi Lắc.",
+      "range": "117–128",
+      "back": "/assets/custom/bl-117-mix-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-108-lwbbg",
+      "name": "LE, WB, BDO, BLD, GRU 108+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld",
+        "gru"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 35100000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD · GRU, cầu thủ OVR từ 108, thẻ +8. Quà sự kiện Bi Lắc.",
+      "range": "123–134",
+      "back": "/assets/custom/bl-108-lwbbg-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-108-lwb",
+      "name": "LE, WB, BDO 108+ (+7~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        7,
+        8
+      ],
+      "price": 15400000,
+      "description": "Gói hỗn hợp LE · WB · BDO, cầu thủ OVR từ 108, thẻ +7 đến +8. Quà sự kiện Bi Lắc.",
+      "range": "119–134",
+      "back": "/assets/custom/bl-108-lwb-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-108-lwbb",
+      "name": "LE, WB, BDO, BLD 108+ (+7~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        7,
+        8
+      ],
+      "price": 13900000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD, cầu thủ OVR từ 108, thẻ +7 đến +8. Quà sự kiện Bi Lắc.",
+      "range": "119–134",
+      "back": "/assets/custom/bl-108-lwbb-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-tp-60",
+      "name": "BDO, BLD, GRU, CU Top Price 60 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 60,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 137000000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU, 60 cầu thủ giá cao nhất, thẻ +8. Quà sự kiện Bi Lắc.",
+      "range": "128–133",
+      "back": "/assets/custom/bl-tp-60-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-tp-125",
+      "name": "BDO, BLD, GRU, CU Top Price 125 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 125,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 91100000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU, 125 cầu thủ giá cao nhất, thẻ +8. Quà sự kiện Bi Lắc.",
+      "range": "127–133",
+      "back": "/assets/custom/bl-tp-125-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-tp-175",
+      "name": "BDO, BLD, GRU, CU Top Price 175 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 175,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 73400000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU, 175 cầu thủ giá cao nhất, thẻ +8. Quà sự kiện Bi Lắc.",
+      "range": "125–133",
+      "back": "/assets/custom/bl-tp-175-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-tp-200",
+      "name": "BDO, BLD, GRU, CU Top Price 200 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 200,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 65100000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU, 200 cầu thủ giá cao nhất, thẻ +8. Quà sự kiện Bi Lắc.",
+      "range": "125–133",
+      "back": "/assets/custom/bl-tp-200-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-tp-225",
+      "name": "BDO, BLD, GRU, CU Top Price 225 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 225,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 59800000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU, 225 cầu thủ giá cao nhất, thẻ +8. Quà sự kiện Bi Lắc.",
+      "range": "125–133",
+      "back": "/assets/custom/bl-tp-225-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-113-lwbb",
+      "name": "LE, WB, BDO, BLD 113+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 112000000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD, cầu thủ OVR từ 113, thẻ +8. Quà sự kiện Bi Lắc.",
+      "range": "128–134",
+      "back": "/assets/custom/bl-113-lwbb-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-112-lwbb",
+      "name": "LE, WB, BDO, BLD 112+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 91900000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD, cầu thủ OVR từ 112, thẻ +8. Quà sự kiện Bi Lắc.",
+      "range": "127–134",
+      "back": "/assets/custom/bl-112-lwbb-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-111-lwbb",
+      "name": "LE, WB, BDO, BLD 111+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 76700000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD, cầu thủ OVR từ 111, thẻ +8. Quà sự kiện Bi Lắc.",
+      "range": "126–134",
+      "back": "/assets/custom/bl-111-lwbb-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-110-lwbb",
+      "name": "LE, WB, BDO, BLD 110+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 65000000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD, cầu thủ OVR từ 110, thẻ +8. Quà sự kiện Bi Lắc.",
+      "range": "125–134",
+      "back": "/assets/custom/bl-110-lwbb-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "bl-up26-30",
+      "name": "26UP chỉ định 30 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 UP",
+      "seasons": [
+        "up26"
+      ],
+      "minOvr": null,
+      "topPrice": 30,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 55600000,
+      "description": "Gói chỉ định 26UP: tự chọn 1 trong 30 cầu thủ giá cao nhất, thẻ +5. Quà sự kiện Bi Lắc.",
+      "range": "127–131",
+      "back": "/assets/custom/bl-up26-30-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "bl-up26-40",
+      "name": "26UP chỉ định 40 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 UP",
+      "seasons": [
+        "up26"
+      ],
+      "minOvr": null,
+      "topPrice": 40,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 35800000,
+      "description": "Gói chỉ định 26UP: tự chọn 1 trong 40 cầu thủ giá cao nhất, thẻ +5. Quà sự kiện Bi Lắc.",
+      "range": "127–131",
+      "back": "/assets/custom/bl-up26-40-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "bl-up26-50",
+      "name": "26UP chỉ định 50 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 UP",
+      "seasons": [
+        "up26"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 25500000,
+      "description": "Gói chỉ định 26UP: tự chọn 1 trong 50 cầu thủ giá cao nhất, thẻ +5. Quà sự kiện Bi Lắc.",
+      "range": "127–131",
+      "back": "/assets/custom/bl-up26-50-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "bl-up26-60",
+      "name": "26UP chỉ định 60 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 UP",
+      "seasons": [
+        "up26"
+      ],
+      "minOvr": null,
+      "topPrice": 60,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 19500000,
+      "description": "Gói chỉ định 26UP: tự chọn 1 trong 60 cầu thủ giá cao nhất, thẻ +5. Quà sự kiện Bi Lắc.",
+      "range": "127–131",
+      "back": "/assets/custom/bl-up26-60-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "blm-1-1",
+      "name": "26UP, UC, SPT, PTG, WG All (+3~+5)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "up26",
+        "uc",
+        "spt",
+        "ptg",
+        "wg"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        3,
+        5
+      ],
+      "price": 667000,
+      "description": "Gói hỗn hợp 26UP · UC · SPT · PTG · WG, thẻ +3 đến +5. Quà mốc sự kiện Bi Lắc.",
+      "range": "116–132",
+      "back": "/assets/custom/blm-1-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-10-1",
+      "name": "CU, 24EP All (+7~+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ep24"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        7,
+        9
+      ],
+      "price": 8070000,
+      "description": "Gói hỗn hợp CU · 24EP, thẻ +7 đến +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "118–134",
+      "back": "/assets/custom/blm-10-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-25-1",
+      "name": "CU 108+ (+8~+9)",
+      "short": "CU",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        8,
+        9
+      ],
+      "price": 42100000,
+      "description": "Gói CU, cầu thủ OVR từ 108, thẻ +8 đến +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "123–134",
+      "back": "/assets/custom/blm-25-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-35-1",
+      "name": "SPT 116+ (+6)",
+      "short": "SPT",
+      "title": "SPARTAN",
+      "seasons": [
+        "spt"
+      ],
+      "minOvr": 116,
+      "topPrice": null,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 8350000,
+      "description": "Gói SPT, cầu thủ OVR từ 116, thẻ +6. Quà mốc sự kiện Bi Lắc.",
+      "range": "124–133",
+      "back": "/assets/custom/blm-35-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-50-1",
+      "name": "GRU, CU 109+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu"
+      ],
+      "minOvr": 109,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 45200000,
+      "description": "Gói hỗn hợp GRU · CU, cầu thủ OVR từ 109, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "126–134",
+      "back": "/assets/custom/blm-50-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-70-2",
+      "name": "RTN 104+ (+11)",
+      "short": "RTN",
+      "title": "RTN",
+      "seasons": [
+        "rtn"
+      ],
+      "minOvr": 104,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 4160000,
+      "description": "Gói RTN, cầu thủ OVR từ 104, thẻ +11. Quà mốc sự kiện Bi Lắc.",
+      "range": "125–131",
+      "back": "/assets/custom/blm-70-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-70-3",
+      "name": "26TOTS 122+ (+5)",
+      "short": "26TS",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": 122,
+      "topPrice": null,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 10700000,
+      "description": "Gói 26TOTS, cầu thủ OVR từ 122, thẻ +5. Quà mốc sự kiện Bi Lắc.",
+      "range": "128–132",
+      "back": "/assets/custom/blm-70-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-100-1",
+      "name": "FA 101+ (+11~+12)",
+      "short": "FA",
+      "title": "FREE AGENT",
+      "seasons": [
+        "fa"
+      ],
+      "minOvr": 101,
+      "topPrice": null,
+      "levels": [
+        11,
+        12
+      ],
+      "price": 1180000,
+      "description": "Gói FA, cầu thủ OVR từ 101, thẻ +11 đến +12. Quà mốc sự kiện Bi Lắc.",
+      "range": "122–131",
+      "back": "/assets/custom/blm-100-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-100-2",
+      "name": "GRU chỉ định 120 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": null,
+      "topPrice": 120,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 45100000,
+      "description": "Gói chỉ định GRU: tự chọn 1 trong 120 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "126–134",
+      "back": "/assets/custom/blm-100-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "blm-100-3",
+      "name": "MDL 108+ (+10)",
+      "short": "MEDALIST",
+      "title": "MEDALIST",
+      "seasons": [
+        "mdl"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 109000000,
+      "description": "Gói MDL, cầu thủ OVR từ 108, thẻ +10. Quà mốc sự kiện Bi Lắc.",
+      "range": "127–134",
+      "back": "/assets/custom/blm-100-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-125-1",
+      "name": "BOE21 All (+12)",
+      "short": "BOE21",
+      "title": "BEST OF EUROPE 21",
+      "seasons": [
+        "boe21"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 1620000,
+      "description": "Gói BOE21, thẻ +12. Quà mốc sự kiện Bi Lắc.",
+      "range": "123–128",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-125-2",
+      "name": "GRU, CU, 24EP 111+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu",
+        "ep24"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 62200000,
+      "description": "Gói hỗn hợp GRU · CU · 24EP, cầu thủ OVR từ 111, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "128–134",
+      "back": "/assets/custom/blm-125-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-125-3",
+      "name": "No.7 All (+7)",
+      "short": "NO.7",
+      "title": "NUMBER 7",
+      "seasons": [
+        "origin"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        7,
+        7
+      ],
+      "price": 71300000,
+      "description": "Gói No.7, thẻ +7. Quà mốc sự kiện Bi Lắc.",
+      "range": "126–130",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-150-2",
+      "name": "GRU, CU, 24EP, UT Top Price 300 (+9)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "gru",
+        "cu",
+        "ep24",
+        "ut"
+      ],
+      "minOvr": null,
+      "topPrice": 300,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 62000000,
+      "description": "Gói hỗn hợp GRU · CU · 24EP · UT, 300 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "126–134",
+      "back": "/assets/custom/blm-150-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-200-1",
+      "name": "23HW 104+ (+11)",
+      "short": "23HW",
+      "title": "23 HARD WORKER",
+      "seasons": [
+        "hw23"
+      ],
+      "minOvr": 104,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 7920000,
+      "description": "Gói 23HW, cầu thủ OVR từ 104, thẻ +11. Quà mốc sự kiện Bi Lắc.",
+      "range": "125–133",
+      "back": "/assets/custom/blm-200-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-200-2",
+      "name": "UC, SPT, 26TOTS 119+ (+6)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "uc",
+        "spt",
+        "stellar"
+      ],
+      "minOvr": 119,
+      "topPrice": null,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 21500000,
+      "description": "Gói hỗn hợp UC · SPT · 26TOTS, cầu thủ OVR từ 119, thẻ +6. Quà mốc sự kiện Bi Lắc.",
+      "range": "127–134",
+      "back": "/assets/custom/blm-200-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-250-2",
+      "name": "SPL All (+12)",
+      "short": "SPL",
+      "title": "SPOTLIGHT",
+      "seasons": [
+        "spl"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 1770000,
+      "description": "Gói SPL, thẻ +12. Quà mốc sự kiện Bi Lắc.",
+      "range": "125–132",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-250-3",
+      "name": "CU 111+ (+9)",
+      "short": "CU",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 69900000,
+      "description": "Gói CU, cầu thủ OVR từ 111, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "128–134",
+      "back": "/assets/custom/blm-250-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-300-2",
+      "name": "BDO, BLD, GRU, CU, UT Top Price 70 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu",
+        "ut"
+      ],
+      "minOvr": null,
+      "topPrice": 70,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 129000000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU · UT, 70 cầu thủ giá cao nhất, thẻ +8. Quà mốc sự kiện Bi Lắc.",
+      "range": "126–133",
+      "back": "/assets/custom/blm-300-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-350-2",
+      "name": "GRU, CU, UT 112+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu",
+        "ut"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 80900000,
+      "description": "Gói hỗn hợp GRU · CU · UT, cầu thủ OVR từ 112, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "129–134",
+      "back": "/assets/custom/blm-350-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-350-3",
+      "name": "LOL All (+11~+12)",
+      "short": "LOL",
+      "title": "LEGEND OF THE LOAN",
+      "seasons": [
+        "lol"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        11,
+        12
+      ],
+      "price": 1740000,
+      "description": "Gói LOL, thẻ +11 đến +12. Quà mốc sự kiện Bi Lắc.",
+      "range": "120–131",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-400-1",
+      "name": "EBS 103+ (+11~+12)",
+      "short": "EBS",
+      "title": "EUROPEAN BEST STARS",
+      "seasons": [
+        "ebs"
+      ],
+      "minOvr": 103,
+      "topPrice": null,
+      "levels": [
+        11,
+        12
+      ],
+      "price": 5180000,
+      "description": "Gói EBS, cầu thủ OVR từ 103, thẻ +11 đến +12. Quà mốc sự kiện Bi Lắc.",
+      "range": "124–129",
+      "back": "/assets/custom/blm-400-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-400-2",
+      "name": "25HR chỉ định 15 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "25 HEROES",
+      "seasons": [
+        "hr25"
+      ],
+      "minOvr": null,
+      "topPrice": 15,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 154000000,
+      "description": "Gói chỉ định 25HR: tự chọn 1 trong 15 cầu thủ giá cao nhất, thẻ +8. Quà mốc sự kiện Bi Lắc.",
+      "range": "127–133",
+      "back": "/assets/custom/blm-400-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "blm-500-2",
+      "name": "23HW, CC, HG All (+11)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "hw23",
+        "cc",
+        "hg"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 8910000,
+      "description": "Gói hỗn hợp 23HW · CC · HG, thẻ +11. Quà mốc sự kiện Bi Lắc.",
+      "range": "121–134",
+      "back": "/assets/custom/blm-500-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-500-3",
+      "name": "CAP 101+ (+12)",
+      "short": "CAP",
+      "title": "CAPTAIN CLASS",
+      "seasons": [
+        "cap"
+      ],
+      "minOvr": 101,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 2240000,
+      "description": "Gói CAP, cầu thủ OVR từ 101, thẻ +12. Quà mốc sự kiện Bi Lắc.",
+      "range": "126–129",
+      "back": "/assets/custom/blm-500-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-600-1",
+      "name": "UC, SPT, 26TOTS, PTG 120+ (+6)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "uc",
+        "spt",
+        "stellar",
+        "ptg"
+      ],
+      "minOvr": 120,
+      "topPrice": null,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 25200000,
+      "description": "Gói hỗn hợp UC · SPT · 26TOTS · PTG, cầu thủ OVR từ 120, thẻ +6. Quà mốc sự kiện Bi Lắc.",
+      "range": "128–134",
+      "back": "/assets/custom/blm-600-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-600-2",
+      "name": "23HW, CC, HG, RTN 104+ (+11)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "hw23",
+        "cc",
+        "hg",
+        "rtn"
+      ],
+      "minOvr": 104,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 8590000,
+      "description": "Gói hỗn hợp 23HW · CC · HG · RTN, cầu thủ OVR từ 104, thẻ +11. Quà mốc sự kiện Bi Lắc.",
+      "range": "125–134",
+      "back": "/assets/custom/blm-600-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-600-3",
+      "name": "BLD, GRU, CU 113+ (+8~+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        8,
+        9
+      ],
+      "price": 80600000,
+      "description": "Gói hỗn hợp BLD · GRU · CU, cầu thủ OVR từ 113, thẻ +8 đến +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "128–135",
+      "back": "/assets/custom/blm-600-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-700-1",
+      "name": "CU, 24EP 113+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ep24"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 106000000,
+      "description": "Gói hỗn hợp CU · 24EP, cầu thủ OVR từ 113, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "130–134",
+      "back": "/assets/custom/blm-700-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-700-2",
+      "name": "LOL All (+12)",
+      "short": "LOL",
+      "title": "LEGEND OF THE LOAN",
+      "seasons": [
+        "lol"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 2340000,
+      "description": "Gói LOL, thẻ +12. Quà mốc sự kiện Bi Lắc.",
+      "range": "123–131",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-700-3",
+      "name": "GRU, CU, 24EP, UT Top Price 175 (+9)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "gru",
+        "cu",
+        "ep24",
+        "ut"
+      ],
+      "minOvr": null,
+      "topPrice": 175,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 96400000,
+      "description": "Gói hỗn hợp GRU · CU · 24EP · UT, 175 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "126–134",
+      "back": "/assets/custom/blm-700-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-800-1",
+      "name": "25HR All (+10~+11)",
+      "short": "25HR",
+      "title": "25 HEROES",
+      "seasons": [
+        "hr25"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        10,
+        11
+      ],
+      "price": 311000000,
+      "description": "Gói 25HR, thẻ +10 đến +11. Quà mốc sự kiện Bi Lắc.",
+      "range": "131–139",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-800-2",
+      "name": "CU 113+ (+9)",
+      "short": "CU",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 116000000,
+      "description": "Gói CU, cầu thủ OVR từ 113, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "130–134",
+      "back": "/assets/custom/blm-800-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-900-1",
+      "name": "23HW, CC, HG 105+ (+11)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "hw23",
+        "cc",
+        "hg"
+      ],
+      "minOvr": 105,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 11400000,
+      "description": "Gói hỗn hợp 23HW · CC · HG, cầu thủ OVR từ 105, thẻ +11. Quà mốc sự kiện Bi Lắc.",
+      "range": "126–134",
+      "back": "/assets/custom/blm-900-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-900-2",
+      "name": "UC chỉ định 30 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": null,
+      "topPrice": 30,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 38500000,
+      "description": "Gói chỉ định UC: tự chọn 1 trong 30 cầu thủ giá cao nhất, thẻ +5. Quà mốc sự kiện Bi Lắc.",
+      "range": "129–132",
+      "back": "/assets/custom/blm-900-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "blm-900-3",
+      "name": "LE 111+ (+8)",
+      "short": "LE",
+      "title": "LEGEND OF EUROPA",
+      "seasons": [
+        "le"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 111000000,
+      "description": "Gói LE, cầu thủ OVR từ 111, thẻ +8. Quà mốc sự kiện Bi Lắc.",
+      "range": "126–134",
+      "back": "/assets/custom/blm-900-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-950-1",
+      "name": "BLD, GRU, CU, 24EP Top Price 125 (+9)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu",
+        "ep24"
+      ],
+      "minOvr": null,
+      "topPrice": 125,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 126000000,
+      "description": "Gói hỗn hợp BLD · GRU · CU · 24EP, 125 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "126–135",
+      "back": "/assets/custom/blm-950-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-950-3",
+      "name": "CC 102+ (+11)",
+      "short": "CC",
+      "title": "CC",
+      "seasons": [
+        "cc"
+      ],
+      "minOvr": 102,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 20000000,
+      "description": "Gói CC, cầu thủ OVR từ 102, thẻ +11. Quà mốc sự kiện Bi Lắc.",
+      "range": "123–134",
+      "back": "/assets/custom/blm-950-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-1050-1",
+      "name": "UT, MDL, DC, JNM Top Price 100 (+10)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "ut",
+        "mdl",
+        "dc",
+        "jnm"
+      ],
+      "minOvr": null,
+      "topPrice": 100,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 61400000,
+      "description": "Gói hỗn hợp UT · MDL · DC · JNM, 100 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Bi Lắc.",
+      "range": "125–134",
+      "back": "/assets/custom/blm-1050-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-1050-2",
+      "name": "WB 110+ (+8)",
+      "short": "WB",
+      "title": "WONDERBOYS",
+      "seasons": [
+        "wb"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 49600000,
+      "description": "Gói WB, cầu thủ OVR từ 110, thẻ +8. Quà mốc sự kiện Bi Lắc.",
+      "range": "125–134",
+      "back": "/assets/custom/blm-1050-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-1050-3",
+      "name": "23HW, FCA, CC Top Price 200 (+11)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "hw23",
+        "amb",
+        "cc"
+      ],
+      "minOvr": null,
+      "topPrice": 200,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 24300000,
+      "description": "Gói hỗn hợp 23HW · FCA · CC, 200 cầu thủ giá cao nhất, thẻ +11. Quà mốc sự kiện Bi Lắc.",
+      "range": "121–134",
+      "back": "/assets/custom/blm-1050-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-1150-1",
+      "name": "BLD, GRU, CU 113+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 109000000,
+      "description": "Gói hỗn hợp BLD · GRU · CU, cầu thủ OVR từ 113, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "130–135",
+      "back": "/assets/custom/blm-1150-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-1150-2",
+      "name": "CC, HG, RTN, SPL Top Price 175 (+11)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "cc",
+        "hg",
+        "rtn",
+        "spl"
+      ],
+      "minOvr": null,
+      "topPrice": 175,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 13000000,
+      "description": "Gói hỗn hợp CC · HG · RTN · SPL, 175 cầu thủ giá cao nhất, thẻ +11. Quà mốc sự kiện Bi Lắc.",
+      "range": "120–134",
+      "back": "/assets/custom/blm-1150-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-1150-3",
+      "name": "GRU chỉ định 50 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 91700000,
+      "description": "Gói chỉ định GRU: tự chọn 1 trong 50 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "127–134",
+      "back": "/assets/custom/blm-1150-3-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "blm-1250-1",
+      "name": "LE chỉ định 70 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "LEGEND OF EUROPA",
+      "seasons": [
+        "le"
+      ],
+      "minOvr": null,
+      "topPrice": 70,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 203000000,
+      "description": "Gói chỉ định LE: tự chọn 1 trong 70 cầu thủ giá cao nhất, thẻ +8. Quà mốc sự kiện Bi Lắc.",
+      "range": "127–134",
+      "back": "/assets/custom/blm-1250-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "blm-1250-2",
+      "name": "WB chỉ định 70 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WONDERBOYS",
+      "seasons": [
+        "wb"
+      ],
+      "minOvr": null,
+      "topPrice": 70,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 97200000,
+      "description": "Gói chỉ định WB: tự chọn 1 trong 70 cầu thủ giá cao nhất, thẻ +8. Quà mốc sự kiện Bi Lắc.",
+      "range": "121–134",
+      "back": "/assets/custom/blm-1250-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "blm-1250-3",
+      "name": "23HW, CC 107+ (+11)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "hw23",
+        "cc"
+      ],
+      "minOvr": 107,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 17500000,
+      "description": "Gói hỗn hợp 23HW · CC, cầu thủ OVR từ 107, thẻ +11. Quà mốc sự kiện Bi Lắc.",
+      "range": "128–134",
+      "back": "/assets/custom/blm-1250-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "blm-1250-4",
+      "name": "CU chỉ định 70 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 70,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 148000000,
+      "description": "Gói chỉ định CU: tự chọn 1 trong 70 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Bi Lắc.",
+      "range": "127–134",
+      "back": "/assets/custom/blm-1250-4-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
     }
   ]
 }

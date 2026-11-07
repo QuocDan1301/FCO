@@ -39,4 +39,5 @@ test('Thông báo lỗi máy chủ bằng tiếng Việt', () => {
   assert.equal(walletMessage(new Error('FCO_NOT_ENOUGH_FC')), 'Không đủ FC.');
   assert.equal(walletMessage({ message: 'FCO_GIFT_USED' }), 'Bạn đã dùng gift code này rồi.');
   assert.match(walletMessage(new Error('TypeError: Failed to fetch')), /kết nối/);
+  assert.match(walletMessage({ message: 'Could not find the function public.fco_bilac_config without parameters', code: 'PGRST202' }), /migration/);
 });

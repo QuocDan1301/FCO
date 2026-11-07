@@ -1,0 +1,311 @@
+/* Sự kiện Bi Lắc (BilacPage.tsx): bàn bi lắc khung kim loại xanh, viền neon, sân cỏ; bảng quà bên phải. */
+.main-content>.workspace.bilac-page{display:flex;flex-direction:column;gap:0;width:100%;max-width:none;height:100%;margin:0;padding:0;container-type:inline-size;background:#e6e1da;min-height:0;overflow-y:auto;overflow-x:hidden;color:#eaf2ff;font-family:var(--display);scrollbar-width:none}
+/* Ẩn thanh cuộn (vẫn cuộn bằng chuột / vuốt xuống Quà tích lũy). */
+.main-content>.workspace.bilac-page::-webkit-scrollbar{display:none}
+/* Phần trên (bàn + bảng quà) chiếm trọn một màn; cuộn xuống là quà tích lũy (.bl-ms). */
+.bl-top{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,1fr);gap:16px;flex:0 0 100%;min-height:0}
+.bilac-page{--bl-neon:#29e3ff;--bl-neon2:#7c5cff;--bl-gold:#ffd166;--bl-panel:#0c1526}
+.bl-stage{display:flex;flex-direction:column;gap:10px;min-height:0}
+.bl-pot{display:flex;align-items:center;justify-content:center;gap:14px;padding:8px 16px;border:1px solid #29e3ff55;border-radius:12px;background:linear-gradient(90deg,#0b1e3a,#1b1150);box-shadow:0 0 18px #29e3ff33 inset}
+.bl-pot-label{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--bl-gold)}
+.bl-pot b{font-size:clamp(20px,2.4vw,30px);font-weight:900;color:#fff;text-shadow:0 0 12px #29e3ffaa}
+.bl-pot small{font-size:12px;color:#aebdcc}
+
+/* Bàn bi lắc = ảnh public/assets/bilac/table-2.webp (1546×938, bàn canh giữa; đổi tên khi thay ảnh vì service worker giữ bản cũ). .bl-board giữ đúng tỉ lệ ảnh, rộng bằng 1,56 lần
+   cỡ vừa khung cũ, dính mép trên khung và tràn xuống/sang hai bên dưới các khung chữ; % vị trí trong bàn khớp với ảnh.
+   Quỹ Giải Đặc Biệt nằm trong vòm vàng; 5 ô đích nằm trên thành sau của bàn (giữa mép vàng và thanh đầu tiên). Cỡ chữ/ô theo cqw của bàn. */
+.bl-table{position:relative;flex:1;min-height:200px;container-type:size}
+.bl-board{position:absolute;left:50%;top:0;width:calc(1.56 * min(100cqw, 100cqh * 1546 / 1088));aspect-ratio:1546/938;transform:translateX(-50%);container-type:inline-size;background:url(/assets/bilac/table-2.webp) center / 100% 100% no-repeat;filter:drop-shadow(0 10px 18px #0007)}
+.bl-controls,.bl-sidecol{position:relative;z-index:5}
+.bl-board .bl-pot{position:absolute;left:50%;top:.8%;z-index:5;width:30%;transform:translateX(-50%);flex-direction:column;gap:.1cqw;padding:.55cqw 1.4cqw;border:.25cqw solid #fff3dc;border-radius:1.6cqw;background:linear-gradient(180deg,#a9773b,#6b4214 55%,#4a2c0b);box-shadow:0 .5cqw 1.4cqw #0008,inset 0 .2cqw 0 #ffffff55}
+.bl-board .bl-pot-label{font-size:2.2cqw;line-height:1.15;font-weight:900;letter-spacing:.02em;color:#fff;text-shadow:0 .2cqw .4cqw #0007}
+.bl-board .bl-pot b{display:inline-flex;align-items:center;gap:.8cqw;font-size:2cqw;line-height:1.15;color:#fff;text-shadow:0 .2cqw .4cqw #0007}
+.bl-board .bl-pot b img{width:2.3cqw;height:2.3cqw;object-fit:contain}
+.bl-board .bl-pot small{font-size:1.05cqw;line-height:1.2;color:#f3dcb4}
+.bl-pockets{position:absolute;left:0;right:0;top:20.3%;height:0;z-index:3}
+.bl-pocket{position:absolute;top:0;display:grid;place-items:center;width:4.6cqw;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:none;border:0;box-shadow:0 .3cqw .7cqw #0007;transition:box-shadow .25s}
+.bl-pocket.is-lit{box-shadow:0 0 1.6cqw var(--bl-neon),0 0 .5cqw #fff}
+.bl-pocket .bl-sym{width:100%}
+.bl-pocket em{position:absolute;right:-6px;bottom:-6px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--bl-gold);color:#1a1200;font-size:12px;font-style:normal;font-weight:900}
+.bl-kicker{position:absolute;left:50%;top:66%;width:12px;height:12px;border-radius:50%;transform:translate(-50%,-50%);background:#fff;box-shadow:0 0 10px #fff,0 0 20px var(--bl-neon);opacity:.8}
+.bl-ball{position:absolute;z-index:4;width:clamp(12px,1.4vw,18px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#d8e2ee 55%,#8d9bb0);box-shadow:0 0 12px #fff,0 0 22px var(--bl-neon);pointer-events:none}
+
+.bl-sym{display:inline-grid;place-items:center;flex:none;border-radius:50%;background:radial-gradient(circle at 50% 35%,#24385c,#0c1526);border:2px solid #4c6a99;color:#fff}
+.bl-sym.md{width:70%;aspect-ratio:1}
+.bl-sym.sm{width:26px;height:26px}
+.bl-sym img{width:70%;height:70%;object-fit:contain}
+.bl-sym svg{width:58%;height:58%}
+.bl-sym-special{border-color:var(--bl-gold);background:radial-gradient(circle at 50% 35%,#5a3d00,#1a1100);color:var(--bl-gold)}
+.bl-sym-club{color:#9fd3ff}
+.bl-sym-any b{font-size:15px;color:#ffb3c7}
+.bl-sym.has-img{background:none;border:0}
+.bl-sym.has-img img{width:100%;height:100%;object-fit:contain}
+.bl-card-glyph{display:block;width:44%;height:62%;border-radius:3px;background:linear-gradient(160deg,#ffcf6b,#e08a12);box-shadow:0 0 0 1px #fff6}
+
+/* Arial chỉ có 400/700: đậm hơn 700 trình duyệt đổi sang Arial Black (khác font), nên chữ trong các khung này dùng tối đa 700.
+   Khung nâu viền trắng: 2 ô người trúng giải (.bl-feed trải vào lưới .bl-info) + ô FC / Tổng điểm. */
+.bl-info{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr);gap:clamp(8px,1.6vw,22px);position:relative;z-index:5}
+.bl-feed{display:contents}
+.bl-feed p,.bl-stats{display:flex;align-items:center;gap:10px;margin:0;min-height:56px;padding:6px 12px;border:2px solid #fff6e6;border-radius:8px;background:linear-gradient(180deg,#8d6430,#5c3a12 75%);box-shadow:0 0 0 1px #3f6fd0aa,0 3px 8px #0006;color:#fff;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.3}
+.bl-feed p svg{flex:none;width:30px;height:30px;color:#f6c66a;filter:drop-shadow(0 1px 1px #0008)}
+.bl-feed p b{font-weight:700;color:#fff}
+.bl-feed p.mine{border-color:var(--bl-gold)}
+.bl-feed p.hint{color:#f3dcb4}
+.bl-stats{flex-wrap:wrap;justify-content:space-around;align-content:center;gap:6px 10px;padding:6px clamp(8px,1vw,14px)}
+.bl-stats-fc{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:700;white-space:nowrap;text-shadow:0 1px 2px #0007}
+.bl-refresh{display:grid;place-items:center;flex:none;width:26px;height:26px;padding:0;border:1px solid #fff6;border-radius:50%;background:#ffffff1a;color:#fff;cursor:pointer;transition:background .15s,transform .15s}
+.bl-refresh:hover:not(:disabled){background:#ffffff33;transform:scale(1.08)}
+.bl-refresh:focus-visible{outline:2px solid #ffe39e;outline-offset:2px}
+.bl-refresh:disabled{cursor:default;opacity:.7}
+.bl-refresh svg{width:16px;height:16px}
+.bl-refresh.is-spin svg{animation:bl-spin .8s linear infinite}
+@keyframes bl-spin{to{transform:rotate(360deg)}}
+.bl-stats-pts{flex:none;padding:6px clamp(10px,1.2vw,20px);border-radius:999px;background:linear-gradient(180deg,#fff0bf,#ffd977);box-shadow:inset 0 -2px 0 #d9a83d,0 1px 3px #0005;color:#2a1a05;font-size:14px;font-weight:700;white-space:nowrap}
+.bl-controls{display:flex;flex-direction:column;gap:8px}
+.bl-effects{padding:4px 10px;border:1px solid #3b5682;border-radius:6px;background:none;color:#c8d6ea;font-size:12px;cursor:pointer}
+.bl-effects.off{border-color:#ff8fa3;color:#ff8fa3}
+/* Nút chơi: miễn phí (cam, viền xanh nhạt) bên trái cao 2 hàng; 1 lần (xanh lá) + 10 lần (đỏ) hàng trên, 50 lần (vàng) giữa hàng dưới.
+   Mỗi nút: nền bóng nổi, viền sáng, phát sáng cùng màu; số FC trắng đậm, số lần nhỏ màu sẫm cùng tông. */
+.bl-buttons{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1fr) minmax(0,1fr);gap:12px 16px;align-items:center}
+.bl-play{--glow:#fff8;display:flex;flex-direction:row;align-items:baseline;justify-content:center;gap:5px;min-height:48px;padding:8px 12px;border:2px solid #fff9;border-radius:10px;color:#fff;font-family:inherit;font-size:15px;font-weight:900;text-transform:uppercase;letter-spacing:.01em;text-shadow:0 1px 2px #0006;cursor:pointer;
+  box-shadow:0 0 10px var(--glow),0 0 2px var(--glow),inset 0 2px 0 #ffffff80,inset 0 -3px 0 #0000002e;transition:filter .15s,transform .1s}
+.bl-play b{font-size:20px;font-weight:900}
+.bl-play small{font-size:12px;font-weight:900;text-shadow:none;opacity:1}
+.bl-play:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
+.bl-play:active:not(:disabled){transform:translateY(1px)}
+.bl-play.free{grid-column:1;grid-row:1 / 3;align-self:end;min-height:58px;align-items:center;border-color:#fff;background:linear-gradient(180deg,#e3893a,#b9621f 60%,#9a4c14);box-shadow:0 0 0 2px #8fd0ff,0 0 12px #8fd0ffaa,inset 0 2px 0 #ffffff66,inset 0 -3px 0 #0000003a}
+.bl-play.p1{grid-column:2;grid-row:1;--glow:#7dff7d;border-color:#c8ffbf;background:linear-gradient(180deg,#86f283,#45c444 55%,#2fa532)}.bl-play.p1 small{color:#0f5014}
+.bl-play.p10{grid-column:3;grid-row:1;--glow:#ff7a72;border-color:#ffc9c4;background:linear-gradient(180deg,#ff8f88,#e24c45 55%,#c9332d)}.bl-play.p10 small{color:#5e0f0b}
+.bl-play.p50{--glow:#ffd75a;border-color:#fff1b8;background:linear-gradient(180deg,#ffdb7c,#f0b53a 55%,#d99a1f);grid-column:2 / 4;grid-row:2;justify-self:center;width:calc(50% - 8px)}.bl-play.p50 small{color:#6b4300}
+.bl-play:disabled{filter:grayscale(.7);opacity:.55;cursor:not-allowed}
+.bl-play:focus-visible,.bl-side button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+
+.bl-side{display:flex;flex-direction:column;gap:8px;min-height:0;overflow-y:auto;padding:12px;border-radius:16px;background:var(--bl-panel);border:1px solid #23324d;scrollbar-width:thin}
+.bl-side h2{margin:4px 0 0;font-size:16px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--bl-gold)}
+.bl-error{margin:0;color:#ff9aa2;font-size:13px}
+.bl-rows{display:flex;flex-direction:column;gap:5px;margin:0;padding:0;list-style:none}
+.bl-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:5px 8px;border:1px solid #23324d;border-radius:10px;background:#101b30;transition:border-color .2s,box-shadow .2s}
+.bl-row.is-hit{border-color:var(--bl-gold);box-shadow:0 0 12px #ffd16677}
+.bl-combo{display:inline-flex;align-items:center;gap:3px;min-width:96px}
+.bl-combo b{font-size:12px;color:#c8d6ea}
+.bl-rewards{display:flex;flex-wrap:wrap;gap:4px;min-width:0}
+.bl-points{display:flex;flex-direction:column;align-items:center;min-width:42px;padding:2px 6px;border-radius:8px;background:#1b2a46;font-size:15px;font-weight:900;color:#7ff0ad;line-height:1}
+.bl-points small{font-size:10px;font-weight:600;color:#aebdcc}
+.bl-chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:2px 6px;border-radius:6px;background:#17243d;border:1px solid #2c3d5e;font-size:11px;font-weight:700;white-space:nowrap}
+.bl-chip img{width:14px;height:14px;object-fit:contain}
+.bl-chip.pack img{width:16px;height:22px}
+.bl-chip.pack em{overflow:hidden;max-width:120px;font-style:normal;text-overflow:ellipsis}
+.bl-chip.fc{color:#7ff0ad}
+.bl-chip.bp{color:#ffd166}
+.bl-chip.jackpot{color:#1a1200;background:linear-gradient(90deg,#ffd166,#ff9f1c);border-color:#ffd166}
+.bl-progress{height:8px;border-radius:4px;background:#17243d;overflow:hidden}
+.bl-progress i{display:block;height:100%;background:linear-gradient(90deg,#29e3ff,#7c5cff)}
+.bl-milestones{display:flex;flex-direction:column;gap:5px;margin:0;padding:0;list-style:none}
+.bl-milestones li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:5px 8px;border:1px solid #23324d;border-radius:10px;background:#101b30}
+.bl-milestones li.is-ready{border-color:#7ff0ad}
+.bl-milestones li.is-claimed{opacity:.55}
+.bl-ms-points{display:flex;flex-direction:column;align-items:center;min-width:44px;font-size:15px;font-weight:900;color:#fff;line-height:1}
+.bl-ms-points small{font-size:10px;color:#aebdcc}
+.bl-milestones button{display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:0 12px;border:0;border-radius:8px;background:#22d37a;color:#062b14;font-family:inherit;font-weight:800;cursor:pointer}
+.bl-milestones button:disabled{background:#2c3d5e;color:#aebdcc;cursor:default}
+
+.bl-result{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px;background:#000a}
+.bl-result>div{position:relative;display:flex;flex-direction:column;align-items:center;gap:12px;width:min(460px,100%);max-height:calc(100dvh - 32px);overflow-y:auto;padding:22px 20px;border-radius:16px;background:linear-gradient(180deg,#14213b,#0a1222);border:1px solid #29e3ff66;box-shadow:0 0 30px #29e3ff44}
+.bl-result h3{margin:0;font-size:20px;color:var(--bl-gold)}
+.bl-result p{margin:0;font-size:14px;color:#c8d6ea}
+.bl-result .icon-button{position:absolute;top:8px;right:8px}
+.bl-result-list{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+.bl-result-list .bl-chip{font-size:13px;padding:4px 8px}
+.bl-result-list .bl-chip.pack em{max-width:200px}
+
+@media (max-width:1100px){.bl-top{grid-template-columns:minmax(0,1.2fr) minmax(280px,1fr)}}
+@media (max-width:1200px) and (orientation:landscape) and (max-height:500px){
+  .bl-top{gap:8px}
+  .bl-pot{padding:4px 10px}.bl-pot b{font-size:18px}
+  .bl-feed{display:none}.bl-info{grid-template-columns:1fr}.bl-feed p,.bl-stats{min-height:0;padding:3px 8px}
+  .bl-play{min-height:40px}.bl-play b{font-size:14px}
+  .bl-side{padding:8px}.bl-side h2{font-size:13px}
+}
+@media (max-width:700px) and (orientation:portrait){.bl-top{grid-template-columns:1fr;flex-basis:auto}.bl-table{min-height:280px}}
+
+/* Ô gói thu gọn (bảng quà, quà mốc): chỉ ảnh gói; tên hiện trong khung nhỏ khi trỏ chuột, chạm hoặc Tab. */
+.bl-chip.pack.compact{position:relative;padding:2px;cursor:help}
+.bl-chip.pack.compact img{width:32px;height:48px;object-fit:contain}
+.bl-chip.pack.compact::after,.bl-bp-card.compact::after{content:attr(data-name);position:absolute;left:50%;bottom:calc(100% + 6px);z-index:20;transform:translateX(-50%);width:max-content;max-width:220px;padding:5px 8px;border-radius:6px;background:#050a14;border:1px solid #29e3ff88;box-shadow:0 4px 14px #000a;color:#fff;font-size:12px;font-weight:700;line-height:1.3;white-space:normal;text-align:center;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .12s}
+.bl-chip.pack.compact:hover::after,.bl-chip.pack.compact:focus::after,.bl-chip.pack.compact:focus-visible::after,.bl-bp-card.compact:hover::after,.bl-bp-card.compact:focus::after{opacity:1;visibility:visible}
+.bl-chip.pack.compact:focus-visible{outline:2px solid #29e3ff;outline-offset:1px}
+.bl-chip.pack.compact:hover,.bl-chip.pack.compact:focus{border-color:#29e3ff}
+
+/* Thẻ BP (bp-card.webp): số BP chữ trắng trên góc tam giác tối dưới phải; cỡ thu gọn bằng ô gói. */
+.bl-bp-card{position:relative;display:inline-block;flex:none;width:72px;border-radius:5px;box-shadow:0 2px 6px #0008}
+.bl-bp-card img{display:block;width:100%;aspect-ratio:142/226;border-radius:5px}
+.bl-bp-card b{position:absolute;right:7%;bottom:5%;font-size:15px;font-weight:900;line-height:1;color:#fff;letter-spacing:-.02em;text-shadow:0 0 2px #10141c,0 0 2px #10141c,0 1px 2px #000}
+.bl-bp-card.compact{width:34px;border-radius:3px;cursor:help}
+.bl-bp-card.compact img{border-radius:3px}
+.bl-bp-card.compact b{right:4%;bottom:3%;font-size:9px;letter-spacing:-.05em}
+.bl-bp-card.compact:hover,.bl-bp-card.compact:focus{outline:1px solid #29e3ff}
+
+/* Quà tích lũy (giống Nâng Cấp Siêu Sao, tông xanh ngọc + vàng): điểm và vòng, hàng mốc 1 quà, lưới mốc chọn 1 trong 3. */
+.bl-ms{display:flex;flex-direction:column;align-items:center;gap:18px;padding:26px clamp(12px,3vw,40px) 40px;border-radius:22px;background:radial-gradient(ellipse at 50% 0%,#0f3a4a 0,#0a1424 62%);border:1px solid #1f4f63;box-shadow:inset 0 0 40px #00000080}
+.bl-ms-title{margin:0;font-size:clamp(26px,3.4vw,44px);font-weight:900;letter-spacing:.06em;text-transform:uppercase;background:linear-gradient(180deg,#fff6d0,#ffd166 55%,#e39b1c);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 6px #000a)}
+.bl-ms-sub{margin:-6px 0 0;max-width:760px;font-size:14px;line-height:1.5;text-align:center;color:#c8d6ea}
+.bl-ms-score{display:flex;align-items:center;gap:24px;padding:12px 22px;border-radius:14px;background:#06101e;border:2px solid #29e3ff66;box-shadow:0 0 18px #29e3ff33}
+.bl-ms-score b{font-size:clamp(16px,1.8vw,22px);font-weight:900;color:#ffd166;white-space:nowrap}
+.bl-ms-score span{font-size:13px;line-height:1.5;color:#c8d6ea}
+.bl-ms-top{display:flex;flex-wrap:wrap;justify-content:space-around;gap:18px;width:100%;padding:24px 18px;border-radius:30px;background:linear-gradient(90deg,#0b3b4f,#155e75 50%,#0b3b4f);border:4px solid #06202c;box-shadow:0 0 0 2px #29e3ff55,0 8px 24px #0008}
+.bl-ms-single{display:flex;flex-direction:column;align-items:center;gap:12px;padding:0;border:0;background:none;color:#fff;font-family:inherit;cursor:pointer}
+.bl-ms-single:disabled{cursor:default}
+.bl-ms-label{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:170px;min-height:52px;padding:6px 14px;border:2px solid #5fd8f0;border-radius:8px 18px 8px 18px;background:linear-gradient(180deg,#0c2d40,#071a28);font-family:inherit;color:#fff}
+.bl-ms-label b{font-size:18px;font-weight:900;text-transform:uppercase;color:#fff4d0;white-space:nowrap}
+.bl-ms-label small{font-size:11px;font-weight:800;text-transform:uppercase;color:#bfefff}
+.bl-ms-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px 24px;width:100%}
+.bl-ms-pick{display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 10px;border-radius:18px;background:#0b1a2c;border:1px solid #1f3c55}
+.bl-ms-pick:last-child:nth-child(3n + 1){grid-column:2}
+.bl-ms-options{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.bl-ms-pick .bl-ms-label{width:100%;cursor:pointer;transition:transform .15s,filter .15s}
+.bl-ms-pick .bl-ms-label:hover{transform:translateY(-2px);filter:brightness(1.15)}
+.bl-bundle{display:inline-flex;align-items:flex-end;gap:3px;padding:4px;border-radius:8px;background:#ffffff0a}
+.bl-ms .bl-chip.pack.compact img{width:44px;height:66px}
+.bl-ms .bl-bp-card.compact{width:46px}
+.bl-ms .bl-bp-card.compact b{font-size:11px}
+.bl-ms-single.ready .bl-bundle,.bl-ms-pick.ready .bl-bundle{box-shadow:0 0 14px #ffd16688;background:#ffd16614}
+.bl-ms-single.ready .bl-ms-label,.bl-ms-pick.ready .bl-ms-label{border-color:#ffd166;box-shadow:0 0 0 2px #06101e,0 0 16px #ffb43a}
+.bl-ms-single.done .bl-bundle,.bl-ms-pick.done .bl-bundle{filter:grayscale(.7) brightness(.6)}
+.bl-pick{width:min(860px,96vw) !important}
+.bl-pick-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;width:100%}
+.bl-pick-item{display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:12px;padding:12px;border-radius:12px;background:#0b1a2c;border:1px solid #1f3c55}
+.bl-pick-item .primary-button:disabled{filter:grayscale(1);opacity:.55;cursor:not-allowed}
+@media (max-width:900px){.bl-ms-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bl-ms-pick:last-child:nth-child(3n + 1){grid-column:auto}}
+@media (max-width:1200px) and (orientation:landscape) and (max-height:500px){.bl-ms-score{flex-direction:column;gap:4px;text-align:center}}
+
+/* Bảng quà cố định trong một màn cùng bàn bi lắc: các hàng chia đều chiều cao khung, không có thanh cuộn riêng;
+   ảnh gói / thẻ BP / biểu tượng co theo chiều cao hàng (container query, 100cqh = chiều cao hàng). */
+.bl-side{overflow:hidden}
+.bl-rowlist{flex:1 1 0;min-height:0}
+.bl-rowlist .bl-row{flex:1 1 0;min-height:0;container-type:size;padding-block:2px}
+.bl-rowlist .bl-row.grp{margin-top:5px}
+.bl-rowlist .bl-rewards{flex-wrap:nowrap;align-items:center}
+.bl-rowlist .bl-sym.sm{width:min(26px,100cqh);height:min(26px,100cqh)}
+.bl-rowlist .bl-chip.pack.compact{padding:1px}
+.bl-rowlist .bl-chip.pack.compact img{width:auto;height:min(48px,100cqh - 4px);aspect-ratio:2/3}
+.bl-rowlist .bl-bp-card.compact{width:calc(min(50px,100cqh - 2px) * 142 / 226)}
+.bl-rowlist .bl-bp-card.compact b{font-size:clamp(6px,22cqh,9px)}
+.bl-rowlist .bl-chip{font-size:clamp(9px,30cqh,11px)}
+.bl-rowlist .bl-points{font-size:clamp(10px,40cqh,15px)}
+.bl-rowlist .bl-points small{font-size:clamp(7px,24cqh,10px)}
+@media (max-width:700px) and (orientation:portrait){.bl-side{overflow:visible}.bl-rowlist .bl-row{flex:none;height:56px}}
+/* Điện thoại ngang: bớt viền / chữ phụ để ảnh gói trong bảng quà to nhất có thể. */
+@media (max-width:1200px) and (orientation:landscape) and (max-height:500px){
+  .bl-table{min-height:120px}
+  .bl-side{gap:4px;padding:6px}.bl-side h2{margin:0;font-size:12px}
+  .bl-rowlist{gap:3px}.bl-rowlist .bl-row{padding:0 6px;gap:6px;border-radius:7px}.bl-rowlist .bl-row.grp{margin-top:3px}
+  .bl-rowlist .bl-combo{min-width:78px;gap:2px}.bl-rowlist .bl-combo b{font-size:10px}
+  .bl-rowlist .bl-points{flex-direction:row;align-items:baseline;gap:2px;min-width:30px;padding:1px 4px}.bl-rowlist .bl-points small{display:none}
+  .bl-rowlist .bl-chip{padding:1px 4px}
+}
+
+/* Nền sự kiện (public/assets/bilac): bg-1 sân cẩm thạch phủ màn đầu; bg-2 rồi bg-3 nối tiếp dưới Quà tích lũy,
+   cùng rộng bằng trang (bg-2 cao 1226/1920 = 63.85cqw nên bg-3 bắt đầu ở 63.85cqw); phần còn lại tô màu mép dưới bg-3. */
+.bl-top{padding:10px max(12px,calc((100% - 1400px) / 2));background:url(/assets/bilac/bg-1.webp) center bottom / cover no-repeat}
+.bl-ms{border:0;border-radius:0;box-shadow:none;padding:clamp(40px,7cqw,110px) max(12px,calc((100% - 1400px) / 2 + 40px)) 60px;
+  background:url(/assets/bilac/bg-2.webp) center top / 100% auto no-repeat,url(/assets/bilac/bg-3.webp) center 63.85cqw / 100% auto no-repeat,linear-gradient(90deg,#eddbc1,#e5e0da 30% 70%,#eddbc1)}
+.bl-ms-title{background:linear-gradient(180deg,#d6a43a,#9a6514 60%,#6a4207);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 1px 0 #fff9)}
+.bl-ms-sub{color:#5b4630;font-weight:600}
+/* Chữ nằm trên nền cẩm thạch sáng: đặt trong khung tối để đọc được. */
+.bl-effects{background:#0c1526e0}
+@media (max-width:1200px) and (orientation:landscape) and (max-height:500px){.bl-top{padding:3px 5px}.bl-ms{padding:clamp(28px,7cqw,60px) 10px 24px}}
+
+/* Cột phải: logo Bi Lắc FCO (public/assets/bilac/logo.webp) trên khung "Danh sách quà" nâu viền cam phát sáng.
+   Mỗi hàng: ô + xN (chữ trắng) | quà trong viên thuốc nâu viền vàng phát sáng | ô "Điểm +N" cam viền trắng. */
+.bl-sidecol{display:flex;flex-direction:column;align-items:stretch;gap:4px;min-height:0}
+.bl-logo{flex:none;align-self:center;height:clamp(56px,16vh,150px);width:auto;max-width:85%;object-fit:contain;filter:drop-shadow(0 4px 8px #0006)}
+.bl-side{flex:1 1 0;padding:10px 14px 14px;border:5px solid #d98d2c;border-radius:18px;background:linear-gradient(180deg,#8f6c40,#6e4d25 35%,#523716);box-shadow:0 0 16px #ffae4a99,inset 0 0 0 1px #ffe0a655,inset 0 0 24px #0005}
+.bl-side h2{margin:2px 0 4px;text-align:center;font-size:clamp(18px,2.2vw,30px);font-weight:900;letter-spacing:.04em;color:#fff;text-shadow:0 2px 4px #0008}
+.bl-row,.bl-rowlist .bl-row{gap:10px;padding:2px 0;border:0;border-radius:0;background:none}
+.bl-rowlist .bl-row.grp{margin-top:10px}
+.bl-combo{gap:5px;min-width:0}
+.bl-row.triple .bl-combo{min-width:80px}
+.bl-combo b{font-size:16px;font-weight:900;color:#fff;text-shadow:0 1px 2px #0008}
+.bl-rowlist .bl-sym.sm{width:min(38px,100cqh);height:min(38px,100cqh)}
+.bl-sym-any{background:radial-gradient(circle at 50% 38%,#8e2a1d,#4c0d07);border:2px solid #fff}
+.bl-sym-any b{font-size:clamp(11px,50cqh,18px);font-weight:900;color:#fff}
+.bl-rewards,.bl-rowlist .bl-rewards{align-self:stretch;justify-content:space-around;align-items:center;gap:4px;padding:2px 12px;border:2px solid #ffe3a3;border-radius:999px;background:linear-gradient(180deg,#5d3d16,#4a2f0f);box-shadow:0 0 8px #ffc65a,inset 0 0 6px #0006}
+.bl-row.is-hit .bl-rewards{border-color:#fff;box-shadow:0 0 16px #fff2b0,0 0 6px #ffc65a,inset 0 0 6px #0006}
+.bl-points,.bl-rowlist .bl-points{flex-direction:column;justify-content:center;min-width:52px;padding:3px 6px;border:2px solid #fff;border-radius:9px;background:linear-gradient(180deg,#d77a2c,#a64813);box-shadow:0 2px 4px #0006;color:#fff;font-weight:900;line-height:1.05;text-shadow:0 1px 2px #0007}
+.bl-points small,.bl-rowlist .bl-points small{font-size:inherit;font-weight:800;color:#fff}
+.bl-rowlist .bl-chip.jackpot{gap:8px;padding:0;border:0;background:none;color:#fff;font-size:clamp(10px,38cqh,16px);font-weight:900;text-transform:uppercase;text-shadow:0 1px 2px #0008}
+.bl-chip.jackpot .bl-jp-icon{width:22px;height:22px}
+.bl-rowlist .bl-chip.jackpot .bl-jp-icon{width:min(32px,100cqh - 6px);height:min(32px,100cqh - 6px)}
+.bl-rowlist .bl-chip.fc{border:0;background:none;color:#cfffe0}
+@media (max-width:1200px) and (orientation:landscape) and (max-height:500px){
+  .bl-logo{height:clamp(30px,12vh,56px)}
+  .bl-side{padding:4px 6px 6px;border-width:3px}.bl-side h2{font-size:13px;margin:0}
+  .bl-rowlist .bl-row.grp{margin-top:4px}.bl-combo b{font-size:11px}.bl-row.triple .bl-combo{min-width:54px}
+  .bl-rewards,.bl-rowlist .bl-rewards{padding:1px 6px}
+  .bl-points,.bl-rowlist .bl-points{min-width:30px;padding:1px 4px;border-width:1px}
+}
+
+/* Thẻ gói FC (cùng khung thẻ BP, ảnh 257×417). */
+.bl-fc-card img{aspect-ratio:257/417}
+.bl-fc-card b{right:5%;bottom:6%}
+/* Danh sách quà gọn: khung hẹp lại, quà dồn giữa viên thuốc, gói/thẻ to hơn. */
+.bl-sidecol{width:100%;max-width:540px;justify-self:center}
+.bl-logo{height:clamp(48px,13vh,128px)}
+.bl-side{padding:8px 12px 12px}
+.bl-side h2{margin:0 0 4px}
+.bl-rowlist{gap:4px}
+.bl-rowlist .bl-row{gap:8px;padding:1px 0}
+.bl-rowlist .bl-row.grp{margin-top:8px}
+.bl-rewards,.bl-rowlist .bl-rewards{justify-content:center;gap:clamp(4px,.8vw,10px);padding:1px 14px}
+.bl-rowlist .bl-chip.pack.compact img{height:min(60px,100cqh - 4px)}
+.bl-rowlist .bl-bp-card.compact{width:calc(min(60px,100cqh - 4px) * 142 / 226)}
+.bl-rowlist .bl-fc-card.compact{width:calc(min(60px,100cqh - 4px) * 257 / 417)}
+.bl-rowlist .bl-bp-card.compact b{font-size:clamp(6px,20cqh,10px)}
+.bl-points,.bl-rowlist .bl-points{min-width:48px}
+.bl-rowlist .bl-rewards>*{flex-shrink:0}
+.bl-rowlist .bl-row.mixed .bl-rewards{gap:2px;padding-inline:8px}
+.bl-rowlist .bl-row.mixed .bl-chip.pack.compact{padding:0}
+.bl-rowlist .bl-row.mixed .bl-chip.pack.compact img{height:min(52px,100cqh - 4px)}
+
+/* Cầu thủ bi lắc (public/assets/bilac/man-*.png): đứng trước thanh, thanh ngang eo (giữa hình); mỗi thanh trượt chậm qua lại
+   liên tục, lệch nhịp nhau như đang chơi. */
+.bl-men{position:absolute;height:0;z-index:2;animation:bl-slide 3.6s ease-in-out infinite alternate;will-change:transform}
+.bl-men.r0{animation-duration:3.2s;animation-delay:-1.1s}
+.bl-men.r1{animation-duration:4.1s;animation-delay:-2.7s}
+.bl-men.r2{animation-duration:3.7s;animation-delay:-.4s}
+.bl-men.r3{animation-duration:4.6s;animation-delay:-3.3s}
+@keyframes bl-slide{from{transform:translateX(-7%)}to{transform:translateX(7%)}}
+.bl-fig{position:absolute;top:0;width:auto;transform:translate(-50%,-50%);filter:drop-shadow(0 .4cqw .4cqw #0005);pointer-events:none;user-select:none}
+@media (prefers-reduced-motion:reduce){.bl-men{animation:none}}
+
+/* Ô quà vừa trúng trong Danh sách quà: viền vàng sáng nhấp nháy, phóng nhẹ. */
+.bl-prize{position:relative;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:6px;transition:transform .2s}
+.bl-prize.is-won{z-index:2;transform:scale(1.15);animation:bl-won 1s ease-in-out infinite alternate}
+@keyframes bl-won{from{box-shadow:0 0 0 3px #ffe58a,0 0 12px 4px #ffd166;filter:brightness(1.05)}to{box-shadow:0 0 0 3px #fff,0 0 26px 10px #ffc83d;filter:brightness(1.25)}}
+.bl-rowlist .bl-chip.jackpot{border-radius:999px}
+.bl-prize.is-won .bl-chip.jackpot{padding:2px 10px;background:#ffd16633}
+@media (prefers-reduced-motion:reduce){.bl-prize.is-won{animation:none;box-shadow:0 0 0 2px #fff,0 0 14px 4px #ffd166}}
+/* Nút Tắt/Bật hiệu ứng nằm góc trên cột trái của cụm nút chơi, phía trên nút Chơi miễn phí (không chiếm hàng riêng). */
+.bl-buttons .bl-effects{grid-column:1;grid-row:1;justify-self:start;align-self:start}
+
+/* Logo Bi Lắc: nhấp nhô nhẹ, viền vàng sáng mờ theo nhịp, vệt sáng lướt qua chữ (::after cắt theo hình logo bằng mask). */
+.bl-logo{position:relative;display:block;aspect-ratio:877/282;animation:bl-logo-float 3.4s ease-in-out infinite}
+.bl-logo img{display:block;width:100%;height:100%;object-fit:contain;animation:bl-logo-glow 2.2s ease-in-out infinite alternate}
+.bl-logo::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 40%,#fffbe6cc 50%,transparent 60%) no-repeat;background-size:300% 100%;
+  -webkit-mask:url(/assets/bilac/logo.webp) center / contain no-repeat;mask:url(/assets/bilac/logo.webp) center / contain no-repeat;animation:bl-logo-shine 4s ease-in-out infinite}
+@keyframes bl-logo-float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-5px) scale(1.02)}}
+@keyframes bl-logo-glow{from{filter:drop-shadow(0 4px 8px #0006) drop-shadow(0 0 4px #ffd16644)}to{filter:drop-shadow(0 4px 8px #0006) drop-shadow(0 0 14px #ffd166bb)}}
+@keyframes bl-logo-shine{0%{background-position:100% 0}55%,100%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){.bl-logo,.bl-logo img,.bl-logo::after{animation:none}.bl-logo::after{display:none}}
+
+/* 5 nút ô đích trên bàn: bỏ nền/bóng tròn quanh nút, nút to hơn ~20% (3.9cqw, trước là 70% của 4.6cqw) và phập phồng to nhỏ liên tục, lệch nhịp nhau.
+   Khi bóng vào ô: nút sáng xanh bằng drop-shadow theo đúng hình nút. */
+.bl-pocket{width:3.9cqw;box-shadow:none;background:none;transition:filter .25s}
+.bl-pocket .bl-sym.md{width:100%;background:none;border:0;animation:bl-pulse 1.6s ease-in-out infinite}
+.bl-pocket:nth-child(2) .bl-sym{animation-delay:-.3s}
+.bl-pocket:nth-child(3) .bl-sym{animation-delay:-.6s}
+.bl-pocket:nth-child(4) .bl-sym{animation-delay:-.9s}
+.bl-pocket:nth-child(5) .bl-sym{animation-delay:-1.2s}
+@keyframes bl-pulse{0%,100%{transform:scale(.92)}50%{transform:scale(1.08)}}
+.bl-pocket.is-lit{box-shadow:none;filter:drop-shadow(0 0 .5cqw #fff) drop-shadow(0 0 1.2cqw var(--bl-neon))}
+@media (prefers-reduced-motion:reduce){.bl-pocket .bl-sym.md{animation:none}}

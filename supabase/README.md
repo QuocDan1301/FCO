@@ -4,7 +4,7 @@ Game dùng tên đăng nhập/mật khẩu qua Supabase Auth và bảng `public.
 
 ## Khởi tạo dự án
 
-1. Trong SQL Editor của dự án Supabase, chạy lần lượt `migrations/202610300001_fco_accounts.sql`, `migrations/202610300002_delete_own_account.sql` và `migrations/202611070001_fco_wallet.sql` `migrations/202611070002_fco_save_audit.sql` `migrations/202611070003_fco_stats.sql` và `migrations/202611070004_fco_checkin.sql` một lần. Migration tạo bảng mới và hàm ghi có kiểm tra phiên bản; không thay đổi các bảng có sẵn.
+1. Trong SQL Editor của dự án Supabase, chạy lần lượt `migrations/202610300001_fco_accounts.sql`, `migrations/202610300002_delete_own_account.sql` và `migrations/202611070001_fco_wallet.sql` `migrations/202611070002_fco_save_audit.sql` `migrations/202611070003_fco_stats.sql` `migrations/202611070004_fco_checkin.sql` `migrations/202611070005_fco_bilac.sql` `migrations/202611070006_fco_bilac_prizes.sql` `migrations/202611070007_fco_bilac_milestones.sql` và `migrations/202611070008_fco_checkin_fc.sql` một lần. Migration tạo bảng mới và hàm ghi có kiểm tra phiên bản; không thay đổi các bảng có sẵn.
 2. Bật Email provider trong Authentication. Bản thử hiện tắt Confirm email theo lựa chọn của chủ dự án: người chơi đăng ký xong vào game ngay, email chưa được xác minh. Khi dùng chính thức, cấu hình SMTP riêng rồi bật lại Confirm email. Giao diện yêu cầu mật khẩu tối thiểu 8 ký tự.
 3. Đặt Site URL thành URL game GitHub Pages. Thêm URL game và `http://127.0.0.1:5173/FCO/` vào Redirect URLs nếu cần thử trên máy phát triển. Liên kết xác nhận email quay về game để người chơi đăng nhập.
 4. `.env` chỉ chứa Project URL và Publishable key công khai dùng trong trình duyệt. Không đưa secret key hoặc `service_role` vào các biến `VITE_*`. Có thể ghi đè cấu hình bằng `.env.local` trên máy phát triển.
@@ -42,7 +42,18 @@ Theo dõi bất thường (`202611070002_fco_save_audit.sql`): mỗi lần đồ
 
 Thống kê (`202611070003_fco_stats.sql`): game đã đăng nhập gọi `fco_heartbeat` mỗi phút khi tab đang hiện; máy chủ cộng giờ chơi (tối đa 90 giây mỗi lần) vào `fco_presence` và `fco_play_days`. Quản trị FC → Thống kê hiện số tài khoản, đang online (2 phút), giờ chơi, FC nạp (lý do `admin` trong sổ cái) theo ngày và theo từng tài khoản. Khách không được tính.
 
-Điểm danh 7 ngày (`202611070004_fco_checkin.sql`): cùng nút Nhận của Quà mỗi ngày (vẫn +1.000 FC). Ngày 1: 300 FC, 2: 500 FC, 3: gói ICONTM (ALL), 4: 700 FC, 5: 900 FC, 6: gói PRIME All, 7: gói INFINITE PRIME All; bỏ lỡ một ngày hoặc đủ 7 ngày thì về ngày 1. Máy chủ giữ chuỗi và cộng FC (sổ cái `checkin`); gói do trình duyệt thêm theo `src/checkin.ts` (đổi quà thì sửa cả hai).
+Điểm danh 7 ngày (`202611070004_fco_checkin.sql`): cùng nút Nhận của Quà mỗi ngày (vẫn +1.000 FC). Từ `202611070008_fco_checkin_fc.sql`: ngày 1: 200 FC, 2: 400 FC, 3: 700 FC, 4: 1.000 FC, 5: 1.300 FC, 6: 1.600 FC, 7: 2.000 FC (trước là 300 / 500 / gói / 700 / 900 / gói / gói); bỏ lỡ một ngày hoặc đủ 7 ngày thì về ngày 1. Máy chủ giữ chuỗi và cộng FC (sổ cái `checkin`); gói do trình duyệt thêm theo `src/checkin.ts` (đổi quà thì sửa cả hai).
+
+Sự kiện Bi Lắc (`202611070005_fco_bilac.sql`): mỗi lượt đá 3 bóng vào 5 ô (CLB, FC, Special, BP, Thẻ); 3 giống → hàng x3, 2 giống → hàng x2, khác nhau → hàng mixed; nhận ngẫu nhiên 1 quà của hàng và cộng điểm; điểm mở quà mốc. Special x3 / x2 = Giải Đặc Biệt / Giải Phụ (1/10) từ quỹ chung `fco_jackpot`. Giá 1 / 10 / 50 lượt = 20 / 190 / 900 FC, 1 lượt miễn phí mỗi ngày.
+Sửa quà / tỷ lệ / quà mốc bằng SQL (không cần build lại), ví dụ:
+```sql
+update public.fco_bilac_symbols set weight = 5 where id = 'special';            -- tỷ lệ mỗi quả bóng vào ô
+update public.fco_bilac_rows set points = 5, rewards = '[{"fc":3000},{"bp":400000000},{"pack":"eternal","count":1}]' where id = 'fc3';
+update public.fco_bilac_milestones set points = 30, options = '[[{"pack":"prime-2","count":1},{"bp":800000}]]' where idx = 1;
+```
+Quà mốc (`202611070007_fco_bilac_milestones.sql`, lấy từ `quamocbilac.xlsx`): 23 mốc 1…1.250 điểm; mỗi mốc có `options` (danh sách lựa chọn, mỗi lựa chọn là một bộ quà) — mốc có nhiều lựa chọn thì người chơi chọn 1. Mốc `once = true` (mốc 1 điểm) chỉ nhận 1 lần; các mốc khác được nhận thêm 1 lần cho mỗi 1.250 điểm (= điểm mốc cao nhất). `fco_wallets.bilac_claimed` lưu số lần đã nhận của từng mốc; hàm `fco_bilac_claim(p_index, p_choice)` kiểm tra mốc, lựa chọn và số lần, cộng phần FC (sổ cái `bilac_milestone`). Gói quà mốc là các gói `blm-*` (eventOnly) trong `src/packs.json`; 25VB được thay bằng gói VIETNAM, 24HR bằng 25HR.
+
+Mã gói phải có trong `src/packs.json` (đang bán hoặc gói sự kiện); gói không có thì người chơi không nhận được. Bật / tắt sự kiện bằng `EVENT_BILAC_ENABLED` trong `src/config.ts`.
 
 Chỉ FC được bảo vệ. BP, thẻ và gói trong kho vẫn tính ở trình duyệt và nằm trong bản lưu, nên người rành kỹ thuật vẫn sửa được; muốn chặn cần chuyển việc mở gói / nâng cấp lên máy chủ.
 

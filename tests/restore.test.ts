@@ -19,15 +19,11 @@ const mate = (target: Card, level: number, ok: (diff: number) => boolean) => {
   throw new Error(`Không có phôi cùng mùa +${level} phù hợp`);
 };
 
-test('Bậc phôi: bản sao, cùng mùa, cùng cầu thủ khác mùa (bỏ dấu, chữ viết tắt một bên), phôi thường', () => {
+test('Bậc phôi: chỉ bản sao (cùng cầu thủ, cùng mùa); khác cầu thủ hoặc khác mùa là phôi thường', () => {
   assert.equal(fodderTier({ playerId: 8 }, { playerId: 8 }), 'clone');
-  assert.equal(fodderTier({ playerId: 8 }, { playerId: 1 }), 'season', 'Hai thẻ ICON khác cầu thủ');
-  assert.equal(fodderTier({ playerId: 8 }, { playerId: 221 }), 'player', 'D. Beckham ICON và NO7');
-  assert.equal(fodderTier({ playerId: 107 }, { playerId: 230 }), 'player', 'Butragueño = E. Butragueño');
-  assert.equal(fodderTier({ playerId: 324 }, { playerId: 423 }), 'player', 'Nguyễn Quang Hải PRIME và PRM');
-  const gerd = players.find(p => p.name === 'G. Müller')!, thomas = players.find(p => p.name === 'T. Müller')!;
-  assert.equal(fodderTier({ playerId: gerd.id }, { playerId: thomas.id }), 'normal', 'Khác chữ viết tắt, khác mùa');
-  assert.equal(fodderTier({ playerId: 8 }, { playerId: 324 }), 'normal');
+  assert.equal(fodderTier({ playerId: 8 }, { playerId: 1 }), 'normal', 'Hai thẻ ICON khác cầu thủ');
+  assert.equal(fodderTier({ playerId: 8 }, { playerId: 221 }), 'normal', 'D. Beckham ICON và NO7 (khác mùa)');
+  assert.equal(fodderTier({ playerId: 324 }, { playerId: 423 }), 'normal', 'Nguyễn Quang Hải PRIME và PRM');
 });
 
 test('Bản sao: bằng / cao hơn cấp 100%, thấp hơn 1 cấp 85% (giữ nguyên cấp); +3 trở lên 50%, +1/+2 20% (giữ +5)', () => {
@@ -40,27 +36,15 @@ test('Bản sao: bằng / cao hơn cấp 100%, thấp hơn 1 cấp 85% (giữ ng
   assert.deepEqual(fodderRestore(at(8, 5), at(8, 4)), { tier: 'clone', power: .85, floor: 5 });
 });
 
-test('Cùng mùa: phôi từ +5 OVR không thấp hơn quá 3 → 100% (giữ cấp phôi), yếu hơn giảm dần tới 35%; +4 OVR không thấp hơn → 40%', () => {
-  const target = at(8, 7);
-  assert.deepEqual(fodderRestore(target, mate(target, 6, d => d >= -3)), { tier: 'season', power: 1, floor: 6 });
-  assert.equal(fodderRestore(target, mate(target, 9, d => d >= -3)).floor, 7, 'Giữ tối đa bằng cấp thẻ chính');
-  const weak = mate(target, 5, d => d < -3 && d > -8), diff = ovr(weak) - ovr(target);
-  assert.equal(fodderRestore(target, weak).power, Math.pow(.82, -diff - 2));
-  assert.equal(fodderRestore(target, mate(target, 5, d => d <= -8)).power, .35, 'Tối thiểu 35%');
-  const five = at(8, 5);
-  assert.deepEqual(fodderRestore(five, mate(five, 4, d => d >= 0)), { tier: 'season', power: .4, floor: 5 });
-  assert.equal(fodderRestore(five, mate(five, 4, d => d < 0)).power, 0);
-  assert.equal(fodderRestore(five, mate(five, 3, () => true)).power, 0, 'Phôi cùng mùa dưới +4 không tính');
-});
-
-test('Cùng cầu thủ khác mùa: phôi từ +5 OVR không thấp hơn quá 2 → 65%, giữ +5', () => {
-  const target = at(8, 5), strong = at(221, 13);
-  assert.ok(ovr(strong) - ovr(target) >= -2);
-  assert.deepEqual(fodderRestore(target, strong), { tier: 'player', power: .65, floor: 5 });
-  const high = at(8, 12), weak = at(221, 5);
-  assert.ok(ovr(weak) - ovr(high) < -2);
-  assert.equal(fodderRestore(high, weak).power, 0, 'OVR thấp hơn quá 2 không tính');
-  assert.equal(fodderRestore(target, at(221, 4)).power, 0, 'Phôi dưới +5 không tính');
+test('Phôi cùng mùa khác cầu thủ và cùng cầu thủ khác mùa: không có khôi phục (0%)', () => {
+  for (const target of [at(8, 5), at(8, 7), at(8, 12)]) {
+    for (const level of [4, 5, 9, 13]) {
+      assert.deepEqual(fodderRestore(target, mate(target, level, () => true)), { tier: 'normal', power: 0, floor: 1 }, `cùng mùa +${level}`);
+      assert.deepEqual(fodderRestore(target, at(221, level)), { tier: 'normal', power: 0, floor: 1 }, `cùng cầu thủ khác mùa +${level}`);
+    }
+  }
+  assert.deepEqual(evaluateRestore(at(8, 7), [mate(at(8, 7), 13, () => true), at(221, 13)]), { chance: 0, floor: 1, tier: 'normal' });
+  assert.deepEqual(evaluateRestore(at(8, 7), [at(221, 13), at(8, 3)]), { chance: 50, floor: 5, tier: 'clone' }, 'Chỉ bản sao được tính');
 });
 
 test('Tổng hợp: cộng dồn tối đa 100%, giữ mức cao nhất của phôi có đóng góp; chỉ thẻ +5 … +12', () => {
