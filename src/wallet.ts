@@ -2,7 +2,7 @@ import { accountClient } from './account-client';
 import type { EventReward } from './game';
 import type { GiftCode } from './gift-code-rules';
 import { LOGIN_FOR_FC, walletMessage } from './wallet-state';
-import type { AnomalyRow, EventPlayResult, GiftCodeRow, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
+import type { AdminStats, AnomalyRow, EventPlayResult, GiftCodeRow, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
 export * from './wallet-state';
 
 // Ví FC trên máy chủ (supabase/migrations/202611070001_fco_wallet.sql): số FC, quà ngày, gift code, lượt sự kiện và jackpot
@@ -28,3 +28,5 @@ export const adminGiftSave = (code: GiftCode) => call<GiftCodeRow[]>('fco_admin_
 export const adminGiftDelete = (hash: string) => call<GiftCodeRow[]>('fco_admin_gift_delete', { p_hash: hash });
 export const adminAnomalies = () => call<AnomalyRow[]>('fco_admin_anomalies', { p_limit: 200, p_include_reviewed: false });
 export const adminAnomalyReview = (id: number, all = false) => call<AnomalyRow[]>('fco_admin_anomaly_review', { p_id: id, p_all: all });
+export const heartbeat = () => call<null>('fco_heartbeat');
+export const adminStats = (search?: string) => call<AdminStats>('fco_admin_stats', { p_search: search || null, p_limit: 300 });

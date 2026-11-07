@@ -10,6 +10,10 @@ export type EventPlayResult = { hits: { level: number; jar: number }[]; paid: nu
 export type LedgerRow = { time: number; login: string; delta: number; balance: number; reason: string; note: string | null; admin: boolean };
 export type GiftCodeRow = { hash: string; hint: string; rewards: EventReward[]; expires: string | null; created: string; used: number };
 export type AnomalyRow = { id: number; time: number; login: string; flags: string[]; bpBefore: number | null; bpAfter: number; cardsBefore: number | null; cardsAfter: number; packsBefore: number | null; packsAfter: number; history: string[]; reviewed: boolean };
+export type StatsSummary = { registered: number; registeredToday: number; registered7: number; online: number; activeToday: number; active7: number; playSecondsToday: number; playSeconds7: number; playSecondsAll: number; topupFcToday: number; topupFc7: number; topupFc30: number; topupFcAll: number; payers: number };
+export type StatsDay = { day: string; active: number; seconds: number; topupFc: number; registered: number };
+export type StatsPlayer = { login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; playSecondsToday: number; topupFc: number; fc: number };
+export type AdminStats = { summary: StatsSummary; days: StatsDay[]; players: StatsPlayer[]; now: number };
 export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 
 const MESSAGES: Record<string, string> = {

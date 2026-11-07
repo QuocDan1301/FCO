@@ -131,3 +131,20 @@
 @media(max-width:700px){.pa-body{grid-template-columns:1fr}.pa-body>.pa-list{flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line)}}
 .pa-anomalies{grid-column:2/-1;max-width:900px}
 .pa-anomaly-actions{display:flex;gap:4px;flex:none}
+.pa-stats{grid-column:2/-1;max-width:1100px}
+.pa-stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.pa-stat-grid>div{display:flex;flex-direction:column;gap:3px;padding:12px 14px;border:1px solid #2c3644;border-radius:8px;background:#0f141c}
+.pa-stat-grid small{font-size:12px;color:var(--muted)}
+.pa-stat-grid b{font-size:24px;font-weight:700;color:#f0f1f3}
+.pa-stat-grid span{font-size:12px;color:#aebdcc}
+.pa-stat-grid .is-live b{color:#3ddc7a}
+.pa-stat-days h3{margin:6px 0;font-size:14px}
+.pa-stats table{width:100%;border-collapse:collapse;font-size:13px}
+.pa-stats th,.pa-stats td{padding:6px 8px;border-bottom:1px solid #222b37;text-align:left;white-space:nowrap}
+.pa-stats th{font-size:12px;font-weight:600;color:var(--muted)}
+.pa-stats td small{color:var(--muted)}
+.pa-stat-days td:nth-child(3){position:relative;min-width:140px}
+.pa-stat-bar{position:absolute;left:0;top:20%;bottom:20%;background:#3ddc7a22;border-radius:2px;z-index:0}
+.pa-stat-players{overflow-x:auto}
+.pa-narrow-sort{flex:0 0 160px !important}
+.pa-dot{display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%;background:#3ddc7a;vertical-align:middle}

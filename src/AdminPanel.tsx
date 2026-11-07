@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Coins, Gift, RotateCcw, ShieldAlert, X } from 'lucide-react';
+import { BarChart3, Coins, Gift, RotateCcw, ShieldAlert, X } from 'lucide-react';
 import { money, packs } from './game';
 import GiftCodeAdmin from './admin/GiftCodeAdmin';
 import Anomalies from './Anomalies';
+import Stats from './Stats';
 import { adminCredit, adminLedger } from './wallet';
 import type { LedgerRow } from './wallet';
 import './admin/pack-admin.css';
@@ -62,7 +63,7 @@ function CreditFc() {
 }
 
 export default function AdminPanel({ onClose }: { onClose: () => void }) {
-  const [tab, setTab] = useState<'fc' | 'gift' | 'audit'>('fc');
+  const [tab, setTab] = useState<'stats' | 'fc' | 'gift' | 'audit'>('stats');
   useEffect(() => { const key = (event: KeyboardEvent) => event.key === 'Escape' && onClose(); addEventListener('keydown', key); return () => removeEventListener('keydown', key); }, [onClose]);
   return <div className="pack-admin" role="dialog" aria-modal="true" aria-label="Quản trị FC">
     <header className="pa-header">
@@ -71,11 +72,12 @@ export default function AdminPanel({ onClose }: { onClose: () => void }) {
     </header>
     <div className="pa-body">
       <aside className="pa-list" aria-label="Mục quản trị">
+        <button className="pa-new pa-gift-nav" onClick={() => setTab('stats')} aria-pressed={tab === 'stats'}><BarChart3 size={16}/>Thống kê</button>
         <button className="pa-new pa-gift-nav" onClick={() => setTab('fc')} aria-pressed={tab === 'fc'}><Coins size={16}/>Nạp FC</button>
         <button className="pa-new pa-gift-nav" onClick={() => setTab('gift')} aria-pressed={tab === 'gift'}><Gift size={16}/>Gift code</button>
         <button className="pa-new pa-gift-nav" onClick={() => setTab('audit')} aria-pressed={tab === 'audit'}><ShieldAlert size={16}/>Bất thường</button>
       </aside>
-      {tab === 'fc' ? <CreditFc/> : tab === 'audit' ? <Anomalies/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
+      {tab === 'stats' ? <Stats/> : tab === 'fc' ? <CreditFc/> : tab === 'audit' ? <Anomalies/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
     </div>
   </div>;
 }

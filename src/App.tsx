@@ -10,7 +10,7 @@ import './upgrade-bridge.css';
 import './daily-gift.css';
 import TopUp from './TopUp';
 import { applyGiftRewards, prepareGiftCode } from './gift-codes';
-import { LOGIN_FOR_FC, applyWallet, claimDailyFc, claimMissionFc, fetchJackpot, fetchWallet, playEventFc, redeemGiftHash, spendFc } from './wallet';
+import { LOGIN_FOR_FC, applyWallet, claimDailyFc, claimMissionFc, fetchJackpot, fetchWallet, heartbeat, playEventFc, redeemGiftHash, spendFc } from './wallet';
 import AdminPanel from './AdminPanel';
 import UpgradeConfirm from './UpgradeConfirm';
 import ReadyTunnel from './ReadyTunnel';
@@ -676,6 +676,15 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     const visible = () => { if (document.visibilityState === 'visible') void refreshWallet(); };
     document.addEventListener('visibilitychange', visible);
     return () => document.removeEventListener('visibilitychange', visible);
+  }, [online]);
+  // Thống kê cho admin (online, giờ chơi): báo máy chủ mỗi phút khi tab game đang hiện; máy chủ tự tính giờ chơi (tối đa 90 giây mỗi lần).
+  useEffect(() => {
+    if (!online) return;
+    const beat = () => { if (document.visibilityState === 'visible') void heartbeat().catch(() => { /* Lỗi mạng: lần sau gửi lại. */ }); };
+    beat();
+    const id = setInterval(beat, 60_000);
+    document.addEventListener('visibilitychange', beat);
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', beat); };
   }, [online]);
   const resetFilters = () => { setQuery(''); setPosition(''); setSeason(''); setLevel(''); setMinOvr(''); setSort('ovr'); };
 
