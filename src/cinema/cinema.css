@@ -226,7 +226,8 @@
 .reveal-again.reveal-many { background: #1de07f; color: #06210f; }
 .reveal-again.reveal-many:hover:not(:disabled) { background: #4cf09b; } .reveal-done:hover { background: #4cf09b; }
 .reveal-stage .opening-batch { margin-top: 6vh; margin-bottom: 90px; }
-@media (max-width: 900px) {
+/* Màn kết quả: điện thoại cầm ngang (≤ 500 px cao) dùng bố cục màn rộng (reveal-layout.css), không dùng khối màn hẹp này. */
+@media (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px) {
   .reveal-title { top: -50px; right: 120px; left: 16px; font-size: 16px; }
   .reveal-count { right: 16px; }
   .reveal-scene { height: auto; margin-top: 70px; display: flex; flex-direction: column; align-items: center; gap: 14px; padding-bottom: 150px; perspective: none; }
@@ -242,7 +243,7 @@
 }
 .reveal-card { --rw: clamp(230px, 25vw, 420px); width: var(--rw); margin-left: calc(var(--rw) / -2); top: 2%; }
 .reveal-podium { bottom: 19%; }
-@media (max-width: 900px) { .reveal-card { --rw: min(240px, 62vw); margin-left: 0; } }
+@media (max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px) { .reveal-card { --rw: min(240px, 62vw); margin-left: 0; } }
 
 @keyframes opening-information-fade { 0% { opacity: 0; transform: translateY(10px) scale(.95); } 30% { opacity: 1; transform: none; } 70% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-6px) scale(1.03); } }
 .opening-information { animation-timing-function: ease-in-out; animation-fill-mode: both; }

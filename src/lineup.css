@@ -134,3 +134,17 @@
   .lu-detail-face{display:block;width:84px}
   .lu-detail{grid-template-columns:minmax(0,1fr) auto}
 }
+
+/* Điện thoại (cùng điều kiện phone.css): sân thấp nên hai nút Làm trống / Tối ưu ĐH đè lên hàng hậu vệ (RCB, RB…).
+   Đưa hai nút ra ngay dưới sân, cùng hàng chữ hướng dẫn (chữ bên trái một dòng, nút bên phải), thu nhỏ cho vừa. */
+@media (max-width:640px),(max-width:1200px) and (orientation:landscape) and (max-height:500px){
+  .lu-pitch-actions{top:calc(100% + 12px);bottom:auto;right:0;gap:6px}
+  .lu-pitch-actions button{height:26px;padding:0 9px;gap:4px;font-size:12px}
+  .lu-pitch-actions button svg{width:13px;height:13px}
+  .lu-hint{display:block;height:30px;margin-top:12px;padding-right:200px;font-size:11px;line-height:30px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  /* Dành chiều cao cho sân: Team color một dòng (dài thì cắt …), bớt khoảng trống trên sân. */
+  .lu-colors{flex-wrap:nowrap;min-width:0;overflow:hidden;margin-top:4px}
+  .lu-colors>small{flex:none;white-space:nowrap}
+  .lu-colors-none{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .lu-pitch{margin-top:4px}
+}

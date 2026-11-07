@@ -41,7 +41,7 @@
 .reveal-screen-bezel path{fill:none;stroke:url(#rsSilver);stroke-width:8px;vector-effect:non-scaling-stroke;filter:drop-shadow(0 0 6px #ffffff66) drop-shadow(0 4px 10px #0009)}
 /* Nội dung hai cánh: trái = logo (mép ngoài) + OVR lớn lệch về phía thẻ, 6 chỉ số ở nửa dưới; phải = OVR + giá phía trong, logo sát mép ngoài.
    Cỡ chữ / logo theo chiều cao chính màn LED (cqh) nên luôn vừa màn ở mọi cỡ màn hình. */
-@media(min-width:901px){
+@media(min-width:901px),(max-width:1200px) and (orientation:landscape) and (max-height:500px){
 .opening-result .reveal-screen .reveal-panel{position:absolute;top:11%;bottom:9%;height:auto;width:31%;display:grid;grid-template-columns:auto 1fr;align-content:space-between;gap:3cqh clamp(10px,1.4vw,24px);padding:0;background:none;border:0;border-radius:0;box-shadow:none;color:#fff;text-shadow:0 3px 10px #000a}
 .opening-result .reveal-screen .reveal-panel-left{left:4%;grid-template-rows:auto 41cqh;grid-template-areas:"logo ovr" "stats stats";transform:perspective(1100px) rotateY(16deg);transform-origin:left center}
 .opening-result .reveal-screen .reveal-panel-right{right:4%;grid-template-columns:1fr auto;grid-template-rows:auto 41cqh;grid-template-areas:"ovr logo" "price logo";transform:perspective(1100px) rotateY(-16deg);transform-origin:right center}
@@ -105,4 +105,4 @@
 .opening-reduced .rs-firework{opacity:.75;transform:none}
 @media(prefers-reduced-motion:reduce){.rs-firework,.rs-sparkles,.rp-ring{animation:none!important}.rs-firework{opacity:.75}}
 /* Màn hẹp: bỏ mặt màn cong, hai cánh trở về bố cục cũ (thẻ thông số xếp dọc); mặt sân bám đáy khung. */
-@media(max-width:900px){.reveal-screen{display:contents}.reveal-screen-face,.reveal-screen-bezel,.reveal-ground,.reveal-jets{display:none}}
+@media(max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px){.reveal-screen{display:contents}.reveal-screen-face,.reveal-screen-bezel,.reveal-ground,.reveal-jets{display:none}}

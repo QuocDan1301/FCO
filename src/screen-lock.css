@@ -1,0 +1,12 @@
+/* Khoá giao diện như ứng dụng (2026-11-07, nạp sau cùng):
+   - Zoom: chặn chụm 2 ngón và chạm đúp phóng to ở mọi màn (vẫn vuốt cuộn được danh sách). iOS Safari bỏ qua user-scalable=no
+     nên main.tsx chặn thêm sự kiện gesturestart / gesturechange.
+   - Cuộn: khung nội dung chính (.main-content) không cuộn ở mọi màn; danh sách bên trong (kho, đội hình, shop…) vẫn tự cuộn.
+     Bi Lắc cuộn trong trang của nó (.bilac-page) nên không bị khoá.
+   TẠM giữ cuộn cho Trang chủ, TTCN: ở điện thoại cầm ngang hai màn này còn dài hơn màn hình
+   (đo 844×390: 152 / 272px), khoá lúc này sẽ mất nội dung — bỏ ngoại lệ khi đã thiết kế lại cho vừa.
+   Nâng cấp thẻ đã thiết kế lại cho vừa (landscape.css) nên đã khoá. */
+html,body{overscroll-behavior:none}
+html{touch-action:pan-x pan-y}
+.main-content{overflow:hidden;overscroll-behavior:none}
+.main-content.view-packs,.main-content.view-market{overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain}

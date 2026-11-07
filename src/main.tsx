@@ -55,6 +55,10 @@ import './tickbox.css';
 import './responsive.css';
 // Điện thoại cầm ngang: nạp sau cùng.
 import './landscape.css';
+import './screen-lock.css';
+
+// Khoá phóng to bằng 2 ngón trên iOS (Safari bỏ qua user-scalable=no); xem screen-lock.css.
+for (const type of ['gesturestart', 'gesturechange']) document.addEventListener(type, event => event.preventDefault(), { passive: false });
 const startup = document.getElementById('startup')!;
 const status = document.getElementById('boot-status')!;
 const progress = document.getElementById('boot-progress')!;

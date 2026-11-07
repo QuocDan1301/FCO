@@ -181,7 +181,8 @@ html,body,#root{height:100%;overflow:hidden}
 .opening-batch-grid>.viewport-page-items>div>b{font-size:10px;color:#9eb0be;margin-top:4px}
 .opening-batch-grid>.viewport-page-items>div>small{font-size:10px;color:#ecd195;margin-top:4px}
 .opening-finished .reveal-back{flex-shrink:0;min-height:30px;margin:0 auto}
-@media(max-width:900px){
+/* Màn kết quả mở gói, màn hẹp — trừ điện thoại cầm ngang (dùng bố cục màn rộng, reveal-layout.css). */
+@media(max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px){
 .opening-finished>.opening-result{padding:0 16px 186px}
 .opening-finished .reveal-title{flex-shrink:0;font-size:18px;margin:0;padding:0;text-align:left}
 .opening-finished .reveal-count{flex-shrink:0;padding:5px 0}
@@ -229,7 +230,7 @@ html,body,#root{height:100%;overflow:hidden}
 .secondary-player>span{max-width:100%;font-size:12px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .secondary-player>b{color:#aebdcc;font-size:10px;font-weight:400;line-height:1.4}
 .secondary-player-list:focus-visible,.secondary-toolbar button:focus-visible{outline:2px solid #1de07f;outline-offset:-2px}
-@media(max-width:900px){
+@media(max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px){
 .has-secondary-cards>.opening-result{gap:8px;padding-bottom:calc(144px + env(safe-area-inset-bottom))}
 .has-secondary-cards .reveal-actions{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
 .has-secondary-cards .reveal-actions>.reveal-btn{grid-column:span 2}

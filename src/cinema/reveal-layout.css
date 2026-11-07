@@ -2,9 +2,10 @@
    Thẻ chính lớn ở giữa (đỉnh ~13% chiều cao, cao ~56%), hai cánh màn LED hạ thấp phía sau (mép ngoài cao hơn mép trong, chừa giữa cho thẻ),
    bục tối màu mùa ~75–82%, danh sách thẻ phụ cuộn ngang trải hết bề ngang đáy màn (trên hàng nút), tổng giá trị dưới tên gói.
    Mọi vị trí tính theo khung màn hình (dvh / %), không theo một độ phân giải cố định. Bộ chọn có độ ưu tiên cao để thắng các luật cũ
-   của màn kết quả trong cinema.css / reveal-stadium.css / fixed-screen.css (nạp sau). Màn hẹp (≤ 900px) giữ bố cục cũ. */
+   của màn kết quả trong cinema.css / reveal-stadium.css / fixed-screen.css (nạp sau). Màn hẹp (≤ 900px) giữ bố cục cũ, trừ điện thoại cầm ngang (màn thấp ≤ 500px):
+   dùng bố cục này với cỡ thu nhỏ ở khối cuối file (bố cục cũ dồn tiêu đề + thẻ phụ + 2 hàng nút, thẻ chính co về 0 px). */
 .reveal-fog{display:none}
-@media (min-width: 901px) {
+@media (min-width: 901px), (max-width:1200px) and (orientation:landscape) and (max-height:500px) {
   .icon-opening .opening-result.reveal-stage{
     --bar-b:clamp(12px,2.4dvh,28px);--bar-h:clamp(36px,4.2dvh,44px);
     --strip-b:calc(var(--bar-b) + var(--bar-h) + clamp(8px,1.4dvh,16px));--strip-h:clamp(138px,calc(21dvh + 18px),258px);
@@ -82,4 +83,27 @@
   .icon-opening .opening-result.reveal-stage .reveal-trade{position:absolute;left:4%}
   .icon-opening.has-secondary-cards .opening-result.reveal-stage .reveal-trade{left:calc(4% + var(--toggle-w) + 10px)}
   .icon-opening .opening-result.reveal-stage .reveal-right{position:absolute;right:4%;display:flex;gap:10px}
+}
+
+/* Điện thoại cầm ngang (~360–412 px chiều cao): cùng bố cục màn rộng nhưng thu nhỏ — thẻ chính theo chiều cao màn,
+   dải thẻ phụ thấp hơn, hàng nút đáy một hàng mỏng, chữ đầu màn nhỏ. */
+@media (max-width:1200px) and (orientation:landscape) and (max-height:500px) {
+  .icon-opening .opening-result.reveal-stage{--bar-b:6px;--bar-h:30px;--strip-b:calc(var(--bar-b) + var(--bar-h) + 6px);--strip-h:clamp(96px,27dvh,128px);--side-btn:clamp(96px,13vw,140px);--toggle-w:clamp(110px,15vw,150px)}
+  .icon-opening .opening-result.reveal-stage .reveal-title{height:44px;font-size:15px}
+  .icon-opening .opening-result.reveal-stage .reveal-count{top:66px;font-size:11px}
+  .icon-opening .opening-result.reveal-stage .reveal-count b{font-size:18px}
+  .icon-opening .opening-result.reveal-stage .reveal-total{top:40px;font-size:11px}
+  .icon-opening .opening-result.reveal-stage .reveal-total strong{font-size:18px}
+  .icon-opening .opening-result.reveal-stage .reveal-card{--rh:clamp(140px,44dvh,250px);top:25dvh}
+  .icon-opening .opening-result.reveal-stage .reveal-podium{--pw:clamp(220px,34vw,420px);height:clamp(28px,6dvh,44px)}
+  .icon-opening .opening-result.reveal-stage .reveal-actions{gap:6px}
+  .icon-opening .opening-result.reveal-stage .reveal-btn{gap:6px;padding:0 10px;font-size:12px}
+  .icon-opening .opening-result.reveal-stage .reveal-again{min-width:clamp(84px,11vw,120px);padding:0 10px}
+  .icon-opening .opening-result.reveal-stage .reveal-right{gap:6px}
+  .icon-opening .opening-result.reveal-stage .secondary-toggle{gap:4px;padding:0 10px;font-size:12px}
+  .icon-opening.has-secondary-cards .opening-result.reveal-stage .reveal-trade{left:calc(4% + var(--toggle-w) + 6px)}
+  /* mobile.css (≤ 900 px, khối chung với màn khác) đặt tiêu đề / số gói thành position:relative và nút rộng 100%: trả lại. */
+  .icon-opening .opening-result.reveal-stage>.reveal-title{position:absolute;padding:0;white-space:nowrap;line-height:1.2}
+  .icon-opening .opening-result.reveal-stage .reveal-count{position:absolute;padding:0}
+  .icon-opening .opening-result.reveal-stage .reveal-btn{width:auto;height:var(--bar-h)}
 }

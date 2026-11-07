@@ -27,4 +27,105 @@
   :root .checkin-fc,:root .checkin-pack{min-height:46px}
   :root .checkin-pack img{width:28px;height:40px}
   :root .gift-code{margin-top:12px;padding-top:10px}
+  /* Nâng cấp thẻ: vừa đúng một màn (khoá cuộn, screen-lock.css) — chỉ ~300 px giữa thanh trên và dock.
+     Trái: thẻ chính nhỏ + chỉ số 2 cột, các dòng tăng % / năng lượng mỏng, phôi đã chọn chiếm phần còn lại.
+     Phải: tab + gợi ý gọn, bảng phôi tự cuộn trong phần còn lại, 3 nút gom một hàng. */
+  :root .main-content>.fco-upgrade{display:grid;grid-template-columns:minmax(260px,.9fr) minmax(0,1.1fr);grid-template-rows:minmax(0,1fr);height:100%;min-height:0;overflow:hidden}
+  :root .fco-upgrade .fco-left{position:relative;display:flex;flex-direction:column;gap:4px;min-height:0;padding:6px 10px;overflow:hidden}
+  :root .fco-upgrade .fco-target{flex:none;grid-template-columns:64px minmax(0,1fr);gap:10px}
+  :root .fco-upgrade .fco-target-card{height:88px}
+  :root .fco-upgrade .fco-stats h2{margin:0 0 2px;font-size:16px}
+  :root .fco-upgrade .fco-stats dl{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+  :root .fco-upgrade .fco-stats dl>div{padding:1px 0;font-size:10px}
+  :root .fco-upgrade .fco-stats dl b{font-size:13px}
+  :root .fco-upgrade .fco-change{flex:none;min-height:28px;padding:2px;font-size:12px}
+  :root .fco-upgrade .fco-row{flex:none;min-height:0;gap:6px;font-size:11px}
+  :root .fco-upgrade .fco-left .fco-row.fco-perk{min-height:24px}
+  :root .fco-upgrade .fco-perk-btn{min-height:24px;padding:0 8px}
+  :root .fco-upgrade .fco-left .fco-perk>b,:root .fco-upgrade .fco-perk-btn{font-size:12px}
+  :root .fco-upgrade .fco-row .fco-help{min-width:20px;min-height:20px}
+  :root .fco-upgrade .fco-energy i{height:18px}
+  :root .fco-upgrade .fco-left .fco-row.fco-used{flex:1 1 40px;min-height:40px}
+  :root .fco-upgrade .fco-stack{width:auto;height:100%;max-height:56px}
+  :root .fco-upgrade .fco-right{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden}
+  :root .fco-upgrade .fco-tabs button{min-height:32px;padding:4px 0;font-size:14px}
+  :root .fco-upgrade .fco-hint{padding:3px 10px}
+  :root .fco-upgrade .fco-hint p{font-size:10px}
+  :root .fco-upgrade .fco-hint strong{font-size:18px}
+  :root .fco-upgrade .fco-table{display:flex;flex-direction:column;flex:1 1 0;min-height:0}
+  :root .fco-upgrade .fco-head{height:26px;min-height:26px}
+  :root .fco-upgrade .fco-body{flex:1 1 0;min-height:0;max-height:none}
+  :root .fco-upgrade .fco-line{height:44px;min-height:44px}
+  :root .fco-upgrade .fco-actions{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:6px;padding:6px 10px}
+  :root .fco-upgrade .fco-ghost{min-height:34px;font-size:12px}
+  :root .fco-upgrade .fco-go{grid-column:auto;width:100%;min-height:34px;font-size:14px}
+  :root .fco-upgrade .fco-head{font-size:10px;white-space:nowrap}
+  /* Bảng chọn cầu thủ (thẻ chính) phủ cả cột trái để danh sách có chỗ; tiêu đề + tab một hàng, cột không gãy chữ. */
+  :root .fco-upgrade .tp-panel{top:0;max-height:none}
+  :root .tp-head{flex-wrap:nowrap;gap:8px;padding:6px 10px}
+  :root .tp-head h3{font-size:15px;white-space:nowrap}
+  :root .tp-filters button{min-height:28px;padding:0 10px;font-size:12px}
+  /* target-picker.css nạp sau phone.css nên cột về cỡ máy tính (cột Tên còn 0 px, chữ đè nhau): đặt lại cột hẹp. */
+  :root .tp-columns,:root .tp-row{grid-template-columns:32px 24px minmax(0,1fr) 40px 28px 30px 48px;gap:3px;padding:0 8px}
+  :root .tp-columns{font-size:10px;white-space:nowrap}
+  :root .tp-columns>*{min-width:0;overflow:hidden}
+  :root .tp-col{min-height:26px}
+  :root .tp-row{min-height:44px}
+  :root .tp-close{height:32px;font-size:14px}
+  /* Màn đập thẻ (upgrade-confirm.css nạp sau, ≤ 900 px xếp dọc: bục 52% trên + bảng 48% dưới → thẻ bị cắt đỉnh).
+     Cầm ngang: về bố cục máy tính — bục + thẻ bên trái, bảng bên phải 42% (tự cuộn nếu thiếu chỗ), thẻ cỡ theo chiều cao. */
+  :root .uc-stage{bottom:0}
+  :root .uc-panel{top:0;bottom:0;left:auto;right:0;width:clamp(300px,42%,440px);min-width:0;height:auto;overflow-y:auto;justify-content:flex-start;gap:5px;padding:8px 12px}
+  :root .is-charging .uc-panel{transform:translateX(100%)}
+  :root .uc-card{width:min(22vw,40dvh);margin-top:0}
+  :root .uc-panel h2{font-size:17px}
+  :root .uc-music-toggle{height:30px;min-height:30px;padding:0 10px;font-size:12px}
+  :root .uc-music-status{margin:2px 0 0;font-size:10px;line-height:1.2}
+  :root .uc-materials{height:64px;min-height:64px}
+  :root .uc-material{width:56px}
+  :root .uc-row{gap:8px;font-size:11px}
+  :root .uc-row>span{gap:5px}
+  :root .uc-row>span svg{width:15px;height:15px}
+  :root .uc-row>b{font-size:13px;white-space:nowrap}
+  :root .uc-energy{grid-template-columns:repeat(5,minmax(0,28px));gap:3px}
+  :root .uc-energy i{height:14px}
+  :root .uc-actions{gap:8px;margin-top:4px}
+  :root .uc-actions button{height:36px;min-height:36px;font-size:15px}
+  /* Màn kết quả: dải chỉ số một hàng mỏng ở đáy (bỏ tiêu đề lặp — đã có ở đầu màn), chữ đầu màn nhỏ lại, thẻ nhỏ hơn
+     để nằm gọn giữa tiêu đề và dải kết quả (≤ 900 px dải này xuống 2 hàng và đè nửa dưới thẻ). */
+  :root .uc-win{top:2%}
+  :root .uc-win h2{gap:10px;font-size:20px}
+  :root .uc-win p{margin-top:2px;font-size:13px}
+  :root .uc-result{padding:8px 16px 10px}
+  :root .uc-result h3{display:none}
+  :root .uc-result-row{flex-wrap:nowrap;gap:12px}
+  :root .uc-result dl{flex:1 1 auto;min-width:0;overflow-x:auto}
+  :root .uc-result dl>div{gap:2px;padding:0 8px}
+  :root .uc-result dt{font-size:10px;white-space:nowrap}
+  :root .uc-result dd{min-height:22px;gap:4px}
+  :root .uc-result dd img{height:16px}
+  :root .uc-result dd b{font-size:16px}
+  :root .uc-result dd em{font-size:11px}
+  :root .uc-result-price{margin-left:auto;align-items:flex-end}
+  :root .uc-result-price b{font-size:17px}
+  :root .uc-next{margin-left:0}
+  :root .uc-screen:has(.uc-result) .uc-card{width:min(17vw,34dvh);margin-top:7dvh}
+  /* Vật phẩm: ô gói (ảnh 170 px + tên 2 dòng + nút Dùng + SL ≈ 290 px) cao hơn lưới (~170 px) nên nút mở nằm dưới thanh
+     Hủy / Chọn tất cả. Cầm ngang: bỏ dòng tiêu đề, thu thanh lọc / thanh nút, tên một dòng, ảnh co theo chiều cao màn
+     để cả ô (kể cả nút mở) nằm trọn trong lưới. */
+  :root .inv-workspace>.inv-head{display:none}
+  :root .inv-workspace .inv-side{padding:3px 8px}
+  :root .inv-filter-tabs button{height:28px;padding:0 10px;font-size:12px}
+  :root .inv-filter-bar select{height:28px}
+  :root .inv-workspace{--inv-art:max(72px,calc(100dvh - 270px))}
+  :root .inv-workspace .inv-item h3{min-height:1.35em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  :root .inv-workspace .inv-item-action{gap:4px;margin-top:4px}
+  :root .inv-workspace .inv-use{min-height:30px;font-size:13px}
+  :root .inv-workspace .inv-item-foot{margin-top:4px;padding:2px 8px 4px}
+  :root .inv-workspace>.inv-foot{padding:5px 8px}
+  :root .inv-workspace .inv-foot-btn{height:32px;min-height:32px}
+  /* Màn chuẩn bị mở gói: Mở 1 / Mở N / Rời bằng nhau (≤ 900 px nút Rời về chung hàng nhưng giữ cỡ riêng nên lệch). */
+  :root .pack-ready-modal .ready-actions{gap:10px}
+  :root .pack-ready-modal .ready-actions>button{flex:1 1 0;min-width:0;max-width:200px;height:40px;min-height:40px;padding:0 14px;font-size:14px}
+  :root .pack-ready-modal .ready-leave{position:static;justify-content:center;gap:10px}
 }
