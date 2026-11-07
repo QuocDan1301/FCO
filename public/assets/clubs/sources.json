@@ -1128,5 +1128,35 @@
     "name": "Caykur Rizespor",
     "url": "https://a.espncdn.com/i/teamlogos/soccer/500/7656.png",
     "page": "https://www.espn.com/soccer/club/_/id/7656"
+  },
+  {
+    "club": "Tottenham",
+    "name": "Tottenham Hotspur",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/367.png",
+    "page": "https://www.espn.com/soccer/club/_/id/367"
+  },
+  {
+    "club": "Everton",
+    "name": "Everton",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/368.png",
+    "page": "https://www.espn.com/soccer/club/_/id/368"
+  },
+  {
+    "club": "Bologna",
+    "name": "Bologna",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/107.png",
+    "page": "https://www.espn.com/soccer/club/_/id/107"
+  },
+  {
+    "club": "Frosinone",
+    "name": "Frosinone",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/4057.png",
+    "page": "https://www.espn.com/soccer/club/_/id/4057"
+  },
+  {
+    "club": "Freiburg",
+    "name": "SC Freiburg",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/126.png",
+    "page": "https://www.espn.com/soccer/club/_/id/126"
   }
 ]

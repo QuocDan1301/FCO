@@ -130,15 +130,26 @@ export function playEvent(state: Save, count: number, rng = random, free = false
   else if (!option) throw new Error('Hãy chọn 1, 10, 50 hoặc 100 lượt.');
   else if (!free && fc < option.price) throw new Error(`Không đủ FC. Cần ${money(option.price)} FC để chơi ${count} lượt.`);
   let points = event.points;
-  const levelBefore = eventLevel(points), hits: { level: number; jar: number }[] = [];
+  const hits: { level: number; jar: number }[] = [];
   for (let i = 0; i < count; i++) { const level = eventLevel(points), jar = pickJar(EVENT_LEVELS[level], rng()); hits.push({ level, jar }); points += EVENT_LEVELS[level].jars[jar].points; }
+  const result = recordEventPlay(state, hits, mode, mode === 'fc' && !free ? option!.price : 0, free);
+  return { ...result, state: { ...result.state, fc: mode === 'fc' && !free ? (result.state.fc ?? 0) - option!.price : result.state.fc ?? 0, event: { ...result.state.event!, free: mode === 'free' ? event.free - count : event.free, paid: mode === 'fc' ? event.paid + count : event.paid } } };
+}
+
+// Ghi một lần chơi từ danh sách hũ trúng (máy chủ quay khi chơi bằng tài khoản, hoặc playEvent ở trên): cộng điểm, nhật ký, lịch sử và quà.
+// serverFc: FC trong hũ do máy chủ đã cộng vào ví nên không cộng lại vào bản lưu; lượt miễn phí / trả phí do nơi gọi cập nhật.
+export function recordEventPlay(state: Save, hits: { level: number; jar: number }[], mode: 'fc' | 'free', price: number, trial = false, serverFc = false) {
+  const event = eventState(state), count = hits.length;
+  if (!count || hits.some(hit => !EVENT_LEVELS[hit.level]?.jars[hit.jar])) throw new Error('Kết quả lượt chơi không hợp lệ.');
+  const points = event.points + hits.reduce((sum, hit) => sum + EVENT_LEVELS[hit.level].jars[hit.jar].points, 0);
+  const levelBefore = eventLevel(event.points);
   const rewards = hits.map(hit => EVENT_LEVELS[hit.level].jars[hit.jar].reward), levelAfter = eventLevel(points), gained = points - event.points;
-  const cost = mode === 'free' ? `−${count} lượt miễn phí` : free ? 'Thử nghiệm · Không trừ FC' : `−${money(option!.price)} FC`;
+  const cost = mode === 'free' ? `−${count} lượt miễn phí` : trial ? 'Thử nghiệm · Không trừ FC' : `−${money(price)} FC`;
   const record = entry(`Nâng Cấp Siêu Sao · ${count} lượt`, `${summarizeRewards(rewards).map(rewardLabel).join(', ')} · +${gained} điểm${levelAfter > levelBefore ? ` · Lên cấp ${levelAfter + 1}` : ''} · ${cost}`);
   const time = Date.now(), log = [...hits.map(hit => ({ time, ...hit, points: EVENT_LEVELS[hit.level].jars[hit.jar].points, reward: EVENT_LEVELS[hit.level].jars[hit.jar].reward })).reverse(), ...event.log].slice(0, EVENT_LOG_MAX);
-  const next = { ...event, log, points, plays: event.plays + count, free: mode === 'free' ? event.free - count : event.free, paid: mode === 'fc' ? event.paid + count : event.paid };
-  const granted = grantRewards(state, rewards);
-  return { state: { ...granted, fc: mode === 'fc' && !free ? (granted.fc ?? 0) - option!.price : granted.fc ?? 0, event: next, history: [record, ...state.history].slice(0, 200) }, hits, rewards, points: gained, levelBefore, levelAfter };
+  const next = { ...event, log, points, plays: event.plays + count };
+  const granted = grantRewards(state, serverFc ? rewards.filter(reward => !('fc' in reward)) : rewards);
+  return { state: { ...granted, event: next, history: [record, ...state.history].slice(0, 200) }, hits, rewards, points: gained, levelBefore, levelAfter };
 }
 
 export function claimMission(state: Save, id: string): Save {

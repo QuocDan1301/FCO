@@ -7,6 +7,17 @@
 .daily-fc-card b { position: absolute; left: 0; right: 0; bottom: 19%; text-align: center; font-size: 21px; font-weight: 900; color: #2b2f36; line-height: 1; }
 .daily-gift strong { font-size: 20px; color: #12d86c; }
 .daily-claim { width: 100%; justify-content: center; }
+/* Ô nhập gift code dưới nút Nhận. */
+.gift-code { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid #ffffff1a; }
+.gift-code label { font-size: 13px; font-weight: 700; color: #dfe6ee; }
+.gift-code-row { display: flex; gap: 8px; }
+.gift-code-row input { flex: 1; min-width: 0; min-height: 42px; padding: 0 12px; border: 1px solid #3a4554; border-radius: 6px; background: #0f141c; color: #f0f1f3; font: inherit; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; }
+.gift-code-row input::placeholder { text-transform: none; letter-spacing: 0; color: #7d8a99; }
+.gift-code-row input:focus-visible { outline: 2px solid #12d86c; outline-offset: 1px; border-color: transparent; }
+.gift-code-row button { flex: none; min-height: 42px; padding: 0 18px; }
+.gift-code-message { margin: 0; font-size: 13px; }
+.gift-code-message.is-ok { color: #3ddc7a; }
+.gift-code-message.is-error { color: #ff9aa2; }
 
 /* Ô FC trên thanh trên cùng (cạnh số dư BP): đồng và số màu xanh lá (đè màu vàng của .wallet trong home.css). */
 .wallet.wallet-fc .coin-icon { color: #062b14; background: radial-gradient(circle at 35% 30%, #c9ffd9, #3ddc7a 38%, #1fa855 62%, #0d6b32); box-shadow: 0 0 0 1px #8cf5b299, 0 0 10px #3ddc7a59; }
@@ -19,3 +30,23 @@
   .topbar .wallet b { white-space: nowrap; }
   .topbar .wallet b span { display: none; }
 }
+
+/* Nút + nạp FC cạnh ô FC và khung nạp FC (TopUp.tsx). */
+.wallet-add { display: inline-grid; vertical-align: middle; place-items: center; width: 20px; height: 20px; margin: -3px 0 0 1px; padding: 0; border: 0; border-radius: 50%; background: #12d86c; color: #052512; font-size: 16px; font-weight: 900; line-height: 1; cursor: pointer; box-shadow: 0 0 8px #12d86c66; }
+.wallet-add:hover { background: #3ddc7a; }
+.wallet-add:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.topup-modal .modal-panel { width: min(440px, 94vw); }
+.topup-modal .modal-heading p { margin-top: 4px; color: #aebdcc; font-size: 13px; }
+.topup { display: flex; flex-direction: column; gap: 14px; }
+.topup-rate { margin: 0; font-size: 14px; color: #dfe6ee; }
+.topup-rate b { color: #3ddc7a; }
+.topup-qr { display: grid; place-items: center; min-height: 200px; padding: 12px; border-radius: 8px; background: #fff; }
+.topup-qr img { display: block; width: min(240px, 100%); height: auto; }
+.topup-qr span { color: #4a5563; font-size: 14px; text-align: center; }
+.topup-info { display: grid; gap: 6px; margin: 0; }
+.topup-info div { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+.topup-info dt { color: #aebdcc; }
+.topup-info dd { margin: 0; font-weight: 700; color: #f0f1f3; text-align: right; overflow-wrap: anywhere; }
+.topup-steps { margin: 0; font-size: 14px; line-height: 1.5; color: #dfe6ee; }
+.topup-steps a { color: #3ddc7a; font-weight: 700; text-decoration: underline; }
+.topup-nolink { font-weight: 700; }

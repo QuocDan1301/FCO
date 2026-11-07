@@ -4,7 +4,7 @@ Game dùng tên đăng nhập/mật khẩu qua Supabase Auth và bảng `public.
 
 ## Khởi tạo dự án
 
-1. Trong SQL Editor của dự án Supabase, chạy lần lượt `migrations/202610300001_fco_accounts.sql` và `migrations/202610300002_delete_own_account.sql` một lần. Migration tạo bảng mới và hàm ghi có kiểm tra phiên bản; không thay đổi các bảng có sẵn.
+1. Trong SQL Editor của dự án Supabase, chạy lần lượt `migrations/202610300001_fco_accounts.sql`, `migrations/202610300002_delete_own_account.sql` và `migrations/202611070001_fco_wallet.sql` một lần. Migration tạo bảng mới và hàm ghi có kiểm tra phiên bản; không thay đổi các bảng có sẵn.
 2. Bật Email provider trong Authentication. Bản thử hiện tắt Confirm email theo lựa chọn của chủ dự án: người chơi đăng ký xong vào game ngay, email chưa được xác minh. Khi dùng chính thức, cấu hình SMTP riêng rồi bật lại Confirm email. Giao diện yêu cầu mật khẩu tối thiểu 8 ký tự.
 3. Đặt Site URL thành URL game GitHub Pages. Thêm URL game và `http://127.0.0.1:5173/FCO/` vào Redirect URLs nếu cần thử trên máy phát triển. Liên kết xác nhận email quay về game để người chơi đăng nhập.
 4. `.env` chỉ chứa Project URL và Publishable key công khai dùng trong trình duyệt. Không đưa secret key hoặc `service_role` vào các biến `VITE_*`. Có thể ghi đè cấu hình bằng `.env.local` trên máy phát triển.
@@ -21,14 +21,24 @@ Hàm `fco_delete_account()` chỉ dùng UUID từ JWT đã xác minh, không nh�
 ## Cách hoạt động
 
 - Tài khoản mới có kho cầu thủ trống. Bản lưu khách cũ được giữ riêng và không tự nhập vào tài khoản mới.
-- Kho cầu thủ, BP, FC, vật phẩm, đội hình, lịch sử, tiến trình sự kiện và cài đặt trong bản lưu được đồng bộ. Quỹ jackpot giả lập và tùy chọn nhạc của thiết bị vẫn lưu tại trình duyệt.
+- Kho cầu thủ, BP, vật phẩm, đội hình, lịch sử, mốc quà sự kiện và cài đặt trong bản lưu được đồng bộ. FC, điểm / lượt sự kiện và quỹ jackpot nằm trên máy chủ (xem bên dưới). Tùy chọn nhạc của thiết bị vẫn lưu tại trình duyệt.
 - Mỗi tài khoản có một bộ nhớ đệm riêng theo UUID. Người khác không đọc được kho của bạn qua API: bảng bật RLS và chỉ cho người dùng đọc dòng mang UUID của chính mình.
 - Ghi dữ liệu qua `fco_commit_save`. Hàm xác định chủ tài khoản từ JWT, không nhận UUID từ phía khách, và chỉ chấp nhận phiên bản hiện tại của bản lưu.
 - Các thao tác được lưu vào hàng đợi bền vững trên máy rồi gửi lần lượt. Mất mạng thì dừng chơi và cho thử lại. Đăng xuất bình thường chờ gửi xong; người chơi cũng có thể đăng xuất từ màn lỗi và giữ hàng đợi để gửi sau.
 - Bản mới trên máy chủ được kiểm tra mỗi 15 giây và khi quay lại trang. Khi hai thiết bị thay đổi cùng lúc, bản cũ bị từ chối thay vì ghi đè. Người chơi có thể tải bản sao cục bộ và chọn nạp bản máy chủ; bản cục bộ còn được giữ dưới khóa `:backup:`.
 - Đợi “Đã đồng bộ” trong Cài đặt trước khi đóng trang hoặc chuyển thiết bị. Đăng nhập và đồng bộ cần Internet, kể cả khi mở `mothe.html` trực tiếp. Bản khách vẫn chơi ngoại tuyến.
 
-Đây là cơ chế lưu game giả lập. Kết quả mở thẻ và số dư vẫn được tính ở trình duyệt; nếu bổ sung giao dịch có giá trị thật, cần chuyển các luật kinh tế và xác thực thao tác sang máy chủ.
+## FC trên máy chủ (chống gian lận mức 2)
+
+Từ migration `202611070001_fco_wallet.sql`, FC chỉ do máy chủ thay đổi: bảng `fco_wallets` giữ số dư, `fco_fc_ledger` ghi mọi lần cộng/trừ. `fco_commit_save` bỏ trường `fc` trong bản lưu, nên sửa bản lưu không tạo ra FC. Mọi tài khoản bắt đầu từ 0 FC.
+
+- Quà mỗi ngày (`fco_claim_daily`, +1.000 FC, giờ Việt Nam), gift code (`fco_redeem_gift`, bảng `fco_gift_codes` chỉ lưu mã băm), mua gói (`fco_spend_fc`), chơi sự kiện (`fco_event_play`: máy chủ quay hũ, giữ điểm sự kiện, lượt miễn phí, lượt trả phí trong ngày) và jackpot (`fco_jackpot`: một quỹ chung cho mọi người chơi, bot vẫn săn như bản giả lập) đều chạy trên máy chủ.
+- Nhiệm vụ "Mở gói" và "Nâng cấp" diễn ra trong trình duyệt nên máy chủ tin trình duyệt (tối đa 1 lượt miễn phí mỗi nhiệm vụ mỗi ngày).
+- Khách (không đăng nhập) không dùng được FC.
+- Admin: tài khoản có trong `fco_admins` thấy nút "Quản trị FC" trong Cài đặt: cộng / trừ FC theo tên đăng nhập sau khi kiểm tra bill, xem sổ cái, tạo / xoá gift code (có hiệu lực ngay). Thêm admin: `insert into public.fco_admins(user_id) select id from auth.users where email = '<tên>@players.fco.invalid';`
+- Chạy thử migration không cần Supabase: `supabase/tests/fco-wallet.pglite.mjs` (hướng dẫn ở đầu file).
+
+Chỉ FC được bảo vệ. BP, thẻ và gói trong kho vẫn tính ở trình duyệt và nằm trong bản lưu, nên người rành kỹ thuật vẫn sửa được; muốn chặn cần chuyển việc mở gói / nâng cấp lên máy chủ.
 
 ## Kiểm thử với dịch vụ thật
 

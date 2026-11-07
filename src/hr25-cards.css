@@ -1,0 +1,35 @@
+/* 25HR (25 HEROES): normalized source cards with live OVR/name/upgrade badges. */
+.rarity-dot.hr25{background:#e8327e}
+.player-card.face-art.season-hr25{aspect-ratio:259/282}
+.player-card.face-art.season-hr25>.face-art-img{filter:drop-shadow(0 0 5px #ff5fc455)}
+.season-hr25[data-level="1"] .face-art-level{visibility:hidden}
+.season-hr25 .face-art-ovr{left:28.09%;top:16.67%;font-size:11.95cqw;color:#ffffff;letter-spacing:-.03em;text-shadow:0 .03em .1em #5a0a2e99}
+.season-hr25 .face-art-level{left:18.92%;top:60.64%;width:18.53%;height:10.28%;transform:none;object-fit:fill}
+.season-hr25{--name-size:8cqw;--name-color:#ffffff}
+.season-hr25 .face-art-name{text-shadow:0 .05em .14em #4a0626aa}
+[data-tone=hr25]{--shop-tone:#e8327e;--shop-tone2:#ff9ad5}
+.season-tag-hr25{color:#ff6fb5}
+.reveal-hr25 .reveal-panel{--led:#ff5fc4;--led2:#5a0a2e;border-color:#ff9ad566}
+.reveal-hr25 .reveal-stats dt{color:#ffffff}
+.reveal-hr25 .reveal-podium{background:linear-gradient(180deg,#b0124f,#3d0420);border-top-color:#ff9ad5}
+.reveal-hr25 .reveal-podium span{color:#ffffff}
+.face-3771{--nx:41.70%;--nw:50.19%;--ny:80.85%}
+.face-3772{--nx:33.59%;--nw:58.30%;--ny:80.85%}
+.face-3773{--nx:44.40%;--nw:47.49%;--ny:80.85%}
+.face-3774{--nx:39.77%;--nw:52.12%;--ny:80.85%}
+.face-3775{--nx:35.52%;--nw:56.37%;--ny:80.85%}
+.face-3776{--nx:39.00%;--nw:52.90%;--ny:80.85%}
+.face-3777{--nx:49.03%;--nw:42.86%;--ny:80.85%}
+.face-3778{--nx:40.54%;--nw:51.35%;--ny:80.85%}
+.face-3779{--nx:35.52%;--nw:56.37%;--ny:80.85%}
+.face-3780{--nx:40.15%;--nw:51.74%;--ny:80.85%}
+.face-3781{--nx:44.40%;--nw:47.49%;--ny:80.85%}
+.face-3782{--nx:34.36%;--nw:57.53%;--ny:80.85%}
+.face-3783{--nx:39.77%;--nw:52.12%;--ny:80.85%}
+.face-3784{--nx:43.24%;--nw:48.65%;--ny:80.85%}
+.face-3785{--nx:40.54%;--nw:51.35%;--ny:80.85%}
+.face-3786{--nx:42.08%;--nw:49.81%;--ny:80.85%}
+.face-3787{--nx:40.54%;--nw:51.35%;--ny:80.85%}
+.face-3788{--nx:39.00%;--nw:52.90%;--ny:80.85%}
+.face-3789{--nx:42.47%;--nw:49.42%;--ny:80.85%}
+.face-3790{--nx:43.63%;--nw:48.26%;--ny:80.85%}

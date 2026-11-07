@@ -1,0 +1,43 @@
+import { dayKey } from './game';
+import type { EventReward, Save } from './game';
+import { eventState } from './event';
+
+// Phần thuần của ví FC (không nạp client Supabase): kiểu dữ liệu máy chủ trả về, thông báo lỗi, áp ví vào bản lưu.
+export type Wallet = { fc: number; dailyClaimed: boolean; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean };
+export type ServerJackpotWin = { name: string; amount: number; kind: 'special' | 'mini'; time: number; mine: boolean };
+export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
+export type EventPlayResult = { hits: { level: number; jar: number }[]; paid: number; jarFc: number; jackpotWins: { kind: 'special' | 'mini'; amount: number; time: number }[]; jackpot: ServerJackpot; wallet: Wallet };
+export type LedgerRow = { time: number; login: string; delta: number; balance: number; reason: string; note: string | null; admin: boolean };
+export type GiftCodeRow = { hash: string; hint: string; rewards: EventReward[]; expires: string | null; created: string; used: number };
+export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
+
+const MESSAGES: Record<string, string> = {
+  FCO_NOT_ENOUGH_FC: 'Không đủ FC.',
+  FCO_DAILY_CLAIMED: 'Bạn đã nhận quà hôm nay. Hẹn gặp lại vào ngày mai!',
+  FCO_GIFT_INVALID: 'Gift code không đúng.',
+  FCO_GIFT_EXPIRED: 'Gift code đã hết hạn.',
+  FCO_GIFT_USED: 'Bạn đã dùng gift code này rồi.',
+  FCO_GIFT_EXISTS: 'Code này đã có.',
+  FCO_GIFT_BAD_REWARDS: 'Phần quà không hợp lệ.',
+  FCO_NO_FREE_PLAYS: 'Bạn không có lượt chơi miễn phí. Hãy làm nhiệm vụ để nhận thêm.',
+  FCO_MISSION_DONE: 'Bạn đã nhận thưởng nhiệm vụ này hôm nay.',
+  FCO_MISSION_INCOMPLETE: 'Chưa hoàn thành nhiệm vụ.',
+  FCO_ADMIN_ONLY: 'Chỉ admin mới dùng được chức năng này.',
+  FCO_USER_NOT_FOUND: 'Không tìm thấy tài khoản này.',
+  FCO_BAD_AMOUNT: 'Số FC không hợp lệ.',
+  'Authentication required': 'Phiên đăng nhập đã hết. Hãy đăng nhập lại.',
+};
+export function walletMessage(error: unknown) {
+  const text = error instanceof Error ? error.message : typeof error === 'object' && error && 'message' in error ? String((error as { message: unknown }).message) : String(error);
+  const code = Object.keys(MESSAGES).find(key => text.includes(key));
+  if (code) return MESSAGES[code];
+  if (/fetch|network|timeout|abort/i.test(text)) return 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.';
+  return 'Máy chủ FC đang lỗi, hãy thử lại sau.';
+}
+
+// Áp số FC, quà ngày và tiến trình sự kiện (điểm, lượt miễn phí, lượt trả phí, nhiệm vụ trong ngày) từ máy chủ vào bản lưu.
+export function applyWallet(state: Save, wallet: Wallet, today = dayKey()): Save {
+  const event = eventState(state, today);
+  const daily = wallet.dailyClaimed ? today : state.daily === today ? '' : state.daily;
+  return { ...state, fc: wallet.fc, daily, event: { ...event, day: today, points: wallet.event.points, free: wallet.event.free, paid: wallet.event.paid, missions: [...wallet.event.missions] } };
+}

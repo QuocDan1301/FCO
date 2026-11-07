@@ -9,11 +9,12 @@
         "eternal"
       ],
       "minOvr": null,
+      "topPrice": null,
       "levels": [
         1,
         1
       ],
-      "price": 1500000,
+      "price": 500,
       "description": "Nơi những huyền thoại trở lại.",
       "range": "117–127",
       "back": null,
@@ -1998,6 +1999,66 @@
       "back": "/assets/custom/ms-1200-3-back.webp",
       "published": true,
       "eventOnly": true
+    },
+    {
+      "id": "the-moment",
+      "name": "ITM All 122+",
+      "short": "ITM",
+      "title": "THE MOMENT",
+      "seasons": [
+        "eternal"
+      ],
+      "minOvr": 122,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 1000,
+      "description": "Gói TM.",
+      "range": "122–127",
+      "back": "/assets/custom/the-moment-back.webp",
+      "published": true
+    },
+    {
+      "id": "prime-2",
+      "name": "PRIME All",
+      "short": "PRIME",
+      "title": "PRIME",
+      "seasons": [
+        "prm"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 2000,
+      "description": "",
+      "range": "119–126",
+      "back": "/assets/custom/prime-2-back.webp",
+      "published": true
+    },
+    {
+      "id": "infinite-prime",
+      "name": "INFINITE PRIME All",
+      "short": "INFINITE",
+      "title": "INFINITE PRIME",
+      "seasons": [
+        "prime"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 5000,
+      "description": "Gói IP.",
+      "range": "124–136",
+      "back": "/assets/custom/infinite-prime-back.webp",
+      "published": true
     }
   ]
 }

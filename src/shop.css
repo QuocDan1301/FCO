@@ -29,9 +29,9 @@
 .shop-heading>.shop-inventory{flex-shrink:0;gap:10px}
 .shop-inventory-count{min-width:24px;height:22px;padding:0 7px;display:inline-grid;place-items:center;border-radius:999px;background:#f5b942;color:#1b1408;font-size:12px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 
-/* Lưới gói: mỗi khung chiếm 8 hàng con (subgrid) nên các khung cùng hàng cao bằng nhau và từng phần thẳng hàng. */
+/* Lưới gói: mỗi khung chiếm 7 hàng con (subgrid) nên các khung cùng hàng cao bằng nhau và từng phần thẳng hàng. */
 .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding-bottom:8px}
-.shop-product{position:relative;display:grid;grid-row:span 8;grid-template-rows:subgrid;grid-template-columns:minmax(0,1fr);row-gap:0;min-width:0;padding:14px 16px;border-radius:8px;border:1px solid color-mix(in srgb,var(--shop-tone) 20%,#243041);background:radial-gradient(120% 55% at 50% 0%,color-mix(in srgb,var(--shop-tone) 12%,transparent),transparent 70%),#141b24;transition:border-color .2s,box-shadow .2s}
+.shop-product{position:relative;display:grid;grid-row:span 7;grid-template-rows:subgrid;grid-template-columns:minmax(0,1fr);row-gap:0;min-width:0;padding:14px 16px;border-radius:8px;border:1px solid color-mix(in srgb,var(--shop-tone) 20%,#243041);background:radial-gradient(120% 55% at 50% 0%,color-mix(in srgb,var(--shop-tone) 12%,transparent),transparent 70%),#141b24;transition:border-color .2s,box-shadow .2s}
 .shop-product:hover,.shop-product:focus-within{border-color:color-mix(in srgb,var(--shop-tone) 65%,transparent);box-shadow:0 12px 32px -14px color-mix(in srgb,var(--shop-tone) 60%,transparent)}
 .shop-product-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
 .shop-product-heading h2{min-width:0;font-family:var(--display);font-size:19px;line-height:1.2;color:#f2f4f6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -94,8 +94,8 @@
 /* Gói chưa có cầu thủ: hiện mờ, nút mua tắt; ghi chú lấp các hàng giá/số lượng, nút ở hàng cuối. */
 .shop-upcoming .shop-art{opacity:.6;filter:saturate(.75);cursor:default}
 .shop-upcoming-badge{padding:3px 10px;border-radius:999px;background:#3a2a12;color:#f2c75c !important;font-weight:600}
-.shop-upcoming>.shop-note{grid-row:4/8;align-self:center}
-.shop-upcoming>.shop-actions{grid-row:8}
+.shop-upcoming>.shop-note{grid-row:3/7;align-self:center}
+.shop-upcoming>.shop-actions{grid-row:7}
 
 /* Xem trước gói (modal): top 10 cầu thủ OVR cao nhất. */
 .pack-preview-modal .modal-panel{width:560px;padding:22px 22px 18px}

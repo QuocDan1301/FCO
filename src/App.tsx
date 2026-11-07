@@ -8,6 +8,10 @@ import TargetPicker, { DEFAULT_PICKER_VIEW } from './TargetPicker';
 import UpgradeProtection from './UpgradeProtection';
 import './upgrade-bridge.css';
 import './daily-gift.css';
+import TopUp from './TopUp';
+import { applyGiftRewards, prepareGiftCode } from './gift-codes';
+import { LOGIN_FOR_FC, applyWallet, claimDailyFc, claimMissionFc, fetchJackpot, fetchWallet, playEventFc, redeemGiftHash, spendFc } from './wallet';
+import AdminPanel from './AdminPanel';
 import UpgradeConfirm from './UpgradeConfirm';
 import ReadyTunnel from './ReadyTunnel';
 import { activeProtection, protectionApplies, protectionCost, setProtection, upgradeWithProtection } from './insurance';
@@ -42,8 +46,7 @@ import { asset } from './asset';
 import LiveTicker from './LiveTicker';
 import { posGroup, seasonShort } from './badges';
 import EventPage from './EventPage';
-import { grantJackpot, loadJackpot, rollJackpot, saveJackpot, tickJackpot } from './jackpot';
-import { EVENT_PLAYS, claimMilestone, claimMission, playEvent } from './event';
+import { EVENT_MISSIONS, claimMilestone, eventState, missionProgress, recordEventPlay } from './event';
 
 
 const cardSortOptions = [
@@ -143,7 +146,7 @@ function PlayerCard({ card, className = '', compact = false }: { card: Card; cla
   return <div className={`player-card ${theme} ${compact ? 'compact' : ''} ${className}`} aria-label={`${player.name}, OVR ${ovr(card)}, ${player.pos}, ${seasons[player.tier]}, cộng ${card.level}`}>
     <div className="card-inside"><div className="card-etching"/><div className="card-topline">{seasons[player.tier]}<span>◆</span></div><div className="card-rating"><strong>{ovr(card)}</strong><span>{player.pos}</span><Flag code={player.flag}/><div className="club-mini" title={cardTeam}>{player.tier === 'eternal' ? player.flag : cardTeam.slice(0, 2).toUpperCase()}</div></div>
       <img className={`player-photo ${!player.image || failed ? 'placeholder-photo' : ''}`} src={failed || !player.image ? asset('/assets/silhouette.svg') : player.image} onError={() => setFailed(true)} alt={player.image && !failed ? player.name : `Hình đại diện ${player.name}`} loading={compact ? 'lazy' : 'eager'}/>
-      <div className="season-crest">{player.tier === 'eternal' ? 'TM' : player.tier === 'prime' ? 'IP' : player.tier === 'vietnam' ? 'VN' : player.tier === 'prm' ? 'PRM' : player.tier === 'mdl' ? 'MDL' : player.tier === 'amb' ? 'FCA' : player.tier === 'uc' ? 'UC' : player.tier === 'wg' ? 'WG' : player.tier === 'ut' ? 'UT' : player.tier === 'cu' ? 'CU' : player.tier === 'gru' ? 'GRU' : player.tier === 'rtn' ? 'RTN' : player.tier === 'dc' ? 'DC' : player.tier === 'cc' ? 'CC' : player.tier === 'bld' ? 'BLD' : player.tier === 'wb' ? 'WB' : player.tier === 'spt' ? 'SPT' : player.tier === 'bdo' ? 'BDO' : player.tier === 'hw23' ? '23HW' : player.tier === 'ep24' ? '24EP' : player.tier === 'ptg' ? 'PTG' : player.tier === 'le' ? 'LE' : player.tier === 'hg' ? 'HG' : player.tier === 'spl' ? 'SPL' : player.tier === 'ln' ? 'LN' : player.tier === 'fa' ? 'FA' : player.tier === 'lol' ? 'LOL' : player.tier === 'cap' ? 'CAP' : player.tier === 'boe21' ? 'E21' : player.tier === 'btb' ? 'BTB' : player.tier === 'ebs' ? 'EBS' : player.tier === 'juventus' ? 'JUVE' : player.tier === 'jnm' ? 'JNM' : player.tier === 'stellar' ? 'TT' : 'N7'}</div>
+      <div className="season-crest">{player.tier === 'eternal' ? 'TM' : player.tier === 'prime' ? 'IP' : player.tier === 'vietnam' ? 'VN' : player.tier === 'prm' ? 'PRM' : player.tier === 'mdl' ? 'MDL' : player.tier === 'amb' ? 'FCA' : player.tier === 'uc' ? 'UC' : player.tier === 'wg' ? 'WG' : player.tier === 'ut' ? 'UT' : player.tier === 'cu' ? 'CU' : player.tier === 'gru' ? 'GRU' : player.tier === 'rtn' ? 'RTN' : player.tier === 'dc' ? 'DC' : player.tier === 'cc' ? 'CC' : player.tier === 'bld' ? 'BLD' : player.tier === 'wb' ? 'WB' : player.tier === 'spt' ? 'SPT' : player.tier === 'bdo' ? 'BDO' : player.tier === 'hw23' ? '23HW' : player.tier === 'ep24' ? '24EP' : player.tier === 'ptg' ? 'PTG' : player.tier === 'le' ? 'LE' : player.tier === 'hg' ? 'HG' : player.tier === 'spl' ? 'SPL' : player.tier === 'ln' ? 'LN' : player.tier === 'fa' ? 'FA' : player.tier === 'lol' ? 'LOL' : player.tier === 'cap' ? 'CAP' : player.tier === 'boe21' ? 'E21' : player.tier === 'btb' ? 'BTB' : player.tier === 'ebs' ? 'EBS' : player.tier === 'juventus' ? 'JUVE' : player.tier === 'jnm' ? 'JNM' : player.tier === 'hr25' ? '25HR' : player.tier === 'up26' ? '26UP' : player.tier === 'stellar' ? 'TT' : 'N7'}</div>
       <div className="card-bottom"><img className="card-level" src={levelBadge(card.level)} alt={`+${card.level}`}/><strong className="player-name">{player.name}</strong><span className="card-club">{cardTeam}</span><div className="card-stats">{['Tốc độ', 'Dứt điểm', 'Chuyền'].map((s, i) => <span key={s}><b>{Math.max(60, ovr(card) - i * 3 + (player.pos === 'ST' ? 2 : 0))}</b>{s}</span>)}</div></div>
     </div>{sheen}
   </div>;
@@ -231,9 +234,11 @@ const readSeen = (key: string) => {
   return { history: 0, packs: 0 };
 };
 
-type AppProps = { storage?: Pick<Storage, 'getItem' | 'setItem'>; storageKey?: string; accountName?: string; syncStatus?: string; onLogout?: () => void; onDeleteAccount?: () => void; signingOut?: boolean };
+// online: đã đăng nhập tài khoản; FC (số dư, quà ngày, gift code, mua gói, sự kiện, jackpot) đi qua máy chủ (src/wallet.ts).
+// Khách (online = false) không dùng được FC.
+type AppProps = { storage?: Pick<Storage, 'getItem' | 'setItem'>; storageKey?: string; accountName?: string; syncStatus?: string; onLogout?: () => void; onDeleteAccount?: () => void; signingOut?: boolean; online?: boolean };
 
-export default function App({ storage = localStorage, storageKey = STORAGE_KEY, accountName, syncStatus, onLogout, onDeleteAccount, signingOut = false }: AppProps = {}) {
+export default function App({ storage = localStorage, storageKey = STORAGE_KEY, accountName, syncStatus, onLogout, onDeleteAccount, signingOut = false, online = false }: AppProps = {}) {
   const seenKey = `${storageKey}:seen`;
   const [loadNotice] = useState(() => { try { const raw = storage.getItem(storageKey); return raw && !validateSave(JSON.parse(raw)) ? 'Dữ liệu cũ không hợp lệ. Đã mở bộ dữ liệu khởi đầu.' : ''; } catch { return 'Không đọc được dữ liệu đã lưu. Kiểm tra quyền lưu trữ của trình duyệt.'; } });
   // Bản lưu thô gần nhất mà tab này đã đọc hoặc ghi; khác với localStorage nghĩa là tab khác vừa ghi.
@@ -348,7 +353,6 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     const picked = autoPickMaterials(target, save.cards.filter(c => c.uid !== targetId && !save.squad?.includes(c.uid) && !isLocked(save, c.uid)));
     if (!picked.ids.length) { notify('Không có thẻ nào dùng làm phôi được.'); return; }
     setMaterialIds(picked.ids);
-    if (picked.energy < 100) notify(`Kho chưa đủ phôi để đạt 5 vạch · đã chọn bộ nạp nhiều nhất (${picked.energy}%).`);
   };
   useEffect(() => { setHoveredMaterialId(''); }, [targetId, matSort, view]);
   const bestOwned = save.cards.length ? Math.max(...save.cards.map(ovr)) : 0;
@@ -452,11 +456,15 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       notify(`Đã mua ${count} × ${getPlayer(card).name} +${card.level}. Thẻ đã vào kho.`); playSound('success', latest.current.sound); setMatTab('owned');
     } catch (e) { notify((e as Error).message); }
   };
-  const purchasePacks = (pack: Pack, count: number, quiet = false) => {
+  // Mua gói bằng FC: kiểm tra trên bản lưu, trừ FC ở máy chủ, rồi thêm gói vào kho với số FC máy chủ trả về.
+  const purchasePacks = async (pack: Pack, count: number, quiet = false) => {
     if (busy.current) return false;
+    if (!online) { notify(LOGIN_FOR_FC); return false; }
     busy.current = true;
     try {
-      const next = buyPacks(latest.current, pack, count, UNLIMITED_COINS);
+      buyPacks(latest.current, pack, count, UNLIMITED_COINS);
+      const wallet = await spendFc(pack.price * count, { pack: pack.id, count });
+      const next = applyWallet(buyPacks(latest.current, pack, count, true), wallet);
       if (!commit(next)) return false;
       if (!quiet) { notify(`Đã mua ${count} ${pack.name}. Gói đã được thêm vào kho vật phẩm.`); playSound('success', latest.current.sound); }
       return true;
@@ -464,7 +472,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     finally { busy.current = false; }
   };
   // Shop "Mở ngay": mua rồi vào thẳng màn mở, tự mở đúng số gói vừa mua (như nút mở lại ở màn kết quả).
-  const buyAndOpen = (pack: Pack, count: number) => { if (purchasePacks(pack, count, true)) { prepareOpening(pack); againCount.current = count; } };
+  const buyAndOpen = async (pack: Pack, count: number) => { if (await purchasePacks(pack, count, true)) { prepareOpening(pack); againCount.current = count; } };
   const receiveTestPacks = () => {
     if (!UNLIMITED_COINS || busy.current) return;
     const count = getPackStock(latest.current, selectedPack);
@@ -603,23 +611,76 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   }, [view]);
   // Quà mỗi ngày: bấm mở bảng xem quà (dailyOpen), bấm Nhận trong bảng mới nhận.
   const [dailyOpen, setDailyOpen] = useState(false);
-  const daily = () => setDailyOpen(true);
-  const claimDailyGift = () => { try { if (commit(claimDaily(latest.current))) { notify(`Điểm danh thành công! Đã nhận ${money(DAILY_FC)} FC.`); playSound('success', save.sound); } } catch (e) { notify((e as Error).message); } };
-  // Lượt sự kiện: rút hũ, góp FC vào Giải Đặc Biệt và thử trúng giải (src/jackpot.ts); FC trúng thưởng cộng chung một lần lưu.
-  const playEventTurns = (count: number, mode: 'fc' | 'free') => { try {
-    const result = playEvent(latest.current, count, undefined, UNLIMITED_COINS, mode);
-    const paid = mode === 'fc' ? EVENT_PLAYS.find(play => play.count === count)?.price ?? 0 : 0;
-    const jackpot = rollJackpot(tickJackpot(loadJackpot(), Date.now(), random), count, paid, random);
-    if (!commit(grantJackpot(result.state, jackpot.wins))) return null;
-    saveJackpot(jackpot.jackpot);
-    return { ...result, jackpotWins: jackpot.wins, jackpotPaid: paid };
-  } catch (e) { notify((e as Error).message); return null; } };
+  const [topupOpen, setTopupOpen] = useState(false); // khung nạp FC (nút + cạnh ô FC)
+  const daily = () => { setDailyOpen(true); setGiftMessage(null); };
+  // Gift code: băm code, máy chủ kiểm tra và cộng FC; phần BP / gói cộng vào bản lưu mới nhất (src/gift-codes.ts).
+  const [giftInput, setGiftInput] = useState('');
+  const [giftBusy, setGiftBusy] = useState(false);
+  const [giftMessage, setGiftMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const redeemGift = async () => {
+    if (giftBusy) return;
+    setGiftBusy(true); setGiftMessage(null);
+    try {
+      if (!online) throw new Error(LOGIN_FOR_FC);
+      const found = await prepareGiftCode(giftInput);
+      const redeemed = await redeemGiftHash(found.hash);
+      const result = applyGiftRewards(applyWallet(latest.current, redeemed.wallet), found.code, redeemed.rewards);
+      if (commit(result.state)) { setGiftInput(''); setGiftMessage({ ok: true, text: `Đã nhận ${result.text}.` }); notify(`Đổi gift code thành công! Đã nhận ${result.text}.`); playSound('success', latest.current.sound); }
+    } catch (e) { setGiftMessage({ ok: false, text: (e as Error).message }); }
+    finally { setGiftBusy(false); }
+  };
+  const claimDailyGift = async () => {
+    if (!online) { notify(LOGIN_FOR_FC); return; }
+    try {
+      const wallet = await claimDailyFc(), today = dayKey();
+      const next = applyWallet({ ...latest.current, history: [{ id: uid(), time: Date.now(), type: 'gift' as const, title: 'Quà điểm danh mỗi ngày', detail: `+${money(DAILY_FC)} FC vào tài khoản` }, ...latest.current.history].slice(0, 200) }, wallet, today);
+      if (commit(next)) { notify(`Điểm danh thành công! Đã nhận ${money(DAILY_FC)} FC.`); playSound('success', latest.current.sound); }
+    } catch (e) { notify((e as Error).message); }
+  };
+  // Lượt sự kiện: máy chủ trừ FC / lượt miễn phí, quay hũ, góp vào quỹ Giải Đặc Biệt chung và thử trúng; FC trúng máy chủ cộng vào ví.
+  // Trình duyệt ghi hũ trúng (điểm, nhật ký, BP / gói) rồi lấy số FC và tiến trình sự kiện từ máy chủ.
+  const playEventTurns = async (count: number, mode: 'fc' | 'free') => {
+    if (!online) { notify(LOGIN_FOR_FC); return null; }
+    try {
+      const played = await playEventFc(count, mode);
+      const result = recordEventPlay(latest.current, played.hits, mode, played.paid, false, true);
+      if (!commit(applyWallet(result.state, played.wallet))) return null;
+      return { ...result, jackpotWins: played.jackpotWins.map(w => ({ ...w, name: 'Bạn', mine: true })), jackpotPaid: played.paid, jackpot: played.jackpot };
+    } catch (e) { notify((e as Error).message); return null; }
+  };
   const claimEventGift = (index: number, choice: number | null) => { try { const result = claimMilestone(latest.current, index, choice); return commit(result.state) ? result.rewards : null; } catch (e) { notify((e as Error).message); return null; } };
-  const claimEventMission = (id: string) => { try { if (!commit(claimMission(latest.current, id))) return false; notify('Đã nhận lượt chơi miễn phí.'); return true; } catch (e) { notify((e as Error).message); return false; } };
+  const claimEventMission = async (id: string) => {
+    if (!online) { notify(LOGIN_FOR_FC); return false; }
+    try {
+      const mission = EVENT_MISSIONS.find(item => item.id === id);
+      if (!mission) throw new Error('Không tìm thấy nhiệm vụ này.');
+      if (eventState(latest.current).missions.includes(id)) throw new Error('Bạn đã nhận thưởng nhiệm vụ này hôm nay.');
+      if (missionProgress(latest.current, mission) < mission.goal) throw new Error(`Chưa hoàn thành: ${mission.title}.`);
+      const wallet = await claimMissionFc(id);
+      const next = applyWallet({ ...latest.current, history: [{ id: uid(), time: Date.now(), type: 'event' as const, title: `Nhiệm vụ sự kiện · ${mission.title}`, detail: `+${mission.free} lượt chơi miễn phí` }, ...latest.current.history].slice(0, 200) }, wallet);
+      if (!commit(next)) return false;
+      notify('Đã nhận lượt chơi miễn phí.'); return true;
+    } catch (e) { notify((e as Error).message); return false; }
+  };
+  // Ví FC: tải khi vào game (lần đầu tạo ví thì điểm sự kiện lấy từ bản lưu), và mỗi khi quay lại tab (admin có thể vừa cộng FC).
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [fcAdminOpen, setFcAdminOpen] = useState(false);
+  const refreshWallet = async () => {
+    if (!online) return;
+    try { const wallet = await fetchWallet(eventState(latest.current).points); setIsAdmin(wallet.admin); commit(applyWallet(latest.current, wallet)); }
+    catch (e) { notify((e as Error).message); }
+  };
+  useEffect(() => {
+    if (!online) return;
+    void refreshWallet();
+    const visible = () => { if (document.visibilityState === 'visible') void refreshWallet(); };
+    document.addEventListener('visibilitychange', visible);
+    return () => document.removeEventListener('visibilitychange', visible);
+  }, [online]);
   const resetFilters = () => { setQuery(''); setPosition(''); setSeason(''); setLevel(''); setMinOvr(''); setSort('ovr'); };
 
   return <div className={`app min-h-screen antialiased ${save.reduced ? 'reduced-motion' : ''}`}>
-    <header className="topbar"><a className="brand" href="#" onClick={e => { e.preventDefault(); switchView('packs'); }} aria-label="FCO VIP, trang chủ"><img src={asset('/assets/fco-vip-logo.png')} alt=""/><span>FCO<b>VIP</b></span></a><div className="header-tag"><span><span className="live-dot"/>Sân chơi của những huyền thoại</span><small title="Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.">Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.</small></div><div className="topbar-actions"><div className="wallet"><img className="coin-icon currency-icon" src={asset('/assets/currency-bp.png')} alt="BP"/><div><small>{UNLIMITED_COINS ? 'Chế độ thử nghiệm' : 'Số dư của bạn'}</small><b>{UNLIMITED_COINS ? '∞' : money(save.balance)} <span>BP</span></b></div></div><div className="wallet wallet-fc" title="FC dùng để chơi sự kiện Nâng Cấp Siêu Sao"><img className="coin-icon currency-icon" src={asset('/assets/currency-fc.png')} alt="FC"/><div><small>FC của bạn</small><b>{UNLIMITED_COINS ? '∞' : money(save.fc ?? 0)} <span>FC</span></b></div></div><button className={`topbar-gift ${dailyClaimed ? '' : 'has-gift'}`} onClick={daily} aria-label={dailyClaimed ? 'Quà mỗi ngày · đã điểm danh hôm nay' : `Quà mỗi ngày · nhận ${money(DAILY_FC)} FC`} title={dailyClaimed ? 'Quà mỗi ngày · đã nhận hôm nay' : `Quà mỗi ngày · nhận ${money(DAILY_FC)} FC`}><Gift size={22}/>{!dailyClaimed && <i className="topbar-gift-dot" aria-hidden="true"/>}</button><BackgroundMusic suspended={upgradeMusicActive} musicType={musicType}/><button className="avatar" aria-label="Cài đặt trò chơi" onClick={() => setSettings(true)} title={accountName ? `Huấn luyện viên ${accountName}` : undefined}>{accountName ? accountName.slice(0, 3).toUpperCase() : 'HLV'}</button></div></header>
+    <header className="topbar"><a className="brand" href="#" onClick={e => { e.preventDefault(); switchView('packs'); }} aria-label="FCO VIP, trang chủ"><img src={asset('/assets/fco-vip-logo.png')} alt=""/><span>FCO<b>VIP</b></span></a><div className="header-tag"><span><span className="live-dot"/>Sân chơi của những huyền thoại</span><small title="Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.">Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.</small></div><div className="topbar-actions"><div className="wallet"><img className="coin-icon currency-icon" src={asset('/assets/currency-bp.png')} alt="BP"/><div><small>{UNLIMITED_COINS ? 'Chế độ thử nghiệm' : 'Số dư của bạn'}</small><b>{UNLIMITED_COINS ? '∞' : money(save.balance)} <span>BP</span></b></div></div><div className="wallet wallet-fc" title="FC dùng để chơi sự kiện Nâng Cấp Siêu Sao"><img className="coin-icon currency-icon" src={asset('/assets/currency-fc.png')} alt="FC"/><div><small>FC của bạn</small><b>{UNLIMITED_COINS ? '∞' : money(save.fc ?? 0)}<button type="button" className="wallet-add" aria-label="Nạp thêm FC" title="Nạp thêm FC" onClick={() => setTopupOpen(true)}>+</button> <span>FC</span></b></div></div><button className={`topbar-gift ${dailyClaimed ? '' : 'has-gift'}`} onClick={daily} aria-label={dailyClaimed ? 'Quà mỗi ngày · đã điểm danh hôm nay' : `Quà mỗi ngày · nhận ${money(DAILY_FC)} FC`} title={dailyClaimed ? 'Quà mỗi ngày · đã nhận hôm nay' : `Quà mỗi ngày · nhận ${money(DAILY_FC)} FC`}><Gift size={22}/>{!dailyClaimed && <i className="topbar-gift-dot" aria-hidden="true"/>}</button><BackgroundMusic suspended={upgradeMusicActive} musicType={musicType}/><button className="avatar" aria-label="Cài đặt trò chơi" onClick={() => setSettings(true)} title={accountName ? `Huấn luyện viên ${accountName}` : undefined}>{accountName ? accountName.slice(0, 3).toUpperCase() : 'HLV'}</button></div></header>
     <main ref={mainRef} className={`main-content view-${view}`}>
       {view === 'packs' && <>
         <section className="hero" aria-labelledby="hero-title"><Stadium reduced={save.reduced}/><LiveTicker messages={tickerMessages} reduced={save.reduced}/><div className="hero-content"><motion.div initial={save.reduced ? false : { opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .6 }} className="hero-copy"><div className="season-label"><span/>MÙA THẺ ICON TM</div><h1 id="hero-title">Chạm tới<br/><em>huyền thoại.</em></h1><p className="hero-sub">Trải nghiệm mở gói và nâng cấp những mùa thẻ đỉnh cao không giới hạn.</p><div className="hero-cta"><button className="cta-gold" onClick={() => prepareOpening(featuredPack)}>MỞ GÓI NGAY</button><button className="cta-glass" onClick={() => switchView('upgrade')}>ĐẬP THẺ THỬ VẬN MAY</button></div></motion.div>
@@ -682,7 +743,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       {view === 'shop' && <PackShop save={save} packs={shopPacks} free={UNLIMITED_COINS} onBuy={(pack, count) => purchasePacks(pack, count)} onOpenNow={buyAndOpen} onPreview={(pack, count) => setPackPreview({ pack, count })} onInventory={() => switchView('inventory')} renderArt={pack => <PackArt pack={pack}/>}/>}
       {view === 'inventory' && <Inventory save={save} packs={packs} onUse={pack => prepareOpening(pack)} onShop={() => switchView('shop')} onUseSelected={selection => selection[0] && prepareOpening(selection[0], selection)} onClose={() => switchView('packs')} renderArt={pack => <PackArt pack={pack}/>} testMode={UNLIMITED_COINS} onReceiveTest={receiveTestPacks}/>}
       {view === 'market' && <TransferMarket save={save} free={UNLIMITED_COINS} onTrade={requestTrade} onBulkSell={() => setSellOpen({ tab: 'bulk' })} onHistory={() => { setHistoryType('market'); switchView('history'); }} onOpenPacks={() => switchView('inventory')} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge}/>}
-      {view === 'event' && <EventPage save={save} free={UNLIMITED_COINS} onPlay={playEventTurns} onClaim={claimEventGift} onMission={claimEventMission}/>}
+      {view === 'event' && <EventPage save={save} free={UNLIMITED_COINS} onPlay={playEventTurns} onClaim={claimEventGift} onMission={claimEventMission} serverJackpot={online ? fetchJackpot : undefined}/>}
       {view === 'history' && <section className="workspace history-workspace"><div className="page-heading"><div><h1>Dấu ấn hành trình</h1><p>Lưu tối đa 200 hoạt động gần nhất trên trình duyệt này.</p></div><select aria-label="Lọc loại lịch sử" value={historyType} onChange={e => setHistoryType(e.target.value)}><option value="">Tất cả hoạt động</option><option value="pack">Mở gói</option><option value="upgrade">Nâng cấp</option><option value="gift">Điểm danh</option><option value="market">Chuyển nhượng</option><option value="shop">Mua gói</option><option value="event">Sự kiện</option></select></div>{save.history.filter(e => !historyType || e.type === historyType).length ? <ViewportPages className="history-list" itemHeight={92} resetKey={historyType}>{save.history.filter(e => !historyType || e.type === historyType).map(e => <article className="history-item" key={e.id}><div className={`history-icon ${e.success === false ? 'failure' : ''}`}>{e.type === 'pack' ? <PackageOpen size={21}/> : e.type === 'gift' ? <Gift size={21}/> : e.type === 'market' ? <ArrowLeftRight size={21}/> : e.type === 'shop' ? <ShoppingBag size={21}/> : e.type === 'event' ? <Sparkles size={21}/> : <Zap size={21}/>}</div><div><h2>{e.title}</h2><p>{historyDetail(e)}</p></div><time>{new Date(e.time).toLocaleString('vi-VN')}</time></article>)}</ViewportPages> : <div className="empty-state"><History size={38}/><h2>Trang sử đang chờ bạn</h2><p>Mở gói, nâng cấp hoặc nhận quà điểm danh để bắt đầu.</p><button className="primary-button" onClick={() => switchView('inventory')}>Kho vật phẩm<ArrowRight size={16}/></button></div>}</section>}
     </main>
       {(() => { // Thanh menu dưới kiểu FC Online, luôn hiện ở mọi màn (điều hướng chính của game): mục chữ ngăn bằng vạch mảnh, chấm xanh = có thứ mới; biểu tượng bên phải.
@@ -717,15 +778,25 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
         {tradeError && <p className="trade-error" role="alert">{tradeError}</p>}
         <div className="trade-actions"><button className="secondary-button" onClick={() => setTrade(null)}>Hủy</button><button className="market-primary confirm-trade" onClick={confirmTrade} disabled={!marketQuote(trade.card).available || (trade.kind === 'buy' && !UNLIMITED_COINS && save.balance < (marketQuote(trade.card).price ?? Infinity))}>Xác nhận {trade.kind === 'buy' ? 'mua' : 'bán'}<Check size={17}/></button></div>
       </Modal>}
-      {packPreview && <Modal className="pack-preview-modal" label={`Xem trước ${packPreview.pack.name}`} onClose={() => setPackPreview(null)}><PackPreview pack={packPreview.pack} count={packPreview.count} free={UNLIMITED_COINS} balance={save.fc ?? 0} onClose={() => setPackPreview(null)} onBuy={() => { if (purchasePacks(packPreview.pack, packPreview.count)) setPackPreview(null); }} onOpenNow={() => { setPackPreview(null); buyAndOpen(packPreview.pack, packPreview.count); }}/></Modal>}
-      {settings && <Modal label="Cài đặt trò chơi" onClose={() => setSettings(false)}><div className="modal-heading"><h2>Cài đặt trò chơi</h2><button className="icon-button" aria-label="Đóng cài đặt" onClick={() => setSettings(false)}><X/></button></div>{([{ key: 'sound' as const, title: 'Âm thanh', description: AUDIO_ENABLED ? 'Âm thanh điện tử khi mở gói và nâng cấp.' : 'Âm thanh đã tắt trong phiên bản này.' }, { key: 'reduced' as const, title: 'Giảm chuyển động', description: 'Bỏ hoạt cảnh dài, khói và hạt sáng chuyển động.' }, { key: 'quick' as const, title: 'Mở thẻ nhanh', description: 'Rút hoạt cảnh từ khoảng 10 giây xuống 3,5 giây.' }, { key: 'light' as const, title: 'Hiệu ứng nhẹ', description: 'Dùng đường hầm 2D nhẹ, phù hợp khi máy nóng hoặc hình chuyển động chậm.' }]).map(s => <label className="setting-row" key={s.key}><span><b>{s.title}</b><small>{s.description}</small></span><input type="checkbox" disabled={s.key === 'sound' && !AUDIO_ENABLED} checked={s.key === 'sound' ? AUDIO_ENABLED && !!save.sound : !!save[s.key]} onChange={e => updateSetting(s.key, e.target.checked)}/></label>)}<label className="setting-row"><span><b>Nhạc nền</b><small>Chọn loại nhạc phát trong trò chơi.</small></span><select aria-label="Loại nhạc nền" value={musicType} onChange={e => changeMusicType(e.target.value as MusicType)}><option value="instrumental">1. Nhạc không lời</option><option value="vocals">2. Nhạc có lời</option></select></label>{accountName && <div className="account-settings"><div><strong>{accountName}</strong><small role="status">{syncStatus}</small></div>{onLogout && <button disabled={signingOut} onClick={onLogout}>{signingOut ? 'Đang đăng xuất…' : accountName === 'Khách' ? 'Đăng nhập' : 'Đăng xuất'}</button>}</div>}<div className="storage-notice"><Shield size={20}/><p>{storageKey === STORAGE_KEY ? 'Tiến trình khách được lưu trên trình duyệt này. Đăng nhập để chơi bằng tài khoản riêng trên nhiều thiết bị.' : 'Tiến trình được đồng bộ cùng tài khoản. Hãy chờ trạng thái Đã đồng bộ trước khi đóng trang hoặc chuyển thiết bị.'} Không có thanh toán bằng tiền thật.</p></div><button className="settings-help" onClick={() => { setSettings(false); setHelp(true); }}><CircleHelp size={17}/>Thông tin & nguồn ảnh<ChevronRight size={16}/></button>{import.meta.env.DEV && <button className="settings-help" onClick={() => { setSettings(false); setAdminOpen(true); }}><PackagePlus size={17}/>Quản trị gói · chỉ máy dev<ChevronRight size={16}/></button>}{onDeleteAccount && <div className="account-danger-zone"><h3>Xóa tài khoản</h3><p>Xóa vĩnh viễn tài khoản cùng toàn bộ kho thẻ và tiến trình.</p><button disabled={signingOut} onClick={() => { setSettings(false); onDeleteAccount(); }}>Xóa tài khoản</button></div>}</Modal>}
+      {packPreview && <Modal className="pack-preview-modal" label={`Xem trước ${packPreview.pack.name}`} onClose={() => setPackPreview(null)}><PackPreview pack={packPreview.pack} count={packPreview.count} free={UNLIMITED_COINS} balance={save.fc ?? 0} onClose={() => setPackPreview(null)} onBuy={() => { const target = packPreview; void purchasePacks(target.pack, target.count).then(ok => { if (ok) setPackPreview(null); }); }} onOpenNow={() => { setPackPreview(null); void buyAndOpen(packPreview.pack, packPreview.count); }}/></Modal>}
+      {settings && <Modal label="Cài đặt trò chơi" onClose={() => setSettings(false)}><div className="modal-heading"><h2>Cài đặt trò chơi</h2><button className="icon-button" aria-label="Đóng cài đặt" onClick={() => setSettings(false)}><X/></button></div>{([{ key: 'sound' as const, title: 'Âm thanh', description: AUDIO_ENABLED ? 'Âm thanh điện tử khi mở gói và nâng cấp.' : 'Âm thanh đã tắt trong phiên bản này.' }, { key: 'reduced' as const, title: 'Giảm chuyển động', description: 'Bỏ hoạt cảnh dài, khói và hạt sáng chuyển động.' }, { key: 'quick' as const, title: 'Mở thẻ nhanh', description: 'Rút hoạt cảnh từ khoảng 10 giây xuống 3,5 giây.' }, { key: 'light' as const, title: 'Hiệu ứng nhẹ', description: 'Dùng đường hầm 2D nhẹ, phù hợp khi máy nóng hoặc hình chuyển động chậm.' }]).map(s => <label className="setting-row" key={s.key}><span><b>{s.title}</b><small>{s.description}</small></span><input type="checkbox" disabled={s.key === 'sound' && !AUDIO_ENABLED} checked={s.key === 'sound' ? AUDIO_ENABLED && !!save.sound : !!save[s.key]} onChange={e => updateSetting(s.key, e.target.checked)}/></label>)}<label className="setting-row"><span><b>Nhạc nền</b><small>Chọn loại nhạc phát trong trò chơi.</small></span><select aria-label="Loại nhạc nền" value={musicType} onChange={e => changeMusicType(e.target.value as MusicType)}><option value="instrumental">1. Nhạc không lời</option><option value="vocals">2. Nhạc có lời</option></select></label>{accountName && <div className="account-settings"><div><strong>{accountName}</strong><small role="status">{syncStatus}</small></div>{onLogout && <button disabled={signingOut} onClick={onLogout}>{signingOut ? 'Đang đăng xuất…' : accountName === 'Khách' ? 'Đăng nhập' : 'Đăng xuất'}</button>}</div>}<div className="storage-notice"><Shield size={20}/><p>{storageKey === STORAGE_KEY ? 'Tiến trình khách được lưu trên trình duyệt này. Đăng nhập để chơi bằng tài khoản riêng trên nhiều thiết bị.' : 'Tiến trình được đồng bộ cùng tài khoản. Hãy chờ trạng thái Đã đồng bộ trước khi đóng trang hoặc chuyển thiết bị.'}</p></div>{isAdmin && <button className="settings-help" onClick={() => { setSettings(false); setFcAdminOpen(true); }}><Coins size={17}/>Quản trị FC · nạp FC, gift code<ChevronRight size={16}/></button>}<button className="settings-help" onClick={() => { setSettings(false); setHelp(true); }}><CircleHelp size={17}/>Thông tin & nguồn ảnh<ChevronRight size={16}/></button>{import.meta.env.DEV && <button className="settings-help" onClick={() => { setSettings(false); setAdminOpen(true); }}><PackagePlus size={17}/>Quản trị gói · chỉ máy dev<ChevronRight size={16}/></button>}{onDeleteAccount && <div className="account-danger-zone"><h3>Xóa tài khoản</h3><p>Xóa vĩnh viễn tài khoản cùng toàn bộ kho thẻ và tiến trình.</p><button disabled={signingOut} onClick={() => { setSettings(false); onDeleteAccount(); }}>Xóa tài khoản</button></div>}</Modal>}
+      {isAdmin && fcAdminOpen && <AdminPanel onClose={() => { setFcAdminOpen(false); void refreshWallet(); }}/>}
       {import.meta.env.DEV && PackAdmin && adminOpen && <Suspense fallback={null}><PackAdmin renderArt={pack => <PackArt pack={pack}/>} onClose={() => { setAdminOpen(false); history.replaceState(null, '', location.pathname + location.search); }}/></Suspense>}
       {confirm && <UpgradeConfirm onMusicActiveChange={setUpgradeMusicActive} target={confirm.target} materials={confirm.materials} energy={upgradeInfo(confirm.target, confirm.materials).energy} restore={restoreApplies(confirm.target) ? evaluateRestore(confirm.target, confirm.materials) : null} protection={protectionApplies(confirm.target) ? { pct: activeProtection(save, confirm.target), cost: protectionCost(confirm.target, activeProtection(save, confirm.target)) } : null} reduced={save.reduced} renderCard={(card, compact) => <PlayerCard card={card} compact={compact}/>} seasonShort={seasonShort} onBack={closeConfirm} onReveal={success => playSound(success ? 'success' : 'fail', latest.current.sound)} levelBadge={levelBadge} onConfirm={() => { const result = enhance(true); if (!result) { setConfirm(null); return null; } return { success: result.success, card: result.result, before: confirm.target.level, restored: result.restoredLevel !== null }; }}/>}
       {protectOpen && target && protectionApplies(target) && <Modal label="Bảo vệ nâng cấp" onClose={() => setProtectOpen(false)}><UpgradeProtection card={target} pct={save.protection?.pct ?? 0} fixed={save.protection?.fixed ?? false} balance={save.balance} free={UNLIMITED_COINS} onChange={(pct, fixed) => { try { commit(setProtection(latest.current, pct, fixed)); } catch (e) { notify((e as Error).message); } }} onClose={() => setProtectOpen(false)}/></Modal>}
+      {topupOpen && <Modal className="topup-modal" label="Nạp FC" onClose={() => setTopupOpen(false)}>
+        <div className="modal-heading"><div><h2>Nạp FC</h2><p>Quét mã QR để chuyển khoản.</p></div><button className="icon-button" aria-label="Đóng" onClick={() => setTopupOpen(false)}><X/></button></div>
+        <TopUp accountName={accountName} online={online}/>
+      </Modal>}
       {dailyOpen && <Modal className="daily-modal" label="Quà mỗi ngày" onClose={() => setDailyOpen(false)}>
         <div className="modal-heading"><div><h2>Quà mỗi ngày</h2><p>Điểm danh mỗi ngày (giờ Việt Nam) để nhận quà bên dưới.</p></div><button className="icon-button" aria-label="Đóng" onClick={() => setDailyOpen(false)}><X/></button></div>
         <div className="daily-gift"><span className="daily-fc-card"><img src={asset('/assets/event/fc-card.webp')} alt=""/><b>{money(DAILY_FC)}</b></span><strong>{money(DAILY_FC)} FC</strong></div>
         <button className="primary-button daily-claim" disabled={dailyClaimed} onClick={() => { claimDailyGift(); setDailyOpen(false); }}>{dailyClaimed ? 'Đã nhận hôm nay · Quay lại vào ngày mai' : 'Nhận'}</button>
+        <form className="gift-code" onSubmit={e => { e.preventDefault(); void redeemGift(); }}>
+          <label htmlFor="gift-code-input">Gift code</label>
+          <div className="gift-code-row"><input id="gift-code-input" value={giftInput} onChange={e => { setGiftInput(e.target.value); setGiftMessage(null); }} placeholder="Nhập gift code" maxLength={40} autoComplete="off" autoCapitalize="characters" spellCheck={false} aria-describedby={giftMessage ? 'gift-code-message' : undefined}/><button type="submit" className="secondary-button" disabled={giftBusy || !giftInput.trim()}>{giftBusy ? 'Đang kiểm tra…' : 'Đổi'}</button></div>
+          {giftMessage && <p id="gift-code-message" className={`gift-code-message ${giftMessage.ok ? 'is-ok' : 'is-error'}`} role={giftMessage.ok ? 'status' : 'alert'}>{giftMessage.text}</p>}
+        </form>
       </Modal>}
       {help && <Modal label="Hướng dẫn và thông tin" onClose={() => setHelp(false)}><div className="modal-heading"><h2>Chơi theo cách của bạn</h2><button className="icon-button" aria-label="Đóng hướng dẫn" onClick={() => setHelp(false)}><X/></button></div><div className="help-content"><h3>Mở gói cầu thủ</h3><p>Bắt đầu với 15.000.000 BP và 2 thẻ tặng sẵn; Kho vật phẩm trống. Mua gói trong Shop (hoặc nhận gói từ sự kiện), rồi vào Kho vật phẩm, nhấn Dùng trên gói muốn mở, nhấn Mở 1 vật phẩm hoặc mở tất cả số còn lại, tối đa 10 thẻ mỗi lượt. Mở bao nhiêu trừ bấy nhiêu gói. Mỗi gói (ALL) ra 1 thẻ +1: cầu thủ OVR càng cao so với mức thấp nhất của gói và giá +1 càng đắt thì càng hiếm (xem tỷ lệ khi bấm vào ảnh gói ở Shop). Gói có ghi khoảng cấp (ví dụ +1~+5) mới ra cấp cao hơn, mỗi cấp hiếm hơn cấp trước khoảng 3,2 lần. Kết quả được tính theo tỷ lệ công bố và lưu trước khi hoạt cảnh bắt đầu. Bỏ qua không thay đổi kết quả.</p><h3>Nâng cấp thẻ</h3><p>Chọn thẻ chính và 1–5 nguyên liệu từ kho. Một vạch tương ứng 20% năng lượng, tổng tối đa 5 vạch (100%). Mỗi cấp có một mức OVR chuẩn so với thẻ chính: +1 thấp hơn 2, +2 thấp hơn 0,5, +3 bằng OVR, +4 cao hơn 0,3, +5 cao hơn 1, +6 cao hơn 1,8, +7 cao hơn 2,5, +8 cao hơn 3,3, +9 cao hơn 4,1, +10 cao hơn 5, +11 cao hơn 6, +12 cao hơn 7. Phôi đúng mức chuẩn nạp 1 vạch; mỗi OVR cao hơn chuẩn nhân 1,28 (tối đa 2,5 vạch mỗi phôi), mỗi OVR thấp hơn chuẩn nhân 0,72; thấp hơn thẻ chính từ 6 OVR trở lên chỉ còn 0,02 vạch. Năng lượng từng phôi làm tròn đến 0,1%.</p><p>Tỷ lệ thành công = tỷ lệ tối đa của cấp × số vạch / 5. Phí = cấp cộng hiện tại × 100.000 BP.</p><div className="upgrade-rate-table">{UPGRADE_LEVELS.slice(1).map((rule, i) => <span key={i}><b>+{i + 1} → +{i + 2}</b>OVR +{rule.ovrGain} · {String(rule.chance).replace('.', ',')}%</span>)}</div><p>Thành công: tăng 1 cấp cộng; OVR tăng thêm theo bảng trên và cộng dồn từ cấp +1. Thất bại: thẻ rớt về một cấp thấp hơn theo bảng xác suất của từng cấp (đập cấp càng cao càng dễ rớt sâu, không rớt quá +8), tối thiểu +1. Thẻ từ +5 có cơ hội khôi phục tùy loại phôi, cộng dồn tối đa 100%; khôi phục thì thẻ không rớt dưới mức giữ. Bản sao (cùng cầu thủ, cùng mùa) bằng hoặc cao hơn cấp thẻ chính: 100%, thấp hơn 1 cấp: 85% (đều giữ nguyên cấp); bản sao +3 trở lên: 50%, +1/+2: 20% (giữ tối thiểu +5). Thẻ cùng mùa khác cầu thủ từ +5 có OVR không thấp hơn quá 3: 100%, thấp hơn nữa giảm dần tới 35% (giữ tối thiểu cấp của phôi, không quá cấp thẻ chính); thẻ cùng mùa +4 có OVR không thấp hơn: 40% (giữ +5). Cùng cầu thủ khác mùa từ +5 có OVR không thấp hơn quá 2: 65% (giữ +5). Phôi thường không có khôi phục. Mọi kết quả đều tiêu hao nguyên liệu và phí, trừ phí BP trong chế độ thử. Cấp tối đa +{MAX_LEVEL}.</p><h3>Thị trường chuyển nhượng</h3><p>Mua cầu thủ từ danh sách hoặc bán từng thẻ trong kho. Chọn đúng cấp thẻ trước khi xác nhận. Giá mô phỏng cố định theo OVR gốc và cấp thẻ; phí bán 5%, số BP thực nhận hiển thị trước khi bán. Thẻ và lịch sử được lưu ngay trên trình duyệt. Khi bật BP vô hạn, mua/bán không thay đổi số dư. Đây là thị trường với hệ thống trong game, không kết nối người chơi khác.</p><h3>Quà mỗi ngày</h3><p>Bấm hộp quà trên thanh trên cùng để xem quà rồi bấm Nhận: {money(DAILY_FC)} FC mỗi ngày theo giờ Việt Nam (UTC+7), dùng để chơi sự kiện Nâng Cấp Siêu Sao. Ngày mới bắt đầu lúc 00:00. Không có mua BP bằng tiền thật.</p><h3>Dữ liệu và nguồn ảnh</h3><p>{players.length} cầu thủ mẫu, mùa giải và chỉ số do dự án đặt cho trải nghiệm giả lập. Tên CLB minh họa giai đoạn sự nghiệp, không đại diện đội hình hiện tại. Khung thẻ, huy hiệu, hình đại diện và sân vận động được thiết kế riêng.</p><p>Ảnh <a href="https://commons.wikimedia.org/wiki/File:Lionel_Messi_WC2022.jpg" target="_blank" rel="noreferrer">Lionel Messi WC2022</a> — Hossein Zohrevand / Tasnim News Agency, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>. Ảnh được cắt và áp dụng mặt nạ hiển thị; phần ảnh biến đổi theo giấy phép gốc. Cầu thủ chưa có ảnh dùng hình đại diện do dự án vẽ.</p><p>Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.</p></div></Modal>}
       {detail && <Modal className="detail-modal" label="Chi tiết cầu thủ" onClose={() => setDetail(null)}><div className="modal-heading"><h2>Chi tiết cầu thủ</h2><button className="icon-button" aria-label="Đóng chi tiết" onClick={() => setDetail(null)}><X/></button></div><div className="detail-card"><PlayerCard card={detail}/></div><div className="detail-data"><span>Quốc tịch<b><Flag code={getPlayer(detail).flag}/>{getPlayer(detail).nation}</b></span><span>{['eternal', 'prime'].includes(getPlayer(detail).tier) ? 'Đội tuyển' : 'CLB minh họa'}<b>{['eternal', 'prime'].includes(getPlayer(detail).tier) ? getPlayer(detail).nation : getPlayer(detail).club}</b></span><span>Mùa giải<b>{seasons[getPlayer(detail).tier]}</b></span><span>Cấp cộng<b>+{detail.level} / +{MAX_LEVEL}</b></span></div><button className="primary-button" disabled={detail.level >= MAX_LEVEL} onClick={() => { setDetail(null); upgradeCard(detail.uid); }}><Zap size={18}/>Nâng cấp cầu thủ này</button></Modal>}

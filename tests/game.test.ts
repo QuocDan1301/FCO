@@ -16,8 +16,8 @@ const cardWith = (rating: number, level = 1, skip: number[] = []) => {
   if (!player) throw new Error(`Không có cầu thủ OVR ${rating} ở +${level}`);
   return { ...makeCard(player.id), level };
 };
-test('3758 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 165 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS và 34 JNM; mọi gói đủ 100%', () => {
-  assert.equal(players.length, 3758);
+test('3876 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 165 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS, 34 JNM, 20 25HR và 98 26UP; mọi gói đủ 100%', () => {
+  assert.equal(players.length, 3876);
   assert.equal(players.filter(p => p.tier === 'hw23').length, 195);
   assert.equal(players.filter(p => p.tier === 'ep24').length, 208);
   assert.equal(players.filter(p => p.tier === 'ptg').length, 165);
@@ -33,6 +33,8 @@ test('3758 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRI
   assert.equal(players.filter(p => p.tier === 'ebs').length, 100);
   assert.equal(players.filter(p => p.tier === 'juventus').length, 14);
   assert.equal(players.filter(p => p.tier === 'jnm').length, 34);
+  assert.equal(players.filter(p => p.tier === 'hr25').length, 20);
+  assert.equal(players.filter(p => p.tier === 'up26').length, 98);
   assert.equal(players.filter(p => p.tier === 'bdo').length, 108);
   assert.equal(players.filter(p => p.tier === 'wg').length, 155);
   assert.equal(players.filter(p => p.tier === 'ut').length, 134);
@@ -389,7 +391,7 @@ test('Điểm danh chỉ một lần/ngày theo UTC+7', () => {
   assert.equal(dayKey(new Date('2026-10-20T17:00:00Z')), '2026-10-21');
   const before = initialSave(); const after = claimDaily(before);
   assert.equal(after.balance, before.balance);
-  assert.equal(after.fc, (before.fc ?? 0) + 13_000);
+  assert.equal(after.fc, (before.fc ?? 0) + 1_000);
   assert.ok(validateSave(JSON.parse(JSON.stringify(after))));
   assert.throws(() => claimDaily(after));
 });

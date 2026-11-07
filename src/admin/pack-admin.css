@@ -100,3 +100,32 @@
   .pack-admin .pa-body{overflow-y:auto}
   .pa-body>*{overflow:visible}
 }
+
+/* Gift code (GiftCodeAdmin.tsx): chiếm cả hai cột bên phải. */
+.pa-gift{grid-column:2/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,380px);gap:28px;align-content:start}
+.pa-gift-nav{margin-top:0}
+.pa-gift-title{margin:0;font-size:16px;font-weight:700}
+.pa-gift-note{margin:0;font-size:12px;line-height:1.5;color:var(--muted)}
+.pa-gift-note code{padding:1px 5px;border-radius:3px;background:#1a2230;color:var(--gold)}
+.pa-gift-created{display:flex;align-items:center;gap:10px;margin:0;padding:8px 12px;border-radius:5px;background:#2ecc7114;color:#7ff0ad;font-size:13px}
+.pa-gift-created b{font-size:16px;letter-spacing:.06em;color:#fff}
+.pa-gift-created button{display:inline-flex;align-items:center;gap:4px;margin-left:auto;padding:3px 10px;border:1px solid #3d4a5c;border-radius:4px;font-size:12px;color:var(--gold)}
+.pa-gift-random{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border:1px solid #3d4a5c;border-radius:5px;font-size:13px;white-space:nowrap}
+.pa-gift-reward{display:flex;gap:8px;align-items:center}
+.pa-gift-reward select,.pa-gift-reward input{width:auto;min-height:36px;padding:7px 10px;border:1px solid #2c3644;border-radius:5px;background:#0f141c;color:#f0f1f3;font:inherit;font-size:14px}
+.pa-gift-reward select:first-child{flex:0 0 84px}
+.pa-gift-reward select+select{flex:1;min-width:0}
+.pa-gift-reward input{flex:0 0 130px;min-width:0}
+.pa-gift-add{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;padding:4px 10px;border:1px dashed #3a4554;border-radius:5px;font-size:12px;color:var(--gold)}
+.pa-narrow-date{max-width:260px}
+.pa-gift-list{display:flex;flex-direction:column;gap:8px}
+.pa-gift-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border:1px solid #2c3644;border-radius:6px;background:#0f141c}
+.pa-gift-item>div{min-width:0;display:flex;flex-direction:column;gap:3px}
+.pa-gift-item b{font-size:14px;letter-spacing:.06em}
+.pa-gift-item small{font-size:12px;color:var(--muted)}
+.pa-gift-item small.is-expired{color:#ffb35c}
+@media(max-width:1100px){.pa-gift{grid-template-columns:1fr}}
+
+.pa-plus{color:#7ff0ad}
+.pa-minus{color:#ff9aa2}
+@media(max-width:700px){.pa-body{grid-template-columns:1fr}.pa-body>.pa-list{flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line)}}

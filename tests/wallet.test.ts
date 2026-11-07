@@ -1,0 +1,42 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { dayKey, initialSave, validateSave } from '../src/game.ts';
+import { recordEventPlay, playEvent, eventState } from '../src/event.ts';
+import { applyWallet, walletMessage } from '../src/wallet-state.ts';
+
+const wallet = (over = {}) => ({ fc: 1234, dailyClaimed: true, event: { points: 60, free: 2, paid: 10, missions: ['daily'] }, admin: false, ...over });
+
+test('Ví máy chủ ghi đè FC, quà ngày và tiến trình sự kiện trong bản lưu (sửa bản lưu không tạo ra FC)', () => {
+  const today = dayKey();
+  const cheated = { ...initialSave(), fc: 999_999_999, event: { points: 5, plays: 3, claimed: [1], free: 99, day: today, missions: [], paid: 0, log: [], gifts: [] } };
+  const next = applyWallet(cheated, wallet(), today);
+  assert.equal(next.fc, 1234);
+  assert.equal(next.daily, today);
+  assert.deepEqual([next.event!.points, next.event!.free, next.event!.paid, next.event!.missions], [60, 2, 10, ['daily']]);
+  assert.deepEqual(next.event!.claimed, [1], 'mốc đã nhận giữ nguyên');
+  assert.ok(validateSave(JSON.parse(JSON.stringify(next))));
+  // Máy chủ nói chưa nhận quà hôm nay (vd. ví mới) thì bỏ dấu đã nhận trên máy.
+  assert.equal(applyWallet({ ...cheated, daily: today }, wallet({ dailyClaimed: false }), today).daily, '');
+});
+
+test('Ghi kết quả hũ do máy chủ quay: cộng điểm, nhật ký, BP / gói; không cộng FC hũ lần hai', () => {
+  const save = { ...initialSave(), fc: 100 };
+  // Cấp 1: hũ 0 = 18M BP (1 điểm), hũ 6 = 100 FC (15 điểm).
+  const result = recordEventPlay(save, [{ level: 0, jar: 0 }, { level: 0, jar: 6 }], 'fc', 40, false, true);
+  assert.equal(result.state.fc, 100);
+  assert.equal(result.state.balance, save.balance + 18_000_000);
+  assert.equal(eventState(result.state).points, 16);
+  assert.equal(result.points, 16);
+  assert.equal(eventState(result.state).log.length, 2);
+  assert.match(result.state.history[0].detail, /−40 FC/);
+  assert.throws(() => recordEventPlay(save, [{ level: 9, jar: 0 }], 'fc', 20), /không hợp lệ/);
+  // Chơi trên máy (bản cũ) vẫn trừ FC và cộng FC hũ.
+  const local = playEvent({ ...save, fc: 1000 }, 1, () => .999, false, 'fc');
+  assert.equal(local.state.fc, 1000 - 20 + (local.hits[0].jar === 6 ? 100 : 0));
+});
+
+test('Thông báo lỗi máy chủ bằng tiếng Việt', () => {
+  assert.equal(walletMessage(new Error('FCO_NOT_ENOUGH_FC')), 'Không đủ FC.');
+  assert.equal(walletMessage({ message: 'FCO_GIFT_USED' }), 'Bạn đã dùng gift code này rồi.');
+  assert.match(walletMessage(new Error('TypeError: Failed to fetch')), /kết nối/);
+});

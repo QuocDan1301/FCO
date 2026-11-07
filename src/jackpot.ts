@@ -10,10 +10,11 @@ import type { Entry, Save } from './game';
 export const JACKPOT_KEY = 'ncss-jackpot-v1';
 export const JACKPOT_MIN = 10_000, JACKPOT_RESET = 2_000;
 export const JACKPOT_TICK_MS = 2_000;
+// Tỷ lệ người chơi giảm ngày 2026-11-07 (trước .0005 / .004) cho jackpot khó hơn: canh quỹ ≥10k chơi 100 lượt ~2,7% trúng ĐB, ~16% trúng gì đó.
 // Tỷ lệ gốc mỗi lượt chơi của người chơi và của TỪNG bot mỗi nhịp (khi quỹ ≥ JACKPOT_MIN). BOT_HUNTERS bot cùng săn nên giải mất rất nhanh:
 // quỹ vừa qua 10.000 FC thì trung bình ~20 giây là có bot nổ Giải Đặc Biệt (95% các đợt dưới 1 phút). Quỹ càng lớn càng nhiều người săn: tỷ lệ Giải Đặc Biệt
 // nhân hệ số pressure (bình phương, +1 mỗi 5.000 FC trên mức 10.000); quỹ chạm JACKPOT_MAX thì chắc chắn có bot nổ.
-export const PLAYER_ODDS = { special: .0005, mini: .004 } as const;
+export const PLAYER_ODDS = { special: .0002, mini: .0015 } as const;
 export const BOT_HUNTERS = 40;
 export const BOT_ODDS = { special: .002, mini: .001 } as const;
 export const JACKPOT_MAX = 20_000;

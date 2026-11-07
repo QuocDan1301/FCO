@@ -9,7 +9,7 @@ type Props = {
   save: Save;
   packs: Pack[];
   free: boolean;
-  onBuy: (pack: Pack, count: number) => boolean;
+  onBuy: (pack: Pack, count: number) => boolean | Promise<boolean>;
   onOpenNow: (pack: Pack, count: number) => void;
   onPreview: (pack: Pack, count: number) => void;
   onInventory: () => void;
@@ -42,7 +42,6 @@ export default function PackShop({ save, packs, free, onBuy, onOpenNow, onPrevie
         // Gói chưa có cầu thủ vẫn hiện để báo trước, nhưng không mua được (buyPacks cũng chặn).
         if (!isPackAvailable(pack)) return <article className="shop-product shop-upcoming" key={pack.id} data-pack={pack.id} data-tone={pack.tone ?? pack.id} aria-disabled="true">
           <div className="shop-product-heading"><h2>{pack.name}</h2><span className="shop-upcoming-badge">Sắp ra mắt</span></div>
-          <p className="shop-description">{pack.description}</p>
           <div className="shop-art">{renderArt(pack)}</div>
           <p className="shop-note">Gói chưa có cầu thủ. Sẽ mở bán khi cập nhật danh sách thẻ.</p>
           <div className="shop-actions"><button className="shop-buy" disabled><ShoppingBag size={17}/>Sắp ra mắt</button></div>
@@ -55,17 +54,16 @@ export default function PackShop({ save, packs, free, onBuy, onOpenNow, onPrevie
         const inStock = getPackStock(save, pack);
         const preview = () => onPreview(pack, valid ? count : 1);
         const justAdded = added?.id === pack.id;
-        // Khung chia 8 hàng con (subgrid) để tên, ảnh, giá, nút của các gói cùng hàng luôn thẳng nhau dù mô tả dài ngắn khác nhau.
+        // Khung chia 7 hàng con (subgrid) để tên, ảnh, giá, nút của các gói cùng hàng luôn thẳng nhau dù tên dài ngắn khác nhau.
         return <article className="shop-product" key={pack.id} data-pack={pack.id} data-tone={pack.tone ?? pack.id}>
           <div className="shop-product-heading"><h2>{pack.name}</h2>{pack.draft && <span className="shop-draft-badge" title="Chỉ hiện khi chạy npm run dev, người chơi không thấy">Nháp</span>}</div>
-          <p className="shop-description">{pack.description}</p>
           <button className="shop-art" onClick={preview} aria-label={`Xem trước cầu thủ trong ${pack.name} · trong kho ${inStock} gói`}>{renderArt(pack)}<span className={`shop-stock ${inStock > 0 ? 'has-stock' : ''}`}>Trong kho <b>{money(inStock)}</b></span><span className="shop-art-hint" aria-hidden="true"><Eye size={13}/>Xem cầu thủ</span></button>
           <div className="shop-quantity"><label htmlFor={`shop-quantity-${pack.id}`}>Số lượng</label><div className="shop-stepper"><button aria-label={`Giảm số lượng ${pack.name}`} disabled={!valid || count <= 1} onClick={() => setQuantity(pack.id, String(count - 1))}><Minus size={16}/></button><input id={`shop-quantity-${pack.id}`} aria-label={`Số lượng ${pack.name}`} aria-invalid={!valid} aria-describedby={`shop-note-${pack.id}`} type="number" inputMode="numeric" min={1} max={MAX_INVENTORY_OPEN} step={1} value={quantity} onChange={event => setQuantity(pack.id, event.target.value)}/><button aria-label={`Tăng số lượng ${pack.name}`} disabled={!valid || count >= MAX_INVENTORY_OPEN} onClick={() => setQuantity(pack.id, String(count + 1))}><Plus size={16}/></button></div></div>
           <div className="shop-presets" aria-label={`Chọn nhanh số lượng ${pack.name}`}>{[1, 10, 50, MAX_INVENTORY_OPEN].map(value => <button key={value} aria-pressed={count === value} onClick={() => setQuantity(pack.id, String(value))}>{value} gói</button>)}</div>
           <div className="shop-total"><span>Tổng thanh toán</span><strong>{valid ? money(cost) : '—'} <small>FC</small></strong></div>
           <p id={`shop-note-${pack.id}`} className="shop-note shop-error">{!valid ? `Nhập số nguyên từ 1 đến ${MAX_INVENTORY_OPEN}.` : !affordable ? 'Bạn chưa đủ FC để mua số gói này.' : ''}</p>
           <div className="shop-actions">
-            <button className={`shop-buy ${justAdded ? 'is-added' : ''}`} disabled={!valid || !affordable} onClick={() => { if (valid && affordable && onBuy(pack, count)) setAdded({ id: pack.id }); }}>{justAdded ? <><Check size={17}/>Đã thêm</> : <><ShoppingBag size={17}/>Mua {valid ? count : ''} gói</>}</button>
+            <button className={`shop-buy ${justAdded ? 'is-added' : ''}`} disabled={!valid || !affordable} onClick={() => { if (valid && affordable) void Promise.resolve(onBuy(pack, count)).then(ok => { if (ok) setAdded({ id: pack.id }); }); }}>{justAdded ? <><Check size={17}/>Đã thêm</> : <><ShoppingBag size={17}/>Mua {valid ? count : ''} gói</>}</button>
             <button className="shop-open-now" disabled={!valid || !affordable} onClick={() => valid && affordable && onOpenNow(pack, count)} aria-label={`Mua và mở ngay ${valid ? count : ''} ${pack.name}`} title="Mua và mở ngay"><Zap size={16}/>Mở ngay</button>
           </div>
         </article>;

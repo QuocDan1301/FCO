@@ -7,7 +7,10 @@ import { EVENT_LEVELS, EVENT_MILESTONES, EVENT_MISSIONS, EVENT_PLAYS, eventLevel
 import type { EventGiftEntry, EventLogEntry, EventReward } from './event';
 import { asset } from './asset';
 import { JACKPOT_TICK_MS, loadJackpot, mini, saveJackpot, tickJackpot } from './jackpot';
-import type { JackpotWin } from './jackpot';
+import type { Jackpot as LocalJackpot, JackpotWin } from './jackpot';
+// Quỹ hiển thị: quỹ chung trên máy chủ (tài khoản) hoặc quỹ mô phỏng trên máy (khách); hỏi máy chủ mỗi JACKPOT_POLL_MS.
+type Jackpot = Pick<LocalJackpot, 'pot' | 'feed'>;
+const JACKPOT_POLL_MS = 3000;
 import './event.css';
 
 const img = (name: string) => asset(`/assets/event/${name}.webp`);
@@ -19,7 +22,7 @@ const FLY_MS = 700, CAST_MS = 480, CAST_MAX = 10, WAND = { x: 425, y: 95 }, CAST
 // Mặt tím của vạc là elip tâm (409, 255), bán trục 444 × 145 — đáy mọi hũ nằm trong elip này. art = ảnh hũ jar-<art>.
 const JAR_SPOTS = [{ x: 80, y: 222, art: 8 }, { x: 283, y: 183, art: 7 }, { x: 532, y: 190, art: 6 }, { x: 690, y: 228, art: 5 }, { x: 722, y: 336, art: 4 }, { x: 550, y: 390, art: 3 }, { x: 322, y: 394, art: 2 }, { x: 105, y: 342, art: 1 }];
 
-type PlayOutcome = { hits: { level: number; jar: number }[]; rewards: EventReward[]; points: number; levelBefore: number; levelAfter: number; jackpotWins?: JackpotWin[]; jackpotPaid?: number };
+type PlayOutcome = { hits: { level: number; jar: number }[]; rewards: EventReward[]; points: number; levelBefore: number; levelAfter: number; jackpotWins?: JackpotWin[]; jackpotPaid?: number; jackpot?: Jackpot };
 const COACH_NAME = 'HLV';
 // Popup Lịch sử nhận quà: tab đang mở; fresh = số dòng mới nhất vừa nhận (được làm nổi), note = dòng tóm tắt lượt vừa chơi.
 type HistoryView = { tab: 'received' | 'milestone'; fresh: number; note?: string };
@@ -98,7 +101,8 @@ function HistoryPopup({ view, log, gifts, onTab, onClose }: { view: HistoryView;
 }
 
 // Trang sự kiện Nâng Cấp Siêu Sao: sân khấu 8 hũ quà theo cấp, khung chơi (miễn phí / FC) và quà tích lũy theo mốc điểm.
-export default function EventPage({ save, free, onPlay, onClaim, onMission }: { save: Save; free: boolean; onPlay: (count: number, mode: 'fc' | 'free') => PlayOutcome | null; onClaim: (index: number, choice: number | null) => EventReward[] | null; onMission: (id: string) => boolean }) {
+// serverJackpot: khi đã đăng nhập, quỹ Giải Đặc Biệt là quỹ chung trên máy chủ (hỏi định kỳ); khách xem quỹ mô phỏng trên máy.
+export default function EventPage({ save, free, onPlay, onClaim, onMission, serverJackpot }: { save: Save; free: boolean; serverJackpot?: () => Promise<Jackpot>; onPlay: (count: number, mode: 'fc' | 'free') => Promise<PlayOutcome | null>; onClaim: (index: number, choice: number | null) => EventReward[] | null; onMission: (id: string) => boolean | Promise<boolean> }) {
   const event = eventState(save), level = eventLevel(event.points);
   const [viewLevel, setViewLevel] = useState(level);
   // Mốc chọn 1 trong 3 đang mở popup chọn quà (chỉ số trong EVENT_MILESTONES).
@@ -115,13 +119,17 @@ export default function EventPage({ save, free, onPlay, onClaim, onMission }: { 
   const page = useRef<HTMLElement>(null);
   const [scale, setScale] = useState(1);
   // Giải Đặc Biệt: quỹ chung mô phỏng, cập nhật mỗi JACKPOT_TICK_MS (quỹ tăng, bot săn giải); lượt chơi của mình xử lý ở App.
-  const [jackpot, setJackpot] = useState(() => loadJackpot());
+  const [jackpot, setJackpot] = useState<Jackpot>(() => serverJackpot ? { pot: 0, feed: [] } : loadJackpot());
   useEffect(() => {
-    const update = () => { const next = tickJackpot(loadJackpot(), Date.now(), random); saveJackpot(next); setJackpot(next); };
+    let alive = true;
+    const update = serverJackpot
+      ? () => { if (document.visibilityState === 'visible') serverJackpot().then(next => { if (alive) setJackpot(next); }).catch(() => { /* Lỗi mạng: giữ số cũ, lần sau thử lại. */ }); }
+      : () => { const next = tickJackpot(loadJackpot(), Date.now(), random); saveJackpot(next); setJackpot(next); };
     update();
-    const id = setInterval(update, JACKPOT_TICK_MS);
-    return () => clearInterval(id);
-  }, []);
+    const id = setInterval(update, serverJackpot ? JACKPOT_POLL_MS : JACKPOT_TICK_MS);
+    return () => { alive = false; clearInterval(id); };
+  }, [serverJackpot]);
+  const [playing, setPlaying] = useState(false);
   useEffect(() => {
     const el = page.current;
     if (!el) return;
@@ -144,12 +152,13 @@ export default function EventPage({ save, free, onPlay, onClaim, onMission }: { 
   const msState = (i: number) => milestoneAvailable(save, i) > 0 ? 'ready' : event.points >= EVENT_MILESTONES[i].points ? 'done' : 'locked';
   const missionsReady = EVENT_MISSIONS.filter(m => !event.missions.includes(m.id) && missionProgress(save, m) >= m.goal).length;
 
-  const play = (count: number, mode: 'fc' | 'free') => {
-    if (cast) return;
-    const outcome = onPlay(count, mode);
+  const play = async (count: number, mode: 'fc' | 'free') => {
+    if (cast || playing) return;
+    setPlaying(true);
+    const outcome = await onPlay(count, mode).finally(() => setPlaying(false));
     if (!outcome) return;
     const time = Date.now(), entries = outcome.hits.map((hit, i) => ({ time, ...hit, points: EVENT_LEVELS[hit.level].jars[hit.jar].points, reward: outcome.rewards[i] }));
-    setJackpot(loadJackpot());
+    if (outcome.jackpot) setJackpot(outcome.jackpot);
     const jackpotNote = (outcome.jackpotPaid ? ` · +${money(outcome.jackpotPaid)} FC vào Giải Đặc Biệt` : '') + (outcome.jackpotWins ?? []).map(w => ` · Trúng ${w.kind === 'special' ? 'Giải Đặc Biệt' : 'Giải Mini Đặc Biệt'} +${money(w.amount)} FC!`).join('');
     const show = () => setWon({ entries, note: `${count > 1 ? `${count} lượt chơi · ` : ''}+${outcome.points} điểm tích lũy${jackpotNote}${outcome.levelAfter > outcome.levelBefore ? ` · Lên cấp ${outcome.levelAfter + 1}!` : ''}` });
     clearTimers();

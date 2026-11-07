@@ -354,10 +354,12 @@ export default function StadiumScene(props: Props) {
       // Qua vùng sáng: ánh trắng tan dần trong lúc sương cũng tan, để trắng hòa thẳng vào đường hầm, không chớp tối giữa chừng.
       const quickMode = state.current.quick, crossed = playing ? elapsed - GATE_CROSS[quickMode ? 'quick' : 'standard'] : -1;
       const smooth = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * (3 - 2 * c); };
-      const flash = crossed < 0 ? Math.max(0, 1 - ahead / 6) ** 2 : 1 - smooth(crossed / (quickMode ? 170 : 250));
-      // Sương tan theo log mật độ (mắt cảm nhận độ mỏng của sương theo tỉ lệ, không theo hiệu số) trong ~0,4 s theo smoothstep (khởi đầu và kết thúc êm, không bật một phát):
-      // ánh trắng tắt dần trong ~0,25 s chồng lên lúc sương mỏng đi nên trắng chuyển thẳng sang hầm, không chợt tối giữa chừng.
-      fog.density = crossed < 0 ? DARK_FOG : DARK_FOG * (CLEAR_FOG / DARK_FOG) ** smooth(crossed / (quickMode ? 260 : 400));
+      // Màn che (ánh trắng + sương tối) tan trong một khoảng ngắn canh giữa lúc xuyên cửa hầm: bắt đầu veilSpan/2 trước, xong veilSpan/2 sau,
+      // nên vừa vào hầm là đã trong, mà độ sáng không nhảy bậc (người dùng: tắt ngay thì chưa mượt, 2026-11-07). Đường cong smootherstep.
+      const veilSpan = quickMode ? 140 : 240, smoother = (t: number) => { const c = Math.min(1, Math.max(0, t)); return c * c * c * (c * (c * 6 - 15) + 10); };
+      const veilClear = playing ? smoother((crossed + veilSpan / 2) / veilSpan) : 0;
+      const flash = Math.min(1, Math.max(0, 1 - ahead / 6)) ** 2 * (1 - veilClear);
+      fog.density = DARK_FOG * (CLEAR_FOG / DARK_FOG) ** veilClear;
       // Lối ra sáng cuối hầm: sáng lên sau khi qua cửa hầm; camera tới gần thì màn trắng dần, qua khỏi (mốc 6, mở thẻ) thì tắt.
       exitLevel = playing && phase >= 1 && phase < 6 ? Math.max(exitLevel, smooth(crossed / 500)) : playing ? THREE.MathUtils.damp(exitLevel, 0, 12, dt) : 0;
       exitMaterial.opacity = exitLevel; exitHaloMaterial.opacity = exitLevel * .5; exitLight.intensity = exitLevel * 45;

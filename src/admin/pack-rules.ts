@@ -2,7 +2,7 @@
 // Không import game.ts / thư viện Node để cả hai phía đều nạp được.
 
 // Khớp TIERS trong src/game.ts (tests/custom-packs.test.ts kiểm tra) và bảng SEASONS của scripts/compose-pack.py.
-export const SEASON_IDS = ['origin', 'stellar', 'eternal', 'prime', 'vietnam', 'prm', 'mdl', 'amb', 'uc', 'wg', 'ut', 'cu', 'gru', 'rtn', 'dc', 'cc', 'bld', 'wb', 'spt', 'bdo', 'hw23', 'ep24', 'ptg', 'le', 'hg', 'spl', 'ln', 'fa', 'lol', 'cap', 'boe21', 'btb', 'ebs', 'juventus', 'jnm'] as const;
+export const SEASON_IDS = ['origin', 'stellar', 'eternal', 'prime', 'vietnam', 'prm', 'mdl', 'amb', 'uc', 'wg', 'ut', 'cu', 'gru', 'rtn', 'dc', 'cc', 'bld', 'wb', 'spt', 'bdo', 'hw23', 'ep24', 'ptg', 'le', 'hg', 'spl', 'ln', 'fa', 'lol', 'cap', 'boe21', 'btb', 'ebs', 'juventus', 'jnm', 'hr25', 'up26'] as const;
 export const MAX_PACK_LEVEL = 13;
 export const PACK_ID = /^[a-z0-9][a-z0-9-]{1,31}$/;
 export const customArtPath = (id: string) => `/assets/custom/${id}-back.webp`;

@@ -53,7 +53,9 @@ export default function Inventory({ save, packs, onUse, onShop, onUseSelected, o
   const toggleFold = (id: string) => setFolded(list => list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
   const selectedItems = shown.filter(x => selected.includes(x.pack.id));
   const selectedStock = Math.min(MAX_INVENTORY_OPEN, selectedItems.reduce((sum, x) => sum + x.stock, 0));
-  const allSelected = shown.length > 0 && selectedItems.length === shown.length;
+  // "Chọn tất cả" bỏ qua gói chỉ định (choose): gói đó cần chọn cầu thủ riêng, vẫn tự bấm chọn từng gói được.
+  const selectable = shown.filter(x => !x.pack.choose);
+  const allSelected = selectable.length > 0 && selectable.every(x => selected.includes(x.pack.id));
   // Tiêu đề nhóm lọc có nút ▲ ở sát lề phải để thu gọn / mở lại danh sách bên dưới.
   const group = (id: string, title: string, list: ReactNode) => <>
     <h2><button className="inv-fold" aria-expanded={!folded.includes(id)} aria-controls={`inv-group-${id}`} onClick={() => toggleFold(id)}>{title}<ChevronUp size={14} aria-hidden="true"/></button></h2>
@@ -90,7 +92,7 @@ export default function Inventory({ save, packs, onUse, onShop, onUseSelected, o
     </div>
     <div className="inv-foot">
       <button className="inv-foot-btn" disabled={!selected.length} onClick={() => setSelected([])}>Hủy</button>
-      <button className="inv-foot-btn" disabled={!shown.length} onClick={() => setSelected(allSelected ? [] : shown.map(x => x.pack.id))}>{allSelected ? 'Bỏ chọn' : 'Chọn tất cả'}</button>
+      <button className="inv-foot-btn" disabled={!selectable.length} onClick={() => setSelected(allSelected ? [] : selectable.map(x => x.pack.id))}>{allSelected ? 'Bỏ chọn' : 'Chọn tất cả'}</button>
       <span className="inv-selected">Số lượng lựa chọn : {selectedStock} / {MAX_INVENTORY_OPEN} món</span>
       <button className="inv-foot-btn inv-open" disabled={!selectedStock} onClick={() => onUseSelected(selectedItems.map(x => x.pack))}>{selectedStock ? `Mở ${selectedStock} vật phẩm` : 'Chọn VP để mở'}</button>
     </div>
