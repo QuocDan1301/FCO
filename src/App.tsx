@@ -9,9 +9,11 @@ import UpgradeProtection from './UpgradeProtection';
 import './upgrade-bridge.css';
 import './daily-gift.css';
 import TopUp from './TopUp';
-import { applyGiftRewards, prepareGiftCode } from './gift-codes';
+import { applyGiftRewards, giftRewardText, prepareGiftCode } from './gift-codes';
 import { LOGIN_FOR_FC, applyWallet, claimDailyFc, claimMissionFc, fetchJackpot, fetchWallet, heartbeat, playEventFc, redeemGiftHash, spendFc } from './wallet';
 import AdminPanel from './AdminPanel';
+import { CHECKIN_REWARDS, checkinReward } from './checkin';
+import type { Checkin } from './wallet-state';
 import UpgradeConfirm from './UpgradeConfirm';
 import ReadyTunnel from './ReadyTunnel';
 import { activeProtection, protectionApplies, protectionCost, setProtection, upgradeWithProtection } from './insurance';
@@ -46,7 +48,7 @@ import { asset } from './asset';
 import LiveTicker from './LiveTicker';
 import { posGroup, seasonShort } from './badges';
 import EventPage from './EventPage';
-import { EVENT_MISSIONS, claimMilestone, eventState, missionProgress, recordEventPlay } from './event';
+import { EVENT_MISSIONS, claimMilestone, eventState, findPack, grantRewards, missionProgress, recordEventPlay } from './event';
 
 
 const cardSortOptions = [
@@ -629,12 +631,18 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     } catch (e) { setGiftMessage({ ok: false, text: (e as Error).message }); }
     finally { setGiftBusy(false); }
   };
+  // Quà mỗi ngày + điểm danh 7 ngày (src/checkin.ts): máy chủ cộng FC và giữ chuỗi; gói của mốc hôm nay thêm vào kho ở đây.
+  const [checkin, setCheckin] = useState<Checkin | null>(null);
   const claimDailyGift = async () => {
     if (!online) { notify(LOGIN_FOR_FC); return; }
     try {
       const wallet = await claimDailyFc(), today = dayKey();
-      const next = applyWallet({ ...latest.current, history: [{ id: uid(), time: Date.now(), type: 'gift' as const, title: 'Quà điểm danh mỗi ngày', detail: `+${money(DAILY_FC)} FC vào tài khoản` }, ...latest.current.history].slice(0, 200) }, wallet, today);
-      if (commit(next)) { notify(`Điểm danh thành công! Đã nhận ${money(DAILY_FC)} FC.`); playSound('success', latest.current.sound); }
+      const day = wallet.checkin?.day ?? 0, bonus = day ? checkinReward(day) : null;
+      const bonusText = bonus ? ` + điểm danh ngày ${day}: ${giftRewardText(bonus)}` : '';
+      let state: Save = { ...latest.current, history: [{ id: uid(), time: Date.now(), type: 'gift' as const, title: day ? `Điểm danh ngày ${day}` : 'Quà điểm danh mỗi ngày', detail: `+${money(DAILY_FC)} FC${bonusText}` }, ...latest.current.history].slice(0, 200) };
+      if (bonus && 'pack' in bonus) state = grantRewards(state, [bonus]);
+      if (wallet.checkin) setCheckin(wallet.checkin);
+      if (commit(applyWallet(state, wallet, today))) { notify(`Điểm danh thành công! Đã nhận ${money(DAILY_FC)} FC${bonusText}.`); playSound('success', latest.current.sound); }
     } catch (e) { notify((e as Error).message); }
   };
   // Lượt sự kiện: máy chủ trừ FC / lượt miễn phí, quay hũ, góp vào quỹ Giải Đặc Biệt chung và thử trúng; FC trúng máy chủ cộng vào ví.
@@ -667,7 +675,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const [fcAdminOpen, setFcAdminOpen] = useState(false);
   const refreshWallet = async () => {
     if (!online) return;
-    try { const wallet = await fetchWallet(eventState(latest.current).points); setIsAdmin(wallet.admin); commit(applyWallet(latest.current, wallet)); }
+    try { const wallet = await fetchWallet(eventState(latest.current).points); setIsAdmin(wallet.admin); if (wallet.checkin) setCheckin(wallet.checkin); commit(applyWallet(latest.current, wallet)); }
     catch (e) { notify((e as Error).message); }
   };
   useEffect(() => {
@@ -799,7 +807,16 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       </Modal>}
       {dailyOpen && <Modal className="daily-modal" label="Quà mỗi ngày" onClose={() => setDailyOpen(false)}>
         <div className="modal-heading"><div><h2>Quà mỗi ngày</h2><p>Điểm danh mỗi ngày (giờ Việt Nam) để nhận quà bên dưới.</p></div><button className="icon-button" aria-label="Đóng" onClick={() => setDailyOpen(false)}><X/></button></div>
-        <div className="daily-gift"><span className="daily-fc-card"><img src={asset('/assets/event/fc-card.webp')} alt=""/><b>{money(DAILY_FC)}</b></span><strong>{money(DAILY_FC)} FC</strong></div>
+        <div className="daily-gift"><span className="daily-fc-card"><img src={asset('/assets/event/fc-card.webp')} alt=""/><b>{money(DAILY_FC)}</b></span><strong>{money(DAILY_FC)} FC mỗi ngày</strong></div>
+        <div className="checkin" aria-label="Điểm danh 7 ngày">
+          <p className="checkin-title">Điểm danh 7 ngày <small>Bỏ lỡ một ngày hoặc đủ 7 ngày thì quay lại ngày 1.</small></p>
+          <ol className="checkin-days">{CHECKIN_REWARDS.map((reward, i) => {
+            const day = i + 1, done = (checkin?.done ?? 0) >= day, today = !!checkin && !checkin.claimedToday && checkin.day === day;
+            return <li key={day} className={`${done ? 'is-done' : ''} ${today ? 'is-today' : ''}`} aria-label={`Ngày ${day}: ${giftRewardText(reward)}${done ? ', đã nhận' : today ? ', nhận hôm nay' : ''}`}>
+              <small>Ngày {day}</small>{'fc' in reward ? <b className="checkin-fc">{money(reward.fc)}<span>FC</span></b> : 'pack' in reward ? <span className="checkin-pack">{findPack(reward.pack)?.back && <img src={findPack(reward.pack)!.back} alt=""/>}<em>{findPack(reward.pack)?.name ?? reward.pack}</em></span> : null}
+              {done && <i className="checkin-check" aria-hidden="true"><Check size={14}/></i>}</li>;
+          })}</ol>
+        </div>
         <button className="primary-button daily-claim" disabled={dailyClaimed} onClick={() => { claimDailyGift(); setDailyOpen(false); }}>{dailyClaimed ? 'Đã nhận hôm nay · Quay lại vào ngày mai' : 'Nhận'}</button>
         <form className="gift-code" onSubmit={e => { e.preventDefault(); void redeemGift(); }}>
           <label htmlFor="gift-code-input">Gift code</label>

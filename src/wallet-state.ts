@@ -3,7 +3,8 @@ import type { EventReward, Save } from './game';
 import { eventState } from './event';
 
 // Phần thuần của ví FC (không nạp client Supabase): kiểu dữ liệu máy chủ trả về, thông báo lỗi, áp ví vào bản lưu.
-export type Wallet = { fc: number; dailyClaimed: boolean; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean };
+export type Checkin = { claimedToday: boolean; day: number; done: number };
+export type Wallet = { fc: number; dailyClaimed: boolean; checkin?: Checkin; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean };
 export type ServerJackpotWin = { name: string; amount: number; kind: 'special' | 'mini'; time: number; mine: boolean };
 export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
 export type EventPlayResult = { hits: { level: number; jar: number }[]; paid: number; jarFc: number; jackpotWins: { kind: 'special' | 'mini'; amount: number; time: number }[]; jackpot: ServerJackpot; wallet: Wallet };

@@ -4,7 +4,7 @@ Game dùng tên đăng nhập/mật khẩu qua Supabase Auth và bảng `public.
 
 ## Khởi tạo dự án
 
-1. Trong SQL Editor của dự án Supabase, chạy lần lượt `migrations/202610300001_fco_accounts.sql`, `migrations/202610300002_delete_own_account.sql` và `migrations/202611070001_fco_wallet.sql` `migrations/202611070002_fco_save_audit.sql` và `migrations/202611070003_fco_stats.sql` một lần. Migration tạo bảng mới và hàm ghi có kiểm tra phiên bản; không thay đổi các bảng có sẵn.
+1. Trong SQL Editor của dự án Supabase, chạy lần lượt `migrations/202610300001_fco_accounts.sql`, `migrations/202610300002_delete_own_account.sql` và `migrations/202611070001_fco_wallet.sql` `migrations/202611070002_fco_save_audit.sql` `migrations/202611070003_fco_stats.sql` và `migrations/202611070004_fco_checkin.sql` một lần. Migration tạo bảng mới và hàm ghi có kiểm tra phiên bản; không thay đổi các bảng có sẵn.
 2. Bật Email provider trong Authentication. Bản thử hiện tắt Confirm email theo lựa chọn của chủ dự án: người chơi đăng ký xong vào game ngay, email chưa được xác minh. Khi dùng chính thức, cấu hình SMTP riêng rồi bật lại Confirm email. Giao diện yêu cầu mật khẩu tối thiểu 8 ký tự.
 3. Đặt Site URL thành URL game GitHub Pages. Thêm URL game và `http://127.0.0.1:5173/FCO/` vào Redirect URLs nếu cần thử trên máy phát triển. Liên kết xác nhận email quay về game để người chơi đăng nhập.
 4. `.env` chỉ chứa Project URL và Publishable key công khai dùng trong trình duyệt. Không đưa secret key hoặc `service_role` vào các biến `VITE_*`. Có thể ghi đè cấu hình bằng `.env.local` trên máy phát triển.
@@ -41,6 +41,8 @@ Từ migration `202611070001_fco_wallet.sql`, FC chỉ do máy chủ thay đổi
 Theo dõi bất thường (`202611070002_fco_save_audit.sql`): mỗi lần đồng bộ, `fco_commit_save` so bản mới với bản cũ; BP, gói, thẻ hoặc cấp thẻ tăng mà không có dòng lịch sử tương ứng (bán thẻ / sự kiện / quà, Shop, mở gói / TTCN, nâng cấp) thì ghi vào `fco_save_audit`. Admin xem ở Quản trị FC → Bất thường. Chỉ phát hiện, không chặn; lỗi trong bước kiểm tra không bao giờ chặn việc lưu.
 
 Thống kê (`202611070003_fco_stats.sql`): game đã đăng nhập gọi `fco_heartbeat` mỗi phút khi tab đang hiện; máy chủ cộng giờ chơi (tối đa 90 giây mỗi lần) vào `fco_presence` và `fco_play_days`. Quản trị FC → Thống kê hiện số tài khoản, đang online (2 phút), giờ chơi, FC nạp (lý do `admin` trong sổ cái) theo ngày và theo từng tài khoản. Khách không được tính.
+
+Điểm danh 7 ngày (`202611070004_fco_checkin.sql`): cùng nút Nhận của Quà mỗi ngày (vẫn +1.000 FC). Ngày 1: 300 FC, 2: 500 FC, 3: gói ICONTM (ALL), 4: 700 FC, 5: 900 FC, 6: gói PRIME All, 7: gói INFINITE PRIME All; bỏ lỡ một ngày hoặc đủ 7 ngày thì về ngày 1. Máy chủ giữ chuỗi và cộng FC (sổ cái `checkin`); gói do trình duyệt thêm theo `src/checkin.ts` (đổi quà thì sửa cả hai).
 
 Chỉ FC được bảo vệ. BP, thẻ và gói trong kho vẫn tính ở trình duyệt và nằm trong bản lưu, nên người rành kỹ thuật vẫn sửa được; muốn chặn cần chuyển việc mở gói / nâng cấp lên máy chủ.
 

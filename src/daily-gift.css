@@ -50,3 +50,21 @@
 .topup-steps { margin: 0; font-size: 14px; line-height: 1.5; color: #dfe6ee; }
 .topup-steps a { color: #3ddc7a; font-weight: 700; text-decoration: underline; }
 .topup-nolink { font-weight: 700; }
+
+/* Điểm danh 7 ngày (src/checkin.ts) trong bảng Quà mỗi ngày. */
+.daily-modal .modal-panel { width: min(560px, 96vw); }
+.checkin { margin: 0 0 16px; }
+.checkin-title { display: flex; flex-direction: column; gap: 2px; margin: 0 0 10px; font-size: 15px; font-weight: 700; color: #f0f1f3; }
+.checkin-title small { font-size: 12px; font-weight: 400; color: #aebdcc; }
+.checkin-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin: 0; padding: 0; list-style: none; }
+.checkin-days li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; padding: 6px 3px 7px; border: 1px solid #2c3644; border-radius: 8px; background: #0f141c; text-align: center; }
+.checkin-days li small { font-size: 11px; color: #aebdcc; white-space: nowrap; }
+.checkin-days li.is-today { border-color: #12d86c; background: #12d86c1a; box-shadow: 0 0 0 1px #12d86c55, 0 0 14px #12d86c33; }
+.checkin-days li.is-done { opacity: .55; }
+.checkin-fc { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 58px; font-size: 15px; font-weight: 900; color: #3ddc7a; line-height: 1.05; }
+.checkin-fc span { font-size: 11px; color: #aebdcc; }
+.checkin-pack { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 100%; min-height: 58px; }
+.checkin-pack img { display: block; width: 34px; height: 48px; object-fit: contain; }
+.checkin-pack em { font-size: 9px; font-style: normal; line-height: 1.15; color: #dfe6ee; overflow-wrap: anywhere; }
+.checkin-check { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #12d86c; color: #052512; }
+@media (max-width: 480px) { .checkin-days { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
