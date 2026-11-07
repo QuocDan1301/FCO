@@ -20,7 +20,7 @@ function AccountFrame({ children }: { children: ReactNode }) {
   </div></main>;
 }
 
-function AccountForm({ onGuest }: { onGuest: () => void }) {
+function AccountForm() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [username, setUsername] = useState('');
   const [name, setName] = useState('');
@@ -55,7 +55,7 @@ function AccountForm({ onGuest }: { onGuest: () => void }) {
   }
   return <AccountFrame><div className="account-tabs" aria-label="Tài khoản"><button type="button" aria-pressed={mode === 'login'} disabled={busy} onClick={() => changeMode('login')}>Đăng nhập</button><button type="button" aria-pressed={mode === 'register'} disabled={busy} onClick={() => changeMode('register')}>Đăng ký</button></div>
     <h2>{mode === 'login' ? 'Trở lại sân cỏ' : 'Tạo tài khoản mới'}</h2><p>{mode === 'login' ? 'Dùng tên đăng nhập và mật khẩu để mở kho thẻ của bạn.' : 'Bắt đầu hành trình với tên huấn luyện viên của bạn.'}</p>
-    {!configured && <p className="account-notice" role="status">Máy chủ tài khoản chưa được kết nối. Bạn vẫn có thể chơi bản lưu trên máy này.</p>}
+    {!configured && <p className="account-notice" role="status">Máy chủ tài khoản chưa được kết nối. Hãy thử lại sau.</p>}
     <form onSubmit={event => void submit(event)} aria-busy={busy}>
       <fieldset disabled={busy || !configured}>
         {mode === 'register' && <label htmlFor="account-name">Tên huấn luyện viên<input id="account-name" name="name" autoComplete="nickname" required maxLength={40} value={name} onChange={e => setName(e.target.value)}/></label>}
@@ -66,7 +66,6 @@ function AccountForm({ onGuest }: { onGuest: () => void }) {
       </fieldset>
       {error && <p className="account-error" role="alert">{error}</p>}{message && <p className="account-notice" role="status">{message}</p>}
     </form>
-    <button className="account-guest" disabled={busy} onClick={onGuest}>Chơi trên máy này, không đăng nhập</button><p className="account-footnote">Bản chơi trên máy chỉ lưu trong trình duyệt và không đồng bộ với tài khoản.</p>
   </AccountFrame>;
 }
 
@@ -134,14 +133,13 @@ function SavedGame({ user, onSignOut, onDeleted }: { user: User; onSignOut: () =
 export default function AccountApp() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(!!accountClient);
-  const [guest, setGuest] = useState(false);
   const [error, setError] = useState('');
   useEffect(() => {
     const client = accountClient;
     if (!client) return;
     let active = true;
     const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
-      if (active) { setUser(session?.user ?? null); setLoading(false); if (session?.user) setGuest(false); }
+      if (active) { setUser(session?.user ?? null); setLoading(false); }
     });
     void client.auth.getSession().then(({ data, error }) => {
       if (!active) return;
@@ -151,7 +149,7 @@ export default function AccountApp() {
     return () => { active = false; subscription.unsubscribe(); };
   }, []);
   if (loading) return <AccountFrame><h2>Đang kiểm tra đăng nhập…</h2><p>Vui lòng chờ trong giây lát.</p></AccountFrame>;
-  if (user) return <SavedGame user={user} onDeleted={() => { setUser(null); setGuest(false); setError('Đã xóa tài khoản và tiến trình trên máy chủ.'); }} onSignOut={async () => { const result = await accountClient!.auth.signOut({ scope: 'local' }); if (result.error) throw result.error; }}/ >;
-  if (guest) return <App accountName="Khách" syncStatus="Chỉ lưu trên máy này" onLogout={() => setGuest(false)}/>;
-  return <>{error && <div className="account-floating-error" role="alert">{error}</div>}<AccountForm onGuest={() => setGuest(true)}/></>;
+  if (user) return <SavedGame user={user} onDeleted={() => { setUser(null); setError('Đã xóa tài khoản và tiến trình trên máy chủ.'); }} onSignOut={async () => { const result = await accountClient!.auth.signOut({ scope: 'local' }); if (result.error) throw result.error; }}/ >;
+  // Không còn chế độ khách (2026-11-07): phải đăng nhập mới vào game.
+  return <>{error && <div className="account-floating-error" role="alert">{error}</div>}<AccountForm/></>;
 }
