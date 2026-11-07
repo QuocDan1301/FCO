@@ -53,6 +53,8 @@ import './market-fco.css';
 import './tickbox.css';
 // Điện thoại / máy bảng: nạp sau cùng.
 import './responsive.css';
+// Điện thoại cầm ngang: nạp sau cùng.
+import './landscape.css';
 const startup = document.getElementById('startup')!;
 const status = document.getElementById('boot-status')!;
 const progress = document.getElementById('boot-progress')!;

@@ -59,7 +59,7 @@
 .app-dock-items>button.active{align-self:center;height:auto;padding:6px 18px;border-radius:4px;background:#19b35b;color:#fff;font-weight:600;text-shadow:none}
 .app-dock-items>button.active:hover,.app-dock-items>button.active:focus-visible{background:#1fc466;color:#fff;text-shadow:none}
 .app-dock-items>button.active::before,.app-dock-items>button.active+button::before,.app-dock-items>button.active::after{display:none}
-@media(max-width:640px),(max-width:900px) and (max-height:500px){.app-dock-items>button.active{padding:4px 8px}}
+@media(max-width:640px),(max-width:1200px) and (orientation:landscape) and (max-height:500px){.app-dock-items>button.active{padding:4px 8px}}
 .app-dock-dot{top:calc(50% - 13px)}
 .app-dock-icons b{top:7px}
 

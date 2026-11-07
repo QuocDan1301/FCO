@@ -1,5 +1,5 @@
 /* Loaded last: touch layouts must take precedence over desktop viewport fitting. */
-@media (max-width: 640px), (max-width: 900px) and (max-height: 500px) {
+@media (max-width: 640px), (max-width:1200px) and (orientation:landscape) and (max-height:500px) {
   .app { padding-top: env(safe-area-inset-top); padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
   .app > .topbar { height: 52px; padding: 0 12px; }
   /* Không còn chân trang: thanh dock nhận phần đệm vùng an toàn phía dưới; nút HLV (mở Cài đặt) hiện lại. */
@@ -131,7 +131,7 @@
   .uc-result-row { gap: 12px; }
 }
 
-@media (max-width: 900px) and (max-height: 500px) {
+@media (max-width:1200px) and (orientation:landscape) and (max-height:500px) {
   .app > .topbar { height: 44px; }
   .view-packs { min-height: 0; overflow-y: auto; display: flex; }
   .view-packs > .hero { flex: 1 0 auto; min-height: 360px; height: auto; }

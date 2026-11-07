@@ -122,8 +122,8 @@
   .lu-detail-face{display:none}
   .lu-pitch-actions button{height:30px;padding:0 10px;font-size:13px}
 }
-/* Điện thoại: khung trang cuộn (phone.css) nên xếp dọc — sân trên, danh sách dưới, không cuộn lồng. */
-@media (max-width:640px),(max-width:900px) and (max-height:500px){
+/* Điện thoại cầm dọc: khung trang cuộn (phone.css) nên xếp dọc — sân trên, danh sách dưới. Cầm ngang giữ hai cột (landscape.css). */
+@media (max-width:640px){
   .main-content>.workspace.lineup-workspace{display:flex;flex-direction:column;width:100%;height:auto;min-height:100%;margin:0;border:0;border-radius:0;overflow:visible}
   .lu-bar{gap:10px 14px}
   .lu-stats{width:100%;justify-content:space-between;margin-left:0}

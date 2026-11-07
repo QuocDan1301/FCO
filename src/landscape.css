@@ -1,0 +1,30 @@
+/* Điện thoại cầm ngang (màn thấp ≤ 500 px): nạp sau cùng. Ưu tiên bố cục hai cột như máy tính thay vì xếp dọc,
+   vì chiều cao chỉ còn ~300 px giữa thanh trên và thanh dock. Cầm dọc thì index.html hiện màn yêu cầu xoay ngang. */
+@media (max-width:1200px) and (orientation:landscape) and (max-height:500px){
+  /* Quản lý CT: đội hình bên trái, danh sách cầu thủ bên phải, mỗi cột tự cuộn. */
+  :root .squad-workspace,:root .main-content>.workspace.squad-workspace{display:grid;grid-template-columns:minmax(0,44fr) minmax(0,56fr);grid-template-rows:minmax(0,1fr);width:calc(100% - 12px);height:calc(100% - 8px);margin:4px auto;overflow:hidden}
+  :root .squad-left{border-right:1px solid #232c37;border-bottom:0}
+  :root .squad-list{max-height:none}
+  :root .squad-panel{min-height:0;overflow:hidden;display:flex;flex-direction:column}
+  :root .squad-head{padding:8px 10px;gap:8px}
+  :root .squad-head h1,:root .squad-head h2{font-size:19px}
+  :root .squad-head p{display:none}
+  /* Đội hình: sân bên trái, danh sách bên phải. */
+  :root .main-content>.workspace.lineup-workspace{grid-template-columns:minmax(0,1fr) 300px;width:calc(100% - 12px);height:calc(100% - 8px);margin:4px auto}
+  :root .lu-main{padding:6px 10px 4px}
+  :root .lu-bar{gap:6px 12px}
+  :root .lu-stats strong{font-size:17px}
+  /* Quà mỗi ngày: bỏ thẻ FC lớn để 7 ô điểm danh và nút Nhận vừa một màn. */
+  :root .daily-modal .modal-panel{width:min(640px,94vw);padding-top:12px;padding-bottom:12px}
+  :root .daily-modal .modal-heading p{display:none}
+  :root .daily-modal .modal-heading .icon-button{width:36px;height:36px}
+  :root .daily-modal .daily-gift{flex-direction:row;justify-content:center;padding:4px 0 10px}
+  :root .daily-modal .daily-fc-card{width:44px;filter:none}
+  :root .daily-modal .daily-fc-card b{display:none}
+  :root .daily-modal .daily-gift strong{font-size:17px}
+  :root .checkin{margin-bottom:10px}
+  :root .checkin-days{grid-template-columns:repeat(7,minmax(0,1fr))}
+  :root .checkin-fc,:root .checkin-pack{min-height:46px}
+  :root .checkin-pack img{width:28px;height:40px}
+  :root .gift-code{margin-top:12px;padding-top:10px}
+}

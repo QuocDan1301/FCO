@@ -33,7 +33,7 @@ input[type=checkbox]:focus-visible{outline:2px solid #7bc9ff;outline-offset:2px}
 .fco-check>svg{display:none}
 .fco-line.picked .fco-check::after{opacity:1}
 /* Điện thoại: ô chọn gói là nút 44px, ô vẽ bằng ::before 22px ở giữa (phone.css). */
-@media(max-width:640px),(max-width:900px) and (max-height:500px){
+@media(max-width:640px),(max-width:1200px) and (orientation:landscape) and (max-height:500px){
   .inv-workspace .inv-tick::before{border:0;background:var(--tick-off) center/100% 100% no-repeat}
   .inv-workspace .inv-tick::after{left:11px;top:11px;width:26.4px;height:22px}
   .inv-workspace .inv-item.is-selected .inv-tick::before{background-image:var(--tick-off-ink)}
