@@ -23,7 +23,8 @@ type Props = {
 const MODES: { id: Mode; label: string }[] = [{ id: 'fit', label: 'Đăng ký với giá phù hợp' }, { id: 'min', label: 'Đăng ký với giá thấp nhất' }, { id: 'max', label: 'Đăng ký với giá cao nhất' }];
 const DAY = 86_400_000;
 const fee = (price: number) => Math.floor(price * MARKET_FEE_PERCENT / 100);
-const full = (n: number) => n.toLocaleString('en-US');
+const fullFormat = new Intl.NumberFormat('en-US');
+const full = (n: number) => fullFormat.format(n);
 // Số ngẫu nhiên cố định theo cầu thủ + cấp: biểu đồ giá, bảng đang bán và khối lượng giao dịch là mô phỏng nhưng không đổi mỗi lần mở.
 function seeded(seed: number) {
   let s = seed % 2147483647 || 1;

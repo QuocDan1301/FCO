@@ -9,9 +9,11 @@ type Props = { pack: Pack; count: number; free: boolean; balance: number; onBuy:
 
 const TOP = 10;
 // Tỷ lệ (0–1) ra phần trăm: từ 1% trở lên 1 chữ số thập phân, nhỏ hơn giữ 2 chữ số có nghĩa (0,00032%).
+// Tạo bộ định dạng một lần (mỗi dòng tỉ lệ đều gọi percent).
+const bigPercent = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 }), smallPercent = new Intl.NumberFormat('vi-VN', { maximumSignificantDigits: 2 });
 const percent = (chance: number) => {
   const value = chance * 100;
-  return `${new Intl.NumberFormat('vi-VN', value >= 1 ? { maximumFractionDigits: 1 } : { maximumSignificantDigits: 2 }).format(value)}%`;
+  return `${(value >= 1 ? bigPercent : smallPercent).format(value)}%`;
 };
 
 // Xem trước gói ở Shop: tỷ lệ công bố theo packOdds (OVR cao / giá +1 đắt thì hiếm hơn), tỷ lệ cấp cộng và 10 cầu thủ OVR (+1) cao nhất.

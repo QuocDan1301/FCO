@@ -25,6 +25,7 @@ import { addToSquad, getLineups, isLocked, lineupSummary, releaseCard, removeFro
 import type { Card, Entry, Pack, Save, Tier } from './game';
 import PackOpening from './cinema/PackOpening';
 import ViewportPages from './ViewportPages';
+import Progressive from './Progressive';
 import PackStage from './cinema/PackStage';
 import { GATE_CROSS, OPENING_CUES, OPENING_ENTRY, OPENING_RESULT, openingPhase } from './cinema/timeline';
 import { unlockCinemaAudio } from './cinema/audio';
@@ -68,23 +69,27 @@ const cardSortOptions = [
 ] as const;
 type CardSort = typeof cardSortOptions[number]['value'];
 
+// Định dạng giờ của trang Lịch sử tạo một lần (toLocaleString dựng bộ định dạng mới cho từng dòng).
+const historyTime = new Intl.DateTimeFormat('vi-VN', { hour: 'numeric', minute: 'numeric', second: 'numeric', day: 'numeric', month: 'numeric', year: 'numeric' });
+// Bộ so sánh tiếng Việt tạo một lần: localeCompare(…, 'vi') dựng collator mới mỗi lần gọi nên sắp xếp rất chậm.
+const viCollator = new Intl.Collator('vi');
 function compareCards(a: Card, b: Card, sort: CardSort) {
   const playerA = getPlayer(a), playerB = getPlayer(b);
-  const byName = playerA.name.localeCompare(playerB.name, 'vi');
+  const byName = () => viCollator.compare(playerA.name, playerB.name);
   let order = 0;
   switch (sort) {
     case 'ovr': order = ovr(b) - ovr(a); break;
     case 'ovr-asc': order = ovr(a) - ovr(b); break;
-    case 'name': order = byName; break;
-    case 'name-desc': order = -byName; break;
+    case 'name': order = byName(); break;
+    case 'name-desc': order = -byName(); break;
     case 'position': order = playerA.pos.localeCompare(playerB.pos); break;
     case 'position-desc': order = playerB.pos.localeCompare(playerA.pos); break;
     case 'level': order = b.level - a.level; break;
     case 'level-asc': order = a.level - b.level; break;
     case 'new': order = b.received - a.received; break;
-    case 'season': order = seasons[playerA.tier].localeCompare(seasons[playerB.tier], 'vi'); break;
+    case 'season': order = viCollator.compare(seasons[playerA.tier], seasons[playerB.tier]); break;
   }
-  return order || ovr(b) - ovr(a) || byName || b.level - a.level || b.received - a.received || a.uid.localeCompare(b.uid);
+  return order || ovr(b) - ovr(a) || byName() || b.level - a.level || b.received - a.received || a.uid.localeCompare(b.uid);
 }
 
 function CardSortSelect({ id, value, onChange }: { id: string; value: CardSort; onChange: (value: CardSort) => void }) {
@@ -601,19 +606,20 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     return () => { timers.forEach(clearTimeout); document.removeEventListener('visibilitychange', advance); };
   }, [animation?.id, save.reduced, sceneReady]);
   useEffect(() => { if (finished && animation?.kind === 'upgrade') playSound(!animation.success ? 'fail' : 'success', latest.current.sound); }, [finished, animation?.id]);
-  const sortedCards = [...save.cards].sort((a, b) => compareCards(a, b, sort));
-  const filtered = sortedCards.filter(c => {
-    const p = getPlayer(c);
-    return p.name.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(query.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '')) && (!position || p.pos === position) && (!season || p.tier === season) && (!level || c.level === Number(level)) && (!minOvr || ovr(c) >= Number(minOvr));
-  });
+  // Chỉ hộp chọn thẻ (picker) dùng danh sách đã sắp xếp: tính khi hộp mở, không sắp lại ở mỗi lần App vẽ lại (hoạt cảnh, hẹn giờ…).
+  const sortedCards = useMemo(() => picker ? [...save.cards].sort((a, b) => compareCards(a, b, sort)) : [], [picker, save.cards, sort]);
   // Mỗi lần vào Nâng cấp thẻ: để trống thẻ chính và phôi (không tự chọn cầu thủ), mở sẵn danh sách chọn cầu thủ.
   const switchView = (next: View) => { if (next === 'upgrade' && view !== 'upgrade') { setTargetId(''); setMaterialIds([]); setTargetOpen(true); setMatTab('owned'); setPickerView(DEFAULT_PICKER_VIEW); } setView(next); mainRef.current?.scrollTo({ top: 0, behavior: 'instant' }); };
   // Thanh dưới cuộn ngang trên điện thoại: đưa mục đang mở vào giữa khi đổi trang.
+  // Đo ở khung hình sau (bố cục trang mới đã tính xong) để không ép trình duyệt tính bố cục ngay trong lúc bấm.
   useEffect(() => {
-    const bar = document.querySelector('.app-dock-items'), active = bar?.querySelector('.active');
-    if (!bar || !active) return;
-    const b = bar.getBoundingClientRect(), a = active.getBoundingClientRect();
-    bar.scrollLeft += a.left + a.width / 2 - (b.left + b.width / 2);
+    const frame = requestAnimationFrame(() => {
+      const bar = document.querySelector('.app-dock-items'), active = bar?.querySelector('.active');
+      if (!bar || !active || bar.scrollWidth <= bar.clientWidth) return;
+      const b = bar.getBoundingClientRect(), a = active.getBoundingClientRect();
+      bar.scrollLeft += a.left + a.width / 2 - (b.left + b.width / 2);
+    });
+    return () => cancelAnimationFrame(frame);
   }, [view]);
   // Quà mỗi ngày: bấm mở bảng xem quà (dailyOpen), bấm Nhận trong bảng mới nhận.
   const [dailyOpen, setDailyOpen] = useState(false);
@@ -776,7 +782,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
             <div className="fco-head" role="row"><span role="columnheader">Tăng</span>{([
               ['position', 'Vị trí'], ['name', 'Tên cầu thủ'], ['ovr', 'OVR'], ['level', 'Thẻ'], ['price', 'Giá'],
             ] as const).map(([key, label]) => <span key={key} className="fco-col" role="columnheader" aria-sort={matSort === `${key}-asc` ? 'ascending' : matSort === `${key}-desc` ? 'descending' : 'none'}><button className={`fco-col-btn ${matSort.startsWith(key) ? 'on' : ''}`} data-sort={key} aria-label={`Sắp xếp ${label} ${matSort === `${key}-asc` ? 'giảm dần' : 'tăng dần'}`} onClick={() => setMatSort(current => current === `${key}-asc` ? `${key}-desc` : `${key}-asc`)}>{label}<ChevronDown size={12}/></button></span>)}<span role="columnheader"/></div>
-            <div className="fco-body" role="rowgroup" aria-label="Chọn cầu thủ làm phôi nâng cấp" tabIndex={0} key={`${matSort}-${targetId}`}>{save.cards.filter(c => c.uid !== targetId && !save.squad?.includes(c.uid)).sort((a, b) => { const [key, dir] = matSort.split('-'); const comparison = key === 'name' ? getPlayer(a).name.localeCompare(getPlayer(b).name, 'vi') : key === 'position' ? getPlayer(a).pos.localeCompare(getPlayer(b).pos, 'en') : key === 'price' ? compareMarketPrices(a, b, dir === 'desc') : key === 'level' ? a.level - b.level : ovr(a) - ovr(b); return (key === 'price' || dir === 'asc' ? 1 : -1) * comparison || ovr(b) - ovr(a) || b.level - a.level; }).map(c => { const p = getPlayer(c); const picked = materialIds.includes(c.uid); const full = !picked && (materialIds.length >= 5 || info.energy >= 100); const locked = isLocked(save, c.uid); const boost = target ? upgradeInfo(target, [c]).energy : 0; return <button key={c.uid} role="row" className={`fco-line ${picked ? 'picked' : ''}`} disabled={!target || full || locked} title={locked ? 'Thẻ đang khóa, không dùng làm nguyên liệu' : undefined} onMouseEnter={() => setHoveredMaterialId(!picked && !full ? c.uid : '')} onMouseLeave={() => setHoveredMaterialId('')} onFocus={() => setHoveredMaterialId(!picked && !full ? c.uid : '')} onBlur={() => setHoveredMaterialId('')} onClick={() => toggleMaterial(c.uid)}>
+            <div className="fco-body" role="rowgroup" aria-label="Chọn cầu thủ làm phôi nâng cấp" tabIndex={0} key={`${matSort}-${targetId}`}><Progressive items={save.cards.filter(c => c.uid !== targetId && !save.squad?.includes(c.uid)).sort((a, b) => { const [key, dir] = matSort.split('-'); const comparison = key === 'name' ? viCollator.compare(getPlayer(a).name, getPlayer(b).name) : key === 'position' ? getPlayer(a).pos.localeCompare(getPlayer(b).pos, 'en') : key === 'price' ? compareMarketPrices(a, b, dir === 'desc') : key === 'level' ? a.level - b.level : ovr(a) - ovr(b); return (key === 'price' || dir === 'asc' ? 1 : -1) * comparison || ovr(b) - ovr(a) || b.level - a.level; }).map(c => { const p = getPlayer(c); const picked = materialIds.includes(c.uid); const full = !picked && (materialIds.length >= 5 || info.energy >= 100); const locked = isLocked(save, c.uid); const boost = target ? upgradeInfo(target, [c]).energy : 0; return <button key={c.uid} role="row" className={`fco-line ${picked ? 'picked' : ''}`} disabled={!target || full || locked} title={locked ? 'Thẻ đang khóa, không dùng làm nguyên liệu' : undefined} onMouseEnter={() => setHoveredMaterialId(!picked && !full ? c.uid : '')} onMouseLeave={() => setHoveredMaterialId('')} onFocus={() => setHoveredMaterialId(!picked && !full ? c.uid : '')} onBlur={() => setHoveredMaterialId('')} onClick={() => toggleMaterial(c.uid)}>
               <span className="fco-boost" aria-label={`Tăng ${boost}% năng lượng`} title={`${boost}% năng lượng · ${Number((boost / 20).toFixed(3))} vạch`}>{[1, 2, 3, 4, 5].map(n => <i key={n} style={{ '--energy-fill': `${Math.min(100, Math.max(0, boost - (n - 1) * 20) * 5)}%` } as CSSProperties} className={boost >= n * 20 ? 'on' : boost > (n - 1) * 20 ? 'part' : ''}/>)}</span>
               <span className={`fco-pos pos-${posGroup(p.pos)}`}>{p.pos}</span>
               <span className="fco-name">{p.cardFace ? <img src={p.cardFace} alt=""/> : <Flag code={p.flag}/>}<b>{p.name}</b></span>
@@ -784,7 +790,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
               <span><img className="fco-badge" src={levelBadge(c.level)} alt={`+${c.level}`}/></span>
               <span className="fco-cost">{shortPrice(marketQuote(c).price)}</span>
               <span className="fco-check">{picked && <Check size={18}/>}</span>
-            </button>; })}{save.cards.length <= 1 ? <p className="fine-print">Kho chưa có thẻ nào để làm nguyên liệu.</p> : null}</div>
+            </button>; })}/>{save.cards.length <= 1 ? <p className="fine-print">Kho chưa có thẻ nào để làm nguyên liệu.</p> : null}</div>
           </div>
           <div className="fco-actions"><button className="fco-ghost" onClick={() => setMaterialIds([])} disabled={!materials.length}><X size={15}/>Bỏ chọn</button><button className="fco-ghost" onClick={autoPick} disabled={!target || target.level >= MAX_LEVEL} title="Chọn tối đa 5 phôi đủ 5 vạch với tổng giá thấp nhất"><Sparkles size={15}/>Chọn tự động</button><button className="fco-go" onClick={() => { if (!target) return; setTargetOpen(false); setConfirm({ target, materials }); }} disabled={!target || !materials.length || (!UNLIMITED_COINS && save.balance < info.cost) || target.level >= MAX_LEVEL}>{target?.level === MAX_LEVEL ? 'Đã đạt cấp tối đa' : 'Tiếp theo'}<ArrowRight size={18}/></button></div></>
           : <UpgradeMarket mode={matTab} target={target} free={UNLIMITED_COINS} balance={save.balance} onBuy={offer => requestTrade({ kind: 'buy', card: { uid: `market-${offer.playerId}-${offer.level}`, playerId: offer.playerId, level: offer.level, received: 0 } })} onBulkBuy={bulkBuy} levelBadge={levelBadge}/>}
@@ -798,7 +804,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       {view === 'ranks' && <RanksPage load={fetchLeaderboard} online={online} levelBadge={levelBadge}/>}
       {EVENT_BILAC_ENABLED && view === 'bilac' && <BilacPage fc={save.fc ?? 0} bilac={bilac} loadConfig={fetchBilacConfig} loadJackpot={fetchJackpot} onPlay={playBilacTurns} onClaim={claimBilacMilestone} onRefresh={refreshWallet}/>}
       {EVENT_NCSS_ENABLED && view === 'event' && <EventPage save={save} free={UNLIMITED_COINS} onPlay={playEventTurns} onClaim={claimEventGift} onMission={claimEventMission} serverJackpot={online ? fetchJackpot : undefined}/>}
-      {view === 'history' && <section className="workspace history-workspace"><div className="page-heading"><div><h1>Dấu ấn hành trình</h1><p>Lưu tối đa 200 hoạt động gần nhất trên trình duyệt này.</p></div><select aria-label="Lọc loại lịch sử" value={historyType} onChange={e => setHistoryType(e.target.value)}><option value="">Tất cả hoạt động</option><option value="pack">Mở gói</option><option value="upgrade">Nâng cấp</option><option value="gift">Điểm danh</option><option value="market">Chuyển nhượng</option><option value="shop">Mua gói</option><option value="event">Sự kiện</option></select></div>{save.history.filter(e => !historyType || e.type === historyType).length ? <ViewportPages className="history-list" itemHeight={92} resetKey={historyType}>{save.history.filter(e => !historyType || e.type === historyType).map(e => <article className="history-item" key={e.id}><div className={`history-icon ${e.success === false ? 'failure' : ''}`}>{e.type === 'pack' ? <PackageOpen size={21}/> : e.type === 'gift' ? <Gift size={21}/> : e.type === 'market' ? <ArrowLeftRight size={21}/> : e.type === 'shop' ? <ShoppingBag size={21}/> : e.type === 'event' ? <Sparkles size={21}/> : <Zap size={21}/>}</div><div><h2>{e.title}</h2><p>{historyDetail(e)}</p></div><time>{new Date(e.time).toLocaleString('vi-VN')}</time></article>)}</ViewportPages> : <div className="empty-state"><History size={38}/><h2>Trang sử đang chờ bạn</h2><p>Mở gói, nâng cấp hoặc nhận quà điểm danh để bắt đầu.</p><button className="primary-button" onClick={() => switchView('inventory')}>Kho vật phẩm<ArrowRight size={16}/></button></div>}</section>}
+      {view === 'history' && <section className="workspace history-workspace"><div className="page-heading"><div><h1>Dấu ấn hành trình</h1><p>Lưu tối đa 200 hoạt động gần nhất trên trình duyệt này.</p></div><select aria-label="Lọc loại lịch sử" value={historyType} onChange={e => setHistoryType(e.target.value)}><option value="">Tất cả hoạt động</option><option value="pack">Mở gói</option><option value="upgrade">Nâng cấp</option><option value="gift">Điểm danh</option><option value="market">Chuyển nhượng</option><option value="shop">Mua gói</option><option value="event">Sự kiện</option></select></div>{save.history.filter(e => !historyType || e.type === historyType).length ? <ViewportPages className="history-list" itemHeight={92} resetKey={historyType}>{save.history.filter(e => !historyType || e.type === historyType).map(e => <article className="history-item" key={e.id}><div className={`history-icon ${e.success === false ? 'failure' : ''}`}>{e.type === 'pack' ? <PackageOpen size={21}/> : e.type === 'gift' ? <Gift size={21}/> : e.type === 'market' ? <ArrowLeftRight size={21}/> : e.type === 'shop' ? <ShoppingBag size={21}/> : e.type === 'event' ? <Sparkles size={21}/> : <Zap size={21}/>}</div><div><h2>{e.title}</h2><p>{historyDetail(e)}</p></div><time>{historyTime.format(e.time)}</time></article>)}</ViewportPages> : <div className="empty-state"><History size={38}/><h2>Trang sử đang chờ bạn</h2><p>Mở gói, nâng cấp hoặc nhận quà điểm danh để bắt đầu.</p><button className="primary-button" onClick={() => switchView('inventory')}>Kho vật phẩm<ArrowRight size={16}/></button></div>}</section>}
     </main>
       {(() => { // Thanh menu dưới kiểu FC Online, luôn hiện ở mọi màn (điều hướng chính của game): mục chữ ngăn bằng vạch mảnh, chấm xanh = có thứ mới; biểu tượng bên phải.
         const hasPacks = packTotal > 0;

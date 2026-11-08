@@ -3,8 +3,14 @@ import type { ReactNode, RefObject } from 'react';
 
 export function usePageCapacity(ref: RefObject<HTMLDivElement | null>, itemWidth = 10000, itemHeight = 80, gap = 0) {
   const [size, setSize] = useState({ columns: 1, rows: 1 });
+  // Chỉ đo lại khi phần tử đổi (ResizeObserver lo phần đổi cỡ): đo mỗi lần vẽ lại (getComputedStyle) làm mỗi phím gõ / mỗi lần bấm đều phải tính lại style.
+  const observed = useRef<{ element: HTMLDivElement | null; observer?: ResizeObserver }>({ element: null });
+  useEffect(() => () => { observed.current.observer?.disconnect(); observed.current = { element: null }; }, []);
   useLayoutEffect(() => {
     const element = ref.current;
+    if (element === observed.current.element) return;
+    observed.current.observer?.disconnect();
+    observed.current = { element };
     if (!element) return;
     const update = () => {
       const style = getComputedStyle(element);
@@ -16,8 +22,8 @@ export function usePageCapacity(ref: RefObject<HTMLDivElement | null>, itemWidth
     };
     const observer = new ResizeObserver(update);
     observer.observe(element);
+    observed.current.observer = observer;
     update();
-    return () => observer.disconnect();
   });
   return { ...size, capacity: size.columns * size.rows };
 }

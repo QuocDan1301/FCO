@@ -522,14 +522,23 @@ export const MAX_LEVEL = UPGRADE_LEVELS.length;
 const playerIndex = new Map(players.map(p => [p.id, p]));
 export const getPlayer = (card: Pick<Card, 'playerId'>) => playerIndex.get(card.playerId)!;
 // OVR game tự tính: OVR gốc + phần tăng theo cấp. OVR sửa tay trong gia-cau-thu-bp.xlsx (npm run prices:import) được ưu tiên.
-export const baseOvr = (card: Pick<Card, 'playerId' | 'level'>) => players.find(p => p.id === card.playerId)!.ovr + (levelOvrBonuses[card.level - 1] ?? 0);
+export const baseOvr = (card: Pick<Card, 'playerId' | 'level'>) => playerIndex.get(card.playerId)!.ovr + (levelOvrBonuses[card.level - 1] ?? 0);
 const manualOvrs: Record<string, Record<string, number>> = excelOverrides.ovrs;
-export const ovr = (card: Pick<Card, 'playerId' | 'level'> & Partial<Card>) => manualOvrs[String(card.playerId)]?.[String(card.level)] ?? baseOvr(card);
+// OVR chỉ phụ thuộc cầu thủ + cấp (dữ liệu tĩnh) nên nhớ lại theo khoá số: sắp xếp 3.883 cầu thủ gọi ovr hàng chục nghìn lần.
+const ovrCache = new Map<number, number>();
+export const ovr = (card: Pick<Card, 'playerId' | 'level'> & Partial<Card>) => {
+  const key = card.playerId * 64 + card.level;
+  let value = ovrCache.get(key);
+  if (value === undefined) { value = manualOvrs[String(card.playerId)]?.[String(card.level)] ?? baseOvr(card); ovrCache.set(key, value); }
+  return value;
+};
+// Bộ định dạng số tạo một lần: new Intl.NumberFormat mỗi lần gọi rất chậm (money chạy cho mọi dòng giá trên màn hình).
+const wholeFormat = new Intl.NumberFormat('vi-VN'), shortFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2, useGrouping: false });
 export const money = (n: number) => {
   const magnitude = Math.abs(n);
   const divisor = magnitude >= 1e9 ? 1e9 : magnitude >= 1e6 ? 1e6 : 1;
-  if (divisor === 1) return new Intl.NumberFormat('vi-VN').format(n);
-  return `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2, useGrouping: false }).format(n / divisor)}${divisor === 1e9 ? 'B' : 'M'}`;
+  if (divisor === 1) return wholeFormat.format(n);
+  return `${shortFormat.format(n / divisor)}${divisor === 1e9 ? 'B' : 'M'}`;
 };
 export const uid = () => crypto.randomUUID();
 export function random() { return crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296; }
@@ -817,7 +826,7 @@ export function validateSave(data: unknown): data is Save {
     if (s.event.gifts !== undefined) s.event.gifts = Array.isArray(s.event.gifts) ? s.event.gifts.map(e => e && !Array.isArray(e.rewards) && isEventReward((e as { reward?: unknown }).reward) ? { time: e.time, milestone: e.milestone, rewards: [(e as unknown as { reward: EventReward }).reward] } : e).filter(e => e && Number.isFinite(e.time) && Number.isInteger(e.milestone) && Array.isArray(e.rewards) && e.rewards.every(isEventReward)) : [];
   }
   if (s.prepaid !== undefined && (!s.prepaid || typeof s.prepaid !== 'object' || Array.isArray(s.prepaid) || !Object.entries(s.prepaid).every(([id, count]) => { const pack = packs.find(p => p.id === id); return Number.isSafeInteger(count) && count >= 0 && (!pack || count <= getPackStock(s, pack)); }))) return false;
-  const valid = s.version === 1 && Number.isSafeInteger(s.balance) && s.balance >= 0 && Array.isArray(s.cards) && s.cards.every(c => c && typeof c.uid === 'string' && players.some(p => p.id === c.playerId) && Number.isInteger(c.level) && c.level >= 1 && c.level <= MAX_LEVEL && Number.isFinite(c.received)) && new Set(s.cards.map(c => c.uid)).size === s.cards.length && Array.isArray(s.history) && s.history.every(e => e && typeof e.id === 'string' && Number.isFinite(e.time) && ['pack', 'upgrade', 'gift', 'market', 'shop', 'event'].includes(e.type) && typeof e.title === 'string' && typeof e.detail === 'string') && typeof s.daily === 'string' && Number.isSafeInteger(s.opened) && s.opened >= 0 && Number.isSafeInteger(s.upgrades) && s.upgrades >= 0 && typeof s.sound === 'boolean' && typeof s.reduced === 'boolean' && (s.quick === undefined || typeof s.quick === 'boolean') && (s.light === undefined || typeof s.light === 'boolean') && (s.unopened === undefined || (!!s.unopened && typeof s.unopened === 'object' && !Array.isArray(s.unopened) && packs.every(p => s.unopened![p.id] === undefined || (Number.isSafeInteger(s.unopened![p.id]) && s.unopened![p.id] >= 0))));
+  const valid = s.version === 1 && Number.isSafeInteger(s.balance) && s.balance >= 0 && Array.isArray(s.cards) && s.cards.every(c => c && typeof c.uid === 'string' && playerIndex.has(c.playerId) && Number.isInteger(c.level) && c.level >= 1 && c.level <= MAX_LEVEL && Number.isFinite(c.received)) && new Set(s.cards.map(c => c.uid)).size === s.cards.length && Array.isArray(s.history) && s.history.every(e => e && typeof e.id === 'string' && Number.isFinite(e.time) && ['pack', 'upgrade', 'gift', 'market', 'shop', 'event'].includes(e.type) && typeof e.title === 'string' && typeof e.detail === 'string') && typeof s.daily === 'string' && Number.isSafeInteger(s.opened) && s.opened >= 0 && Number.isSafeInteger(s.upgrades) && s.upgrades >= 0 && typeof s.sound === 'boolean' && typeof s.reduced === 'boolean' && (s.quick === undefined || typeof s.quick === 'boolean') && (s.light === undefined || typeof s.light === 'boolean') && (s.unopened === undefined || (!!s.unopened && typeof s.unopened === 'object' && !Array.isArray(s.unopened) && packs.every(p => s.unopened![p.id] === undefined || (Number.isSafeInteger(s.unopened![p.id]) && s.unopened![p.id] >= 0))));
   // Chỉ đặt BP về 0 một lần; giữ nguyên FC, kho thẻ và tiến trình hiện có.
   if (valid && s.bpReset !== BP_RESET) { s.balance = START_BP; s.bpReset = BP_RESET; }
   return valid;

@@ -9,6 +9,7 @@ import { getTeamLogo } from './teamLogos';
 import { flagImageUrl } from './flags';
 import { asset } from './asset';
 import './squad.css';
+import Progressive from './Progressive';
 
 type Props = {
   save: Save;
@@ -27,6 +28,7 @@ type Props = {
 type SortKey = 'position' | 'name' | 'wage' | 'ovr' | 'level' | 'price';
 type Line = 'all' | 'fw' | 'mf' | 'df' | 'gk';
 const groupOrder = { gk: 0, df: 1, mf: 2, fw: 3 };
+const viCollator = new Intl.Collator('vi');
 const price = (card: Card) => marketQuote(card).price;
 const priceText = (card: Card) => { const p = price(card); return p === null ? 'Chưa có giá' : money(p); };
 const fold = (text: string) => text.toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd');
@@ -38,7 +40,7 @@ function compare(a: Card, b: Card, key: SortKey) {
   const pa = getPlayer(a), pb = getPlayer(b);
   switch (key) {
     case 'position': return groupOrder[positionGroup(pa.pos)] - groupOrder[positionGroup(pb.pos)] || pa.pos.localeCompare(pb.pos);
-    case 'name': return pa.name.localeCompare(pb.name, 'vi');
+    case 'name': return viCollator.compare(pa.name, pb.name);
     case 'wage': return (pa.wage ?? 0) - (pb.wage ?? 0);
     case 'ovr': return ovr(a) - ovr(b);
     case 'level': return a.level - b.level;
@@ -174,7 +176,7 @@ export default function SquadManager({ save, onAdd, onRemove, onDetail, onDelete
       </div>
       <div className="squad-columns" role="row"><span/>{header('position', 'Vị trí')}<span/>{header('name', 'Tên cầu thủ')}{header('wage', 'Lương')}{header('ovr', 'OVR')}{header('level', 'Thẻ')}{header('price', 'Giá')}</div>
       <div className="squad-list" role="table" aria-label="Cầu thủ đang sở hữu">
-        {available.length ? available.map(({ card: c, count }) => <Row key={c.uid} card={c} lineup={false} count={count} onMove={() => onAdd(c.uid)} {...rowProps(c)}/>)
+        {available.length ? <Progressive items={available.map(({ card: c, count }) => <Row key={c.uid} card={c} lineup={false} count={count} onMove={() => onAdd(c.uid)} {...rowProps(c)}/>)}/>
           : <p className="squad-empty">{query || line !== 'all' ? 'Không tìm thấy cầu thủ.' : 'Mọi cầu thủ đều đã ở trong đội hình.'}</p>}
       </div>
     </div>

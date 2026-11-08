@@ -78,20 +78,20 @@ export default function TransferMarket({ save, free, onTrade, onBulkSell, onHist
     return normalizedName(p.id, p.name).includes(needle) && (!position || p.pos === position) && (!season || p.tier === season) && (buying || !sellLevel || c.level === Number(sellLevel)) && (!unavailableOnly || !marketQuote(c).available);
   }).sort((a, b) => {
     const pa = getPlayer(a), pb = getPlayer(b);
-    const byName = collator.compare(pa.name, pb.name);
+    const byName = () => collator.compare(pa.name, pb.name);
     switch (sort) {
-      case 'price': return compareMarketPrices(a, b) || byName;
-      case 'price-desc': return compareMarketPrices(a, b, true) || byName;
-      case 'ovr': return ovr(b) - ovr(a) || byName;
-      case 'ovr-asc': return ovr(a) - ovr(b) || byName;
-      case 'name': return byName;
-      case 'name-desc': return -byName;
-      case 'position': return lineOrder[positionGroup(pa.pos)] - lineOrder[positionGroup(pb.pos)] || pa.pos.localeCompare(pb.pos) || ovr(b) - ovr(a) || byName;
-      case 'position-desc': return lineOrder[positionGroup(pb.pos)] - lineOrder[positionGroup(pa.pos)] || pb.pos.localeCompare(pa.pos) || ovr(b) - ovr(a) || byName;
-      case 'wage-desc': return (pb.wage ?? 0) - (pa.wage ?? 0) || ovr(b) - ovr(a) || byName;
-      case 'wage': return (pa.wage ?? 0) - (pb.wage ?? 0) || ovr(b) - ovr(a) || byName;
-      case 'level': return b.level - a.level || ovr(b) - ovr(a) || byName;
-      case 'level-asc': return a.level - b.level || ovr(b) - ovr(a) || byName;
+      case 'price': return compareMarketPrices(a, b) || byName();
+      case 'price-desc': return compareMarketPrices(a, b, true) || byName();
+      case 'ovr': return ovr(b) - ovr(a) || byName();
+      case 'ovr-asc': return ovr(a) - ovr(b) || byName();
+      case 'name': return byName();
+      case 'name-desc': return -byName();
+      case 'position': return lineOrder[positionGroup(pa.pos)] - lineOrder[positionGroup(pb.pos)] || pa.pos.localeCompare(pb.pos) || ovr(b) - ovr(a) || byName();
+      case 'position-desc': return lineOrder[positionGroup(pb.pos)] - lineOrder[positionGroup(pa.pos)] || pb.pos.localeCompare(pa.pos) || ovr(b) - ovr(a) || byName();
+      case 'wage-desc': return (pb.wage ?? 0) - (pa.wage ?? 0) || ovr(b) - ovr(a) || byName();
+      case 'wage': return (pa.wage ?? 0) - (pb.wage ?? 0) || ovr(b) - ovr(a) || byName();
+      case 'level': return b.level - a.level || ovr(b) - ovr(a) || byName();
+      case 'level-asc': return a.level - b.level || ovr(b) - ovr(a) || byName();
       default: return 0;
     }
   });

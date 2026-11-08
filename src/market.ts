@@ -7,8 +7,10 @@ import { calculatePrice, insuranceRate, playerPricingOptions, playerClassificati
 export const PRICE_AS_OF = priceData.updatedAt;
 const recordedPrices: Record<string, (number | null)[]> = priceData.players;
 export const formatMarketPrice = (price: number | null) => price === null ? 'Chưa có giá' : `${money(price)} BP`;
+// Giá đọc thẳng từ bảng (đúng bằng marketQuote(card).price): sắp xếp 3.883 cầu thủ theo giá không phải dựng cả báo giá cho mỗi lần so sánh.
+const tablePrice = (card: Pick<Card, 'playerId' | 'level'>) => recordedPrices[String(card.playerId)]?.[card.level - 1] ?? null;
 export function compareMarketPrices(a: Pick<Card, 'playerId' | 'level'>, b: Pick<Card, 'playerId' | 'level'>, descending = false) {
-  const first = marketQuote(a).price, second = marketQuote(b).price;
+  const first = tablePrice(a), second = tablePrice(b);
   if (first === null) return second === null ? 0 : 1;
   if (second === null) return -1;
   return descending ? second - first : first - second;

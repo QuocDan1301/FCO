@@ -5,6 +5,7 @@ import type { Card, Save, Tier } from './game';
 import { marketQuote } from './market';
 import { isLocked, positionGroup, squadCards } from './squad';
 import { asset } from './asset';
+import Progressive from './Progressive';
 import './target-picker.css';
 
 type Props = {
@@ -25,13 +26,14 @@ type SortKey = 'position' | 'name' | 'ovr' | 'level' | 'price';
 export type PickerView = { filter: Filter | null; sort: { key: SortKey; desc: boolean } };
 export const DEFAULT_PICKER_VIEW: PickerView = { filter: null, sort: { key: 'ovr', desc: true } };
 const groupOrder = { gk: 0, df: 1, mf: 2, fw: 3 };
+const viCollator = new Intl.Collator('vi');
 const price = (card: Card) => marketQuote(card).price;
 
 function compare(a: Card, b: Card, key: SortKey) {
   const pa = getPlayer(a), pb = getPlayer(b);
   switch (key) {
     case 'position': return groupOrder[positionGroup(pa.pos)] - groupOrder[positionGroup(pb.pos)] || pa.pos.localeCompare(pb.pos);
-    case 'name': return pa.name.localeCompare(pb.name, 'vi');
+    case 'name': return viCollator.compare(pa.name, pb.name);
     case 'ovr': return ovr(a) - ovr(b);
     case 'level': return a.level - b.level;
     case 'price': return (price(a) ?? -1) - (price(b) ?? -1);
@@ -70,7 +72,7 @@ export default function TargetPicker({ save, targetId, onPick, onClose, view, on
     </div>
     <div className="tp-columns">{header('position', 'Vị trí')}<span/>{header('name', 'Tên cầu thủ')}{header('ovr', 'C.Số')}{header('level', 'Thẻ')}<span className="tp-col">Khóa</span>{header('price', 'Giá trị')}</div>
     <div className="tp-list" role="listbox" aria-label="Cầu thủ">
-      {rows.map(c => {
+      <Progressive items={rows.map(c => {
         const p = getPlayer(c), maxed = c.level >= MAX_LEVEL, value = price(c);
         return <button key={c.uid} role="option" className="tp-row" disabled={maxed} title={maxed ? `Đã đạt cấp tối đa +${MAX_LEVEL}` : undefined} onClick={() => onPick(c.uid)}>
           <span className={`tp-pos pos-${positionGroup(p.pos)}`}>{p.pos}</span>
@@ -81,7 +83,7 @@ export default function TargetPicker({ save, targetId, onPick, onClose, view, on
           <span className="tp-lock">{isLocked(save, c.uid) && <Lock size={15} aria-label="Đã khóa"/>}</span>
           <span className={`tp-price ${value === null ? 'is-unpriced' : ''}`}>{value === null ? 'Chưa có giá' : money(value)}</span>
         </button>;
-      })}
+      })}/>
       {!rows.length && <p className="tp-empty">{filter === 'squad' ? 'Đội hình chưa có cầu thủ. Thêm cầu thủ ở mục Quản lí CT.' : 'Không còn cầu thủ nào chưa có trong đội hình.'}</p>}
     </div>
     <button className="tp-close" onClick={onClose}>Đóng<ChevronUp size={16}/></button>

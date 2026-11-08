@@ -193,6 +193,9 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
   useEffect(() => { goButton.current?.focus({ preventScroll: true }); }, []);
   const [charging, setCharging] = useState(false);
   const [prepared, setPrepared] = useState<ReturnType<Props['onConfirm']>>(null);
+  // Kết quả tính + lưu ngay lúc bấm (JSON.stringify + localStorage nặng, làm giữa pha rung sẽ khựng); mốc PREPARE_LEAD chỉ còn dựng hiệu ứng.
+  const computed = useRef<ReturnType<Props['onConfirm']>>(null);
+  const go = () => { if (charging) return; const result = onConfirm(); if (!result) return; computed.current = result; setCharging(true); };
   const [revealed, setRevealed] = useState(false);
   const outcome = revealed ? prepared : null;
   const failed = outcome && !outcome.success ? outcome : null, won = outcome?.success ? outcome : null;
@@ -217,19 +220,24 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
   useEffect(() => {
     if (!charging || outcome || reduced) return;
     const start = performance.now(); let last = start, due = 0, frame = 0;
-    const spawn = (flow: HTMLDivElement, t: number) => {
+    const spawn = (flow: HTMLDivElement, flowWidth: number, t: number) => {
       const ray = document.createElement('span'), width = 70 + Math.random() * (90 + 140 * t);
       ray.style.top = `${4 + Math.random() * 92}%`; ray.style.width = `${width.toFixed(0)}px`; ray.style.height = t > .65 ? '4px' : '3px';
       flow.appendChild(ray);
-      const run = ray.animate([{ transform: 'translateX(0) scaleX(.6)', opacity: 0 }, { opacity: 1, offset: .15 }, { transform: `translateX(${(flow.clientWidth * 1.05 + width).toFixed(0)}px) scaleX(1.3)`, opacity: 0 }],
+      const run = ray.animate([{ transform: 'translateX(0) scaleX(.6)', opacity: 0 }, { opacity: 1, offset: .15 }, { transform: `translateX(${(flowWidth * 1.05 + width).toFixed(0)}px) scaleX(1.3)`, opacity: 0 }],
         { duration: (RAY_MS[0] - (RAY_MS[0] - RAY_MS[1]) * t) * (.85 + Math.random() * .3), easing: 'cubic-bezier(.55,0,.9,.6)' });
       run.onfinish = run.oncancel = () => ray.remove();
     };
     const tick = (now: number) => {
       // Mốc khung hình có thể sớm hơn start vài ms: chặn âm (số âm ** 1.6 = NaN).
       const t = Math.min(1, Math.max(0, (now - start) / (CHARGE_MS - 300)));
-      due += Math.max(0, now - last) / 1000 * (RAY_RATE[0] + (RAY_RATE[1] - RAY_RATE[0]) * t ** 1.6); last = Math.max(last, now);
-      for (; due >= 1; due--) for (const flow of flows.current) if (flow && flow.childElementCount < 90) spawn(flow, t);
+      // Khung hình bị trễ thì không bù dồn quá 4 tia/bên (tránh khung sau càng nặng). Đọc bề rộng một lần trước khi gắn tia:
+      // đọc clientWidth sau mỗi appendChild ép trình duyệt tính lại style + bố cục cho từng tia.
+      due = Math.min(4, due + Math.max(0, now - last) / 1000 * (RAY_RATE[0] + (RAY_RATE[1] - RAY_RATE[0]) * t ** 1.6)); last = Math.max(last, now);
+      if (due >= 1) {
+        const widths = flows.current.map(flow => flow?.clientWidth ?? 0);
+        for (; due >= 1; due--) flows.current.forEach((flow, i) => { if (flow && flow.childElementCount < 90) spawn(flow, widths[i], t); });
+      }
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
@@ -250,16 +258,16 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
   }, [charging, outcome, reduced]);
   useEffect(() => {
     if (!charging) return;
-    const prepare = window.setTimeout(() => { const result = onConfirm(); if (result) setPrepared(result); }, reduced ? 0 : CHARGE_MS - PREPARE_LEAD);
+    const prepare = window.setTimeout(() => setPrepared(computed.current), reduced ? 0 : CHARGE_MS - PREPARE_LEAD);
     const reveal = window.setTimeout(() => setRevealed(true), reduced ? 0 : CHARGE_MS);
     timers.current = [prepare, reveal];
     return () => { clearTimeout(prepare); clearTimeout(reveal); };
   }, [charging]);
-  // Bỏ qua pha dồn năng lượng: huỷ hẹn giờ, tính kết quả ngay (nếu chưa tính) rồi lộ luôn.
+  // Bỏ qua pha dồn năng lượng: huỷ hẹn giờ, dựng kết quả (đã tính lúc bấm) rồi lộ luôn.
   const skip = () => {
     if (!charging || revealed) return;
     timers.current.forEach(clearTimeout); timers.current = [];
-    if (!prepared) { const result = onConfirm(); if (!result) return; setPrepared(result); }
+    if (!prepared) setPrepared(computed.current);
     setRevealed(true);
   };
   useEffect(() => { if (outcome) onReveal?.(outcome.success); }, [outcome]);
@@ -294,7 +302,7 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
       <div className="uc-row"><span><RefreshCcw size={20}/>Thẻ nâng cấp lại</span><b>0 cái trong kho</b></div>
       <div className="uc-actions">
         <button className="uc-back" onClick={onBack} disabled={charging}>Trở lại</button>
-        <button className="uc-go" onClick={() => setCharging(true)} disabled={charging} ref={goButton}>Nâng cấp</button>
+        <button className="uc-go" onClick={go} disabled={charging} ref={goButton}>Nâng cấp</button>
       </div>
     </aside>
   </div>;
