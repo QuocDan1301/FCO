@@ -2,7 +2,7 @@ import { accountClient } from './account-client';
 import type { EventReward } from './game';
 import type { GiftCode } from './gift-code-rules';
 import { LOGIN_FOR_FC, walletMessage } from './wallet-state';
-import type { AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, EventPlayResult, GiftCodeRow, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
+import type { AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, EventPlayResult, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
 export * from './wallet-state';
 
 // Ví FC trên máy chủ (supabase/migrations/202611070001_fco_wallet.sql): số FC, quà ngày, gift code, lượt sự kiện và jackpot
@@ -16,6 +16,10 @@ async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<
 
 export const fetchWallet = (seedPoints: number) => call<Wallet>('fco_wallet', { p_seed_points: Math.max(0, Math.floor(seedPoints)) });
 export const claimDailyFc = () => call<Wallet>('fco_claim_daily');
+// Bảng xếp hạng HLV (supabase/migrations/202611080001_fco_ranks.sql).
+export const fetchLeaderboard = () => call<Leaderboard>('fco_leaderboard');
+export const reportUpgradeRank = (ovr: number, playerId: number, level: number) => call<null>('fco_rank_upgrade', { p_ovr: ovr, p_player: playerId, p_level: level });
+export const reportSquadRank = (value: number) => call<null>('fco_rank_squad', { p_value: Math.max(0, Math.floor(value)) });
 export const spendFc = (amount: number, detail: Record<string, unknown>) => call<Wallet>('fco_spend_fc', { p_amount: amount, p_reason: 'shop', p_detail: detail });
 export const redeemGiftHash = (hash: string) => call<{ rewards: EventReward[]; wallet: Wallet }>('fco_redeem_gift', { p_hash: hash });
 export const claimMissionFc = (id: string) => call<Wallet>('fco_event_mission', { p_id: id });

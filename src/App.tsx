@@ -9,8 +9,9 @@ import UpgradeProtection from './UpgradeProtection';
 import './upgrade-bridge.css';
 import './daily-gift.css';
 import TopUp from './TopUp';
+import RanksPage from './RanksPage';
 import { applyGiftRewards, giftRewardText, prepareGiftCode } from './gift-codes';
-import { LOGIN_FOR_FC, applyWallet, claimBilac, claimDailyFc, claimMissionFc, fetchBilacConfig, fetchJackpot, fetchWallet, heartbeat, playBilac, playEventFc, redeemGiftHash, spendFc } from './wallet';
+import { LOGIN_FOR_FC, applyWallet, claimBilac, claimDailyFc, claimMissionFc, fetchBilacConfig, fetchJackpot, fetchLeaderboard, fetchWallet, heartbeat, playBilac, playEventFc, redeemGiftHash, reportSquadRank, reportUpgradeRank, spendFc } from './wallet';
 import AdminPanel from './AdminPanel';
 import { CHECKIN_REWARDS, checkinReward } from './checkin';
 import type { BilacState, Checkin, Wallet } from './wallet-state';
@@ -20,7 +21,7 @@ import { activeProtection, protectionApplies, protectionCost, setProtection, upg
 import { evaluateRestore, fodderRestore, restoreApplies } from './restore';
 import { autoPickMaterials } from './autoPick';
 import { watchName } from './nameMarquee';
-import { addToSquad, isLocked, releaseCard, removeFromSquad, toggleLock } from './squad';
+import { addToSquad, getLineups, isLocked, lineupSummary, releaseCard, removeFromSquad, toggleLock } from './squad';
 import type { Card, Entry, Pack, Save, Tier } from './game';
 import PackOpening from './cinema/PackOpening';
 import ViewportPages from './ViewportPages';
@@ -93,7 +94,7 @@ function CardSortSelect({ id, value, onChange }: { id: string; value: CardSort; 
 // Lịch sử lưu từ trước khi bỏ tiền xu vẫn ghi "xu": hiển thị theo đơn vị duy nhất BP.
 const historyDetail = (entry: Entry) => (entry.type === 'upgrade' ? entry.detail.replace(/ · Tỷ lệ [0-9.,]+%/g, '') : entry.detail).replace(/(^|[\s(])xu(?=$|[\s·.,)])/g, '$1BP').replace(/(\d{1,3}(?:[.,]\d{3})+|\d{7,})(?=\s*BP)/g, value => money(Number(value.replace(/[.,]/g, ''))));
 
-type View = 'packs' | 'upgrade' | 'collection' | 'lineup' | 'inventory' | 'history' | 'market' | 'shop' | 'event' | 'bilac';
+type View = 'packs' | 'upgrade' | 'collection' | 'lineup' | 'inventory' | 'history' | 'market' | 'shop' | 'event' | 'bilac' | 'ranks';
 type Animation = { id: string; kind: 'pack'; cards: Card[]; pack: Pack; quick: boolean } | { id: string; kind: 'upgrade'; card: Card; success: boolean; before: number; droppedLevel: number | null; restoredLevel: number | null; shielded?: boolean };
 const preview = (id: number): Card => ({ uid: `preview-${id}`, playerId: id, level: 1, received: 0 });
 let audioContext: AudioContext | undefined;
@@ -567,6 +568,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     try {
       const result = upgradeWithProtection(latest.current, targetId, materialIds, undefined, UNLIMITED_COINS, { role: 'main', pct: activeProtection(latest.current, target) });
       if (!commit(result.state, inline)) { busy.current = false; return null; }
+      if (online && result.success) void reportUpgradeRank(ovr(result.result), result.result.playerId, result.result.level).catch(() => { /* BXH: lần đập sau gửi lại */ });
       if (inline) { busy.current = false; return result; }
       // Hiệu ứng dồn năng lượng đã chạy ở màn xác nhận: vào thẳng màn kết quả (bỏ các pha đập cũ).
       setMaterialIds([]); setPhase(result.restoredLevel !== null ? 4 : 3); setAnimation({ id: uid(), kind: 'upgrade', card: result.result, success: result.success, before: target.level, droppedLevel: result.shielded ? null : result.droppedLevel, restoredLevel: result.restoredLevel, shielded: result.shielded });
@@ -676,6 +678,14 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const [isAdmin, setIsAdmin] = useState(false);
   const [fcAdminOpen, setFcAdminOpen] = useState(false);
   const [bilac, setBilac] = useState<BilacState | null>(null);
+  // BXH giá trị đội hình: gửi "Giá trị ĐH" của đội hình đang dùng mỗi khi đổi (chờ 3 giây để gộp các thao tác liên tiếp).
+  const squadValue = useMemo(() => { const lineups = getLineups(save); return lineupSummary(save, lineups.sets[lineups.active]).value; }, [save.cards, save.squad, save.lineups]);
+  const reportedSquad = useRef<number | null>(null);
+  useEffect(() => {
+    if (!online || reportedSquad.current === squadValue) return;
+    const id = window.setTimeout(() => { reportSquadRank(squadValue).then(() => { reportedSquad.current = squadValue; }).catch(() => { /* thử lại lần đổi sau */ }); }, 3000);
+    return () => window.clearTimeout(id);
+  }, [online, squadValue]);
   const noteWallet = (wallet: Wallet) => { if (wallet.checkin) setCheckin(wallet.checkin); if (wallet.bilac) setBilac(wallet.bilac); };
   const refreshWallet = async () => {
     if (!online) return;
@@ -785,6 +795,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       {view === 'shop' && <PackShop save={save} packs={shopPacks} free={UNLIMITED_COINS} onBuy={(pack, count) => purchasePacks(pack, count)} onOpenNow={buyAndOpen} onPreview={(pack, count) => setPackPreview({ pack, count })} onInventory={() => switchView('inventory')} renderArt={pack => <PackArt pack={pack}/>}/>}
       {view === 'inventory' && <Inventory save={save} packs={packs} onUse={pack => prepareOpening(pack)} onShop={() => switchView('shop')} onUseSelected={selection => selection[0] && prepareOpening(selection[0], selection)} onClose={() => switchView('packs')} renderArt={pack => <PackArt pack={pack}/>} testMode={UNLIMITED_COINS} onReceiveTest={receiveTestPacks}/>}
       {view === 'market' && <TransferMarket save={save} free={UNLIMITED_COINS} onTrade={requestTrade} onBulkSell={() => setSellOpen({ tab: 'bulk' })} onHistory={() => { setHistoryType('market'); switchView('history'); }} onOpenPacks={() => switchView('inventory')} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge}/>}
+      {view === 'ranks' && <RanksPage load={fetchLeaderboard} online={online} levelBadge={levelBadge}/>}
       {EVENT_BILAC_ENABLED && view === 'bilac' && <BilacPage fc={save.fc ?? 0} bilac={bilac} loadConfig={fetchBilacConfig} loadJackpot={fetchJackpot} onPlay={playBilacTurns} onClaim={claimBilacMilestone} onRefresh={refreshWallet}/>}
       {EVENT_NCSS_ENABLED && view === 'event' && <EventPage save={save} free={UNLIMITED_COINS} onPlay={playEventTurns} onClaim={claimEventGift} onMission={claimEventMission} serverJackpot={online ? fetchJackpot : undefined}/>}
       {view === 'history' && <section className="workspace history-workspace"><div className="page-heading"><div><h1>Dấu ấn hành trình</h1><p>Lưu tối đa 200 hoạt động gần nhất trên trình duyệt này.</p></div><select aria-label="Lọc loại lịch sử" value={historyType} onChange={e => setHistoryType(e.target.value)}><option value="">Tất cả hoạt động</option><option value="pack">Mở gói</option><option value="upgrade">Nâng cấp</option><option value="gift">Điểm danh</option><option value="market">Chuyển nhượng</option><option value="shop">Mua gói</option><option value="event">Sự kiện</option></select></div>{save.history.filter(e => !historyType || e.type === historyType).length ? <ViewportPages className="history-list" itemHeight={92} resetKey={historyType}>{save.history.filter(e => !historyType || e.type === historyType).map(e => <article className="history-item" key={e.id}><div className={`history-icon ${e.success === false ? 'failure' : ''}`}>{e.type === 'pack' ? <PackageOpen size={21}/> : e.type === 'gift' ? <Gift size={21}/> : e.type === 'market' ? <ArrowLeftRight size={21}/> : e.type === 'shop' ? <ShoppingBag size={21}/> : e.type === 'event' ? <Sparkles size={21}/> : <Zap size={21}/>}</div><div><h2>{e.title}</h2><p>{historyDetail(e)}</p></div><time>{new Date(e.time).toLocaleString('vi-VN')}</time></article>)}</ViewportPages> : <div className="empty-state"><History size={38}/><h2>Trang sử đang chờ bạn</h2><p>Mở gói, nâng cấp hoặc nhận quà điểm danh để bắt đầu.</p><button className="primary-button" onClick={() => switchView('inventory')}>Kho vật phẩm<ArrowRight size={16}/></button></div>}</section>}
@@ -798,6 +809,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
           { label: 'TTCN', view: 'market', hint: 'Thị trường chuyển nhượng', onClick: () => switchView('market') },
           { label: 'Vật phẩm', view: 'inventory', hint: hasPacks ? 'Có gói chưa mở' : undefined, dot: packTotal > seen.packs, onClick: () => switchView('inventory') },
           { label: 'Shop', view: 'shop', onClick: () => switchView('shop') },
+          { label: 'BXH', view: 'ranks', hint: 'Bảng xếp hạng HLV', onClick: () => switchView('ranks') },
           ...(EVENT_NCSS_ENABLED ? [{ label: 'Sự kiện', view: 'event' as View, hint: 'Nâng Cấp Siêu Sao', onClick: () => switchView('event') }] : []),
           ...(EVENT_BILAC_ENABLED ? [{ label: 'Bi Lắc', view: 'bilac' as View, hint: 'Sự kiện Bi Lắc', onClick: () => switchView('bilac') }] : []),
         ];

@@ -9,6 +9,10 @@ export type BilacState = { points: number; claimed: (number | null)[]; freeToday
 export type Wallet = { fc: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean };
 export type ServerJackpotWin = { name: string; amount: number; kind: 'special' | 'mini'; time: number; mine: boolean };
 export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
+// Bảng xếp hạng HLV (fco_leaderboard): top 10 kỷ lục đập thẻ OVR, top 10 giá trị đội hình, hạng của người xem.
+export type LeaderboardOvr = { name: string; ovr: number; playerId: number | null; level: number | null; mine: boolean };
+export type LeaderboardSquad = { name: string; value: number; mine: boolean };
+export type Leaderboard = { ovr: LeaderboardOvr[]; squad: LeaderboardSquad[]; me: { ovr: number | null; ovrRank: number | null; squad: number | null; squadRank: number | null } };
 export type EventPlayResult = { hits: { level: number; jar: number }[]; paid: number; jarFc: number; jackpotWins: { kind: 'special' | 'mini'; amount: number; time: number }[]; jackpot: ServerJackpot; wallet: Wallet };
 export type LedgerRow = { time: number; login: string; delta: number; balance: number; reason: string; note: string | null; admin: boolean };
 export type GiftCodeRow = { hash: string; hint: string; rewards: EventReward[]; expires: string | null; created: string; used: number };

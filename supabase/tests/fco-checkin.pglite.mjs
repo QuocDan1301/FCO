@@ -1,5 +1,5 @@
 // Chạy thử migration điểm danh 7 ngày trên PGlite (cài như fco-wallet.pglite.mjs):
-//   NODE_PATH=<tmp>/node_modules node supabase/tests/fco-checkin.pglite.mjs . supabase/migrations/202611070001_fco_wallet.sql supabase/migrations/202611070002_fco_save_audit.sql supabase/migrations/202611070003_fco_stats.sql supabase/migrations/202611070004_fco_checkin.sql supabase/migrations/202611070008_fco_checkin_fc.sql
+//   NODE_PATH=<tmp>/node_modules node supabase/tests/fco-checkin.pglite.mjs . supabase/migrations/202611070001_fco_wallet.sql supabase/migrations/202611070002_fco_save_audit.sql supabase/migrations/202611070003_fco_stats.sql supabase/migrations/202611070004_fco_checkin.sql supabase/migrations/202611070008_fco_checkin_fc.sql supabase/migrations/202611080002_fco_checkin_v3.sql
 import { PGlite } from '@electric-sql/pglite';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
@@ -31,7 +31,7 @@ const claim = () => as(B, 'select public.fco_claim_daily()');
 
 let w = await as(B, 'select public.fco_wallet()');
 assert.deepEqual(w.checkin, { claimedToday: false, day: 1, done: 0 });
-const bonus = [200, 400, 700, 1000, 1300, 1600, 2000];
+const bonus = [200, 350, 500, 650, 800, 1000, 0];
 let fc = 0;
 for (let day = 1; day <= 7; day++) {
   if (day > 1) await shift(1);
@@ -53,8 +53,8 @@ w = await claim(); assert.equal(w.checkin.day, 1);
 // Chưa nhận hôm nay nhưng hôm qua đã nhận ngày 1: hiển thị đã xong 1, hôm nay là ngày 2.
 await shift(1);
 assert.deepEqual((await as(B, 'select public.fco_wallet()')).checkin, { claimedToday: false, day: 2, done: 1 });
-// Sổ cái: mỗi ngày điểm danh một dòng checkin đúng số FC.
+// Sổ cái: ngày có FC (1–6) mỗi ngày một dòng checkin đúng số FC; ngày 7 là gói (trình duyệt thêm).
 const rows = (await db.query(`select (detail->>'day')::int d, delta from public.fco_fc_ledger where reason = 'checkin' order by id`)).rows;
-assert.deepEqual(rows.map(r => [r.d, Number(r.delta)]).slice(0, 4), [[1, 200], [2, 400], [3, 700], [4, 1000]]);
+assert.deepEqual(rows.map(r => [r.d, Number(r.delta)]).slice(0, 4), [[1, 200], [2, 350], [3, 500], [4, 650]]);
 await assert.rejects(as(B, `select public.fco_checkin_next(1::smallint, current_date, current_date)`), /permission denied/);
 console.log('CHECKIN PASS');
