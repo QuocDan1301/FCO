@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { canLoadInBackground, preloadResources, tooManyFailed } from '../src/preload';
 import { assetGroup, backgroundRank } from '../src/asset-groups';
+import { createAssetProgress } from '../src/asset-progress';
 
 test('chờ nhận hết nội dung, loại URL trùng và giới hạn số lượt tải đồng thời', async () => {
   let active = 0, peak = 0;
@@ -75,4 +76,31 @@ test('Chia nhóm tải: chỉ giao diện chặn vào game; ảnh thẻ và nh�
   assert.equal(canLoadInBackground({ effectiveType: '3g' }), false);
   assert.equal(canLoadInBackground({ effectiveType: 'slow-2g' }), false);
   assert.equal(canLoadInBackground({ effectiveType: '4g', saveData: true }), false);
+});
+
+test('Vòng tròn tiến trình: chỉ báo khi phần trăm đổi, chưa đủ thì không hiện 100, phân biệt tải thiếu', () => {
+  const store = createAssetProgress();
+  assert.deepEqual(store.get(), { status: 'idle', percent: 0, failed: 0 });
+  let calls = 0;
+  const off = store.subscribe(() => { calls++; });
+  store.update(10, 1000);
+  assert.deepEqual(store.get(), { status: 'loading', percent: 1, failed: 0 });
+  for (let loaded = 11; loaded < 20; loaded++) store.update(loaded, 1000);
+  assert.equal(calls, 1, 'cùng 1% thì không báo lại');
+  const same = store.get();
+  store.update(19, 1000);
+  assert.equal(store.get(), same, 'giữ nguyên object để React không vẽ lại');
+  store.update(999, 1000);
+  assert.equal(store.get().percent, 99, 'thiếu 1 file vẫn chưa phải 100');
+  store.finish(1);
+  assert.deepEqual(store.get(), { status: 'partial', percent: 99, failed: 1 });
+  store.update(1000, 1000); store.finish(0);
+  assert.deepEqual(store.get(), { status: 'done', percent: 100, failed: 0 });
+  off();
+  const before = calls;
+  store.update(1, 2);
+  assert.equal(calls, before, 'huỷ đăng ký thì không báo nữa');
+  const empty = createAssetProgress();
+  empty.update(0, 0);
+  assert.equal(empty.get().percent, 100, 'không có gì để tải không chia cho 0');
 });

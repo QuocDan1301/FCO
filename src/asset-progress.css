@@ -1,0 +1,14 @@
+.asset-ring{position:relative;flex:none;display:grid;place-items:center;width:28px;height:28px;border-radius:50%;cursor:help;outline:none}
+.asset-ring svg{display:block;width:20px;height:20px;transform:rotate(-90deg)}
+.asset-ring circle{fill:none;stroke-width:3}
+.asset-ring-track{stroke:#ffffff24}
+.asset-ring-value{stroke:var(--gold,#d9ba76);stroke-linecap:round;transition:stroke-dasharray .25s linear}
+.asset-ring.is-done .asset-ring-value{stroke:#3ddc7a}
+.asset-ring.is-partial .asset-ring-value{stroke:#ffb35c}
+.asset-ring:hover,.asset-ring:focus-visible{background:#ffffff12}
+.asset-ring:focus-visible{outline:2px solid #7bc9ff;outline-offset:1px}
+.asset-ring-tip{position:absolute;top:calc(100% + 8px);left:50%;z-index:60;display:none;flex-direction:column;gap:3px;width:max-content;max-width:220px;padding:7px 10px;border:1px solid #2c3644;border-radius:6px;background:#0f141c;color:#f0f1f3;font-size:12px;line-height:1.35;text-align:left;white-space:normal;transform:translateX(-50%);box-shadow:0 6px 18px #0009;pointer-events:none}
+.asset-ring-tip b{font-weight:700}
+.asset-ring-tip small{font-size:12px;color:#aebdcc}
+.asset-ring:hover .asset-ring-tip,.asset-ring:focus .asset-ring-tip{display:flex}
+@media(prefers-reduced-motion:reduce){.asset-ring-value{transition:none}}
