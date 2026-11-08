@@ -67,6 +67,8 @@ Bảng xếp hạng HLV (`202611080001_fco_ranks.sql`, mục BXH trên thanh men
 
 Quản lý tài khoản (`202611080008_fco_admin_accounts.sql`, Quản trị FC → Tài khoản): mọi tài khoản đã đăng ký kể cả chưa từng vào game; tìm, sắp xếp, phân trang; cộng / trừ FC, xem sổ cái; khoá (đặt `auth.users.banned_until`, xoá phiên, và `fco_require_user` / `fco_commit_save` chặn cả JWT còn hạn; dữ liệu giữ nguyên); xoá vĩnh viễn (cascade, gồm cả sổ cái nên tổng nạp ở Thống kê giảm theo). Không khoá / xoá được tài khoản admin. Chạy thử: `supabase/tests/fco-admin-accounts.pglite.mjs`.
 
+Bảo trì (`202611080011_fco_maintenance.sql`, Quản trị FC → Bảo trì): khi bật, `fco_require_user` từ chối tài khoản thường (FCO_MAINTENANCE), admin không bị chặn; `fco_commit_save` vẫn cho qua để không mất tiến trình vừa chơi. Trình duyệt hỏi `fco_maintenance_state` mỗi 30 giây; không hỏi được thì không chặn. Hàm người chơi mới phải lấy uid qua `fco_require_user`. Chạy thử: `supabase/tests/fco-maintenance.pglite.mjs`.
+
 Reset tài khoản (`202611080010_fco_admin_account_reset.sql`, Quản trị FC → Tài khoản → Quản lý): đưa bản lưu và tiến trình trên ví về như mới, xoá kỷ lục BXH; giữ tên đăng nhập, mật khẩu, sổ cái, gift code đã dùng, quà ngày và lượt Bi Lắc miễn phí đã dùng hôm nay; FC chỉ bị xoá khi admin tích chọn. Bản lưu được ghi đè và tăng revision (không xoá dòng) để máy người chơi tự nhận bản mới và không đẩy được đồ cũ lên lại. Mỗi lần reset ghi sổ cái lý do `reset`. Chạy thử: `supabase/tests/fco-admin-reset.pglite.mjs`.
 
 Thống kê FC của người chơi (`202611080009_fco_my_fc_stats.sql`, khung Nạp FC): Đã nạp = FC lý do `admin`; Đã dùng = mọi dòng trừ FC trừ lý do `admin`. Chỉ đọc được số của chính mình. Chạy thử: `supabase/tests/fco-my-fc-stats.pglite.mjs`.

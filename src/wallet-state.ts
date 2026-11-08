@@ -54,6 +54,7 @@ const MESSAGES: Record<string, string> = {
   FCO_MILESTONE_CHOICE: 'Hãy chọn một phần quà.',
   FCO_ADMIN_ONLY: 'Chỉ admin mới dùng được chức năng này.',
   FCO_USER_NOT_FOUND: 'Không tìm thấy tài khoản này.',
+  FCO_MAINTENANCE: 'Game đang bảo trì. Vui lòng quay lại sau.',
   FCO_ADMIN_PROTECTED: 'Không thể khoá hoặc xoá tài khoản admin.',
   FCO_ACCOUNT_LOCKED: ACCOUNT_LOCKED_MESSAGE,
   FCO_BAD_AMOUNT: 'Số FC không hợp lệ.',

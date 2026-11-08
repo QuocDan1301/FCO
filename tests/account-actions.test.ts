@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { clearAccountCache, loginIdentity, registrationIdentity } from '../src/account-identity.ts';
 import { deleteAccount } from '../src/account-deletion.ts';
+import { MAINTENANCE_DEFAULT_MESSAGE, maintenanceBlocks, maintenanceText } from '../src/maintenance-state.ts';
 
 test('Username sign-up and login share a normalized identity without asking for email', () => {
   const identity = registrationIdentity('  QuocDan_1301  ');
@@ -42,4 +43,14 @@ test('Deleting local data removes only that account and its backups', () => {
   const storage = { get length() { return values.size; }, key: (i: number) => [...values.keys()][i] ?? null, removeItem: (key: string) => { values.delete(key); } };
   clearAccountCache(storage, 'account:a');
   assert.deepEqual([...values.keys()], ['account:ab', 'guest']);
+});
+
+test('Bảo trì: chỉ chặn tài khoản thường; chưa biết trạng thái thì không chặn; thông báo trống dùng câu mặc định', () => {
+  assert.equal(maintenanceBlocks(null), false);
+  assert.equal(maintenanceBlocks({ enabled: false, message: '', bypass: false }), false);
+  assert.equal(maintenanceBlocks({ enabled: true, message: '', bypass: false }), true);
+  assert.equal(maintenanceBlocks({ enabled: true, message: '', bypass: true }), false);
+  assert.equal(maintenanceText({ message: '   ' }), MAINTENANCE_DEFAULT_MESSAGE);
+  assert.equal(maintenanceText(null), MAINTENANCE_DEFAULT_MESSAGE);
+  assert.equal(maintenanceText({ message: 'Xong lúc 22h' }), 'Xong lúc 22h');
 });

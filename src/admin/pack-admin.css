@@ -172,3 +172,10 @@
 .pa-account-pages{display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px}
 /* Màn hình thấp (điện thoại cầm ngang): cuộn cả mục thay vì khung bảng bị bóp thấp. */
 @media(max-height:600px){.pa-accounts .pa-stat-players{flex:none}}
+.pa-maintenance{grid-column:2/-1;max-width:640px}
+.pa-maintenance textarea{width:100%;padding:8px 10px;border:1px solid #2c3644;border-radius:5px;background:#0f141c;color:#f0f1f3;font:inherit;font-size:14px;resize:vertical}
+.pa-maintenance .pa-account-delete{padding:0 16px}
+.pa-maintenance-state{display:flex;align-items:center;gap:10px;margin:0;padding:12px 14px;border:1px solid #2c3644;border-radius:8px;background:#0f141c;font-size:15px;font-weight:700}
+.pa-maintenance-state i{width:10px;height:10px;border-radius:50%;background:#3ddc7a}
+.pa-maintenance-state.is-on{border-color:#ffb35c80;color:#ffcf94}
+.pa-maintenance-state.is-on i{background:#ffb35c}
