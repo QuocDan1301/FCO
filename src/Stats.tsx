@@ -7,9 +7,9 @@ import type { AdminStats, StatsPlayer } from './wallet';
 
 // Thống kê người chơi (supabase/migrations/202611070003_fco_stats.sql): tài khoản, online, giờ chơi, FC nạp (admin cộng ở Nạp FC).
 // Chỉ tính người chơi đã đăng nhập; khách không có tài khoản nên không đếm được.
-const hours = (s: number) => s < 3600 ? `${Math.round(s / 60)} phút` : `${(s / 3600).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} giờ`;
-const vnd = (fc: number) => `${Math.round(fc / 1000 * TOPUP_VND_PER_1000_FC).toLocaleString('vi-VN')} đ`;
-const ago = (ms: number | null, now: number) => {
+export const hours = (s: number) => s < 3600 ? `${Math.round(s / 60)} phút` : `${(s / 3600).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} giờ`;
+export const vnd = (fc: number) => `${Math.round(fc / 1000 * TOPUP_VND_PER_1000_FC).toLocaleString('vi-VN')} đ`;
+export const ago = (ms: number | null, now: number) => {
   if (ms === null) return 'chưa vào game';
   const m = Math.round((now - ms) / 60000);
   return m < 2 ? 'đang online' : m < 60 ? `${m} phút trước` : m < 1440 ? `${Math.round(m / 60)} giờ trước` : `${Math.round(m / 1440)} ngày trước`;

@@ -65,6 +65,8 @@ Tài liệu nhà cung cấp: [đăng ký](https://supabase.com/docs/reference/ja
 
 Bảng xếp hạng HLV (`202611080001_fco_ranks.sql`, mục BXH trên thanh menu dưới): top 10 kỷ lục đập thẻ OVR cao nhất (game gọi `fco_rank_upgrade` sau mỗi lần đập thành công; máy chủ chỉ ghi khi cao hơn kỷ lục cũ) và top 10 giá trị đội hình đang dùng (`fco_rank_squad` khi "Giá trị ĐH" đổi). `fco_leaderboard()` trả hai bảng + hạng của người xem; tên HLV che bớt như bảng tin jackpot. OVR / giá thẻ chỉ tính được trong game nên máy chủ tin số game gửi lên.
 
+Quản lý tài khoản (`202611080008_fco_admin_accounts.sql`, Quản trị FC → Tài khoản): mọi tài khoản đã đăng ký kể cả chưa từng vào game; tìm, sắp xếp, phân trang; cộng / trừ FC, xem sổ cái; khoá (đặt `auth.users.banned_until`, xoá phiên, và `fco_require_user` / `fco_commit_save` chặn cả JWT còn hạn; dữ liệu giữ nguyên); xoá vĩnh viễn (cascade, gồm cả sổ cái nên tổng nạp ở Thống kê giảm theo). Không khoá / xoá được tài khoản admin. Chạy thử: `supabase/tests/fco-admin-accounts.pglite.mjs`.
+
 Tỉ lệ quà Bi Lắc (`202611080003_fco_bilac_weights.sql`): bóng CLB 24 · FC 12 · Special 6 · BP 30 · Thẻ 28; `fco_bilac_rows.weights` (cùng thứ tự `rewards`, tổng 100) cho quà càng giá trị càng khó trúng, quà FC hiếm nhất. `fco_bilac_pick` chọn theo trọng số (null = chia đều).
 `202611080004_fco_bilac_harder.sql`: trọng số theo phần nghìn (quà đắt nhất hàng 0,5–3 %) và hàng x3 thường chỉ giữ 40 % (còn lại quả thứ 3 lăn lại thành x2).
 `202611080005_fco_bilac_less_fc.sql`: giảm quà FC — bóng FC 6 (CLB 26 · BP 32 · Thẻ 30), FC x3 chỉ giữ 10 %, món FC trong hàng FC x2 / x3 hiếm hơn; danh sách quà không đổi.

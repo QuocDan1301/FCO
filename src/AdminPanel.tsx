@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { BarChart3, Coins, Gift, RotateCcw, ShieldAlert, X } from 'lucide-react';
+import { BarChart3, Coins, Gift, RotateCcw, ShieldAlert, Users, X } from 'lucide-react';
 import { money, packs } from './game';
 import GiftCodeAdmin from './admin/GiftCodeAdmin';
+import Accounts from './Accounts';
 import Anomalies from './Anomalies';
 import Stats from './Stats';
-import { adminCredit, adminLedger } from './wallet';
+import { adminCredit, adminLedger, LEDGER_REASONS } from './wallet';
 import type { LedgerRow } from './wallet';
 import './admin/pack-admin.css';
 import { TOPUP_VND_PER_1000_FC } from './config';
@@ -12,7 +13,6 @@ import { TOPUP_VND_PER_1000_FC } from './config';
 // Bảng admin trong game (chỉ hiện với tài khoản trong bảng fco_admins): cộng FC sau khi kiểm tra bill chuyển khoản,
 // xem sổ cái FC, quản lý gift code và xem cảnh báo bản lưu bất thường. Máy chủ kiểm tra quyền admin ở mọi thao tác.
 type Status = { kind: 'ok' | 'error'; text: string } | null;
-const REASONS: Record<string, string> = { admin: 'Admin', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code' };
 const time = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });
 
 function CreditFc() {
@@ -57,14 +57,14 @@ function CreditFc() {
       {rows && !rows.length && <p className="pa-empty">Chưa có giao dịch.</p>}
       {rows?.map((row, i) => <div key={`${row.time}-${i}`} className="pa-gift-item">
         <div><b className={row.delta > 0 ? 'pa-plus' : 'pa-minus'}>{row.delta > 0 ? '+' : '−'}{money(Math.abs(row.delta))} FC · {row.login}</b>
-          <small>{REASONS[row.reason] ?? row.reason}{row.note ? ` · ${row.note}` : ''} · còn {money(row.balance)} FC</small><small>{time(row.time)}</small></div>
+          <small>{LEDGER_REASONS[row.reason] ?? row.reason}{row.note ? ` · ${row.note}` : ''} · còn {money(row.balance)} FC</small><small>{time(row.time)}</small></div>
       </div>)}
     </div>
   </section>;
 }
 
 export default function AdminPanel({ onClose }: { onClose: () => void }) {
-  const [tab, setTab] = useState<'stats' | 'fc' | 'gift' | 'audit'>('stats');
+  const [tab, setTab] = useState<'stats' | 'accounts' | 'fc' | 'gift' | 'audit'>('stats');
   useEffect(() => { const key = (event: KeyboardEvent) => event.key === 'Escape' && onClose(); addEventListener('keydown', key); return () => removeEventListener('keydown', key); }, [onClose]);
   return <div className="pack-admin" role="dialog" aria-modal="true" aria-label="Quản trị FC">
     <header className="pa-header">
@@ -74,11 +74,12 @@ export default function AdminPanel({ onClose }: { onClose: () => void }) {
     <div className="pa-body">
       <aside className="pa-list" aria-label="Mục quản trị">
         <button className="pa-new pa-gift-nav" onClick={() => setTab('stats')} aria-pressed={tab === 'stats'}><BarChart3 size={16}/>Thống kê</button>
+        <button className="pa-new pa-gift-nav" onClick={() => setTab('accounts')} aria-pressed={tab === 'accounts'}><Users size={16}/>Tài khoản</button>
         <button className="pa-new pa-gift-nav" onClick={() => setTab('fc')} aria-pressed={tab === 'fc'}><Coins size={16}/>Nạp FC</button>
         <button className="pa-new pa-gift-nav" onClick={() => setTab('gift')} aria-pressed={tab === 'gift'}><Gift size={16}/>Gift code</button>
         <button className="pa-new pa-gift-nav" onClick={() => setTab('audit')} aria-pressed={tab === 'audit'}><ShieldAlert size={16}/>Bất thường</button>
       </aside>
-      {tab === 'stats' ? <Stats/> : tab === 'fc' ? <CreditFc/> : tab === 'audit' ? <Anomalies/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
+      {tab === 'stats' ? <Stats/> : tab === 'accounts' ? <Accounts/> : tab === 'fc' ? <CreditFc/> : tab === 'audit' ? <Anomalies/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
     </div>
   </div>;
 }

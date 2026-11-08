@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { validateSave } from './game';
 import { SaveConflict } from './cloud-save';
+import { ACCOUNT_LOCKED_MESSAGE } from './account-identity';
 import type { CloudRecord, SaveRemote } from './cloud-save';
 
 const url = import.meta.env.VITE_SUPABASE_URL?.trim();
@@ -31,6 +32,7 @@ export function saveRemote(userId: string): SaveRemote {
     async write(data, revision) {
       const result = await client.rpc('fco_commit_save', { p_data: data, p_revision: revision }).abortSignal(AbortSignal.timeout(20000));
       if (result.error?.message.includes('FCO_SAVE_CONFLICT')) throw new SaveConflict();
+      if (result.error?.message.includes('FCO_ACCOUNT_LOCKED')) throw new Error(ACCOUNT_LOCKED_MESSAGE);
       if (result.error) throw new Error('Chưa gửi được tiến trình lên máy chủ. Bản lưu vẫn còn trên máy này.');
       return record(result.data);
     },
@@ -41,6 +43,7 @@ export function accountError(error: unknown) {
   const code = (error as { code?: string })?.code;
   const messages: Record<string, string> = {
     invalid_credentials: 'Tên đăng nhập hoặc mật khẩu chưa đúng.',
+    user_banned: ACCOUNT_LOCKED_MESSAGE,
     email_not_confirmed: 'Hãy xác nhận email trước khi đăng nhập.',
     email_address_not_authorized: 'Chưa gửi được email xác nhận đến địa chỉ này. Vui lòng liên hệ quản trị game.',
     user_already_exists: 'Tên đăng nhập này đã được sử dụng. Hãy chọn tên khác.',

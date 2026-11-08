@@ -1,4 +1,5 @@
 /** Stable internal Supabase identity; players never need to supply an email. */
+export const ACCOUNT_LOCKED_MESSAGE = 'Tài khoản đã bị khoá. Vui lòng liên hệ quản trị game.';
 export const LOGIN_NAME_PATTERN = /^[a-z0-9_]{3,24}$/;
 export function normalizeLoginName(value: string) { return value.trim().toLowerCase(); }
 export function registrationIdentity(value: string) {

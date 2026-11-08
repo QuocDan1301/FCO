@@ -148,3 +148,26 @@
 .pa-stat-players{overflow-x:auto}
 .pa-narrow-sort{flex:0 0 160px !important}
 .pa-dot{display:inline-block;width:8px;height:8px;margin-right:6px;border-radius:50%;background:#3ddc7a;vertical-align:middle}
+.pa-accounts{grid-column:2/-1;max-width:1180px}
+.pa-accounts table{width:100%;border-collapse:collapse;font-size:13px}
+.pa-accounts th,.pa-accounts td{padding:6px 8px;border-bottom:1px solid #222b37;text-align:left;white-space:nowrap}
+.pa-accounts th{font-size:12px;font-weight:600;color:var(--muted)}
+.pa-accounts table tr.is-locked td{color:#8d99a8}
+.pa-badge{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600;vertical-align:1px}
+.pa-badge.is-admin{background:#d9b25a22;color:#f1cf7f}
+.pa-badge.is-locked{background:#e6394622;color:#ff9aa2}
+.pa-account-count{margin:0;font-size:13px;color:#aebdcc}
+.pa-account-toggle{min-height:0;padding:4px 10px;font-size:12px}
+.pa-accounts td:last-child{text-align:right}
+.pa-accounts .pa-account-detail>td{padding:0;white-space:normal;text-align:left;background:#0b0f15}
+.pa-account-manage{display:flex;flex-direction:column;gap:10px;padding:12px}
+.pa-account-columns{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;align-items:start}
+.pa-account-columns h3{margin:0 0 8px;font-size:14px}
+.pa-account-columns form,.pa-account-danger{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+.pa-account-ledger p{margin:0 0 6px;font-size:13px;overflow-wrap:anywhere}
+.pa-account-danger form{margin-top:8px;padding-top:10px;border-top:1px solid #222b37}
+.pa-account-delete{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;border:1px solid #e6394680;border-radius:6px;background:#e6394618;color:#ff9aa2;font-weight:600;cursor:pointer}
+.pa-account-delete:disabled{opacity:.45;cursor:not-allowed}
+.pa-account-pages{display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px}
+/* Màn hình thấp (điện thoại cầm ngang): cuộn cả mục thay vì khung bảng bị bóp thấp. */
+@media(max-height:600px){.pa-accounts .pa-stat-players{flex:none}}
