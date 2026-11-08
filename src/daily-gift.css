@@ -38,6 +38,15 @@
 .topup-modal .modal-panel { width: min(440px, 94vw); }
 .topup-modal .modal-heading p { margin-top: 4px; color: #aebdcc; font-size: 13px; }
 .topup { display: flex; flex-direction: column; gap: 14px; }
+.topup-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+.topup-summary div { padding: 10px 12px; border: 1px solid #2c3644; border-radius: 8px; background: #0f141c; }
+.topup-summary dt { font-size: 12px; color: #aebdcc; }
+.topup-summary dd { margin: 2px 0 0; font-size: 20px; font-weight: 700; color: #3ddc7a; overflow-wrap: anywhere; }
+.topup-summary div + div dd { color: #f6c85f; }
+.topup-summary dd span { font-size: 12px; font-weight: 600; color: #aebdcc; }
+.topup-summary-box { display: flex; flex-direction: column; gap: 6px; }
+.topup-summary-box p { margin: 0; font-size: 12px; line-height: 1.4; color: #aebdcc; }
+.topup-summary-error { margin: 0; font-size: 13px; color: #ff9aa2; }
 .topup-rate { margin: 0; font-size: 14px; color: #dfe6ee; }
 .topup-rate b { color: #3ddc7a; }
 .topup-qr { display: grid; place-items: center; min-height: 200px; padding: 12px; border-radius: 8px; background: #fff; }

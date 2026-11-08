@@ -397,7 +397,10 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const notify = (message: string) => setToast(message);
   useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(''), 5500); return () => clearTimeout(timer); }, [toast]);
   useEffect(() => {
-    const sync = (e: StorageEvent) => { if (e.key === storageKey && !busy.current) { try { const raw = storage.getItem(storageKey); if (!raw) return; const data: unknown = JSON.parse(raw); if (validateSave(data)) { storedRaw.current = raw; latest.current = data; setSave(data); setMaterialIds([]); } } catch { /* Bỏ qua bản lưu không hợp lệ ở cửa sổ khác. */ } } };
+    const sync = (e: StorageEvent) => { if (e.key === storageKey && !busy.current) { try { const raw = storage.getItem(storageKey); if (!raw) return; const data: unknown = JSON.parse(raw); if (validateSave(data)) { storedRaw.current = raw; latest.current = data; setSave(data); setMaterialIds([]);
+      // Bản từ máy chủ (máy khác đồng bộ, admin reset) không có FC: chỉ hỏi lại để hiển thị, không ghi bản lưu kẻo hai máy đồng bộ qua lại mãi.
+      if (online && data.fc === undefined) void fetchWallet(0).then(wallet => { noteWallet(wallet); setSave(current => applyWallet(current, wallet)); }).catch(() => { /* Lần làm mới ví sau sẽ cập nhật. */ });
+    } } catch { /* Bỏ qua bản lưu không hợp lệ ở cửa sổ khác. */ } } };
     window.addEventListener('storage', sync); return () => window.removeEventListener('storage', sync);
   }, []);
   // Không ghi đè thay đổi của tab khác (ví dụ tab này bỏ lỡ sự kiện đồng bộ khi đang chạy hiệu ứng): tải lại bản mới nhất và bỏ thao tác này.

@@ -2,7 +2,7 @@ import { accountClient } from './account-client';
 import type { EventReward } from './game';
 import type { GiftCode } from './gift-code-rules';
 import { LOGIN_FOR_FC, walletMessage } from './wallet-state';
-import type { AdminAccountList, AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, EventPlayResult, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
+import type { AdminAccountList, AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
 export * from './wallet-state';
 
 // Ví FC trên máy chủ (supabase/migrations/202611070001_fco_wallet.sql): số FC, quà ngày, gift code, lượt sự kiện và jackpot
@@ -24,6 +24,7 @@ export const spendFc = (amount: number, detail: Record<string, unknown>) => call
 export const redeemGiftHash = (hash: string) => call<{ rewards: EventReward[]; wallet: Wallet }>('fco_redeem_gift', { p_hash: hash });
 export const claimMissionFc = (id: string) => call<Wallet>('fco_event_mission', { p_id: id });
 export const playEventFc = (count: number, mode: 'fc' | 'free') => call<EventPlayResult>('fco_event_play', { p_count: count, p_mode: mode });
+export const fetchFcStats = () => call<FcStats>('fco_my_fc_stats');
 export const fetchJackpot = () => call<ServerJackpot>('fco_jackpot_state');
 export const adminCredit = (login: string, amount: number, note: string) => call<{ login: string; fc: number }>('fco_admin_credit', { p_login: login, p_amount: amount, p_note: note });
 export const adminLedger = (login?: string) => call<LedgerRow[]>('fco_admin_ledger', { p_limit: 100, p_login: login || null });
@@ -35,6 +36,7 @@ export const adminAnomalyReview = (id: number, all = false) => call<AnomalyRow[]
 export const heartbeat = () => call<null>('fco_heartbeat');
 export const adminAccounts = (search: string, sort: string, limit: number, offset: number) => call<AdminAccountList>('fco_admin_accounts', { p_search: search || null, p_sort: sort, p_limit: limit, p_offset: offset });
 export const adminAccountLock = (id: string, locked: boolean) => call<{ locked: boolean }>('fco_admin_account_lock', { p_user: id, p_locked: locked });
+export const adminAccountReset = (id: string, resetFc: boolean) => call<{ reset: boolean; fc: number }>('fco_admin_account_reset', { p_user: id, p_reset_fc: resetFc });
 export const adminAccountDelete = (id: string) => call<{ deleted: boolean }>('fco_admin_account_delete', { p_user: id });
 export const adminStats = (search?: string) => call<AdminStats>('fco_admin_stats', { p_search: search || null, p_limit: 300 });
 export const fetchBilacConfig = () => call<BilacConfig>('fco_bilac_config');

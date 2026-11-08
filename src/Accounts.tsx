@@ -2,7 +2,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { Coins, Lock, RotateCcw, Trash2, Unlock } from 'lucide-react';
 import { money } from './game';
 import { ago, hours, vnd } from './Stats';
-import { adminAccountDelete, adminAccountLock, adminAccounts, adminCredit, adminLedger, LEDGER_REASONS } from './wallet';
+import { adminAccountDelete, adminAccountLock, adminAccountReset, adminAccounts, adminCredit, adminLedger, LEDGER_REASONS } from './wallet';
 import type { AdminAccount, AdminAccountList, LedgerRow } from './wallet';
 
 // Quản lý tài khoản (supabase/migrations/202611080008_fco_admin_accounts.sql): mọi tài khoản đã đăng ký, cộng / trừ FC, sổ cái, khoá, xoá.
@@ -20,6 +20,8 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
   const [status, setStatus] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [deleteText, setDeleteText] = useState('');
+  const [resetText, setResetText] = useState('');
+  const [resetFc, setResetFc] = useState(false);
   const value = Number(amount.replace(/[.\s]/g, ''));
   const loadLedger = () => adminLedger(login).then(rows => setLedger(rows.slice(0, 10))).catch(e => setStatus({ kind: 'error', text: (e as Error).message }));
   useEffect(() => { void loadLedger(); }, [login]);
@@ -42,6 +44,14 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
     if (!account.locked && !confirm(`Khoá ${login}? Người chơi bị đăng xuất và không vào game được cho tới khi mở khoá. Dữ liệu được giữ nguyên.`)) return;
     void run(async () => { await adminAccountLock(account.id, !account.locked); return account.locked ? `Đã mở khoá ${login}.` : `Đã khoá ${login}.`; });
   };
+  const reset = () => {
+    if (resetText !== login) return;
+    void run(async () => {
+      const result = await adminAccountReset(account.id, resetFc);
+      setResetText(''); setResetFc(false); void loadLedger();
+      return `Đã reset ${login}, còn ${money(result.fc)} FC.`;
+    });
+  };
   const remove = async () => {
     setBusy(true); setStatus(null);
     try { await adminAccountDelete(account.id); onDeleted(login); }
@@ -61,14 +71,19 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
         {ledger && !ledger.length && <p className="pa-empty">Chưa có giao dịch.</p>}
         {ledger?.map((row, i) => <p key={`${row.time}-${i}`}><b className={row.delta > 0 ? 'pa-plus' : 'pa-minus'}>{row.delta > 0 ? '+' : '−'}{money(Math.abs(row.delta))} FC</b> <small>{LEDGER_REASONS[row.reason] ?? row.reason}{row.note ? ` · ${row.note}` : ''} · còn {money(row.balance)} · {time(row.time)}</small></p>)}
       </div>
-      {account.admin ? <p className="pa-gift-note">Tài khoản admin không khoá hoặc xoá được ở đây.</p> : <div className="pa-account-danger">
-        <h3>Khoá / xoá tài khoản</h3>
-        <button type="button" className="secondary-button" disabled={busy} onClick={lock}>{account.locked ? <Unlock size={16}/> : <Lock size={16}/>}{account.locked ? 'Mở khoá tài khoản' : 'Khoá tài khoản'}</button>
-        <form onSubmit={e => { e.preventDefault(); if (deleteText === login) void remove(); }}>
-          <label className="pa-field"><span>Xoá vĩnh viễn: gõ <b>{login}</b> để xác nhận <small>Mất thẻ, BP, FC và sổ cái của tài khoản; không khôi phục được.</small></span><input value={deleteText} onChange={e => setDeleteText(e.target.value)} autoComplete="off" spellCheck={false}/></label>
-          <button type="submit" className="pa-account-delete" disabled={busy || deleteText !== login}><Trash2 size={16}/>Xoá tài khoản</button>
+      <div className="pa-account-danger">
+        <h3>Khoá / reset / xoá tài khoản</h3>
+        {!account.admin && <button type="button" className="secondary-button" disabled={busy} onClick={lock}>{account.locked ? <Unlock size={16}/> : <Lock size={16}/>}{account.locked ? 'Mở khoá tài khoản' : 'Khoá tài khoản'}</button>}
+        <form onSubmit={e => { e.preventDefault(); reset(); }}>
+          <label className="pa-field"><span>Reset về như mới: gõ <b>{login}</b> để xác nhận <small>Mất thẻ, BP, gói, đội hình, lịch sử, tiến trình sự kiện, chuỗi điểm danh và kỷ lục BXH; không khôi phục được. Giữ tên đăng nhập, mật khẩu và sổ cái.</small></span><input value={resetText} onChange={e => setResetText(e.target.value)} autoComplete="off" spellCheck={false} aria-label={`Gõ ${login} để xác nhận reset`}/></label>
+          <label className="pa-account-check"><input type="checkbox" checked={resetFc} onChange={e => setResetFc(e.target.checked)}/>Xoá luôn FC (đang có {money(account.fc)} FC)</label>
+          <button type="submit" className="pa-account-delete" disabled={busy || resetText !== login}><RotateCcw size={16}/>Reset tài khoản</button>
         </form>
-      </div>}
+        {account.admin ? <p className="pa-gift-note">Tài khoản admin không khoá hoặc xoá được.</p> : <form onSubmit={e => { e.preventDefault(); if (deleteText === login) void remove(); }}>
+          <label className="pa-field"><span>Xoá vĩnh viễn: gõ <b>{login}</b> để xác nhận <small>Mất thẻ, BP, FC và sổ cái của tài khoản; không khôi phục được.</small></span><input value={deleteText} onChange={e => setDeleteText(e.target.value)} autoComplete="off" spellCheck={false} aria-label={`Gõ ${login} để xác nhận xoá`}/></label>
+          <button type="submit" className="pa-account-delete" disabled={busy || deleteText !== login}><Trash2 size={16}/>Xoá tài khoản</button>
+        </form>}
+      </div>
     </div>
   </div>;
 }

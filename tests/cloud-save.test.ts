@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { CloudSaveStore, SaveConflict } from '../src/cloud-save.ts';
 import type { CloudRecord, SaveRemote } from '../src/cloud-save.ts';
-import { initialSave, makeCard, STORAGE_KEY } from '../src/game.ts';
+import { BP_RESET, initialSave, makeCard, SAVE_RESET, STORAGE_KEY, validateSave } from '../src/game.ts';
+import type { Save } from '../src/game.ts';
 
 function disk() {
   const entries = new Map<string, string>();
@@ -126,4 +127,35 @@ test('A remote refresh never discards a new action made while the read is in fli
   store.setItem('', JSON.stringify({ ...state(store), fc: 19 }));
   release(); await refreshing; await store.flush();
   assert.equal(state(store).fc, 19);
+});
+
+test('Admin reset: bản reset hợp lệ, máy đang rảnh tự nhận, máy còn đồ chưa đồng bộ không đẩy đè được', async () => {
+  // Đúng dữ liệu fco_admin_account_reset ghi (202611080010): phải qua được validateSave.
+  const wiped = { version: 1, balance: 0, cards: [], history: [], unopened: {}, daily: '', opened: 0, upgrades: 0, sound: true, reduced: false, reset: SAVE_RESET, bpReset: BP_RESET } as unknown as Save;
+  assert.ok(validateSave(structuredClone(wiped)));
+  // Bản cũ thiếu reset / bpReset cũng không bị coi là hỏng.
+  const { reset: _r, bpReset: _b, ...old } = wiped;
+  assert.ok(validateSave(structuredClone(old)));
+
+  let row: CloudRecord = { revision: 3, data: { ...initialSave(), balance: 500, cards: [makeCard(11)] } };
+  const api: SaveRemote = {
+    async load() { return structuredClone(row); },
+    async write(data, revision) { if (row.revision !== revision) throw new SaveConflict(); row = { data: structuredClone(data), revision: revision + 1 }; return structuredClone(row); },
+  };
+  const idle = new CloudSaveStore('account:r1', api, disk());
+  const busy = new CloudSaveStore('account:r2', api, disk());
+  await idle.initialize(); await busy.initialize();
+  const stale = state(busy);
+  row = { revision: 4, data: structuredClone(wiped) };
+
+  await idle.refresh();
+  assert.equal(state(idle).cards.length, 0); assert.equal(state(idle).balance, 0); assert.equal(idle.status, 'saved');
+
+  // Máy kia vừa thao tác trên đồ cũ: bị từ chối, máy chủ vẫn là bản reset; nạp bản máy chủ thì về đúng bản reset.
+  busy.setItem('', JSON.stringify({ ...stale, balance: 999 }));
+  await busy.flush().catch(() => {});
+  assert.equal(busy.status, 'conflict');
+  assert.equal(row.data.cards.length, 0); assert.equal(row.data.balance, 0);
+  await busy.useCloudCopy();
+  assert.equal(state(busy).cards.length, 0); assert.equal(busy.status, 'saved');
 });

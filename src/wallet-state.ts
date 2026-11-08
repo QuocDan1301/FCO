@@ -21,10 +21,12 @@ export type AnomalyRow = { id: number; time: number; login: string; flags: strin
 export type StatsSummary = { registered: number; registeredToday: number; registered7: number; online: number; activeToday: number; active7: number; playSecondsToday: number; playSeconds7: number; playSecondsAll: number; topupFcToday: number; topupFc7: number; topupFc30: number; topupFcAll: number; payers: number };
 export type StatsDay = { day: string; active: number; seconds: number; topupFc: number; registered: number };
 export type StatsPlayer = { login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; playSecondsToday: number; topupFc: number; fc: number };
+// Thống kê FC của chính người chơi (fco_my_fc_stats): topup = FC admin đã cộng, spent = FC đã chi cho Shop và sự kiện.
+export type FcStats = { topup: number; spent: number };
 // Quản lý tài khoản (fco_admin_accounts): total = mọi tài khoản, matched = số khớp tìm kiếm, accounts = trang hiện tại.
 export type AdminAccount = { id: string; login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean };
 export type AdminAccountList = { total: number; matched: number; accounts: AdminAccount[]; now: number };
-export const LEDGER_REASONS: Record<string, string> = { admin: 'Admin', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code' };
+export const LEDGER_REASONS: Record<string, string> = { admin: 'Admin', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', reset: 'Admin reset tài khoản' };
 export type AdminStats = { summary: StatsSummary; days: StatsDay[]; players: StatsPlayer[]; now: number };
 // Bi Lắc (supabase/migrations/202611070005_fco_bilac.sql): quà {fc} / {bp} / {pack,count}; quà Giải Đặc Biệt / Phụ trả về {fc, jackpot}.
 export type BilacReward = EventReward | { fc: number; jackpot: 'special' | 'mini' } | { jackpot: 'special' | 'mini' };
