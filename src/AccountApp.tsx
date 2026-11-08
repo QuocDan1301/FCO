@@ -11,7 +11,7 @@ import { clearAccountCache, loginIdentity, registrationIdentity } from './accoun
 import DeleteAccountDialog from './DeleteAccountDialog';
 import { deleteAccount } from './account-deletion';
 import { useMaintenance } from './maintenance';
-import { maintenanceBlocks, maintenanceText } from './maintenance-state';
+import { ACCOUNT_PAUSED_MESSAGE, maintenanceBlocks, maintenanceText } from './maintenance-state';
 import type { MaintenanceState } from './maintenance-state';
 import './account.css';
 
@@ -132,6 +132,8 @@ function SavedGame({ user, maintenance, onSignOut, onDeleted }: { user: User; ma
     const url = URL.createObjectURL(new Blob([store.backup()], { type: 'application/json' }));
     link.href = url; link.download = `fco-save-${user.id}.json`; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
+  // Tài khoản bị admin tạm dừng: popup chặn, game không chạy phía sau (hết nhạc, hết gửi lên máy chủ); bỏ tạm dừng thì tự mở lại.
+  if (maintenance?.paused) return <main className="account-screen account-paused-screen" data-ui="account"><img className="account-background" src={asset('/assets/login-background.png')} alt="" aria-hidden="true"/><div className="account-paused" role="alertdialog" aria-modal="true" aria-labelledby="account-paused-title"><h2 id="account-paused-title">{ACCOUNT_PAUSED_MESSAGE}</h2>{error && <p role="alert" className="account-error">{error}</p>}<button className="account-guest" disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Đang đăng xuất…' : 'Đăng xuất'}</button></div></main>;
   // Màn bảo trì nằm trong SavedGame để bản lưu vẫn đồng bộ nốt phần vừa chơi; hết bảo trì thì game tự mở lại từ bản lưu.
   if (maintenanceBlocks(maintenance)) return <AccountFrame><h2>Game đang bảo trì</h2><p>{maintenanceText(maintenance)}</p><p className="account-maintenance-note">Tiến trình của bạn vẫn được giữ. Game sẽ tự mở lại khi bảo trì xong, không cần tải lại trang.</p>{error && <p role="alert" className="account-error">{error}</p>}<button className="account-guest" disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Đang đăng xuất…' : 'Đăng xuất'}</button></AccountFrame>;
   const blocked = !store || ['loading', 'error', 'conflict'].includes(store.status);

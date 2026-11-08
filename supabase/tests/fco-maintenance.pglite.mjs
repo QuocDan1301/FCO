@@ -27,13 +27,16 @@ async function as(uid, sql, params = []) {
 }
 const rpc = async (uid, sql, params) => Object.values(await as(uid, `select ${sql} as r`, params))[0];
 const save = JSON.stringify({ version: 1, balance: 1, cards: [] });
-const set = (uid, on, msg = '') => rpc(uid, 'public.fco_admin_maintenance_set($1, $2)', [on, msg]);
+// Trường paused do 202611080012 thêm, có kiểm tra riêng trong fco-account-pause.pglite.mjs.
+const strip = ({ paused, ...rest }) => rest;
+const state = async uid => strip(await rpc(uid, 'public.fco_maintenance_state()'));
+const set = async (uid, on, msg = '') => strip(await rpc(uid, 'public.fco_admin_maintenance_set($1, $2)', [on, msg]));
 const playerCalls = [`public.fco_wallet(0)`, `public.fco_heartbeat()`, `public.fco_claim_daily()`, `public.fco_spend_fc(1, 'shop', '{}'::jsonb)`, `public.fco_bilac_play(1, 'free')`, `public.fco_event_play(1, 'fc')`, `public.fco_my_fc_stats()`, `public.fco_rank_upgrade(100, 1, 1)`, `public.fco_jackpot_state()`];
 
 // Mặc định tắt: chơi bình thường; ai cũng đọc được trạng thái; bypass chỉ đúng với admin.
-assert.deepEqual(await rpc(null, 'public.fco_maintenance_state()'), { enabled: false, message: '', bypass: false });
-assert.deepEqual(await rpc(B, 'public.fco_maintenance_state()'), { enabled: false, message: '', bypass: false });
-assert.deepEqual(await rpc(ADMIN, 'public.fco_maintenance_state()'), { enabled: false, message: '', bypass: true });
+assert.deepEqual(await state(null), { enabled: false, message: '', bypass: false });
+assert.deepEqual(await state(B), { enabled: false, message: '', bypass: false });
+assert.deepEqual(await state(ADMIN), { enabled: false, message: '', bypass: true });
 await rpc(B, 'public.fco_wallet(0)');
 await rpc(B, 'public.fco_commit_save($1::jsonb, 0)', [save]);
 
@@ -47,7 +50,7 @@ await assert.rejects(set(ADMIN, null), /Invalid maintenance state/);
 
 // Bật: mọi thao tác của người chơi bị chặn ở máy chủ; thông báo được cắt khoảng trắng và tối đa 300 ký tự.
 assert.deepEqual(await set(ADMIN, true, '  Nâng cấp máy chủ  '), { enabled: true, message: 'Nâng cấp máy chủ', bypass: true });
-assert.deepEqual(await rpc(null, 'public.fco_maintenance_state()'), { enabled: true, message: 'Nâng cấp máy chủ', bypass: false });
+assert.deepEqual(await state(null), { enabled: true, message: 'Nâng cấp máy chủ', bypass: false });
 for (const call of playerCalls) await assert.rejects(rpc(B, call), /FCO_MAINTENANCE/, call);
 assert.equal(Number((await db.query(`select fc from public.fco_wallets where user_id = $1`, [B])).rows[0].fc), 0);
 assert.equal((await set(ADMIN, true, 'x'.repeat(400))).message.length, 300);

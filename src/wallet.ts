@@ -14,7 +14,7 @@ async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<
   const { data, error } = await accountClient.rpc(fn, args).abortSignal(AbortSignal.timeout(20000));
   if (error) {
     // Máy chủ vừa báo bảo trì: kiểm tra lại ngay để hiện màn bảo trì, khỏi chờ tới lần kiểm tra định kỳ.
-    if (error.message?.includes('FCO_MAINTENANCE')) window.dispatchEvent(new Event(MAINTENANCE_CHANGED));
+    if (/FCO_MAINTENANCE|FCO_ACCOUNT_PAUSED/.test(error.message ?? '')) window.dispatchEvent(new Event(MAINTENANCE_CHANGED));
     throw new Error(walletMessage(error));
   }
   return data as T;
@@ -42,7 +42,9 @@ export const adminAnomalyReview = (id: number, all = false) => call<AnomalyRow[]
 export const heartbeat = () => call<null>('fco_heartbeat');
 export const fetchMaintenanceState = () => call<MaintenanceState>('fco_maintenance_state');
 export const adminMaintenanceSet = (enabled: boolean, message: string) => call<MaintenanceState>('fco_admin_maintenance_set', { p_enabled: enabled, p_message: message });
-export const adminAccounts = (search: string, sort: string, limit: number, offset: number) => call<AdminAccountList>('fco_admin_accounts', { p_search: search || null, p_sort: sort, p_limit: limit, p_offset: offset });
+export const adminAccounts = (search: string, sort: string, limit: number, offset: number, status: string | null = null) => call<AdminAccountList>('fco_admin_accounts', { p_search: search || null, p_sort: sort, p_limit: limit, p_offset: offset, p_status: status });
+// target: danh sách id, hoặc all = mọi tài khoản khớp tìm kiếm + bộ lọc đang xem (kể cả ở trang khác).
+export const adminAccountsPause = (paused: boolean, target: { users: string[] } | { all: true; search: string; status: string | null }) => call<{ changed: number; skippedAdmins: number }>('fco_admin_accounts_pause', 'all' in target ? { p_paused: paused, p_all: true, p_search: target.search || null, p_status: target.status } : { p_paused: paused, p_users: target.users });
 export const adminAccountLock = (id: string, locked: boolean) => call<{ locked: boolean }>('fco_admin_account_lock', { p_user: id, p_locked: locked });
 export const adminAccountReset = (id: string, resetFc: boolean) => call<{ reset: boolean; fc: number }>('fco_admin_account_reset', { p_user: id, p_reset_fc: resetFc });
 export const adminAccountDelete = (id: string) => call<{ deleted: boolean }>('fco_admin_account_delete', { p_user: id });

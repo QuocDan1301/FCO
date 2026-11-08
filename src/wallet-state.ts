@@ -1,4 +1,5 @@
 import { ACCOUNT_LOCKED_MESSAGE } from './account-identity';
+import { ACCOUNT_PAUSED_MESSAGE } from './maintenance-state';
 import { dayKey } from './game';
 import type { EventReward, Save } from './game';
 import { eventState } from './event';
@@ -24,7 +25,7 @@ export type StatsPlayer = { login: string; registered: number; lastSeen: number 
 // Thống kê FC của chính người chơi (fco_my_fc_stats): topup = FC admin đã cộng, spent = FC đã chi cho Shop và sự kiện.
 export type FcStats = { topup: number; spent: number };
 // Quản lý tài khoản (fco_admin_accounts): total = mọi tài khoản, matched = số khớp tìm kiếm, accounts = trang hiện tại.
-export type AdminAccount = { id: string; login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean };
+export type AdminAccount = { id: string; login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean; paused: boolean };
 export type AdminAccountList = { total: number; matched: number; accounts: AdminAccount[]; now: number };
 export const LEDGER_REASONS: Record<string, string> = { admin: 'Admin', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', reset: 'Admin reset tài khoản' };
 export type AdminStats = { summary: StatsSummary; days: StatsDay[]; players: StatsPlayer[]; now: number };
@@ -55,6 +56,8 @@ const MESSAGES: Record<string, string> = {
   FCO_ADMIN_ONLY: 'Chỉ admin mới dùng được chức năng này.',
   FCO_USER_NOT_FOUND: 'Không tìm thấy tài khoản này.',
   FCO_MAINTENANCE: 'Game đang bảo trì. Vui lòng quay lại sau.',
+  FCO_ACCOUNT_PAUSED: `.`,
+  FCO_NO_ACCOUNTS: 'Chưa chọn tài khoản nào.',
   FCO_ADMIN_PROTECTED: 'Không thể khoá hoặc xoá tài khoản admin.',
   FCO_ACCOUNT_LOCKED: ACCOUNT_LOCKED_MESSAGE,
   FCO_BAD_AMOUNT: 'Số FC không hợp lệ.',
