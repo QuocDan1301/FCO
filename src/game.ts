@@ -55,7 +55,7 @@ const isEventReward = (r: unknown): r is EventReward => !!r && typeof r === 'obj
 // Sơ đồ đội hình A/B/C (màn Đội hình): mỗi bộ gồm mã sơ đồ và 11 ô (uid thẻ trong đội hình riêng hoặc null); squad.ts chuẩn hoá khi đọc.
 export type Lineup = { formation: string; slots: (string | null)[] };
 export type Lineups = { active: number; sets: Lineup[] };
-export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; prepaid?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; event?: EventState; reset?: string; bpReset?: string; codes?: string[] };
+export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; event?: EventState; reset?: string; bpReset?: string; codes?: string[] };
 // back: ảnh mặt sau thẻ của gói (hiện ở danh sách gói và màn chuẩn bị mở); không có thì dùng hình gói mặc định.
 // tunnel: ảnh nền chỉ hiện một lần trên cặp màn LED ở cửa hầm; các màn phía sau tắt.
 // accent: màu đèn LED / khung của đường hầm khi mở gói; không có thì dùng màu vàng mặc định.
@@ -623,30 +623,25 @@ export const getPackStock = (state: Save, pack: Pack): number => state.unopened?
 
 export const MAX_INVENTORY_OPEN = 150;
 
-export const getPackOpeningCost = (state: Save, pack: Pack, count: number): number =>
-  pack.price * Math.max(0, count - (state.prepaid?.[pack.id] ?? 0));
-
-// Gói trong Shop mua bằng FC (giá gói = số FC); mở gói đã mua không trừ thêm. catalog = danh sách gói được bán (test truyền gói mẫu).
+// Gói trong Shop mua bằng FC (giá gói = số FC). Mở gói luôn miễn phí, dù gói mua ở Shop hay nhận làm quà. catalog = danh sách gói được bán (test truyền gói mẫu).
 export function buyPacks(state: Save, requested: Pack, count: number, free = false, catalog: Pack[] = shopPacks): Save {
   const pack = catalog.find(item => item.id === requested.id);
   if (!pack || pack.eventOnly || !isPackAvailable(pack)) throw new Error('Gói này hiện chưa có trong shop.');
   if (!Number.isInteger(count) || count < 1 || count > MAX_INVENTORY_OPEN) throw new Error(`Hãy chọn từ 1 đến ${MAX_INVENTORY_OPEN} gói.`);
   const cost = pack.price * count;
   const stock = getPackStock(state, pack) + count;
-  const prepaid = (state.prepaid?.[pack.id] ?? 0) + count;
-  if (![cost, stock, prepaid].every(Number.isSafeInteger)) throw new Error('Số lượng gói vượt giới hạn lưu trữ.');
+  if (![cost, stock].every(Number.isSafeInteger)) throw new Error('Số lượng gói vượt giới hạn lưu trữ.');
   if (!free && (state.fc ?? 0) < cost) throw new Error('Không đủ FC để mua số gói này.');
   const entry: Entry = { id: uid(), time: Date.now(), type: 'shop', title: `Mua ${count} ${pack.name}`, detail: `Đã thêm vào kho vật phẩm · ${free ? 'Thử nghiệm · Không trừ FC' : `−${money(cost)} FC`} · Không thu thêm phí khi mở` };
   return {
     ...state,
     ...(free ? {} : { fc: (state.fc ?? 0) - cost }),
     unopened: { ...defaultUnopened(), ...state.unopened, [pack.id]: stock },
-    prepaid: { ...state.prepaid, [pack.id]: prepaid },
     history: [entry, ...state.history].slice(0, 200),
   };
 }
 
-export function openSelectedPacks(state: Save, selected: Pack[], rng = random, free = false): { state: Save; cards: Card[]; pack: Pack } {
+export function openSelectedPacks(state: Save, selected: Pack[], rng = random): { state: Save; cards: Card[]; pack: Pack } {
   let next = state;
   const cards: Card[] = [];
   const seen = new Set<string>();
@@ -656,7 +651,7 @@ export function openSelectedPacks(state: Save, selected: Pack[], rng = random, f
     seen.add(pack.id);
     const count = Math.min(getPackStock(next, pack), MAX_INVENTORY_OPEN - cards.length);
     if (count < 1) continue;
-    const result = openPacks(next, pack, count, rng, free);
+    const result = openPacks(next, pack, count, rng);
     next = result.state;
     cards.push(...result.cards);
     openingPack ??= pack;
@@ -666,17 +661,15 @@ export function openSelectedPacks(state: Save, selected: Pack[], rng = random, f
   return { state: next, cards, pack: openingPack };
 }
 
-export function openPacks(state: Save, pack: Pack, count: number, rng = random, free = false): { state: Save; cards: Card[] } {
+export function openPacks(state: Save, pack: Pack, count: number, rng = random): { state: Save; cards: Card[] } {
   if (pack.choose) throw new Error(`${pack.name} là gói chỉ định: hãy chọn cầu thủ muốn nhận.`);
   if (!Number.isInteger(count) || count < 1 || count > MAX_INVENTORY_OPEN) throw new Error(`Hãy chọn từ 1 đến ${MAX_INVENTORY_OPEN} thẻ.`);
-  const cost = free ? 0 : getPackOpeningCost(state, pack, count);
-  if (state.balance < cost) throw new Error('Không đủ BP để mở gói này. Hãy nhận quà điểm danh hoặc chọn gói khác.');
   const available = getPackStock(state, pack);
   if (count > available) throw new Error(`Chỉ còn ${available} gói chưa mở. Hãy nhận thêm gói trước khi mở tiếp.`);
   const cards = Array.from({ length: count }, () => draw(pack, rng));
   const best = [...cards].sort((a, b) => ovr(b) - ovr(a))[0];
-  const entry: Entry = { id: uid(), time: Date.now(), type: 'pack', title: `Mở ${count} ${pack.name.toLowerCase()}`, detail: `${getPlayer(best).name} +${best.level} · OVR ${ovr(best)} · ${free ? 'Thử nghiệm · Không trừ BP' : cost === 0 ? 'Gói đã thanh toán · Không trừ thêm BP' : `−${money(cost)} BP`}` };
-  return { state: { ...state, unopened: { ...defaultUnopened(), ...state.unopened, [pack.id]: available - count }, ...(state.prepaid ? { prepaid: { ...state.prepaid, [pack.id]: Math.max(0, (state.prepaid[pack.id] ?? 0) - count) } } : {}), balance: state.balance - cost, cards: [...cards, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + count }, cards };
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'pack', title: `Mở ${count} ${pack.name.toLowerCase()}`, detail: `${getPlayer(best).name} +${best.level} · OVR ${ovr(best)}` };
+  return { state: { ...state, unopened: { ...defaultUnopened(), ...state.unopened, [pack.id]: available - count }, cards: [...cards, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + count }, cards };
 }
 // Gói chỉ định: danh sách cầu thủ được chọn (giá +1 cao nhất trước) và mở 1 gói nhận đúng cầu thủ đã chọn ở cấp của gói.
 export const choosePool = (pack: Pack): Player[] => packOdds(pack).pool.map(row => row.player).sort((a, b) => (basePrices[String(b.id)]?.[0] ?? 0) - (basePrices[String(a.id)]?.[0] ?? 0) || b.ovr - a.ovr || a.id - b.id);
@@ -737,7 +730,7 @@ export function materialGauge(targetOvr: number, materialOvr: number) {
   const base = UPGRADE_LEVELS[target.level]?.chance ?? 0;
   // Hai đại lượng tách riêng: bars (0–5 vạch, thanh xanh vẽ theo energy = bars / 5 × 100%) và chance = tỷ lệ tối đa của cấp × bars / 5,
   // làm tròn 0,01% (các cấp cao chỉ còn dưới 1%).
-  return { energy, bars: energy / 20, chance: Math.round(base * energy) / 100, cost: target.level * 100000 };
+  return { energy, bars: energy / 20, chance: Math.round(base * energy) / 100 };
 }
 // rng quyết định thành công / mức rớt; patternRng chọn cầu ngầm. Tách hai luồng để chuỗi roll kết quả giữ nguyên khi thêm bắt cầu.
 // protection: bảo vệ nâng cấp (thẻ từ +8) — pct% cơ hội giữ nguyên cấp khi thất bại, cost BP trả trước dù kết quả thế nào; tính phí ở insurance.ts.
@@ -760,7 +753,8 @@ export function upgrade(state: Save, targetId: string, materialIds: string[], rn
   const protectCost = protection?.cost ?? 0;
   const restore = target.level >= RESTORE_MIN_LEVEL && options.restore ? options.restore : { chance: 0, floor: 1 };
   if (!Number.isFinite(restore.chance) || restore.chance < 0 || restore.chance > 100 || !Number.isInteger(restore.floor) || restore.floor < 1 || restore.floor > target.level) throw new Error('Tỷ lệ khôi phục không hợp lệ.');
-  if (!free && state.balance < info.cost + protectCost) throw new Error(protectCost ? 'Bạn không đủ BP cho phí nâng cấp và phí bảo vệ.' : 'Bạn không đủ BP nâng cấp.');
+  // Nâng cấp không tốn phí; chỉ bảo vệ nâng cấp (tự chọn) mới trừ BP.
+  if (!free && state.balance < protectCost) throw new Error('Bạn không đủ BP cho phí bảo vệ.');
   // Tỷ lệ gốc = bảng UPGRADE_LEVELS theo năng lượng nguyên liệu; engine bắt cầu cộng thưởng rồi roll.
   const turn = resolveUpgrade(state.bridge ?? emptyBridge(), { currentLevel: target.level, baseRate: info.chance, role: options.role ?? 'main' }, { outcome: rng, pattern: options.patternRng ?? random });
   const { success, drop: droppedLevel } = turn;
@@ -772,8 +766,8 @@ export function upgrade(state: Save, targetId: string, materialIds: string[], rn
   const restoredLevel = restoreTo !== null && droppedLevel !== null && restoreTo > droppedLevel ? restoreTo : null;
   const result = { ...target, level: success ? target.level + 1 : shielded ? target.level : restoredLevel ?? droppedLevel! };
   const transition = shielded ? `+${target.level} → giữ nguyên +${target.level} · Bảo vệ nâng cấp` : restoredLevel !== null ? `+${target.level} → +${droppedLevel} → +${result.level} · Khôi phục cấp thẻ` : `+${target.level} → +${result.level}`;
-  const entry: Entry = { id: uid(), time: Date.now(), type: 'upgrade', success, title: `${success ? 'Thành công' : 'Thất bại'} · ${getPlayer(target).name}`, detail: `${transition} · ${materials.length} nguyên liệu${protection ? ` · Bảo vệ ${protection.pct}%` : ''} · ${free ? 'Thử nghiệm · Không trừ BP' : `−${money(info.cost + protectCost)} BP`}` };
-  return { state: { ...state, balance: free ? state.balance : state.balance - info.cost - protectCost, cards: state.cards.filter(c => !materialIds.includes(c.uid)).map(c => c.uid === targetId ? result : c), history: [entry, ...state.history].slice(0, 200), upgrades: state.upgrades + 1, bridge: turn.bridge }, result, success, info, droppedLevel, restoredLevel, shielded, protectCost, turn: turn.turn };
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'upgrade', success, title: `${success ? 'Thành công' : 'Thất bại'} · ${getPlayer(target).name}`, detail: `${transition} · ${materials.length} nguyên liệu${protection ? ` · Bảo vệ ${protection.pct}%` : ''}${free ? ' · Thử nghiệm · Không trừ BP' : protectCost ? ` · −${money(protectCost)} BP` : ''}` };
+  return { state: { ...state, balance: free ? state.balance : state.balance - protectCost, cards: state.cards.filter(c => !materialIds.includes(c.uid)).map(c => c.uid === targetId ? result : c), history: [entry, ...state.history].slice(0, 200), upgrades: state.upgrades + 1, bridge: turn.bridge }, result, success, info, droppedLevel, restoredLevel, shielded, protectCost, turn: turn.turn };
 }
 export function dayKey(date = new Date()) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date); }
 // Quà điểm danh mỗi ngày: DAILY_FC FC (dùng để chơi sự kiện Nâng Cấp Siêu Sao); người dùng bỏ phần BP.
@@ -813,7 +807,7 @@ export function validateSave(data: unknown): data is Save {
     const owned = new Set(Array.isArray(s.cards) ? s.cards.map(c => c?.uid) : []);
     if (Array.isArray(s.locked)) s.locked = [...new Set(s.locked.filter(uid => typeof uid === 'string' && owned.has(uid)))]; else delete s.locked;
   }
-  if (s && typeof s === 'object' && s.reset !== SAVE_RESET) { s.unopened = defaultUnopened(); delete s.prepaid; delete s.event; s.balance = START_BP; delete s.fc; s.reset = SAVE_RESET; }
+  if (s && typeof s === 'object' && s.reset !== SAVE_RESET) { s.unopened = defaultUnopened(); delete s.event; s.balance = START_BP; delete s.fc; s.reset = SAVE_RESET; }
   // FC và tiến trình sự kiện sai kiểu thì bỏ, không làm hỏng cả bản lưu.
   if (s.fc !== undefined && !(Number.isSafeInteger(s.fc) && s.fc >= 0)) delete s.fc;
   // Gift code đã dùng (mã băm SHA-256, src/gift-codes.ts): dòng sai kiểu thì bỏ, không trùng.
@@ -825,7 +819,8 @@ export function validateSave(data: unknown): data is Save {
     // Bản lưu cũ ghi 1 quà mỗi lần nhận mốc (reward): đổi sang bộ quà rewards.
     if (s.event.gifts !== undefined) s.event.gifts = Array.isArray(s.event.gifts) ? s.event.gifts.map(e => e && !Array.isArray(e.rewards) && isEventReward((e as { reward?: unknown }).reward) ? { time: e.time, milestone: e.milestone, rewards: [(e as unknown as { reward: EventReward }).reward] } : e).filter(e => e && Number.isFinite(e.time) && Number.isInteger(e.milestone) && Array.isArray(e.rewards) && e.rewards.every(isEventReward)) : [];
   }
-  if (s.prepaid !== undefined && (!s.prepaid || typeof s.prepaid !== 'object' || Array.isArray(s.prepaid) || !Object.entries(s.prepaid).every(([id, count]) => { const pack = packs.find(p => p.id === id); return Number.isSafeInteger(count) && count >= 0 && (!pack || count <= getPackStock(s, pack)); }))) return false;
+  // Bỏ phí mở gói (2026-11-08): số gói trả trước không còn dùng. Phải xoá khỏi bản lưu cũ, không được để lại rồi kiểm tra.
+  delete (s as { prepaid?: unknown }).prepaid;
   const valid = s.version === 1 && Number.isSafeInteger(s.balance) && s.balance >= 0 && Array.isArray(s.cards) && s.cards.every(c => c && typeof c.uid === 'string' && playerIndex.has(c.playerId) && Number.isInteger(c.level) && c.level >= 1 && c.level <= MAX_LEVEL && Number.isFinite(c.received)) && new Set(s.cards.map(c => c.uid)).size === s.cards.length && Array.isArray(s.history) && s.history.every(e => e && typeof e.id === 'string' && Number.isFinite(e.time) && ['pack', 'upgrade', 'gift', 'market', 'shop', 'event'].includes(e.type) && typeof e.title === 'string' && typeof e.detail === 'string') && typeof s.daily === 'string' && Number.isSafeInteger(s.opened) && s.opened >= 0 && Number.isSafeInteger(s.upgrades) && s.upgrades >= 0 && typeof s.sound === 'boolean' && typeof s.reduced === 'boolean' && (s.quick === undefined || typeof s.quick === 'boolean') && (s.light === undefined || typeof s.light === 'boolean') && (s.unopened === undefined || (!!s.unopened && typeof s.unopened === 'object' && !Array.isArray(s.unopened) && packs.every(p => s.unopened![p.id] === undefined || (Number.isSafeInteger(s.unopened![p.id]) && s.unopened![p.id] >= 0))));
   // Chỉ đặt BP về 0 một lần; giữ nguyên FC, kho thẻ và tiến trình hiện có.
   if (valid && s.bpReset !== BP_RESET) { s.balance = START_BP; s.bpReset = BP_RESET; }

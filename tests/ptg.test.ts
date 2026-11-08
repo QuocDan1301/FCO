@@ -62,7 +62,7 @@ test('Gói PTG mở bán, mỗi thẻ PTG đều rút được và chỉ ra th�
   assert.equal(isPackAvailable(ptg), true);
   assert.equal(packOdds(ptg).pool.length, 165);
   for (const player of roster) assert.equal(draw(ptg, rngFor(ptg, player.id)).playerId, player.id, player.name);
-  const opened = openPacks(initialSave(), ptg, 15, Math.random, true);
+  const opened = openPacks(initialSave(), ptg, 15, Math.random);
   assert.ok(opened.cards.every(card => getPlayer(card).tier === 'ptg'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
 });

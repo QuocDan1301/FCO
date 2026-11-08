@@ -40,7 +40,7 @@ test('Logo đội MEDALIST theo logo in ở góc dưới phải từng thẻ', (
 test('Gói MEDALIST mở được, mỗi thẻ đều rút được, gói khác không ra nhầm thẻ MEDALIST', () => {
   assert.equal(isPackAvailable(pack), true);
   roster.forEach(player => assert.equal(draw(pack, rngFor(pack, player.id)).playerId, player.id));
-  const result = openPacks(initialSave(), pack, 15, Math.random, true);
+  const result = openPacks(initialSave(), pack, 15, Math.random);
   assert.ok(result.cards.every(c => getPlayer(c).tier === 'mdl'));
   assert.ok(validateSave(JSON.parse(JSON.stringify(result.state))));
   for (const other of packs.filter(p => p.id !== 'mdl' && !p.seasons?.includes('mdl') && isPackAvailable(p))) for (let i = 0; i < 50; i++) { const card = draw(other); assert.notEqual(getPlayer(card).tier, 'mdl'); }

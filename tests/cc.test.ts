@@ -60,7 +60,7 @@ test('Gói CC mở bán, mỗi thẻ CC đều rút được và chỉ ra thẻ 
   assert.equal(isPackAvailable(cc), true);
   assert.equal(packOdds(cc).pool.length, 111);
   for (const player of roster) assert.equal(draw(cc, rngFor(cc, player.id)).playerId, player.id, player.name);
-  const opened = openPacks(initialSave(), cc, 15, Math.random, true);
+  const opened = openPacks(initialSave(), cc, 15, Math.random);
   assert.ok(opened.cards.every(card => getPlayer(card).tier === 'cc'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
 });

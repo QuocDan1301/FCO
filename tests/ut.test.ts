@@ -58,7 +58,7 @@ test('Gói UT mở bán, mỗi thẻ UT đều rút được và chỉ ra thẻ 
   assert.equal(isPackAvailable(ut), true);
   assert.equal(packOdds(ut).pool.length, 134);
   for (const player of roster) assert.equal(draw(ut, rngFor(ut, player.id)).playerId, player.id, player.name);
-  const opened = openPacks(initialSave(), ut, 15, Math.random, true);
+  const opened = openPacks(initialSave(), ut, 15, Math.random);
   assert.ok(opened.cards.every(card => getPlayer(card).tier === 'ut'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
 });

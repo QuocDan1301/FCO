@@ -65,7 +65,7 @@ test('Gói 24EP mở bán, mỗi thẻ 24EP đều rút được và chỉ ra th
   assert.equal(isPackAvailable(ep24), true);
   assert.equal(packOdds(ep24).pool.length, 208);
   for (const player of roster) assert.equal(draw(ep24, rngFor(ep24, player.id)).playerId, player.id, player.name);
-  const opened = openPacks(initialSave(), ep24, 15, Math.random, true);
+  const opened = openPacks(initialSave(), ep24, 15, Math.random);
   assert.ok(opened.cards.every(card => getPlayer(card).tier === 'ep24'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
 });

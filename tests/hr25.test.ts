@@ -50,7 +50,7 @@ test('25HR pack can draw every 25HR player, open and persist', () => {
   assert.ok(pack && isPackAvailable(pack));
   assert.equal(packOdds(pack).pool.length, 20);
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);
-  const opened = openPacks(initialSave(), pack, 15, Math.random, true);
+  const opened = openPacks(initialSave(), pack, 15, Math.random);
   assert.equal(opened.cards.length, 15);
   assert.ok(opened.cards.every(c => getPlayer(c).tier === 'hr25'));
   assert.ok(validateSave(JSON.parse(JSON.stringify(opened.state))));

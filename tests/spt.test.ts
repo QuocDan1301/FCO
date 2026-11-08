@@ -65,7 +65,7 @@ test('Gói SPT mở bán, mỗi thẻ SPT đều rút được và chỉ ra th�
   assert.equal(isPackAvailable(spt), true);
   assert.equal(packOdds(spt).pool.length, 118);
   for (const player of roster) assert.equal(draw(spt, rngFor(spt, player.id)).playerId, player.id, player.name);
-  const opened = openPacks(initialSave(), spt, 15, Math.random, true);
+  const opened = openPacks(initialSave(), spt, 15, Math.random);
   assert.ok(opened.cards.every(card => getPlayer(card).tier === 'spt'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
 });

@@ -29,16 +29,16 @@ test('Phí bảo vệ = phí bảo hiểm × mức %; 100% ≈ tối đa 95% gi�
 
 test('Bảo vệ 100%: thất bại giữ nguyên cấp, phí bị trừ dù kết quả; dây cầu vẫn ghi mức rớt gốc', () => {
   const { target, material, state } = setup();
-  const cost = protectionCost(target, 100)!, base = target.level * 100000;
+  const cost = protectionCost(target, 100)!;
   const fail = upgradeWithProtection(state, target.uid, [material.uid], script(.999999, 0, .99), false, { pct: 100, patternRng: () => .5 });
   assert.equal(fail.success, false); assert.equal(fail.shielded, true);
   assert.equal(fail.result.level, 8);
-  assert.equal(fail.state.balance, state.balance - base - cost);
+  assert.equal(fail.state.balance, state.balance - cost);
   assert.deepEqual(fail.state.bridge!.levels['9'].chain, [1]);
   assert.match(fail.state.history[0].detail, /giữ nguyên \+8 · Bảo vệ nâng cấp.*Bảo vệ 100%/);
   const win = upgradeWithProtection(state, target.uid, [material.uid], script(0), false, { pct: 100, patternRng: () => .5 });
   assert.equal(win.success, true); assert.equal(win.result.level, 9); assert.equal(win.shielded, false);
-  assert.equal(win.state.balance, state.balance - base - cost);
+  assert.equal(win.state.balance, state.balance - cost);
 });
 
 test('Bảo vệ 50%: roll bảo vệ dưới 50% giữ cấp, trên thì rớt ngẫu nhiên; không bảo vệ thì chuỗi RNG không đổi', () => {
@@ -75,6 +75,13 @@ test('Chặn bảo vệ cho thẻ dưới +8, thẻ chưa có giá, hoặc khôn
   assert.throws(() => upgrade(low.state, low.target.uid, [low.material.uid], script(0), true, { protection: { pct: 50, cost: 1 } }), /từ \+8/);
   if (unpriced) { const u = setup(8, unpriced.id); assert.throws(() => upgradeWithProtection(u.state, u.target.uid, [u.material.uid], script(0), true, { pct: 50 }), /chưa có giá/); }
   const { target, material, state } = setup();
-  const poor = { ...state, balance: target.level * 100000 };
+  const poor = { ...state, balance: protectionCost(target, 100)! - 1 };
   assert.throws(() => upgradeWithProtection(poor, target.uid, [material.uid], script(0), false, { pct: 100 }), /phí bảo vệ/);
+});
+
+test('Không chọn bảo vệ thì đập thẻ từ +8 với 0 BP vẫn được và không trừ gì', () => {
+  const { target, material, state } = setup();
+  const result = upgradeWithProtection({ ...state, balance: 0 }, target.uid, [material.uid], script(0), false, { pct: 0, patternRng: () => .5 });
+  assert.equal(result.success, true); assert.equal(result.state.balance, 0);
+  assert.throws(() => upgradeWithProtection({ ...state, balance: 0 }, target.uid, [material.uid], script(0), false, { pct: 100 }), /phí bảo vệ/);
 });

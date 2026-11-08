@@ -60,7 +60,7 @@ test('Gói RTN mở bán, mỗi thẻ RTN đều rút được và chỉ ra th�
   assert.equal(isPackAvailable(rtn), true);
   assert.equal(packOdds(rtn).pool.length, 135);
   for (const player of roster) assert.equal(draw(rtn, rngFor(rtn, player.id)).playerId, player.id, player.name);
-  const opened = openPacks(initialSave(), rtn, 15, Math.random, true);
+  const opened = openPacks(initialSave(), rtn, 15, Math.random);
   assert.ok(opened.cards.every(card => getPlayer(card).tier === 'rtn'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
 });

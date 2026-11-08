@@ -50,7 +50,7 @@ test('JUVENTUS pack can draw every JUVENTUS player, open and persist', () => {
   assert.ok(pack && isPackAvailable(pack));
   assert.equal(packOdds(pack).pool.length, 14);
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);
-  const opened = openPacks(initialSave(), pack, 15, Math.random, true);
+  const opened = openPacks(initialSave(), pack, 15, Math.random);
   assert.equal(opened.cards.length, 15);
   assert.ok(opened.cards.every(c => getPlayer(c).tier === 'juventus'));
   assert.ok(validateSave(JSON.parse(JSON.stringify(opened.state))));

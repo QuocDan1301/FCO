@@ -52,7 +52,7 @@ test('Gói WG mở bán, mỗi thẻ WG đều rút được và chỉ ra thẻ 
   assert.equal(isPackAvailable(wg), true);
   assert.equal(packOdds(wg).pool.length, 155);
   for (const player of roster) assert.equal(draw(wg, rngFor(wg, player.id)).playerId, player.id, player.name);
-  const opened = openPacks(initialSave(), wg, 15, Math.random, true);
+  const opened = openPacks(initialSave(), wg, 15, Math.random);
   assert.ok(opened.cards.every(card => getPlayer(card).tier === 'wg'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
 });

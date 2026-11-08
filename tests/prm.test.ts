@@ -41,7 +41,7 @@ test('20 thẻ PRIME: không trùng ID / tên, ảnh tồn tại, có CSS vị t
 test('Gói PRIME mở được, mỗi thẻ đều rút được, gói khác không ra nhầm thẻ PRIME', () => {
   assert.equal(isPackAvailable(pack), true);
   roster.forEach(player => assert.equal(draw(pack, rngFor(pack, player.id)).playerId, player.id));
-  const result = openPacks(initialSave(), pack, 15, Math.random, true);
+  const result = openPacks(initialSave(), pack, 15, Math.random);
   assert.ok(result.cards.every(c => getPlayer(c).tier === 'prm'));
   assert.ok(validateSave(JSON.parse(JSON.stringify(result.state))));
   for (const other of packs.filter(p => p.id !== 'prm' && !p.seasons?.includes('prm') && isPackAvailable(p))) for (let i = 0; i < 50; i++) { const card = draw(other); assert.notEqual(getPlayer(card).tier, 'prm'); }

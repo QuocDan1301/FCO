@@ -40,7 +40,7 @@ test('Mọi thẻ mới đều mở được trong gói PRIME, lưu được và
   });
   const legacy = { ...initialSave(), unopened: { ...initialSave().unopened, [pack.id]: 15 } };
   const snapshot = structuredClone(legacy);
-  const opened = openPacks(legacy, pack, 10, () => .9999, true);
+  const opened = openPacks(legacy, pack, 10, () => .9999);
   assert.equal(opened.cards.length, 10);
   assert.ok(opened.cards.every(c => getPlayer(c).tier === 'prime'));
   assert.equal(opened.state.unopened?.prime, 5);

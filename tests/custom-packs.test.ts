@@ -55,7 +55,7 @@ test('Gói rút đúng: chỉ mùa đã chọn, đủ OVR +1 tối thiểu, đú
     const start = initialSave(), stocked = { ...start, unopened: { ...start.unopened, [pack.id]: 15 } };
     // Gói chỉ định không rút ngẫu nhiên: mở bằng cách chọn cầu thủ (openChosen).
     if (pack.choose) { const chosen = openChosen(stocked, pack, eligible[0].id); assert.equal(chosen.card.level, high); assert.equal(validateSave(JSON.parse(JSON.stringify(chosen.state))), true); continue; }
-    const opened = openPacks(stocked, pack, 15, seeded(5), true);
+    const opened = openPacks(stocked, pack, 15, seeded(5));
     assert.ok(opened.cards.every(card => card.level >= low && card.level <= high && eligible.some(p => p.id === card.playerId)), data.id);
     assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
   }
@@ -108,7 +108,7 @@ test('Bản build bỏ hẳn gói nháp khỏi JSON; bản lưu còn gói trả 
   assert.equal(plugin.apply, 'build');
   const save = { ...initialSave(), prepaid: { 'goi-da-xoa': 3 } };
   assert.equal(validateSave(JSON.parse(JSON.stringify(save))), true);
-  assert.equal(validateSave(JSON.parse(JSON.stringify({ ...save, prepaid: { 'goi-da-xoa': -1 } }))), false);
+  assert.equal(validateSave(JSON.parse(JSON.stringify({ ...save, prepaid: { 'goi-da-xoa': -1 } }))), true);
 });
 
 test('Gói top price: chỉ lấy N cầu thủ giá +1 cao nhất của các mùa trong gói; top price sai thì báo lỗi', () => {

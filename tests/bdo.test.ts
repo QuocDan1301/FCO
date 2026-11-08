@@ -36,7 +36,7 @@ test('BDO is published, supports custom packs and every player can be drawn and 
   assert.equal(packOdds(pack).pool.length, 108);
   assert.equal(base.range, '102–118');
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id);
-  const opened = openPacks(initialSave(), pack, 15, Math.random, true);
+  const opened = openPacks(initialSave(), pack, 15, Math.random);
   assert.ok(opened.cards.every(c => getPlayer(c).tier === 'bdo'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
   assert.equal(ovr({ playerId: roster[0].id, level: 13 }), 145);

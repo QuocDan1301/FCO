@@ -53,7 +53,7 @@ test('Gói UC mở bán, mỗi thẻ UC đều rút được và chỉ ra thẻ 
   assert.equal(isPackAvailable(uc), true);
   assert.equal(packOdds(uc).pool.length, 112);
   for (const player of roster) assert.equal(draw(uc, rngFor(uc, player.id)).playerId, player.id, player.name);
-  const opened = openPacks(initialSave(), uc, 15, Math.random, true);
+  const opened = openPacks(initialSave(), uc, 15, Math.random);
   assert.ok(opened.cards.every(card => getPlayer(card).tier === 'uc'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
 });

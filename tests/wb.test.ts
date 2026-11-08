@@ -65,7 +65,7 @@ test('Gói WB mở bán, mỗi thẻ WB đều rút được và chỉ ra thẻ 
   assert.equal(isPackAvailable(wb), true);
   assert.equal(packOdds(wb).pool.length, 198);
   for (const player of roster) assert.equal(draw(wb, rngFor(wb, player.id)).playerId, player.id, player.name);
-  const opened = openPacks(initialSave(), wb, 15, Math.random, true);
+  const opened = openPacks(initialSave(), wb, 15, Math.random);
   assert.ok(opened.cards.every(card => getPlayer(card).tier === 'wb'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
 });

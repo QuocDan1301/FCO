@@ -76,7 +76,7 @@ test('Cả bốn gói mở đúng mùa; toàn bộ 24 thẻ NO.7 có thể nhậ
     assert.ok(player.wage && player.wage >= 28 && player.wage <= 32);
   });
   const before = initialSave(), snapshot = structuredClone(before);
-  const result = openPacks(before, no7, 10, () => .999999, true);
+  const result = openPacks(before, no7, 10, () => .999999);
   assert.equal(result.cards.length, 10);
   assert.ok(result.cards.every(card => getPlayer(card).tier === 'origin'));
   assert.equal(result.state.unopened?.origin, 5);
@@ -127,7 +127,7 @@ test('Gói 26TS (ALL) +5: cùng cầu thủ và tỷ lệ với 26TS, luôn ra t
   assert.deepEqual(packOdds(ts5).levels, [{ level: 5, chance: 1 }]);
   const pool = players.filter(p => p.tier === 'stellar'), at5 = pool.map(p => ovr({ playerId: p.id, level: 5 }));
   assert.equal(ts5.range, `${Math.min(...at5)}–${Math.max(...at5)}`);
-  const opened = openPacks({ ...initialSave(), unopened: { ...initialSave().unopened, stellar5: 15 } }, ts5, 15, seeded(3), true);
+  const opened = openPacks({ ...initialSave(), unopened: { ...initialSave().unopened, stellar5: 15 } }, ts5, 15, seeded(3));
   assert.ok(opened.cards.every(card => card.level === 5 && getPlayer(card).tier === 'stellar'));
   assert.equal(opened.state.unopened?.stellar5, 0);
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
@@ -165,14 +165,14 @@ test('Bản lưu cũ bỏ thẻ Khởi nguyên và giữ thẻ khác, BP, lịch
   assert.equal(validateSave(saved), true);
   assert.equal(validateSave({ ...saved, cards: [makeCard(9999)] }), false);
 });
-test('Mở 10 trừ đúng tiền, thêm đủ thẻ riêng biệt và không sửa trạng thái cũ', () => {
+test('Mở 10 miễn phí, thêm đủ thẻ riêng biệt và không sửa trạng thái cũ', () => {
   const before = initialSave(); const result = openPacks(before, packs[0], 10, () => .99);
-  assert.equal(result.state.balance, 0); assert.equal(before.balance, 15000000);
+  assert.equal(result.state.balance, before.balance);
   assert.equal(result.state.cards.length, before.cards.length + 10);
   assert.equal(result.state.opened, 10); assert.equal(result.state.history.length, 1);
   assert.equal(new Set(result.cards.map(c => c.uid)).size, 10);
   assert.ok(result.cards.every(c => getPlayer(c).tier === 'eternal'));
-  assert.throws(() => openPacks(result.state, (packs.find(p => p.id === 'origin') ?? defaultPacks.find(p => p.id === 'origin')!), 1), /Không đủ BP/);
+  assert.throws(() => openPacks(result.state, packs[0], result.state.unopened![packs[0].id] + 1), /Chỉ còn/);
   assert.throws(() => openPacks(before, (packs.find(p => p.id === 'origin') ?? defaultPacks.find(p => p.id === 'origin')!), -1));
 });
 // Phôi rất mạnh (OVR cao nhất ở +13): 5 viên luôn đủ 5 vạch ở mọi cấp.
@@ -305,7 +305,7 @@ test('Thành công tăng +1; thất bại rớt cấp, cả hai tiêu hao nguyê
     const result = upgrade(before, target.uid, materials, () => success ? 0 : .999999);
     assert.equal(result.success, success); assert.equal(result.result.level, success ? 3 : 1);
     assert.equal(result.state.cards.length, before.cards.length - 5);
-    assert.equal(result.state.balance, before.balance - 200000);
+    assert.equal(result.state.balance, before.balance);
     assert.equal(result.state.history[0].success, success);
     assert.equal(before.cards[0].level, 2);
   }
@@ -329,7 +329,7 @@ test('Thất bại rớt cấp theo bảng trọng số của từng cấp, khô
       assert.equal(result.restoredLevel, null);
       assert.equal(result.result.uid, target.uid);
       assert.equal(result.state.cards.length, 1);
-      assert.equal(result.state.balance, state.balance - level * 100000);
+      assert.equal(result.state.balance, state.balance);
       assert.equal(result.state.upgrades, state.upgrades + 1);
       assert.ok(validateSave(result.state));
     }
@@ -383,7 +383,11 @@ test('Chặn nguyên liệu trùng, thẻ chính, thiếu tiền, thẻ không t
   assert.throws(() => upgrade(s, target.uid, [target.uid]));
   assert.throws(() => upgrade(s, target.uid, []));
   assert.throws(() => upgrade(s, target.uid, ['khong-ton-tai']));
-  assert.throws(() => upgrade({ ...s, balance: 0 }, target.uid, [m.uid]));
+  // Nâng cấp không tốn phí: 0 BP vẫn đập được, BP giữ nguyên, nguyên liệu vẫn mất, lịch sử không ghi BP.
+  const noBp = upgrade({ ...s, balance: 0 }, target.uid, [m.uid]);
+  assert.equal(noBp.state.balance, 0);
+  assert.equal(noBp.state.cards.some(c => c.uid === m.uid), false);
+  assert.doesNotMatch(noBp.state.history[0].detail, /BP/);
   assert.throws(() => upgrade({ ...s, cards: [{ ...target, level: 13 }, m] }, target.uid, [m.uid]));
 });
 test('Điểm danh chỉ một lần/ngày theo UTC+7', () => {
@@ -406,11 +410,11 @@ test('Bản lưu hợp lệ; dữ liệu hỏng bị từ chối', () => {
 
 test('Chế độ thử mở gói/nâng cấp với 0 BP và không thay đổi số dư gốc', () => {
   const before = { ...initialSave(), balance: 0 };
-  const opened = openPacks(before, packs[0], 10, () => .99, true);
+  const opened = openPacks(before, packs[0], 10, () => .99);
   assert.equal(opened.state.balance, 0);
   assert.equal(opened.cards.length, 10);
-  assert.match(opened.state.history[0].detail, /Không trừ BP/);
-  assert.throws(() => openPacks(before, packs[0], -1, () => 0, true));
+  assert.doesNotMatch(opened.state.history[0].detail, /BP/);
+  assert.throws(() => openPacks(before, packs[0], -1, () => 0));
   for (const outcome of [0, .99999]) {
     const result = upgrade(before, before.cards[0].uid, [before.cards[1].uid], () => outcome, true);
     assert.equal(result.state.balance, 0);
@@ -436,19 +440,19 @@ test('Mốc mở thẻ có nhịp chuẩn 9–12 giây, nhanh 3–5 giây (gồm
 });
 
 
-test('Mở mọi số lượng 1–10 nhận đúng số thẻ và tính đúng tổng phí', () => {
+test('Mở mọi số lượng 1–10 nhận đúng số thẻ và không trừ BP', () => {
   for (let count = 1; count <= 10; count++) {
     const before = initialSave();
     const result = openPacks(before, packs[0], count, () => .99);
     assert.equal(result.cards.length, count);
     assert.equal(result.state.cards.length, before.cards.length + count);
     assert.equal(result.state.opened, count);
-    assert.equal(result.state.balance, 15000000 - 1500000 * count);
+    assert.equal(result.state.balance, before.balance);
     assert.equal(new Set(result.cards.map(c => c.uid)).size, count);
     assert.equal(before.cards.length, 2);
   }
   for (const count of [0, -1, 151, 2.5, NaN, Infinity]) {
-    assert.throws(() => openPacks(initialSave(), packs[0], count, () => 0, true));
+    assert.throws(() => openPacks(initialSave(), packs[0], count, () => 0));
   }
 });
 
@@ -457,7 +461,7 @@ test('Mở lựa chọn trong kho gộp mọi loại gói và giới hạn tổn
   const before = initialSave();
   // Mở hết tối đa 10 loại gói đầu (10 × 15 = 150 thẻ, đúng trần); danh sách gói đổi theo trang quản trị nên không ghim gói cụ thể.
   const openable = packs.filter(p => isPackAvailable(p) && !p.choose), builtIn = openable.slice(0, 10);
-  const all = openSelectedPacks(before, builtIn, () => .99, true);
+  const all = openSelectedPacks(before, builtIn, () => .99);
   assert.equal(all.cards.length, 15 * builtIn.length);
   assert.equal(all.state.cards.length, before.cards.length + 15 * builtIn.length);
   assert.ok(builtIn.every(pack => all.state.unopened?.[pack.id] === 0));
@@ -470,40 +474,43 @@ test('Mở lựa chọn trong kho gộp mọi loại gói và giới hạn tổn
   assert.equal(capped.cards.length, 150);
   assert.equal(new Set(capped.cards.map(card => card.uid)).size, 150);
   assert.deepEqual(openable.map(pack => capped.state.unopened?.[pack.id]), [0, 10, ...Array(openable.length - 2).fill(80)]);
-  assert.equal(capped.state.balance, stocked.balance - 80 * openable[0].price - 70 * openable[1].price);
+  assert.equal(capped.state.balance, stocked.balance);
   assert.equal(capped.state.opened, 150);
   assert.ok(validateSave(capped.state));
   assert.deepEqual(openable.map(pack => stocked.unopened[pack.id]), Array(openable.length).fill(80));
 
-  const single = openSelectedPacks({ ...stocked, unopened: { [packs[0].id]: 151 } }, [packs[0], packs[0]], () => 0, true);
+  const single = openSelectedPacks({ ...stocked, unopened: { [packs[0].id]: 151 } }, [packs[0], packs[0]], () => 0);
   assert.equal(single.cards.length, 150);
   assert.equal(single.state.unopened?.[packs[0].id], 1);
-  const duplicate = openSelectedPacks(before, [packs[0], packs[0]], () => 0, true);
+  const duplicate = openSelectedPacks(before, [packs[0], packs[0]], () => 0);
   assert.equal(duplicate.cards.length, 15);
   assert.throws(() => openSelectedPacks(before, []));
-  assert.throws(() => openSelectedPacks(all.state, builtIn, () => 0, true));
-  const insufficient = { ...stocked, balance: packs[0].price * 80 };
-  assert.throws(() => openSelectedPacks(insufficient, packs), /Không đủ BP/);
-  assert.equal(insufficient.opened, 0);
-  assert.deepEqual(openable.map(pack => insufficient.unopened[pack.id]), Array(openable.length).fill(80));
+  assert.throws(() => openSelectedPacks(all.state, builtIn, () => 0));
+  // Mở gói miễn phí: không có BP vẫn mở được, BP không đổi và bản lưu gốc không bị sửa.
+  const noBp = { ...stocked, balance: 0 };
+  const openedFree = openSelectedPacks(noBp, packs);
+  assert.equal(openedFree.cards.length, 150);
+  assert.equal(openedFree.state.balance, 0);
+  assert.equal(noBp.opened, 0);
+  assert.deepEqual(openable.map(pack => noBp.unopened[pack.id]), Array(openable.length).fill(80));
 });
 
 test('Kho gói trừ đúng lượng đã mở, chặn mở quá số còn lại và giữ bản cũ', () => {
   const start = initialSave();
-  const first = openPacks(start, packs[0], 10, () => 0, true);
+  const first = openPacks(start, packs[0], 10, () => 0);
   assert.equal(first.state.unopened?.[packs[0].id], 5);
   assert.equal(start.unopened?.[packs[0].id], 15);
-  assert.throws(() => openPacks(first.state, packs[0], 6, () => 0, true));
-  const last = openPacks(first.state, packs[0], 5, () => 0, true);
+  assert.throws(() => openPacks(first.state, packs[0], 6, () => 0));
+  const last = openPacks(first.state, packs[0], 5, () => 0);
   assert.equal(last.state.unopened?.[packs[0].id], 0);
   assert.equal(last.state.cards.length, start.cards.length + 15);
   assert.equal(last.state.unopened?.origin, 15);
-  assert.throws(() => openPacks(last.state, packs[0], 1, () => 0, true));
+  assert.throws(() => openPacks(last.state, packs[0], 1, () => 0));
   // Bản lưu chưa có kho (unopened) coi như kho trống.
   const legacy = { ...start }; delete legacy.unopened;
   assert.ok(validateSave(legacy));
   assert.equal(getPackStock(legacy, packs[0]), 0);
-  assert.throws(() => openPacks(legacy, packs[0], 1, () => 0, true));
+  assert.throws(() => openPacks(legacy, packs[0], 1, () => 0));
   assert.equal(validateSave({ ...start, unopened: { eternal: -1, stellar: 15, origin: 15 } }), false);
 });
 

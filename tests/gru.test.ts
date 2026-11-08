@@ -63,7 +63,7 @@ test('Gói GRU mở bán, mỗi thẻ GRU đều rút được và chỉ ra th�
   assert.equal(isPackAvailable(gru), true);
   assert.equal(packOdds(gru).pool.length, 176);
   for (const player of roster) assert.equal(draw(gru, rngFor(gru, player.id)).playerId, player.id, player.name);
-  const opened = openPacks(initialSave(), gru, 15, Math.random, true);
+  const opened = openPacks(initialSave(), gru, 15, Math.random);
   assert.ok(opened.cards.every(card => getPlayer(card).tier === 'gru'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
 });

@@ -47,7 +47,7 @@ test('23HW publishes in Shop, works in mixed packs, and every player can be draw
   assert.deepEqual(new Set(mixedRows.map(row => row.player.tier)), new Set(['bdo', 'hw23']));
   assert.ok(mixedRows.every(row => row.player.ovr >= 110));
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);
-  const opened = openPacks(initialSave(), pack, 15, Math.random, true);
+  const opened = openPacks(initialSave(), pack, 15, Math.random);
   assert.ok(opened.cards.every(c => getPlayer(c).tier === 'hw23'));
   assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
   assert.equal(ovr({ playerId: 2129, level: 13 }), 139);
