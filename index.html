@@ -17,7 +17,7 @@
       name="description"
       content="FCO VIP — Mở gói cầu thủ, nâng cấp thẻ và xây dựng bộ sưu tập. Trò chơi giả lập miễn phí bằng tiếng Việt."
     />
-    <title>FCO VIP · Mở gói cầu thủ</title>
+    <title>FCO VIP · Bức phá giới hạn</title>
     <link rel="icon" type="image/png" href="/assets/fco-vip-logo.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
@@ -125,36 +125,131 @@
       }
 
       /* Điện thoại cầm dọc: game chỉ chơi ngang, che toàn bộ trang và nhắc xoay máy (máy tính bảng, máy tính không bị chặn). */
-      #rotate-gate { display: none; }
-      @media (orientation: portrait) and (max-width: 600px) and (hover: none) and (pointer: coarse) {
-        #rotate-gate { position: fixed; inset: 0; z-index: 2147483647; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 24px; background: radial-gradient(circle at 50% 40%, #142233, #05080d 70%); color: #f0f1f3; text-align: center; font-family: 'Roboto Condensed', Arial, sans-serif; }
-        body { overflow: hidden; }
+      #rotate-gate {
+        display: none;
       }
-      #rotate-gate .rotate-phone { width: 64px; height: 108px; border: 4px solid #d9ba76; border-radius: 12px; position: relative; animation: rotate-hint 2.4s ease-in-out infinite; }
-      #rotate-gate .rotate-phone::after { content: ''; position: absolute; left: 50%; bottom: 6px; width: 14px; height: 4px; margin-left: -7px; border-radius: 2px; background: #d9ba76; }
-      #rotate-gate h2 { margin: 6px 0 0; font-size: 22px; }
-      #rotate-gate p { margin: 0; max-width: 300px; font-size: 15px; line-height: 1.5; color: #aebdcc; }
-      #rotate-gate button { display: none; min-height: 44px; padding: 0 20px; border: 0; border-radius: 6px; background: #d9ba76; color: #1d160b; font: 700 15px 'Roboto Condensed', Arial, sans-serif; cursor: pointer; }
-      #rotate-gate.can-lock button { display: inline-block; }
-      @keyframes rotate-hint { 0%, 20% { transform: rotate(0); } 50%, 80% { transform: rotate(-90deg); } 100% { transform: rotate(0); } }
-      @media (prefers-reduced-motion: reduce) { #rotate-gate .rotate-phone { animation: none; transform: rotate(-90deg); } }
+      @media (orientation: portrait) and (max-width: 600px) and (hover: none) and (pointer: coarse) {
+        #rotate-gate {
+          position: fixed;
+          inset: 0;
+          z-index: 2147483647;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 18px;
+          padding: 24px;
+          background: radial-gradient(circle at 50% 40%, #142233, #05080d 70%);
+          color: #f0f1f3;
+          text-align: center;
+          font-family: "Roboto Condensed", Arial, sans-serif;
+        }
+        body {
+          overflow: hidden;
+        }
+      }
+      #rotate-gate .rotate-phone {
+        width: 64px;
+        height: 108px;
+        border: 4px solid #d9ba76;
+        border-radius: 12px;
+        position: relative;
+        animation: rotate-hint 2.4s ease-in-out infinite;
+      }
+      #rotate-gate .rotate-phone::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        bottom: 6px;
+        width: 14px;
+        height: 4px;
+        margin-left: -7px;
+        border-radius: 2px;
+        background: #d9ba76;
+      }
+      #rotate-gate h2 {
+        margin: 6px 0 0;
+        font-size: 22px;
+      }
+      #rotate-gate p {
+        margin: 0;
+        max-width: 300px;
+        font-size: 15px;
+        line-height: 1.5;
+        color: #aebdcc;
+      }
+      #rotate-gate button {
+        display: none;
+        min-height: 44px;
+        padding: 0 20px;
+        border: 0;
+        border-radius: 6px;
+        background: #d9ba76;
+        color: #1d160b;
+        font:
+          700 15px "Roboto Condensed",
+          Arial,
+          sans-serif;
+        cursor: pointer;
+      }
+      #rotate-gate.can-lock button {
+        display: inline-block;
+      }
+      @keyframes rotate-hint {
+        0%,
+        20% {
+          transform: rotate(0);
+        }
+        50%,
+        80% {
+          transform: rotate(-90deg);
+        }
+        100% {
+          transform: rotate(0);
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #rotate-gate .rotate-phone {
+          animation: none;
+          transform: rotate(-90deg);
+        }
+      }
     </style>
   </head>
   <body>
     <div id="rotate-gate" role="alert" aria-live="polite">
       <div class="rotate-phone" aria-hidden="true"></div>
       <h2>Xoay ngang điện thoại</h2>
-      <p>FCO VIP chỉ chơi ở chế độ màn hình ngang. Hãy xoay ngang điện thoại (và tắt khoá xoay màn hình nếu đang bật) để vào game.</p>
-      <button type="button" id="rotate-lock">Toàn màn hình &amp; xoay ngang</button>
+      <p>
+        FCO VIP chỉ chơi ở chế độ màn hình ngang. Hãy xoay ngang điện thoại (và
+        tắt khoá xoay màn hình nếu đang bật) để vào game.
+      </p>
+      <button type="button" id="rotate-lock">
+        Toàn màn hình &amp; xoay ngang
+      </button>
     </div>
     <script>
       // Android Chrome: vào toàn màn hình rồi khoá hướng ngang bằng một chạm. iPhone không hỗ trợ khoá hướng nên ẩn nút.
       (function () {
-        var gate = document.getElementById('rotate-gate'), button = document.getElementById('rotate-lock');
-        if (!gate || !button || !(screen.orientation && screen.orientation.lock) || !document.documentElement.requestFullscreen) return;
-        gate.classList.add('can-lock');
-        button.addEventListener('click', function () {
-          document.documentElement.requestFullscreen({ navigationUI: 'hide' }).then(function () { return screen.orientation.lock('landscape'); }).catch(function () { gate.classList.remove('can-lock'); });
+        var gate = document.getElementById("rotate-gate"),
+          button = document.getElementById("rotate-lock");
+        if (
+          !gate ||
+          !button ||
+          !(screen.orientation && screen.orientation.lock) ||
+          !document.documentElement.requestFullscreen
+        )
+          return;
+        gate.classList.add("can-lock");
+        button.addEventListener("click", function () {
+          document.documentElement
+            .requestFullscreen({ navigationUI: "hide" })
+            .then(function () {
+              return screen.orientation.lock("landscape");
+            })
+            .catch(function () {
+              gate.classList.remove("can-lock");
+            });
         });
       })();
     </script>
