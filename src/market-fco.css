@@ -1,4 +1,4 @@
-/* TTCN phong cách FC Online: header một hàng (số dư dạng badge vàng), danh sách dày (badge vị trí / mùa / cấp),
+/* TTCN phong cách FC Online: header một hàng , danh sách dày (badge vị trí / mùa / cấp),
    thẻ chưa định giá làm mờ, panel chi tiết có chọn nhanh cấp + nút mua vàng, tab Tâm điểm 3 cột nền kẻ sọc chéo.
    Nạp sau market.css / fixed-screen.css để đè các luật cũ cùng độ ưu tiên. */
 
@@ -7,10 +7,6 @@
 .market-workspace .market-heading h1{font-size:26px;line-height:1.15}
 .market-workspace .market-heading p{font-size:12px;color:#8f99ab;margin-top:2px}
 .market-head-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px}
-.market-balance{display:inline-flex;align-items:center;gap:10px;height:38px;padding:0 16px 0 14px;border-radius:999px;background:#141824;border:1px solid #2a3042;box-shadow:inset 0 1px 0 #ffffff0d}
-.market-balance>span{font-size:11px;color:#8f99ab}
-.market-balance>b{display:inline-flex;align-items:baseline;gap:5px;font-family:var(--display);font-size:20px;font-weight:700;color:#ffd700;text-shadow:0 0 12px #ffd70059;font-variant-numeric:tabular-nums}
-.market-balance>b small{font-size:11px;font-weight:600;color:#ffd700bf}
 .market-workspace .market-heading .text-action{min-height:38px;font-size:12px;flex-shrink:0}
 .market-tab-spotlight{color:#d9be7c!important}
 .market-tab-spotlight[aria-pressed=true]{color:#ffd700!important;border-bottom-color:#ffd700!important}
@@ -19,7 +15,7 @@
    huy hiệu cấp · giá · thao tác; tiêu đề cột bấm để sắp xếp. */
 .market-badges{display:flex;align-items:center;gap:5px;min-width:0;flex-wrap:nowrap}
 .market-columns,.market-workspace .market-row{display:grid;grid-template-columns:62px 44px minmax(0,1fr) 46px 54px 48px minmax(84px,120px) 72px;align-items:center;gap:8px}
-.market-columns{flex-shrink:0;height:32px;padding:0 12px;background:#232a33;border-radius:4px 4px 0 0;font-size:12px;color:#aeb6c2}
+.market-columns{flex-shrink:0;height:32px;padding:0 12px;background:#232a33;border-radius:4px 4px 0 0;font-size:12px;color:#aeb6c2;overflow:hidden;scrollbar-width:thin;scrollbar-gutter:stable}
 .market-col{display:flex;align-items:center;gap:3px;padding:0;background:none;border:0;font-size:12px;color:inherit;white-space:nowrap;cursor:pointer}
 .market-col:hover,.market-col.on{color:#f0f1f3}
 .market-col.on{font-weight:600}
@@ -127,7 +123,7 @@
 
 /* Màn hẹp / điện thoại. */
 @media(max-width:900px){.market-workspace .market-heading{flex-wrap:wrap}.market-head-actions{justify-content:flex-start}.market-spotlight{grid-template-columns:minmax(0,1fr);grid-auto-rows:max-content;overflow-y:auto;padding-bottom:8px}.spotlight-card{flex:none;height:230px}}
-@media(max-width:640px){.market-workspace .market-heading{align-items:flex-start}.market-workspace .market-heading p{display:none}.market-balance{height:32px;padding:0 12px}.market-balance>b{font-size:16px}.market-badges .season-badge{display:none}}
+@media(max-width:640px){.market-workspace .market-heading{align-items:flex-start}.market-workspace .market-heading p{display:none}.market-badges .season-badge{display:none}}
 @media(prefers-reduced-motion:reduce){.spotlight-item,.spotlight-card>.player-card,.market-primary{transition:none}}
 /* Màn rộng nhưng thấp (≤800px): ảnh thẻ sang trái, tên + badge + bảng giá bên phải, để ảnh không bị ép còn vài pixel. */
 @media(min-width:1051px) and (max-height:800px){

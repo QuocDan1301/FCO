@@ -1,8 +1,9 @@
-import { getPlayer, ovr } from './game';
-import type { Card, Lineup, Lineups, Save } from './game';
+import { getPlayer, ovr, players } from './game';
+import type { Card, Lineup, Lineups, Player, Save } from './game';
+import clubHistoryData from './player-club-history.json';
 import { marketQuote } from './market';
-import { analyzeTeamColors } from './teamColor';
-import type { TeamColorReport } from './teamColor';
+import { analyzeTeamColors, DEFAULT_TEAM_COLOR_CONFIG, upgradeColorName } from './teamColor';
+import type { BuffResult, TeamColorReport } from './teamColor';
 
 // Đội hình riêng: tối đa 50 thẻ, mỗi cầu thủ (playerId) chỉ một thẻ. 310 là mốc lương tham khảo: được phép vượt, chỉ đổi màu cảnh báo.
 export const SQUAD_LIMIT = 50;
@@ -57,6 +58,7 @@ export function releaseCard(state: Save, uid: string): Save {
 // x: 0 biên trái → 100 biên phải; y: 0 khung thành đối phương → 100 khung thành nhà. Ô xếp từ hàng công xuống thủ môn, trái sang phải.
 export type FormationSlot = { label: string; role: string; x: number; y: number };
 const ROLE: Record<string, string> = { LS: 'ST', RS: 'ST', LCM: 'CM', RCM: 'CM', LDM: 'CDM', RDM: 'CDM', LAM: 'CAM', RAM: 'CAM', LCB: 'CB', RCB: 'CB' };
+// `LineupSpot` lưu nhãn vị trí (LCM…); role là vị trí dùng để tính OVR (CM…).
 const at = (label: string, x: number, y: number): FormationSlot => ({ label, role: ROLE[label] ?? label, x, y });
 const GK = at('GK', 50, 92);
 const BACK4 = [at('LB', 12, 70), at('LCB', 36, 76), at('RCB', 64, 76), at('RB', 88, 70)];
@@ -67,10 +69,10 @@ const TWO_ST = [at('LS', 36, 14), at('RS', 64, 14)];
 export const FORMATIONS: Record<string, FormationSlot[]> = {
   '4-1-2-3': [...FRONT3, at('LCM', 30, 40), at('RCM', 70, 40), at('CDM', 50, 55), ...BACK4, GK],
   '4-3-3': [...FRONT3, at('LCM', 25, 44), at('CM', 50, 48), at('RCM', 75, 44), ...BACK4, GK],
-  '4-2-3-1': [at('ST', 50, 13), at('LAM', 18, 30), at('CAM', 50, 32), at('RAM', 82, 30), at('LDM', 33, 53), at('RDM', 67, 53), ...BACK4, GK],
+  '4-2-3-1': [at('ST', 50, 13), at('LAM', 28, 33), at('CAM', 50, 33), at('RAM', 72, 33), at('LDM', 33, 53), at('RDM', 67, 53), ...BACK4, GK],
   '4-4-2': [...TWO_ST, at('LM', 12, 42), at('LCM', 37, 46), at('RCM', 63, 46), at('RM', 88, 42), ...BACK4, GK],
   '4-1-4-1': [at('ST', 50, 13), at('LM', 12, 36), at('LCM', 37, 38), at('RCM', 63, 38), at('RM', 88, 36), at('CDM', 50, 56), ...BACK4, GK],
-  '4-2-2-2': [...TWO_ST, at('LAM', 22, 32), at('RAM', 78, 32), at('LDM', 36, 52), at('RDM', 64, 52), ...BACK4, GK],
+  '4-2-2-2': [...TWO_ST, at('LAM', 28, 33), at('RAM', 72, 33), at('LDM', 36, 52), at('RDM', 64, 52), ...BACK4, GK],
   '4-3-1-2': [...TWO_ST, at('CAM', 50, 30), at('LCM', 24, 48), at('CM', 50, 53), at('RCM', 76, 48), ...BACK4, GK],
   '4-2-4': [at('LW', 12, 18), at('LS', 37, 13), at('RS', 63, 13), at('RW', 88, 18), at('LCM', 33, 45), at('RCM', 67, 45), ...BACK4, GK],
   '3-5-2': [...TWO_ST, at('CAM', 50, 30), at('LM', 10, 42), at('LDM', 33, 52), at('RDM', 67, 52), at('RM', 90, 42), ...BACK3, GK],
@@ -84,16 +86,78 @@ export const DEFAULT_FORMATION = '4-1-2-3';
 export const LINEUP_NAMES = ['A', 'B', 'C'] as const;
 export const XI = 11;
 
-// Đá trái vị trí bị trừ OVR theo khoảng cách trên sân (ngang ×3, dọc ×2, tối đa 25); thủ môn ↔ cầu thủ trên sân trừ 40.
+// ---- Vùng vị trí trên sân: kéo cầu thủ tới đâu thì đá vị trí của vùng đó. Toạ độ cùng hệ với FormationSlot. ----
+export type Zone = { label: string; role: string; x0: number; y0: number; x1: number; y1: number };
+const WING_LEFT = 22, WING_RIGHT = 78;
+// Hai biên, mỗi hàng một vùng.
+const WING_ROWS: [string, string, number, number][] = [['LW', 'RW', 0, 30], ['LM', 'RM', 30, 52], ['LWB', 'RWB', 52, 66], ['LB', 'RB', 66, 100]];
+// Giữa sân, mỗi hàng có ba vị trí trái / giữa / phải; cách chia phụ thuộc hàng đó đã có ai (xem zoneAt).
+const CENTER_ROWS: [string, string, string, number, number][] = [['LS', 'ST', 'RS', 0, 21], ['LF', 'CF', 'RF', 21, 30], ['LAM', 'CAM', 'RAM', 30, 40], ['LCM', 'CM', 'RCM', 40, 52], ['LDM', 'CDM', 'RDM', 52, 66], ['LCB', 'CB', 'RCB', 66, 84]];
+const GK_TOP = 84;
+const ZONE_LABELS = new Set(['GK', ...WING_ROWS.flatMap(r => [r[0], r[1]]), ...CENTER_ROWS.flatMap(r => [r[0], r[1], r[2]])]);
+const zone = (label: string, x0: number, y0: number, x1: number, y1: number): Zone => ({ label, role: ROLE[label] ?? label, x0, y0, x1, y1 });
+// Vùng tại điểm (x, y). taken = vị trí của 10 ô còn lại, quyết định cách chia hàng giữa sân:
+// hàng trống là một vùng rộng (ST, CDM…); có người bên trái / phải thì chia đôi (LCM | RCM); có người ở giữa thì chia ba.
+export function zoneAt(x: number, y: number, taken: ReadonlySet<string>): Zone | null {
+  if (x < 0 || x > 100 || y < 0 || y > 100) return null;
+  if (x < WING_LEFT || x >= WING_RIGHT) {
+    const row = WING_ROWS.find(r => y >= r[2] && y < r[3]) ?? WING_ROWS[WING_ROWS.length - 1];
+    return x < WING_LEFT ? zone(row[0], 0, row[2], WING_LEFT, row[3]) : zone(row[1], WING_RIGHT, row[2], 100, row[3]);
+  }
+  if (y >= GK_TOP) return zone('GK', WING_LEFT, GK_TOP, WING_RIGHT, 100);
+  const [left, mid, right, y0, y1] = CENTER_ROWS.find(r => y >= r[3] && y < r[4])!;
+  if (taken.has(mid)) {
+    const third = (WING_RIGHT - WING_LEFT) / 3, a = WING_LEFT + third, b = WING_LEFT + 2 * third;
+    return x < a ? zone(left, WING_LEFT, y0, a, y1) : x < b ? zone(mid, a, y0, b, y1) : zone(right, b, y0, WING_RIGHT, y1);
+  }
+  if (taken.has(left) || taken.has(right)) return x < 50 ? zone(left, WING_LEFT, y0, 50, y1) : zone(right, 50, y0, WING_RIGHT, y1);
+  return zone(mid, WING_LEFT, y0, WING_RIGHT, y1);
+}
+// 11 ô thực tế của một bộ: vị trí người chơi đã kéo, còn lại theo sơ đồ.
+export function lineupSlots(set: Lineup): FormationSlot[] {
+  const base = FORMATIONS[set.formation] ?? FORMATIONS[DEFAULT_FORMATION];
+  return base.map((slot, i) => { const spot = set.custom?.[i]; return spot ? at(spot.label, spot.x, spot.y) : slot; });
+}
+// Bản lưu có thể bị sửa hoặc cũ: vị trí sai kiểu hoặc hai ô trùng vị trí thì bỏ cả phần tuỳ chỉnh, quay về sơ đồ.
+function cleanCustom(set: Lineup, formation: string): Lineup['custom'] {
+  const custom = set.custom;
+  if (!Array.isArray(custom) || !custom.some(Boolean)) return undefined;
+  const spots = Array.from({ length: XI }, (_, i) => custom[i] ?? null);
+  const valid = spots.every(s => s === null || (typeof s === 'object' && ZONE_LABELS.has(s.label) && Number.isFinite(s.x) && Number.isFinite(s.y) && s.x >= 0 && s.x <= 100 && s.y >= 0 && s.y <= 100));
+  if (!valid) return undefined;
+  const labels = lineupSlots({ formation, slots: [], custom: spots }).map(s => s.label);
+  return new Set(labels).size === labels.length ? spots : undefined;
+}
+
+// Đổi vị trí trong cùng hàng (công / giữa / thủ, theo positionGroup) không bị trừ OVR. Sang hàng khác bị trừ theo khoảng cách trên sân
+// (ngang ×3, dọc ×2, tối đa 25); thủ môn ↔ cầu thủ trên sân trừ 40.
 const SPOT: Record<string, [number, number]> = { CB: [0, 1], LB: [-1, 1], RB: [1, 1], LWB: [-1, 2], RWB: [1, 2], CDM: [0, 2], CM: [0, 3], LM: [-1, 3.5], RM: [1, 3.5], CAM: [0, 4], LW: [-1, 5], RW: [1, 5], CF: [0, 5], LF: [-1, 5.5], RF: [1, 5.5], ST: [0, 6] };
 export function positionPenalty(pos: string, role: string): number {
-  if (pos === role) return 0;
+  if (positionGroup(pos) === positionGroup(role)) return 0;
   if (pos === 'GK' || role === 'GK') return 40;
   const a = SPOT[pos], b = SPOT[role];
   if (!a || !b) return 10;
   return Math.min(25, Math.round(Math.abs(a[0] - b[0]) * 3 + Math.abs(a[1] - b[1]) * 2));
 }
-export const slotOvr = (card: Card, role: string) => Math.max(1, ovr(card) - positionPenalty(getPlayer(card).pos, role));
+// Mọi vị trí của một cầu thủ qua tất cả mùa thẻ: có mùa đá ở đâu thì thẻ mùa nào cũng đá được ở đó (Messi: CF, CAM, RW).
+// Gộp theo tên + quốc tịch vì có tên trùng nhưng là hai người (A. Onana, L. Suárez); thủ môn không gộp với cầu thủ trên sân (Diego López).
+const positionKey = (p: Pick<Player, 'name' | 'nation'>) => `${p.name}|${p.nation}`;
+let careerPositions: Map<string, Set<string>> | null = null;
+export function playerPositions(p: Pick<Player, 'name' | 'nation' | 'pos'>): string[] {
+  if (p.pos === 'GK') return ['GK'];
+  if (!careerPositions) {
+    careerPositions = new Map();
+    for (const player of players) {
+      if (player.pos === 'GK') continue;
+      const key = positionKey(player), known = careerPositions.get(key);
+      if (known) known.add(player.pos); else careerPositions.set(key, new Set([player.pos]));
+    }
+  }
+  return [...new Set([p.pos, ...(careerPositions.get(positionKey(p)) ?? [])])];
+}
+// Mức trừ của cầu thủ ở một vị trí: tính theo vị trí gần nhất trong các vị trí cầu thủ có.
+export const playerPenalty = (p: Pick<Player, 'name' | 'nation' | 'pos'>, role: string) => Math.min(...playerPositions(p).map(pos => positionPenalty(pos, role)));
+export const slotOvr = (card: Card, role: string) => Math.max(1, ovr(card) - playerPenalty(getPlayer(card), role));
 
 const blankLineup = (): Lineup => ({ formation: DEFAULT_FORMATION, slots: Array(XI).fill(null) });
 // Đọc 3 bộ đội hình đã chuẩn hoá: sơ đồ lạ về mặc định, ô trỏ tới thẻ không còn trong đội hình riêng (hoặc trùng) thành trống.
@@ -104,7 +168,8 @@ export function getLineups(state: Pick<Save, 'cards' | 'squad' | 'lineups'>): Li
     if (!set) return blankLineup();
     const seen = new Set<string>();
     const slots = Array.from({ length: XI }, (_, n) => { const uid = set.slots[n]; if (!uid || !members.has(uid) || seen.has(uid)) return null; seen.add(uid); return uid; });
-    return { formation: FORMATIONS[set.formation] ? set.formation : DEFAULT_FORMATION, slots };
+    const formation = FORMATIONS[set.formation] ? set.formation : DEFAULT_FORMATION, custom = cleanCustom(set, formation);
+    return custom ? { formation, slots, custom } : { formation, slots };
   });
   const active = state.lineups?.active ?? 0;
   return { active: Number.isInteger(active) && active >= 0 && active < sets.length ? active : 0, sets };
@@ -129,6 +194,22 @@ export function placeCard(state: Save, index: number, slot: number, uid: string 
   if (from >= 0) slots[from] = slots[slot];
   slots[slot] = uid;
   return withSet(state, index, { ...set, slots });
+}
+// Kéo một ô tới vị trí mới trên sân. Hai ô không thể cùng vị trí: đổi chỗ với người đang đứng đó thì dùng placeCard.
+export function moveSlot(state: Save, index: number, slot: number, label: string, x: number, y: number): Save {
+  checkSet(index);
+  if (!Number.isInteger(slot) || slot < 0 || slot >= XI) throw new Error('Vị trí không tồn tại.');
+  if (!ZONE_LABELS.has(label) || !Number.isFinite(x) || !Number.isFinite(y)) throw new Error('Vị trí không tồn tại.');
+  const set = getLineups(state).sets[index];
+  if (lineupSlots(set).some((s, i) => i !== slot && s.label === label)) throw new Error(`Vị trí ${label} đã có người.`);
+  const custom = Array.from({ length: XI }, (_, i) => set.custom?.[i] ?? null);
+  custom[slot] = { label, x: Math.round(Math.min(100, Math.max(0, x)) * 10) / 10, y: Math.round(Math.min(100, Math.max(0, y)) * 10) / 10 };
+  return withSet(state, index, { ...set, custom });
+}
+// Bỏ mọi vị trí đã kéo, về đúng sơ đồ; cầu thủ giữ nguyên ô.
+export function resetPositions(state: Save, index: number): Save {
+  const { formation, slots } = getLineups(state).sets[index];
+  return withSet(state, index, { formation, slots });
 }
 export const clearLineup = (state: Save, index: number): Save => withSet(state, index, { ...getLineups(state).sets[index], slots: Array(XI).fill(null) });
 
@@ -158,8 +239,7 @@ function hungarian(cost: number[][]): number[] {
   for (let j = 1; j <= m; j++) if (p[j]) match[p[j] - 1] = j - 1;
   return match;
 }
-export function arrange(cards: Card[], formation: string): (string | null)[] {
-  const slots = FORMATIONS[formation] ?? FORMATIONS[DEFAULT_FORMATION];
+export function arrange(cards: Card[], formation: string, slots: FormationSlot[] = FORMATIONS[formation] ?? FORMATIONS[DEFAULT_FORMATION]): (string | null)[] {
   const result: (string | null)[] = Array(XI).fill(null);
   if (!cards.length) return result;
   // Hàng là phía ít hơn (ô hoặc thẻ); lệch nhẹ theo OVR gốc để thẻ mạnh hơn được ưu tiên khi hoà điểm.
@@ -168,7 +248,7 @@ export function arrange(cards: Card[], formation: string): (string | null)[] {
   else hungarian(cards.map(card => slots.map(slot => -score(card, slot)))).forEach((s, c) => { result[s] = cards[c].uid; });
   return result;
 }
-// Đổi sơ đồ: giữ nguyên các cầu thủ đang đá chính, xếp lại vào ô hợp nhất của sơ đồ mới.
+// Đổi sơ đồ: giữ nguyên các cầu thủ đang đá chính, xếp lại vào ô hợp nhất của sơ đồ mới; vị trí đã kéo tay bị bỏ.
 export function setFormation(state: Save, index: number, formation: string): Save {
   if (!FORMATIONS[formation]) throw new Error('Sơ đồ không tồn tại.');
   checkSet(index);
@@ -176,24 +256,49 @@ export function setFormation(state: Save, index: number, formation: string): Sav
   const starters = set.slots.flatMap(uid => uid && byUid.has(uid) ? [byUid.get(uid)!] : []);
   return withSet(state, index, { formation, slots: arrange(starters, formation) });
 }
-// Tối ưu ĐH: chọn 11 cầu thủ trong đội hình riêng cho tổng OVR theo vị trí cao nhất ở sơ đồ hiện tại.
+// Tối ưu ĐH: chọn 11 cầu thủ trong đội hình riêng cho tổng OVR theo vị trí cao nhất ở sơ đồ hiện tại, tính cả vị trí đã kéo tay.
 export function optimizeLineup(state: Save, index: number): Save {
   checkSet(index);
   const set = getLineups(state).sets[index];
-  return withSet(state, index, { formation: set.formation, slots: arrange(squadCards(state), set.formation) });
+  return withSet(state, index, { ...set, slots: arrange(squadCards(state), set.formation, lineupSlots(set)) });
 }
 // Trường CLB trong dữ liệu đôi khi không phải CLB thật: cầu thủ tự do, hoặc tên mùa in thay logo CLB — không tạo team color CLB.
 export const NOT_CLUBS = new Set(['Tự do', 'Ballon d’Or', 'Champions of Europe', 'Century Club', 'Decade', 'Returnees', 'Wonderboys', 'Unexpected Transfer', 'Greatest Runner-Ups', 'Spartan', '23 Hard Worker', '24 Energetic Player']);
+// CLB tính team color: CLB ghi trên thẻ (nếu là CLB thật) cộng mọi CLB cầu thủ từng thi đấu (player-club-history.json, theo tên nên áp dụng mọi mùa thẻ).
+const clubHistory: Readonly<Record<string, readonly string[]>> = clubHistoryData.clubs;
+// Tên trùng nhưng là hai người (A. Onana, L. Suárez…) được khoá theo "tên|quốc tịch".
+export const playerClubs = (p: Pick<Player, 'name' | 'club'> & Partial<Pick<Player, 'nation'>>) => [...new Set([...(p.club && !NOT_CLUBS.has(p.club) ? [p.club] : []), ...(clubHistory[`${p.name}|${p.nation}`] ?? clubHistory[p.name] ?? [])])];
 // Team color của 11 cầu thủ đá chính (teamColor.ts): OVR gốc là OVR theo vị trí đang đá, CLB / quốc gia theo dữ liệu cầu thủ, cấp = cấp cộng của thẻ.
+// Mọi cầu thủ trong đội hình riêng (đá chính lẫn dự bị) được cộng cố định LINEUP_BONUS OVR; team color chỉ cộng thêm cho người đá chính.
+export const LINEUP_BONUS = 5;
+const LINEUP_BUFF = { kind: 'lineup' as const, key: 'lineup', tier: 1, ovr: LINEUP_BONUS, stats: {} };
 export function lineupTeamColor(state: Pick<Save, 'cards' | 'squad'>, set: Lineup): TeamColorReport {
-  const byUid = new Map(squadCards(state).map(c => [c.uid, c])), slots = FORMATIONS[set.formation] ?? FORMATIONS[DEFAULT_FORMATION];
-  return analyzeTeamColors(set.slots.flatMap((uid, i) => {
+  const byUid = new Map(squadCards(state).map(c => [c.uid, c])), slots = lineupSlots(set);
+  const report = analyzeTeamColors(set.slots.flatMap((uid, i) => {
     const card = uid ? byUid.get(uid) : undefined;
     if (!card) return [];
     const p = getPlayer(card);
-    return [{ id: card.uid, baseOvr: slotOvr(card, slots[i].role), upgradeLevel: card.level, clubIds: p.club && !NOT_CLUBS.has(p.club) ? [p.club] : [], nationId: p.nation ?? '' }];
+    return [{ id: card.uid, baseOvr: slotOvr(card, slots[i].role), upgradeLevel: card.level, clubIds: playerClubs(p), nationId: p.nation ?? '' }];
   }));
+  return { ...report, players: report.players.map(r => ({ ...r, ovrBonus: r.ovrBonus + LINEUP_BONUS, finalOvr: r.finalOvr + LINEUP_BONUS, applied: [LINEUP_BUFF, ...r.applied] })) };
 }
+// CLB và quốc gia của team color mạnh nhất đang kích hoạt ở bộ đang dùng (cấp cao hơn, rồi đông người hơn); undefined nếu chưa kích hoạt.
+export function activeTeamColors(state: Pick<Save, 'cards' | 'squad' | 'lineups'>) {
+  const lineups = getLineups(state), active = lineupTeamColor(state, lineups.sets[lineups.active]).active;
+  // Màu cấp thẻ mạnh nhất (danh sách đã sắp mức thẻ giảm dần): màu (bronze / silver / gold / platinum) và số thẻ tối thiểu của mốc đang đạt.
+  const level = active.find(c => c.kind === 'upgrade'), rule = level && DEFAULT_TEAM_COLOR_CONFIG.upgrade.find(r => r.id === level.key);
+  return { club: active.find(c => c.kind === 'club')?.key, nation: active.find(c => c.kind === 'nation')?.key,
+    upgrade: level && rule ? { color: level.key.replace(/-\d+$/, ''), name: upgradeColorName(rule.minLevel), tier: level.tier, minPlayers: rule.minPlayers, ovr: level.ovr } : undefined };
+}
+// Phần OVR cộng thẳng và từng nguồn cộng của mọi cầu thủ trong đội hình riêng: người đá chính ở bộ đang dùng có +5 và team color,
+// dự bị chỉ có +5. Thẻ không nằm trong đội hình riêng không có trong bảng.
+export const benchBuff = (card: Card): BuffResult => ({ playerId: card.uid, baseOvr: ovr(card), ovrBonus: LINEUP_BONUS, finalOvr: ovr(card) + LINEUP_BONUS, stats: { pace: 0, shooting: 0, passing: 0, dribbling: 0, defending: 0, physical: 0 }, applied: [LINEUP_BUFF] });
+export function teamColorDetails(state: Pick<Save, 'cards' | 'squad' | 'lineups'>): Map<string, BuffResult> {
+  const lineups = getLineups(state), result = new Map(lineupTeamColor(state, lineups.sets[lineups.active]).players.map(r => [r.playerId, r]));
+  for (const card of squadCards(state)) if (!result.has(card.uid)) result.set(card.uid, benchBuff(card));
+  return result;
+}
+export const teamColorBonuses = (state: Pick<Save, 'cards' | 'squad' | 'lineups'>) => new Map([...teamColorDetails(state)].map(([uid, r]) => [uid, r.ovrBonus]));
 // OVR đội = trung bình OVR theo vị trí (đã cộng team color) của các ô đã có người; lương và giá trị tính trên 11 cầu thủ đá chính.
 export function lineupSummary(state: Pick<Save, 'cards' | 'squad'>, set: Lineup) {
   const byUid = new Map(squadCards(state).map(c => [c.uid, c])), colors = lineupTeamColor(state, set);

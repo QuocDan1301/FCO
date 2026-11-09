@@ -1,7 +1,6 @@
-import { useMemo, useRef, useState } from 'react';
-import { usePageCapacity } from './ViewportPages';
-import type { ReactNode } from 'react';
-import { Layers, ArrowRight, ChevronDown, ChevronLeft, ChevronRight, History, Search, Sparkles } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode, UIEvent } from 'react';
+import { ArrowRight, ChevronDown, History, Search, Sparkles } from 'lucide-react';
 import { getPlayer, MAX_LEVEL, money, ovr, players, seasons } from './game';
 import type { Card, Save } from './game';
 import { marketQuote, compareMarketPrices, formatMarketPrice, nextPriceChange, saleTaxPercent } from './market';
@@ -17,7 +16,6 @@ type Props = {
   free: boolean;
   onTrade: (trade: MarketTrade) => void;
   onHistory: () => void;
-  onBulkSell: () => void;
   onOpenPacks: () => void;
   renderCard: (card: Card) => ReactNode;
   levelBadge: (level: number) => string;
@@ -31,6 +29,8 @@ const normalizedNames = new Map<number, string>();
 const normalizedName = (id: number, name: string) => { let value = normalizedNames.get(id); if (value === undefined) { value = normalize(name); normalizedNames.set(id, value); } return value; };
 // Thứ tự tuyến khi sắp theo vị trí: tiền đạo → tiền vệ → hậu vệ → thủ môn.
 const lineOrder = { fw: 0, mf: 1, df: 2, gk: 3 };
+// Danh sách cuộn: dựng dần từng đợt khi cuộn gần cuối, vì dựng cả gần 4.000 dòng một lúc sẽ rất chậm.
+const LIST_BATCH = 40, LOAD_MARGIN = 300;
 const marketCard = (playerId: number, level: number): Card => ({ uid: `market-${playerId}-${level}`, playerId, level, received: 0 });
 // Các khoá sắp xếp giảm dần (mũi tên xuống ở tiêu đề cột).
 const DESCENDING = new Set(['price-desc', 'ovr', 'level', 'wage-desc', 'name-desc', 'position-desc']);
@@ -52,10 +52,10 @@ function spotlights() {
   return spotlightCache = picks.filter((pick): pick is [string, string, Card] => !!pick[2]).map(([label, hint, card]) => ({ label, hint, card }));
 }
 
-export default function TransferMarket({ save, free, onTrade, onBulkSell, onHistory, onOpenPacks, renderCard, levelBadge }: Props) {
-  const [mode, setMode] = useState<'buy' | 'sell' | 'spotlight'>('buy');
+export default function TransferMarket({ save, free, onTrade, onHistory, onOpenPacks, renderCard, levelBadge }: Props) {
+  // Vừa vào TTCN là thấy Tâm điểm.
+  const [mode, setMode] = useState<'buy' | 'sell' | 'spotlight'>('spotlight');
   const listRef = useRef<HTMLDivElement>(null);
-  const { capacity: pageSize } = usePageCapacity(listRef, 10000, 48);
   const [query, setQuery] = useState('');
   const [position, setPosition] = useState('');
   const [season, setSeason] = useState('');
@@ -98,9 +98,13 @@ export default function TransferMarket({ save, free, onTrade, onBulkSell, onHist
     }
   });
   }, [buying, buyLevel, save.cards, query, position, season, sellLevel, unavailableOnly, sort, period]);
-  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const currentPage = Math.min(page, pageCount - 1);
-  const visible = filtered.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
+  const visible = filtered.slice(0, (page + 1) * LIST_BATCH);
+  const loadMore = (event: UIEvent<HTMLDivElement>) => {
+    const list = event.currentTarget;
+    if (visible.length < filtered.length && list.scrollHeight - list.scrollTop - list.clientHeight < LOAD_MARGIN) setPage(current => current + 1);
+  };
+  // Đổi bộ lọc, cách sắp xếp hay tab thì danh sách mới bắt đầu lại từ đầu.
+  useEffect(() => { if (listRef.current) listRef.current.scrollTop = 0; }, [mode, query, position, season, buyLevel, sellLevel, unavailableOnly, sort]);
   const selected = visible.find(c => c.uid === selectedId) || visible[0];
   const panelCard = selected && buying && panelLevel && panelLevel !== selected.level ? marketCard(selected.playerId, panelLevel) : selected;
   const taxPercent = saleTaxPercent(save);
@@ -119,8 +123,7 @@ export default function TransferMarket({ save, free, onTrade, onBulkSell, onHist
     <div className="page-heading market-heading">
       <div><h1 id="market-title">Thị trường chuyển nhượng</h1><p>Tìm mảnh ghép tiếp theo cho bộ sưu tập của bạn.</p></div>
       <div className="market-head-actions">
-        <div className="market-balance" aria-label={`Số dư khả dụng ${free ? 'vô hạn' : money(save.balance)} BP`}><span>Số dư khả dụng</span><b>{free ? '∞' : money(save.balance)}<small>BP</small></b></div>
-        <button className="text-action" onClick={onBulkSell}><Layers size={16}/>Bán hàng loạt</button><button className="text-action" onClick={onHistory}><History size={16}/>Lịch sử giao dịch<ArrowRight size={15}/></button>
+        <button className="text-action" onClick={onHistory}><History size={16}/>Lịch sử giao dịch<ArrowRight size={15}/></button>
       </div>
     </div>
     <div className="market-tabs" role="group" aria-label="Loại giao dịch"><button aria-pressed={mode === 'buy'} onClick={() => switchMode('buy')}>Mua cầu thủ<span>{players.length}</span></button><button aria-pressed={mode === 'sell'} onClick={() => switchMode('sell')}>Bán cầu thủ<span>{save.cards.length}</span></button><button className="market-tab-spotlight" aria-pressed={mode === 'spotlight'} onClick={() => switchMode('spotlight')}><Sparkles size={14}/>Tâm điểm</button></div>
@@ -142,10 +145,10 @@ export default function TransferMarket({ save, free, onTrade, onBulkSell, onHist
       <label>{buying ? 'Cấp thẻ muốn mua' : 'Cấp thẻ'}<select aria-label="Cấp thẻ trên thị trường" value={buying ? buyLevel : sellLevel} onChange={e => { buying ? setBuyLevel(e.target.value) : setSellLevel(e.target.value); setPage(0); setPanelLevel(null); }}>{!buying && <option value="">Mọi cấp thẻ</option>}{Array.from({ length: MAX_LEVEL }, (_, i) => <option key={i} value={i + 1}>+{i + 1}</option>)}</select></label>
       <label>Sắp xếp theo<select aria-label="Sắp xếp thị trường" value={sort} onChange={e => { setSort(e.target.value); setPage(0); }}><option value="price-desc">Giá: cao → thấp</option><option value="price">Giá: thấp → cao</option><option value="ovr">OVR: cao → thấp</option><option value="ovr-asc">OVR: thấp → cao</option><option value="name">Tên: A → Z</option><option value="name-desc">Tên: Z → A</option><option value="position">Vị trí: tiền đạo → thủ môn</option><option value="position-desc">Vị trí: thủ môn → tiền đạo</option><option value="wage-desc">Lương: cao → thấp</option><option value="wage">Lương: thấp → cao</option><option value="level">Cấp thẻ: cao → thấp</option><option value="level-asc">Cấp thẻ: thấp → cao</option></select></label></div>
     </div>
-    <div className="market-count"><label className="market-unavailable-filter"><input type="checkbox" checked={unavailableOnly} onChange={event => { setUnavailableOnly(event.target.checked); setPage(0); }}/>Chỉ thẻ chưa có giá</label><span role="status">{filtered.length ? `${currentPage * pageSize + 1}–${Math.min((currentPage + 1) * pageSize, filtered.length)} / ${filtered.length} thẻ` : '0 thẻ phù hợp'}</span><button className="text-action" onClick={reset}>Đặt lại bộ lọc</button></div>
+    <div className="market-count"><label className="market-unavailable-filter"><input type="checkbox" checked={unavailableOnly} onChange={event => { setUnavailableOnly(event.target.checked); setPage(0); }}/>Chỉ thẻ chưa có giá</label><span role="status">{filtered.length ? `${money(filtered.length)} thẻ` : '0 thẻ phù hợp'}</span><button className="text-action" onClick={reset}>Đặt lại bộ lọc</button></div>
     {visible.length ? <div className="market-layout"><div className="market-list-panel">
       <div className="market-columns">{column(['position', 'position-desc'], 'Vị trí')}<span/>{column(['name', 'name-desc'], 'Tên cầu thủ')}{column(['wage-desc', 'wage'], 'Lương', 'is-center')}{column(['ovr', 'ovr-asc'], 'OVR', 'is-center')}{column(['level', 'level-asc'], 'Thẻ', 'is-center')}{column(['price-desc', 'price'], buying ? 'Giá' : 'Nhận sau phí', 'is-end')}<span/></div>
-      <div ref={listRef} className="market-list">{visible.map(card => {
+      <div ref={listRef} className="market-list" onScroll={loadMore}>{visible.map(card => {
         const player = getPlayer(card), rowQuote = marketQuote(card, taxPercent), unpriced = isUnpriced(rowQuote), shown = buying ? rowQuote.price : rowQuote.proceeds;
         const canAfford = rowQuote.available && (!buying || free || save.balance >= rowQuote.price);
         const note = !rowQuote.available ? 'Chưa có giá' : unpriced ? 'Chưa định giá' : !canAfford ? 'Chưa đủ số dư' : '';
@@ -161,7 +164,6 @@ export default function TransferMarket({ save, free, onTrade, onBulkSell, onHist
           <button className="market-row-action" disabled={!canAfford} aria-label={`${buying ? 'Mua' : 'Bán'} ${player.name} +${card.level}`} onClick={event => { event.stopPropagation(); onTrade({ kind: buying ? 'buy' : 'sell', card }); }}>{buying ? 'Mua' : 'Bán'}<ArrowRight size={14}/></button>
         </article>;
       })}</div>
-      <div className="market-pagination"><button aria-label="Trang thị trường trước" disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}><ChevronLeft size={16}/>Trước</button><span>Trang {currentPage + 1} / {pageCount}</span><button aria-label="Trang thị trường sau" disabled={currentPage + 1 >= pageCount} onClick={() => setPage(currentPage + 1)}>Sau<ChevronRight size={16}/></button></div>
     </div><aside className="market-preview" aria-label="Cầu thủ đang xem"><div className="market-preview-card">{renderCard(panelCard)}</div><h2>{getPlayer(panelCard).name}</h2>
       <div className="market-preview-badges"><PositionBadge pos={getPlayer(panelCard).pos}/><SeasonBadge tier={getPlayer(panelCard).tier}/><span className="market-preview-ovr">OVR <b>{ovr(panelCard)}</b></span><img className="market-level-img" src={levelBadge(panelCard.level)} alt={`+${panelCard.level}`}/></div>
       {buying && <div className="market-grades" role="group" aria-label="Chọn nhanh cấp thẻ muốn mua">{Array.from({ length: MAX_LEVEL }, (_, i) => i + 1).map(level => <button key={level} aria-pressed={panelCard.level === level} aria-label={`Xem giá +${level}`} onClick={() => setPanelLevel(level)}><img className="market-level-img" src={levelBadge(level)} alt=""/></button>)}</div>}

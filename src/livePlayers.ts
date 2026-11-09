@@ -1,0 +1,38 @@
+import type { Player } from './game';
+import { asset } from './asset';
+
+// Thứ tự theo scripts/data/live.csv; tạo bởi scripts/import-live.py.
+export const livePlayers: Player[] = [
+  { id: 3896, name: "J. Cillessen", ovr: 70, pos: "GK", nation: "Hà Lan", flag: "NL", club: "NEC Nijmegen", tier: "live", wage: 5, cardFace: asset("/assets/live-3896-card.webp") },
+  { id: 3897, name: "A. Onana", ovr: 77, pos: "GK", nation: "Cameroon", flag: "CM", club: "Trabzonspor", tier: "live", wage: 5, cardFace: asset("/assets/live-3897-card.webp") },
+  { id: 3898, name: "Casillas", ovr: 72, pos: "GK", nation: "Tây Ban Nha", flag: "ES", club: "Porto", tier: "live", wage: 6, cardFace: asset("/assets/live-3898-card.webp") },
+  { id: 3899, name: "A. Areola", ovr: 68, pos: "GK", nation: "Pháp", flag: "FR", club: "West Ham", tier: "live", wage: 5, cardFace: asset("/assets/live-3899-card.webp") },
+  { id: 3900, name: "T. Courtois", ovr: 84, pos: "GK", nation: "Bỉ", flag: "BE", club: "Madrid", tier: "live", wage: 10, cardFace: asset("/assets/live-3900-card.webp") },
+  { id: 3901, name: "G. Donnarumma", ovr: 79, pos: "GK", nation: "Ý", flag: "IT", club: "Manchester Xanh", tier: "live", wage: 10, cardFace: asset("/assets/live-3901-card.webp") },
+  { id: 3902, name: "Y. Sommer", ovr: 75, pos: "GK", nation: "Thụy Sĩ", flag: "CH", club: "Club Brugge", tier: "live", wage: 6, cardFace: asset("/assets/live-3902-card.webp") },
+  { id: 3903, name: "Ederson", ovr: 78, pos: "GK", nation: "Brazil", flag: "BR", club: "Fenerbahçe", tier: "live", wage: 7, cardFace: asset("/assets/live-3903-card.webp") },
+  { id: 3904, name: "M. Neuer", ovr: 72, pos: "GK", nation: "Đức", flag: "DE", club: "Bayern", tier: "live", wage: 6, cardFace: asset("/assets/live-3904-card.webp") },
+  { id: 3905, name: "H. Lloris", ovr: 66, pos: "GK", nation: "Pháp", flag: "FR", club: "LAFC", tier: "live", wage: 5, cardFace: asset("/assets/live-3905-card.webp") },
+  { id: 3906, name: "G. Buffon", ovr: 71, pos: "GK", nation: "Ý", flag: "IT", club: "Tự do", tier: "live", wage: 6, cardFace: asset("/assets/live-3906-card.webp"), teamLogo: asset("/assets/live-3906-team.webp") },
+  { id: 3907, name: "P. Čech", ovr: 72, pos: "GK", nation: "Séc", flag: "CZ", club: "Arsenal", tier: "live", wage: 6, cardFace: asset("/assets/live-3907-card.webp") },
+  { id: 3908, name: "J. Hart", ovr: 65, pos: "GK", nation: "Anh", flag: "EN", club: "Celtic", tier: "live", wage: 5, cardFace: asset("/assets/live-3908-card.webp") },
+  { id: 3909, name: "Pepe Reina", ovr: 67, pos: "GK", nation: "Tây Ban Nha", flag: "ES", club: "Como", tier: "live", wage: 5, cardFace: asset("/assets/live-3909-card.webp") },
+  { id: 3910, name: "W. Szczęsny", ovr: 73, pos: "GK", nation: "Ba Lan", flag: "PL", club: "Barcelona", tier: "live", wage: 6, cardFace: asset("/assets/live-3910-card.webp") },
+  { id: 3911, name: "De Gea", ovr: 76, pos: "GK", nation: "Tây Ban Nha", flag: "ES", club: "Fiorentina", tier: "live", wage: 7, cardFace: asset("/assets/live-3911-card.webp") },
+  { id: 3912, name: "M. ter Stegen", ovr: 76, pos: "GK", nation: "Đức", flag: "DE", club: "Ajax", tier: "live", wage: 6, cardFace: asset("/assets/live-3912-card.webp") },
+  { id: 3913, name: "K. Navas", ovr: 74, pos: "GK", nation: "Costa Rica", flag: "CR", club: "Pumas UNAM", tier: "live", wage: 6, cardFace: asset("/assets/live-3913-card.webp"), teamLogo: asset("/assets/live-3913-team.webp") },
+  { id: 3914, name: "M. Maignan", ovr: 82, pos: "GK", nation: "Pháp", flag: "FR", club: "Milano", tier: "live", wage: 8, cardFace: asset("/assets/live-3914-card.webp") },
+  { id: 3915, name: "J. Oblak", ovr: 81, pos: "GK", nation: "Slovenia", flag: "SI", club: "Atlético", tier: "live", wage: 10, cardFace: asset("/assets/live-3915-card.webp") },
+  { id: 3916, name: "David Raya", ovr: 81, pos: "GK", nation: "Tây Ban Nha", flag: "ES", club: "Arsenal", tier: "live", wage: 9, cardFace: asset("/assets/live-3916-card.webp") },
+  { id: 3917, name: "G. Kobel", ovr: 81, pos: "GK", nation: "Thụy Sĩ", flag: "CH", club: "Dortmund", tier: "live", wage: 8, cardFace: asset("/assets/live-3917-card.webp") },
+  { id: 3918, name: "Alisson", ovr: 77, pos: "GK", nation: "Brazil", flag: "BR", club: "Liverpool", tier: "live", wage: 9, cardFace: asset("/assets/live-3918-card.webp") },
+  { id: 3919, name: "Joan García", ovr: 77, pos: "GK", nation: "Tây Ban Nha", flag: "ES", club: "Barcelona", tier: "live", wage: 8, cardFace: asset("/assets/live-3919-card.webp") },
+  { id: 3920, name: "M. Safonov", ovr: 77, pos: "GK", nation: "Nga", flag: "RU", club: "Paris", tier: "live", wage: 7, cardFace: asset("/assets/live-3920-card.webp") },
+  { id: 3921, name: "E. Martínez", ovr: 77, pos: "GK", nation: "Argentina", flag: "AR", club: "Chelsea", tier: "live", wage: 7, cardFace: asset("/assets/live-3921-card.webp") },
+  { id: 3922, name: "M. Svilar", ovr: 76, pos: "GK", nation: "Serbia", flag: "RS", club: "Roma", tier: "live", wage: 7, cardFace: asset("/assets/live-3922-card.webp") },
+  { id: 3923, name: "J. Pickford", ovr: 76, pos: "GK", nation: "Anh", flag: "EN", club: "Everton", tier: "live", wage: 7, cardFace: asset("/assets/live-3923-card.webp") },
+  { id: 3924, name: "I. Provedel", ovr: 75, pos: "GK", nation: "Ý", flag: "IT", club: "Tự do", tier: "live", wage: 6, cardFace: asset("/assets/live-3924-card.webp"), teamLogo: asset("/assets/live-3924-team.webp") },
+  { id: 3925, name: "V. Milinković-Savić", ovr: 74, pos: "GK", nation: "Serbia", flag: "RS", club: "Napoli", tier: "live", wage: 6, cardFace: asset("/assets/live-3925-card.webp") },
+  { id: 3926, name: "A. Lunin", ovr: 73, pos: "GK", nation: "Ukraine", flag: "UA", club: "Madrid", tier: "live", wage: 6, cardFace: asset("/assets/live-3926-card.webp") },
+  { id: 3927, name: "K. Grabara", ovr: 73, pos: "GK", nation: "Ba Lan", flag: "PL", club: "Juventus", tier: "live", wage: 6, cardFace: asset("/assets/live-3927-card.webp") },
+];

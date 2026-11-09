@@ -7,6 +7,7 @@ import LightTunnel from './LightTunnel';
 import PackFlames from './PackFlames';
 import { flameTone } from './flames';
 import { getTeamLogo } from '../teamLogos';
+import { isTouchPhone } from '../device';
 
 type Props = { preparationId: number; pack: Pack; cards?: Card[]; phase: number; playing: boolean; quick: boolean; reduced: boolean; light: boolean; onPrepared: () => void; onReady: () => void };
 export default function PackStage(props: Props) {
@@ -23,7 +24,7 @@ export default function PackStage(props: Props) {
   // Máy phun lửa trong hầm theo giá cầu thủ đó (thường từ 1M, bạc từ 100M, tím từ 1B); bật từ lúc qua cửa hầm (mốc 1) tới khi ra sân khấu (mốc 6),
   // gỡ hẳn từ mốc 7 (màn trắng chuyển cảnh đang che) để hoạt cảnh ẩn không chạy tiếp sau khi hiện thẻ.
   const tone = best ? flameTone(marketQuote(best).price) : null;
-  const phone = matchMedia('(pointer: coarse) and (max-width: 900px)').matches;
+  const phone = isTouchPhone();
   const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
   const weak = navigator.hardwareConcurrency <= 2 || (memory ?? 8) <= 2 || (phone && (navigator.hardwareConcurrency <= 4 || (memory ?? 8) <= 4));
   useEffect(() => {

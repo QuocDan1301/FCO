@@ -1,0 +1,7297 @@
+{
+ "note": "CLB cầu thủ từng thi đấu, tính vào team color CLB cùng với CLB trên thẻ. Lấy từ Wikidata ngày 2026-11-09 (mọi mục P54 trừ mục bị đánh dấu sai; bỏ đội trẻ, đội tuyển), đổi về tên CLB trong game; cộng các mục người dùng xác nhận (11 cầu thủ Barcelona, E. Petit). Khoá theo tên cầu thủ, tên trùng hai người thì theo \"tên|quốc tịch\".",
+ "updatedAt": "2026-11-09",
+ "clubs": {
+  "A. Adli": [
+   "Leverkusen"
+  ],
+  "A. Areola": [
+   "Fulham",
+   "Lens",
+   "Madrid",
+   "Paris",
+   "Villarreal",
+   "West Ham"
+  ],
+  "A. Barnes": [
+   "Brighton",
+   "Burnley",
+   "Plymouth Argyle"
+  ],
+  "A. Barzagli": [
+   "Juventus",
+   "Palermo",
+   "Torino",
+   "Wolfsburg"
+  ],
+  "A. Bastoni": [
+   "Atalanta",
+   "Inter",
+   "Parma"
+  ],
+  "A. Brehme": [
+   "Bayern",
+   "Inter"
+  ],
+  "A. Broja": [
+   "Burnley",
+   "Chelsea",
+   "Everton",
+   "Fulham",
+   "Southampton"
+  ],
+  "A. Budimir": [
+   "Mallorca",
+   "Osasuna"
+  ],
+  "A. Buongiorno": [
+   "Napoli",
+   "Torino FC"
+  ],
+  "A. Caci": [
+   "Mainz"
+  ],
+  "A. Candreva": [
+   "Inter",
+   "Juventus",
+   "Lazio",
+   "Parma",
+   "Torino",
+   "Udinese"
+  ],
+  "A. Christensen": [
+   "Barcelona",
+   "Chelsea",
+   "Gladbach",
+   "Mönchengladbach"
+  ],
+  "A. Cole": [
+   "Arsenal",
+   "Chelsea",
+   "Crystal Palace",
+   "Derby County",
+   "LA Galaxy",
+   "Roma"
+  ],
+  "A. Colpani": [
+   "Atalanta",
+   "Monza"
+  ],
+  "Á. Correa": [
+   "Atlético",
+   "River Plate",
+   "San Lorenzo"
+  ],
+  "A. Cresswell": [
+   "Ipswich",
+   "Ipswich Town",
+   "West Ham"
+  ],
+  "A. Danjuma": [
+   "Bournemouth",
+   "Club Brugge",
+   "Everton",
+   "Girona",
+   "NEC Nijmegen",
+   "Tottenham",
+   "Valencia",
+   "Villarreal"
+  ],
+  "A. Davies": [
+   "Bayern",
+   "Vancouver Whitecaps"
+  ],
+  "A. Del Piero": [
+   "Juventus",
+   "Padova",
+   "Torino"
+  ],
+  "A. Delort": [
+   "Montpellier",
+   "Nantes",
+   "Nice"
+  ],
+  "Á. Di María": [
+   "Benfica",
+   "Juventus",
+   "Madrid",
+   "Manchester Đỏ",
+   "Paris",
+   "Torino"
+  ],
+  "A. Di Natale": [
+   "Udinese"
+  ],
+  "A. Dreyer": [
+   "Brighton"
+  ],
+  "A. Elanga": [
+   "Manchester Đỏ",
+   "Newcastle",
+   "Nottingham Forest"
+  ],
+  "A. Ezzalzouli": [
+   "Barcelona",
+   "Osasuna",
+   "Real Betis"
+  ],
+  "A. Florenzi": [
+   "Milano",
+   "Paris",
+   "Roma",
+   "Valencia"
+  ],
+  "A. Garnacho": [
+   "Aston Villa",
+   "Chelsea",
+   "Manchester Đỏ"
+  ],
+  "A. Gignac": [
+   "Marseille"
+  ],
+  "A. Godoy": [
+   "San Jose Earthquakes"
+  ],
+  "A. Gordon": [
+   "Barcelona",
+   "Everton",
+   "Newcastle"
+  ],
+  "A. Griezmann": [
+   "Atlético",
+   "Barcelona",
+   "Orlando City",
+   "Real Sociedad"
+  ],
+  "A. Guardado": [
+   "Leverkusen",
+   "PSV",
+   "Real Betis",
+   "Valencia"
+  ],
+  "A. Güler": [
+   "Fenerbahçe",
+   "Madrid"
+  ],
+  "A. Hahn": [
+   "Augsburg",
+   "Gladbach",
+   "Mönchengladbach"
+  ],
+  "A. Hakimi": [
+   "Dortmund",
+   "Inter",
+   "Madrid",
+   "Paris"
+  ],
+  "A. Isak": [
+   "Dortmund",
+   "Liverpool",
+   "Newcastle",
+   "Real Sociedad"
+  ],
+  "A. Iwobi": [
+   "Arsenal",
+   "Everton",
+   "Fulham"
+  ],
+  "A. Januzaj": [
+   "Başakşehir",
+   "Dortmund",
+   "Las Palmas",
+   "Manchester Đỏ",
+   "Real Sociedad",
+   "Sevilla",
+   "Sunderland"
+  ],
+  "A. Jung": [
+   "Brøndby",
+   "Leipzig"
+  ],
+  "A. Kalimuendo": [
+   "Lens",
+   "Nottingham Forest",
+   "Paris",
+   "Rennes"
+  ],
+  "A. Knauff": [
+   "Dortmund",
+   "Eintracht Frankfurt",
+   "Frankfurt"
+  ],
+  "A. Kramarić": [
+   "Dinamo Zagreb",
+   "Hoffenheim",
+   "Leicester"
+  ],
+  "A. Lacazette": [
+   "Arsenal",
+   "Lyon",
+   "NEOM"
+  ],
+  "A. Lallana": [
+   "Bournemouth",
+   "Brighton",
+   "Liverpool",
+   "Southampton"
+  ],
+  "A. Laporte": [
+   "Al Nassr",
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Manchester Xanh"
+  ],
+  "A. Laurienté": [
+   "Rennes"
+  ],
+  "A. Lookman": [
+   "Atalanta",
+   "Atlético",
+   "Everton",
+   "Fulham",
+   "Leicester",
+   "Leipzig"
+  ],
+  "A. Losilla": [
+   "Bochum",
+   "Paris FC"
+  ],
+  "A. Lunin": [
+   "Leganés",
+   "Madrid",
+   "Real Oviedo"
+  ],
+  "A. Mac Allister": [
+   "Argentinos Juniors",
+   "Boca Juniors",
+   "Brighton",
+   "Liverpool"
+  ],
+  "A. Maher": [
+   "PSV"
+  ],
+  "A. Mandi": [
+   "Real Betis",
+   "Villarreal"
+  ],
+  "A. Milik": [
+   "Ajax",
+   "Augsburg",
+   "Górnik Zabrze",
+   "Juventus",
+   "Leverkusen",
+   "Marseille",
+   "Napoli",
+   "Torino"
+  ],
+  "A. Mitrović": [
+   "Al Hilal",
+   "Anderlecht",
+   "Fulham",
+   "Newcastle"
+  ],
+  "A. Musa": [
+   "Al Nassr",
+   "Leicester"
+  ],
+  "A. Najar": [
+   "Anderlecht",
+   "LAFC",
+   "Los Angeles FC",
+   "Nashville SC"
+  ],
+  "A. Nesta": [
+   "Lazio",
+   "Milano"
+  ],
+  "A. Nübel": [
+   "Bayern",
+   "Beşiktaş",
+   "Monaco",
+   "Schalke",
+   "Stuttgart"
+  ],
+  "A. Nusa": [
+   "Club Brugge",
+   "Leipzig"
+  ],
+  "A. Ogbonna": [
+   "Juventus",
+   "Torino",
+   "Torino FC",
+   "Watford",
+   "West Ham"
+  ],
+  "A. Onana|Bỉ": [
+   "Aston Villa",
+   "Everton",
+   "Hamburg",
+   "Lille"
+  ],
+  "A. Onana|Cameroon": [
+   "Ajax",
+   "Inter",
+   "Manchester Đỏ",
+   "Trabzonspor"
+  ],
+  "A. Pavlović": [
+   "Bayern"
+  ],
+  "A. Petagna": [
+   "Atalanta",
+   "Milano"
+  ],
+  "A. Pirlo": [
+   "Inter",
+   "Juventus",
+   "Milano",
+   "Torino"
+  ],
+  "A. Rabiot": [
+   "Juventus",
+   "Marseille",
+   "Milano",
+   "Paris",
+   "Torino"
+  ],
+  "A. Ramsdale": [
+   "Arsenal",
+   "Bournemouth",
+   "Newcastle",
+   "Sheffield United",
+   "Southampton"
+  ],
+  "A. Ramsey": [
+   "Arsenal",
+   "Juventus",
+   "Nice",
+   "Nottingham Forest",
+   "Pumas UNAM",
+   "Torino"
+  ],
+  "A. Raţiu": [
+   "Rayo Vallecano",
+   "Villarreal"
+  ],
+  "A. Rebić": [
+   "Beşiktaş",
+   "Eintracht Frankfurt",
+   "Fiorentina",
+   "Frankfurt",
+   "Hajduk Split",
+   "Hellas Verona",
+   "Lecce",
+   "Leipzig",
+   "Milano",
+   "Verona"
+  ],
+  "A. Robertson": [
+   "Hull City",
+   "Liverpool",
+   "Tottenham"
+  ],
+  "A. Robinson": [
+   "Everton",
+   "Fulham"
+  ],
+  "A. Romagnoli": [
+   "Al Sadd",
+   "Lazio",
+   "Milano",
+   "Roma"
+  ],
+  "A. Rosi": [
+   "Fiorentina",
+   "Frosinone",
+   "Genoa",
+   "Parma",
+   "Roma",
+   "Sassuolo"
+  ],
+  "A. Rrahmani": [
+   "Dinamo Zagreb",
+   "Hellas Verona",
+   "Napoli",
+   "Verona"
+  ],
+  "A. Rüdiger": [
+   "Chelsea",
+   "Madrid",
+   "Roma",
+   "Stuttgart"
+  ],
+  "A. Saelemaekers": [
+   "Anderlecht",
+   "Bologna",
+   "Milano",
+   "Roma"
+  ],
+  "A. Saint-Maximin": [
+   "Al Ahli",
+   "Club América",
+   "Fenerbahçe",
+   "Monaco",
+   "Newcastle",
+   "Nice"
+  ],
+  "A. Sánchez": [
+   "Arsenal",
+   "Barcelona",
+   "Inter",
+   "Manchester Đỏ",
+   "Marseille",
+   "River Plate",
+   "Sevilla",
+   "Udinese"
+  ],
+  "A. Scott": [
+   "Arsenal",
+   "Birmingham"
+  ],
+  "A. Semenyo": [
+   "Bournemouth",
+   "Manchester Xanh",
+   "Sunderland"
+  ],
+  "A. Shearer": [
+   "Newcastle",
+   "Southampton"
+  ],
+  "A. Shevchenko": [
+   "Chelsea",
+   "Dynamo Kyiv",
+   "Milano"
+  ],
+  "A. Sørloth": [
+   "Atlético",
+   "Bodø/Glimt",
+   "Crystal Palace",
+   "Leipzig",
+   "Midtjylland",
+   "Real Sociedad",
+   "Trabzonspor",
+   "Villarreal"
+  ],
+  "A. Stach": [
+   "Hoffenheim",
+   "Leeds",
+   "Mainz"
+  ],
+  "A. Stiller": [
+   "Hoffenheim",
+   "Stuttgart"
+  ],
+  "A. Tchouaméni": [
+   "Madrid",
+   "Monaco"
+  ],
+  "A. Theate": [
+   "Bologna",
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Rennes"
+  ],
+  "A. Thomasson": [
+   "Nantes"
+  ],
+  "A. Townsend": [
+   "Birmingham",
+   "Ipswich",
+   "Ipswich Town",
+   "Leeds",
+   "MK Dons",
+   "Millwall",
+   "Newcastle",
+   "Tottenham",
+   "Watford"
+  ],
+  "A. Truffert": [
+   "Bournemouth",
+   "Rennes"
+  ],
+  "A. Ueda": [
+   "Feyenoord",
+   "Lille"
+  ],
+  "A. Valencia": [
+   "Manchester Đỏ",
+   "Villarreal"
+  ],
+  "A. Vidal": [
+   "Barcelona",
+   "Bayern",
+   "Flamengo",
+   "Inter",
+   "Juventus",
+   "Torino"
+  ],
+  "A. Wan-Bissaka": [
+   "Aston Villa",
+   "Crystal Palace",
+   "Manchester Đỏ",
+   "West Ham"
+  ],
+  "A. Wharton": [
+   "Crystal Palace"
+  ],
+  "A. Witsel": [
+   "Atlético",
+   "Benfica",
+   "Dortmund",
+   "Girona",
+   "Nice"
+  ],
+  "A. Yarmolenko": [
+   "Dortmund",
+   "Dynamo Kyiv",
+   "West Ham"
+  ],
+  "A. Young": [
+   "Aston Villa",
+   "Everton",
+   "Inter",
+   "Ipswich",
+   "Ipswich Town",
+   "Manchester Đỏ",
+   "Watford"
+  ],
+  "A. Zambo Anguissa": [
+   "Fulham",
+   "Marseille",
+   "Napoli",
+   "Villarreal"
+  ],
+  "Aarón Martín": [
+   "Espanyol",
+   "Genoa",
+   "Mainz"
+  ],
+  "Abédi Pelé": [
+   "Al Sadd",
+   "Lille",
+   "Lyon",
+   "Marseille",
+   "Torino FC",
+   "Zürich"
+  ],
+  "Alberto Moreno": [
+   "Como",
+   "Liverpool",
+   "Mallorca",
+   "Sevilla",
+   "Villarreal"
+  ],
+  "Aleix Febas": [
+   "Almería",
+   "Madrid"
+  ],
+  "Aleix García": [
+   "Eibar",
+   "Girona",
+   "Leverkusen",
+   "Manchester Xanh",
+   "Villarreal"
+  ],
+  "Aleix Vidal": [
+   "Alavés",
+   "Almería",
+   "Barcelona",
+   "Espanyol",
+   "Madrid",
+   "Sevilla"
+  ],
+  "Álex Baena": [
+   "Atlético",
+   "Girona",
+   "Villarreal"
+  ],
+  "Álex Remiro": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Levante",
+   "Real Sociedad"
+  ],
+  "Alex Sandro": [
+   "Flamengo",
+   "Juventus",
+   "Porto",
+   "Santos",
+   "Torino"
+  ],
+  "Alex Teixeira": [
+   "Inter"
+  ],
+  "Alex Telles": [
+   "Al Nassr",
+   "Botafogo",
+   "Galatasaray",
+   "Inter",
+   "Manchester Đỏ",
+   "Porto",
+   "Sevilla"
+  ],
+  "Alisson": [
+   "Internacional",
+   "Liverpool",
+   "Roma"
+  ],
+  "Álvaro Rodríguez": [
+   "Bournemouth",
+   "Elche",
+   "Getafe",
+   "Madrid"
+  ],
+  "Amad": [
+   "Atalanta",
+   "Manchester Đỏ",
+   "Sunderland"
+  ],
+  "Ander Capa": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Eibar",
+   "Levante"
+  ],
+  "Ander Herrera": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Boca Juniors",
+   "Manchester Đỏ",
+   "Paris"
+  ],
+  "André Gomes": [
+   "Barcelona",
+   "Benfica",
+   "Everton",
+   "Lille",
+   "Valencia"
+  ],
+  "Andreas Pereira": [
+   "Flamengo",
+   "Fulham",
+   "Granada",
+   "Lazio",
+   "Manchester Đỏ",
+   "Valencia"
+  ],
+  "Angeliño": [
+   "Galatasaray",
+   "Girona",
+   "Hoffenheim",
+   "Leipzig",
+   "Mallorca",
+   "Manchester Xanh",
+   "PSV",
+   "Roma"
+  ],
+  "Antony": [
+   "Ajax",
+   "Manchester Đỏ",
+   "Real Betis"
+  ],
+  "Areso": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Osasuna"
+  ],
+  "Arnau Martínez": [
+   "Girona"
+  ],
+  "Asier Illarramendi": [
+   "Madrid",
+   "Real Sociedad"
+  ],
+  "Ayoze": [
+   "Leicester",
+   "Newcastle",
+   "Real Betis",
+   "Villarreal"
+  ],
+  "Azpilicueta": [
+   "Atlético",
+   "Chelsea",
+   "Marseille",
+   "Osasuna",
+   "Sevilla"
+  ],
+  "B. André": [
+   "Lille",
+   "Rennes"
+  ],
+  "B. Barcola": [
+   "Liverpool",
+   "Lyon",
+   "Paris"
+  ],
+  "B. Brobbey": [
+   "Ajax",
+   "Leipzig",
+   "Sunderland"
+  ],
+  "B. Cha": [
+   "Darmstadt",
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Leverkusen"
+  ],
+  "B. Charlton": [
+   "Manchester Đỏ"
+  ],
+  "B. Chilwell": [
+   "Chelsea",
+   "Crystal Palace",
+   "Leicester"
+  ],
+  "B. Cristante": [
+   "Benfica",
+   "Milano",
+   "Palermo"
+  ],
+  "B. Davies": [
+   "Swansea City",
+   "Tottenham"
+  ],
+  "B. Dia": [
+   "Lazio",
+   "Rennes",
+   "Villarreal"
+  ],
+  "B. Djimsiti": [
+   "Atalanta",
+   "Zürich"
+  ],
+  "B. Embolo": [
+   "Atlanta United",
+   "Basel",
+   "Gladbach",
+   "Monaco",
+   "Mönchengladbach",
+   "Rennes",
+   "Schalke"
+  ],
+  "B. Gilmour": [
+   "Chelsea",
+   "Napoli"
+  ],
+  "B. Henrichs": [
+   "Leipzig",
+   "Leverkusen",
+   "Monaco"
+  ],
+  "B. Johnson": [
+   "Crystal Palace",
+   "Nottingham Forest",
+   "Tottenham"
+  ],
+  "B. Laudrup": [
+   "Ajax",
+   "Bayern",
+   "Brøndby",
+   "Chelsea",
+   "FC Copenhagen",
+   "Fiorentina",
+   "Milano"
+  ],
+  "B. Leno": [
+   "Arsenal",
+   "Fulham",
+   "Leverkusen"
+  ],
+  "B. Lizarazu": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Bayern",
+   "Paris"
+  ],
+  "B. Matuidi": [
+   "Inter Miami",
+   "Juventus",
+   "Paris",
+   "Torino"
+  ],
+  "B. Mbeumo": [
+   "Brentford",
+   "Manchester Đỏ"
+  ],
+  "B. Moore": [
+   "Fulham",
+   "Midtjylland",
+   "West Ham"
+  ],
+  "B. Pavard": [
+   "Bayern",
+   "Inter",
+   "Lille",
+   "Marseille",
+   "Stuttgart"
+  ],
+  "B. Ramselaar": [
+   "Utrecht"
+  ],
+  "B. Rienstra": [
+   "Heracles"
+  ],
+  "B. Saka": [
+   "Arsenal"
+  ],
+  "B. Samba": [
+   "Lens",
+   "Marseille",
+   "Nottingham Forest",
+   "Rennes"
+  ],
+  "B. Schweinsteiger": [
+   "Bayern",
+   "Chicago Fire",
+   "Manchester Đỏ"
+  ],
+  "B. Šeško": [
+   "Leipzig",
+   "Manchester Đỏ",
+   "Salzburg"
+  ],
+  "B. Touré": [
+   "Hoffenheim",
+   "Newcastle"
+  ],
+  "B. Traoré": [
+   "Aston Villa",
+   "Chelsea",
+   "Lyon"
+  ],
+  "B. van Rooij": [
+   "NEC Nijmegen"
+  ],
+  "B. White": [
+   "Arsenal",
+   "Brighton",
+   "Leeds"
+  ],
+  "Balde": [
+   "Barcelona",
+   "Espanyol"
+  ],
+  "Balenziaga": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Real Sociedad"
+  ],
+  "Bebé": [
+   "Benfica",
+   "Beşiktaş",
+   "Manchester Đỏ",
+   "Rayo Vallecano"
+  ],
+  "Bernardo Silva": [
+   "Benfica",
+   "Madrid",
+   "Manchester Xanh",
+   "Monaco"
+  ],
+  "Borja Iglesias": [
+   "Celta",
+   "Espanyol",
+   "Leverkusen",
+   "Real Betis",
+   "Valencia",
+   "Villarreal"
+  ],
+  "Borja Mayoral": [
+   "Getafe",
+   "Levante",
+   "Madrid",
+   "Roma",
+   "Wolfsburg"
+  ],
+  "Brahim|Ma-rốc": [
+   "Madrid",
+   "Manchester Xanh",
+   "Milano"
+  ],
+  "Brahim|Tây Ban Nha": [
+   "Madrid",
+   "Manchester Xanh",
+   "Milano"
+  ],
+  "Brais Méndez": [
+   "Celta",
+   "Real Sociedad"
+  ],
+  "Bremer": [
+   "Juventus",
+   "Torino",
+   "Torino FC"
+  ],
+  "Bruno Fernandes": [
+   "Manchester Đỏ",
+   "Sporting",
+   "Sporting CP",
+   "Udinese"
+  ],
+  "Bruno Guimarães": [
+   "Arsenal",
+   "Lyon",
+   "Newcastle"
+  ],
+  "Bryan Gil": [
+   "Eibar",
+   "Girona",
+   "Leganés",
+   "Sevilla",
+   "Tottenham",
+   "Valencia"
+  ],
+  "Butragueño": [
+   "Madrid"
+  ],
+  "C. Bakambu": [
+   "Galatasaray",
+   "Marseille",
+   "Olympiacos",
+   "Real Betis",
+   "San Diego FC",
+   "Villarreal"
+  ],
+  "C. Baleba": [
+   "Brighton",
+   "Lille",
+   "Manchester Đỏ"
+  ],
+  "C. Baumgartner": [
+   "Hoffenheim",
+   "Leipzig"
+  ],
+  "C. Bravo": [
+   "Barcelona",
+   "Manchester Xanh",
+   "Real Betis",
+   "Real Sociedad"
+  ],
+  "C. De Ketelaere": [
+   "Atalanta",
+   "Club Brugge",
+   "Milano"
+  ],
+  "C. Dempsey": [
+   "Fulham",
+   "New England Revolution",
+   "Seattle Sounders",
+   "Tottenham"
+  ],
+  "C. Doucouré": [
+   "Lens"
+  ],
+  "C. Eriksen": [
+   "Ajax",
+   "Brentford",
+   "Inter",
+   "Manchester Đỏ",
+   "Tottenham",
+   "Wolfsburg"
+  ],
+  "C. Führich": [
+   "Köln",
+   "Stuttgart"
+  ],
+  "C. Gakpo": [
+   "Liverpool",
+   "PSV"
+  ],
+  "C. Gallagher": [
+   "Atlético",
+   "Chelsea",
+   "Crystal Palace",
+   "Swansea City",
+   "Tottenham"
+  ],
+  "C. Günter": [
+   "Freiburg"
+  ],
+  "C. Hudson-Odoi": [
+   "Chelsea",
+   "Leverkusen",
+   "Nottingham Forest"
+  ],
+  "C. Immobile": [
+   "Beşiktaş",
+   "Bologna",
+   "Dortmund",
+   "Genoa",
+   "Juventus",
+   "Lazio",
+   "Paris FC",
+   "Pescara",
+   "Sevilla",
+   "Torino",
+   "Torino FC"
+  ],
+  "C. Jones": [
+   "Inter",
+   "Liverpool"
+  ],
+  "C. Kramer": [
+   "Bochum",
+   "Gladbach",
+   "Leverkusen",
+   "Mönchengladbach"
+  ],
+  "C. Mac-Intosch": [
+   "Telstar"
+  ],
+  "C. Makélélé": [
+   "Brest",
+   "Celta",
+   "Chelsea",
+   "Madrid",
+   "Marseille",
+   "Nantes",
+   "Paris"
+  ],
+  "C. Marchisio": [
+   "Juventus",
+   "Torino"
+  ],
+  "C. Mbemba": [
+   "Anderlecht",
+   "Newcastle"
+  ],
+  "C. Nkunku": [
+   "Chelsea",
+   "Leipzig",
+   "Milano",
+   "Paris"
+  ],
+  "C. Nørgaard": [
+   "Brøndby",
+   "Hamburg"
+  ],
+  "C. Palmer": [
+   "Chelsea",
+   "Manchester Xanh"
+  ],
+  "C. Pizarro": [
+   "Bayern",
+   "Bremen",
+   "Chelsea",
+   "Köln"
+  ],
+  "C. Pulisic": [
+   "Chelsea",
+   "Dortmund",
+   "Milano"
+  ],
+  "C. Puyol": [
+   "Barcelona"
+  ],
+  "C. Richards": [
+   "Bayern",
+   "Crystal Palace",
+   "Hoffenheim"
+  ],
+  "C. Roldan": [
+   "Seattle Sounders"
+  ],
+  "C. Romero": [
+   "Atalanta",
+   "Atlético",
+   "Genoa",
+   "Juventus",
+   "Torino",
+   "Tottenham"
+  ],
+  "C. Seedorf": [
+   "Ajax",
+   "Botafogo",
+   "Inter",
+   "Madrid",
+   "Milano"
+  ],
+  "C. Smalling": [
+   "Fulham",
+   "Manchester Đỏ",
+   "Porto",
+   "Roma"
+  ],
+  "C. Stuani": [
+   "Espanyol",
+   "Girona",
+   "Levante"
+  ],
+  "C. Summerville": [
+   "Al Hilal",
+   "West Ham"
+  ],
+  "C. Tévez": [
+   "Boca Juniors",
+   "Corinthians",
+   "Juventus",
+   "Manchester Xanh",
+   "Manchester Đỏ",
+   "Torino",
+   "West Ham"
+  ],
+  "C. Tolisso": [
+   "Bayern",
+   "Lyon"
+  ],
+  "C. Trimmel": [
+   "Union Berlin"
+  ],
+  "C. Ünder": [
+   "Başakşehir",
+   "Beşiktaş",
+   "Fenerbahçe",
+   "LAFC",
+   "Leicester",
+   "Los Angeles FC",
+   "Marseille",
+   "Roma"
+  ],
+  "C. Vieri": [
+   "Atalanta",
+   "Atlético",
+   "Fiorentina",
+   "Inter",
+   "Juventus",
+   "Lazio",
+   "Milano",
+   "Monaco",
+   "Pisa",
+   "Torino",
+   "Torino FC"
+  ],
+  "Cafu": [
+   "Milano",
+   "Roma"
+  ],
+  "Canales": [
+   "Madrid",
+   "Monterrey",
+   "Real Betis",
+   "Real Sociedad",
+   "Valencia"
+  ],
+  "Capdevila": [
+   "Atlético",
+   "Benfica",
+   "Espanyol",
+   "Villarreal"
+  ],
+  "Carlos Alberto": [
+   "Botafogo",
+   "Flamengo",
+   "Santos"
+  ],
+  "Carlos Augusto": [
+   "Corinthians",
+   "Inter",
+   "Monza"
+  ],
+  "Carlos Romero": [
+   "Espanyol",
+   "Villarreal"
+  ],
+  "Carlos Soler": [
+   "Paris",
+   "Real Sociedad",
+   "Valencia",
+   "West Ham"
+  ],
+  "Carvajal": [
+   "Getafe",
+   "Leverkusen",
+   "Madrid"
+  ],
+  "Casemiro": [
+   "Inter Miami",
+   "Madrid",
+   "Manchester Đỏ",
+   "Porto"
+  ],
+  "Casillas": [
+   "Madrid",
+   "Porto"
+  ],
+  "Cédric": [
+   "Arsenal",
+   "Fulham",
+   "Inter",
+   "Southampton",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "Cesc Fàbregas": [
+   "Arsenal",
+   "Barcelona",
+   "Chelsea",
+   "Como",
+   "Monaco"
+  ],
+  "Choi Chul Soon": [
+   "Jeonbuk Hyundai Motors"
+  ],
+  "Coutinho": [
+   "Aston Villa",
+   "Barcelona",
+   "Bayern",
+   "Espanyol",
+   "Inter",
+   "Liverpool",
+   "Santos"
+  ],
+  "Cristiano Ronaldo": [
+   "Al Nassr",
+   "Juventus",
+   "Madrid",
+   "Manchester Đỏ",
+   "Sporting",
+   "Sporting CP",
+   "Torino"
+  ],
+  "Cucho Hernández": [
+   "Watford"
+  ],
+  "D. Alaba": [
+   "Bayern",
+   "Hoffenheim",
+   "Madrid",
+   "Udinese"
+  ],
+  "D. Baselli": [
+   "Atalanta",
+   "Torino FC"
+  ],
+  "D. Beasley": [
+   "Chicago Fire",
+   "Houston Dynamo",
+   "LA Galaxy",
+   "Manchester Xanh",
+   "PSV"
+  ],
+  "D. Beckham": [
+   "LA Galaxy",
+   "Madrid",
+   "Manchester Đỏ",
+   "Milano",
+   "Paris"
+  ],
+  "D. Berardi": [
+   "Juventus",
+   "Sassuolo",
+   "Torino"
+  ],
+  "D. Berbatov": [
+   "Fulham",
+   "Leverkusen",
+   "Manchester Đỏ",
+   "Monaco",
+   "Tottenham"
+  ],
+  "D. Bergkamp": [
+   "Ajax",
+   "Arsenal",
+   "Inter"
+  ],
+  "D. Blind": [
+   "Ajax",
+   "Bayern",
+   "Girona",
+   "Manchester Đỏ"
+  ],
+  "D. Burn": [
+   "Birmingham",
+   "Brighton",
+   "Fulham",
+   "Newcastle"
+  ],
+  "D. Calabria": [
+   "Bologna",
+   "Milano"
+  ],
+  "D. Calvert-Lewin": [
+   "Everton",
+   "Leeds",
+   "Sheffield United"
+  ],
+  "D. Chará": [
+   "Portland Timbers"
+  ],
+  "D. Cheryshev": [
+   "Madrid",
+   "Sevilla",
+   "Valencia",
+   "Villarreal"
+  ],
+  "D. D'Ambrosio": [
+   "Lecce",
+   "Monza"
+  ],
+  "D. De Rossi": [
+   "Boca Juniors",
+   "Roma"
+  ],
+  "D. Didavi": [
+   "Nürnberg",
+   "Stuttgart",
+   "Wolfsburg"
+  ],
+  "D. Djené": [
+   "Getafe"
+  ],
+  "D. Doekhi": [
+   "Union Berlin"
+  ],
+  "D. Drogba": [
+   "Chelsea",
+   "Galatasaray",
+   "Marseille"
+  ],
+  "D. Dumfries": [
+   "Inter",
+   "Madrid",
+   "PSV",
+   "Sparta Rotterdam"
+  ],
+  "D. Falcinelli": [
+   "Sassuolo"
+  ],
+  "D. Forlán": [
+   "Atlético",
+   "Inter",
+   "Internacional",
+   "Manchester Đỏ",
+   "Villarreal"
+  ],
+  "D. Frattesi": [
+   "Inter",
+   "Lazio",
+   "Monza",
+   "Sassuolo"
+  ],
+  "D. Ginola": [
+   "Aston Villa",
+   "Brest",
+   "Everton",
+   "Newcastle",
+   "Nice",
+   "Paris",
+   "Tottenham"
+  ],
+  "D. Godín": [
+   "Atlético",
+   "Cagliari",
+   "Inter",
+   "Villarreal",
+   "Vélez Sarsfield"
+  ],
+  "D. Gray": [
+   "Birmingham",
+   "Everton",
+   "Leicester",
+   "Leverkusen"
+  ],
+  "D. Henderson": [
+   "Crystal Palace",
+   "Manchester Đỏ",
+   "Nottingham Forest",
+   "Sheffield United"
+  ],
+  "D. Ings": [
+   "Aston Villa",
+   "Bournemouth",
+   "Burnley",
+   "Liverpool",
+   "Southampton"
+  ],
+  "D. Klaassen": [
+   "Ajax",
+   "Bremen",
+   "Everton",
+   "Inter"
+  ],
+  "D. Kohr": [
+   "Augsburg",
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Leverkusen"
+  ],
+  "D. Kulusevski": [
+   "Atalanta",
+   "Juventus",
+   "Parma",
+   "Torino",
+   "Tottenham"
+  ],
+  "D. Kuyt": [
+   "Fenerbahçe",
+   "Feyenoord",
+   "Liverpool",
+   "Utrecht"
+  ],
+  "D. Livaković": [
+   "Barcelona",
+   "Dinamo Zagreb",
+   "Fenerbahçe",
+   "Girona"
+  ],
+  "D. Lukébakio": [
+   "Anderlecht",
+   "Watford"
+  ],
+  "D. Malen": [
+   "Aston Villa",
+   "Dortmund",
+   "PSV",
+   "Roma"
+  ],
+  "D. Maradona": [
+   "Argentinos Juniors",
+   "Barcelona",
+   "Boca Juniors",
+   "Napoli",
+   "Newell's Old Boys",
+   "Newell’s Old Boys",
+   "Sevilla"
+  ],
+  "D. McNeil": [
+   "Burnley",
+   "Everton"
+  ],
+  "D. Mertens": [
+   "Galatasaray",
+   "Napoli",
+   "PSV",
+   "Utrecht"
+  ],
+  "D. Mihailovic": [
+   "Chicago Fire"
+  ],
+  "D. Milito": [
+   "Genoa",
+   "Inter"
+  ],
+  "D. Muñoz": [
+   "Atlético Nacional",
+   "Crystal Palace",
+   "Genk",
+   "Nottingham Forest"
+  ],
+  "D. Ndoye": [
+   "Nice",
+   "Nottingham Forest"
+  ],
+  "D. Nejašmić": [
+   "Hajduk Split"
+  ],
+  "D. Núñez": [
+   "Al Hilal",
+   "Almería",
+   "Benfica",
+   "Liverpool"
+  ],
+  "D. Okereke": [
+   "Club Brugge"
+  ],
+  "D. Origi": [
+   "Genk",
+   "Lille",
+   "Liverpool",
+   "Milano",
+   "Nottingham Forest",
+   "Wolfsburg"
+  ],
+  "D. Ospina": [
+   "Al Nassr",
+   "Arsenal",
+   "Atlético Nacional",
+   "Napoli",
+   "Nice"
+  ],
+  "D. Payet": [
+   "Lille",
+   "Marseille",
+   "Nantes",
+   "West Ham"
+  ],
+  "D. Raum": [
+   "Hoffenheim",
+   "Leipzig"
+  ],
+  "D. Rice": [
+   "Arsenal",
+   "West Ham"
+  ],
+  "D. Sánchez": [
+   "Atlético Nacional"
+  ],
+  "D. Seaman": [
+   "Arsenal",
+   "Birmingham",
+   "Leeds",
+   "Manchester Xanh"
+  ],
+  "D. Selke": [
+   "Başakşehir",
+   "Bremen",
+   "Hamburg",
+   "Köln",
+   "Leipzig"
+  ],
+  "D. Sinkgraven": [
+   "Ajax"
+  ],
+  "D. Solanke": [
+   "Bournemouth",
+   "Chelsea",
+   "Liverpool",
+   "Tottenham"
+  ],
+  "D. Sow": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Genoa",
+   "Sevilla"
+  ],
+  "D. St. Clair": [
+   "Inter Miami",
+   "Minnesota United"
+  ],
+  "D. Sturridge": [
+   "Chelsea",
+   "Liverpool",
+   "Manchester Xanh",
+   "Trabzonspor"
+  ],
+  "D. Šuker": [
+   "Arsenal",
+   "Dinamo Zagreb",
+   "Madrid",
+   "Sevilla",
+   "West Ham"
+  ],
+  "D. Szoboszlai": [
+   "Liverpool",
+   "Salzburg"
+  ],
+  "D. Tadić": [
+   "Ajax",
+   "Fenerbahçe",
+   "NEC Nijmegen",
+   "Southampton",
+   "Twente"
+  ],
+  "D. Trezeguet": [
+   "Juventus",
+   "Monaco",
+   "Newell's Old Boys",
+   "Newell’s Old Boys",
+   "River Plate",
+   "Torino"
+  ],
+  "D. Udogie": [
+   "Hellas Verona",
+   "Tottenham",
+   "Udinese",
+   "Verona"
+  ],
+  "D. Undav": [
+   "Brighton",
+   "Stuttgart"
+  ],
+  "D. Upamecano": [
+   "Bayern",
+   "Leipzig",
+   "Salzburg"
+  ],
+  "D. van de Beek": [
+   "Ajax",
+   "Eintracht Frankfurt",
+   "Everton",
+   "Frankfurt",
+   "Girona",
+   "Manchester Đỏ"
+  ],
+  "D. Vida": [
+   "AEK Athens",
+   "Beşiktaş",
+   "Dinamo Zagreb",
+   "Dynamo Kyiv",
+   "Leverkusen"
+  ],
+  "D. Vlahović": [
+   "Beşiktaş",
+   "Fiorentina",
+   "Juventus",
+   "Torino"
+  ],
+  "D. Welbeck": [
+   "Arsenal",
+   "Brighton",
+   "Chelsea",
+   "Manchester Đỏ",
+   "Sunderland",
+   "Watford"
+  ],
+  "D. Zapata": [
+   "Atalanta",
+   "Estudiantes",
+   "Napoli",
+   "Torino FC",
+   "Udinese"
+  ],
+  "D. Zappacosta": [
+   "Atalanta",
+   "Chelsea",
+   "Genoa",
+   "Roma",
+   "Torino FC"
+  ],
+  "Dani Alves": [
+   "Barcelona",
+   "Juventus",
+   "Paris",
+   "Pumas UNAM",
+   "Sevilla",
+   "Torino"
+  ],
+  "Dani Ceballos": [
+   "Arsenal",
+   "Madrid",
+   "Real Betis"
+  ],
+  "Dani Olmo": [
+   "Barcelona",
+   "Dinamo Zagreb",
+   "Espanyol",
+   "Leipzig"
+  ],
+  "Danilo": [
+   "Flamengo",
+   "Juventus",
+   "Madrid",
+   "Manchester Xanh",
+   "Porto",
+   "Santos",
+   "Torino"
+  ],
+  "David López": [
+   "Espanyol",
+   "Girona",
+   "Leganés",
+   "Napoli"
+  ],
+  "David Neres": [
+   "Ajax",
+   "Benfica",
+   "Napoli"
+  ],
+  "David Raya": [
+   "Arsenal",
+   "Brentford"
+  ],
+  "David Silva": [
+   "Celta",
+   "Eibar",
+   "Manchester Xanh",
+   "Real Sociedad",
+   "Valencia"
+  ],
+  "David Soria": [
+   "Getafe",
+   "Sevilla"
+  ],
+  "De Gea": [
+   "Atlético",
+   "Fiorentina",
+   "Manchester Đỏ"
+  ],
+  "De Marcos": [
+   "Alavés",
+   "Athletic Bilbao",
+   "Athletic Club"
+  ],
+  "Deco": [
+   "Barcelona",
+   "Benfica",
+   "Chelsea",
+   "Corinthians",
+   "Porto"
+  ],
+  "Denis Suárez": [
+   "Alavés",
+   "Arsenal",
+   "Barcelona",
+   "Celta",
+   "Espanyol",
+   "Manchester Xanh",
+   "Sevilla",
+   "Villarreal"
+  ],
+  "Diego Carlos": [
+   "Aston Villa",
+   "Como",
+   "Estoril",
+   "Fenerbahçe",
+   "Nantes",
+   "Parma",
+   "Sevilla"
+  ],
+  "Diego Costa": [
+   "Atlético",
+   "Botafogo",
+   "Braga",
+   "Celta",
+   "Chelsea",
+   "Rayo Vallecano",
+   "Wolves"
+  ],
+  "Diego López": [
+   "Valencia"
+  ],
+  "Diogo Dalot": [
+   "Manchester Đỏ",
+   "Milano",
+   "Porto"
+  ],
+  "Douglas Luiz": [
+   "Aston Villa",
+   "Girona",
+   "Juventus",
+   "Manchester Xanh",
+   "Nottingham Forest",
+   "Torino"
+  ],
+  "Dunga": [
+   "Corinthians",
+   "Fiorentina",
+   "Internacional",
+   "Pescara",
+   "Pisa",
+   "Santos",
+   "Stuttgart"
+  ],
+  "E. Álvarez": [
+   "Ajax",
+   "Club América",
+   "Fenerbahçe",
+   "West Ham"
+  ],
+  "E. Ampadu": [
+   "Chelsea",
+   "Leeds",
+   "Leipzig",
+   "Sheffield United"
+  ],
+  "E. Anderson": [
+   "Manchester Xanh",
+   "Newcastle",
+   "Nottingham Forest"
+  ],
+  "E. Audero": [
+   "Palermo"
+  ],
+  "E. Bailly": [
+   "Beşiktaş",
+   "Espanyol",
+   "Manchester Đỏ",
+   "Marseille",
+   "Real Oviedo",
+   "Villarreal"
+  ],
+  "É. Banega": [
+   "Al Shabab",
+   "Atlético",
+   "Boca Juniors",
+   "Inter",
+   "Newell's Old Boys",
+   "Newell’s Old Boys",
+   "Sevilla",
+   "Valencia"
+  ],
+  "E. Buendía": [
+   "Getafe"
+  ],
+  "E. Butragueño": [
+   "Madrid"
+  ],
+  "E. Camavinga": [
+   "Madrid",
+   "Rennes"
+  ],
+  "E. Cambiasso": [
+   "Inter",
+   "Leicester",
+   "Madrid",
+   "Olympiacos",
+   "River Plate"
+  ],
+  "E. Can": [
+   "Bayern",
+   "Dortmund",
+   "Juventus",
+   "Leverkusen",
+   "Liverpool",
+   "Torino"
+  ],
+  "E. Cantona": [
+   "Leeds",
+   "Manchester Đỏ",
+   "Montpellier"
+  ],
+  "E. Capoue": [
+   "Tottenham",
+   "Villarreal",
+   "Watford"
+  ],
+  "E. Cavani": [
+   "Boca Juniors",
+   "Manchester Đỏ",
+   "Napoli",
+   "Palermo",
+   "Paris",
+   "Valencia"
+  ],
+  "E. Choupo-Moting": [
+   "Bayern",
+   "Hamburg",
+   "Mainz",
+   "New York Red Bulls",
+   "Nürnberg",
+   "Paris",
+   "Schalke",
+   "Stoke City"
+  ],
+  "E. Demirović": [
+   "Alavés",
+   "Almería",
+   "Augsburg",
+   "Freiburg",
+   "Stuttgart"
+  ],
+  "E. Dier": [
+   "Bayern",
+   "Monaco",
+   "Sporting",
+   "Sporting CP",
+   "Tottenham"
+  ],
+  "E. Džeko": [
+   "Fenerbahçe",
+   "Fiorentina",
+   "Inter",
+   "Manchester Xanh",
+   "Roma",
+   "Schalke",
+   "Wolfsburg"
+  ],
+  "E. Eze": [
+   "Arsenal",
+   "Crystal Palace"
+  ],
+  "E. Fernández": [
+   "Benfica",
+   "Chelsea",
+   "Manchester Xanh",
+   "River Plate"
+  ],
+  "E. Forsberg": [
+   "Leipzig",
+   "New York Red Bulls"
+  ],
+  "E. Francescoli": [
+   "Cagliari",
+   "Marseille",
+   "River Plate",
+   "Torino FC"
+  ],
+  "E. Haaland": [
+   "Dortmund",
+   "Manchester Xanh",
+   "Salzburg"
+  ],
+  "E. Haji Safi": [
+   "AEK Athens",
+   "Olympiacos"
+  ],
+  "E. Hazard": [
+   "Chelsea",
+   "Lille",
+   "Madrid"
+  ],
+  "E. Hysaj": [
+   "Lazio",
+   "Napoli"
+  ],
+  "E. Konsa": [
+   "Arsenal",
+   "Aston Villa",
+   "Brentford"
+  ],
+  "E. Lamela": [
+   "AEK Athens",
+   "River Plate",
+   "Roma",
+   "Sevilla",
+   "Tottenham"
+  ],
+  "E. Martínez": [
+   "Arsenal",
+   "Aston Villa",
+   "Chelsea",
+   "Getafe",
+   "Sheffield Wednesday",
+   "Wolves"
+  ],
+  "É. Mendy": [
+   "Al Ahli",
+   "Chelsea",
+   "Rennes"
+  ],
+  "E. Millot": [
+   "Al Ahli",
+   "Monaco",
+   "Stuttgart"
+  ],
+  "E. Ndicka": [
+   "Eintracht Frankfurt",
+   "Frankfurt"
+  ],
+  "E. Nketiah": [
+   "Arsenal",
+   "Crystal Palace",
+   "Leeds"
+  ],
+  "E. Pérez": [
+   "Argentinos Juniors",
+   "Benfica",
+   "Estudiantes",
+   "River Plate",
+   "Valencia"
+  ],
+  "E. Petit": [
+   "Arsenal",
+   "Barcelona",
+   "Chelsea",
+   "Monaco"
+  ],
+  "E. Salvio": [
+   "Atlético",
+   "Benfica",
+   "Boca Juniors",
+   "Lanús",
+   "Pumas UNAM"
+  ],
+  "E. Skhiri": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Köln",
+   "Montpellier"
+  ],
+  "E. Smith Rowe": [
+   "Arsenal",
+   "Leipzig"
+  ],
+  "E. Tapsoba": [
+   "Leverkusen"
+  ],
+  "E. Ünal": [
+   "Bournemouth",
+   "Genk",
+   "Getafe",
+   "Levante",
+   "Manchester Xanh",
+   "Twente",
+   "Villarreal"
+  ],
+  "E. van der Sar": [
+   "Ajax",
+   "Fulham",
+   "Juventus",
+   "Manchester Đỏ",
+   "Torino"
+  ],
+  "E. Višća": [
+   "Başakşehir"
+  ],
+  "Ederson": [
+   "Benfica",
+   "Fenerbahçe",
+   "Manchester Xanh"
+  ],
+  "Edu Expósito": [
+   "Eibar",
+   "Espanyol"
+  ],
+  "Embarba": [
+   "Rayo Vallecano"
+  ],
+  "Emerson": [
+   "Chelsea",
+   "Lyon",
+   "Marseille",
+   "Palermo",
+   "Roma",
+   "Santos",
+   "West Ham"
+  ],
+  "Eric García": [
+   "Barcelona",
+   "Girona",
+   "Manchester Xanh"
+  ],
+  "Eusébio": [
+   "Benfica",
+   "Monterrey"
+  ],
+  "Evander": [
+   "Midtjylland"
+  ],
+  "F. Acerbi": [
+   "Genoa",
+   "Inter",
+   "Lazio",
+   "Milano",
+   "Sassuolo"
+  ],
+  "F. Balogun": [
+   "Arsenal",
+   "Monaco"
+  ],
+  "F. Baresi": [
+   "Milano"
+  ],
+  "F. Baschirotto": [
+   "Cremonese",
+   "Lecce"
+  ],
+  "F. Beckenbauer": [
+   "Bayern",
+   "Hamburg"
+  ],
+  "F. Bernardeschi": [
+   "Bologna",
+   "Fiorentina",
+   "Juventus",
+   "Torino",
+   "Toronto FC"
+  ],
+  "F. Cannavaro": [
+   "Inter",
+   "Juventus",
+   "Madrid",
+   "Napoli",
+   "Parma",
+   "Torino"
+  ],
+  "F. Chiesa": [
+   "Fiorentina",
+   "Juventus",
+   "Liverpool",
+   "Torino"
+  ],
+  "F. Coquelin": [
+   "Arsenal",
+   "Freiburg",
+   "Valencia"
+  ],
+  "F. De Boer": [
+   "Ajax",
+   "Barcelona",
+   "Galatasaray"
+  ],
+  "F. de Jong": [
+   "Ajax",
+   "Barcelona"
+  ],
+  "F. Dimarco": [
+   "Hellas Verona",
+   "Inter",
+   "Parma",
+   "Verona"
+  ],
+  "F. Đuričić": [
+   "Anderlecht",
+   "Benfica",
+   "Mainz",
+   "Panathinaikos",
+   "Sassuolo",
+   "Southampton"
+  ],
+  "F. Falco": [
+   "Bologna",
+   "Cagliari",
+   "Crvena Zvezda",
+   "Crvena zvezda",
+   "Lecce",
+   "Pescara"
+  ],
+  "F. Grillitsch": [
+   "Ajax",
+   "Braga",
+   "Bremen",
+   "Frosinone",
+   "Hoffenheim"
+  ],
+  "F. Honorat": [
+   "Nice"
+  ],
+  "F. Inzaghi": [
+   "Atalanta",
+   "Hellas Verona",
+   "Juventus",
+   "Milano",
+   "Parma",
+   "Torino",
+   "Verona"
+  ],
+  "F. Kessié": [
+   "Al Ahli",
+   "Atalanta",
+   "Barcelona",
+   "Milano"
+  ],
+  "F. Kostić": [
+   "Eintracht Frankfurt",
+   "Fenerbahçe",
+   "Frankfurt",
+   "Hamburg",
+   "Juventus",
+   "PSV",
+   "Stuttgart",
+   "Torino"
+  ],
+  "F. Lampard": [
+   "Chelsea",
+   "Manchester Xanh",
+   "Swansea City",
+   "West Ham"
+  ],
+  "F. Lejeune": [
+   "Brest",
+   "Girona",
+   "Manchester Xanh",
+   "Villarreal"
+  ],
+  "F. Ljungberg": [
+   "Arsenal",
+   "Celtic",
+   "Chicago Fire",
+   "Seattle Sounders",
+   "West Ham"
+  ],
+  "F. Medina": [
+   "Lens",
+   "Marseille"
+  ],
+  "F. Mendy": [
+   "Lyon",
+   "Madrid"
+  ],
+  "F. Muslera": [
+   "Estudiantes",
+   "Galatasaray",
+   "Lazio"
+  ],
+  "F. Neuhaus": [
+   "Gladbach",
+   "Mönchengladbach"
+  ],
+  "F. Quagliarella": [
+   "Fiorentina",
+   "Juventus",
+   "Napoli",
+   "Torino",
+   "Torino FC",
+   "Udinese"
+  ],
+  "F. Ribéry": [
+   "Bayern",
+   "Brest",
+   "Fiorentina",
+   "Galatasaray",
+   "Marseille"
+  ],
+  "F. Rijkaard": [
+   "Ajax",
+   "Milano",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "F. Schär": [
+   "Basel",
+   "Hoffenheim",
+   "Newcastle"
+  ],
+  "F. Sotoca": [
+   "Lens",
+   "Montpellier"
+  ],
+  "F. Thauvin": [
+   "Lens",
+   "Lille",
+   "Marseille",
+   "Newcastle",
+   "Udinese"
+  ],
+  "F. Tomori": [
+   "Brighton",
+   "Chelsea",
+   "Derby County",
+   "Hull City",
+   "Milano"
+  ],
+  "F. Totti": [
+   "Roma"
+  ],
+  "F. Uduokhai": [
+   "Wolfsburg"
+  ],
+  "F. Valverde": [
+   "Madrid"
+  ],
+  "F. Wirtz": [
+   "Leverkusen",
+   "Liverpool"
+  ],
+  "Fabinho": [
+   "Al Ittihad",
+   "Liverpool",
+   "Madrid",
+   "Monaco",
+   "Trabzonspor"
+  ],
+  "Fábio Vieira": [
+   "Arsenal",
+   "Hamburg",
+   "Porto"
+  ],
+  "Falcao": [
+   "Atlético",
+   "Chelsea",
+   "Galatasaray",
+   "Manchester Đỏ",
+   "Monaco",
+   "Porto",
+   "Rayo Vallecano",
+   "River Plate"
+  ],
+  "Felipe Anderson": [
+   "Lazio",
+   "Santos"
+  ],
+  "Ferenc Puskás": [
+   "Madrid"
+  ],
+  "Fernandinho": [
+   "Manchester Xanh"
+  ],
+  "Fernando Hierro": [
+   "Madrid"
+  ],
+  "Fernando Morientes": [
+   "Liverpool",
+   "Madrid",
+   "Marseille",
+   "Monaco",
+   "Valencia"
+  ],
+  "Fernando Torres": [
+   "Atlético",
+   "Chelsea",
+   "Liverpool",
+   "Milano"
+  ],
+  "Ferran Torres": [
+   "Barcelona",
+   "Manchester Xanh",
+   "Paris",
+   "Valencia"
+  ],
+  "Fidel": [
+   "Athletic Bilbao",
+   "Athletic Club"
+  ],
+  "Fran García": [
+   "Madrid",
+   "Rayo Vallecano",
+   "Real Betis"
+  ],
+  "Fred": [
+   "Fenerbahçe",
+   "Internacional",
+   "Manchester Đỏ"
+  ],
+  "G. Angella": [
+   "Udinese",
+   "Watford"
+  ],
+  "G. Bale": [
+   "LAFC",
+   "Los Angeles FC",
+   "Madrid",
+   "Southampton",
+   "Tottenham"
+  ],
+  "G. Best": [
+   "Bournemouth",
+   "Fulham",
+   "Manchester Đỏ"
+  ],
+  "G. Bonaventura": [
+   "Al Shabab",
+   "Atalanta",
+   "Fiorentina",
+   "Milano",
+   "Padova"
+  ],
+  "G. Buffon": [
+   "Juventus",
+   "Paris",
+   "Parma",
+   "Torino"
+  ],
+  "G. Cahill": [
+   "Aston Villa",
+   "Bournemouth",
+   "Burnley",
+   "Chelsea",
+   "Crystal Palace",
+   "Sheffield United"
+  ],
+  "G. Chiellini": [
+   "Fiorentina",
+   "Juventus",
+   "LAFC",
+   "Los Angeles FC",
+   "Roma",
+   "Torino"
+  ],
+  "G. Defrel": [
+   "Parma",
+   "Sassuolo"
+  ],
+  "G. Di Lorenzo": [
+   "Napoli"
+  ],
+  "G. Donnarumma": [
+   "Manchester Xanh",
+   "Milano",
+   "Paris"
+  ],
+  "G. Gattuso": [
+   "Milano"
+  ],
+  "G. Hagi": [
+   "Barcelona",
+   "Galatasaray",
+   "Madrid"
+  ],
+  "G. Higuaín": [
+   "Chelsea",
+   "Inter Miami",
+   "Juventus",
+   "Madrid",
+   "Milano",
+   "Napoli",
+   "River Plate",
+   "Torino"
+  ],
+  "G. Hurst": [
+   "Stoke City",
+   "West Ham"
+  ],
+  "G. Kobel": [
+   "Augsburg",
+   "Dortmund",
+   "Hoffenheim",
+   "Stuttgart"
+  ],
+  "G. Kondogbia": [
+   "Inter",
+   "Lens",
+   "Monaco",
+   "Sevilla",
+   "Valencia"
+  ],
+  "G. Lineker": [
+   "Barcelona",
+   "Everton",
+   "Leicester",
+   "Tottenham"
+  ],
+  "G. Lo Celso": [
+   "Paris",
+   "Real Betis",
+   "Tottenham",
+   "Villarreal"
+  ],
+  "G. Mamardashvili": [
+   "Liverpool",
+   "Valencia"
+  ],
+  "G. Mancini": [
+   "Atalanta",
+   "Roma"
+  ],
+  "G. Mikautadze": [
+   "Ajax",
+   "Lyon",
+   "Villarreal"
+  ],
+  "G. Müller": [
+   "Bayern"
+  ],
+  "G. Neville": [
+   "Manchester Đỏ"
+  ],
+  "G. Ochoa": [
+   "AEL Limassol",
+   "Club América",
+   "Granada"
+  ],
+  "G. Pereiro": [
+   "Cagliari",
+   "Genoa",
+   "PSV"
+  ],
+  "G. Pezzella": [
+   "Fiorentina",
+   "Real Betis",
+   "River Plate"
+  ],
+  "G. Rulli": [
+   "Ajax",
+   "Estudiantes",
+   "Manchester Xanh",
+   "Marseille",
+   "Montpellier",
+   "Real Sociedad",
+   "Villarreal"
+  ],
+  "G. Scalvini": [
+   "Atalanta"
+  ],
+  "G. Scamacca": [
+   "Atalanta",
+   "Cremonese",
+   "Genoa",
+   "Sassuolo",
+   "West Ham"
+  ],
+  "G. Vialli": [
+   "Chelsea",
+   "Cremonese",
+   "Juventus",
+   "Torino"
+  ],
+  "G. Wijnaldum": [
+   "Al Ettifaq",
+   "Al Ittihad",
+   "Feyenoord",
+   "Liverpool",
+   "Newcastle",
+   "PSV",
+   "Paris",
+   "Roma"
+  ],
+  "G. Xhaka": [
+   "Arsenal",
+   "Basel",
+   "Gladbach",
+   "Leverkusen",
+   "Mönchengladbach",
+   "Sunderland"
+  ],
+  "G. Zambrotta": [
+   "Barcelona",
+   "Bari",
+   "Como",
+   "Juventus",
+   "Milano",
+   "Torino"
+  ],
+  "G. Zola": [
+   "Cagliari",
+   "Chelsea",
+   "Napoli",
+   "Parma"
+  ],
+  "Gabriel": [
+   "Arsenal",
+   "Barcelona",
+   "Manchester Xanh"
+  ],
+  "Gabriel Batistuta": [
+   "Boca Juniors",
+   "Fiorentina",
+   "Inter",
+   "Newell's Old Boys",
+   "Newell’s Old Boys",
+   "River Plate",
+   "Roma"
+  ],
+  "Gabriel Jesus": [
+   "Arsenal",
+   "Barcelona",
+   "Manchester Xanh"
+  ],
+  "Gabriel Martinelli": [
+   "Al Hilal",
+   "Arsenal"
+  ],
+  "Garrincha": [
+   "Botafogo",
+   "Corinthians",
+   "Flamengo"
+  ],
+  "Gavi": [
+   "Barcelona"
+  ],
+  "Gayà": [
+   "Valencia"
+  ],
+  "Gelson Martins": [
+   "Atlético",
+   "Monaco",
+   "Olympiacos",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "Gerard Moreno": [
+   "Espanyol",
+   "Mallorca",
+   "Villarreal"
+  ],
+  "Gervinho": [
+   "Arsenal",
+   "Lille",
+   "Parma",
+   "Roma",
+   "Trabzonspor"
+  ],
+  "Gilberto Silva": [
+   "Arsenal",
+   "Panathinaikos"
+  ],
+  "Go Yo Han": [
+   "FC Seoul"
+  ],
+  "Gonçalo Guedes": [
+   "Benfica",
+   "Paris",
+   "Real Sociedad",
+   "Valencia",
+   "Villarreal",
+   "Wolves"
+  ],
+  "Gonçalo Ramos": [
+   "Benfica",
+   "Milano",
+   "Paris"
+  ],
+  "Gorosabel": [
+   "Alavés",
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Espanyol",
+   "Real Sociedad"
+  ],
+  "Grimaldo": [
+   "Atlético",
+   "Benfica",
+   "Leverkusen"
+  ],
+  "Guridi": [
+   "Alavés",
+   "Real Sociedad",
+   "Sevilla"
+  ],
+  "Guruzeta": [
+   "Athletic Bilbao",
+   "Athletic Club"
+  ],
+  "Guti": [
+   "Beşiktaş",
+   "Madrid"
+  ],
+  "H. Aouar": [
+   "Roma"
+  ],
+  "H. Barnes": [
+   "Leicester",
+   "MK Dons",
+   "Newcastle"
+  ],
+  "H. Çalhanoğlu": [
+   "Hamburg",
+   "Inter",
+   "Karlsruher SC",
+   "Leverkusen",
+   "Milano"
+  ],
+  "H. Crespo": [
+   "Chelsea",
+   "Genoa",
+   "Inter",
+   "Lazio",
+   "Milano",
+   "Parma",
+   "River Plate"
+  ],
+  "H. Ekitiké": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Liverpool",
+   "Paris"
+  ],
+  "H. Elliott": [
+   "Aston Villa",
+   "Fulham",
+   "Liverpool",
+   "Valencia"
+  ],
+  "H. Herrera": [
+   "Atlético",
+   "Houston Dynamo",
+   "Porto"
+  ],
+  "H. Kane": [
+   "Bayern",
+   "Leicester",
+   "Millwall",
+   "Norwich",
+   "Tottenham"
+  ],
+  "H. Kewell": [
+   "Galatasaray",
+   "Leeds",
+   "Liverpool"
+  ],
+  "H. Larsson": [
+   "Barcelona",
+   "Celtic",
+   "Feyenoord",
+   "Manchester Đỏ"
+  ],
+  "H. Lloris": [
+   "LAFC",
+   "Los Angeles FC",
+   "Lyon",
+   "Nice",
+   "Tottenham"
+  ],
+  "H. Lozano": [
+   "LA Galaxy",
+   "Napoli",
+   "PSV",
+   "San Diego FC"
+  ],
+  "H. Mkhitaryan": [
+   "Arsenal",
+   "Dortmund",
+   "Inter",
+   "Manchester Đỏ",
+   "Roma"
+  ],
+  "H. Mulder": [
+   "NEC Nijmegen"
+  ],
+  "H. Nakata": [
+   "Bologna",
+   "Fiorentina",
+   "Parma",
+   "Roma"
+  ],
+  "H. Reed": [
+   "Fulham",
+   "Norwich",
+   "Southampton"
+  ],
+  "H. Sánchez": [
+   "Atlético",
+   "Club América",
+   "Madrid",
+   "Pumas UNAM",
+   "Rayo Vallecano"
+  ],
+  "H. Seferović": [
+   "Benfica",
+   "Celta",
+   "Eintracht Frankfurt",
+   "Fiorentina",
+   "Frankfurt",
+   "Galatasaray",
+   "Lecce",
+   "Real Sociedad"
+  ],
+  "H. Son": [
+   "Hamburg",
+   "LAFC",
+   "Leverkusen",
+   "Los Angeles FC",
+   "Tottenham"
+  ],
+  "H. Stoichkov": [
+   "Al Nassr",
+   "Barcelona",
+   "Chicago Fire",
+   "Parma"
+  ],
+  "H. Vanaken": [
+   "Club Brugge"
+  ],
+  "H. Veerman": [
+   "Volendam"
+  ],
+  "H. Wilson": [
+   "Bournemouth",
+   "Liverpool"
+  ],
+  "Han Kyo Won": [
+   "Incheon United",
+   "Jeonbuk Hyundai Motors"
+  ],
+  "Hugo Duro": [
+   "Getafe"
+  ],
+  "Hwang Hee Chan": [
+   "Hamburg",
+   "Leipzig",
+   "Salzburg",
+   "Schalke",
+   "Wolves"
+  ],
+  "I. Cordoba": [
+   "Atlético Nacional",
+   "Inter",
+   "San Lorenzo"
+  ],
+  "I. Gueye": [
+   "Aston Villa",
+   "Everton",
+   "Lille",
+   "Paris"
+  ],
+  "İ. Gündoğan": [
+   "Barcelona",
+   "Dortmund",
+   "Galatasaray",
+   "Manchester Xanh",
+   "Nürnberg"
+  ],
+  "I. Hien": [
+   "Hellas Verona",
+   "Verona"
+  ],
+  "I. Konaté": [
+   "Leipzig",
+   "Liverpool",
+   "Madrid"
+  ],
+  "I. Ndiaye": [
+   "Everton",
+   "Manchester Xanh",
+   "Marseille",
+   "Sheffield United"
+  ],
+  "I. Perišić": [
+   "Bayern",
+   "Club Brugge",
+   "Dortmund",
+   "Hajduk Split",
+   "Inter",
+   "PSV",
+   "Tottenham",
+   "Wolfsburg"
+  ],
+  "I. Provedel": [
+   "Modena",
+   "Pisa"
+  ],
+  "I. Radu": [
+   "Bournemouth",
+   "Celta",
+   "Cremonese",
+   "Genoa",
+   "Inter",
+   "Parma"
+  ],
+  "I. Rakitić": [
+   "Al Shabab",
+   "Barcelona",
+   "Basel",
+   "Hajduk Split",
+   "Schalke",
+   "Sevilla"
+  ],
+  "I. Rush": [
+   "Juventus",
+   "Leeds",
+   "Liverpool",
+   "Newcastle",
+   "Sheffield United",
+   "Torino"
+  ],
+  "I. Saibari": [
+   "Bayern",
+   "PSV"
+  ],
+  "I. Success": [
+   "Granada",
+   "Watford"
+  ],
+  "I. Toney": [
+   "Al Ahli",
+   "Brentford",
+   "Newcastle"
+  ],
+  "I. Wright": [
+   "Arsenal",
+   "Burnley",
+   "Celtic",
+   "Crystal Palace",
+   "Nottingham Forest",
+   "West Ham"
+  ],
+  "Iago Aspas": [
+   "Celta",
+   "Liverpool",
+   "Sevilla"
+  ],
+  "Ibañez": [
+   "Atalanta",
+   "Lazio"
+  ],
+  "Igor Thiago": [
+   "Brentford",
+   "Club Brugge"
+  ],
+  "Iñaki Williams": [
+   "Athletic Bilbao",
+   "Athletic Club"
+  ],
+  "Iniesta": [
+   "Barcelona"
+  ],
+  "Iñigo Martínez": [
+   "Al Nassr",
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Barcelona",
+   "Real Sociedad"
+  ],
+  "Isco": [
+   "Madrid",
+   "Real Betis",
+   "Sevilla",
+   "Valencia"
+  ],
+  "Isi": [
+   "Rayo Vallecano"
+  ],
+  "Iván Martín": [
+   "Alavés",
+   "Girona",
+   "Villarreal"
+  ],
+  "Iván Zamorano": [
+   "Club América",
+   "Inter",
+   "Madrid",
+   "Sevilla"
+  ],
+  "J. Allen": [
+   "Liverpool",
+   "Stoke City",
+   "Swansea City"
+  ],
+  "J. Alvarez": [
+   "Atlético",
+   "Manchester Xanh",
+   "River Plate"
+  ],
+  "J. Amavi": [
+   "Aston Villa",
+   "Brest",
+   "Getafe",
+   "Marseille",
+   "Nice"
+  ],
+  "J. Arias": [
+   "Wolves"
+  ],
+  "J. Ayew": [
+   "Aston Villa",
+   "Crystal Palace",
+   "Leicester",
+   "Marseille",
+   "Sheffield United",
+   "Swansea City"
+  ],
+  "J. Bamba": [
+   "Angers",
+   "Paris FC"
+  ],
+  "J. Barnes": [
+   "Liverpool",
+   "Newcastle",
+   "Watford"
+  ],
+  "J. Bednarek": [
+   "Aston Villa",
+   "Porto",
+   "Southampton"
+  ],
+  "J. Bellingham": [
+   "Birmingham",
+   "Dortmund",
+   "Madrid"
+  ],
+  "J. Bijol": [
+   "Leeds",
+   "Udinese"
+  ],
+  "J. Błaszczykowski": [
+   "Dortmund",
+   "Fiorentina",
+   "Wolfsburg"
+  ],
+  "J. Boateng": [
+   "Bayern",
+   "Hamburg",
+   "Lyon",
+   "Manchester Xanh"
+  ],
+  "J. Boëtius": [
+   "Basel",
+   "Feyenoord",
+   "Genk",
+   "Mainz"
+  ],
+  "J. Bowen": [
+   "Hull City",
+   "West Ham"
+  ],
+  "J. Brandt": [
+   "Ajax",
+   "Dortmund",
+   "Leverkusen"
+  ],
+  "J. Branthwaite": [
+   "Everton",
+   "PSV"
+  ],
+  "J. Campos": [
+   "Chicago Fire",
+   "LA Galaxy",
+   "Madrid",
+   "Pumas UNAM"
+  ],
+  "J. Carragher": [
+   "Liverpool"
+  ],
+  "J. Castelletto": [
+   "Club Brugge",
+   "Nantes"
+  ],
+  "J. Chabot": [
+   "Köln",
+   "Sparta Rotterdam",
+   "Stuttgart"
+  ],
+  "J. Cillessen": [
+   "Ajax",
+   "Barcelona",
+   "Las Palmas",
+   "NEC Nijmegen",
+   "Valencia"
+  ],
+  "J. Colback": [
+   "Ipswich",
+   "Ipswich Town",
+   "Newcastle",
+   "Nottingham Forest",
+   "Sunderland"
+  ],
+  "J. Cole": [
+   "Aston Villa",
+   "Chelsea",
+   "Lille",
+   "Liverpool",
+   "West Ham"
+  ],
+  "J. Correa": [
+   "Estudiantes",
+   "Inter",
+   "Lazio",
+   "Sevilla"
+  ],
+  "J. Cruyff": [
+   "Ajax",
+   "Barcelona",
+   "Feyenoord",
+   "Levante"
+  ],
+  "J. Cuadrado": [
+   "Atalanta",
+   "Chelsea",
+   "Fiorentina",
+   "Inter",
+   "Juventus",
+   "Lecce",
+   "Pisa",
+   "Torino",
+   "Udinese"
+  ],
+  "J. David": [
+   "Atlético",
+   "Juventus",
+   "Lille",
+   "Torino"
+  ],
+  "J. Doku": [
+   "Anderlecht",
+   "Manchester Xanh",
+   "Rennes"
+  ],
+  "J. Draxler": [
+   "Benfica",
+   "Paris",
+   "Schalke",
+   "Wolfsburg"
+  ],
+  "J. Drommel": [
+   "Twente"
+  ],
+  "J. Duverne": [
+   "Lens"
+  ],
+  "J. Evans": [
+   "Leicester",
+   "Manchester Đỏ",
+   "Sunderland"
+  ],
+  "J. Foyth": [
+   "Estudiantes",
+   "Tottenham",
+   "Villarreal"
+  ],
+  "J. Frimpong": [
+   "Celtic",
+   "Leverkusen",
+   "Liverpool"
+  ],
+  "J. Giménez": [
+   "Atlético"
+  ],
+  "J. Gittens": [
+   "Chelsea",
+   "Dortmund"
+  ],
+  "J. Gomez": [
+   "Liverpool"
+  ],
+  "J. Gouweleeuw": [
+   "Augsburg"
+  ],
+  "J. Grealish": [
+   "Aston Villa",
+   "Everton",
+   "Manchester Xanh"
+  ],
+  "J. Gvardiol": [
+   "Dinamo Zagreb",
+   "Leipzig",
+   "Manchester Xanh"
+  ],
+  "J. Harrison": [
+   "Leeds"
+  ],
+  "J. Hart": [
+   "Birmingham",
+   "Burnley",
+   "Celtic",
+   "Manchester Xanh",
+   "Torino FC",
+   "Tottenham",
+   "West Ham"
+  ],
+  "J. Hauge": [
+   "Bodø/Glimt",
+   "Milano"
+  ],
+  "J. Henderson": [
+   "Ajax",
+   "Al Ettifaq",
+   "Brentford",
+   "Chelsea",
+   "Liverpool",
+   "Sunderland"
+  ],
+  "J. Hernández": [
+   "LA Galaxy",
+   "Leverkusen",
+   "Madrid",
+   "Manchester Đỏ",
+   "Sevilla",
+   "West Ham"
+  ],
+  "J. Hofmann": [
+   "Dortmund",
+   "Gladbach",
+   "Hoffenheim",
+   "Leverkusen",
+   "Mainz",
+   "Mönchengladbach"
+  ],
+  "J. Ito": [
+   "Genk"
+  ],
+  "J. Kimmich": [
+   "Bayern",
+   "Leipzig"
+  ],
+  "J. King": [
+   "Al Khaleej",
+   "Bournemouth",
+   "Everton",
+   "Fenerbahçe",
+   "Gladbach",
+   "Hull City",
+   "Manchester Đỏ",
+   "Mönchengladbach",
+   "Watford"
+  ],
+  "J. Kiwior": [
+   "Arsenal",
+   "Porto"
+  ],
+  "J. Kohler": [
+   "Bayern",
+   "Dortmund",
+   "Juventus",
+   "Köln",
+   "Torino"
+  ],
+  "J. Koller": [
+   "Anderlecht",
+   "Dortmund",
+   "Monaco",
+   "Nürnberg",
+   "Sparta Praha"
+  ],
+  "J. Koundé": [
+   "Barcelona",
+   "Sevilla"
+  ],
+  "J. Larsen": [
+   "Celta",
+   "Wolves"
+  ],
+  "J. Lerma": [
+   "Bournemouth",
+   "Crystal Palace",
+   "Levante"
+  ],
+  "J. Lingard": [
+   "Birmingham",
+   "Brighton",
+   "Corinthians",
+   "Derby County",
+   "FC Seoul",
+   "Leicester",
+   "Manchester Đỏ",
+   "Nottingham Forest",
+   "West Ham"
+  ],
+  "J. Litmanen": [
+   "Ajax",
+   "Barcelona",
+   "Fulham",
+   "Liverpool"
+  ],
+  "J. Lucumí": [
+   "Bologna",
+   "Genk",
+   "Juventus",
+   "Torino"
+  ],
+  "J. Maddison": [
+   "Leicester",
+   "Norwich",
+   "Tottenham"
+  ],
+  "J. Mæhle": [
+   "Atalanta",
+   "Genk",
+   "Wolfsburg"
+  ],
+  "J. Mascherano": [
+   "Barcelona",
+   "Corinthians",
+   "Estudiantes",
+   "Liverpool",
+   "River Plate",
+   "West Ham"
+  ],
+  "J. Mateta": [
+   "Crystal Palace",
+   "Lyon",
+   "Mainz"
+  ],
+  "J. Matip": [
+   "Liverpool",
+   "Schalke"
+  ],
+  "J. McGinn": [
+   "Aston Villa"
+  ],
+  "J. Milner": [
+   "Aston Villa",
+   "Brighton",
+   "Leeds",
+   "Liverpool",
+   "Manchester Xanh",
+   "Newcastle"
+  ],
+  "J. Morris": [
+   "Seattle Sounders"
+  ],
+  "J. Musiala": [
+   "Bayern"
+  ],
+  "J. Musso": [
+   "Atalanta",
+   "Atlético",
+   "Udinese"
+  ],
+  "J. Oblak": [
+   "Atlético",
+   "Benfica"
+  ],
+  "J. Okocha": [
+   "Eintracht Frankfurt",
+   "Fenerbahçe",
+   "Frankfurt",
+   "Hull City",
+   "Paris"
+  ],
+  "J. Papin": [
+   "Bayern",
+   "Club Brugge",
+   "Marseille",
+   "Milano"
+  ],
+  "J. Pickford": [
+   "Everton",
+   "Sunderland"
+  ],
+  "J. Ramsey": [
+   "Aston Villa",
+   "Newcastle"
+  ],
+  "J. Riise": [
+   "Fulham",
+   "Liverpool",
+   "Monaco",
+   "Roma"
+  ],
+  "J. Rodríguez": [
+   "Atlético Nacional",
+   "Bayern",
+   "Everton",
+   "Madrid",
+   "Minnesota United",
+   "Monaco",
+   "Olympiacos",
+   "Porto",
+   "Rayo Vallecano"
+  ],
+  "J. Ryerson": [
+   "Dortmund",
+   "Union Berlin"
+  ],
+  "J. Sancho": [
+   "Aston Villa",
+   "Chelsea",
+   "Dortmund",
+   "Manchester Đỏ"
+  ],
+  "J. Schlupp": [
+   "Brentford",
+   "Celtic",
+   "Crystal Palace",
+   "Leicester"
+  ],
+  "J. Schmid": [
+   "Augsburg",
+   "Freiburg",
+   "Hoffenheim"
+  ],
+  "J. Schouten": [
+   "Bologna",
+   "PSV",
+   "Telstar"
+  ],
+  "J. Stam": [
+   "Ajax",
+   "Lazio",
+   "Manchester Đỏ",
+   "Milano",
+   "PSV"
+  ],
+  "J. Stones": [
+   "Everton",
+   "Inter",
+   "Manchester Xanh"
+  ],
+  "J. Tah": [
+   "Bayern",
+   "Hamburg",
+   "Leverkusen"
+  ],
+  "J. Tarkowski": [
+   "Brentford",
+   "Burnley"
+  ],
+  "J. Teze": [
+   "Monaco",
+   "PSV"
+  ],
+  "J. Timber": [
+   "Ajax",
+   "Arsenal"
+  ],
+  "J. Toljan": [
+   "Celtic",
+   "Dortmund",
+   "Hoffenheim",
+   "Levante",
+   "Sassuolo"
+  ],
+  "J. Vardy": [
+   "Burnley",
+   "Cremonese",
+   "Leicester"
+  ],
+  "J. Veerman": [
+   "Dortmund",
+   "PSV",
+   "Volendam"
+  ],
+  "J. Veldmate": [
+   "Heracles",
+   "Sparta Rotterdam"
+  ],
+  "J. Veltman": [
+   "Ajax",
+   "Brighton",
+   "West Ham"
+  ],
+  "J. Vertonghen": [
+   "Ajax",
+   "Anderlecht",
+   "Benfica",
+   "Tottenham"
+  ],
+  "J. Vestergaard": [
+   "Bremen",
+   "Gladbach",
+   "Hoffenheim",
+   "Mönchengladbach"
+  ],
+  "J. Ward-Prowse": [
+   "Burnley",
+   "Nottingham Forest",
+   "Southampton",
+   "West Ham"
+  ],
+  "J. Weigl": [
+   "Al Qadsiah",
+   "Benfica",
+   "Dortmund",
+   "Gladbach",
+   "Mönchengladbach"
+  ],
+  "J. Willock": [
+   "Arsenal",
+   "Newcastle"
+  ],
+  "J. Wind": [
+   "FC Copenhagen",
+   "Wolfsburg"
+  ],
+  "J. Zanetti": [
+   "Inter"
+  ],
+  "Jacobo Ramón": [
+   "Como",
+   "Madrid"
+  ],
+  "Jairzinho": [
+   "Botafogo",
+   "Marseille"
+  ],
+  "Jaume Costa": [
+   "Cádiz",
+   "Mallorca",
+   "Valencia",
+   "Villarreal"
+  ],
+  "Javi Galán": [
+   "Celta"
+  ],
+  "Jesús Navas": [
+   "Manchester Xanh",
+   "Sevilla"
+  ],
+  "Ji Dong Won": [
+   "Augsburg",
+   "Darmstadt",
+   "Dortmund",
+   "FC Seoul",
+   "Mainz",
+   "Sunderland"
+  ],
+  "Joan García": [
+   "Barcelona",
+   "Espanyol"
+  ],
+  "Joan Jordán": [
+   "Espanyol",
+   "Sevilla"
+  ],
+  "João Cancelo": [
+   "Al Hilal",
+   "Barcelona",
+   "Bayern",
+   "Benfica",
+   "Inter",
+   "Juventus",
+   "Manchester Xanh",
+   "Torino",
+   "Valencia"
+  ],
+  "João Mário": [
+   "AEK Athens",
+   "Benfica",
+   "Beşiktaş",
+   "Inter",
+   "Sporting",
+   "Sporting CP",
+   "West Ham"
+  ],
+  "João Moutinho": [
+   "Orlando City"
+  ],
+  "João Neves": [
+   "Benfica",
+   "Paris"
+  ],
+  "João Pedro": [
+   "Brighton",
+   "Chelsea",
+   "Watford"
+  ],
+  "Joaquín": [
+   "Atlético"
+  ],
+  "Joelinton": [
+   "Hoffenheim",
+   "Newcastle"
+  ],
+  "Jordi Alba": [
+   "Barcelona",
+   "Inter Miami",
+   "Valencia"
+  ],
+  "Jorginho": [
+   "Arsenal",
+   "Chelsea",
+   "Flamengo",
+   "Hellas Verona",
+   "Napoli",
+   "Verona"
+  ],
+  "José Fonte": [
+   "Benfica",
+   "Braga",
+   "Casa Pia",
+   "Crystal Palace",
+   "Lille",
+   "Southampton",
+   "West Ham"
+  ],
+  "Juan Jesus": [
+   "Inter",
+   "Internacional",
+   "Napoli",
+   "Roma"
+  ],
+  "Juan Miranda": [
+   "Barcelona"
+  ],
+  "Jung Woo Young": [
+   "Al Khaleej",
+   "Al Sadd"
+  ],
+  "K. Adeyemi": [
+   "Barcelona",
+   "Dortmund",
+   "Salzburg"
+  ],
+  "K. Ajer": [
+   "Celtic"
+  ],
+  "K. Benzema": [
+   "Al Hilal",
+   "Al Ittihad",
+   "Lyon",
+   "Madrid"
+  ],
+  "K. Boateng": [
+   "Barcelona",
+   "Beşiktaş",
+   "Dortmund",
+   "Eintracht Frankfurt",
+   "Fiorentina",
+   "Frankfurt",
+   "Genoa",
+   "Las Palmas",
+   "Milano",
+   "Monza",
+   "Sassuolo",
+   "Schalke",
+   "Tottenham"
+  ],
+  "K. Casteels": [
+   "Al Qadsiah",
+   "Bremen",
+   "Genk",
+   "Hoffenheim",
+   "Wolfsburg"
+  ],
+  "K. Coman": [
+   "Al Nassr",
+   "Bayern",
+   "Juventus",
+   "Paris",
+   "Torino"
+  ],
+  "K. Dalglish": [
+   "Celtic",
+   "Liverpool"
+  ],
+  "K. Danso": [
+   "Augsburg",
+   "Lens",
+   "Southampton",
+   "Sunderland",
+   "Tottenham"
+  ],
+  "K. De Bruyne": [
+   "Bremen",
+   "Chelsea",
+   "Genk",
+   "Manchester Xanh",
+   "Napoli",
+   "Wolfsburg"
+  ],
+  "K. Dewsbury-Hall": [
+   "Chelsea",
+   "Everton",
+   "Leicester"
+  ],
+  "K. Dolberg": [
+   "Ajax",
+   "Anderlecht",
+   "Hoffenheim",
+   "Nice",
+   "Sevilla"
+  ],
+  "K. Fortounis": [
+   "Al Khaleej",
+   "Olympiacos"
+  ],
+  "K. Gameiro": [
+   "Atlético",
+   "Paris",
+   "Sevilla",
+   "Valencia"
+  ],
+  "K. Glik": [
+   "Bari",
+   "Cracovia",
+   "Monaco",
+   "Palermo",
+   "Torino FC"
+  ],
+  "K. Grabara": [
+   "FC Copenhagen",
+   "Juventus",
+   "Torino",
+   "Wolfsburg"
+  ],
+  "K. Hause": [
+   "Wolves"
+  ],
+  "K. Havertz": [
+   "Arsenal",
+   "Chelsea",
+   "Leverkusen"
+  ],
+  "K. Kampl": [
+   "Dortmund",
+   "Leverkusen",
+   "Salzburg"
+  ],
+  "K. Koné": [
+   "Gladbach",
+   "Mönchengladbach",
+   "Roma"
+  ],
+  "K. Koulibaly": [
+   "Al Hilal",
+   "Chelsea",
+   "Genk",
+   "Napoli"
+  ],
+  "K. Kvaratskhelia": [
+   "Napoli",
+   "Paris"
+  ],
+  "K. Laimer": [
+   "Bayern",
+   "Leipzig",
+   "Salzburg"
+  ],
+  "K. Mainoo": [
+   "Manchester Đỏ"
+  ],
+  "K. Mbappé": [
+   "Madrid",
+   "Monaco",
+   "Paris"
+  ],
+  "K. Navas": [
+   "Levante",
+   "Madrid",
+   "Newell's Old Boys",
+   "Newell’s Old Boys",
+   "Nottingham Forest",
+   "Paris",
+   "Pumas UNAM"
+  ],
+  "K. Onisiwo": [
+   "Mainz",
+   "Salzburg"
+  ],
+  "K. Phillips": [
+   "Ipswich",
+   "Ipswich Town",
+   "Leeds",
+   "Manchester Xanh",
+   "Sheffield United",
+   "West Ham"
+  ],
+  "K. Rummenigge": [
+   "Bayern",
+   "Inter"
+  ],
+  "K. Sano": [
+   "Mainz"
+  ],
+  "K. Schmeichel": [
+   "Anderlecht",
+   "Celtic",
+   "Leeds",
+   "Leicester",
+   "Manchester Xanh",
+   "Nice"
+  ],
+  "K. Sigþórsson": [
+   "Ajax",
+   "Galatasaray",
+   "Nantes"
+  ],
+  "K. Stöger": [
+   "Stuttgart"
+  ],
+  "K. Tete": [
+   "Ajax"
+  ],
+  "K. Thuram": [
+   "Juventus",
+   "Monaco",
+   "Nice",
+   "Torino"
+  ],
+  "K. Trapp": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Paris",
+   "Paris FC"
+  ],
+  "K. Walker": [
+   "Aston Villa",
+   "Burnley",
+   "Manchester Xanh",
+   "Milano",
+   "Sheffield United",
+   "Tottenham"
+  ],
+  "K. Walker-Peters": [
+   "Tottenham"
+  ],
+  "K. Yıldız": [
+   "Juventus",
+   "Torino"
+  ],
+  "K. Zouma": [
+   "Al Orobah",
+   "Chelsea",
+   "Everton",
+   "Stoke City",
+   "West Ham"
+  ],
+  "Kaká": [
+   "Madrid",
+   "Milano",
+   "Orlando City"
+  ],
+  "Kepa": [
+   "Arsenal",
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Bournemouth",
+   "Chelsea",
+   "Madrid"
+  ],
+  "Ki Sung Yueng": [
+   "Celtic",
+   "FC Seoul",
+   "Mallorca",
+   "Newcastle",
+   "Pohang Steelers",
+   "Sunderland",
+   "Swansea City"
+  ],
+  "Kim Do Hyeok": [
+   "Incheon United"
+  ],
+  "Kim Min Jae": [
+   "Bayern",
+   "Fenerbahçe",
+   "Jeonbuk Hyundai Motors",
+   "Napoli"
+  ],
+  "Kim Young Gwon": [
+   "Ulsan HD"
+  ],
+  "Koke": [
+   "Atlético"
+  ],
+  "L. Bailey": [
+   "Aston Villa",
+   "Genk",
+   "Leverkusen",
+   "Olympiacos",
+   "Roma"
+  ],
+  "L. Blanc": [
+   "Barcelona",
+   "Inter",
+   "Manchester Đỏ",
+   "Marseille",
+   "Montpellier",
+   "Napoli"
+  ],
+  "L. Blas": [
+   "Nantes",
+   "Rennes"
+  ],
+  "L. Bonucci": [
+   "Bari",
+   "Fenerbahçe",
+   "Genoa",
+   "Inter",
+   "Juventus",
+   "Milano",
+   "Pisa",
+   "Torino",
+   "Union Berlin"
+  ],
+  "L. Brassier": [
+   "Brest",
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Marseille",
+   "Rennes"
+  ],
+  "L. Cabrera": [
+   "Atlético",
+   "Espanyol",
+   "Getafe"
+  ],
+  "L. Colwill": [
+   "Brighton",
+   "Chelsea"
+  ],
+  "L. Cook": [
+   "Bournemouth",
+   "Leeds"
+  ],
+  "L. Cooper": [
+   "Hull City",
+   "Leeds"
+  ],
+  "L. Da Cunha": [
+   "Nice",
+   "Rennes"
+  ],
+  "L. de Jong": [
+   "Barcelona",
+   "Gladbach",
+   "Mönchengladbach",
+   "Newcastle",
+   "PSV",
+   "Porto",
+   "Sevilla",
+   "Twente"
+  ],
+  "L. Delap": [
+   "Chelsea",
+   "Hull City",
+   "Ipswich",
+   "Ipswich Town",
+   "Manchester Xanh",
+   "Nottingham Forest",
+   "Stoke City"
+  ],
+  "L. Díaz": [
+   "Bayern",
+   "Liverpool",
+   "Porto"
+  ],
+  "L. Digne": [
+   "Aston Villa",
+   "Barcelona",
+   "Everton",
+   "Lille",
+   "Paris",
+   "Roma"
+  ],
+  "L. Donovan": [
+   "Bayern",
+   "Everton",
+   "LA Galaxy",
+   "Leverkusen",
+   "San Jose Earthquakes"
+  ],
+  "L. Dubois": [
+   "Nantes"
+  ],
+  "L. Dunk": [
+   "Brighton"
+  ],
+  "L. Fer": [
+   "Feyenoord",
+   "Norwich",
+   "Swansea City",
+   "Twente"
+  ],
+  "L. Giuly": [
+   "Barcelona",
+   "Lyon",
+   "Monaco",
+   "Paris",
+   "Roma"
+  ],
+  "L. Goretzka": [
+   "Aston Villa",
+   "Bayern",
+   "Bochum",
+   "Schalke"
+  ],
+  "L. Hall": [
+   "Chelsea",
+   "Newcastle"
+  ],
+  "L. Hernández|Mexico": [
+   "Boca Juniors",
+   "Club América",
+   "LA Galaxy",
+   "Monterrey",
+   "Necaxa"
+  ],
+  "L. Hernández|Pháp": [
+   "Atlético",
+   "Bayern",
+   "Boca Juniors",
+   "Paris"
+  ],
+  "L. Insigne": [
+   "Napoli",
+   "Pescara",
+   "Toronto FC"
+  ],
+  "L. Jović": [
+   "AEK Athens",
+   "Benfica",
+   "Crvena Zvezda",
+   "Crvena zvezda",
+   "Eintracht Frankfurt",
+   "Fiorentina",
+   "Frankfurt",
+   "Madrid",
+   "Milano"
+  ],
+  "L. Karl": [
+   "Bayern"
+  ],
+  "L. Kelly": [
+   "Bournemouth",
+   "Juventus",
+   "Newcastle",
+   "Torino"
+  ],
+  "L. King": [
+   "Tottenham"
+  ],
+  "L. Klostermann": [
+   "Bochum",
+   "Leipzig"
+  ],
+  "L. Koscielny": [
+   "Arsenal"
+  ],
+  "L. Krejčí": [
+   "Girona",
+   "Sparta Praha",
+   "Wolves"
+  ],
+  "L. Martínez": [
+   "Inter"
+  ],
+  "L. Matthäus": [
+   "Bayern",
+   "Gladbach",
+   "Inter",
+   "Mönchengladbach",
+   "New York Red Bulls"
+  ],
+  "L. Messi": [
+   "Barcelona",
+   "Inter Miami",
+   "Paris"
+  ],
+  "L. Modrić": [
+   "Dinamo Zagreb",
+   "Madrid",
+   "Milano",
+   "Tottenham"
+  ],
+  "L. Ocampos": [
+   "Ajax",
+   "Genoa",
+   "Marseille",
+   "Milano",
+   "Monaco",
+   "Monterrey",
+   "River Plate",
+   "Sevilla"
+  ],
+  "L. Openda": [
+   "Club Brugge",
+   "Juventus",
+   "Leipzig",
+   "Lens",
+   "Lyon",
+   "Torino"
+  ],
+  "L. Paredes": [
+   "Boca Juniors",
+   "Juventus",
+   "Paris",
+   "Roma",
+   "Torino"
+  ],
+  "L. Pellegrini": [
+   "Roma",
+   "Sassuolo"
+  ],
+  "L. Podolski": [
+   "Arsenal",
+   "Bayern",
+   "Galatasaray",
+   "Górnik Zabrze",
+   "Inter",
+   "Köln"
+  ],
+  "L. Ricken": [
+   "Dortmund"
+  ],
+  "L. Robertone": [
+   "Vélez Sarsfield"
+  ],
+  "L. Samardžić": [
+   "Leipzig"
+  ],
+  "L. Sané": [
+   "Bayern",
+   "Galatasaray",
+   "Manchester Xanh",
+   "Schalke"
+  ],
+  "L. Schøne": [
+   "Ajax",
+   "Genoa",
+   "NEC Nijmegen"
+  ],
+  "L. Shaw": [
+   "Manchester Đỏ",
+   "Southampton"
+  ],
+  "L. Sinisterra": [
+   "Feyenoord",
+   "Leeds"
+  ],
+  "L. Spinazzola": [
+   "Atalanta",
+   "Juventus",
+   "Napoli",
+   "Roma",
+   "Torino"
+  ],
+  "L. Suárez|Uruguay": [
+   "Ajax",
+   "Atlético",
+   "Barcelona",
+   "Inter Miami",
+   "Liverpool"
+  ],
+  "L. Thuram": [
+   "Barcelona",
+   "Juventus",
+   "Monaco",
+   "Parma",
+   "Torino"
+  ],
+  "L. Torreira": [
+   "Arsenal",
+   "Atlético",
+   "Fiorentina",
+   "Galatasaray",
+   "Pescara"
+  ],
+  "L. Tousart": [
+   "Lyon"
+  ],
+  "L. Trossard": [
+   "Arsenal",
+   "Brighton",
+   "Genk"
+  ],
+  "L. Vušković": [
+   "Brighton",
+   "Hajduk Split",
+   "Hamburg",
+   "Tottenham"
+  ],
+  "L. Yoro": [
+   "Lille",
+   "Manchester Đỏ"
+  ],
+  "Lamine Yamal": [
+   "Barcelona"
+  ],
+  "Lee Chung Yong": [
+   "Bochum",
+   "Crystal Palace",
+   "FC Seoul",
+   "Incheon United",
+   "Ulsan HD"
+  ],
+  "Lee Jae Sung": [
+   "Jeonbuk Hyundai Motors",
+   "Mainz"
+  ],
+  "Lee Kang In": [
+   "Atlético",
+   "Mallorca",
+   "Paris",
+   "Valencia"
+  ],
+  "Llorente": [
+   "Alavés",
+   "Atlético",
+   "Madrid"
+  ],
+  "Lucas Torró": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Osasuna",
+   "Real Oviedo"
+  ],
+  "Lucas Vázquez": [
+   "Espanyol",
+   "Leverkusen",
+   "Madrid"
+  ],
+  "Lúcio": [
+   "Bayern",
+   "Inter",
+   "Internacional",
+   "Juventus",
+   "Leverkusen",
+   "Torino"
+  ],
+  "Luís Figo": [
+   "Barcelona",
+   "Inter",
+   "Madrid",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "Luis Milla": [
+   "Albacete",
+   "Como",
+   "Getafe",
+   "Granada"
+  ],
+  "Luis Rioja": [
+   "Almería"
+  ],
+  "Lương Xuân Trường": [
+   "Incheon United"
+  ],
+  "M. Akanji": [
+   "Basel",
+   "Dortmund",
+   "Inter",
+   "Manchester Xanh"
+  ],
+  "M. Akliouche": [
+   "Monaco",
+   "Paris"
+  ],
+  "M. Al Tamari": [
+   "Montpellier",
+   "Rennes"
+  ],
+  "M. Albrighton": [
+   "Aston Villa",
+   "Leicester"
+  ],
+  "M. Almirón": [
+   "Atlanta United",
+   "Lanús",
+   "Newcastle"
+  ],
+  "M. Amoura": [
+   "Nice",
+   "Wolfsburg"
+  ],
+  "M. Arnautović": [
+   "Bologna",
+   "Bremen",
+   "Crvena Zvezda",
+   "Crvena zvezda",
+   "Inter",
+   "Stoke City",
+   "Twente",
+   "West Ham"
+  ],
+  "M. Arnold": [
+   "Wolfsburg"
+  ],
+  "M. Autret": [
+   "Brest",
+   "Lens"
+  ],
+  "M. Badelj": [
+   "Dinamo Zagreb",
+   "Fiorentina",
+   "Genoa",
+   "Hamburg",
+   "Lazio"
+  ],
+  "M. Bakker": [
+   "Atalanta",
+   "Leverkusen",
+   "Paris"
+  ],
+  "M. Ballack": [
+   "Bayern",
+   "Chelsea",
+   "Leverkusen"
+  ],
+  "M. Balotelli": [
+   "Genoa",
+   "Inter",
+   "Liverpool",
+   "Manchester Xanh",
+   "Marseille",
+   "Milano",
+   "Monza",
+   "Nice"
+  ],
+  "M. Batshuayi": [
+   "Beşiktaş",
+   "Chelsea",
+   "Crystal Palace",
+   "Dortmund",
+   "Eintracht Frankfurt",
+   "Fenerbahçe",
+   "Frankfurt",
+   "Galatasaray",
+   "Marseille",
+   "Valencia"
+  ],
+  "M. Beier": [
+   "Dortmund",
+   "Hoffenheim"
+  ],
+  "M. Bradley": [
+   "Aston Villa",
+   "Gladbach",
+   "Mönchengladbach",
+   "New York Red Bulls",
+   "Roma",
+   "Toronto FC"
+  ],
+  "M. Braithwaite": [
+   "Barcelona",
+   "Espanyol",
+   "Leganés"
+  ],
+  "M. Brozović": [
+   "Al Nassr",
+   "Al Sadd",
+   "Dinamo Zagreb",
+   "Inter"
+  ],
+  "M. Cáceres": [
+   "Barcelona",
+   "Cagliari",
+   "Fiorentina",
+   "Hellas Verona",
+   "Juventus",
+   "LA Galaxy",
+   "Lazio",
+   "Levante",
+   "Sevilla",
+   "Southampton",
+   "Torino",
+   "Verona",
+   "Villarreal"
+  ],
+  "M. Caicedo": [
+   "Brighton",
+   "Chelsea"
+  ],
+  "M. Caldara": [
+   "Atalanta"
+  ],
+  "M. Carrick": [
+   "Birmingham",
+   "Manchester Đỏ",
+   "Tottenham",
+   "West Ham"
+  ],
+  "M. Damsgaard": [
+   "Brentford"
+  ],
+  "M. Darmian": [
+   "Bologna",
+   "Inter",
+   "Manchester Đỏ",
+   "Milano",
+   "Padova",
+   "Palermo",
+   "Parma",
+   "Torino FC"
+  ],
+  "M. De Cuyper": [
+   "Brighton",
+   "Club Brugge"
+  ],
+  "M. de Ligt": [
+   "Ajax",
+   "Bayern",
+   "Juventus",
+   "Manchester Đỏ",
+   "Torino"
+  ],
+  "M. de Roon": [
+   "Atalanta",
+   "Roma",
+   "Sparta Rotterdam"
+  ],
+  "M. De Sciglio": [
+   "Juventus",
+   "Lyon",
+   "Milano",
+   "Torino"
+  ],
+  "M. Demiral": [
+   "Al Ahli",
+   "Atalanta",
+   "Juventus",
+   "Sassuolo",
+   "Sporting",
+   "Sporting CP",
+   "Torino"
+  ],
+  "M. Depay": [
+   "Atlético",
+   "Barcelona",
+   "Corinthians",
+   "Lyon",
+   "Manchester Đỏ",
+   "PSV"
+  ],
+  "M. Desailly": [
+   "Chelsea",
+   "Marseille",
+   "Milano",
+   "Nantes"
+  ],
+  "M. Diaby": [
+   "Al Ittihad",
+   "Aston Villa",
+   "Leverkusen",
+   "Paris"
+  ],
+  "M. Dijks": [
+   "Ajax"
+  ],
+  "M. Diouf": [
+   "Manchester Đỏ",
+   "Stoke City"
+  ],
+  "M. Ducksch": [
+   "Birmingham",
+   "Bremen",
+   "Dortmund"
+  ],
+  "M. Eggestein": [
+   "Bremen",
+   "Freiburg"
+  ],
+  "M. Essien": [
+   "Chelsea",
+   "Lyon",
+   "Madrid",
+   "Milano",
+   "Panathinaikos"
+  ],
+  "M. Fellaini": [
+   "Everton",
+   "Manchester Đỏ"
+  ],
+  "M. Flekken": [
+   "Brentford",
+   "Freiburg",
+   "Leverkusen"
+  ],
+  "M. Folorunsho": [
+   "Cagliari",
+   "Napoli"
+  ],
+  "M. Gabbiadini": [
+   "Atalanta",
+   "Bologna",
+   "Juventus",
+   "Napoli",
+   "Torino"
+  ],
+  "M. Gibbs-White": [
+   "Nottingham Forest",
+   "Sheffield United",
+   "Swansea City",
+   "Wolves"
+  ],
+  "M. Ginter": [
+   "Dortmund",
+   "Freiburg",
+   "Gladbach",
+   "Mönchengladbach"
+  ],
+  "M. Godts": [
+   "Ajax",
+   "Genk",
+   "Paris"
+  ],
+  "M. Gómez": [
+   "Bayern",
+   "Beşiktaş",
+   "Fiorentina",
+   "Stuttgart",
+   "Wolfsburg"
+  ],
+  "M. Gonalons": [
+   "Granada",
+   "Lyon",
+   "Roma",
+   "Sevilla"
+  ],
+  "M. Götze": [
+   "Bayern",
+   "Dortmund",
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "PSV"
+  ],
+  "M. Gradel": [
+   "Bournemouth",
+   "Leeds",
+   "Leicester"
+  ],
+  "M. Gregoritsch": [
+   "Augsburg",
+   "Bochum",
+   "Brøndby",
+   "Freiburg",
+   "Hamburg",
+   "Hoffenheim",
+   "Schalke"
+  ],
+  "M. Grujić": [
+   "AEK Athens",
+   "Crvena Zvezda",
+   "Crvena zvezda",
+   "Liverpool",
+   "Porto"
+  ],
+  "M. Guéhi": [
+   "Chelsea",
+   "Crystal Palace",
+   "Manchester Xanh",
+   "Swansea City"
+  ],
+  "M. Guendouzi": [
+   "Arsenal",
+   "Fenerbahçe",
+   "Lazio",
+   "Marseille"
+  ],
+  "M. Gusto": [
+   "Chelsea",
+   "Lyon"
+  ],
+  "M. Hamšík": [
+   "Napoli",
+   "Trabzonspor"
+  ],
+  "M. Hasebe": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Nürnberg",
+   "Wolfsburg"
+  ],
+  "M. Hjulmand": [
+   "Atlético",
+   "Lecce",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "M. Hummels": [
+   "Bayern",
+   "Dortmund",
+   "Roma"
+  ],
+  "M. Jensen": [
+   "Brentford",
+   "Celta"
+  ],
+  "M. Kean": [
+   "Como",
+   "Everton",
+   "Fiorentina",
+   "Hellas Verona",
+   "Juventus",
+   "Paris",
+   "Torino",
+   "Verona"
+  ],
+  "M. Kempes": [
+   "River Plate",
+   "Valencia"
+  ],
+  "M. Kerkez": [
+   "Bournemouth",
+   "Liverpool",
+   "Milano"
+  ],
+  "M. Klose": [
+   "Bayern",
+   "Bremen",
+   "Lazio"
+  ],
+  "M. Kovačić": [
+   "Chelsea",
+   "Dinamo Zagreb",
+   "Inter",
+   "Madrid",
+   "Manchester Xanh"
+  ],
+  "M. Kruse": [
+   "Bremen",
+   "Fenerbahçe",
+   "Freiburg",
+   "Gladbach",
+   "Mönchengladbach",
+   "Union Berlin",
+   "Wolfsburg"
+  ],
+  "M. Kudus": [
+   "Ajax",
+   "Tottenham",
+   "West Ham"
+  ],
+  "M. Lacroix": [
+   "Chelsea",
+   "Crystal Palace",
+   "Wolfsburg"
+  ],
+  "M. Laudrup": [
+   "Ajax",
+   "Barcelona",
+   "Brøndby",
+   "Juventus",
+   "Lazio",
+   "Madrid",
+   "Torino"
+  ],
+  "M. Lemina": [
+   "Fulham",
+   "Galatasaray",
+   "Juventus",
+   "Marseille",
+   "Nice",
+   "Southampton",
+   "Torino",
+   "Wolves"
+  ],
+  "M. Léris": [
+   "Juventus",
+   "Torino"
+  ],
+  "M. Lewis-Skelly": [
+   "Arsenal"
+  ],
+  "M. Locatelli": [
+   "Juventus",
+   "Milano",
+   "Sassuolo",
+   "Torino"
+  ],
+  "M. Maignan": [
+   "Lille",
+   "Milano"
+  ],
+  "M. Mandžukić": [
+   "Atlético",
+   "Bayern",
+   "Dinamo Zagreb",
+   "Juventus",
+   "Milano",
+   "Torino",
+   "Wolfsburg"
+  ],
+  "M. Mittelstädt": [
+   "Stuttgart"
+  ],
+  "M. Mount": [
+   "Chelsea",
+   "Derby County",
+   "Manchester Đỏ"
+  ],
+  "M. Mudryk": [
+   "Chelsea",
+   "Tottenham"
+  ],
+  "M. Neuer": [
+   "Bayern",
+   "Schalke"
+  ],
+  "M. Noor": [
+   "Al Ittihad",
+   "Al Nassr"
+  ],
+  "M. Ødegaard": [
+   "Arsenal",
+   "Madrid",
+   "Real Sociedad"
+  ],
+  "M. Olise": [
+   "Bayern",
+   "Crystal Palace"
+  ],
+  "M. Olivera": [
+   "Getafe"
+  ],
+  "M. Overmars": [
+   "Ajax",
+   "Arsenal",
+   "Barcelona"
+  ],
+  "M. Owen": [
+   "Liverpool",
+   "Madrid",
+   "Manchester Đỏ",
+   "Newcastle",
+   "Stoke City"
+  ],
+  "M. Özil": [
+   "Arsenal",
+   "Başakşehir",
+   "Bremen",
+   "Fenerbahçe",
+   "Madrid",
+   "Schalke"
+  ],
+  "M. Palestra": [
+   "Atalanta",
+   "Cagliari",
+   "Chelsea"
+  ],
+  "M. Pašalić": [
+   "Atalanta",
+   "Chelsea",
+   "Elche",
+   "Hajduk Split",
+   "Milano",
+   "Monaco"
+  ],
+  "M. Pessina": [
+   "Lecce",
+   "Milano",
+   "Monza"
+  ],
+  "M. Pjanić": [
+   "Barcelona",
+   "Beşiktaş",
+   "Juventus",
+   "Lyon",
+   "Roma",
+   "Torino"
+  ],
+  "M. Politano": [
+   "Inter",
+   "Napoli",
+   "Pescara",
+   "Roma",
+   "Sassuolo"
+  ],
+  "M. Rashford": [
+   "Aston Villa",
+   "Barcelona",
+   "Manchester Đỏ"
+  ],
+  "M. Reus": [
+   "Dortmund",
+   "Gladbach",
+   "LA Galaxy",
+   "Mönchengladbach"
+  ],
+  "M. Riemann": [
+   "Bochum"
+  ],
+  "M. Rogers": [
+   "Aston Villa",
+   "Bournemouth",
+   "Chelsea",
+   "Manchester Xanh"
+  ],
+  "M. Ruggeri": [
+   "Aston Villa",
+   "Atalanta",
+   "Atlético"
+  ],
+  "M. Sabitzer": [
+   "Bayern",
+   "Dortmund",
+   "Leipzig",
+   "Manchester Đỏ",
+   "Salzburg"
+  ],
+  "M. Safonov": [
+   "Paris"
+  ],
+  "M. Sakho": [
+   "Crystal Palace",
+   "Liverpool",
+   "Montpellier",
+   "Paris"
+  ],
+  "M. Salah": [
+   "Basel",
+   "Chelsea",
+   "Fiorentina",
+   "Liverpool",
+   "Roma",
+   "Trabzonspor"
+  ],
+  "M. Salgado": [
+   "Celta",
+   "Madrid"
+  ],
+  "M. Sanson": [
+   "Aston Villa",
+   "Marseille",
+   "Montpellier",
+   "Nice"
+  ],
+  "M. Senesi": [
+   "Tottenham"
+  ],
+  "M. Sissoko": [
+   "Nantes",
+   "Newcastle",
+   "Panathinaikos",
+   "Tottenham",
+   "Watford"
+  ],
+  "M. Stekelenburg": [
+   "Ajax",
+   "Everton",
+   "Fulham",
+   "Monaco",
+   "Roma",
+   "Southampton"
+  ],
+  "M. Svilar": [
+   "Benfica"
+  ],
+  "M. Taremi": [
+   "Inter",
+   "Olympiacos",
+   "Porto"
+  ],
+  "M. Tekdemir": [
+   "Başakşehir"
+  ],
+  "M. ter Stegen": [
+   "Ajax",
+   "Barcelona",
+   "Girona",
+   "Gladbach",
+   "Mönchengladbach"
+  ],
+  "M. Thiaw": [
+   "Milano",
+   "Newcastle",
+   "Schalke"
+  ],
+  "M. Thuram": [
+   "Gladbach",
+   "Inter",
+   "Mönchengladbach"
+  ],
+  "M. Uth": [
+   "Heracles",
+   "Hoffenheim",
+   "Köln",
+   "Schalke"
+  ],
+  "M. van Basten": [
+   "Ajax",
+   "Milano"
+  ],
+  "M. van de Ven": [
+   "Tottenham",
+   "Volendam",
+   "Wolfsburg"
+  ],
+  "M. Verratti": [
+   "Paris",
+   "Pescara"
+  ],
+  "M. Weiser": [
+   "Bayern",
+   "Bremen",
+   "Köln",
+   "Leverkusen"
+  ],
+  "M. Wolf": [
+   "Augsburg",
+   "Dortmund",
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Köln"
+  ],
+  "M. Zaccagni": [
+   "Hellas Verona",
+   "Lazio",
+   "Verona"
+  ],
+  "Maicon": [
+   "Inter",
+   "Manchester Xanh",
+   "Monaco",
+   "Roma"
+  ],
+  "Manu Trigueros": [
+   "Granada",
+   "Villarreal"
+  ],
+  "Marc Bartra": [
+   "Barcelona",
+   "Dortmund",
+   "Espanyol",
+   "Real Betis",
+   "Trabzonspor"
+  ],
+  "Marc Casadó": [
+   "Barcelona"
+  ],
+  "Marc Cucurella": [
+   "Barcelona",
+   "Brighton",
+   "Chelsea",
+   "Eibar",
+   "Espanyol",
+   "Getafe",
+   "Madrid"
+  ],
+  "Marcelo": [
+   "Madrid",
+   "Olympiacos"
+  ],
+  "Marco Asensio": [
+   "Aston Villa",
+   "Espanyol",
+   "Fenerbahçe",
+   "Madrid",
+   "Mallorca",
+   "Paris"
+  ],
+  "Marcos Alonso": [
+   "Barcelona",
+   "Celta",
+   "Chelsea",
+   "Fiorentina",
+   "Madrid",
+   "Sunderland"
+  ],
+  "Marcos Llorente": [
+   "Alavés",
+   "Atlético",
+   "Madrid"
+  ],
+  "Mariano": [
+   "Alavés",
+   "Lyon",
+   "Madrid",
+   "Sevilla"
+  ],
+  "Mario Suárez": [
+   "Atlético",
+   "Celta",
+   "Fiorentina",
+   "Mallorca",
+   "Rayo Vallecano",
+   "Valencia",
+   "Watford"
+  ],
+  "Marquinhos": [
+   "Corinthians",
+   "Paris",
+   "Roma"
+  ],
+  "Mateus Fernandes": [
+   "Southampton",
+   "Sporting",
+   "Sporting CP",
+   "Tottenham",
+   "West Ham"
+  ],
+  "Matheus Cunha": [
+   "Atlético",
+   "Leipzig",
+   "Manchester Đỏ",
+   "Wolves"
+  ],
+  "Matheus Nunes": [
+   "Estoril",
+   "Manchester Xanh",
+   "Sporting",
+   "Sporting CP",
+   "Wolves"
+  ],
+  "Miguel Veloso": [
+   "Dynamo Kyiv",
+   "Genoa",
+   "Hellas Verona",
+   "Pisa",
+   "Sporting",
+   "Sporting CP",
+   "Verona"
+  ],
+  "Mikel Merino": [
+   "Arsenal",
+   "Dortmund",
+   "Newcastle",
+   "Osasuna",
+   "Real Sociedad"
+  ],
+  "Min Sang Gi": [
+   "Suwon Samsung"
+  ],
+  "Mingueza": [
+   "Barcelona",
+   "Celta",
+   "Crystal Palace"
+  ],
+  "Moi Gómez": [
+   "Getafe",
+   "Villarreal"
+  ],
+  "Morata": [
+   "Atlético",
+   "Chelsea",
+   "Como",
+   "Galatasaray",
+   "Juventus",
+   "Leganés",
+   "Madrid",
+   "Milano",
+   "Torino"
+  ],
+  "Mosquera": [
+   "Arsenal",
+   "Valencia"
+  ],
+  "Muniain": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "San Lorenzo"
+  ],
+  "Munir": [
+   "Alavés",
+   "Barcelona",
+   "Getafe",
+   "Las Palmas",
+   "Leganés",
+   "Sevilla",
+   "Valencia"
+  ],
+  "N. Aguerd": [
+   "Marseille",
+   "Real Sociedad",
+   "Rennes",
+   "West Ham"
+  ],
+  "N. Aké": [
+   "Bournemouth",
+   "Chelsea",
+   "Fenerbahçe",
+   "Manchester Xanh",
+   "Watford"
+  ],
+  "N. Barella": [
+   "Cagliari",
+   "Como",
+   "Inter"
+  ],
+  "N. Clyne": [
+   "Bournemouth",
+   "Crystal Palace",
+   "Liverpool",
+   "Southampton"
+  ],
+  "N. Elvedi": [
+   "Gladbach",
+   "Leeds",
+   "Mönchengladbach",
+   "Zürich"
+  ],
+  "N. Fekir": [
+   "Lyon",
+   "Real Betis"
+  ],
+  "N. Füllkrug": [
+   "Bremen",
+   "Dortmund",
+   "Milano",
+   "Nürnberg",
+   "West Ham"
+  ],
+  "N. Gonzalez": [
+   "Argentinos Juniors",
+   "Fiorentina",
+   "Juventus",
+   "Stuttgart",
+   "Torino"
+  ],
+  "N. Gudelj": [
+   "Ajax",
+   "Getafe",
+   "Sevilla",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "N. Höfler": [
+   "Freiburg"
+  ],
+  "N. Jackson": [
+   "Aston Villa",
+   "Bayern",
+   "Chelsea",
+   "Villarreal"
+  ],
+  "N. Kanté": [
+   "Al Ittihad",
+   "Chelsea",
+   "Fenerbahçe",
+   "Leicester"
+  ],
+  "N. Kanu": [
+   "Ajax",
+   "Arsenal",
+   "Inter"
+  ],
+  "N. Lodeiro": [
+   "Ajax",
+   "Boca Juniors",
+   "Botafogo",
+   "Corinthians",
+   "Houston Dynamo",
+   "Orlando City",
+   "Seattle Sounders"
+  ],
+  "N. Matić": [
+   "Benfica",
+   "Chelsea",
+   "Lyon",
+   "Manchester Đỏ",
+   "Rennes",
+   "Roma",
+   "Sassuolo"
+  ],
+  "N. Mazraoui": [
+   "Manchester Đỏ"
+  ],
+  "N. Mendy": [
+   "Monaco",
+   "Nice"
+  ],
+  "N. Molina": [
+   "Atlético",
+   "Boca Juniors",
+   "Roma",
+   "Udinese"
+  ],
+  "N. Mukiele": [
+   "Leipzig",
+   "Leverkusen",
+   "Montpellier",
+   "Paris",
+   "Sunderland"
+  ],
+  "N. O'Reilly": [
+   "Manchester Xanh"
+  ],
+  "N. Otamendi": [
+   "Benfica",
+   "Manchester Xanh",
+   "Porto",
+   "River Plate",
+   "Valencia",
+   "Vélez Sarsfield"
+  ],
+  "N. Pépé": [
+   "Angers",
+   "Arsenal",
+   "Lille",
+   "Nice",
+   "Trabzonspor",
+   "Villarreal"
+  ],
+  "N. Pérez": [
+   "Atlético"
+  ],
+  "N. Savona": [
+   "Juventus",
+   "Torino"
+  ],
+  "N. Schlotterbeck": [
+   "Dortmund",
+   "Freiburg",
+   "Union Berlin"
+  ],
+  "N. Seiwald": [
+   "Leipzig",
+   "Salzburg"
+  ],
+  "N. Süle": [
+   "Bayern",
+   "Dortmund",
+   "Hoffenheim"
+  ],
+  "N. Tagliafico": [
+   "Ajax",
+   "Lyon"
+  ],
+  "N. Tella": [
+   "Leverkusen",
+   "Southampton"
+  ],
+  "N. Uysal": [
+   "Beşiktaş"
+  ],
+  "N. Vidić": [
+   "Crvena Zvezda",
+   "Crvena zvezda",
+   "Inter",
+   "Manchester Đỏ"
+  ],
+  "N. Viergever": [
+   "Ajax",
+   "Sparta Rotterdam"
+  ],
+  "N. Vlašić": [
+   "Everton",
+   "Hajduk Split",
+   "Torino FC",
+   "West Ham"
+  ],
+  "N. Williams": [
+   "Fulham",
+   "Liverpool",
+   "Nottingham Forest"
+  ],
+  "N. Zaniolo": [
+   "Fiorentina"
+  ],
+  "Nacho Fernández": [
+   "Al Qadsiah",
+   "Madrid"
+  ],
+  "Nani": [
+   "Fenerbahçe",
+   "Lazio",
+   "Manchester Đỏ",
+   "Orlando City",
+   "Sporting",
+   "Sporting CP",
+   "Valencia"
+  ],
+  "Nélson Semedo": [
+   "Barcelona",
+   "Benfica",
+   "Fenerbahçe",
+   "Wolves"
+  ],
+  "Neto": [
+   "Arsenal",
+   "Barcelona",
+   "Botafogo",
+   "Bournemouth",
+   "Fiorentina",
+   "Juventus",
+   "Torino",
+   "Valencia"
+  ],
+  "Neymar Jr": [
+   "Al Hilal",
+   "Barcelona",
+   "Paris",
+   "Santos"
+  ],
+  "Nico Paz": [
+   "Como",
+   "Madrid"
+  ],
+  "Nico Williams": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Osasuna"
+  ],
+  "Nuno Mendes": [
+   "Paris",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "O. Baumann": [
+   "Freiburg",
+   "Hoffenheim"
+  ],
+  "O. Bierhoff": [
+   "Gladbach",
+   "Hamburg",
+   "Milano",
+   "Monaco",
+   "Mönchengladbach",
+   "Salzburg",
+   "Udinese"
+  ],
+  "O. Boscagli": [
+   "Nice"
+  ],
+  "O. Dembélé": [
+   "Barcelona",
+   "Dortmund",
+   "Paris",
+   "Rennes"
+  ],
+  "O. Duda": [
+   "Al Ettifaq",
+   "Hellas Verona",
+   "Köln",
+   "Norwich",
+   "Verona"
+  ],
+  "O. Giroud": [
+   "Arsenal",
+   "Chelsea",
+   "LAFC",
+   "Lille",
+   "Los Angeles FC",
+   "Milano",
+   "Montpellier"
+  ],
+  "O. Hawsawi": [
+   "Al Ahli",
+   "Al Hilal",
+   "Anderlecht"
+  ],
+  "O. Kahn": [
+   "Bayern",
+   "Karlsruher SC"
+  ],
+  "O. Kökçü": [
+   "Benfica",
+   "Beşiktaş",
+   "Feyenoord"
+  ],
+  "O. Kossounou": [
+   "Atalanta",
+   "Club Brugge",
+   "Leverkusen"
+  ],
+  "Ø. Nyland": [
+   "Aston Villa",
+   "Bournemouth",
+   "Leipzig",
+   "Sevilla"
+  ],
+  "O. Solskjaer": [
+   "Manchester Đỏ"
+  ],
+  "Ó. Trejo": [
+   "Boca Juniors",
+   "Elche",
+   "Mallorca",
+   "Rayo Vallecano"
+  ],
+  "O. Watkins": [
+   "Al Hilal",
+   "Aston Villa",
+   "Brentford"
+  ],
+  "O. Zinchenko": [
+   "Ajax",
+   "Arsenal",
+   "Manchester Xanh",
+   "Nottingham Forest",
+   "PSV"
+  ],
+  "Omar Mascarell|Guinea Xích Đạo": [
+   "Derby County",
+   "Madrid"
+  ],
+  "Omar Mascarell|Tây Ban Nha": [
+   "Derby County",
+   "Madrid"
+  ],
+  "Oriol Romeu": [
+   "Barcelona",
+   "Chelsea",
+   "Girona",
+   "Southampton",
+   "Stuttgart",
+   "Valencia"
+  ],
+  "Oyarzabal": [
+   "Eibar",
+   "Real Sociedad"
+  ],
+  "P. Aubameyang": [
+   "Al Qadsiah",
+   "Arsenal",
+   "Barcelona",
+   "Chelsea",
+   "Dortmund",
+   "Lille",
+   "Marseille",
+   "Milano",
+   "Monaco"
+  ],
+  "P. Billing": [
+   "Bournemouth"
+  ],
+  "P. Čech": [
+   "Arsenal",
+   "Chelsea",
+   "Rennes",
+   "Sparta Praha"
+  ],
+  "P. Crouch": [
+   "Aston Villa",
+   "Burnley",
+   "Liverpool",
+   "Norwich",
+   "Southampton",
+   "Stoke City",
+   "Tottenham"
+  ],
+  "P. Dybala": [
+   "Juventus",
+   "Palermo",
+   "Roma",
+   "Torino"
+  ],
+  "P. Estupiñán": [
+   "Almería",
+   "Brighton",
+   "Granada",
+   "Mallorca",
+   "Milano",
+   "Osasuna",
+   "Villarreal",
+   "Watford"
+  ],
+  "P. Foden": [
+   "Manchester Xanh"
+  ],
+  "P. Förster": [
+   "Nürnberg",
+   "Stuttgart"
+  ],
+  "P. Frankowski": [
+   "Chicago Fire",
+   "Galatasaray",
+   "Lens",
+   "Rennes"
+  ],
+  "P. Gazzaniga": [
+   "Southampton"
+  ],
+  "P. Groß": [
+   "Brighton",
+   "Dortmund",
+   "Hoffenheim",
+   "Karlsruher SC"
+  ],
+  "P. Herrmann": [
+   "Gladbach",
+   "Mönchengladbach"
+  ],
+  "P. Hincapié": [
+   "Arsenal",
+   "Leverkusen"
+  ],
+  "P. Hofmann": [
+   "Brentford",
+   "Schalke"
+  ],
+  "P. Højbjerg": [
+   "Augsburg",
+   "Bayern",
+   "Marseille",
+   "Schalke",
+   "Southampton",
+   "Tottenham"
+  ],
+  "P. Kadeřábek": [
+   "Hoffenheim",
+   "Sparta Praha"
+  ],
+  "P. Kalulu": [
+   "Juventus",
+   "Milano",
+   "Torino"
+  ],
+  "P. Kimpembe": [
+   "Paris"
+  ],
+  "P. Kluivert": [
+   "Ajax",
+   "Barcelona",
+   "Lille",
+   "Milano",
+   "Newcastle",
+   "PSV",
+   "Valencia"
+  ],
+  "P. Lahm": [
+   "Bayern",
+   "Stuttgart"
+  ],
+  "P. Mainka": [
+   "Heidenheim"
+  ],
+  "P. Maldini": [
+   "Milano"
+  ],
+  "P. Max": [
+   "Augsburg",
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Karlsruher SC",
+   "PSV",
+   "Panathinaikos",
+   "Schalke"
+  ],
+  "P. Nedvěd": [
+   "Juventus",
+   "Lazio",
+   "Sparta Praha",
+   "Torino"
+  ],
+  "P. Pogba": [
+   "Juventus",
+   "Manchester Đỏ",
+   "Monaco",
+   "Torino"
+  ],
+  "P. Rossi": [
+   "Como",
+   "Hellas Verona",
+   "Juventus",
+   "Milano",
+   "Torino",
+   "Verona"
+  ],
+  "P. Sarr": [
+   "Juventus",
+   "Torino",
+   "Tottenham"
+  ],
+  "P. Schick": [
+   "Leipzig",
+   "Leverkusen",
+   "Roma",
+   "Sparta Praha"
+  ],
+  "P. Schmeichel": [
+   "Aston Villa",
+   "Brøndby",
+   "Manchester Xanh",
+   "Manchester Đỏ",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "P. Scholes": [
+   "Manchester Đỏ"
+  ],
+  "P. Šulc": [
+   "Lyon"
+  ],
+  "P. Vieira": [
+   "Arsenal",
+   "Inter",
+   "Juventus",
+   "Manchester Xanh",
+   "Milano",
+   "Torino"
+  ],
+  "P. Zieliński": [
+   "Inter",
+   "Napoli",
+   "Udinese"
+  ],
+  "Pablo Maffeo": [
+   "Girona",
+   "Mallorca",
+   "Manchester Xanh",
+   "Stuttgart"
+  ],
+  "Pablo Sarabia": [
+   "Getafe",
+   "Madrid",
+   "Paris",
+   "Sevilla",
+   "Sporting",
+   "Sporting CP",
+   "Wolves"
+  ],
+  "Paco Alcácer": [
+   "Barcelona",
+   "Dortmund",
+   "Getafe",
+   "Valencia",
+   "Villarreal"
+  ],
+  "Palhinha": [
+   "Bayern",
+   "Benfica",
+   "Braga",
+   "Fulham",
+   "Sporting",
+   "Sporting CP",
+   "Tottenham"
+  ],
+  "Parejo": [
+   "Getafe",
+   "Madrid",
+   "Valencia",
+   "Villarreal"
+  ],
+  "Park Chu Young": [
+   "Al Shabab",
+   "Arsenal",
+   "Celta",
+   "FC Seoul",
+   "Monaco",
+   "Ulsan HD",
+   "Watford"
+  ],
+  "Park Ji Sung": [
+   "Manchester Đỏ",
+   "PSV"
+  ],
+  "Park Ji-sung": [
+   "Manchester Đỏ",
+   "PSV"
+  ],
+  "Pau Cubarsí": [
+   "Barcelona",
+   "Girona"
+  ],
+  "Pau Torres": [
+   "Aston Villa",
+   "Villarreal"
+  ],
+  "Paulo Futre": [
+   "Atlético",
+   "Benfica",
+   "Marseille",
+   "Milano",
+   "Porto",
+   "Sporting",
+   "Sporting CP",
+   "West Ham"
+  ],
+  "Pedraza": [
+   "Villarreal"
+  ],
+  "Pedri": [
+   "Barcelona",
+   "Las Palmas"
+  ],
+  "Pedro": [
+   "Barcelona",
+   "Chelsea",
+   "Lazio",
+   "Roma"
+  ],
+  "Pedro Neto": [
+   "Braga",
+   "Chelsea",
+   "Lazio",
+   "Wolves"
+  ],
+  "Pedro Porro": [
+   "Barcelona",
+   "Girona",
+   "Manchester Xanh",
+   "Sporting",
+   "Sporting CP",
+   "Tottenham"
+  ],
+  "Pelé": [
+   "Santos"
+  ],
+  "Pepe": [
+   "Beşiktaş",
+   "Madrid",
+   "Porto"
+  ],
+  "Pepe Reina": [
+   "Aston Villa",
+   "Barcelona",
+   "Bayern",
+   "Como",
+   "Lazio",
+   "Liverpool",
+   "Milano",
+   "Napoli",
+   "Villarreal"
+  ],
+  "Piqué": [
+   "Barcelona",
+   "Manchester Đỏ"
+  ],
+  "Pubill": [
+   "Almería",
+   "Atlético",
+   "Levante"
+  ],
+  "Q. Timber": [
+   "Crystal Palace",
+   "Feyenoord",
+   "Marseille",
+   "Utrecht"
+  ],
+  "Quaresma": [
+   "Barcelona",
+   "Beşiktaş",
+   "Chelsea",
+   "Inter",
+   "Kasımpaşa",
+   "Porto",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "R. Aït-Nouri": [
+   "Wolves"
+  ],
+  "R. Andrich": [
+   "Heidenheim",
+   "Leverkusen",
+   "Union Berlin"
+  ],
+  "R. Araujo": [
+   "Barcelona",
+   "Liverpool"
+  ],
+  "R. Baggio": [
+   "Bologna",
+   "Fiorentina",
+   "Inter",
+   "Juventus",
+   "Milano",
+   "Torino"
+  ],
+  "R. Barkley": [
+   "Aston Villa",
+   "Chelsea",
+   "Everton",
+   "Leeds",
+   "Nice",
+   "Sheffield Wednesday"
+  ],
+  "R. Bellanova": [
+   "Atalanta",
+   "Cagliari",
+   "Inter",
+   "Pescara",
+   "Torino FC"
+  ],
+  "R. Bensebaini": [
+   "Gladbach",
+   "Montpellier",
+   "Mönchengladbach",
+   "Rennes"
+  ],
+  "R. Bentancur": [
+   "Boca Juniors",
+   "Juventus",
+   "Torino",
+   "Tottenham"
+  ],
+  "R. Borré": [
+   "Atlético",
+   "Bremen",
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Internacional",
+   "River Plate",
+   "Villarreal"
+  ],
+  "R. Bürki": [
+   "Dortmund",
+   "Freiburg",
+   "St. Louis City"
+  ],
+  "R. Cherki": [
+   "Lyon",
+   "Manchester Xanh"
+  ],
+  "R. De Paul": [
+   "Atlético",
+   "Inter Miami",
+   "Udinese",
+   "Valencia"
+  ],
+  "R. Del Castillo": [
+   "Brest",
+   "Lyon",
+   "Osasuna",
+   "Rennes"
+  ],
+  "R. Doan": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Freiburg",
+   "PSV"
+  ],
+  "R. Fährmann": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Schalke"
+  ],
+  "R. Ferdinand": [
+   "Bournemouth",
+   "Leeds",
+   "Manchester Đỏ",
+   "West Ham"
+  ],
+  "R. Fowler": [
+   "Leeds",
+   "Liverpool",
+   "Manchester Xanh"
+  ],
+  "R. Freuler": [
+   "Atalanta",
+   "Bologna",
+   "Nottingham Forest",
+   "Olympiacos"
+  ],
+  "R. Gagliardini": [
+   "Atalanta"
+  ],
+  "R. Giggs": [
+   "Manchester Đỏ"
+  ],
+  "R. Gosens": [
+   "Atalanta",
+   "Fiorentina",
+   "Heracles",
+   "Inter",
+   "Schalke",
+   "Union Berlin"
+  ],
+  "R. Gravenberch": [
+   "Ajax",
+   "Bayern",
+   "Liverpool"
+  ],
+  "R. Guerreiro": [
+   "Bayern",
+   "Dortmund"
+  ],
+  "R. Gullit": [
+   "Chelsea",
+   "Feyenoord",
+   "Milano",
+   "PSV"
+  ],
+  "R. Henry": [
+   "Brentford"
+  ],
+  "R. Højlund": [
+   "Atalanta",
+   "FC Copenhagen",
+   "Manchester Đỏ",
+   "Napoli"
+  ],
+  "R. James": [
+   "Chelsea"
+  ],
+  "R. Janssen": [
+   "Fortuna Sittard"
+  ],
+  "R. Jiménez": [
+   "Atlético",
+   "Benfica",
+   "Club América",
+   "Fulham",
+   "Wolves"
+  ],
+  "R. Keane": [
+   "Celtic",
+   "Manchester Đỏ",
+   "Nottingham Forest"
+  ],
+  "R. Khedira": [
+   "Leipzig",
+   "Stuttgart"
+  ],
+  "R. Knoche": [
+   "Union Berlin",
+   "Wolfsburg"
+  ],
+  "R. Koch": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Freiburg",
+   "Leeds"
+  ],
+  "R. Koeman": [
+   "Ajax",
+   "Barcelona",
+   "Feyenoord",
+   "PSV"
+  ],
+  "R. Kolo Muani": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Juventus",
+   "Nantes",
+   "Paris",
+   "Torino",
+   "Tottenham"
+  ],
+  "R. Le Normand|Pháp": [
+   "Atlético",
+   "Brest",
+   "Real Sociedad"
+  ],
+  "R. Le Normand|Tây Ban Nha": [
+   "Atlético",
+   "Brest",
+   "Real Sociedad"
+  ],
+  "R. Lewandowski": [
+   "Barcelona",
+   "Bayern",
+   "Chicago Fire",
+   "Dortmund"
+  ],
+  "R. Lewis": [
+   "Manchester Xanh"
+  ],
+  "R. Loftus-Cheek": [
+   "Chelsea",
+   "Crystal Palace",
+   "Fulham",
+   "Milano"
+  ],
+  "R. Lukaku": [
+   "Anderlecht",
+   "Chelsea",
+   "Everton",
+   "Fenerbahçe",
+   "Inter",
+   "Manchester Đỏ",
+   "Napoli",
+   "Roma"
+  ],
+  "R. Mahrez": [
+   "Al Ahli",
+   "Leicester",
+   "Manchester Xanh"
+  ],
+  "R. Mandragora": [
+   "Genoa",
+   "Juventus",
+   "Pescara",
+   "Torino"
+  ],
+  "R. Marin": [
+   "AEK Athens",
+   "Ajax",
+   "Cagliari"
+  ],
+  "R. Márquez": [
+   "Barcelona",
+   "Hellas Verona",
+   "Monaco",
+   "New York Red Bulls",
+   "Verona"
+  ],
+  "R. Mühren": [
+   "Volendam"
+  ],
+  "R. Nainggolan": [
+   "Cagliari",
+   "Inter",
+   "Roma"
+  ],
+  "R. Nouri": [
+   "Wolves"
+  ],
+  "R. Orsolini": [
+   "Bologna"
+  ],
+  "R. Pereyra": [
+   "Juventus",
+   "River Plate",
+   "Torino",
+   "Udinese"
+  ],
+  "R. Pirès": [
+   "Arsenal",
+   "Aston Villa",
+   "Marseille",
+   "Villarreal"
+  ],
+  "R. Rivelino": [
+   "Al Hilal",
+   "Corinthians"
+  ],
+  "R. Rodríguez": [
+   "Milano",
+   "PSV",
+   "Real Betis",
+   "Torino FC",
+   "Wolfsburg",
+   "Zürich"
+  ],
+  "R. Saponara": [
+   "Milano"
+  ],
+  "R. Schmid": [
+   "Bremen",
+   "Frosinone",
+   "Salzburg"
+  ],
+  "R. Sterling": [
+   "Arsenal",
+   "Chelsea",
+   "Feyenoord",
+   "Liverpool",
+   "Manchester Xanh"
+  ],
+  "R. van Nistelrooy": [
+   "Hamburg",
+   "Madrid",
+   "Manchester Đỏ",
+   "PSV"
+  ],
+  "R. van Persie": [
+   "Arsenal",
+   "Fenerbahçe",
+   "Feyenoord",
+   "Manchester Đỏ"
+  ],
+  "R. van Wolfswinkel": [
+   "Basel",
+   "Norwich",
+   "Real Betis",
+   "Sporting",
+   "Sporting CP",
+   "Twente",
+   "Utrecht"
+  ],
+  "R. Varane": [
+   "Como",
+   "Lens",
+   "Madrid",
+   "Manchester Đỏ"
+  ],
+  "R. Vargas": [
+   "Augsburg",
+   "Sevilla"
+  ],
+  "R. Völler": [
+   "Bremen",
+   "Leverkusen",
+   "Marseille",
+   "Roma"
+  ],
+  "R. Yaremchuk": [
+   "Benfica",
+   "Club Brugge",
+   "Dynamo Kyiv",
+   "Lyon",
+   "Olympiacos",
+   "Valencia"
+  ],
+  "R. Zalazar": [
+   "Eintracht Frankfurt",
+   "Frankfurt"
+  ],
+  "Rafa Mir": [
+   "Las Palmas",
+   "Nottingham Forest",
+   "Sevilla",
+   "Valencia",
+   "Wolves"
+  ],
+  "Rafael Leão": [
+   "Galatasaray",
+   "Lille",
+   "Milano",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "Rafinha": [
+   "Bayern",
+   "Flamengo",
+   "Genoa",
+   "Schalke"
+  ],
+  "Raíllo": [
+   "Espanyol",
+   "Mallorca"
+  ],
+  "Ramires": [
+   "Benfica",
+   "Chelsea"
+  ],
+  "Raphinha": [
+   "Barcelona",
+   "Leeds",
+   "Rennes",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "Raúl": [
+   "Al Sadd",
+   "Madrid",
+   "Schalke"
+  ],
+  "Raúl Albiol": [
+   "Getafe",
+   "Madrid",
+   "Napoli",
+   "Pisa",
+   "Valencia",
+   "Villarreal"
+  ],
+  "Raúl de Tomás": [
+   "Benfica",
+   "Espanyol",
+   "Madrid",
+   "Rayo Vallecano"
+  ],
+  "Reguilón": [
+   "Atlético",
+   "Boca Juniors",
+   "Brentford",
+   "Inter Miami",
+   "Manchester Đỏ",
+   "Sevilla",
+   "Tottenham"
+  ],
+  "Renato Sanches": [
+   "Bayern",
+   "Benfica",
+   "Lille",
+   "Panathinaikos",
+   "Paris",
+   "Roma",
+   "Swansea City"
+  ],
+  "Ricardo Carvalho": [
+   "Chelsea",
+   "Madrid",
+   "Monaco",
+   "Porto"
+  ],
+  "Richarlison": [
+   "Everton",
+   "Tottenham",
+   "Watford"
+  ],
+  "Riquelme": [
+   "Argentinos Juniors",
+   "Barcelona",
+   "Boca Juniors",
+   "Villarreal"
+  ],
+  "Rivaldo": [
+   "AEK Athens",
+   "Barcelona",
+   "Corinthians",
+   "Milano",
+   "Olympiacos"
+  ],
+  "Roberto Carlos": [
+   "Corinthians",
+   "Fenerbahçe",
+   "Inter",
+   "Madrid"
+  ],
+  "Roberto Firmino": [
+   "Al Sadd",
+   "Hoffenheim",
+   "Liverpool"
+  ],
+  "Rodri": [
+   "Atlético",
+   "Barcelona",
+   "Manchester Xanh",
+   "Villarreal"
+  ],
+  "Rodrygo": [
+   "Madrid",
+   "Santos"
+  ],
+  "Rômulo": [
+   "Leipzig"
+  ],
+  "Ronaldinho": [
+   "Barcelona",
+   "Flamengo",
+   "Milano",
+   "Paris"
+  ],
+  "Ronaldo": [
+   "Barcelona",
+   "Corinthians",
+   "Inter",
+   "Madrid",
+   "Milano",
+   "PSV"
+  ],
+  "Roy Makaay": [
+   "Bayern",
+   "Feyenoord"
+  ],
+  "Rúben Dias": [
+   "Benfica",
+   "Manchester Xanh"
+  ],
+  "Rúben Neves": [
+   "Porto"
+  ],
+  "Rui Costa": [
+   "Benfica",
+   "Fiorentina",
+   "Milano"
+  ],
+  "Rui Patrício": [
+   "Atalanta",
+   "Roma",
+   "Sporting",
+   "Sporting CP",
+   "Wolves"
+  ],
+  "Ruiz de Galarreta": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Las Palmas",
+   "Leganés",
+   "Mallorca"
+  ],
+  "S. Adingra": [
+   "Ajax",
+   "Brighton",
+   "Monaco",
+   "Sunderland"
+  ],
+  "S. Agüero": [
+   "Atlético",
+   "Barcelona",
+   "Manchester Xanh"
+  ],
+  "S. Al Dawsari": [
+   "Al Hilal",
+   "Villarreal"
+  ],
+  "S. Al Jaber": [
+   "Al Hilal",
+   "Wolves"
+  ],
+  "S. Amrabat": [
+   "Ajax",
+   "Club Brugge",
+   "Fenerbahçe",
+   "Feyenoord",
+   "Fiorentina",
+   "Hellas Verona",
+   "Manchester Đỏ",
+   "Real Betis",
+   "Utrecht",
+   "Verona"
+  ],
+  "S. Becker": [
+   "Ajax",
+   "Union Berlin"
+  ],
+  "S. Bell": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Mainz"
+  ],
+  "S. Berge": [
+   "Burnley",
+   "Fulham",
+   "Genk",
+   "Sheffield United"
+  ],
+  "S. Bergwijn": [
+   "Ajax",
+   "Al Ittihad",
+   "PSV"
+  ],
+  "S. Berhalter": [
+   "Vancouver Whitecaps"
+  ],
+  "S. Bueno": [
+   "Barcelona"
+  ],
+  "S. Campbell": [
+   "Arsenal",
+   "Newcastle",
+   "Tottenham"
+  ],
+  "S. Coates": [
+   "Liverpool",
+   "Sporting",
+   "Sporting CP",
+   "Sunderland"
+  ],
+  "S. Coleman": [
+   "Everton"
+  ],
+  "S. de Vrij": [
+   "Feyenoord",
+   "Inter",
+   "Lazio",
+   "Panathinaikos"
+  ],
+  "S. Diop": [
+   "Monaco"
+  ],
+  "S. Doumbia": [
+   "Basel",
+   "Girona",
+   "Newcastle",
+   "Roma",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "S. Effenberg": [
+   "Bayern",
+   "Fiorentina",
+   "Gladbach",
+   "Mönchengladbach",
+   "Wolfsburg"
+  ],
+  "S. El Shaarawy": [
+   "Genoa",
+   "Milano",
+   "Monaco",
+   "Padova",
+   "Roma"
+  ],
+  "S. Eto'o": [
+   "Barcelona",
+   "Chelsea",
+   "Espanyol",
+   "Everton",
+   "Inter",
+   "Leganés",
+   "Madrid",
+   "Mallorca"
+  ],
+  "S. Feghouli": [
+   "Almería",
+   "Galatasaray",
+   "Valencia",
+   "West Ham"
+  ],
+  "S. Fofana": [
+   "Fulham",
+   "Manchester Xanh",
+   "Udinese"
+  ],
+  "S. Gerrard": [
+   "LA Galaxy",
+   "Liverpool"
+  ],
+  "S. Gnabry": [
+   "Arsenal",
+   "Bayern",
+   "Bremen",
+   "Hoffenheim"
+  ],
+  "S. Govou": [
+   "Lyon",
+   "Panathinaikos"
+  ],
+  "S. Guirassy": [
+   "Dortmund",
+   "Köln",
+   "Lille",
+   "Rennes",
+   "Stuttgart"
+  ],
+  "S. Haller": [
+   "Ajax",
+   "Dortmund",
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Leganés",
+   "Utrecht",
+   "West Ham"
+  ],
+  "S. Handanovič": [
+   "Inter",
+   "Lazio",
+   "Udinese"
+  ],
+  "S. Hogan": [
+   "Brentford"
+  ],
+  "S. Kjær": [
+   "Atalanta",
+   "Fenerbahçe",
+   "Lille",
+   "Midtjylland",
+   "Milano",
+   "Palermo",
+   "Roma",
+   "Sevilla",
+   "Wolfsburg"
+  ],
+  "S. Kolašinac": [
+   "Arsenal",
+   "Atalanta",
+   "Marseille",
+   "Schalke"
+  ],
+  "S. Lainer": [
+   "Gladbach",
+   "Mönchengladbach",
+   "Salzburg"
+  ],
+  "S. Lammers": [
+   "PSV"
+  ],
+  "S. Lobotka": [
+   "Celta",
+   "Napoli"
+  ],
+  "S. Longstaff": [
+   "Leeds",
+   "Newcastle"
+  ],
+  "S. Luperto": [
+   "Napoli"
+  ],
+  "S. Mandanda": [
+   "Crystal Palace",
+   "Marseille",
+   "Rennes"
+  ],
+  "S. Mané": [
+   "Al Nassr",
+   "Bayern",
+   "Liverpool",
+   "Salzburg",
+   "Southampton"
+  ],
+  "S. March": [
+   "Brighton"
+  ],
+  "S. McManaman": [
+   "Liverpool",
+   "Madrid",
+   "Manchester Xanh"
+  ],
+  "S. McTominay": [
+   "Manchester Đỏ",
+   "Napoli"
+  ],
+  "S. Milinković-Savić": [
+   "Al Hilal",
+   "Genk",
+   "Lazio"
+  ],
+  "S. Mouriño": [
+   "Alavés",
+   "Atlético"
+  ],
+  "S. Okazaki": [
+   "Leicester",
+   "Mainz",
+   "Stuttgart"
+  ],
+  "S. Ortega": [
+   "Manchester Xanh",
+   "Nottingham Forest",
+   "Olympiacos"
+  ],
+  "S. Owairan": [
+   "Al Shabab"
+  ],
+  "S. Özcan": [
+   "Beşiktaş",
+   "Dortmund",
+   "Köln",
+   "Wolfsburg"
+  ],
+  "S. Posch": [
+   "Hoffenheim"
+  ],
+  "S. Rode": [
+   "Bayern",
+   "Dortmund",
+   "Eintracht Frankfurt",
+   "Frankfurt"
+  ],
+  "S. Romero": [
+   "Argentinos Juniors",
+   "Boca Juniors",
+   "Manchester Đỏ",
+   "Monaco"
+  ],
+  "S. Rudy": [
+   "Bayern",
+   "Hoffenheim",
+   "Schalke",
+   "Stuttgart"
+  ],
+  "S. Savić": [
+   "Atlético",
+   "Fiorentina",
+   "Manchester Xanh",
+   "Trabzonspor"
+  ],
+  "S. Surridge": [
+   "Bournemouth",
+   "Nashville SC",
+   "Nottingham Forest",
+   "Stoke City",
+   "Swansea City"
+  ],
+  "S. Terodde": [
+   "Bochum",
+   "Köln",
+   "Union Berlin"
+  ],
+  "S. Tonali": [
+   "Milano",
+   "Newcastle",
+   "Tottenham"
+  ],
+  "S. Ulreich": [
+   "Bayern",
+   "Hamburg",
+   "Stuttgart"
+  ],
+  "S. Umtiti": [
+   "Barcelona",
+   "Lecce",
+   "Lille",
+   "Lyon"
+  ],
+  "S. van Beek": [
+   "Feyenoord"
+  ],
+  "S. van den Berg": [
+   "Liverpool"
+  ],
+  "S. Verdi": [
+   "Eibar",
+   "Milano",
+   "Torino FC"
+  ],
+  "S. Widmer": [
+   "Granada",
+   "Mainz",
+   "Udinese"
+  ],
+  "S. Zuber": [
+   "AEK Athens",
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Hoffenheim",
+   "Stuttgart",
+   "Zürich"
+  ],
+  "Samuel Lino": [
+   "Atlético",
+   "Flamengo",
+   "Valencia"
+  ],
+  "Sancet": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Osasuna"
+  ],
+  "Santi Mina": [
+   "Celta",
+   "Valencia"
+  ],
+  "Saúl": [
+   "Atlético",
+   "Chelsea",
+   "Flamengo",
+   "Rayo Vallecano",
+   "Sevilla"
+  ],
+  "Savinho": [
+   "Girona",
+   "Manchester Xanh",
+   "PSV",
+   "Tottenham"
+  ],
+  "Sergi Cardona": [
+   "Las Palmas",
+   "Villarreal"
+  ],
+  "Sergi Darder": [
+   "Espanyol",
+   "Lyon",
+   "Mallorca"
+  ],
+  "Sergi Gómez": [
+   "Barcelona",
+   "Celta",
+   "Espanyol",
+   "Sevilla"
+  ],
+  "Sergi Roberto": [
+   "Barcelona",
+   "Como",
+   "LA Galaxy"
+  ],
+  "Sergio Busquets": [
+   "Barcelona",
+   "Inter Miami"
+  ],
+  "Sergio Gómez": [
+   "Anderlecht",
+   "Dortmund",
+   "Manchester Xanh",
+   "Real Sociedad"
+  ],
+  "Sergio León": [
+   "Elche",
+   "Levante",
+   "Osasuna",
+   "Real Betis"
+  ],
+  "Sergio Ramos": [
+   "Madrid",
+   "Monterrey",
+   "Paris",
+   "Sevilla"
+  ],
+  "Shin Kwang Hoon": [
+   "Jeonbuk Hyundai Motors",
+   "Pohang Steelers"
+  ],
+  "Sócrates": [
+   "Corinthians",
+   "Fiorentina",
+   "Flamengo",
+   "Santos"
+  ],
+  "Suso": [
+   "Almería",
+   "Cádiz",
+   "Genoa",
+   "Liverpool",
+   "Milano",
+   "Sevilla"
+  ],
+  "T. Abraham": [
+   "Aston Villa",
+   "Beşiktaş",
+   "Chelsea",
+   "Milano",
+   "Roma",
+   "Swansea City"
+  ],
+  "T. Alderweireld": [
+   "Ajax",
+   "Atlético",
+   "Southampton",
+   "Tottenham"
+  ],
+  "T. Alexander-Arnold": [
+   "Liverpool",
+   "Madrid"
+  ],
+  "T. Almada": [
+   "Atlanta United",
+   "Atlético",
+   "Botafogo",
+   "River Plate",
+   "Vélez Sarsfield"
+  ],
+  "T. Awoniyi": [
+   "Liverpool",
+   "Mainz",
+   "NEC Nijmegen",
+   "Nottingham Forest",
+   "Union Berlin"
+  ],
+  "T. Bischof": [
+   "Bayern",
+   "Hoffenheim"
+  ],
+  "T. Cahill": [
+   "Everton",
+   "Millwall",
+   "New York Red Bulls"
+  ],
+  "T. Castagne": [
+   "Atalanta",
+   "Fulham",
+   "Genk",
+   "Leicester"
+  ],
+  "T. Chalobah": [
+   "Chelsea",
+   "Ipswich",
+   "Ipswich Town"
+  ],
+  "T. Chandler": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Nürnberg"
+  ],
+  "T. Cleverley": [
+   "Aston Villa",
+   "Everton",
+   "Leicester",
+   "Manchester Đỏ",
+   "Watford"
+  ],
+  "T. Courtois": [
+   "Atlético",
+   "Chelsea",
+   "Genk",
+   "Madrid"
+  ],
+  "T. Delaney": [
+   "Anderlecht",
+   "Bremen",
+   "Dortmund",
+   "FC Copenhagen",
+   "Hoffenheim",
+   "Sevilla"
+  ],
+  "T. Dingomé": [
+   "Monaco"
+  ],
+  "T. Douvikas": [
+   "Celta",
+   "Como",
+   "Utrecht"
+  ],
+  "T. Hazard": [
+   "Anderlecht",
+   "Chelsea",
+   "Dortmund",
+   "Gladbach",
+   "Lens",
+   "Mönchengladbach",
+   "PSV"
+  ],
+  "T. Henry": [
+   "Arsenal",
+   "Barcelona",
+   "Juventus",
+   "Monaco",
+   "New York Red Bulls",
+   "Torino"
+  ],
+  "T. Hernández": [
+   "Al Hilal",
+   "Alavés",
+   "Madrid",
+   "Milano",
+   "Real Sociedad"
+  ],
+  "T. Holeš": [
+   "Slavia Prague"
+  ],
+  "T. Howard": [
+   "Everton",
+   "Manchester Đỏ",
+   "New York Red Bulls"
+  ],
+  "T. Jantschke": [
+   "Gladbach",
+   "Mönchengladbach"
+  ],
+  "T. Kehrer": [
+   "Ajax",
+   "Monaco",
+   "Paris",
+   "Schalke",
+   "West Ham"
+  ],
+  "T. Kleindienst": [
+   "Freiburg",
+   "Gladbach",
+   "Heidenheim",
+   "Mönchengladbach"
+  ],
+  "T. Koopmeiners": [
+   "Atalanta",
+   "Juventus",
+   "Torino"
+  ],
+  "T. Krauß": [
+   "Leipzig"
+  ],
+  "T. Kroos": [
+   "Bayern",
+   "Leverkusen",
+   "Madrid"
+  ],
+  "T. Kubo": [
+   "Getafe",
+   "Madrid",
+   "Mallorca",
+   "Real Sociedad",
+   "Villarreal"
+  ],
+  "T. Lemar": [
+   "Atlético",
+   "Elche",
+   "Girona",
+   "Monaco"
+  ],
+  "T. Malacia": [
+   "Feyenoord",
+   "Manchester Đỏ"
+  ],
+  "T. McNamara": [
+   "Houston Dynamo"
+  ],
+  "T. Meunier": [
+   "Club Brugge",
+   "Dortmund",
+   "Lille",
+   "Paris",
+   "Sunderland",
+   "Trabzonspor"
+  ],
+  "T. Minamino": [
+   "Liverpool",
+   "Monaco",
+   "Salzburg",
+   "Southampton"
+  ],
+  "T. Mings": [
+   "Aston Villa",
+   "Bournemouth",
+   "Ipswich",
+   "Ipswich Town"
+  ],
+  "T. Mitchell": [
+   "Crystal Palace"
+  ],
+  "T. Müller": [
+   "Bayern",
+   "Vancouver Whitecaps"
+  ],
+  "T. Ndombele": [
+   "Galatasaray",
+   "Lyon",
+   "Napoli",
+   "Nice",
+   "Tottenham"
+  ],
+  "T. Partey": [
+   "Al Shabab",
+   "Almería",
+   "Arsenal",
+   "Atlético",
+   "Mallorca",
+   "Villarreal"
+  ],
+  "T. Pukki": [
+   "Brøndby",
+   "Celtic",
+   "Minnesota United",
+   "Norwich",
+   "Schalke",
+   "Sevilla"
+  ],
+  "T. Ream": [
+   "Charlotte",
+   "Charlotte FC",
+   "Fulham",
+   "New York Red Bulls"
+  ],
+  "T. Reijnders": [
+   "Al Qadsiah",
+   "Manchester Xanh",
+   "Milano"
+  ],
+  "T. Rosický": [
+   "Arsenal",
+   "Dortmund",
+   "Sparta Praha"
+  ],
+  "T. Sheringham": [
+   "Manchester Đỏ",
+   "Millwall",
+   "Nottingham Forest",
+   "Tottenham",
+   "West Ham"
+  ],
+  "T. Skarke": [
+   "Heidenheim"
+  ],
+  "T. Souček": [
+   "Slavia Prague",
+   "West Ham"
+  ],
+  "T. Watanabe": [
+   "Feyenoord"
+  ],
+  "T. Werner": [
+   "Chelsea",
+   "Leipzig",
+   "San Jose Earthquakes",
+   "Stuttgart",
+   "Tottenham"
+  ],
+  "Thiago": [
+   "Barcelona",
+   "Bayern",
+   "Liverpool"
+  ],
+  "Thiago Silva": [
+   "Chelsea",
+   "Milano",
+   "Paris",
+   "Porto"
+  ],
+  "Tomas Brolin": [
+   "Crystal Palace",
+   "Leeds",
+   "Parma",
+   "Zürich"
+  ],
+  "Toni Martínez": [
+   "West Ham"
+  ],
+  "Trincão": [
+   "Al Ahli",
+   "Barcelona",
+   "Braga",
+   "Sporting",
+   "Sporting CP",
+   "Wolves"
+  ],
+  "Tuta": [
+   "Eintracht Frankfurt",
+   "Frankfurt"
+  ],
+  "U. Sadiq": [
+   "Almería",
+   "Bologna",
+   "Real Sociedad",
+   "Roma",
+   "Torino FC",
+   "Valencia"
+  ],
+  "Ulrich Hoeneß": [
+   "Bayern",
+   "Nürnberg"
+  ],
+  "Unai Núñez": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Celta",
+   "Espanyol",
+   "Hellas Verona",
+   "Valencia",
+   "Verona"
+  ],
+  "Unai Simón": [
+   "Athletic Bilbao",
+   "Athletic Club"
+  ],
+  "V. Froholdt": [
+   "FC Copenhagen"
+  ],
+  "V. Gendrey": [
+   "Hoffenheim",
+   "Lecce"
+  ],
+  "V. Grifo": [
+   "Freiburg",
+   "Gladbach",
+   "Hoffenheim",
+   "Mönchengladbach"
+  ],
+  "V. Gyökeres": [
+   "Arsenal",
+   "Brighton",
+   "Sporting",
+   "Sporting CP",
+   "Swansea City"
+  ],
+  "V. Ibarbo": [
+   "Atlético Nacional",
+   "Cagliari",
+   "Roma",
+   "Watford"
+  ],
+  "V. Janelt": [
+   "Bochum",
+   "Brentford"
+  ],
+  "V. Kompany": [
+   "Anderlecht",
+   "Hamburg",
+   "Manchester Xanh"
+  ],
+  "V. Lindelöf": [
+   "Aston Villa",
+   "Benfica",
+   "Manchester Đỏ"
+  ],
+  "V. Milinković-Savić": [
+   "Manchester Đỏ"
+  ],
+  "V. Muriqi": [
+   "Fenerbahçe",
+   "Lazio",
+   "Mallorca",
+   "Rizespor"
+  ],
+  "V. Mykolenko": [
+   "Dynamo Kyiv",
+   "Everton"
+  ],
+  "V. Osimhen": [
+   "Galatasaray",
+   "Lille",
+   "Napoli",
+   "Wolfsburg"
+  ],
+  "V. Pavlidis": [
+   "Benfica",
+   "Bochum"
+  ],
+  "V. Rongier": [
+   "Marseille",
+   "Nantes",
+   "Rennes"
+  ],
+  "V. van Dijk": [
+   "Celtic",
+   "Liverpool",
+   "Southampton"
+  ],
+  "V. Wanyama": [
+   "Celtic",
+   "Southampton"
+  ],
+  "Verón": [
+   "Boca Juniors",
+   "Chelsea",
+   "Estudiantes",
+   "Inter",
+   "Lazio",
+   "Manchester Đỏ",
+   "Parma"
+  ],
+  "Vesga": [
+   "Almería",
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Leganés"
+  ],
+  "Victor Nelsson": [
+   "FC Copenhagen"
+  ],
+  "Vini Jr.": [
+   "Flamengo",
+   "Madrid"
+  ],
+  "Vinicius Souza": [
+   "Espanyol",
+   "Flamengo",
+   "Sheffield United",
+   "Wolfsburg"
+  ],
+  "Vitinha": [
+   "Paris",
+   "Porto",
+   "Wolves"
+  ],
+  "Vitor Baía": [
+   "Barcelona",
+   "Porto"
+  ],
+  "Vivian": [
+   "Alavés",
+   "Athletic Bilbao",
+   "Athletic Club"
+  ],
+  "W. Anton": [
+   "Stuttgart"
+  ],
+  "W. Brama": [
+   "Twente"
+  ],
+  "W. Burger": [
+   "Feyenoord"
+  ],
+  "W. Endo": [
+   "Liverpool",
+   "Stuttgart"
+  ],
+  "W. Faes": [
+   "Leicester"
+  ],
+  "W. Falcone": [
+   "Como"
+  ],
+  "W. Fofana": [
+   "Chelsea",
+   "Leicester"
+  ],
+  "W. Hennessey": [
+   "Burnley",
+   "Crystal Palace",
+   "Nottingham Forest",
+   "Wolves"
+  ],
+  "W. McKennie": [
+   "Juventus",
+   "Leeds",
+   "Schalke",
+   "Torino"
+  ],
+  "W. Orban": [
+   "Leipzig"
+  ],
+  "W. Orbán": [
+   "Leipzig"
+  ],
+  "W. Pacho": [
+   "Eintracht Frankfurt",
+   "Frankfurt",
+   "Paris"
+  ],
+  "W. Rooney": [
+   "Derby County",
+   "Everton",
+   "Manchester Đỏ"
+  ],
+  "W. Saliba": [
+   "Arsenal",
+   "Marseille",
+   "Nice"
+  ],
+  "W. Singo": [
+   "Monaco",
+   "Torino FC"
+  ],
+  "W. Smolarek": [
+   "Eintracht Frankfurt",
+   "Feyenoord",
+   "Frankfurt",
+   "Utrecht"
+  ],
+  "W. Sneijder": [
+   "Ajax",
+   "Galatasaray",
+   "Inter",
+   "Madrid",
+   "Nice"
+  ],
+  "W. Szczęsny": [
+   "Arsenal",
+   "Barcelona",
+   "Brentford",
+   "Juventus",
+   "Roma",
+   "Torino"
+  ],
+  "W. Weghorst": [
+   "Beşiktaş",
+   "Burnley",
+   "Heracles",
+   "Hoffenheim",
+   "Manchester Đỏ",
+   "Wolfsburg"
+  ],
+  "W. Zaha": [
+   "Charlotte",
+   "Charlotte FC",
+   "Crystal Palace",
+   "Galatasaray",
+   "Lyon",
+   "Manchester Đỏ"
+  ],
+  "W. Zaïre-Emery": [
+   "Paris"
+  ],
+  "William Carvalho": [
+   "Real Betis",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "Willian": [
+   "Arsenal",
+   "Chelsea",
+   "Corinthians",
+   "Fulham",
+   "Olympiacos"
+  ],
+  "X. Schlager": [
+   "Leipzig",
+   "Nottingham Forest",
+   "Salzburg",
+   "Wolfsburg"
+  ],
+  "X. Shaqiri": [
+   "Basel",
+   "Bayern",
+   "Chicago Fire",
+   "Inter",
+   "Liverpool",
+   "Lyon",
+   "Stoke City"
+  ],
+  "X. Simons": [
+   "Leipzig",
+   "PSV",
+   "Paris",
+   "Tottenham"
+  ],
+  "Xabi Alonso": [
+   "Bayern",
+   "Eibar",
+   "Liverpool",
+   "Madrid",
+   "Real Sociedad"
+  ],
+  "Xavi": [
+   "Al Sadd",
+   "Barcelona"
+  ],
+  "Y. Al Shahrani": [
+   "Al Hilal",
+   "Al Qadsiah"
+  ],
+  "Y. Ayoub": [
+   "Utrecht"
+  ],
+  "Y. Bissouma": [
+   "Ajax",
+   "Brighton",
+   "Lille",
+   "Tottenham"
+  ],
+  "Y. Bounou": [
+   "Al Hilal",
+   "Atlético",
+   "Girona",
+   "Sevilla"
+  ],
+  "Y. Carrasco": [
+   "Al Shabab",
+   "Atlético",
+   "Monaco"
+  ],
+  "Y. En-Nesyri": [
+   "Al Ittihad",
+   "Fenerbahçe",
+   "Leganés",
+   "Sevilla"
+  ],
+  "Y. Herrera": [
+   "Espanyol",
+   "Girona",
+   "Granada",
+   "Manchester Xanh",
+   "Real Sociedad"
+  ],
+  "Y. Konoplyanka": [
+   "Cracovia",
+   "Schalke",
+   "Sevilla"
+  ],
+  "Y. Minteh": [
+   "Brighton",
+   "Feyenoord",
+   "Newcastle"
+  ],
+  "Y. Moukoko": [
+   "Dortmund",
+   "FC Copenhagen",
+   "Nice"
+  ],
+  "Y. Poulsen": [
+   "Hamburg",
+   "Leipzig"
+  ],
+  "Y. Sommer": [
+   "Basel",
+   "Bayern",
+   "Club Brugge",
+   "Gladbach",
+   "Inter",
+   "Mönchengladbach"
+  ],
+  "Y. Tielemans": [
+   "Anderlecht",
+   "Aston Villa",
+   "Leicester",
+   "Manchester Đỏ",
+   "Monaco"
+  ],
+  "Y. Touré": [
+   "Barcelona",
+   "Manchester Xanh",
+   "Monaco",
+   "Olympiacos"
+  ],
+  "Y. Wissa": [
+   "Brentford",
+   "Newcastle"
+  ],
+  "Yeom Ki Hun": [
+   "Jeonbuk Hyundai Motors",
+   "Suwon Samsung",
+   "Ulsan HD"
+  ],
+  "Yeray": [
+   "Athletic Bilbao",
+   "Athletic Club"
+  ],
+  "Yeremy Pino": [
+   "Crystal Palace",
+   "Villarreal"
+  ],
+  "Yuri Berchiche": [
+   "Athletic Bilbao",
+   "Athletic Club",
+   "Eibar",
+   "Paris",
+   "Real Sociedad",
+   "Tottenham"
+  ],
+  "Z. Debast": [
+   "Anderlecht",
+   "Sporting",
+   "Sporting CP"
+  ],
+  "Z. Ibrahimović": [
+   "Ajax",
+   "Barcelona",
+   "Inter",
+   "Juventus",
+   "LA Galaxy",
+   "Manchester Đỏ",
+   "Milano",
+   "Paris",
+   "Torino"
+  ],
+  "Z. Zidane": [
+   "Juventus",
+   "Madrid",
+   "Torino"
+  ],
+  "Zé Roberto": [
+   "Bayern",
+   "Flamengo",
+   "Hamburg",
+   "Leverkusen",
+   "Madrid",
+   "Santos"
+  ],
+  "Zico": [
+   "Flamengo",
+   "Udinese"
+  ],
+  "Zubimendi": [
+   "Arsenal",
+   "Real Sociedad"
+  ]
+ }
+}

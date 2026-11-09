@@ -33,7 +33,7 @@
 .rk-coach em{flex:none;padding:0 6px;border-radius:999px;background:#1fe36b;color:#06210f;font-size:.75em;font-style:normal;font-weight:700}
 .rk-none{font-size:.9em}
 .rk-card{display:flex;align-items:center;gap:8px;min-width:0}
-.rk-face{flex:none;height:min(44px,100cqh - 4px);width:auto;object-fit:contain}
+.squad-face.rk-face{width:min(44px,100cqh - 4px);height:min(44px,100cqh - 4px)}
 .rk-player{display:flex;align-items:center;gap:5px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#d6dbe1}
 .rk-player .squad-season{flex:none;font-size:.7em;padding:0 4px}
 .rk-level{flex:none;height:min(18px,60cqh);width:auto}

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { ArrowRight, Check, Coins, Eye, Minus, Plus, ShoppingBag, Zap } from 'lucide-react';
+import { ArrowRight, Check, Eye, Minus, Plus, ShoppingBag, Zap } from 'lucide-react';
 import { getPackStock, isPackAvailable, MAX_INVENTORY_OPEN, money } from './game';
 import type { Pack, Save } from './game';
 import { marketNow } from './market';
@@ -37,7 +37,7 @@ export default function PackShop({ save, packs, free, onBuy, onBuyMembership, on
   useEffect(() => { if (!added) return; const timer = window.setTimeout(() => setAdded(null), 1400); return () => clearTimeout(timer); }, [added]);
   return <section className="workspace shop-workspace" aria-labelledby="shop-title">
     <div className="page-heading shop-heading">
-      <div><div className="shop-title-row"><h1 id="shop-title">Shop gói cầu thủ</h1><span className="shop-wallet">{free ? <><b aria-hidden="true">∞</b>FC vô hạn · Mua không trừ FC</> : <><Coins size={14}/>Số dư <b>{money(save.fc ?? 0)}</b> FC · Không thu thêm phí khi mở</>}</span></div><p>Chọn gói, mua số lượng bạn muốn và mở trong kho vật phẩm.</p></div>
+      <div><div className="shop-title-row"><h1 id="shop-title">Shop gói cầu thủ</h1></div><p>Chọn gói, mua số lượng bạn muốn và mở trong kho vật phẩm.</p></div>
       <button ref={inventoryRef} className="secondary-button shop-inventory" onClick={onInventory} aria-label={`Kho vật phẩm · ${stockTotal} gói chưa mở`}>Kho vật phẩm<b className="shop-inventory-count" aria-hidden="true">{money(stockTotal)}</b><ArrowRight size={17}/></button>
     </div>
     <div className="shop-grid" aria-label="Các gói đang bán">

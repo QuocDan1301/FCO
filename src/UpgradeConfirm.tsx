@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import UpgradeMusic from './UpgradeMusic';
+import { fitScale } from './device';
 import type { CSSProperties, ReactNode } from 'react';
 import { ArrowUp, CirclePlus, RefreshCcw, ShieldPlus, SkipForward, Smile } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
@@ -77,7 +78,7 @@ function LedPodium({ reduced, charging, off = false, full = false }: { reduced: 
     // levels: mức từng ô; litAlpha < 1 khi đang tắt mờ: vẽ nền tắt rồi phủ màu sáng với độ trong suốt giảm dần.
     // Chỉ vẽ lại khi có ô đổi mức hoặc đổi màu/độ mờ/kích thước.
     const draw = (levels: ArrayLike<number>, chargeColors: boolean, litAlpha = 1, force = false) => {
-      const scale = (window.devicePixelRatio || 1) * 1.5, w = Math.round(size.w * scale), h = Math.round(size.h * scale);
+      const scale = (window.devicePixelRatio || 1) * 1.5 * fitScale(), w = Math.round(size.w * scale), h = Math.round(size.h * scale);
       const meta = `${chargeColors}|${litAlpha.toFixed(2)}|${w}x${h}`;
       let changed = force || meta !== prevMeta;
       for (let i = 0; i < levels.length; i++) if (prev[i] !== levels[i]) { prev[i] = levels[i]; changed = true; }

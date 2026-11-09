@@ -1,0 +1,42 @@
+/* Tạo bởi scripts/season-badges.py, đừng sửa tay. Nhãn mùa hiện bằng ảnh khung mùa; chữ trong suốt giữ lại cho trình đọc màn hình.
+   Nạp trước squad.css để các luật ẩn nhãn (display:none) ở màn hẹp vẫn thắng; các thuộc tính khác dùng !important vì nhiều màn chỉnh cỡ / viền riêng. */
+.squad-season{display:inline-block;vertical-align:middle}
+.squad-season,.season-badge{width:2.1em;height:1.65em;padding:0!important;border:0!important;border-radius:2px;background:var(--season-img) center/contain no-repeat!important;color:transparent!important;overflow:hidden;white-space:nowrap;box-sizing:border-box}
+.season-tag-origin{--season-img:url(/assets/seasons/origin.webp)}
+.season-tag-stellar{--season-img:url(/assets/seasons/stellar.webp)}
+.season-tag-eternal{--season-img:url(/assets/seasons/eternal.webp)}
+.season-tag-prime{--season-img:url(/assets/seasons/prime.webp)}
+.season-tag-vietnam{--season-img:url(/assets/seasons/vietnam.webp)}
+.season-tag-prm{--season-img:url(/assets/seasons/prm.webp)}
+.season-tag-mdl{--season-img:url(/assets/seasons/mdl.webp)}
+.season-tag-amb{--season-img:url(/assets/seasons/amb.webp)}
+.season-tag-uc{--season-img:url(/assets/seasons/uc.webp)}
+.season-tag-wg{--season-img:url(/assets/seasons/wg.webp)}
+.season-tag-ut{--season-img:url(/assets/seasons/ut.webp)}
+.season-tag-cu{--season-img:url(/assets/seasons/cu.webp)}
+.season-tag-gru{--season-img:url(/assets/seasons/gru.webp)}
+.season-tag-rtn{--season-img:url(/assets/seasons/rtn.webp)}
+.season-tag-dc{--season-img:url(/assets/seasons/dc.webp)}
+.season-tag-cc{--season-img:url(/assets/seasons/cc.webp)}
+.season-tag-bld{--season-img:url(/assets/seasons/bld.webp)}
+.season-tag-wb{--season-img:url(/assets/seasons/wb.webp)}
+.season-tag-spt{--season-img:url(/assets/seasons/spt.webp)}
+.season-tag-bdo{--season-img:url(/assets/seasons/bdo.webp)}
+.season-tag-hw23{--season-img:url(/assets/seasons/hw23.webp)}
+.season-tag-ep24{--season-img:url(/assets/seasons/ep24.webp)}
+.season-tag-ptg{--season-img:url(/assets/seasons/ptg.webp)}
+.season-tag-le{--season-img:url(/assets/seasons/le.webp)}
+.season-tag-hg{--season-img:url(/assets/seasons/hg.webp)}
+.season-tag-spl{--season-img:url(/assets/seasons/spl.webp)}
+.season-tag-ln{--season-img:url(/assets/seasons/ln.webp)}
+.season-tag-fa{--season-img:url(/assets/seasons/fa.webp)}
+.season-tag-lol{--season-img:url(/assets/seasons/lol.webp)}
+.season-tag-cap{--season-img:url(/assets/seasons/cap.webp)}
+.season-tag-boe21{--season-img:url(/assets/seasons/boe21.webp)}
+.season-tag-btb{--season-img:url(/assets/seasons/btb.webp)}
+.season-tag-ebs{--season-img:url(/assets/seasons/ebs.webp)}
+.season-tag-juventus{--season-img:url(/assets/seasons/juventus.webp)}
+.season-tag-jnm{--season-img:url(/assets/seasons/jnm.webp)}
+.season-tag-hr25{--season-img:url(/assets/seasons/hr25.webp)}
+.season-tag-up26{--season-img:url(/assets/seasons/up26.webp)}
+.season-tag-live{--season-img:url(/assets/seasons/live.webp)}

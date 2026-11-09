@@ -4,8 +4,10 @@ import { AlertTriangle, ArrowLeft, ArrowRight, ChevronDown, ChevronsUp, LayoutGr
 import { getPlayer, money, ovr } from './game';
 import type { Card, Player, Save, Tier } from './game';
 import { marketQuote } from './market';
-import { isLocked, positionGroup, squadCards, squadSummary, SQUAD_LIMIT, SQUAD_WAGE_CAP } from './squad';
-import { getTeamLogo } from './teamLogos';
+import { activeTeamColors, isLocked, positionGroup, squadCards, squadSummary, teamColorDetails, SQUAD_LIMIT, SQUAD_WAGE_CAP } from './squad';
+import { teamColorName } from './teamColor';
+import type { BuffResult } from './teamColor';
+import { clubLogo } from './teamLogos';
 import { flagImageUrl } from './flags';
 import { asset } from './asset';
 import './squad.css';
@@ -47,17 +49,11 @@ function compare(a: Card, b: Card, key: SortKey) {
     case 'price': return (price(a) ?? -1) - (price(b) ?? -1);
   }
 }
-// Giá trị xuất hiện nhiều nhất trong đội hình (logo đội / quốc tịch cho cụm huy hiệu team color).
-function mostCommon(players: Player[], pick: (player: Player) => string | undefined) {
-  const counts = new Map<string, number>();
-  for (const player of players) { const key = pick(player); if (key) counts.set(key, (counts.get(key) ?? 0) + 1); }
-  return [...counts].sort((a, b) => b[1] - a[1])[0]?.[0];
-}
 // Bánh răng / chạm vào hàng: đưa focus vào hàng để hiện thanh thao tác (Safari không focus nút khi bấm).
 const focusRow = (event: MouseEvent<HTMLElement>) => event.currentTarget.closest<HTMLElement>('.squad-row')?.focus();
 
 type RowActions = { onMove: () => void; onDetail: () => void; onDelete: () => void; onSell: () => void; onUpgrade: () => void; onLock: () => void };
-type RowProps = { card: Card; lineup: boolean; locked: boolean; count?: number } & RowActions & Pick<Props, 'levelBadge' | 'seasonShort'>;
+type RowProps = { card: Card; lineup: boolean; locked: boolean; count?: number; color?: BuffResult } & RowActions & Pick<Props, 'levelBadge' | 'seasonShort'>;
 // Ảnh chân dung: mặt thẻ đầy đủ được phóng to, cắt vào phần đầu – vai (squad.css); bấm để xem cả thẻ.
 const Face = ({ player, onDetail }: { player: Player; onDetail: () => void }) => <button className="squad-face" onClick={onDetail} aria-label={`Xem thẻ ${player.name}`} tabIndex={-1}><img src={player.cardFace || player.image || asset('/assets/silhouette.svg')} alt="" loading="lazy"/></button>;
 const Wage = ({ player }: { player: Player }) => <span className="squad-wage" aria-label={`Lương ${player.wage ?? 0}`}><b>{player.wage ?? 0}</b></span>;
@@ -65,8 +61,11 @@ function Name({ player, locked, count, seasonShort }: { player: Player; locked: 
   return <span className="squad-name"><b className={`squad-season season-tag-${player.tier}`}>{seasonShort(player.tier)}</b><strong>{player.name}</strong>{count && count > 1 ? <em className="squad-dup" aria-label={`${count} thẻ giống nhau`}>×{count}</em> : null}{locked && <Lock size={13} className="squad-lock-mark" aria-label="Đã khóa"/>}</span>;
 }
 
-function Row({ card, lineup, locked, count, levelBadge, seasonShort, ...act }: RowProps) {
+function Row({ card, lineup, locked, count, color, levelBadge, seasonShort, ...act }: RowProps) {
   const p = getPlayer(card), group = positionGroup(p.pos), unpriced = price(card) === null;
+  // Cầu thủ đang đá chính: OVR đã cộng team color; rê chuột vào số để xem cộng từ đâu.
+  const shownOvr = ovr(card) + (color?.ovrBonus ?? 0);
+  const ovrNote = color?.applied.length ? [`OVR thẻ ${ovr(card)}`, ...color.applied.map(c => `${teamColorName(c)} +${c.ovr}`)].join(' · ') : undefined;
   // Rê chuột (hoặc chạm / Tab / bấm bánh răng) thì thanh thao tác phủ lên phần chỉ số bên phải.
   const actions = <span className="squad-hover" role="cell">
     <button onClick={act.onLock} className={locked ? 'on' : ''} title={locked ? 'Mở khóa' : 'Khóa'} aria-label={`${locked ? 'Mở khóa' : 'Khóa'} ${p.name}`} aria-pressed={locked}>{locked ? <Lock size={16}/> : <LockOpen size={16}/>}</button>
@@ -78,14 +77,14 @@ function Row({ card, lineup, locked, count, levelBadge, seasonShort, ...act }: R
   </span>;
   const className = `squad-row ${lineup ? 'squad-row-lineup' : 'squad-row-bench'} ${locked ? 'is-locked' : ''}`;
   // Đội hình chính: 2 tầng kiểu FC Online — cụm vị trí (Chọn · vị trí · phong độ / bánh răng), ảnh, tên + (Lương · OVR · Thẻ), giá.
-  if (lineup) return <div className={className} role="row" tabIndex={0} aria-label={`${p.name}, OVR ${ovr(card)}`}>
+  if (lineup) return <div className={className} role="row" tabIndex={0} aria-label={`${p.name}, OVR ${shownOvr}`}>
     <span className={`squad-pos pos-${group}`} role="cell"><small>Chọn</small><b>{p.pos}</b><span className="squad-pos-icons"><ChevronsUp size={14} className="squad-form" aria-label="Phong độ tốt"/><button className="squad-gear" onClick={focusRow} aria-label={`Thao tác ${p.name}`} title="Thao tác"><Settings size={12}/></button></span></span>
     <Face player={p} onDetail={act.onDetail}/>
     <div className="squad-info" role="cell">
       <Name player={p} locked={locked} seasonShort={seasonShort}/>
       <span className="squad-stats">
         <span><small>Lương</small><Wage player={p}/></span>
-        <span><small>OVR</small><strong className="squad-ovr">{ovr(card)}</strong></span>
+        <span title={ovrNote}><small>OVR</small><strong className="squad-ovr">{shownOvr}</strong></span>
         <span><small>Thẻ</small><img className="squad-level-img" src={levelBadge(card.level)} alt={`+${card.level}`}/></span>
       </span>
     </div>
@@ -133,9 +132,14 @@ export default function SquadManager({ save, onAdd, onRemove, onDetail, onDelete
     for (const c of sorted) { const key = `${c.playerId}:${c.level}`; groups.set(key, [...(groups.get(key) ?? []), c]); }
     return [...groups.values()].map(group => ({ card: group.find(c => !isLocked(save, c.uid)) ?? group[0], count: group.length }));
   }, [searched, line, sort, merge, save.locked]);
+  const colorDetails = useMemo(() => teamColorDetails(save), [save.cards, save.squad, save.lineups]);
   const lineup = [...squad].sort((a, b) => groupOrder[positionGroup(getPlayer(b).pos)] - groupOrder[positionGroup(getPlayer(a).pos)]);
   const lineupPlayers = squad.map(getPlayer);
-  const teamLogo = mostCommon(lineupPlayers, getTeamLogo), nation = mostCommon(lineupPlayers, p => p.flag);
+  // Huy hiệu màu đội: CLB / quốc gia của team color đang kích hoạt; chưa kích hoạt thì lấy logo / quốc tịch nhiều nhất trong đội hình.
+  const colors = useMemo(() => activeTeamColors(save), [save.cards, save.squad, save.lineups]);
+  // Chỉ hiện huy hiệu của team color có người nhận; chưa có team color nào thì hiện logo FCO VIP.
+  const teamLogo = colors.club ? clubLogo(colors.club) ?? FCO_LOGO : undefined;
+  const nation = colors.nation ? lineupPlayers.find(p => p.nation === colors.nation)?.flag : undefined;
   const overCap = summary.wage > SQUAD_WAGE_CAP;
   const header = (key: SortKey, label: string) => <button className={`squad-col ${sort.key === key ? 'on' : ''}`} aria-sort={sort.key === key ? (sort.desc ? 'descending' : 'ascending') : 'none'} onClick={() => setSort(s => ({ key, desc: s.key === key ? !s.desc : true }))}>{label}{sort.key === key && <ChevronDown size={12} className={sort.desc ? '' : 'up'}/>}</button>;
   const segments = [['fw', 'FW'], ['mf', 'MF'], ['df', 'DF'], ['gk', 'GK']] as const;
@@ -145,9 +149,13 @@ export default function SquadManager({ save, onAdd, onRemove, onDetail, onDelete
       <header className="squad-head squad-head-lineup">
         <div className="squad-title"><h1 id="squad-title">Đội hình chính</h1><p>Đội bóng riêng của bạn</p></div>
         <button className="squad-arrange" onClick={onLineup} title="Xếp 11 cầu thủ đá chính lên sân theo sơ đồ"><LayoutGrid size={15}/>Sắp xếp đội hình</button>
-        <div className="squad-crests" title="Màu đội: logo đội và quốc tịch xuất hiện nhiều nhất trong đội hình">
-          <span className="squad-crest"><img src={teamLogo ?? FCO_LOGO} alt={teamLogo ? 'Logo đội nhiều cầu thủ nhất' : 'FCO VIP'}/></span>
-          <span className="squad-crest squad-crest-flag">{nation ? <img src={flagImageUrl(nation)} alt={`Quốc tịch ${nation}`}/> : <img src={FCO_LOGO} alt="FCO VIP"/>}</span>
+        <div className="squad-crests" title={colors.club || colors.nation ? `Team color đang kích hoạt: ${[colors.club && `CLB ${colors.club}`, colors.nation && `QG ${colors.nation}`].filter(Boolean).join(' · ')}` : 'Chưa kích hoạt team color'}>
+          {(teamLogo || (!nation && !colors.upgrade)) && <span className="squad-crest"><img src={teamLogo ?? FCO_LOGO} alt={colors.club ? `Logo ${colors.club}` : 'FCO VIP'}/></span>}
+          {nation && <span className="squad-crest squad-crest-flag"><img src={flagImageUrl(nation)} alt={`Quốc tịch ${colors.nation}`}/></span>}
+          {/* Huy hiệu team color cấp thẻ: số ở đáy là số thẻ tối thiểu của mốc đang đạt. */}
+          {colors.upgrade && <span className={`squad-level-crest is-${colors.upgrade.color}`} title={`Team color ${colors.upgrade.name} cấp ${colors.upgrade.tier}: từ ${colors.upgrade.minPlayers} thẻ, +${colors.upgrade.ovr} OVR`}>
+            <img src={asset(`/assets/team-color/${colors.upgrade.color}.webp`)} alt={`Team color ${colors.upgrade.name}`}/><b>{colors.upgrade.minPlayers}</b>
+          </span>}
         </div>
         <div className="squad-meter">
           {/* 4 ô tuyến rộng theo số cầu thủ từng tuyến; tuyến chưa có ai thì ẩn. */}
@@ -159,7 +167,7 @@ export default function SquadManager({ save, onAdd, onRemove, onDetail, onDelete
         </div>
       </header>
       <div className="squad-list" role="table" aria-label="Cầu thủ trong đội hình">
-        {lineup.length ? lineup.map(c => <Row key={c.uid} card={c} lineup onMove={() => onRemove(c.uid)} {...rowProps(c)}/>)
+        {lineup.length ? lineup.map(c => <Row key={c.uid} card={c} lineup color={colorDetails.get(c.uid)} onMove={() => onRemove(c.uid)} {...rowProps(c)}/>)
           : <p className="squad-empty">Chưa có cầu thủ trong đội hình.<br/>Chọn Vào ĐH ở cầu thủ đang sở hữu để thêm vào đội hình.</p>}
       </div>
     </div>

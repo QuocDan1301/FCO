@@ -137,7 +137,7 @@ html,body,#root{height:100%;overflow:hidden}
 .market-workspace .market-count{padding:4px 0;flex-shrink:0}
 .market-workspace .market-layout{flex:1;min-height:0;align-items:stretch}
 .market-workspace .market-list-panel{display:flex;flex-direction:column;min-height:0;overflow:hidden}
-.market-workspace .market-list{flex:1;min-height:0;overflow:hidden;--page-item-height:76}
+.market-workspace .market-list{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#3a4452 transparent;scrollbar-gutter:stable;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .market-workspace .market-row{height:76px;min-height:0;padding:4px 8px}
 .market-workspace .market-table-heading{flex-shrink:0;padding:6px 8px}
 .market-workspace .market-pagination{height:40px;flex-shrink:0;padding:0}
@@ -286,6 +286,13 @@ html,body,#root{height:100%;overflow:hidden}
 .app-dock-icons svg{width:20px;height:20px}
 .market-workspace .market-preview{display:none}
 }
+/* Điện thoại cầm ngang dựng khung cao 688px (script screen-fit) nên dính quy tắc màn thấp ở trên: giữ thanh dưới đúng cỡ PC để chữ menu không nhỏ đi. */
+html.fit-phone .app{--dock-h:48px}
+html.fit-phone .app>.app-dock{gap:clamp(16px,2.4vw,40px);padding:0 4%}
+html.fit-phone .app-dock-items>button{padding:0 clamp(12px,1.8vw,30px);font-size:clamp(14px,1.08vw,17px)}
+html.fit-phone .app-dock-dot{left:calc(clamp(12px,1.8vw,30px) - 8px)}
+html.fit-phone .app-dock-icons>button{width:36px;height:36px}
+html.fit-phone .app-dock-icons svg{width:22px;height:22px}
 @media(max-width:640px){
 .app>.topbar{height:56px}
 .main-content>.workspace{padding:12px 14px 6px}

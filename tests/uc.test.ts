@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { TIERS, allPacks, defaultPacks, draw, getPlayer, isPackAvailable, openPacks, ovr, packOdds, players, seasons, validateSave } from '../src/game.ts';
 import { initialSave } from './stocked-save.ts';
 import { seasonShort } from '../src/badges.tsx';
@@ -10,6 +10,11 @@ import { marketQuote } from '../src/market.ts';
 import { flagImageUrl } from '../src/flags.tsx';
 import { rngFor } from './pack-rng.ts';
 import clubLogos from '../src/clubLogos.json';
+
+test('Thẻ UC được phóng để cao bằng thẻ mùa khác (ảnh UC chừa lề rộng hơn)', () => {
+  const scale = Number(/season-uc\{[^}]*scale:([\d.]+)/.exec(readFileSync('src/uc-cards.css', 'utf8'))?.[1]);
+  assert.ok(Math.abs(scale * 95 - 98.6) < .2, `Thân thẻ UC sau khi phóng: ${scale * 95}%`);
+});
 
 const roster = players.filter(p => p.tier === 'uc');
 const base = defaultPacks.find(p => p.id === 'uc')!;

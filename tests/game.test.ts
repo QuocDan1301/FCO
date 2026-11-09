@@ -16,8 +16,9 @@ const cardWith = (rating: number, level = 1, skip: number[] = []) => {
   if (!player) throw new Error(`Không có cầu thủ OVR ${rating} ở +${level}`);
   return { ...makeCard(player.id), level };
 };
-test('3876 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 165 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS, 34 JNM, 20 25HR và 98 26UP; mọi gói đủ 100%', () => {
-  assert.equal(players.length, 3883);
+test('3915 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 165 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS, 34 JNM, 20 25HR, 98 26UP và 32 LIVE; mọi gói đủ 100%', () => {
+  assert.equal(players.length, 3915);
+  assert.equal(players.filter(p => p.tier === 'live').length, 32);
   assert.equal(players.filter(p => p.tier === 'hw23').length, 195);
   assert.equal(players.filter(p => p.tier === 'ep24').length, 208);
   assert.equal(players.filter(p => p.tier === 'ptg').length, 165);
@@ -534,6 +535,21 @@ test('Camera chạy liên tục qua các mốc hé lộ và dừng êm tại sâ
       assert.ok(Math.abs(right - left) < .0000001, 'Không đổi tốc độ đột ngột ở mốc hé lộ');
     }
     assert.ok(1 - progress(end - 1) < .000002, 'Hãm tốc trước khi dừng');
+  }
+});
+
+
+test('Camera vào hầm êm: tốc độ tăng dần từ 0, không giật đầu và cuối đoạn tăng tốc', async () => {
+  const { cameraPose, cameraProgress, CAMERA_HOLD, CAMERA_RAMP, GATE_CROSS, gateZ } = await import('../src/cinema/timeline.ts');
+  for (const mode of ['standard', 'quick'] as const) {
+    const quick = mode === 'quick', hold = CAMERA_HOLD[mode], ramp = CAMERA_RAMP[mode], step = 1000 / 60;
+    const speed = (t: number) => (cameraProgress(t + step, quick) - cameraProgress(t, quick)) / step;
+    const cruise = speed(hold + ramp + 50);
+    assert.ok(speed(hold + step) / cruise < .02, 'Khung hình đầu gần như chưa chạy');
+    for (let t = hold; t < hold + ramp + 100; t += step) assert.ok(Math.abs(speed(t + step) - speed(t)) / cruise < .08, `Tốc độ nhảy ở ${Math.round(t)}ms`);
+    assert.ok(GATE_CROSS[mode] > hold + ramp, 'Xuyên cửa hầm sau khi đã tăng tốc xong');
+    assert.ok(Math.abs(gateZ(quick) - 2.4) < .25, `Cửa hầm vẫn ở trước màn LED: z = ${gateZ(quick)}`);
+    assert.ok(cameraPose(cameraProgress(GATE_CROSS[mode], quick)).z < 13);
   }
 });
 

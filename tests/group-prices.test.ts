@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { MAX_LEVEL, makeCard, ovr, players } from '../src/game.ts';
-import { groupPrice } from '../src/group-price.ts';
+import { FLAT_PRICE, SEASON_PRICE_FACTOR, groupPrice } from '../src/group-price.ts';
 import type { PriceGroup } from '../src/group-price.ts';
 import { MARKET_FEE_PERCENT, buyPlayer, marketQuote, nextPriceChange, priceAt, pricePeriod, saleFee, sellCards, sellRange, setMarketClock } from '../src/market.ts';
 import { initialSave } from './stocked-save.ts';
@@ -15,15 +15,32 @@ test('Giá chuẩn theo Giacauthu.xlsx: gốc OVR 99 của từng nhóm, mỗi O
   assert.deepEqual([groupPrice(1, 99), groupPrice(2, 99), groupPrice(3, 99)], [2000, 4000, 6000]);
   assert.deepEqual([groupPrice(1, 100), groupPrice(2, 100), groupPrice(3, 100)], [3000, 6000, 9000]);
   assert.equal(groupPrice(2, 101), 9000);
-  assert.throws(() => groupPrice(1, 98), /ngoài bảng giá/);
+  // Dưới OVR 99 đồng giá 1.000 BP ở mọi nhóm.
+  assert.deepEqual([groupPrice(1, 98), groupPrice(2, 98), groupPrice(3, 65)], [1000, 1000, 1000]);
+  assert.throws(() => groupPrice(1, 0), /ngoài bảng giá/);
 });
 
 test('Mọi thẻ đều có nhóm và giá chuẩn đúng công thức', () => {
   for (const p of players) {
     assert.ok(groups[p.name], `${p.name} chưa có nhóm`);
-    for (let level = 1; level <= MAX_LEVEL; level++) assert.equal(table[p.id][level - 1], groupPrice(groups[p.name], ovr({ playerId: p.id, level })), `${p.name} +${level}`);
+    // Mùa LIVE có công thức riêng, kiểm tra ở live.test.ts.
+    if (p.tier === 'live') continue;
+    const factor = SEASON_PRICE_FACTOR[p.tier] ?? 1;
+    for (let level = 1; level <= MAX_LEVEL; level++) {
+      const base = groupPrice(groups[p.name], ovr({ playerId: p.id, level }));
+      assert.equal(table[p.id][level - 1], base === FLAT_PRICE ? base : Math.round(base * factor), `${p.name} +${level}`);
+    }
   }
   assert.equal(marketQuote({ playerId: players.find(p => groups[p.name] === 3)!.id, level: 1 }).group, 3);
+});
+
+test('INFINITE PRIME và PRIME giá ×1,5, ICON TM (ITM) giá ×2 so với giá theo nhóm', () => {
+  assert.deepEqual(SEASON_PRICE_FACTOR, { prime: 1.5, prm: 1.5, eternal: 2 });
+  for (const [tier, factor] of [['prime', 1.5], ['prm', 1.5], ['eternal', 2]] as const) {
+    const p = players.find(x => x.tier === tier)!;
+    const base = groupPrice(groups[p.name], ovr({ playerId: p.id, level: 5 }));
+    assert.equal(table[p.id][4], Math.round(base * factor), `${tier} ${p.name}`);
+  }
 });
 
 test('Giá luôn nằm trong ±10% giá chuẩn, là số nguyên và vừa số an toàn ở nhiều kỳ', () => {

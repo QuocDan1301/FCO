@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { Reflector } from 'three/addons/objects/Reflector.js';
+import { fitScale, isTouchPhone } from '../device';
 import { CAMERA_HOLD, cameraPose, cameraProgress, GATE_CROSS, gateZ, INFO_GAP, OPENING_CUES, STAGE_Z, TUNNEL_EXTRA, TUNNEL_TAIL } from './timeline';
 import { drawBadge, drawWorldInfo, infoVisibility } from './sceneBadge';
 import { FLAME_REF_DISTANCE, FLAME_X, FLAME_Y, FLAME_Z } from './flames';
@@ -26,13 +27,13 @@ export default function StadiumScene(props: Props) {
     const build = () => {
     const container = host.current;
     if (!container) return;
-    const touchPhone = matchMedia('(pointer: coarse) and (max-width: 900px)').matches;
+    const touchPhone = isTouchPhone();
     let mobile = touchPhone || matchMedia('(max-width: 700px)').matches;
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({ antialias: !mobile, powerPreference: 'high-performance', alpha: false });
     } catch { state.current.onFallback(); return; }
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 1));
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1) * fitScale());
     // Shader đều là shader dựng sẵn của three.js: bỏ kiểm tra lỗi biên dịch (mỗi shader lần đầu dùng phải chờ GPU trả log, gây khựng).
     renderer.debug.checkShaderErrors = false;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -265,9 +266,9 @@ export default function StadiumScene(props: Props) {
     const resize = () => {
       const width = container.clientWidth || innerWidth, height = container.clientHeight || innerHeight;
       view.w = width; view.h = height;
-      const compact = width <= 700 || (matchMedia('(pointer: coarse)').matches && width <= 900);
+      const compact = width <= 700 || isTouchPhone();
       if (compact !== mobile) {
-        mobile = compact; renderer.setPixelRatio(Math.min(devicePixelRatio, 1));
+        mobile = compact; renderer.setPixelRatio(Math.min(devicePixelRatio, 1) * fitScale());
         const resolution = mobile ? 128 : 256; reflector.getRenderTarget().setSize(resolution, resolution);
         crowdGeo.setDrawRange(0, Math.min(crowdCount, mobile ? 320 : 1100));
         dustGeo.setDrawRange(0, Math.min(dustCount, mobile ? 65 : 200));

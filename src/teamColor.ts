@@ -48,7 +48,8 @@ export interface TeamColorConfig {
   upgrade: readonly UpgradeTeamColorRule[];
 }
 
-export type TeamColorKind = 'club' | 'nation' | 'upgrade';
+// 'lineup': phần cộng cố định cho mọi cầu thủ đá chính (squad.ts), không phải team color nhưng hiện cùng chỗ.
+export type TeamColorKind = 'club' | 'nation' | 'upgrade' | 'lineup';
 /** Một buff một cầu thủ thực nhận (key = mã CLB / quốc gia / id quy tắc cấp thẻ). */
 export interface AppliedBuff {
   kind: TeamColorKind;
@@ -76,13 +77,33 @@ export interface TeamColorReport {
   active: ActiveTeamColor[];
 }
 
-// Cân bằng mặc định (dễ chỉnh): CLB buff chuyền / rê, quốc gia buff tốc độ / thể lực, cấp thẻ buff sút / phòng ngự.
-const tiers = (stats: readonly StatKey[]): TeamColorTier[] => [[1, 3, 1], [2, 5, 2], [3, 8, 3]].map(([tier, minPlayers, value]) => ({ tier, minPlayers, ovr: value, stats: Object.fromEntries(stats.map(key => [key, value])) }));
+// Mốc theo fcoplayers.com/squad-builder (đọc từ đội hình mẫu trên trang ngày 2026-11-09):
+// - CLB và quốc gia cùng bảng mốc: 3–5 người cấp 1 (+1), 6–7 cấp 2 (+3), 8–10 cấp 3 (+3, chỉ số phụ +2 / +1), 11 cấp 4 (+4, chỉ số phụ +3 / +3).
+// - Cấp thẻ theo bảng người dùng (2026-11-09), đếm số thẻ đạt từ mức đó trở lên:
+//   Đồng (+3): từ 3 thẻ +1. Bạc (+5): 3–5 thẻ +1, từ 6 thẻ +2. Vàng (+8): 3–5 thẻ +1, 6–7 thẻ +3, từ 8 thẻ +4.
+//   Bạch kim (+11): 5–7 thẻ +4, từ 8 thẻ +5 (không có mốc 3–4 thẻ).
+// Trang gắn chỉ số phụ riêng cho từng CLB / quốc gia; game dùng chung theo loại: CLB chuyền / rê, quốc gia tốc độ / thể lực.
+const tiers = ([first, second]: readonly [StatKey, StatKey]): TeamColorTier[] => [
+  { tier: 1, minPlayers: 3, ovr: 1, stats: {} },
+  { tier: 2, minPlayers: 6, ovr: 3, stats: {} },
+  { tier: 3, minPlayers: 8, ovr: 3, stats: { [first]: 2, [second]: 1 } },
+  { tier: 4, minPlayers: 11, ovr: 4, stats: { [first]: 3, [second]: 3 } },
+];
+// tiers: [số thẻ tối thiểu, OVR cộng] theo thứ tự cấp 1, 2, 3.
+const UPGRADE_COLORS: { id: string; name: string; minLevel: number; tiers: [number, number][] }[] = [
+  { id: 'bronze', name: 'Đồng', minLevel: 3, tiers: [[3, 1]] },
+  { id: 'silver', name: 'Bạc', minLevel: 5, tiers: [[3, 1], [6, 2]] },
+  { id: 'gold', name: 'Vàng', minLevel: 8, tiers: [[3, 1], [6, 3], [8, 4]] },
+  { id: 'platinum', name: 'Bạch kim', minLevel: 11, tiers: [[5, 4], [8, 5]] },
+];
+export const upgradeColorName = (minLevel: number) => UPGRADE_COLORS.find(c => c.minLevel === minLevel)?.name ?? `Cấp +${minLevel}`;
+// Tên hiển thị của một team color: "QG Brazil cấp 1", "Vàng cấp 2".
+export const teamColorName = (c: Pick<AppliedBuff, 'kind' | 'key' | 'tier' | 'minLevel'>) => c.kind === 'lineup' ? 'Vào đội hình' : `${c.kind === 'upgrade' ? upgradeColorName(c.minLevel!) : `${c.kind === 'club' ? 'CLB' : 'QG'} ${c.key}`} cấp ${c.tier}`;
 export const DEFAULT_TEAM_COLOR_CONFIG: TeamColorConfig = {
   maxPlayers: 11,
   club: tiers(['passing', 'dribbling']),
   nation: tiers(['pace', 'physical']),
-  upgrade: [[1, 3], [2, 5], [3, 8]].map(([tier, minLevel]) => ({ id: `level-${minLevel}`, tier, minLevel, minPlayers: 5, ovr: tier, stats: { shooting: tier, defending: tier } })),
+  upgrade: UPGRADE_COLORS.flatMap(color => color.tiers.map(([minPlayers, ovr], i) => ({ id: `${color.id}-${i + 1}`, tier: i + 1, minLevel: color.minLevel, minPlayers, ovr, stats: {} }))),
 };
 
 const statSum = (stats: StatBonus) => STAT_KEYS.reduce((sum, key) => sum + (stats[key] ?? 0), 0);
@@ -170,8 +191,10 @@ export function analyzeTeamColors(startingXI: readonly Player[], config: TeamCol
   });
 
   // Danh sách kích hoạt: CLB → quốc gia → cấp thẻ; trong từng loại mốc cao trước, nhóm đông trước.
-  const order = { club: 0, nation: 1, upgrade: 2 };
-  const list = [...active.values(), ...activeRules].sort((a, b) => order[a.kind] - order[b.kind] || b.tier - a.tier || b.members.length - a.members.length || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
+  const order = { club: 0, nation: 1, upgrade: 2, lineup: 3 };
+  // Team color không ai nhận thì không hiện: đủ thẻ +8 thì không còn hiện bạc; 3 cầu thủ Pháp đều đã nhận CLB Barcelona mạnh hơn
+  // thì không hiện QG Pháp (CLB và quốc gia không cộng dồn, mỗi người chỉ nhận một mức).
+  const list = [...active.values(), ...activeRules].filter(color => color.beneficiaries.length).sort((a, b) => order[a.kind] - order[b.kind] || (b.minLevel ?? 0) - (a.minLevel ?? 0) || b.tier - a.tier || b.members.length - a.members.length || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
   return { players, active: list };
 }
 

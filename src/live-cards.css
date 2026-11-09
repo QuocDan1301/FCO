@@ -1,0 +1,46 @@
+/* LIVE: tạo bởi scripts/import-live.py. Thẻ gốc, OVR / tên / cấp vẽ bằng HTML. */
+.rarity-dot.live{background:#1fe36b}
+.player-card.face-art.season-live{aspect-ratio:259/282}
+.player-card.face-art.season-live>.face-art-img{filter:drop-shadow(0 0 5px #1fe36b33)}
+.season-live[data-level="1"] .face-art-level{visibility:hidden}
+.season-live .face-art-ovr{left:28.19%;top:15.25%;font-size:13.9cqw;color:#fff;letter-spacing:-.02em;text-shadow:0 .03em .08em #0009}
+.season-live .face-art-level{left:18.53%;top:60.28%;width:18.53%;height:10.64%;transform:none;object-fit:fill}
+.season-live{--name-size:7.3cqw;--name-color:#33373d}
+[data-tone=live]{--shop-tone:#1fe36b;--shop-tone2:#d8f7e4}
+.season-tag-live{color:#1fe36b}
+.reveal-live .reveal-panel{--led:#1fe36b;--led2:#0d1a13;border-color:#1fe36b66}
+.reveal-live .reveal-stats dt{color:#ffffff}
+.reveal-live .reveal-podium{background:linear-gradient(180deg,#26302b,#0c110e);border-top-color:#1fe36b}
+.reveal-live .reveal-podium span{color:#ffffff}
+.face-3896{--nx:38.22%;--nw:42.08%;--ny:80.85%}
+.face-3897{--nx:41.70%;--nw:38.61%;--ny:80.85%}
+.face-3898{--nx:43.63%;--nw:36.68%;--ny:80.85%}
+.face-3899{--nx:41.70%;--nw:38.61%;--ny:80.85%}
+.face-3900{--nx:39.00%;--nw:41.31%;--ny:80.85%}
+.face-3901{--nx:32.05%;--nw:48.26%;--ny:80.85%}
+.face-3902{--nx:39.38%;--nw:40.93%;--ny:80.85%}
+.face-3903{--nx:43.24%;--nw:37.07%;--ny:80.85%}
+.face-3904{--nx:41.70%;--nw:38.61%;--ny:80.85%}
+.face-3905{--nx:43.24%;--nw:37.07%;--ny:80.85%}
+.face-3906{--nx:41.31%;--nw:39.00%;--ny:80.85%}
+.face-3907{--nx:43.63%;--nw:36.68%;--ny:80.85%}
+.face-3908{--nx:45.17%;--nw:35.14%;--ny:80.85%}
+.face-3909{--nx:38.61%;--nw:41.70%;--ny:80.85%}
+.face-3910{--nx:36.68%;--nw:43.63%;--ny:80.85%}
+.face-3911{--nx:44.79%;--nw:35.52%;--ny:80.85%}
+.face-3912{--nx:35.14%;--nw:45.17%;--ny:80.85%}
+.face-3913{--nx:42.47%;--nw:37.84%;--ny:80.85%}
+.face-3914{--nx:37.45%;--nw:42.86%;--ny:80.85%}
+.face-3915{--nx:43.24%;--nw:37.07%;--ny:80.85%}
+.face-3916{--nx:39.00%;--nw:41.31%;--ny:80.85%}
+.face-3917{--nx:42.86%;--nw:37.45%;--ny:80.85%}
+.face-3918{--nx:44.79%;--nw:35.52%;--ny:80.85%}
+.face-3919{--nx:37.45%;--nw:42.86%;--ny:80.85%}
+.face-3920{--nx:38.22%;--nw:42.08%;--ny:80.85%}
+.face-3921{--nx:38.61%;--nw:41.70%;--ny:80.85%}
+.face-3922{--nx:42.47%;--nw:37.84%;--ny:80.85%}
+.face-3923{--nx:39.38%;--nw:40.93%;--ny:80.85%}
+.face-3924{--nx:39.38%;--nw:40.93%;--ny:80.85%}
+.face-3925{--nx:32.05%;--nw:48.26%;--ny:80.85%}
+.face-3926{--nx:43.24%;--nw:37.07%;--ny:80.85%}
+.face-3927{--nx:39.38%;--nw:40.93%;--ny:80.85%}

@@ -21,11 +21,14 @@ try {
   await page.goto(url, { settleMs: 400 });
   await click(marketNav);
   assert.match(await page.eval(() => document.querySelector('h1').textContent), /Thị trường/);
-  assert.equal(await page.eval(() => document.querySelectorAll('.market-row').length), 8);
+  // Vừa vào là tab Tâm điểm, chuyển sang Mua cầu thủ mới có danh sách.
+  assert.equal(await page.eval(() => document.querySelectorAll('.spotlight-item').length), 3);
+  await click('.market-tabs button:first-child');
+  assert.equal(await page.eval(() => document.querySelectorAll('.market-row').length), 40);
   assert.equal(await page.eval(() => Number(document.querySelector('.market-tabs button span').textContent)), players.length);
-  const firstPageName = await page.eval(() => document.querySelector('.market-player b').textContent);
-  await click('[aria-label="Trang thị trường sau"]');
-  assert.notEqual(await page.eval(() => document.querySelector('.market-player b').textContent), firstPageName);
+  // Danh sách cuộn được, cuộn tới cuối thì nạp thêm dòng.
+  await page.eval(() => { const list = document.querySelector('.market-list'); list.scrollTop = list.scrollHeight; list.dispatchEvent(new Event('scroll')); });
+  assert.equal(await page.eval(() => document.querySelectorAll('.market-row').length), 80);
   await select('[aria-label="Sắp xếp thị trường"]', 'ovr');
   for (const width of [1440, 768, 390]) {
     await page.setViewport({ width, height: 900, mobile: width === 390 });

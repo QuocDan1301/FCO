@@ -54,6 +54,7 @@ SEASONS = {
     # BLD: viền vàng dày nên góc OVR lùi vào (corner_edge).
     'bld': dict(art='bld-back.png', corner_edge=.935, badge=(44, 578, 104, 624), title=(68, 104, 399, 160), ink=lambda r, g, b: (np.minimum(np.minimum(r, g), b) > 170) & (r - b > 4) & (r - b < 80) & (r > 205)),
     'wb': dict(art='wb-back.png', badge=(32, 593, 97, 645), title=(56, 100, 410, 158), ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),
+    'live': dict(art='live-back.png', badge=(259, 2032, 461, 2202), title=(543, 379, 1195, 664), ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 150),
     'up26': dict(art='up26-back.png', badge=(140, 2100, 315, 2275), title=[(620, 440, 1000, 610)], ink=lambda r, g, b: np.maximum(np.maximum(r, g), b) < 110),
     'hr25': dict(art='hr25-back.png', badge=(193, 2083, 407, 2252), title=[(430, 445, 1270, 625)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),
     'jnm': dict(art='jnm-back.png', badge=(195, 2100, 410, 2280), title=[(270, 430, 1450, 610)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),
@@ -79,7 +80,7 @@ SEASONS = {
 KEEP_TITLES = {'stellar': '26 TOTS', 'origin': 'NUMBER 7', 'amb': 'FC AMBASSADOR', 'eternal': 'THE MOMENT', 'prime': 'INFINITE PRIME',
                'vietnam': 'VIET NAM', 'prm': 'PRIME', 'mdl': 'MEDALIST', 'uc': 'UC', 'wg': 'WG', 'ut': 'UT', 'cu': 'CU', 'gru': 'GRU', 'rtn': 'RTN', 'dc': 'DC', 'cc': 'CC', 'bld': 'BEST LEGENDS', 'wb': 'WONDERBOYS', 'spt': 'SPARTAN', 'bdo': 'BALLON D’OR', 'hw23': '23 HARD WORKER', 'ep24': '24 ENERGETIC PLAYER', 'ptg': 'PATH TO GLORY',
                'le': 'LEGEND OF EUROPA', 'hg': 'HOME GROWN', 'spl': 'SPOTLIGHT', 'ln': 'LEGENDARY NUMBERS', 'fa': 'FREE AGENT', 'lol': 'LEGEND OF THE LOAN',
-               'cap': 'CAPTAIN CLASS', 'boe21': 'BEST OF EUROPE 21', 'btb': 'BACK TO BACK', 'ebs': 'EUROPEAN BEST STARS', 'juventus': 'AMBASSADOR JUVENTUS', 'jnm': 'JOURNEYMAN', 'hr25': '25 HEROES', 'up26': '26 UP'}
+               'cap': 'CAPTAIN CLASS', 'boe21': 'BEST OF EUROPE 21', 'btb': 'BACK TO BACK', 'ebs': 'EUROPEAN BEST STARS', 'juventus': 'AMBASSADOR JUVENTUS', 'jnm': 'JOURNEYMAN', 'hr25': '25 HEROES', 'up26': '26 UP', 'live': 'LIVE'}
 
 # Góc OVR theo khung thẻ (tỉ lệ trong hộp bao của thẻ, đo từ mẫu): mép chéo đi từ mép phải ở 57% chiều cao xuống 34% bề ngang ở đáy.
 PANEL_LINE = ((1.0, .569), (.338, .973))

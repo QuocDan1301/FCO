@@ -34,7 +34,8 @@ export default function RanksPage({ load, online, levelBadge }: Props) {
       <span className="rk-rank">{i + 1}</span>
       <span className="rk-coach">{r.name}{r.mine && <em>Bạn</em>}</span>
       <span className="rk-card">
-        {p?.cardFace && <img className="rk-face" src={p.cardFace} alt=""/>}
+        {/* Chỉ lấy phần mặt: ảnh gốc in sẵn ô cấp +1, cấp thật hiện ở huy hiệu bên cạnh. */}
+        {p?.cardFace && <span className="squad-face rk-face"><img src={p.cardFace} alt=""/></span>}
         <span className="rk-player">{p && <b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b>}{p?.name ?? '—'}</span>
         {r.level ? <img className="rk-level" src={levelBadge(r.level)} alt={`+${r.level}`}/> : null}
       </span>

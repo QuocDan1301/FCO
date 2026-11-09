@@ -40,6 +40,7 @@ import './juventus-cards.css';
 import './jnm-cards.css';
 import './hr25-cards.css';
 import './up26-cards.css';
+import './live-cards.css';
 import './card-names.css';
 import './market.css';
 import './inventory.css';

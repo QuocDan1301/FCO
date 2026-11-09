@@ -416,18 +416,18 @@ img.card-level{background:none;border:0;padding:0;border-radius:0;height:20px;wi
 @property --fco-energy{syntax:"<number>";inherits:true;initial-value:0}
 @property --fco-fill{syntax:"<color>";inherits:true;initial-value:#1fe36b}
 @property --fco-fill-stripe{syntax:"<color>";inherits:true;initial-value:#18c95c}
-.fco-energy{--fco-fill:#1fe36b;--fco-fill-stripe:#18c95c;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;transition:--fco-energy var(--energy-duration,.4s) cubic-bezier(.22,1,.36,1),--fco-fill .9s ease,--fco-fill-stripe .9s ease}
+.fco-energy{--fco-fill:#1fe36b;--fco-fill-stripe:#18c95c;display:grid;grid-template-columns:repeat(5,1fr);gap:6px;transition:--fco-energy var(--energy-duration,.4s) cubic-bezier(.22,1,.36,1),--fco-fill .45s ease,--fco-fill-stripe .45s ease}
 /* Vàng kim quét từ vạch 5 về vạch 1 rồi phát sáng khi đủ năng lượng. */
-.fco-energy.is-full{--fco-fill:#f5df91;--fco-fill-stripe:#c39436;transition:none;animation:fco-energy-full-colors 1.5s linear both}
+.fco-energy.is-full{--fco-fill:#f5df91;--fco-fill-stripe:#c39436;transition:none;animation:fco-energy-full-colors .75s linear both}
 @keyframes fco-energy-full-colors{0%,15%{--fco-fill:#1fe36b;--fco-fill-stripe:#18c95c}45%,65%{--fco-fill:#a9e17e;--fco-fill-stripe:#8cbd50}100%{--fco-fill:#f5df91;--fco-fill-stripe:#c39436}}
-.fco-energy.is-full i{overflow:hidden;background:#1fe36b;animation:fco-energy-gold-glow .3s ease-out 1.5s both}
-.fco-energy.is-full i:nth-child(1){--gold-delay:.26s}
-.fco-energy.is-full i:nth-child(2){--gold-delay:.195s}
-.fco-energy.is-full i:nth-child(3){--gold-delay:.13s}
-.fco-energy.is-full i:nth-child(4){--gold-delay:.065s}
+.fco-energy.is-full i{overflow:hidden;background:#1fe36b;animation:fco-energy-gold-glow .3s ease-out .75s both}
+.fco-energy.is-full i:nth-child(1){--gold-delay:.13s}
+.fco-energy.is-full i:nth-child(2){--gold-delay:.098s}
+.fco-energy.is-full i:nth-child(3){--gold-delay:.065s}
+.fco-energy.is-full i:nth-child(4){--gold-delay:.033s}
 .fco-energy.is-full i:nth-child(5){--gold-delay:0s}
-.fco-energy.is-full i::before{animation:fco-energy-gold-fill .19s linear var(--gold-delay) both}
-.fco-energy.is-full i::after{left:0;right:0;background:linear-gradient(90deg,transparent 20%,#fff5ca 52%,transparent 85%);opacity:0;animation:fco-energy-gold-shine .19s linear var(--gold-delay) both;clip-path:inset(0)}
+.fco-energy.is-full i::before{animation:fco-energy-gold-fill .1s linear var(--gold-delay) both}
+.fco-energy.is-full i::after{left:0;right:0;background:linear-gradient(90deg,transparent 20%,#fff5ca 52%,transparent 85%);opacity:0;animation:fco-energy-gold-shine .1s linear var(--gold-delay) both;clip-path:inset(0)}
 @keyframes fco-energy-gold-fill{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0)}}
 @keyframes fco-energy-gold-shine{0%{opacity:0;transform:translateX(100%)}20%{opacity:.9}80%{opacity:.9}100%{opacity:0;transform:translateX(-100%)}}
 @keyframes fco-energy-gold-glow{0%{box-shadow:0 0 0 #f5d57700}45%{box-shadow:0 0 15px #ffd76b99,inset 0 0 5px #fff4c9}100%{box-shadow:0 0 9px #edbd4b66,inset 0 0 3px #fff1b477}}

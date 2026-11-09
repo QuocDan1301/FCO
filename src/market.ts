@@ -3,6 +3,7 @@ import type { Card, Entry, Save } from './game';
 import priceData from './player-prices.json';
 import { calculatePrice, insuranceRate, playerPricingOptions, playerClassification } from './pricing';
 import { bestMembership } from './membership';
+import { FLAT_PRICE } from './group-price';
 
 // player-prices.json giữ giá chuẩn theo nhóm và OVR (group-price.ts). Giá thật dao động quanh giá chuẩn và đổi mỗi 5 giờ.
 export const PRICE_AS_OF = priceData.updatedAt;
@@ -39,10 +40,12 @@ function swungPrice(base: number, swing: number) {
   const unit = 10 ** Math.max(0, Math.floor(Math.log10(raw)) - 2);
   return Math.min(max, Math.max(min, Math.round(raw / unit) * unit));
 }
+// Mùa LIVE giữ đúng giá theo công thức riêng, không dao động theo kỳ. Tra Set vì hàm này chạy cho cả danh sách cầu thủ mỗi lần sắp xếp.
+const fixedPricePlayers = new Set(players.filter(p => p.tier === 'live').map(p => p.id));
 // Giá thẻ tại một thời điểm (mặc định là bây giờ). Dùng trực tiếp để sắp xếp 3.883 cầu thủ khỏi phải dựng cả báo giá cho mỗi lần so sánh.
 export function priceAt(card: Pick<Card, 'playerId' | 'level'>, at = marketNow()) {
   const base = recordedPrices[String(card.playerId)]?.[card.level - 1] ?? null;
-  return base === null || base === 0 ? base : swungPrice(base, priceSwing(card.playerId, card.level, pricePeriod(at)));
+  return base === null || base === 0 || base === FLAT_PRICE || fixedPricePlayers.has(card.playerId) ? base : swungPrice(base, priceSwing(card.playerId, card.level, pricePeriod(at)));
 }
 export function compareMarketPrices(a: Pick<Card, 'playerId' | 'level'>, b: Pick<Card, 'playerId' | 'level'>, descending = false) {
   const first = priceAt(a), second = priceAt(b);
