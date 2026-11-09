@@ -31,8 +31,9 @@ export type StatsPlayer = { login: string; registered: number; lastSeen: number 
 export type FcStats = { topup: number; spent: number };
 // Quản lý tài khoản (fco_admin_accounts): total = mọi tài khoản, matched = số khớp tìm kiếm, accounts = trang hiện tại.
 export type AdminAccount = { id: string; login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; topupVnd: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean; paused: boolean };
-export type AdminAccountList = { total: number; matched: number; accounts: AdminAccount[]; now: number };
-export const LEDGER_REASONS: Record<string, string> = { admin: 'Admin nạp', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', admin_gift: 'Admin tặng quà', reset: 'Admin reset tài khoản' };
+// online: số tài khoản đang online (migration 202611090014); chưa chạy migration thì không có.
+export type AdminAccountList = { total: number; matched: number; online?: number; accounts: AdminAccount[]; now: number };
+export const LEDGER_REASONS: Record<string, string> = { admin: 'Admin nạp', admin_old: 'Admin nạp (trước reset)', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', admin_gift: 'Admin tặng quà', reset: 'Admin reset tài khoản' };
 export type AdminStats = { summary: StatsSummary; days: StatsDay[]; players: StatsPlayer[]; now: number };
 // Bi Lắc (supabase/migrations/202611070005_fco_bilac.sql): quà {fc} / {bp} / {pack,count}; quà Giải Đặc Biệt / Phụ trả về {fc, jackpot}.
 export type BilacReward = EventReward | { fc: number; jackpot: 'special' | 'mini' } | { jackpot: 'special' | 'mini' };

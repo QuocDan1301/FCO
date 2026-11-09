@@ -187,3 +187,9 @@
 
 /* Nút đổi một lần cộng FC giữa nạp và quà tặng (LedgerKind.tsx). */
 .pa-ledger-kind{flex:none;min-height:0;height:auto;margin-left:6px;padding:3px 8px;font-size:12px;line-height:1.3;white-space:nowrap}
+
+/* Nút lọc trạng thái tài khoản (Accounts.tsx). */
+.pa-status-filter{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.pa-status-filter>button{min-height:0;height:auto;padding:5px 12px;font-size:13px;gap:6px}
+.pa-status-filter>button.is-on{border-color:#3ddc7a;color:#3ddc7a;background:#3ddc7a1a}
+.pa-status-filter>button>b{min-width:20px;padding:0 6px;border-radius:9px;background:#ffffff1a;font-size:12px;line-height:18px;text-align:center}

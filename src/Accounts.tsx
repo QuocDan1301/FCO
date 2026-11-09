@@ -12,6 +12,8 @@ import type { CreditKind } from './LedgerKind';
 // Máy chủ kiểm tra quyền ở mọi thao tác và không cho khoá / xoá tài khoản admin.
 const PAGE_SIZE = 50;
 type Sort = 'new' | 'active' | 'topup' | 'fc';
+// Bộ lọc trạng thái (migration 202611090014): đang hoạt động = đang online (2 phút gần nhất), không hoạt động = còn lại.
+const STATUSES: { id: string | null; label: string }[] = [{ id: null, label: 'Tất cả' }, { id: 'active', label: 'Đang hoạt động' }, { id: 'inactive', label: 'Không hoạt động' }, { id: 'paused', label: 'Đang tạm dừng' }];
 const SORTS: { id: Sort; label: string }[] = [{ id: 'new', label: 'Mới đăng ký' }, { id: 'active', label: 'Mới vào game' }, { id: 'topup', label: 'Nạp nhiều' }, { id: 'fc', label: 'FC nhiều' }];
 const time = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });
 
@@ -198,8 +200,13 @@ export default function Accounts() {
     <form className="pa-row" onSubmit={e => { e.preventDefault(); setPage(0); setOpen(''); clearSelection(); setSearch(input.trim()); }}>
       <label className="pa-field"><span>Tìm tài khoản</span><input value={input} onChange={e => setInput(e.target.value)} placeholder="tên đăng nhập" spellCheck={false}/></label>
       <label className="pa-field pa-narrow-sort"><span>Sắp xếp</span><select value={sort} onChange={e => { setSort(e.target.value as Sort); setPage(0); setOpen(''); }}>{SORTS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}</select></label>
-      <label className="pa-field pa-narrow-sort"><span>Trạng thái</span><select value={status ?? ''} onChange={e => { setStatus(e.target.value || null); setPage(0); setOpen(''); clearSelection(); }}><option value="">Tất cả</option><option value="paused">Đang tạm dừng</option></select></label>
     </form>
+    <div className="pa-status-filter" role="group" aria-label="Lọc theo trạng thái">
+      {STATUSES.map(s => <button key={s.id ?? 'all'} type="button" className={`secondary-button ${status === s.id ? 'is-on' : ''}`} aria-pressed={status === s.id}
+        onClick={() => { setStatus(s.id); setPage(0); setOpen(''); clearSelection(); }}>
+        {s.label}{s.id === 'active' && data?.online !== undefined ? <b>{money(data.online)}</b> : s.id === 'inactive' && data?.online !== undefined ? <b>{money(data.total - data.online)}</b> : null}
+      </button>)}
+    </div>
     {data && <p className="pa-account-count"><b>{money(data.total)}</b> tài khoản{search ? ` · ${money(data.matched)} khớp "${search}"` : ''}</p>}
     {selectedCount > 0 && <div className="pa-account-bulk" role="region" aria-label="Thao tác hàng loạt">
       <b>Đã chọn {money(selectedCount)} tài khoản</b>

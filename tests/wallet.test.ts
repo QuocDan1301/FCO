@@ -68,3 +68,16 @@ test('FC tặng không tính vào Đã nạp: nạp / tặng tách lý do, sổ 
   assert.equal(canMarkGift({ ...row, id: undefined }), false, 'chưa chạy migration thì chưa có id');
   assert.equal(LEDGER_REASONS.admin, 'Admin nạp');
 });
+test('Tài khoản: lọc đang hoạt động / không hoạt động (202611090014) và reset tiền nạp (202611090015)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { LEDGER_REASONS } = await import('../src/wallet-state.ts');
+  const filter = readFileSync('supabase/migrations/202611090014_fco_accounts_activity_filter.sql', 'utf8');
+  assert.match(filter, /when 'active' then exists \(select 1 from public\.fco_presence p where p\.user_id = p_uid and p\.last_seen > now\(\) - interval '2 minutes'\)/);
+  assert.match(filter, /when 'inactive' then not exists/);
+  assert.equal((filter.match(/public\.fco_account_status_match\(u\.id, p_status\)/g) ?? []).length, 3, 'danh sách (đếm + trang) và tạm dừng hàng loạt cùng dùng bộ lọc');
+  assert.doesNotMatch(filter, /only_paused/);
+  const reset = readFileSync('supabase/migrations/202611090015_fco_topup_reset.sql', 'utf8');
+  assert.match(reset, /update public\.fco_fc_ledger\s+set reason = 'admin_old'[^;]*where reason = 'admin';/);
+  assert.doesNotMatch(reset, /delete from|update public\.fco_wallets/, 'không xoá sổ cái, không đổi ví');
+  assert.equal(LEDGER_REASONS.admin_old, 'Admin nạp (trước reset)');
+});
