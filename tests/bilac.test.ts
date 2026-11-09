@@ -105,6 +105,40 @@ test('Quỹ jackpot: mỗi vòng có Giải Phụ, nổ trước Giải Đặc B
   assert.match(sql, /random\(\) >= \(case when balls\[1\] = 'fc' then 0\.1 else 0\.4 end\) then/);
 });
 
+test('Quỹ jackpot: 140 bot săn quỹ, giữ luật Giải Phụ trước (202611090011)', async () => {
+  const sql = readFileSync('supabase/migrations/202611090011_fco_jackpot_more_bots.sql', 'utf8');
+  assert.match(sql, /hunters constant integer := 140;/);
+  assert.match(sql, /power\(1 - \.001, hunters\)/);
+  assert.match(sql, /\.002 \* public\.fco_jackpot_pressure\(j\.pot\)\), hunters\)\)/);
+  assert.match(sql, /if not mini_done then/);
+  assert.doesNotMatch(sql, /, 40\)/);
+  const { BOT_HUNTERS } = await import('../src/jackpot.ts');
+  assert.equal(BOT_HUNTERS, 140);
+});
+
+test('Quỹ jackpot: mức dễ nổ 15.000 FC, chắc chắn nổ 25.000 FC (202611090012)', () => {
+  const sql = readFileSync('supabase/migrations/202611090012_fco_jackpot_15k.sql', 'utf8');
+  assert.match(sql, /greatest\(0, p_pot - 15000\) \/ 5000\.0/);
+  assert.match(sql, /continue when j\.pot < 15000;/);
+  assert.match(sql, /special := case when j\.pot >= 25000 then 1/);
+  assert.match(sql, /j\.pot - floor\(j\.pot \/ 10\) >= 15000 then/);
+  assert.match(sql, /if j\.pot >= 15000 and mini_done and not/);
+  assert.match(sql, /hunters constant integer := 140;/);
+  assert.doesNotMatch(sql, /\b10000\b|\b20000\b/);
+});
+
+test('Quỹ jackpot: mức dễ nổ 13.000 FC, chắc chắn nổ 23.000 FC (202611090013)', () => {
+  const sql = readFileSync('supabase/migrations/202611090013_fco_jackpot_13k.sql', 'utf8');
+  assert.match(sql, /greatest\(0, p_pot - 13000\) \/ 5000\.0/);
+  assert.match(sql, /continue when j\.pot < 13000;/);
+  assert.match(sql, /special := case when j\.pot >= 23000 then 1/);
+  assert.match(sql, /j\.pot - floor\(j\.pot \/ 10\) >= 13000 then/);
+  assert.match(sql, /if j\.pot >= 13000 and mini_done and not/);
+  assert.match(sql, /hunters constant integer := 140;/);
+  assert.match(sql, /create or replace function public\.fco_bilac_play/);
+  assert.doesNotMatch(sql.replace(/^--.*$/gm, ''), /\b1[05]000\b|\b2[05]000\b/);
+});
+
 test('Bi Lắc: số lần nhận quà mốc theo vòng 1.250 điểm', () => {
   const once = { points: 1, once: true }, m70 = { points: 70, once: false };
   assert.equal(bilacAvailable(0, once, null, 1250), 0);

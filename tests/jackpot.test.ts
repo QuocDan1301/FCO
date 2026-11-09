@@ -26,28 +26,29 @@ test('Bot chỉ săn được giải khi quỹ từ 10.000 FC; trúng đặc bi�
   assert.equal(high.pot, JACKPOT_RESET);
   assert.match(botName(seq(.1, .2, .3, .4, .5, .6)), /^[A-Za-z]+\d*$/);
   // Quỹ càng lớn bot càng dễ nổ; chạm JACKPOT_MAX thì chắc chắn có bot trúng Giải Đặc Biệt.
-  assert.ok(botSpecialOdds(20_000) > botSpecialOdds(12_000) && botSpecialOdds(12_000) > botSpecialOdds(10_000));
+  assert.equal(JACKPOT_MIN, 13_000); assert.equal(JACKPOT_MAX, 23_000);
+  assert.ok(botSpecialOdds(22_000) > botSpecialOdds(15_000) && botSpecialOdds(15_000) > botSpecialOdds(13_000));
   assert.equal(botSpecialOdds(JACKPOT_MAX), 1);
   const capped = tickJackpot({ ...newJackpot(0), pot: JACKPOT_MAX + 1_000 }, JACKPOT_TICK_MS, () => .99);
   assert.equal(capped.feed[0].kind, 'special');
   assert.equal(capped.pot, JACKPOT_RESET);
 });
 
-test('FC trả để chơi cộng hết vào quỹ; đủ 10.000 FC mới có thể trúng; tiền thưởng cộng vào FC và lịch sử', () => {
+test('FC trả để chơi cộng hết vào quỹ; đủ 13.000 FC mới có thể trúng; tiền thưởng cộng vào FC và lịch sử', () => {
   const below = rollJackpot({ ...newJackpot(0), pot: 100 }, 10, 190, () => 0);
   assert.equal(below.jackpot.pot, 100 + 190);
   assert.equal(rollJackpot({ ...newJackpot(0), pot: 100 }, 100, 1800, () => .9).jackpot.pot, 100 + 1800);
   assert.equal(rollJackpot({ ...newJackpot(0), pot: 100 }, 1, 0, () => .9).jackpot.pot, 100);
   assert.equal(below.wins.length, 0);
-  const special = rollJackpot({ ...newJackpot(0), pot: 20_000 }, 1, 20, () => 0, 5);
-  assert.deepEqual(special.wins.map(w => [w.kind, w.amount, w.mine]), [['special', 20_000 + 20, true]]);
+  const special = rollJackpot({ ...newJackpot(0), pot: 23_000 }, 1, 20, () => 0, 5);
+  assert.deepEqual(special.wins.map(w => [w.kind, w.amount, w.mine]), [['special', 23_000 + 20, true]]);
   assert.equal(special.jackpot.pot, JACKPOT_RESET);
-  // Quỹ 20.000 FC: tỷ lệ đặc biệt ~0,18%, mini thêm 0,15% → rng .003 rơi vào mini.
-  const small = rollJackpot({ ...newJackpot(0), pot: 20_000 }, 1, 20, () => .003);
+  // Quỹ 23.000 FC: tỷ lệ đặc biệt ~0,18%, mini thêm 0,15% → rng .003 rơi vào mini.
+  const small = rollJackpot({ ...newJackpot(0), pot: 23_000 }, 1, 20, () => .003);
   assert.equal(small.wins[0].kind, 'mini');
-  assert.equal(small.wins[0].amount, Math.floor((20_000 + 20) / 10));
-  assert.equal(small.jackpot.pot, 20_000 + 20 - small.wins[0].amount);
-  const none = rollJackpot({ ...newJackpot(0), pot: 20_000 }, 3, 60, () => .9);
+  assert.equal(small.wins[0].amount, Math.floor((23_000 + 20) / 10));
+  assert.equal(small.jackpot.pot, 23_000 + 20 - small.wins[0].amount);
+  const none = rollJackpot({ ...newJackpot(0), pot: 23_000 }, 3, 60, () => .9);
   assert.equal(none.wins.length, 0);
   const save = { ...initialSave(), fc: 50 }, paid = grantJackpot(save, special.wins);
   assert.equal(paid.fc, 50 + special.wins[0].amount);

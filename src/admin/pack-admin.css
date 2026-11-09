@@ -184,3 +184,6 @@
 .pa-maintenance-state i{width:10px;height:10px;border-radius:50%;background:#3ddc7a}
 .pa-maintenance-state.is-on{border-color:#ffb35c80;color:#ffcf94}
 .pa-maintenance-state.is-on i{background:#ffb35c}
+
+/* Nút đổi một lần cộng FC giữa nạp và quà tặng (LedgerKind.tsx). */
+.pa-ledger-kind{flex:none;min-height:0;height:auto;margin-left:6px;padding:3px 8px;font-size:12px;line-height:1.3;white-space:nowrap}

@@ -10,6 +10,8 @@ import { adminCredit, adminLedger, LEDGER_REASONS } from './wallet';
 import type { LedgerRow } from './wallet';
 import './admin/pack-admin.css';
 import { TOPUP_VND_PER_1000_FC } from './config';
+import { CreditKindField, LedgerKindButton } from './LedgerKind';
+import type { CreditKind } from './LedgerKind';
 
 // Bảng admin trong game (chỉ hiện với tài khoản trong bảng fco_admins): cộng FC sau khi kiểm tra bill chuyển khoản,
 // xem sổ cái FC, quản lý gift code và xem cảnh báo bản lưu bất thường. Máy chủ kiểm tra quyền admin ở mọi thao tác.
@@ -20,6 +22,7 @@ function CreditFc() {
   const [login, setLogin] = useState('');
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
+  const [kind, setKind] = useState<CreditKind>('topup');
   const [filter, setFilter] = useState('');
   const [rows, setRows] = useState<LedgerRow[] | null>(null);
   const [status, setStatus] = useState<Status>(null);
@@ -30,11 +33,13 @@ function CreditFc() {
   const submit = async () => {
     if (!login.trim()) return setStatus({ kind: 'error', text: 'Nhập tên đăng nhập của người chơi.' });
     if (!Number.isSafeInteger(value) || value === 0) return setStatus({ kind: 'error', text: 'Nhập số FC (số âm để trừ).' });
-    if (!confirm(`${value > 0 ? 'Cộng' : 'Trừ'} ${money(Math.abs(value))} FC ${value > 0 ? 'cho' : 'của'} ${login.trim()}?`)) return;
+    const gift = kind === 'gift';
+    if (gift && value < 0) return setStatus({ kind: 'error', text: 'Tặng FC chỉ nhận số dương.' });
+    if (!confirm(gift ? `Tặng ${money(value)} FC cho ${login.trim()}? (không tính vào Đã nạp)` : `${value > 0 ? 'Nạp' : 'Trừ'} ${money(Math.abs(value))} FC ${value > 0 ? 'cho' : 'của'} ${login.trim()}? (tính vào Đã nạp)`)) return;
     setBusy(true); setStatus(null);
     try {
-      const result = await adminCredit(login, value, note.trim());
-      setStatus({ kind: 'ok', text: `Đã ${value > 0 ? 'cộng' : 'trừ'} ${money(Math.abs(value))} FC · ${result.login} còn ${money(result.fc)} FC.` });
+      const result = await adminCredit(login, value, note.trim(), gift);
+      setStatus({ kind: 'ok', text: `Đã ${gift ? 'tặng' : value > 0 ? 'nạp' : 'trừ'} ${money(Math.abs(value))} FC · ${result.login} còn ${money(result.fc)} FC.` });
       setAmount(''); setNote(''); setFilter(result.login); void load(result.login);
     } catch (e) { setStatus({ kind: 'error', text: (e as Error).message }); }
     finally { setBusy(false); }
@@ -42,8 +47,9 @@ function CreditFc() {
   return <section className="pa-gift" aria-label="Nạp FC">
     <form className="pa-form" onSubmit={e => { e.preventDefault(); void submit(); }}>
       <h2 className="pa-gift-title">Cộng FC cho người chơi</h2>
-      <p className="pa-gift-note">Kiểm tra bill chuyển khoản (tỷ lệ {TOPUP_VND_PER_1000_FC.toLocaleString('vi-VN')} VND = 1.000 FC), rồi nhập tên đăng nhập trong game của người chơi. Số âm để trừ khi cộng nhầm. Mỗi lần cộng / trừ được ghi vào sổ cái.</p>
+      <p className="pa-gift-note">Nạp: kiểm tra bill chuyển khoản (tỷ lệ {TOPUP_VND_PER_1000_FC.toLocaleString('vi-VN')} VND = 1.000 FC), số này tính vào Đã nạp và doanh thu; số âm để trừ khi cộng nhầm. Tặng FC miễn phí thì chọn loại "Tặng FC", không tính nạp. Ở sổ cái, nút "Là quà tặng" / "Là nạp" đổi lại các lần cộng đã ghi nhầm loại.</p>
       {status && <p className={`pa-message is-${status.kind}`} role={status.kind === 'error' ? 'alert' : 'status'}>{status.text}</p>}
+      <CreditKindField kind={kind} onChange={setKind}/>
       <label className="pa-field"><span>Tên đăng nhập</span><input value={login} onChange={e => setLogin(e.target.value)} placeholder="vd. player_123" autoComplete="off" spellCheck={false}/></label>
       <label className="pa-field"><span>Số FC <small>{Number.isSafeInteger(value) && value ? `= ${money(value)} FC · ${Math.round(Math.abs(value) / 1000 * TOPUP_VND_PER_1000_FC).toLocaleString('vi-VN')} VND` : ''}</small></span><input value={amount} onChange={e => setAmount(e.target.value.replace(/[^\d-]/g, ''))} inputMode="numeric" placeholder="vd. 100000"/></label>
       <label className="pa-field"><span>Ghi chú <small>vd. mã giao dịch ngân hàng</small></span><input value={note} onChange={e => setNote(e.target.value)} maxLength={200}/></label>
@@ -59,6 +65,7 @@ function CreditFc() {
       {rows?.map((row, i) => <div key={`${row.time}-${i}`} className="pa-gift-item">
         <div><b className={row.delta > 0 ? 'pa-plus' : 'pa-minus'}>{row.delta > 0 ? '+' : '−'}{money(Math.abs(row.delta))} FC · {row.login}</b>
           <small>{LEDGER_REASONS[row.reason] ?? row.reason}{row.note ? ` · ${row.note}` : ''} · còn {money(row.balance)} FC</small><small>{time(row.time)}</small></div>
+        <LedgerKindButton row={row} onChanged={() => void load()} onError={text => setStatus({ kind: 'error', text })}/>
       </div>)}
     </div>
   </section>;

@@ -5,6 +5,8 @@ import { ago, hours, vnd } from './Stats';
 import { giftRewardText } from './gift-codes';
 import { adminAccountDelete, adminAccountLock, adminAccountReset, adminAccounts, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS } from './wallet';
 import type { AdminAccount, AdminAccountList, AdminGift, LedgerRow } from './wallet';
+import { CreditKindField, LedgerKindButton } from './LedgerKind';
+import type { CreditKind } from './LedgerKind';
 
 // Quản lý tài khoản (supabase/migrations/202611080008_fco_admin_accounts.sql): mọi tài khoản đã đăng ký, cộng / trừ FC, sổ cái, khoá, xoá.
 // Máy chủ kiểm tra quyền ở mọi thao tác và không cho khoá / xoá tài khoản admin.
@@ -57,6 +59,7 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
   const { login } = account;
   const [amount, setAmount] = useState('');
   const [note, setNote] = useState('');
+  const [kind, setKind] = useState<CreditKind>('topup');
   const [ledger, setLedger] = useState<LedgerRow[] | null>(null);
   const [status, setStatus] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -74,11 +77,13 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
   };
   const credit = () => {
     if (!Number.isSafeInteger(value) || value === 0) return setStatus({ kind: 'error', text: 'Nhập số FC (số âm để trừ).' });
-    if (!confirm(`${value > 0 ? 'Cộng' : 'Trừ'} ${money(Math.abs(value))} FC ${value > 0 ? 'cho' : 'của'} ${login}?`)) return;
+    const gift = kind === 'gift';
+    if (gift && value < 0) return setStatus({ kind: 'error', text: 'Tặng FC chỉ nhận số dương.' });
+    if (!confirm(gift ? `Tặng ${money(value)} FC cho ${login}? (không tính vào Đã nạp)` : `${value > 0 ? 'Nạp' : 'Trừ'} ${money(Math.abs(value))} FC ${value > 0 ? 'cho' : 'của'} ${login}? (tính vào Đã nạp)`)) return;
     void run(async () => {
-      const result = await adminCredit(login, value, note.trim());
+      const result = await adminCredit(login, value, note.trim(), gift);
       setAmount(''); setNote(''); void loadLedger();
-      return `Đã ${value > 0 ? 'cộng' : 'trừ'} ${money(Math.abs(value))} FC · ${login} còn ${money(result.fc)} FC.`;
+      return `Đã ${gift ? 'tặng' : value > 0 ? 'nạp' : 'trừ'} ${money(Math.abs(value))} FC · ${login} còn ${money(result.fc)} FC.`;
     });
   };
   const lock = () => {
@@ -107,6 +112,7 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
     <div className="pa-account-columns">
       <form onSubmit={e => { e.preventDefault(); credit(); }}>
         <h3>Cộng / trừ FC</h3>
+        <CreditKindField kind={kind} onChange={setKind}/>
         <label className="pa-field"><span>Số FC <small>{Number.isSafeInteger(value) && value ? `${value > 0 ? '+' : '−'}${money(Math.abs(value))} FC` : 'số âm để trừ'}</small></span><input value={amount} onChange={e => setAmount(e.target.value)} placeholder="vd. 100000" autoComplete="off"/></label>
         <label className="pa-field"><span>Ghi chú <small>vd. mã giao dịch ngân hàng</small></span><input value={note} onChange={e => setNote(e.target.value)} maxLength={200}/></label>
         <button type="submit" className="primary-button" disabled={busy}><Coins size={16}/>Xác nhận</button>
@@ -115,7 +121,7 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
       <div className="pa-account-ledger">
         <h3>Sổ cái FC gần đây</h3>
         {ledger && !ledger.length && <p className="pa-empty">Chưa có giao dịch.</p>}
-        {ledger?.map((row, i) => <p key={`${row.time}-${i}`}><b className={row.delta > 0 ? 'pa-plus' : 'pa-minus'}>{row.delta > 0 ? '+' : '−'}{money(Math.abs(row.delta))} FC</b> <small>{LEDGER_REASONS[row.reason] ?? row.reason}{row.note ? ` · ${row.note}` : ''} · còn {money(row.balance)} · {time(row.time)}</small></p>)}
+        {ledger?.map((row, i) => <p key={`${row.time}-${i}`}><b className={row.delta > 0 ? 'pa-plus' : 'pa-minus'}>{row.delta > 0 ? '+' : '−'}{money(Math.abs(row.delta))} FC</b> <small>{LEDGER_REASONS[row.reason] ?? row.reason}{row.note ? ` · ${row.note}` : ''} · còn {money(row.balance)} · {time(row.time)}</small> <LedgerKindButton row={row} onChanged={() => { void loadLedger(); onChanged(); }} onError={text => setStatus({ kind: 'error', text })}/></p>)}
       </div>
       <div className="pa-account-danger">
         <h3>Khoá / tạm dừng / reset / xoá</h3>

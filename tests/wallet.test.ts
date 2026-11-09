@@ -52,3 +52,19 @@ test('Tên HLV hiện đầy đủ với tài khoản tên đăng nhập, email 
   assert.match(sql, /create or replace function public\.fco_public_name\(p_uid uuid\)/);
   assert.match(sql, /update public\.fco_jackpot set feed = /, 'sửa tên đã lưu trong bảng tin trúng giải');
 });
+test('FC tặng không tính vào Đã nạp: nạp / tặng tách lý do, sổ cái đổi được loại (202611090010)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { canMarkGift, LEDGER_REASONS } = await import('../src/wallet-state.ts');
+  const sql = readFileSync('supabase/migrations/202611090010_fco_admin_fc_gift.sql', 'utf8');
+  assert.match(sql, /create function public\.fco_admin_credit\(p_login text, p_amount bigint, p_note text default '', p_gift boolean default false\)/);
+  assert.match(sql, /public\.fco_admin_send_gift\(target, p_amount, null, null, p_note\)/, 'tặng đi đường admin_gift');
+  assert.match(sql, /create function public\.fco_admin_ledger_mark_gift\(p_id bigint, p_gift boolean\)/);
+  assert.match(sql, /r\.delta <= 0 or r\.actor is null or r\.reason not in \('admin', 'admin_gift'\)/);
+  const row = { id: 1, time: 0, login: 'a', delta: 1000, balance: 1000, reason: 'admin', note: null, admin: true };
+  assert.equal(canMarkGift(row), true);
+  assert.equal(canMarkGift({ ...row, reason: 'admin_gift' }), true);
+  assert.equal(canMarkGift({ ...row, delta: -1000 }), false, 'không đổi lần trừ');
+  assert.equal(canMarkGift({ ...row, reason: 'daily', admin: false }), false);
+  assert.equal(canMarkGift({ ...row, id: undefined }), false, 'chưa chạy migration thì chưa có id');
+  assert.equal(LEDGER_REASONS.admin, 'Admin nạp');
+});

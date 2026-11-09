@@ -35,7 +35,9 @@ export const claimMissionFc = (id: string) => call<Wallet>('fco_event_mission', 
 export const playEventFc = (count: number, mode: 'fc' | 'free') => call<EventPlayResult>('fco_event_play', { p_count: count, p_mode: mode });
 export const fetchFcStats = () => call<FcStats>('fco_my_fc_stats');
 export const fetchJackpot = () => call<ServerJackpot>('fco_jackpot_state');
-export const adminCredit = (login: string, amount: number, note: string) => call<{ login: string; fc: number }>('fco_admin_credit', { p_login: login, p_amount: amount, p_note: note });
+// gift = true: tặng FC (không tính vào Đã nạp / doanh thu), cần migration 202611090010. Nạp thường không gửi p_gift để vẫn chạy khi chưa có migration.
+export const adminCredit = (login: string, amount: number, note: string, gift = false) => call<{ login: string; fc: number }>('fco_admin_credit', { p_login: login, p_amount: amount, p_note: note, ...(gift ? { p_gift: true } : {}) });
+export const adminLedgerMarkGift = (id: number, gift: boolean) => call<{ id: number; reason: string }>('fco_admin_ledger_mark_gift', { p_id: id, p_gift: gift });
 export const adminLedger = (login?: string) => call<LedgerRow[]>('fco_admin_ledger', { p_limit: 100, p_login: login || null });
 export const adminGiftCodes = () => call<GiftCodeRow[]>('fco_admin_gift_codes');
 export const adminGiftSave = (code: GiftCode) => call<GiftCodeRow[]>('fco_admin_gift_save', { p_hash: code.hash, p_hint: code.hint, p_rewards: code.rewards, p_expires: code.expires });
