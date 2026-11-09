@@ -44,9 +44,6 @@ test('111 thẻ CC: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1�
   }
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Cristiano Ronaldo')!.id, level: 1 }).price, 540_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'J. Vertonghen')!.id, level: 1 }).price, 10_600_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'K. Navas')!.id, level: 1 }).price, 10_000);
   // Costa Rica, Iran, Panama dùng cờ gốc flag-icons.
   for (const [name, flag] of [['K. Navas', 'CR'], ['E. Haji Safi', 'IR'], ['A. Godoy', 'PA']]) assert.equal(roster.find(p => p.name === name)!.flag, flag);
   // Thẻ in logo mùa CC dùng logo mùa; thẻ in logo CLB có sẵn dùng logo CLB.

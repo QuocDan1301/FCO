@@ -5,6 +5,12 @@ import type { Save } from '../src/game.ts';
 import { initialSave } from './stocked-save.ts';
 import { addToSquad, clearLineup, DEFAULT_FORMATION, FORMATIONS, getLineups, isLocked, lineupSummary, optimizeLineup, placeCard, positionPenalty, releaseCard, removeFromSquad, selectLineup, setFormation, slotOvr, squadCards, squadSummary, toggleLock, SQUAD_LIMIT, SQUAD_WAGE_CAP, XI } from '../src/squad.ts';
 import { sellPlayer } from '../src/market.ts';
+import { readFileSync } from 'node:fs';
+
+test('Điện thoại cầm ngang: danh sách cầu thủ phải tự co theo cột để cuộn được', () => {
+  // phone.css đặt flex:none; landscape.css bỏ max-height thì phải trả lại flex, nếu không danh sách bị cắt mà không cuộn được.
+  assert.match(readFileSync('src/landscape.css', 'utf8'), /:root \.squad-list\{flex:1 1 0;min-height:0;max-height:none;overflow-y:auto/);
+});
 
 const cardsOf = (ids: number[]) => ids.map(id => makeCard(id));
 const lowWage = players.filter(p => (p.wage ?? 0) > 0).sort((a, b) => (a.wage ?? 0) - (b.wage ?? 0));
@@ -23,7 +29,7 @@ test('Thêm / bỏ cầu thủ vào đội hình riêng; thứ tự giữ nguyê
   assert.ok(validateSave(JSON.parse(JSON.stringify(state))));
 });
 
-test('Chặn thêm trùng thẻ, trùng cầu thủ, thẻ không có; cho phép vượt mốc lương 305', () => {
+test('Chặn thêm trùng thẻ, trùng cầu thủ, thẻ không có; cho phép vượt mốc lương 310', () => {
   const [a, b] = [makeCard(lowWage[0].id), makeCard(lowWage[0].id)];
   let state = addToSquad({ ...initialSave(), cards: [a, b] }, a.uid);
   assert.throws(() => addToSquad(state, a.uid), /đã có trong đội hình/);

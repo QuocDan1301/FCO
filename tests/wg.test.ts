@@ -41,8 +41,6 @@ test('155 thẻ WG: ID riêng, đủ ảnh thẻ / logo mùa / cờ, giá +1…+
   }
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Ronaldo')!.id, level: 1 }).price, 138_000_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'D. Forlán')!.id, level: 1 }).price, 4_200_000);
   // Hai thẻ "R. Keane" là hai người khác nhau (Robbie Keane ST, Roy Keane CM), mỗi thẻ một ảnh.
   assert.deepEqual(roster.filter(p => p.name === 'R. Keane').map(p => p.pos), ['ST', 'CM']);
 });

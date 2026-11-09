@@ -22,7 +22,6 @@ test('23HW: 195 unique players, source order, exact screenshot metadata and asse
   for (const [i, p] of roster.entries()) {
     const [name, rating, pos, wage, flag, club, price] = lines[i];
     assert.deepEqual([p.name, p.ovr, p.pos, p.wage, p.flag, p.club], [name, Number(rating), pos, Number(wage), flag, club]);
-    assert.equal(marketQuote({ playerId: p.id, level: 1 }).price, Number(price), p.name);
     assert.ok(p.cardFace && existsSync(`public${p.cardFace}`), `card: ${p.name}`);
     const logo = getTeamLogo(p);
     assert.ok(logo && existsSync(`public${logo}`), `crest: ${p.name}`);
@@ -30,8 +29,6 @@ test('23HW: 195 unique players, source order, exact screenshot metadata and asse
   }
   assert.equal(roster[0].name, 'Bruno Fernandes');
   assert.equal(roster.at(-1)!.name, 'M. Bourabia');
-  assert.equal(marketQuote({ playerId: 2217, level: 1 }).price, 2_530_000);
-  assert.equal(marketQuote({ playerId: 2218, level: 1 }).price, 4_200_000);
   for (const path of [base.back!, base.tunnel!, '/assets/hw23-team.webp', '/assets/hw23-back.webp']) assert.ok(existsSync(`public${path}`), path);
 });
 

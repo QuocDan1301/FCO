@@ -188,7 +188,7 @@ export default function StadiumScene(props: Props) {
     for (const side of [-1, 1]) for (const y of [.6, 1.5, 2.6, 4.3, 5.4, 6.4]) strip(side * 4.84, y, .05, .07);
     for (const x of [-3.6, -2.2, -.8, .8, 2.2, 3.6]) { strip(x, 6.98, .07, .05); strip(x * .95, .03, .07, .03); }
     // Bật sáng dần trong STRIP_RISE ms tính từ lúc cờ bắt đầu hiện (cùng nhịp với cờ), đường cong smootherstep.
-    const STRIP_RISE = { standard: 900, quick: 450 };
+    const STRIP_RISE = { standard: 750, quick: 375 };
     let stripLevel = 0;
 
     // Cuối hầm là lối ra sáng trắng (ánh đèn sân vận động): tấm sáng vừa khít lòng khung cuối của hầm (không bị sương làm mờ nên từ xa đã thấy

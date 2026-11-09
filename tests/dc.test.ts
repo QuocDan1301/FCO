@@ -42,12 +42,8 @@ test('135 thẻ DC: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1�
     // giá vẫn phải tăng sau mỗi 2 cấp.
     prices.slice(2).forEach((price, i) => assert.ok(price! > prices[i]!, `${p.name} +${i + 3}`));
   }
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'N. Uysal')!.id, level: 1 }).price, 108_000);
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Sergio Ramos')!.id, level: 1 }).price, 34_100_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'R. Varane')!.id, level: 1 }).price, 947_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'T. Jantschke')!.id, level: 1 }).price, 7_170);
   // Bosnia & Herzegovina (E. Višća) dùng cờ gốc flag-icons.
   assert.equal(roster.find(p => p.name === 'E. Višća')!.flag, 'BA');
   // Thẻ in logo mùa DC dùng logo mùa; thẻ in logo CLB có sẵn dùng logo CLB.

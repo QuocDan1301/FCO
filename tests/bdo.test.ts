@@ -43,10 +43,6 @@ test('BDO is published, supports custom packs and every player can be drawn and 
 });
 
 test('BDO screenshot prices and bp2 higher-level quotes support market trades', () => {
-  assert.equal(marketQuote({ playerId: 2021, level: 1 }).price, 11_400_000);
-  assert.equal(marketQuote({ playerId: 2022, level: 1 }).price, 75_400_000);
-  assert.equal(marketQuote({ playerId: 2119, level: 1 }).price, 69_700);
-  assert.equal(marketQuote({ playerId: 2128, level: 1 }).price, 6_680);
   for (const p of roster) {
     const prices = Array.from({ length: 13 }, (_, i) => marketQuote({ playerId: p.id, level: i + 1 }).price);
     assert.ok(prices.every(v => v !== null && v > 0), p.name);

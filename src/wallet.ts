@@ -1,10 +1,11 @@
 import { accountClient } from './account-client';
 import type { EventReward } from './game';
 import type { GiftCode } from './gift-code-rules';
+import type { MembershipId } from './membership';
 import { LOGIN_FOR_FC, walletMessage } from './wallet-state';
 import { MAINTENANCE_CHANGED } from './maintenance-state';
 import type { MaintenanceState } from './maintenance-state';
-import type { AdminAccountList, AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
+import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
 export * from './wallet-state';
 
 // Ví FC trên máy chủ (supabase/migrations/202611070001_fco_wallet.sql): số FC, quà ngày, gift code, lượt sự kiện và jackpot
@@ -20,6 +21,7 @@ async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<
   return data as T;
 }
 
+export const fetchServerNow = () => call<number>('fco_server_now');
 export const fetchWallet = (seedPoints: number) => call<Wallet>('fco_wallet', { p_seed_points: Math.max(0, Math.floor(seedPoints)) });
 export const claimDailyFc = () => call<Wallet>('fco_claim_daily');
 // Bảng xếp hạng HLV (supabase/migrations/202611080001_fco_ranks.sql).
@@ -27,6 +29,7 @@ export const fetchLeaderboard = () => call<Leaderboard>('fco_leaderboard');
 export const reportUpgradeRank = (ovr: number, playerId: number, level: number) => call<null>('fco_rank_upgrade', { p_ovr: ovr, p_player: playerId, p_level: level });
 export const reportSquadRank = (value: number) => call<null>('fco_rank_squad', { p_value: Math.max(0, Math.floor(value)) });
 export const spendFc = (amount: number, detail: Record<string, unknown>) => call<Wallet>('fco_spend_fc', { p_amount: amount, p_reason: 'shop', p_detail: detail });
+export const buyMembership = (id: MembershipId) => call<Wallet>('fco_buy_membership', { p_tier: id });
 export const redeemGiftHash = (hash: string) => call<{ rewards: EventReward[]; wallet: Wallet }>('fco_redeem_gift', { p_hash: hash });
 export const claimMissionFc = (id: string) => call<Wallet>('fco_event_mission', { p_id: id });
 export const playEventFc = (count: number, mode: 'fc' | 'free') => call<EventPlayResult>('fco_event_play', { p_count: count, p_mode: mode });
@@ -48,6 +51,10 @@ export const adminAccountsPause = (paused: boolean, target: { users: string[] } 
 export const adminAccountLock = (id: string, locked: boolean) => call<{ locked: boolean }>('fco_admin_account_lock', { p_user: id, p_locked: locked });
 export const adminAccountReset = (id: string, resetFc: boolean) => call<{ reset: boolean; fc: number }>('fco_admin_account_reset', { p_user: id, p_reset_fc: resetFc });
 export const adminAccountDelete = (id: string) => call<{ deleted: boolean }>('fco_admin_account_delete', { p_user: id });
+export const adminSendGift = (user: string, gift: { fc: number } | { pack: string; count: number }, note: string) => call<{ id: number; fc: number | null }>('fco_admin_send_gift', 'fc' in gift ? { p_user: user, p_fc: gift.fc, p_note: note } : { p_user: user, p_pack: gift.pack, p_count: gift.count, p_note: note });
+export const adminGiftList = (user: string) => call<AdminGift[]>('fco_admin_gift_list', { p_user: user });
+export const fetchMyGifts = () => call<AdminGift[]>('fco_my_admin_gifts');
+export const ackMyGifts = (ids: number[]) => call<number>('fco_my_admin_gifts_ack', { p_ids: ids });
 export const adminStats = (search?: string) => call<AdminStats>('fco_admin_stats', { p_search: search || null, p_limit: 300 });
 export const fetchBilacConfig = () => call<BilacConfig>('fco_bilac_config');
 export const playBilac = (count: number, mode: 'fc' | 'free') => call<BilacResult>('fco_bilac_play', { p_count: count, p_mode: mode });

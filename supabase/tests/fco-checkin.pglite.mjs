@@ -1,5 +1,5 @@
 // Chạy thử migration điểm danh 7 ngày trên PGlite (cài như fco-wallet.pglite.mjs):
-//   NODE_PATH=<tmp>/node_modules node supabase/tests/fco-checkin.pglite.mjs . supabase/migrations/202611070001_fco_wallet.sql supabase/migrations/202611070002_fco_save_audit.sql supabase/migrations/202611070003_fco_stats.sql supabase/migrations/202611070004_fco_checkin.sql supabase/migrations/202611070008_fco_checkin_fc.sql supabase/migrations/202611080002_fco_checkin_v3.sql
+//   NODE_PATH=<tmp>/node_modules node supabase/tests/fco-checkin.pglite.mjs . supabase/migrations/202611070001_fco_wallet.sql supabase/migrations/202611070002_fco_save_audit.sql supabase/migrations/202611070003_fco_stats.sql supabase/migrations/202611070004_fco_checkin.sql supabase/migrations/202611070008_fco_checkin_fc.sql supabase/migrations/202611080002_fco_checkin_v3.sql supabase/migrations/202611090006_fco_daily_500.sql
 import { PGlite } from '@electric-sql/pglite';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
@@ -36,7 +36,7 @@ let fc = 0;
 for (let day = 1; day <= 7; day++) {
   if (day > 1) await shift(1);
   w = await claim();
-  fc += 1000 + bonus[day - 1];
+  fc += 500 + bonus[day - 1];
   assert.deepEqual(w.checkin, { claimedToday: true, day, done: day }, `ngày ${day}`);
   assert.equal(w.fc, fc, `FC ngày ${day}`);
   await assert.rejects(claim(), /FCO_DAILY_CLAIMED/);
@@ -44,7 +44,7 @@ for (let day = 1; day <= 7; day++) {
 // Đủ 7 ngày: hôm sau quay lại ngày 1.
 await shift(1);
 assert.deepEqual((await as(B, 'select public.fco_wallet()')).checkin, { claimedToday: false, day: 1, done: 0 });
-w = await claim(); assert.equal(w.checkin.day, 1); fc += 1200; assert.equal(w.fc, fc);
+w = await claim(); assert.equal(w.checkin.day, 1); fc += 700; assert.equal(w.fc, fc);
 await shift(1); w = await claim(); assert.equal(w.checkin.day, 2);
 // Đang ở ngày 2, bỏ lỡ 1 ngày (lùi 2): quay lại ngày 1.
 await shift(2);

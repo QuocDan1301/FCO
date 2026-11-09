@@ -395,7 +395,7 @@ test('Điểm danh chỉ một lần/ngày theo UTC+7', () => {
   assert.equal(dayKey(new Date('2026-10-20T17:00:00Z')), '2026-10-21');
   const before = initialSave(); const after = claimDaily(before);
   assert.equal(after.balance, before.balance);
-  assert.equal(after.fc, (before.fc ?? 0) + 1_000);
+  assert.equal(after.fc, (before.fc ?? 0) + 500);
   assert.ok(validateSave(JSON.parse(JSON.stringify(after))));
   assert.throws(() => claimDaily(after));
 });
@@ -427,7 +427,7 @@ test('Mốc mở thẻ có nhịp chuẩn 9–12 giây, nhanh 3–5 giây (gồm
   const { OPENING_CUES, openingPhase, OPENING_RESULT } = await import('../src/cinema/timeline.ts');
   assert.ok(OPENING_CUES.standard.at(-1)! >= 9000 && OPENING_CUES.standard.at(-1)! <= 12000);
   assert.ok(OPENING_CUES.quick.at(-1)! >= 3000 && OPENING_CUES.quick.at(-1)! <= 5000);
-  assert.equal(OPENING_CUES.standard[4] - OPENING_CUES.standard[3], 2500, 'Mỗi mục hiện 2 giây rồi nghỉ 0,5 giây');
+  assert.equal(OPENING_CUES.standard[4] - OPENING_CUES.standard[3], 2083, 'Mỗi mục hiện khoảng 1,67 giây rồi nghỉ 0,42 giây');
   for (const cues of [OPENING_CUES.standard, OPENING_CUES.quick]) {
     const [flag, position, team] = [cues[3] - cues[2], cues[4] - cues[3], cues[5] - cues[4]];
     assert.equal(flag, position); assert.equal(position, team);

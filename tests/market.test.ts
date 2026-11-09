@@ -2,11 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeCard, MAX_LEVEL, players, validateSave } from '../src/game.ts';
 import { initialSave } from './stocked-save.ts';
-import { buyPlayer, sellPlayer, sellCards, sellRange, marketQuote, compareMarketPrices, formatMarketPrice, MARKET_FEE_PERCENT, MAX_BULK_SELL, PRICE_AS_OF } from '../src/market.ts';
+import { buyPlayer, sellPlayer, sellCards, sellRange, marketQuote, compareMarketPrices, formatMarketPrice, priceAt, saleFee, MARKET_FEE_PERCENT, MAX_BULK_SELL, PRICE_AS_OF } from '../src/market.ts';
 import { readFileSync } from 'node:fs';
 import mutablePriceData from '../src/player-prices.json';
 
-// Bảng giá lấy từ Excel (src/player-prices.json): game phải trả đúng từng ô, kể cả ô trống.
+// Bảng giá chuẩn (src/player-prices.json): game tính giá thật quanh từng ô, kể cả ô trống.
 const priceTable: Record<string, (number | null)[]> = JSON.parse(readFileSync(new URL('../src/player-prices.json', import.meta.url), 'utf8')).players;
 
 test('Thẻ giá 0 hiển thị 0 BP, mua bán được với 0 BP; ô trống vẫn khóa giao dịch', () => {
@@ -36,13 +36,13 @@ test('Thẻ giá 0 hiển thị 0 BP, mua bán được với 0 BP; ô trống v
   } finally { table[playerId] = previous; }
 });
 
-test('Giá từng cấp khớp bảng Excel; mua bán và phí nhất quán', () => {
+test('Giá từng cấp dao động quanh bảng giá chuẩn; mua bán và phí nhất quán', () => {
   for (const player of players) for (let level = 1; level <= MAX_LEVEL; level++) {
-    const expected = priceTable[player.id]?.[level - 1] ?? null;
+    const standard = priceTable[player.id]?.[level - 1] ?? null;
     const quote = marketQuote({ playerId: player.id, level });
     assert.equal(quote.asOfDate, PRICE_AS_OF);
-    assert.equal(quote.price, expected, `ID ${player.id} +${level}`);
-    assert.equal(quote.available, expected !== null);
+    assert.equal(quote.price, priceAt({ playerId: player.id, level }), `ID ${player.id} +${level}`);
+    assert.equal(quote.available, standard !== null);
     if (quote.available) {
       assert.ok(Number.isSafeInteger(quote.price));
       assert.equal(quote.fee, Math.floor(quote.price * MARKET_FEE_PERCENT / 100));
@@ -88,7 +88,7 @@ test('Bán đúng bản sao thẻ, nhận BP sau phí; chặn bán lại và tr�
   assert.deepEqual(result.state.cards, [duplicate]);
   assert.deepEqual(before, snapshot);
   assert.match(result.state.history[0].title, /Bán/);
-  assert.match(result.state.history[0].detail, /Phí 5%/);
+  assert.match(result.state.history[0].detail, /Phí 40%/);
   assert.ok(validateSave(result.state));
   assert.throws(() => sellPlayer(result.state, first.uid), /không còn trong kho/);
   assert.throws(() => sellPlayer(before, 'unknown'), /không còn trong kho/);
@@ -96,11 +96,11 @@ test('Bán đúng bản sao thẻ, nhận BP sau phí; chặn bán lại và tr�
   assert.equal(sellPlayer({ ...before, balance: Number.MAX_SAFE_INTEGER - quote.proceeds }, first.uid).state.balance, Number.MAX_SAFE_INTEGER);
 });
 
-test('Mua rồi bán mất đúng phí; không tạo lợi nhuận và giữ nguyên kho gói, số lần mở/nâng cấp', () => {
+test('Mua rồi bán mất đúng thuế bán; không tạo lợi nhuận và giữ nguyên kho gói, số lần mở/nâng cấp', () => {
   const before = { ...initialSave(), balance: 1000000000000000 };
   const bought = buyPlayer(before, 47, 2);
   const sold = sellPlayer(bought.state, bought.card.uid);
-  assert.equal(sold.state.balance, before.balance - bought.quote.fee);
+  assert.equal(sold.state.balance, before.balance - saleFee(bought.quote.price));
   assert.deepEqual(sold.state.cards, before.cards);
   assert.deepEqual(sold.state.unopened, before.unopened);
   assert.equal(sold.state.opened, before.opened);
@@ -144,7 +144,7 @@ test('byMarketValue: thẻ giá cao nhất đứng đầu, thẻ chưa có giá 
   assert.deepEqual(priced.map(c => c.uid), priced.map(c => c.uid), 'Không sửa mảng gốc');
 });
 
-test('Bán theo giá tự đặt: trong ±10% giá thị trường, trừ phí 5%; bán hàng loạt nhiều thẻ một lần, chặn giá sai / thẻ khóa / trùng / quá 99 thẻ', () => {
+test('Bán theo giá tự đặt: trong ±10% giá thị trường, trừ phí 40%; bán hàng loạt nhiều thẻ một lần, chặn giá sai / thẻ khóa / trùng / quá 99 thẻ', () => {
   const priced = players.filter(p => marketQuote({ playerId: p.id, level: 1 }).available).slice(0, 3);
   const cards = priced.map(p => makeCard(p.id));
   const state = { ...initialSave(), balance: 1_000, cards };

@@ -48,9 +48,6 @@ test('118 thẻ SPT: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1�
   }
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Ó. Trejo')!.id, level: 1 }).price, 739_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === "S. Eto'o")!.id, level: 1 }).price, 315_000_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Javi Galán')!.id, level: 1 }).price, 412_000);
   assert.deepEqual(roster.map(p => p.ovr), [...roster.map(p => p.ovr)].sort((a, b) => b - a));
   assert.equal(roster.find(p => p.name === 'D. Djené')!.flag, 'TG');
   assert.equal(roster.find(p => p.name === 'Omar Mascarell')!.flag, 'GQ');

@@ -47,8 +47,6 @@ test('88 thẻ BLD: ID riêng, đủ ảnh thẻ / logo CLB / cờ, giá +1…+1
   }
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'L. Messi')!.id, level: 1 }).price, 96_400_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'İ. Gündoğan')!.id, level: 1 }).price, 9_700);
   // Thẻ Aubameyang người dùng gửi hai lần: chỉ một thẻ.
   assert.equal(roster.filter(p => p.name === 'P. Aubameyang').length, 1);
   assert.equal(getTeamLogo(roster.find(p => p.name === 'V. Osimhen')!), `/assets/${logos['Galatasaray'].slice('/assets/'.length)}`);

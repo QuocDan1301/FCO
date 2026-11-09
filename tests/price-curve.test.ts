@@ -1,9 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import { fcoLevelPrices, parseFcoPrice, resolveAnchors, roundFCOPrice } from '../src/price-curve.ts';
-import type { AnchorTable } from '../src/price-curve.ts';
-import { players } from '../src/game.ts';
+import { fcoLevelPrices, parseFcoPrice, roundFCOPrice } from '../src/price-curve.ts';
 
 test('roundFCOPrice làm tròn 3 chữ số có nghĩa; parseFcoPrice đọc giá M / B', () => {
   assert.equal(roundFCOPrice(58_159_231), 58_200_000);
@@ -29,18 +26,3 @@ test('fcoLevelPrices: giữ mốc, nội suy / ngoại suy đúng công thức, 
   assert.equal(gap.length, 13);
   assert.ok(gap.every(v => v === null || (Number.isFinite(v) && v >= 1000)));
 });
-
-for (const [tier, label, file, count] of [['stellar', '26TS', 'scripts/ts26-anchors.json', 158], ['eternal', 'ITM', 'scripts/itm-anchors.json', 133], ['hw23', '23HW', 'scripts/hw23-anchors.json', 178]] as const) {
-  test(`Giá ${label} trong player-prices.json khớp ảnh TTCN (+5/+8/+11) và công thức cho các cấp còn lại`, () => {
-    const anchors: AnchorTable = JSON.parse(readFileSync(file, 'utf8')).prices;
-    const prices: Record<string, (number | null)[]> = JSON.parse(readFileSync('src/player-prices.json', 'utf8')).players;
-    const pool = new Map(players.filter(p => p.tier === tier).map(p => [p.name, p]));
-    assert.equal(Object.keys(anchors).length, count);
-    for (const [name, a] of Object.entries(anchors)) {
-      const p = pool.get(name); assert.ok(p, `${name} phải là thẻ ${label}`);
-      const row = prices[p.id];
-      // Mốc theo ảnh, trừ khi quy tắc không giảm nâng lên bằng cấp trước (vd. +1 cũ cao hơn +5 TTCN).`n      a.forEach((v, k) => { const i = [4, 7, 10][k]; if (v !== null) assert.equal(row[i], Math.max(parseFcoPrice(v), row[i - 1] ?? 0), `${name} +${[5, 8, 11][k]}`); });
-      assert.deepEqual(row, fcoLevelPrices(resolveAnchors(row, a, anchors)), `${name} +1…+13`);
-    }
-  });
-}

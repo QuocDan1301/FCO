@@ -38,11 +38,13 @@ import { hr25Players } from './hr25Players';
 import { up26Players } from './up26Players';
 import { emptyBridge, isBridgeState, resolveUpgrade, type BridgeState, type UpgradeRole } from './upgrade/engine';
 import type { Rng } from './upgrade/rng';
+import type { Membership } from './membership';
 export type Tier = 'origin' | 'stellar' | 'eternal' | 'prime' | 'vietnam' | 'prm' | 'mdl' | 'amb' | 'uc' | 'wg' | 'ut' | 'cu' | 'gru' | 'rtn' | 'dc' | 'cc' | 'bld' | 'wb' | 'spt' | 'bdo' | 'hw23' | 'ep24' | 'ptg' | 'le' | 'hg' | 'spl' | 'ln' | 'fa' | 'lol' | 'cap' | 'boe21' | 'btb' | 'ebs' | 'juventus' | 'jnm' | 'hr25' | 'up26';
 // Thứ tự mùa khớp với Pack.weights (tỷ lệ % ra từng mùa).
 export const TIERS: readonly Tier[] = ['origin', 'stellar', 'eternal', 'prime', 'vietnam', 'prm', 'mdl', 'amb', 'uc', 'wg', 'ut', 'cu', 'gru', 'rtn', 'dc', 'cc', 'bld', 'wb', 'spt', 'bdo', 'hw23', 'ep24', 'ptg', 'le', 'hg', 'spl', 'ln', 'fa', 'lol', 'cap', 'boe21', 'btb', 'ebs', 'juventus', 'jnm', 'hr25', 'up26'];
 export type Player = { id: number; name: string; ovr: number; pos: string; nation: string; flag: string; club: string; tier: Tier; image?: string; value?: number; wage?: number; cardFace?: string; teamLogo?: string };
-export type Card = { uid: string; playerId: number; level: number; received: number };
+// fromMarket: thẻ mua từ chợ (giữ nguyên khi nâng cấp). Hiện chỉ để đánh dấu, không ảnh hưởng thuế bán.
+export type Card = { uid: string; playerId: number; level: number; received: number; fromMarket?: boolean };
 export type Entry = { id: string; time: number; type: 'pack' | 'upgrade' | 'gift' | 'market' | 'shop' | 'event'; title: string; detail: string; success?: boolean };
 // Tiến trình sự kiện Nâng Cấp Siêu Sao (src/event.ts): điểm tích lũy, tổng lượt đã chơi, số lần đã nhận từng mốc quà,
 // lượt miễn phí còn lại; day = ngày của missions (nhiệm vụ đã nhận thưởng) và paid (lượt trả FC trong ngày).
@@ -55,7 +57,7 @@ const isEventReward = (r: unknown): r is EventReward => !!r && typeof r === 'obj
 // Sơ đồ đội hình A/B/C (màn Đội hình): mỗi bộ gồm mã sơ đồ và 11 ô (uid thẻ trong đội hình riêng hoặc null); squad.ts chuẩn hoá khi đọc.
 export type Lineup = { formation: string; slots: (string | null)[] };
 export type Lineups = { active: number; sets: Lineup[] };
-export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; event?: EventState; reset?: string; bpReset?: string; codes?: string[] };
+export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; membership?: Membership; event?: EventState; reset?: string; bpReset?: string; codes?: string[] };
 // back: ảnh mặt sau thẻ của gói (hiện ở danh sách gói và màn chuẩn bị mở); không có thì dùng hình gói mặc định.
 // tunnel: ảnh nền chỉ hiện một lần trên cặp màn LED ở cửa hầm; các màn phía sau tắt.
 // accent: màu đèn LED / khung của đường hầm khi mở gói; không có thì dùng màu vàng mặc định.
@@ -771,7 +773,7 @@ export function upgrade(state: Save, targetId: string, materialIds: string[], rn
 }
 export function dayKey(date = new Date()) { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(date); }
 // Quà điểm danh mỗi ngày: DAILY_FC FC (dùng để chơi sự kiện Nâng Cấp Siêu Sao); người dùng bỏ phần BP.
-export const DAILY_FC = 1_000;
+export const DAILY_FC = 500;
 export function claimDaily(state: Save): Save {
   const today = dayKey();
   if (state.daily === today) throw new Error('Bạn đã nhận quà hôm nay. Hẹn gặp lại vào ngày mai!');
@@ -810,6 +812,7 @@ export function validateSave(data: unknown): data is Save {
   if (s && typeof s === 'object' && s.reset !== SAVE_RESET) { s.unopened = defaultUnopened(); delete s.event; s.balance = START_BP; delete s.fc; s.reset = SAVE_RESET; }
   // FC và tiến trình sự kiện sai kiểu thì bỏ, không làm hỏng cả bản lưu.
   if (s.fc !== undefined && !(Number.isSafeInteger(s.fc) && s.fc >= 0)) delete s.fc;
+  if (s.membership !== undefined && !(s.membership && typeof s.membership === 'object' && Object.values(s.membership).every(until => until === null || Number.isSafeInteger(until)))) delete s.membership;
   // Gift code đã dùng (mã băm SHA-256, src/gift-codes.ts): dòng sai kiểu thì bỏ, không trùng.
   if (s.codes !== undefined) { if (Array.isArray(s.codes)) s.codes = [...new Set(s.codes.filter(h => typeof h === 'string' && /^[0-9a-f]{64}$/.test(h)))]; else delete s.codes; }
   if (s.event !== undefined && !(s.event && Number.isSafeInteger(s.event.points) && s.event.points >= 0 && Number.isSafeInteger(s.event.plays) && s.event.plays >= 0 && Array.isArray(s.event.claimed) && s.event.claimed.every(n => Number.isSafeInteger(n) && n >= 0) && [s.event.free, s.event.paid].every(n => n === undefined || (Number.isSafeInteger(n) && n >= 0)) && (s.event.day === undefined || typeof s.event.day === 'string') && (s.event.missions === undefined || (Array.isArray(s.event.missions) && s.event.missions.every(id => typeof id === 'string'))))) delete s.event;

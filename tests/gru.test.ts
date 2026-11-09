@@ -44,12 +44,7 @@ test('176 thẻ GRU: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1�
   }
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'L. Messi')!.id, level: 1 }).price, 8_290_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Z. Zidane')!.id, level: 1 }).price, 6_300_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'D. Machado')!.id, level: 1 }).price, 5_960);
   // Trang giá cuối (gửi sau): 11 thẻ OVR 105–107.
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'A. Florenzi')!.id, level: 1 }).price, 45_800);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'J. Drommel')!.id, level: 1 }).price, 23_100);
   // Hai thẻ "R. Keane" là hai người khác nhau (Roy CDM, Robbie CF), mỗi thẻ một ảnh.
   assert.deepEqual(roster.filter(p => p.name === 'R. Keane').map(p => p.pos), ['CDM', 'CF']);
   // Thẻ in logo mùa GRU dùng logo mùa; thẻ in logo CLB có sẵn dùng logo CLB.

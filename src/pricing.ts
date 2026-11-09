@@ -1,9 +1,12 @@
 import config from './pricing-config.json';
 import suppliedGroups from './player-classification-groups.json';
 import factsData from './player-classification-facts.json';
+import groupData from './player-groups.json';
 import { classifyPlayer } from './player-classification';
 import type { ClassificationFacts } from './player-classification';
 import type { Player } from './game';
+
+const priceGroups = groupData.groups as Record<string, 1 | 2 | 3>;
 
 export type PricingOptions = {
   group?: 1 | 2 | 3;
@@ -54,5 +57,5 @@ export function playerClassification(player: Pick<Player, 'id' | 'name' | 'pos' 
 
 export function playerPricingOptions(playerId: number, player?: Pick<Player, 'id' | 'name' | 'pos' | 'club' | 'flag'>): PricingOptions {
   const override = (config.overrides as Record<string, PricingOptions>)[String(playerId)] ?? {};
-  return { group: player ? playerClassification(player).group : undefined, ...override };
+  return { group: player ? priceGroups[player.name] ?? playerClassification(player).group : undefined, ...override };
 }

@@ -3,8 +3,9 @@ import type { ReactNode } from 'react';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
 import type { Card, Save, Tier } from './game';
-import { MARKET_FEE_PERCENT, MAX_BULK_SELL, SELL_BAND_PERCENT, sellRange } from './market';
+import { MAX_BULK_SELL, SELL_BAND_PERCENT, marketNow, priceAt, saleFee, saleTaxPercent, sellRange } from './market';
 import type { SellItem } from './market';
+import { usePricePeriod } from './use-price-period';
 import { asset } from './asset';
 import './sell.css';
 
@@ -22,22 +23,18 @@ type Props = {
 };
 const MODES: { id: Mode; label: string }[] = [{ id: 'fit', label: 'Đăng ký với giá phù hợp' }, { id: 'min', label: 'Đăng ký với giá thấp nhất' }, { id: 'max', label: 'Đăng ký với giá cao nhất' }];
 const DAY = 86_400_000;
-const fee = (price: number) => Math.floor(price * MARKET_FEE_PERCENT / 100);
 const fullFormat = new Intl.NumberFormat('en-US');
 const full = (n: number) => fullFormat.format(n);
-// Số ngẫu nhiên cố định theo cầu thủ + cấp: biểu đồ giá, bảng đang bán và khối lượng giao dịch là mô phỏng nhưng không đổi mỗi lần mở.
+// Số ngẫu nhiên cố định theo cầu thủ + cấp: bảng đang bán và khối lượng giao dịch là mô phỏng nhưng không đổi mỗi lần mở.
 function seeded(seed: number) {
   let s = seed % 2147483647 || 1;
   return () => (s = s * 16807 % 2147483647) / 2147483647;
 }
 function marketView(card: Card, price: number) {
   const rng = seeded(card.playerId * 131 + card.level * 7919);
-  let value = price * (0.88 + rng() * 0.3);
-  const history = Array.from({ length: 30 }, (_, i) => {
-    if (i === 29) return price;
-    value = value * (0.95 + rng() * 0.1) * 0.85 + price * 0.15;
-    return Math.round(value);
-  });
+  // Biểu đồ dùng giá thật của 30 ngày gần nhất, mỗi ngày một điểm.
+  const now = marketNow();
+  const history = Array.from({ length: 30 }, (_, i) => priceAt(card, now - (29 - i) * DAY) ?? price);
   const listings = Array.from({ length: 5 }, (_, i) => ({ price: Math.round(price * (1 + 0.004 * (i + 1) + rng() * 0.003)), count: 1 + Math.floor(rng() * (i === 4 ? 4 : 2)) }));
   return { history, listings, volume: 5 + Math.floor(rng() * 56) };
 }
@@ -55,8 +52,10 @@ function PriceChart({ history }: { history: number[] }) {
 }
 
 // Cửa sổ Bán kiểu FC Online: "Bán từng cá nhân" (tự đặt giá trong khoảng ±10%, bán nhiều thẻ giống nhau một lúc) và
-// "Bán hàng loạt" (tick tối đa 99 thẻ, bán cùng một mức: giá phù hợp / thấp nhất / cao nhất). Bán là bán ngay, trừ phí 5%.
+// "Bán hàng loạt" (tick tối đa 99 thẻ, bán cùng một mức: giá phù hợp / thấp nhất / cao nhất). Bán là bán ngay, trừ phí của từng thẻ.
 export default function SellDialog({ save, initial, free, renderCard, levelBadge, seasonShort, onSell, onClose }: Props) {
+  const period = usePricePeriod();
+  const taxPercent = saleTaxPercent(save);
   const [tab, setTab] = useState<Tab>(initial.tab);
   const [uid, setUid] = useState(initial.uid ?? '');
   const locked = useMemo(() => new Set(save.locked ?? []), [save.locked]);
@@ -73,10 +72,12 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   // Thẻ giống hệt (cùng cầu thủ + cấp, chưa khóa, không nằm trong đội hình riêng) bán cùng giá; thẻ đang chọn luôn tính.
   const twins = card ? [card, ...save.cards.filter(c => c.uid !== card.uid && c.playerId === card.playerId && c.level === card.level && !locked.has(c.uid) && !squad.has(c.uid))] : [];
   const sellable = card && !locked.has(card.uid) ? twins.length : 0;
+  const selling = twins.slice(0, count);
+  const sellingFees = selling.length * saleFee(price, taxPercent);
   const view = card && range ? marketView(card, range.price) : null;
   const clampPrice = () => { if (!range) return; setPriceText(full(Math.min(range.max, Math.max(range.min, price || range.price)))); };
   const step = (dir: 1 | -1) => { if (!range) return; const unit = Math.max(1, Math.round(range.price / 100)); setPriceText(full(Math.min(range.max, Math.max(range.min, (price || range.price) + dir * unit)))); };
-  const sellSingle = () => { if (card && priceOk && count >= 1 && count <= sellable && onSell(twins.slice(0, count).map(c => ({ uid: c.uid, price })))) onClose(); };
+  const sellSingle = () => { if (card && priceOk && count >= 1 && count <= sellable && onSell(selling.map(c => ({ uid: c.uid, price })))) onClose(); };
 
   // ---- Bán hàng loạt ----
   const [mode, setMode] = useState<Mode>('fit');
@@ -86,12 +87,12 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
     const r = sellRange(c);
     const reason = locked.has(c.uid) ? 'Đã khóa' : squad.has(c.uid) ? 'Trong đội hình' : !r ? 'Chưa có giá' : null;
     return { card: c, range: r, reason };
-  }).sort((a, b) => (sortDesc ? -1 : 1) * (ovr(a.card) - ovr(b.card)) || (b.range?.price ?? -1) - (a.range?.price ?? -1)), [save.cards, locked, squad, sortDesc]);
+  }).sort((a, b) => (sortDesc ? -1 : 1) * (ovr(a.card) - ovr(b.card)) || (b.range?.price ?? -1) - (a.range?.price ?? -1)), [save.cards, locked, squad, sortDesc, period]);
   const priceFor = (r: NonNullable<ReturnType<typeof sellRange>>) => mode === 'min' ? r.min : mode === 'max' ? r.max : r.price;
   const checkedSet = new Set(checked);
   const chosen = rows.filter(row => checkedSet.has(row.card.uid) && row.range && !row.reason);
   const total = chosen.reduce((sum, row) => sum + priceFor(row.range!), 0);
-  const totalFee = chosen.reduce((sum, row) => sum + fee(priceFor(row.range!)), 0);
+  const totalFee = chosen.reduce((sum, row) => sum + saleFee(priceFor(row.range!), taxPercent), 0);
   const eligible = rows.filter(row => !row.reason);
   const allChecked = eligible.length > 0 && eligible.slice(0, MAX_BULK_SELL).every(row => checkedSet.has(row.card.uid));
   const toggle = (id: string) => setChecked(list => list.includes(id) ? list.filter(x => x !== id) : list.length >= MAX_BULK_SELL ? list : [...list, id]);
@@ -128,7 +129,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
         <label className="sd-field"><span>Giá</span>
           <input inputMode="numeric" value={priceText} disabled={!range} aria-invalid={!!range && !priceOk} onChange={e => setPriceText(e.target.value.replace(/\D/g, '') ? full(Number(e.target.value.replace(/\D/g, ''))) : '')} onBlur={clampPrice} onKeyDown={e => { if (e.key === 'ArrowUp') { e.preventDefault(); step(1); } if (e.key === 'ArrowDown') { e.preventDefault(); step(-1); } }}/>
         </label>
-        <p className={`sd-price-note ${range && !priceOk ? 'is-error' : ''}`}>{!range ? marketPriceMissing(card) : !priceOk ? `Giá phải từ ${money(range.min)} đến ${money(range.max)} (±${SELL_BAND_PERCENT}% giá thị trường)` : `${money(price)} · nhận ${money((price - fee(price)) * count)} BP sau phí ${MARKET_FEE_PERCENT}%`}</p>
+        <p className={`sd-price-note ${range && !priceOk ? 'is-error' : ''}`}>{!range ? marketPriceMissing(card) : !priceOk ? `Giá phải từ ${money(range.min)} đến ${money(range.max)} (±${SELL_BAND_PERCENT}% giá thị trường)` : `${money(price)} · nhận ${money(price * selling.length - sellingFees)} BP sau phí ${taxPercent}%`}</p>
         <div className="sd-row"><span>Số lượng bán</span><div className="sd-stepper"><b>{count}</b><span><button aria-label="Tăng số lượng" disabled={count >= sellable} onClick={() => setCount(c => Math.min(sellable, c + 1))}><ChevronUp size={14}/></button><button aria-label="Giảm số lượng" disabled={count <= 1} onClick={() => setCount(c => Math.max(1, c - 1))}><ChevronDown size={14}/></button></span></div></div>
         <div className="sd-row"><span>Số lượng có thể bán</span><b className="sd-big">{sellable}</b></div>
         {locked.has(card.uid) && <p className="sd-price-note is-error">Thẻ đang bị khóa. Mở khóa trước khi bán.</p>}
@@ -154,7 +155,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
       </div>
       <footer className="sd-bulk-foot">
         <div className="sd-bulk-sum">
-          <span className="sd-fee">Chi phí bán<i title={`Phí ${MARKET_FEE_PERCENT}% giá bán của mỗi thẻ`}>?</i><b>{money(totalFee)}</b></span>
+          <span className="sd-fee">Chi phí bán<i title={`Phí ${taxPercent}% giá bán của mỗi thẻ`}>?</i><b>{money(totalFee)}</b></span>
           <select value={mode} onChange={e => setMode(e.target.value as Mode)} aria-label="Mức giá bán hàng loạt">{MODES.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}</select>
           <span className="sd-total">Tổng giá trị<b>{money(total)}</b></span>
         </div>

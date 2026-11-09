@@ -6,8 +6,8 @@ export const OPENING_ENTRY = { standard: { wait: 2000, flip: 1900, glitch: 1200,
 // Hết logo là vào thẻ ngay, các mốc 6–8 chỉ còn là nhịp chuyển rất ngắn.
 export const OPENING_CUES = {
   // Mốc 1 (khung LED bắt đầu sáng) = lúc camera xuyên qua vùng sáng ở cửa hầm (GATE_CROSS).
-  standard: [2770, 3170, 3570, 6070, 8570, 11070, 11100, 11130, 11170],
-  quick: [1590, 1740, 1890, 2890, 3890, 4890, 4910, 4930, 4960],
+  standard: [2575, 2908, 3242, 5325, 7408, 9491, 9516, 9541, 9575],
+  quick: [1508, 1633, 1758, 2591, 3424, 4257, 4274, 4291, 4316],
 } as const;
 // Vùng sáng đứng yên ở cửa hầm (z ≈ 2,5, ngay trước cặp màn LED có ảnh nền ở z = -3), đã thấy từ lúc thẻ còn nhiễu.
 // Camera xuyên qua nó ngay sau khi hết nhiễu rồi khung LED mới sáng; mốc chọn sao cho camera tới z ≈ 2,5 đúng lúc này.
@@ -15,9 +15,10 @@ export const OPENING_CUES = {
 // GATE_CROSS = CAMERA_HOLD + thời gian camera 3D đi tới cửa hầm, nên đổi phần thêm thì GATE_CROSS và OPENING_CUES cộng theo.
 export const CAMERA_HOLD = { standard: OPENING_ENTRY.standard.glitch + 400, quick: OPENING_ENTRY.quick.glitch + 200 } as const;
 // Hết chờ, camera tăng tốc êm từ 0 trong CAMERA_RAMP (đến chậm hơn ramp/2 so với xuất phát đột ngột).
-export const CAMERA_RAMP = { standard: 400, quick: 200 } as const;
-export const GATE_CROSS = { standard: 2770, quick: 1590 } as const;
-export const INFO_GAP = { standard: 500, quick: 200 } as const;
+// Tốc độ camera: mọi mốc sau CAMERA_HOLD (OPENING_CUES, CAMERA_RAMP, GATE_CROSS, INFO_GAP, CAMERA_EXIT, STRIP_RISE) đã rút còn 1/1,2 để camera nhanh hơn 20% mà đường đi giữ nguyên.
+export const CAMERA_RAMP = { standard: 333, quick: 167 } as const;
+export const GATE_CROSS = { standard: 2575, quick: 1508 } as const;
+export const INFO_GAP = { standard: 417, quick: 167 } as const;
 export const OPENING_RESULT = 9;
 export function openingPhase(elapsed: number, quick: boolean) {
   return OPENING_CUES[quick ? 'quick' : 'standard'].filter(at => elapsed >= at).length;
@@ -38,7 +39,7 @@ const CAMERA_START_Z = 13, TUNNEL_END_Z = -38 - TUNNEL_EXTRA, CAMERA_END_Z = PAT
 // Phần quãng đường nằm trong hầm; camera chạm cửa hầm đúng lúc hết logo đội.
 const TUNNEL_SHARE = (CAMERA_START_Z - TUNNEL_END_Z) / (CAMERA_START_Z - CAMERA_END_Z);
 // Sau khi thẻ hiện, camera còn lướt ra sân khấu thêm một đoạn.
-export const CAMERA_EXIT = { standard: 1500, quick: 700 } as const;
+export const CAMERA_EXIT = { standard: 1250, quick: 583 } as const;
 // Tiến độ camera (0 → 1) khi camera ở đúng vị trí z.
 export const progressAtZ = (z: number) => (CAMERA_START_Z - z) / (CAMERA_START_Z - CAMERA_END_Z);
 export const cameraEnd = (quick: boolean) => OPENING_CUES[quick ? 'quick' : 'standard'][8] + CAMERA_EXIT[quick ? 'quick' : 'standard'];

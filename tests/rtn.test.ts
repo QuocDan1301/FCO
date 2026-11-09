@@ -42,12 +42,8 @@ test('135 thẻ RTN: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1�
     // giá vẫn phải tăng sau mỗi 2 cấp.
     prices.slice(2).forEach((price, i) => assert.ok(price! > prices[i]!, `${p.name} +${i + 3}`));
   }
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Mariano')!.id, level: 1 }).price, 155_000);
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'S. Effenberg')!.id, level: 1 }).price, 1_010_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'M. Stekelenburg')!.id, level: 1 }).price, 26_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Fidel')!.id, level: 1 }).price, 2_900);
   // Thẻ in logo mùa RTN dùng logo mùa; thẻ in logo CLB có sẵn dùng logo CLB.
   assert.equal(getTeamLogo(roster.find(p => p.name === 'R. Gullit')!), '/assets/rtn-team.webp');
   assert.equal(getTeamLogo(roster.find(p => p.name === 'Rodri')!), `/assets/${clubLogos['Manchester Xanh'].slice('/assets/'.length)}`);

@@ -22,10 +22,6 @@ button,a,label,select,input,[role=button],[role=option],[role=tab],[role=row],.p
 @media(max-width:380px){
   .inv-workspace .inv-capacity>span{display:none}
 }
-/* Chú thích luật TTCN: trên màn nhỏ trải theo màn hình để không tràn ngang. */
-@media(max-width:1024px){
-  .market-rules-tip{position:fixed;left:8px;right:auto;top:auto;width:min(320px,calc(100vw - 16px))}
-}
 
 /* ---- Thanh điều hướng dưới: mục chữ cuộn ngang, nhóm biểu tượng đứng yên bên phải ---- */
 @media(max-width:1023px){

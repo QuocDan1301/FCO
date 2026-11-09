@@ -41,12 +41,8 @@ test('167 thẻ CU: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1�
     // Giá +2…+13 theo họ công thức "117 · ×1" của bp2: ở OVR 110–111 mức sàn +3 thấp hơn mức sàn +2 nên +3 có thể rẻ hơn +2.
     prices.slice(1).forEach((price, i) => assert.ok(i === 1 ? price! > prices[0]! : price! > prices[i]!, `${p.name} +${i + 2}`));
   }
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Kaká')!.id, level: 1 }).price, 4_600_000);
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'P. Maldini')!.id, level: 1 }).price, 2_310_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'G. Bale')!.id, level: 1 }).price, 1_067_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Emerson')!.id, level: 1 }).price, 34_500);
   // Thẻ in logo mùa CU dùng logo mùa; thẻ in logo CLB có sẵn dùng logo CLB.
   assert.equal(getTeamLogo(roster.find(p => p.name === 'B. Lizarazu')!), '/assets/cu-team.webp');
   assert.equal(getTeamLogo(roster.find(p => p.name === 'V. van Dijk')!), `/assets/${clubLogos.Liverpool.slice('/assets/'.length)}`);

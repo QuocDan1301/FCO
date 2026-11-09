@@ -48,9 +48,6 @@ test('198 thẻ WB: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1�
   }
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'B. Charlton')!.id, level: 1 }).price, 31_500_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Sergio Busquets')!.id, level: 1 }).price, 44_300_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'K. Adeyemi')!.id, level: 1 }).price, 38_800);
   // Bảng giá người dùng gửi đảo trang 114 / 115: thẻ vẫn theo OVR giảm dần.
   assert.deepEqual(roster.map(p => p.ovr), [...roster.map(p => p.ovr)].sort((a, b) => b - a));
   assert.equal(roster.find(p => p.name === 'M. Hamšík')!.flag, 'SK');

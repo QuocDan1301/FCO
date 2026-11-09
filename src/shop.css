@@ -19,6 +19,16 @@
 [data-tone=origin]{--shop-tone:#aab4c0;--shop-tone2:#e3e8ee}
 .shop-draft-badge{flex:none;padding:2px 8px;border:1px dashed #ffb35c;border-radius:999px;font-size:11px;font-weight:600;color:#ffb35c}
 [data-tone=mdl]{--shop-tone:#c08a3e;--shop-tone2:#e8c27a}
+[data-tone=svip]{--shop-tone:#b8bdc6;--shop-tone2:#f1f3f6}
+[data-tone=premium]{--shop-tone:#d4af37;--shop-tone2:#f6e2b0}
+
+/* Gói thành viên theo tuần: cùng khung 7 hàng con với gói cầu thủ. */
+.shop-membership .shop-art{cursor:default}
+.shop-membership .shop-art>img{height:100%;width:auto;object-fit:contain}
+.shop-membership-perk{font-size:13px;line-height:1.4;color:#e7edf2}
+.shop-membership-perk b{color:#f5c542}
+.shop-membership-status{margin-top:4px;margin-bottom:8px;font-size:12px;color:#8f99ab}
+.shop-membership-status.is-active{color:#6ee7b7}
 
 /* Header: tiêu đề + badge ví, nút kho có số gói chưa mở. */
 .shop-heading{align-items:center;gap:16px}

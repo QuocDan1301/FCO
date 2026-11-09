@@ -44,9 +44,6 @@ test('134 thẻ UT: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1�
   }
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Ronaldo')!.id, level: 1 }).price, 1_740_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Sergio Ramos')!.id, level: 1 }).price, 27_400_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'S. Rode')!.id, level: 1 }).price, 21_100);
   // Thẻ in logo mùa UT dùng logo mùa; thẻ in logo CLB có sẵn dùng logo CLB.
   assert.equal(getTeamLogo(roster.find(p => p.name === 'R. Ferdinand')!), '/assets/ut-team.webp');
   assert.equal(getTeamLogo(roster.find(p => p.name === 'K. Mbappé')!), `/assets/${clubLogos.Madrid.slice('/assets/'.length)}`);

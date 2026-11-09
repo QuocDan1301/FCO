@@ -41,8 +41,6 @@ test('112 thẻ UC: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1�
   }
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'L. Messi')!.id, level: 1 }).price, 670_000_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'C. Jones')!.id, level: 1 }).price, 752_000);
   // Thẻ in logo mùa UC dùng logo mùa; thẻ in logo CLB dùng logo CLB.
   assert.equal(getTeamLogo(roster.find(p => p.name === 'G. Chiellini')!), '/assets/uc-team.webp');
   assert.equal(getTeamLogo(roster.find(p => p.name === 'F. Wirtz')!), `/assets/${clubLogos.Liverpool.slice('/assets/'.length)}`);

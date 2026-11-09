@@ -169,7 +169,7 @@
 .pa-account-columns{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;align-items:start}
 .pa-account-columns h3{margin:0 0 8px;font-size:14px}
 .pa-account-columns form,.pa-account-danger{display:flex;flex-direction:column;align-items:stretch;gap:8px}
-.pa-account-ledger p{margin:0 0 6px;font-size:13px;overflow-wrap:anywhere}
+.pa-account-ledger p,.pa-account-gift{margin:0 0 6px;font-size:13px;overflow-wrap:anywhere}
 .pa-account-danger form{margin-top:8px;padding-top:10px;border-top:1px solid #222b37}
 .pa-account-check{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
 .pa-account-delete{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;border:1px solid #e6394680;border-radius:6px;background:#e6394618;color:#ff9aa2;font-weight:600;cursor:pointer}

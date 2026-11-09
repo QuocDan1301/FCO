@@ -1,7 +1,7 @@
 import { asset } from './asset';
 import type { Player } from './game';
 
-// 40 thẻ mùa VIETNAM từ ảnh người dùng cung cấp; chưa gán giá giao dịch.
+// 40 thẻ mùa VIETNAM từ ảnh người dùng cung cấp; giá +5/+8/+11 ở scripts/vietnam-anchors.json.
 export const vietnamPlayers: Player[] = [
   { id: 383, name: "Đỗ Hùng Dũng", ovr: 105, pos: 'CM', nation: 'Việt Nam', flag: 'VN', club: 'Việt Nam', tier: 'vietnam', wage: 23, cardFace: asset('/assets/vn-do-hung-dung-card.webp') },
   { id: 384, name: "Đỗ Hoàng Hên", ovr: 119, pos: 'RW', nation: 'Việt Nam', flag: 'VN', club: 'Việt Nam', tier: 'vietnam', wage: 29, cardFace: asset('/assets/vn-do-hoang-hen-card.webp') },

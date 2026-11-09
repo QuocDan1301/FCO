@@ -2,13 +2,30 @@
    vì chiều cao chỉ còn ~300 px giữa thanh trên và thanh dock. Cầm dọc thì index.html hiện màn yêu cầu xoay ngang. */
 @media (max-width:1200px) and (orientation:landscape) and (max-height:500px){
   /* Quản lý CT: đội hình bên trái, danh sách cầu thủ bên phải, mỗi cột tự cuộn. */
-  :root .squad-workspace,:root .main-content>.workspace.squad-workspace{display:grid;grid-template-columns:minmax(0,44fr) minmax(0,56fr);grid-template-rows:minmax(0,1fr);width:calc(100% - 12px);height:calc(100% - 8px);margin:4px auto;overflow:hidden}
+  :root .squad-workspace,:root .main-content>.workspace.squad-workspace{display:grid;grid-template-columns:minmax(0,44fr) minmax(0,56fr);grid-template-rows:minmax(0,1fr);width:calc(100% - 12px);height:calc(100% - 8px);min-height:0;margin:4px auto;overflow:hidden}
   :root .squad-left{border-right:1px solid #232c37;border-bottom:0}
-  :root .squad-list{max-height:none}
+  /* phone.css đặt flex:none kèm max-height: bỏ max-height mà không trả lại flex thì danh sách bung hết cỡ, bị cột cắt và không cuộn được. */
+  :root .squad-list{flex:1 1 0;min-height:0;max-height:none;overflow-y:auto;overscroll-behavior-y:contain}
   :root .squad-panel{min-height:0;overflow:hidden;display:flex;flex-direction:column}
-  :root .squad-head{padding:8px 10px;gap:8px}
-  :root .squad-head h1,:root .squad-head h2{font-size:19px}
+  :root .squad-head{padding:6px 10px;gap:4px 8px}
+  :root .squad-head h1,:root .squad-head h2{font-size:17px}
   :root .squad-head p{display:none}
+  /* Màn thấp (trình duyệt còn chiếm thanh địa chỉ): phần đầu cột phải gom một hàng, bộ lọc và tiêu đề cột mỏng để danh sách có chỗ. */
+  :root .squad-arrange{height:28px;padding:0 10px;font-size:13px}
+  :root .squad-crest{width:26px;height:26px}
+  :root .squad-size,:root .squad-wage-total strong{font-size:18px}
+  :root .squad-right .squad-head{flex-wrap:nowrap}
+  :root .squad-right .squad-head>h2{display:none}
+  :root .squad-search{flex:1 1 0;min-width:0;height:32px}
+  :root .squad-bulk-sell{height:32px;padding:0 10px;font-size:13px}
+  :root .squad-owned{display:flex;align-items:center;gap:5px}
+  :root .squad-owned span{max-width:44px;font-size:10px;line-height:1.15;text-align:right}
+  :root .squad-owned strong{font-size:18px}
+  :root .squad-tools{flex-wrap:nowrap;gap:8px;padding:4px 10px}
+  :root .squad-lines{flex-wrap:nowrap;min-width:0;overflow-x:auto;scrollbar-width:none}
+  :root .squad-lines button{flex:none;height:28px;padding:0 8px;font-size:12px}
+  :root .squad-merge{flex:none;white-space:nowrap;font-size:11px}
+  :root .squad-columns{height:24px}
   /* Đội hình: sân bên trái, danh sách bên phải. */
   :root .main-content>.workspace.lineup-workspace{grid-template-columns:minmax(0,1fr) 300px;width:calc(100% - 12px);height:calc(100% - 8px);margin:4px auto}
   :root .lu-main{padding:6px 10px 4px}

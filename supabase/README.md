@@ -32,7 +32,7 @@ Hàm `fco_delete_account()` chỉ dùng UUID từ JWT đã xác minh, không nh�
 
 Từ migration `202611070001_fco_wallet.sql`, FC chỉ do máy chủ thay đổi: bảng `fco_wallets` giữ số dư, `fco_fc_ledger` ghi mọi lần cộng/trừ. `fco_commit_save` bỏ trường `fc` trong bản lưu, nên sửa bản lưu không tạo ra FC. Mọi tài khoản bắt đầu từ 0 FC.
 
-- Quà mỗi ngày (`fco_claim_daily`, +1.000 FC, giờ Việt Nam), gift code (`fco_redeem_gift`, bảng `fco_gift_codes` chỉ lưu mã băm), mua gói (`fco_spend_fc`), chơi sự kiện (`fco_event_play`: máy chủ quay hũ, giữ điểm sự kiện, lượt miễn phí, lượt trả phí trong ngày) và jackpot (`fco_jackpot`: một quỹ chung cho mọi người chơi, bot vẫn săn như bản giả lập) đều chạy trên máy chủ.
+- Quà mỗi ngày (`fco_claim_daily`, +500 FC từ `202611090006_fco_daily_500.sql`, giờ Việt Nam), gift code (`fco_redeem_gift`, bảng `fco_gift_codes` chỉ lưu mã băm), mua gói (`fco_spend_fc`), chơi sự kiện (`fco_event_play`: máy chủ quay hũ, giữ điểm sự kiện, lượt miễn phí, lượt trả phí trong ngày) và jackpot (`fco_jackpot`: một quỹ chung cho mọi người chơi, bot vẫn săn như bản giả lập) đều chạy trên máy chủ.
 - Nhiệm vụ "Mở gói" và "Nâng cấp" diễn ra trong trình duyệt nên máy chủ tin trình duyệt (tối đa 1 lượt miễn phí mỗi nhiệm vụ mỗi ngày).
 - Khách (không đăng nhập) không dùng được FC.
 - Admin: tài khoản có trong `fco_admins` thấy nút "Quản trị FC" trong Cài đặt: cộng / trừ FC theo tên đăng nhập sau khi kiểm tra bill, xem sổ cái, tạo / xoá gift code (có hiệu lực ngay). Thêm admin: `insert into public.fco_admins(user_id) select id from auth.users where email = '<tên>@players.fco.invalid';`
@@ -42,7 +42,7 @@ Theo dõi bất thường (`202611070002_fco_save_audit.sql`): mỗi lần đồ
 
 Thống kê (`202611070003_fco_stats.sql`): game đã đăng nhập gọi `fco_heartbeat` mỗi phút khi tab đang hiện; máy chủ cộng giờ chơi (tối đa 90 giây mỗi lần) vào `fco_presence` và `fco_play_days`. Quản trị FC → Thống kê hiện số tài khoản, đang online (2 phút), giờ chơi, FC nạp (lý do `admin` trong sổ cái) theo ngày và theo từng tài khoản. Khách không được tính.
 
-Điểm danh 7 ngày (`202611070004_fco_checkin.sql`): cùng nút Nhận của Quà mỗi ngày (vẫn +1.000 FC). Từ `202611080002_fco_checkin_v3.sql`: ngày 1: 200 FC, 2: 350 FC, 3: 500 FC, 4: 650 FC, 5: 800 FC, 6: 1.000 FC, 7: gói ITM All 122+ (`the-moment`); bỏ lỡ một ngày hoặc đủ 7 ngày thì về ngày 1. Máy chủ giữ chuỗi và cộng FC (sổ cái `checkin`); gói do trình duyệt thêm theo `src/checkin.ts` (đổi quà thì sửa cả hai).
+Điểm danh 7 ngày (`202611070004_fco_checkin.sql`): cùng nút Nhận của Quà mỗi ngày (cộng thêm vào +500 FC của quà ngày). Từ `202611080002_fco_checkin_v3.sql`: ngày 1: 200 FC, 2: 350 FC, 3: 500 FC, 4: 650 FC, 5: 800 FC, 6: 1.000 FC, 7: gói ITM All 122+ (`the-moment`); bỏ lỡ một ngày hoặc đủ 7 ngày thì về ngày 1. Máy chủ giữ chuỗi và cộng FC (sổ cái `checkin`); gói do trình duyệt thêm theo `src/checkin.ts` (đổi quà thì sửa cả hai).
 
 Sự kiện Bi Lắc (`202611070005_fco_bilac.sql`): mỗi lượt đá 3 bóng vào 5 ô (CLB, FC, Special, BP, Thẻ); 3 giống → hàng x3, 2 giống → hàng x2, khác nhau → hàng mixed; nhận ngẫu nhiên 1 quà của hàng và cộng điểm; điểm mở quà mốc. Special x3 / x2 = Giải Đặc Biệt / Giải Phụ (1/10) từ quỹ chung `fco_jackpot`. Giá 1 / 10 / 50 lượt = 20 / 190 / 900 FC, 1 lượt miễn phí mỗi ngày.
 Sửa quà / tỷ lệ / quà mốc bằng SQL (không cần build lại), ví dụ:
@@ -72,6 +72,14 @@ Tạm dừng tài khoản (`202611080012_fco_account_pause.sql`, Quản trị FC
 Bảo trì (`202611080011_fco_maintenance.sql`, Quản trị FC → Bảo trì): khi bật, `fco_require_user` từ chối tài khoản thường (FCO_MAINTENANCE), admin không bị chặn; `fco_commit_save` vẫn cho qua để không mất tiến trình vừa chơi. Trình duyệt hỏi `fco_maintenance_state` mỗi 30 giây; không hỏi được thì không chặn. Hàm người chơi mới phải lấy uid qua `fco_require_user`. Chạy thử: `supabase/tests/fco-maintenance.pglite.mjs`.
 
 Reset tài khoản (`202611080010_fco_admin_account_reset.sql`, Quản trị FC → Tài khoản → Quản lý): đưa bản lưu và tiến trình trên ví về như mới, xoá kỷ lục BXH; giữ tên đăng nhập, mật khẩu, sổ cái, gift code đã dùng, quà ngày và lượt Bi Lắc miễn phí đã dùng hôm nay; FC chỉ bị xoá khi admin tích chọn. Bản lưu được ghi đè và tăng revision (không xoá dòng) để máy người chơi tự nhận bản mới và không đẩy được đồ cũ lên lại. Mỗi lần reset ghi sổ cái lý do `reset`. Chạy thử: `supabase/tests/fco-admin-reset.pglite.mjs`.
+
+Gói thành viên (`202611090004_fco_membership.sql`, rồi `202611090005_fco_membership_prices.sql`, Shop): SVIP Class 1.000 FC giảm 30% thuế bán, Premium 1.500 FC giảm 50%, mỗi lần mua cộng 7 ngày. Giá nằm ở `fco_buy_membership`, đổi thì đổi cả `src/membership.ts`. Chưa chạy migration thì nút mua báo máy chủ chưa cài chức năng. Chạy thử: `supabase/tests/fco-membership.pglite.mjs`.
+
+Giờ máy chủ cho giá cầu thủ (`202611090003_fco_server_now.sql`): giá đổi mỗi 5 giờ theo giờ máy chủ nên đổi giờ trên máy không đổi giá. Chưa chạy migration thì game dùng giờ máy, vẫn chơi được. Chạy thử: `supabase/tests/fco-server-now.pglite.mjs`.
+
+Admin tặng quà (`202611090002_fco_admin_gifts.sql`, Quản trị FC → Tài khoản → Quản lý): FC hoặc gói cầu thủ. FC vào ví ngay, sổ cái lý do `admin_gift`, không tính vào Đã nạp và doanh thu. Gói chờ trong `fco_admin_gifts`; game lấy khi mở và mỗi phút, thêm vào bản lưu rồi mới báo đã nhận. Chạy sau `202611090001`. Chạy thử: `supabase/tests/fco-admin-gifts.pglite.mjs`.
+
+Doanh thu theo tỉ giá lúc nạp (`202611090001_fco_topup_rates.sql`): bảng `fco_topup_rates` giữ các mức giá theo thời điểm; các lần nạp trước khi chạy migration tính 4.000 VND / 1.000 FC, từ lúc chạy là 5.000 VND. Chạy migration này trước khi deploy bản web mới, ngay lúc áp giá mới. Đổi tỉ giá lần sau: thêm một dòng vào bảng và sửa `TOPUP_VND_PER_1000_FC`. Chạy thử: `supabase/tests/fco-topup-rates.pglite.mjs`.
 
 Thống kê FC của người chơi (`202611080009_fco_my_fc_stats.sql`, khung Nạp FC): Đã nạp = FC lý do `admin`; Đã dùng = mọi dòng trừ FC trừ lý do `admin`. Chỉ đọc được số của chính mình. Chạy thử: `supabase/tests/fco-my-fc-stats.pglite.mjs`.
 

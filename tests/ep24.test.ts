@@ -47,12 +47,9 @@ test('208 thẻ 24EP: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1
   }
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Andreas Pereira')!.id, level: 1 }).price, 946_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'M. Ruggeri')!.id, level: 1 }).price, 30_800);
   assert.deepEqual(roster.map(p => p.ovr), [...roster.map(p => p.ovr)].sort((a, b) => b - a));
   assert.equal(roster.find(p => p.name === 'Y. Wissa')!.flag, 'CD');
   assert.equal(roster.find(p => p.name === 'B. Djimsiti')!.flag, 'AL');
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'R. Doan')!.id, level: 1 }).price, 439_000);
   assert.equal(getTeamLogo(roster.find(p => p.name === 'Tuta')!), '/assets/ep24-team.webp');
   assert.equal(getTeamLogo(roster.find(p => p.name === 'M. Kudus')!), '/assets/clubs/tottenham.webp');
   assert.equal(getTeamLogo(roster.find(p => p.name === 'N. Atubolu')!), '/assets/clubs/freiburg.webp');

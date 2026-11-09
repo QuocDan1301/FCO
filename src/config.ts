@@ -9,7 +9,8 @@ export const AUDIO_ENABLED = false;
 // TOPUP_QR: ảnh mã QR ngân hàng đặt trong public/ (vd. '/assets/topup-qr.png'); để trống thì khung nạp báo chưa có mã QR.
 // TOPUP_ZALO: link Zalo của admin (vd. 'https://zalo.me/0912345678') để người chơi gửi bill; để trống thì chữ "đây" không bấm được.
 // Game không tự cộng FC: admin kiểm tra bill rồi cộng FC cho tài khoản ở Cài đặt → Quản trị FC (máy chủ, src/AdminPanel.tsx).
-export const TOPUP_VND_PER_1000_FC = 4000;
+// Đổi tỉ giá: sửa số dưới đây và thêm một dòng vào bảng fco_topup_rates trên máy chủ, để doanh thu cũ vẫn tính theo giá cũ.
+export const TOPUP_VND_PER_1000_FC = 5000;
 export const TOPUP_QR = '/assets/topup-qr.webp';
 export const TOPUP_ZALO = 'https://zalo.me/0336856477';
 export const TOPUP_MIN_FC = 1_000; // nạp tối thiểu (FC)

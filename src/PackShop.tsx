@@ -3,6 +3,9 @@ import type { ReactNode } from 'react';
 import { ArrowRight, Check, Coins, Eye, Minus, Plus, ShoppingBag, Zap } from 'lucide-react';
 import { getPackStock, isPackAvailable, MAX_INVENTORY_OPEN, money } from './game';
 import type { Pack, Save } from './game';
+import { marketNow } from './market';
+import { MEMBERSHIP_DAYS, MEMBERSHIPS, membershipLeft } from './membership';
+import type { MembershipId } from './membership';
 import './shop.css';
 
 type Props = {
@@ -10,13 +13,14 @@ type Props = {
   packs: Pack[];
   free: boolean;
   onBuy: (pack: Pack, count: number) => boolean | Promise<boolean>;
+  onBuyMembership: (id: MembershipId) => boolean | Promise<boolean>;
   onOpenNow: (pack: Pack, count: number) => void;
   onPreview: (pack: Pack, count: number) => void;
   onInventory: () => void;
   renderArt: (pack: Pack) => ReactNode;
 };
 
-export default function PackShop({ save, packs, free, onBuy, onOpenNow, onPreview, onInventory, renderArt }: Props) {
+export default function PackShop({ save, packs, free, onBuy, onBuyMembership, onOpenNow, onPreview, onInventory, renderArt }: Props) {
   const [quantities, setQuantities] = useState<Record<string, string>>({});
   const setQuantity = (id: string, value: string) => setQuantities(current => ({ ...current, [id]: value }));
   // Tổng gói chưa mở hiện trên nút Kho vật phẩm; tổng tăng (vừa mua) thì nút nảy nhẹ.
@@ -36,8 +40,20 @@ export default function PackShop({ save, packs, free, onBuy, onOpenNow, onPrevie
       <div><div className="shop-title-row"><h1 id="shop-title">Shop gói cầu thủ</h1><span className="shop-wallet">{free ? <><b aria-hidden="true">∞</b>FC vô hạn · Mua không trừ FC</> : <><Coins size={14}/>Số dư <b>{money(save.fc ?? 0)}</b> FC · Không thu thêm phí khi mở</>}</span></div><p>Chọn gói, mua số lượng bạn muốn và mở trong kho vật phẩm.</p></div>
       <button ref={inventoryRef} className="secondary-button shop-inventory" onClick={onInventory} aria-label={`Kho vật phẩm · ${stockTotal} gói chưa mở`}>Kho vật phẩm<b className="shop-inventory-count" aria-hidden="true">{money(stockTotal)}</b><ArrowRight size={17}/></button>
     </div>
-    {!packs.length && <div className="empty-state"><ShoppingBag size={38}/><h2>Shop chưa có gói nào</h2><p>Gói mới sẽ xuất hiện ở đây khi được mở bán.</p></div>}
     <div className="shop-grid" aria-label="Các gói đang bán">
+      {MEMBERSHIPS.map(item => {
+        const left = membershipLeft(save.membership?.[item.id], marketNow());
+        const affordable = free || (save.fc ?? 0) >= item.price;
+        return <article className="shop-product shop-membership" key={item.id} data-tone={item.id}>
+          <div className="shop-product-heading"><h2>{item.name}</h2><span className="shop-membership-tag">{MEMBERSHIP_DAYS} ngày</span></div>
+          <div className="shop-art"><img src={item.image} alt=""/></div>
+          <p className="shop-membership-perk">Giảm <b>{item.discount}%</b> thuế bán cầu thủ</p>
+          <p className={`shop-membership-status ${left ? 'is-active' : ''}`}>{left ?? 'Chưa kích hoạt'}</p>
+          <div className="shop-total"><span>Giá mỗi tuần</span><strong>{money(item.price)} <small>FC</small></strong></div>
+          <p className="shop-note shop-error">{affordable ? '' : 'Bạn chưa đủ FC để mua gói này.'}</p>
+          <div className="shop-actions"><button className="shop-buy" disabled={!affordable} onClick={() => { if (affordable) void onBuyMembership(item.id); }}><ShoppingBag size={17}/>{left ? 'Gia hạn' : 'Mua'} {MEMBERSHIP_DAYS} ngày</button></div>
+        </article>;
+      })}
       {packs.map(pack => {
         // Gói chưa có cầu thủ vẫn hiện để báo trước, nhưng không mua được (buyPacks cũng chặn).
         if (!isPackAvailable(pack)) return <article className="shop-product shop-upcoming" key={pack.id} data-pack={pack.id} data-tone={pack.tone ?? pack.id} aria-disabled="true">

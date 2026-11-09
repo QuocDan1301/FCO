@@ -1,9 +1,10 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { Coins, Lock, Pause, Play, RotateCcw, Trash2, Unlock } from 'lucide-react';
-import { money } from './game';
+import { Coins, Gift, Lock, Pause, Play, RotateCcw, Trash2, Unlock } from 'lucide-react';
+import { money, packs } from './game';
 import { ago, hours, vnd } from './Stats';
-import { adminAccountDelete, adminAccountLock, adminAccountReset, adminAccounts, adminAccountsPause, adminCredit, adminLedger, LEDGER_REASONS } from './wallet';
-import type { AdminAccount, AdminAccountList, LedgerRow } from './wallet';
+import { giftRewardText } from './gift-codes';
+import { adminAccountDelete, adminAccountLock, adminAccountReset, adminAccounts, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS } from './wallet';
+import type { AdminAccount, AdminAccountList, AdminGift, LedgerRow } from './wallet';
 
 // Quản lý tài khoản (supabase/migrations/202611080008_fco_admin_accounts.sql): mọi tài khoản đã đăng ký, cộng / trừ FC, sổ cái, khoá, xoá.
 // Máy chủ kiểm tra quyền ở mọi thao tác và không cho khoá / xoá tài khoản admin.
@@ -11,6 +12,46 @@ const PAGE_SIZE = 50;
 type Sort = 'new' | 'active' | 'topup' | 'fc';
 const SORTS: { id: Sort; label: string }[] = [{ id: 'new', label: 'Mới đăng ký' }, { id: 'active', label: 'Mới vào game' }, { id: 'topup', label: 'Nạp nhiều' }, { id: 'fc', label: 'FC nhiều' }];
 const time = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });
+
+// Quà admin tặng (supabase/migrations/202611090002_fco_admin_gifts.sql): FC hoặc gói cầu thủ, không tính vào Đã nạp và doanh thu.
+function SendGift({ account, busy, run, onSent }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void; onSent: () => void }) {
+  const { id, login } = account;
+  const [kind, setKind] = useState<'fc' | 'pack'>('pack');
+  const [amount, setAmount] = useState('1');
+  const [pack, setPack] = useState('');
+  const [note, setNote] = useState('');
+  const [error, setError] = useState('');
+  const [gifts, setGifts] = useState<AdminGift[] | null>(null);
+  const list = () => adminGiftList(id).then(rows => { setGifts(rows.slice(0, 5)); setError(''); }).catch(e => setError((e as Error).message));
+  useEffect(() => { void list(); }, [id]);
+  const options = packs.filter(p => !p.draft);
+  const value = Number(amount);
+  const send = () => {
+    if (!Number.isSafeInteger(value) || value <= 0) return setError(kind === 'fc' ? 'Nhập số FC muốn tặng.' : 'Nhập số gói muốn tặng.');
+    if (kind === 'pack' && !pack) return setError('Chọn gói muốn tặng.');
+    if (kind === 'pack' && value > 1000) return setError('Mỗi lần tặng tối đa 1.000 gói.');
+    const gift = kind === 'fc' ? { fc: value } : { pack, count: value };
+    const text = giftRewardText(gift);
+    if (!confirm(`Tặng ${text} cho ${login}?`)) return;
+    setError('');
+    run(async () => {
+      await adminSendGift(id, gift, note);
+      setNote(''); setAmount(kind === 'fc' ? '' : '1'); void list(); onSent();
+      return `Đã tặng ${text} cho ${login}.`;
+    });
+  };
+  return <form onSubmit={e => { e.preventDefault(); send(); }}>
+    <h3>Tặng quà</h3>
+    {error && <p className="pa-message is-error" role="alert">{error}</p>}
+    <label className="pa-field"><span>Loại quà</span><select value={kind} onChange={e => { setKind(e.target.value as 'fc' | 'pack'); setAmount(e.target.value === 'pack' ? '1' : ''); }}><option value="pack">Gói cầu thủ</option><option value="fc">FC</option></select></label>
+    {kind === 'pack' && <label className="pa-field"><span>Gói</span><select value={pack} onChange={e => setPack(e.target.value)}><option value="">Chọn gói…</option>{options.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}
+    <label className="pa-field"><span>{kind === 'fc' ? 'Số FC' : 'Số gói'}</span><input value={amount} onChange={e => setAmount(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder={kind === 'fc' ? 'vd. 5000' : '1'} autoComplete="off"/></label>
+    <label className="pa-field"><span>Lời nhắn <small>người chơi thấy trong lịch sử</small></span><input value={note} onChange={e => setNote(e.target.value)} maxLength={200}/></label>
+    <button type="submit" className="primary-button" disabled={busy}><Gift size={16}/>Tặng quà</button>
+    <p className="pa-gift-note">Không tính vào Đã nạp và doanh thu. FC vào ví ngay; gói vào kho khi người chơi mở game.</p>
+    {gifts?.map(g => <p key={g.id} className="pa-account-gift"><b>{g.rewards.map(giftRewardText).join(', ')}</b> <small>{g.claimed ? 'Đã nhận' : 'Chờ nhận'}{g.note ? ` · ${g.note}` : ''} · {time(g.time)}</small></p>)}
+  </form>;
+}
 
 function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccount; onChanged: () => void; onDeleted: (login: string) => void }) {
   const { login } = account;
@@ -70,6 +111,7 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
         <label className="pa-field"><span>Ghi chú <small>vd. mã giao dịch ngân hàng</small></span><input value={note} onChange={e => setNote(e.target.value)} maxLength={200}/></label>
         <button type="submit" className="primary-button" disabled={busy}><Coins size={16}/>Xác nhận</button>
       </form>
+      <SendGift account={account} busy={busy} run={task => void run(task)} onSent={() => void loadLedger()}/>
       <div className="pa-account-ledger">
         <h3>Sổ cái FC gần đây</h3>
         {ledger && !ledger.length && <p className="pa-empty">Chưa có giao dịch.</p>}
@@ -167,7 +209,7 @@ export default function Accounts() {
             <td className="pa-account-pick"><input type="checkbox" aria-label={`Chọn ${a.login}`} title={a.admin ? 'Không tạm dừng được tài khoản admin' : undefined} disabled={a.admin} checked={!a.admin && (allMatching || selected.has(a.id))} onChange={() => { if (allMatching) { setSelected(new Set(pageIds)); } toggleOne(a.id); }}/></td>
             <td>{a.online && <i className="pa-dot" aria-label="đang online"/>}{a.login}{a.admin && <span className="pa-badge is-admin">Admin</span>}{a.locked && <span className="pa-badge is-locked">Đã khoá</span>}{a.paused && <span className="pa-badge is-paused">Tạm dừng</span>}</td>
             <td>{new Date(a.registered).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td><td>{ago(a.lastSeen, data.now)}</td><td>{hours(a.playSeconds)}</td>
-            <td>{money(a.fc)}</td><td>{a.hasSave ? money(a.bp) : '—'}</td><td>{a.hasSave ? money(a.cards) : '—'}</td><td>{a.hasSave ? money(a.packs) : '—'}</td><td>{a.topupFc ? vnd(a.topupFc) : '—'}</td>
+            <td>{money(a.fc)}</td><td>{a.hasSave ? money(a.bp) : '—'}</td><td>{a.hasSave ? money(a.cards) : '—'}</td><td>{a.hasSave ? money(a.packs) : '—'}</td><td>{a.topupFc ? vnd(a.topupVnd) : '—'}</td>
             <td><button type="button" className="secondary-button pa-account-toggle" aria-expanded={open === a.id} onClick={() => { setNotice(''); setOpen(open === a.id ? '' : a.id); }}>{open === a.id ? 'Đóng' : 'Quản lý'}</button></td>
           </tr>
           {open === a.id && <tr className="pa-account-detail"><td colSpan={11}><ManageAccount account={a} onChanged={() => void load()} onDeleted={login => { setOpen(''); setNotice(`Đã xoá tài khoản ${login}.`); void load(); }}/></td></tr>}

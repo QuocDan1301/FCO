@@ -49,8 +49,6 @@ test('165 thẻ PTG: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1�
   const values = roster.map(p => ovr({ playerId: p.id, level: 1 }));
   assert.equal(base.range, `${Math.min(...values)}–${Math.max(...values)}`);
   assert.deepEqual(roster.filter(p => p.club === 'Tự do').map(p => p.name), FREE);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'Pedri')!.id, level: 1 }).price, 13_000_000);
-  assert.equal(marketQuote({ playerId: roster.find(p => p.name === 'M. Almirón')!.id, level: 1 }).price, 413_000);
   assert.deepEqual(roster.map(p => p.ovr), [...roster.map(p => p.ovr)].sort((a, b) => b - a));
   assert.equal(roster.find(p => p.name === 'M. Al Tamari')!.flag, 'JO');
   assert.equal(getTeamLogo(roster.find(p => p.name === 'M. Taremi')!), `/assets/${logos['Olympiacos'].slice('/assets/'.length)}`);

@@ -1,10 +1,11 @@
 import { useMemo, useRef, useState } from 'react';
 import { usePageCapacity } from './ViewportPages';
 import type { ReactNode } from 'react';
-import { Layers, ArrowRight, ChevronDown, ChevronLeft, ChevronRight, History, Info, Search, Sparkles } from 'lucide-react';
+import { Layers, ArrowRight, ChevronDown, ChevronLeft, ChevronRight, History, Search, Sparkles } from 'lucide-react';
 import { getPlayer, MAX_LEVEL, money, ovr, players, seasons } from './game';
 import type { Card, Save } from './game';
-import { MARKET_FEE_PERCENT, marketQuote, compareMarketPrices, formatMarketPrice, PRICE_AS_OF } from './market';
+import { marketQuote, compareMarketPrices, formatMarketPrice, nextPriceChange, saleTaxPercent } from './market';
+import { usePricePeriod } from './use-price-period';
 import type { MarketTrade } from './market';
 import { asset } from './asset';
 import { PositionBadge, SeasonBadge } from './badges';
@@ -31,7 +32,6 @@ const normalizedName = (id: number, name: string) => { let value = normalizedNam
 // Thứ tự tuyến khi sắp theo vị trí: tiền đạo → tiền vệ → hậu vệ → thủ môn.
 const lineOrder = { fw: 0, mf: 1, df: 2, gk: 3 };
 const marketCard = (playerId: number, level: number): Card => ({ uid: `market-${playerId}-${level}`, playerId, level, received: 0 });
-const priceDate = PRICE_AS_OF.split('-').reverse().join('/');
 // Các khoá sắp xếp giảm dần (mũi tên xuống ở tiêu đề cột).
 const DESCENDING = new Set(['price-desc', 'ovr', 'level', 'wage-desc', 'name-desc', 'position-desc']);
 // Thẻ có giá 0 trong bảng giá Excel là thẻ chưa được định giá thật: vẫn mua / bán được nhưng hiện mờ, kèm nhãn.
@@ -70,6 +70,8 @@ export default function TransferMarket({ save, free, onTrade, onBulkSell, onHist
   const [filtersExpanded, setFiltersExpanded] = useState(false);
   const [unavailableOnly, setUnavailableOnly] = useState(false);
   const buying = mode !== 'sell';
+  const period = usePricePeriod();
+  const nextChange = new Date(nextPriceChange()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
   const filtered = useMemo(() => {
   const cards: Card[] = buying ? players.map(p => marketCard(p.id, Number(buyLevel))) : save.cards;
   const needle = normalize(query);
@@ -95,13 +97,14 @@ export default function TransferMarket({ save, free, onTrade, onBulkSell, onHist
       default: return 0;
     }
   });
-  }, [buying, buyLevel, save.cards, query, position, season, sellLevel, unavailableOnly, sort]);
+  }, [buying, buyLevel, save.cards, query, position, season, sellLevel, unavailableOnly, sort, period]);
   const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
   const currentPage = Math.min(page, pageCount - 1);
   const visible = filtered.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
   const selected = visible.find(c => c.uid === selectedId) || visible[0];
   const panelCard = selected && buying && panelLevel && panelLevel !== selected.level ? marketCard(selected.playerId, panelLevel) : selected;
-  const quote = panelCard && marketQuote(panelCard);
+  const taxPercent = saleTaxPercent(save);
+  const quote = panelCard && marketQuote(panelCard, taxPercent);
   const reset = () => { setQuery(''); setPosition(''); setSeason(''); setSellLevel(''); setBuyLevel('1'); setSort('price-desc'); setUnavailableOnly(false); setPage(0); setPanelLevel(null); };
   const switchMode = (next: typeof mode) => { setMode(next); setPage(0); setPanelLevel(null); };
   const select = (card: Card) => { setSelectedId(card.uid); setPanelLevel(null); };
@@ -117,9 +120,6 @@ export default function TransferMarket({ save, free, onTrade, onBulkSell, onHist
       <div><h1 id="market-title">Thị trường chuyển nhượng</h1><p>Tìm mảnh ghép tiếp theo cho bộ sưu tập của bạn.</p></div>
       <div className="market-head-actions">
         <div className="market-balance" aria-label={`Số dư khả dụng ${free ? 'vô hạn' : money(save.balance)} BP`}><span>Số dư khả dụng</span><b>{free ? '∞' : money(save.balance)}<small>BP</small></b></div>
-        <button className="market-rules" aria-describedby="market-rules-tip"><Info size={15}/><span>Quy tắc giá{free ? ' & Chế độ thử' : ''}</span>
-          <span className="market-rules-tip" id="market-rules-tip" role="tooltip">Giá +1 từ Excel ngày {priceDate} · +2–+13 theo mô hình nâng cấp · Phí bán {MARKET_FEE_PERCENT}%.{free && <><br/>Chế độ thử đang bật: mua và bán thẻ không thay đổi số dư.</>}</span>
-        </button>
         <button className="text-action" onClick={onBulkSell}><Layers size={16}/>Bán hàng loạt</button><button className="text-action" onClick={onHistory}><History size={16}/>Lịch sử giao dịch<ArrowRight size={15}/></button>
       </div>
     </div>
@@ -146,7 +146,7 @@ export default function TransferMarket({ save, free, onTrade, onBulkSell, onHist
     {visible.length ? <div className="market-layout"><div className="market-list-panel">
       <div className="market-columns">{column(['position', 'position-desc'], 'Vị trí')}<span/>{column(['name', 'name-desc'], 'Tên cầu thủ')}{column(['wage-desc', 'wage'], 'Lương', 'is-center')}{column(['ovr', 'ovr-asc'], 'OVR', 'is-center')}{column(['level', 'level-asc'], 'Thẻ', 'is-center')}{column(['price-desc', 'price'], buying ? 'Giá' : 'Nhận sau phí', 'is-end')}<span/></div>
       <div ref={listRef} className="market-list">{visible.map(card => {
-        const player = getPlayer(card), rowQuote = marketQuote(card), unpriced = isUnpriced(rowQuote), shown = buying ? rowQuote.price : rowQuote.proceeds;
+        const player = getPlayer(card), rowQuote = marketQuote(card, taxPercent), unpriced = isUnpriced(rowQuote), shown = buying ? rowQuote.price : rowQuote.proceeds;
         const canAfford = rowQuote.available && (!buying || free || save.balance >= rowQuote.price);
         const note = !rowQuote.available ? 'Chưa có giá' : unpriced ? 'Chưa định giá' : !canAfford ? 'Chưa đủ số dư' : '';
         // Hàng kiểu bảng Quản lí CT: vị trí (vạch màu tuyến) · ảnh thẻ · mùa + tên · lương · OVR · cấp thẻ · giá · thao tác; bấm hàng để xem chi tiết.
@@ -157,7 +157,7 @@ export default function TransferMarket({ save, free, onTrade, onBulkSell, onHist
           <span className="squad-wage" aria-label={`Lương ${player.wage ?? 0}`}>{player.wage ?? 0}</span>
           <strong className="market-ovr">{ovr(card)}</strong>
           <span className="market-level"><img src={levelBadge(card.level)} alt={`+${card.level}`}/></span>
-          <div className={`market-price${unpriced || !rowQuote.available ? ' is-unpriced' : ''}`} title={rowQuote.reason || [formatMarketPrice(shown), rowQuote.liquidityNote, `Bảng giá ngày ${priceDate}`].filter(Boolean).join(' · ')}><b>{shown === null ? '—' : money(shown)}</b>{note && <small>{note}</small>}</div>
+          <div className={`market-price${unpriced || !rowQuote.available ? ' is-unpriced' : ''}`} title={rowQuote.reason || [formatMarketPrice(shown), rowQuote.liquidityNote, `Giá đổi lúc ${nextChange}`].filter(Boolean).join(' · ')}><b>{shown === null ? '—' : money(shown)}</b>{note && <small>{note}</small>}</div>
           <button className="market-row-action" disabled={!canAfford} aria-label={`${buying ? 'Mua' : 'Bán'} ${player.name} +${card.level}`} onClick={event => { event.stopPropagation(); onTrade({ kind: buying ? 'buy' : 'sell', card }); }}>{buying ? 'Mua' : 'Bán'}<ArrowRight size={14}/></button>
         </article>;
       })}</div>
@@ -165,9 +165,9 @@ export default function TransferMarket({ save, free, onTrade, onBulkSell, onHist
     </div><aside className="market-preview" aria-label="Cầu thủ đang xem"><div className="market-preview-card">{renderCard(panelCard)}</div><h2>{getPlayer(panelCard).name}</h2>
       <div className="market-preview-badges"><PositionBadge pos={getPlayer(panelCard).pos}/><SeasonBadge tier={getPlayer(panelCard).tier}/><span className="market-preview-ovr">OVR <b>{ovr(panelCard)}</b></span><img className="market-level-img" src={levelBadge(panelCard.level)} alt={`+${panelCard.level}`}/></div>
       {buying && <div className="market-grades" role="group" aria-label="Chọn nhanh cấp thẻ muốn mua">{Array.from({ length: MAX_LEVEL }, (_, i) => i + 1).map(level => <button key={level} aria-pressed={panelCard.level === level} aria-label={`Xem giá +${level}`} onClick={() => setPanelLevel(level)}><img className="market-level-img" src={levelBadge(level)} alt=""/></button>)}</div>}
-      <dl><div><dt>Giá thẻ</dt><dd className={isUnpriced(quote) ? 'is-unpriced' : undefined}>{formatMarketPrice(quote.price)}{isUnpriced(quote) && <small> · Chưa định giá</small>}</dd></div>{!buying && <div><dt>Phí bán {MARKET_FEE_PERCENT}%</dt><dd>−{formatMarketPrice(quote.fee)}</dd></div>}<div className="market-total"><dt>{buying ? 'Thanh toán' : 'Bạn nhận'}</dt><dd>{formatMarketPrice(buying ? quote.price : quote.proceeds)}</dd></div></dl>
+      <dl><div><dt>Giá thẻ</dt><dd className={isUnpriced(quote) ? 'is-unpriced' : undefined}>{formatMarketPrice(quote.price)}{isUnpriced(quote) && <small> · Chưa định giá</small>}</dd></div>{!buying && <><div><dt>Phí bán {quote.feePercent}%</dt><dd>−{formatMarketPrice(quote.fee)}</dd></div><div className="market-total"><dt>Bạn nhận</dt><dd>{formatMarketPrice(quote.proceeds)}</dd></div></>}</dl>
       <button className="market-primary" disabled={!quote.available || (buying && !free && save.balance < (quote.price ?? Infinity))} onClick={() => onTrade({ kind: buying ? 'buy' : 'sell', card: panelCard })}>{buying ? 'Mua cầu thủ' : 'Bán cầu thủ'}<ArrowRight size={16}/></button>
-      <small>{!quote.available ? quote.reason : [quote.liquidityNote, panelCard.level === 1 ? `Giá gốc từ Excel ngày ${priceDate}.` : 'Giá mô phỏng từ giá +1 và hệ số nâng cấp.', quote.insuranceFee === null ? '' : `Bảo hiểm lên +${panelCard.level + 1}: ${formatMarketPrice(quote.insuranceFee)} (${Math.round(quote.insuranceRate * 100)}% giá thẻ).`].filter(Boolean).join(' ')}</small></aside></div> : <div className="empty-state market-empty"><Search size={32}/><h2>{!buying && !save.cards.length ? 'Kho cầu thủ đang trống' : 'Không tìm thấy cầu thủ'}</h2><p>{!buying && !save.cards.length ? 'Mở gói hoặc mua cầu thủ để bổ sung vào kho.' : 'Thử đổi tên, vị trí, mùa thẻ hoặc cấp thẻ.'}</p><button className="secondary-button" onClick={!buying && !save.cards.length ? onOpenPacks : reset}>{!buying && !save.cards.length ? 'Mở gói cầu thủ' : 'Đặt lại bộ lọc'}</button></div>}
+      <small>{!quote.available ? quote.reason : [quote.liquidityNote, quote.insuranceFee === null ? '' : `Bảo hiểm lên +${panelCard.level + 1}: ${formatMarketPrice(quote.insuranceFee)} (${Math.round(quote.insuranceRate * 100)}% giá thẻ).`].filter(Boolean).join(' ')}</small></aside></div> : <div className="empty-state market-empty"><Search size={32}/><h2>{!buying && !save.cards.length ? 'Kho cầu thủ đang trống' : 'Không tìm thấy cầu thủ'}</h2><p>{!buying && !save.cards.length ? 'Mở gói hoặc mua cầu thủ để bổ sung vào kho.' : 'Thử đổi tên, vị trí, mùa thẻ hoặc cấp thẻ.'}</p><button className="secondary-button" onClick={!buying && !save.cards.length ? onOpenPacks : reset}>{!buying && !save.cards.length ? 'Mở gói cầu thủ' : 'Đặt lại bộ lọc'}</button></div>}
     </>}
   </section>;
 }
