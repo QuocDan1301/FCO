@@ -91,6 +91,20 @@ test('Bi Lắc: giảm tỉ lệ người chơi trúng Giải Đặc Biệt và 
   assert.match(sql, /create or replace function public\.fco_bilac_play\(p_count integer, p_mode text\)/);
 });
 
+test('Quỹ jackpot: mỗi vòng có Giải Phụ, nổ trước Giải Đặc Biệt (202611090009)', () => {
+  const sql = readFileSync('supabase/migrations/202611090009_fco_jackpot_mini_first.sql', 'utf8');
+  assert.match(sql, /create function public\.fco_jackpot_mini_done\(p_feed jsonb\)/);
+  assert.match(sql, /create or replace function public\.fco_jackpot_tick\(\)/);
+  // Bot: vòng chưa có Giải Phụ thì cơ hội Giải Đặc Biệt dùng cho Giải Phụ.
+  assert.match(sql, /if not mini_done then\s+-- [^\n]*\n\s+continue when roll >= special;\s+kind := 'mini'/);
+  // Người chơi: cơ hội thêm chỉ khi vòng đã có Giải Phụ; trúng 3 Special khi chưa có thì bot nhận Giải Phụ trước.
+  assert.match(sql, /if j\.pot >= 10000 and mini_done and not/);
+  assert.match(sql, /'kind', 'mini', 'time', now_ms - 1/);
+  // Giữ tỉ lệ của 202611090007.
+  assert.match(sql, /random\(\) < least\(\.0025, \.0002 \* public\.fco_jackpot_pressure\(j\.pot\)\)/);
+  assert.match(sql, /random\(\) >= \(case when balls\[1\] = 'fc' then 0\.1 else 0\.4 end\) then/);
+});
+
 test('Bi Lắc: số lần nhận quà mốc theo vòng 1.250 điểm', () => {
   const once = { points: 1, once: true }, m70 = { points: 70, once: false };
   assert.equal(bilacAvailable(0, once, null, 1250), 0);
