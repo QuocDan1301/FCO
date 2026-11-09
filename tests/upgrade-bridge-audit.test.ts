@@ -6,7 +6,8 @@ import { formatChain } from '../src/upgrade/dropTracking.ts';
 import { matchPublic, publicPatternList } from '../src/upgrade/publicPattern.ts';
 import { historicalCandidates, hiddenMatches } from '../src/upgrade/hiddenPattern.ts';
 import { finalRate } from '../src/upgrade/probability.ts';
-import { emptyBridge, isBridgeState, recordOutcome, resolveUpgrade, type BridgeState, type LevelBridge } from '../src/upgrade/engine.ts';
+import { emptyBridge, isBridgeState, previewUpgrade, recordOutcome, resolveUpgrade, type BridgeState, type LevelBridge } from '../src/upgrade/engine.ts';
+const previewRate = (bridge: BridgeState, currentLevel: number, baseRate: number) => previewUpgrade(bridge, currentLevel, baseRate).rate;
 import { makeCard, UPGRADE_LEVELS, upgrade, upgradeInfo, validateSave } from '../src/game.ts';
 import { initialSave } from './stocked-save.ts';
 
@@ -95,11 +96,11 @@ test('Cầu lịch sử: 123223 chỉ cho 223 / 322 / 3223; không lấy dây c�
   const list = historicalCandidates([1, 2, 3, 2, 2, 3]).map(formatChain);
   assert.deepEqual(list.sort(), ['223', '322', '3223']);
   for (const invalid of ['3', '23', '32', '123', '1223']) assert.ok(!list.includes(invalid), invalid);
-  // Dây đủ điều kiện ở +7 không tạo cầu lịch sử cho +8.
+  // Đã bỏ cầu ngầm: engine không còn tạo mẫu ngầm cho cấp nào (hàm ứng viên chỉ còn dùng để kiểm tra bản lưu cũ).
   let bridge = playChain(emptyBridge(), 6, [1, 2, 3, 2, 2, 3]);
   bridge = playChain(bridge, 7, [6]);
-  assert.ok(bridge.levels['7'].patterns!.historical);
-  assert.equal(bridge.levels['8'].patterns!.historical, null);
+  assert.equal(bridge.levels['7'].patterns, null);
+  assert.equal(bridge.levels['8'].patterns, null);
 });
 
 test('Tứ quý: 3333 khớp 3333 và 123333; không khớp 2222 và 3332', () => {
@@ -108,39 +109,24 @@ test('Tứ quý: 3333 khớp 3333 và 123333; không khớp 2222 và 3332', () =
   assert.ok(!hiddenMatches('quad', patterns, [2, 2, 2, 2])); assert.ok(!hiddenMatches('quad', patterns, [3, 3, 3, 2]));
 });
 
-test('Nổ liên tiếp — A: cùng cấp kế tiếp có thể nhận thưởng; B: đập cấp khác hủy; C: không được chọn vẫn hết hạn', () => {
-  const armed = resolveUpgrade(emptyBridge(), { currentLevel: 6, baseRate: 15, role: 'main' }, { outcome: always(0), pattern: always(0) }).bridge;
-  assert.equal(armed.backToBack, 7);
-  // A
-  const a = resolveUpgrade(armed, { currentLevel: 6, baseRate: 15, role: 'material' }, { outcome: always(.99), pattern: always(.99) });
-  assert.equal(a.turn.hiddenKind, 'backToBack'); assert.equal(a.rate, 45);
-  // B: +5 → +6 xen giữa rồi quay lại +6 → +7.
-  const b1 = resolveUpgrade(armed, { currentLevel: 5, baseRate: 26, role: 'main' }, { outcome: always(.99), pattern: always(.99) });
-  assert.equal(b1.bridge.backToBack, null);
-  const b2 = resolveUpgrade(b1.bridge, { currentLevel: 6, baseRate: 15, role: 'main' }, { outcome: always(.99), pattern: always(.99) });
-  assert.notEqual(b2.turn.hiddenKind, 'backToBack'); assert.equal(b2.rate, 15);
-  // C: RNG 0 chọn loại đầu (tổng 3) chứ không phải nổ liên tiếp; lượt sau hiệu ứng đã mất.
-  const c1 = resolveUpgrade(armed, { currentLevel: 6, baseRate: 15, role: 'main' }, { outcome: always(.99), pattern: always(0) });
-  assert.equal(c1.turn.hiddenKind, 'sum3'); assert.equal(c1.bridge.backToBack, null);
-  const c2 = resolveUpgrade(c1.bridge, { currentLevel: 6, baseRate: 15, role: 'main' }, { outcome: always(.99), pattern: always(.99) });
-  assert.notEqual(c2.turn.hiddenKind, 'backToBack');
+test('Đã bỏ nổ liên tiếp: bản lưu cũ đang có hiệu ứng thì lượt kế tiếp vẫn đúng tỷ lệ gốc, rồi hiệu ứng bị xoá', () => {
+  const armed: BridgeState = { ...emptyBridge(), backToBack: 7 };
+  for (const role of ['main', 'material'] as const) {
+    const r = resolveUpgrade(armed, { currentLevel: 6, baseRate: 15, role }, { outcome: always(.99), pattern: always(.99) });
+    assert.equal(r.turn.hiddenKind, null); assert.equal(r.rate, 15); assert.equal(r.bridge.backToBack, null);
+  }
+  assert.equal(resolveUpgrade(emptyBridge(), { currentLevel: 6, baseRate: 15, role: 'main' }, { outcome: always(0), pattern: always(0) }).bridge.backToBack, null);
 });
 
-test('Chọn một cầu ngầm: mẫu tạo lúc thành công, loại chọn lúc bắt đầu lượt, không đổi mẫu sau khi roll', () => {
-  const bridge = playChain(emptyBridge(), 7, [3, 3, 3]);
-  const before = bridge.levels['8'].patterns;
-  // Thất bại: mẫu giữ nguyên.
-  const fail = resolveUpgrade(bridge, { currentLevel: 7, baseRate: 7, role: 'main' }, { outcome: always(.99), pattern: seededRng(3) });
-  assert.deepEqual(fail.bridge.levels['8'].patterns, before);
-  // Thành công: mẫu được chọn lại (có thể trùng ngẫu nhiên) nhưng log giữ mẫu đã dùng ở lượt đó.
-  const win = resolveUpgrade(fail.bridge, { currentLevel: 7, baseRate: 7, role: 'main' }, { outcome: always(0), pattern: seededRng(4) });
-  if (win.turn.hiddenKind && win.turn.hiddenKind !== 'backToBack') assert.deepEqual(win.turn.hiddenPattern, before![win.turn.hiddenKind]);
-  // Thưởng của một lượt chỉ 0 hoặc 30, không bao giờ 60.
+test('Đã bỏ cầu ngầm: 5.000 lượt toàn engine, tỷ lệ thật luôn = gốc + cầu công khai, đúng như xem trước', () => {
   const rng = seededRng(11);
   let state = emptyBridge();
   for (let i = 0; i < 5000; i++) {
+    const shown = previewRate(state, 7, 7);
     const r = resolveUpgrade(state, { currentLevel: 7, baseRate: 7, role: 'main' }, { outcome: rng, pattern: rng });
-    assert.ok([0, 30].includes(r.turn.hiddenBonus)); assert.ok(r.turn.bonus <= 30); assert.ok(r.rate <= 37);
+    assert.equal(r.turn.hiddenKind, null); assert.equal(r.turn.hiddenBonus, 0);
+    assert.equal(r.turn.bonus, r.turn.publicBonus); assert.equal(r.rate, finalRate(7, r.turn.publicBonus, 0));
+    assert.equal(r.rate, shown, 'tỷ lệ roll bằng tỷ lệ xem trước');
     state = r.bridge;
   }
 });
@@ -151,9 +137,15 @@ test('Công thức: +7 → +8 đủ các mức, +2 → +3 cộng 30 bị chặn 
   assert.equal(baseRate(2), 81);
   assert.equal(finalRate(81, 0, 30), 100);
   assert.notEqual(finalRate(15, 0, 30), 15 * 1.3);
-  const bridge = bridgeWith(3, { chain: [1, 1, 1, 1], patterns: { historical: null, sum3: null, quad: [1, 1, 1, 1] } });
-  const r = resolveUpgrade(bridge, { currentLevel: 2, baseRate: 81, role: 'main' }, { outcome: always(.999999), pattern: always(0) });
-  assert.equal(r.rate, 100); assert.equal(r.success, true);
+  // Đã bỏ cầu công khai: dây khớp 4 số cũ ở +2 → +3 vẫn 81%, roll 0,999999 thất bại.
+  const pub = bridgeWith(3, { chain: [1, 1, 1, 1], publicSource: [1, 1, 1, 1] });
+  const r = resolveUpgrade(pub, { currentLevel: 2, baseRate: 81, role: 'main' }, { outcome: always(.999999), pattern: always(0) });
+  assert.equal(r.rate, 81); assert.equal(r.success, false);
+  // Cấp 100% vẫn luôn thành công.
+  assert.equal(resolveUpgrade(emptyBridge(), { currentLevel: 1, baseRate: 100, role: 'main' }, { outcome: always(.999999), pattern: always(0) }).success, true);
+  // Mẫu tứ quý ngầm cũ không còn tác dụng: vẫn 81%.
+  const hidden = bridgeWith(3, { chain: [1, 1, 1, 1], patterns: { historical: null, sum3: null, quad: [1, 1, 1, 1] } });
+  assert.equal(resolveUpgrade(hidden, { currentLevel: 2, baseRate: 81, role: 'main' }, { outcome: always(.999999), pattern: always(0) }).rate, 81);
 });
 
 test('Lưu trữ: giới hạn 100 dây / 12 số / 200 lượt; cắt lịch sử không làm hỏng cầu đang hoạt động', () => {
@@ -221,9 +213,9 @@ test('Xác suất nhóm A — +5→+6 … +9→+10, mỗi mức thưởng 100.00
     const base = baseRate(currentLevel), target = currentLevel + 1;
     const scenarios: [string, BridgeState, number][] = [
       ['không cầu', bridgeWith(target, {}), base],
-      ['công khai 2 số', bridgeWith(target, { chain: [3, 2, 1], publicSource: [1, 2, 1] }), Math.min(100, base + 15)],
-      ['công khai 4 số', bridgeWith(target, { chain: [1, 2, 2, 1], publicSource: [1, 2, 2, 1] }), Math.min(100, base + 30)],
-      ['nổ liên tiếp (luôn được chọn)', bridgeWith(target, {}, { backToBack: target }), Math.min(100, base + 30)],
+      ['dây khớp công khai 2 số cũ (đã bỏ)', bridgeWith(target, { chain: [3, 2, 1], publicSource: [1, 2, 1] }), base],
+      ['dây khớp công khai 4 số cũ (đã bỏ)', bridgeWith(target, { chain: [1, 2, 2, 1], publicSource: [1, 2, 2, 1] }), base],
+      ['bản lưu cũ còn nổ liên tiếp (đã bỏ)', bridgeWith(target, {}, { backToBack: target }), base],
     ];
     scenarios.forEach(([label, bridge, expected], k) => {
       const outcome = seededRng(currentLevel * 100 + k), pattern = seededRng(currentLevel * 100 + k + 50);

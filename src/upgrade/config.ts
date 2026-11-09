@@ -6,7 +6,8 @@ export const BRIDGE_CONFIG = {
   tail: 4,
   // Cầu công khai: mỗi số khớp cộng 7,5 điểm %, tối đa 4 số = 30.
   publicBonusPerDigit: 7.5,
-  // Cầu ngầm được chọn và khớp: luôn cộng đúng 30 điểm %.
+  // Cầu ngầm đã bỏ khỏi đập thẻ (2026-11-09): engine không dùng các thông số cầu ngầm / nổ liên tiếp bên dưới nữa,
+  // chỉ giữ để kiểm tra bản lưu cũ.
   hiddenBonus: 30,
   // Tổng thưởng bắt cầu trên một lượt không vượt mức này.
   bonusCap: 30,

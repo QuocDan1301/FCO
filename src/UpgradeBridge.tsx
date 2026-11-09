@@ -3,7 +3,6 @@ import { RotateCcw, X } from 'lucide-react';
 import { previewUpgrade, type BridgeState, type ManualOutcome, type TurnLog, type UpgradeRole } from './upgrade/engine';
 import { BRIDGE_CONFIG } from './upgrade/config';
 import { dropRange, formatChain } from './upgrade/dropTracking';
-import { HIDDEN_LABELS } from './upgrade/hiddenPattern';
 import './upgrade-bridge.css';
 
 const percent = (value: number) => `${new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 1 }).format(value)}%`;
@@ -17,8 +16,8 @@ function LastTurn({ turn }: { turn: TurnLog }) {
   </p>;
 }
 
-// Hiển thị trong lò nâng cấp: vai trò thẻ, tỷ lệ gốc, tín hiệu cầu công khai và kết quả lượt trước.
-// Không hiện dây hiện tại, lịch sử dây hay cầu ngầm.
+// (Hiện không gắn vào màn nào.) Vai trò thẻ, tỷ lệ thành công và kết quả lượt trước; đã bỏ mọi cầu (2026-11-09).
+// Không hiện dây hiện tại hay lịch sử dây.
 export function BridgeStatus({ bridge, currentLevel, baseRate, role, onRole }: { bridge: BridgeState; currentLevel: number | null; baseRate: number; role: UpgradeRole; onRole: (role: UpgradeRole) => void }) {
   const preview = currentLevel !== null && currentLevel < BRIDGE_CONFIG.maxLevel ? previewUpgrade(bridge, currentLevel, baseRate) : null;
   const last = bridge.log[0];
@@ -26,21 +25,15 @@ export function BridgeStatus({ bridge, currentLevel, baseRate, role, onRole }: {
     <div className="fco-row"><span>Thẻ đem đập</span><div className="bridge-roles" role="radiogroup" aria-label="Vai trò thẻ đem đập">
       {([['material', 'Phôi dò cầu'], ['main', 'Thẻ chính']] as const).map(([value, label]) => <button key={value} role="radio" aria-checked={role === value} className={role === value ? 'on' : ''} onClick={() => onRole(value)}>{label}</button>)}
     </div></div>
-    {preview && <p className="bridge-rate" aria-live="polite">
-      Gốc <b>{percent(preview.baseRate)}</b>
-      {preview.publicLength > 0
-        ? <> · <span className="bridge-signal">Khớp cầu công khai {preview.publicLength} số +{percent(preview.publicBonus)}</span> → <b>{percent(preview.rate)}</b></>
-        : <> · <span className="bridge-muted">Chưa khớp cầu công khai</span></>}
-    </p>}
+    {preview && <p className="bridge-rate" aria-live="polite">Tỷ lệ thành công <b>{percent(preview.rate)}</b></p>}
     {last && <LastTurn turn={last}/>}
   </div>;
 }
 
-// Công cụ kiểm thử: nhập tay kết quả, reset mô phỏng, xem cầu ngầm đã chọn sau lượt đập (developer).
+// Công cụ kiểm thử: nhập tay kết quả, reset mô phỏng, xem cầu công khai của lượt vừa đập (developer).
 export function BridgeLab({ bridge, role, onRole, onManual, onReset, onClose }: { bridge: BridgeState; role: UpgradeRole; onRole: (role: UpgradeRole) => void; onManual: (currentLevel: number, outcome: ManualOutcome) => void; onReset: () => void; onClose: () => void }) {
   const [currentLevel, setCurrentLevel] = useState(7);
   const [drop, setDrop] = useState(1);
-  const [reveal, setReveal] = useState(false);
   const max = dropRange(currentLevel).max;
   const last = bridge.log[0];
   return <>
@@ -59,13 +52,6 @@ export function BridgeLab({ bridge, role, onRole, onManual, onReset, onClose }: 
         <button className="fco-ghost" onClick={() => onManual(currentLevel, { success: false, drop })}>Ghi thất bại</button>
       </div>
       {last && <LastTurn turn={last}/>}
-      <label className="bridge-check"><input type="checkbox" checked={reveal} onChange={e => setReveal(e.target.checked)}/>Hiện cầu ngầm đã chọn ở lượt vừa đập (developer)</label>
-      {reveal && last && last.rate !== null && <dl className="bridge-dev">
-        <div><dt>Cầu ngầm được chọn</dt><dd>{last.hiddenKind ? HIDDEN_LABELS[last.hiddenKind] : 'Không có loại đủ điều kiện'}</dd></div>
-        {last.hiddenPattern && <div><dt>Mẫu</dt><dd>{formatChain(last.hiddenPattern)}</dd></div>}
-        <div><dt>Khớp cầu ngầm</dt><dd>{last.hiddenKind ? (last.hiddenBonus > 0 ? `Có · +${percent(last.hiddenBonus)}` : 'Không') : '—'}</dd></div>
-        <div><dt>Cầu công khai</dt><dd>{last.publicLength ? `${last.publicLength} số · +${percent(last.publicBonus)}` : 'Không khớp'}</dd></div>
-      </dl>}
       <button className="fco-ghost bridge-reset" onClick={onReset}><RotateCcw size={15}/>Reset mô phỏng</button>
     </div>
   </>;

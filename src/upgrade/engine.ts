@@ -1,9 +1,9 @@
 import { BRIDGE_CONFIG } from './config';
-import { unit, type Rng } from './rng';
+import { type Rng } from './rng';
 import { dropRange, isValidDrop, rollDrop, tail } from './dropTracking';
-import { matchPublic } from './publicPattern';
-import { choosePatterns, eligibleKinds, hiddenMatches, historicalCandidates, HIDDEN_KINDS, quadCandidates, selectHidden, sum3Candidates, type HiddenKind, type HiddenPatterns } from './hiddenPattern';
-import { appliedBonus, finalRate, rollSuccess } from './probability';
+// hiddenPattern chỉ còn dùng để kiểm tra bản lưu cũ (mẫu ngầm đã lưu), engine không còn chọn cầu ngầm.
+import { historicalCandidates, HIDDEN_KINDS, quadCandidates, sum3Candidates, type HiddenKind, type HiddenPatterns } from './hiddenPattern';
+import { finalRate, rollSuccess } from './probability';
 
 // Phôi và thẻ chính dùng cùng thuật toán; vai trò chỉ được ghi vào nhật ký.
 export type UpgradeRole = 'material' | 'main';
@@ -34,35 +34,32 @@ function cloneLevel(level: LevelBridge | undefined): LevelBridge {
   return { chain: [...level.chain], publicSource: level.publicSource && [...level.publicSource], history: level.history.map(chain => [...chain]), patterns };
 }
 
-// Tỷ lệ xem trước trước khi đập: chỉ cầu công khai, không tiết lộ cầu ngầm.
-export function previewUpgrade(bridge: BridgeState, currentLevel: number, baseRate: number) {
+// Tỷ lệ xem trước trước khi đập = tỷ lệ gốc, đúng bằng tỷ lệ roll thật.
+// Đã bỏ cả cầu ngầm lẫn cầu công khai (2026-11-09): không còn thưởng bắt cầu nào.
+export function previewUpgrade(_bridge: BridgeState, currentLevel: number, baseRate: number) {
   assertLevel(currentLevel);
-  const level = bridge.levels[String(currentLevel + 1)];
-  const match = matchPublic(level?.publicSource ?? null, level?.chain ?? []);
-  return { baseRate, publicLength: match.length, publicBonus: match.bonus, rate: finalRate(baseRate, match.bonus, 0) };
+  return { baseRate, publicLength: 0, publicBonus: 0, rate: finalRate(baseRate, 0, 0) };
 }
 
-// Bước 10–11: thành công chốt dây, thay cầu công khai, chọn lại mẫu ngầm, xét nổ liên tiếp, reset dây; thất bại nối mức rớt.
-function settle(next: BridgeState, level: LevelBridge, targetLevel: number, drop: number | null, rng: Rng) {
+// Bước 10–11: thành công chốt dây, thay cầu công khai, reset dây; thất bại nối mức rớt.
+// Đã bỏ cầu ngầm (2026-11-09, người dùng yêu cầu xoá mọi dây ngầm đập thẻ): không còn chọn mẫu ngầm hay bật nổ liên tiếp.
+function settle(level: LevelBridge, drop: number | null) {
   // Chỉ 4 số cuối dùng để bắt cầu và dây nổ lưu 12 số cuối, nên dây hiện tại cũng chỉ giữ 12 số để bản lưu không phình khi xịt liên tục.
   if (drop !== null) { level.chain = tail([...level.chain, drop], BRIDGE_CONFIG.storedChainLength); return; }
   level.history = [...level.history, tail(level.chain, BRIDGE_CONFIG.storedChainLength)].slice(-BRIDGE_CONFIG.historyLimit);
   level.publicSource = tail(level.chain);
-  level.patterns = choosePatterns(level.history, targetLevel, rng);
-  next.backToBack = unit(rng) < BRIDGE_CONFIG.backToBackChance ? targetLevel : null;
+  level.patterns = null;
   level.chain = [];
 }
 
-function begin(bridge: BridgeState, currentLevel: number, rng: Rng) {
+function begin(bridge: BridgeState, currentLevel: number) {
   assertLevel(currentLevel);
   const targetLevel = currentLevel + 1;
   const level = cloneLevel(bridge.levels[String(targetLevel)]);
-  // Cấp chưa từng đập: tạo mẫu ngầm lần đầu trước khi roll.
-  if (!level.patterns) level.patterns = choosePatterns(level.history, targetLevel, rng);
-  const backToBackArmed = bridge.backToBack === targetLevel;
-  // Hiệu ứng nổ liên tiếp chỉ sống tới lượt kế tiếp, dù lượt đó cùng cấp hay không, thành công hay thất bại.
+  // Mẫu ngầm còn trong bản lưu cũ không còn tác dụng: bỏ đi.
+  level.patterns = null;
   const next: BridgeState = { ...bridge, levels: { ...bridge.levels }, backToBack: null, turn: bridge.turn + 1 };
-  return { targetLevel, level, backToBackArmed, next };
+  return { targetLevel, level, next };
 }
 
 function finish(next: BridgeState, level: LevelBridge, turn: TurnLog) {
@@ -71,34 +68,29 @@ function finish(next: BridgeState, level: LevelBridge, turn: TurnLog) {
   return next;
 }
 
-// Một lượt đập: đọc dây → cầu công khai → chọn tối đa một cầu ngầm → tính tỷ lệ → roll → ghi dây.
-// Hàm thuần: không sửa bridge đầu vào; kết quả roll đã định thì không bị đổi.
+// Một lượt đập: tỷ lệ gốc → roll → ghi dây rớt (chỉ để nhật ký). Tỷ lệ thật = tỷ lệ gốc, đúng như xem trước.
+// Hàm thuần: không sửa bridge đầu vào; kết quả roll đã định thì không bị đổi. rng.pattern giữ trong chữ ký cho tương thích, không còn dùng.
 export function resolveUpgrade(bridge: BridgeState, input: { currentLevel: number; baseRate: number; role: UpgradeRole }, rng: UpgradeRngs) {
   if (input.role !== 'main' && input.role !== 'material') throw new Error('Vai trò thẻ không hợp lệ.');
-  const { targetLevel, level, backToBackArmed, next } = begin(bridge, input.currentLevel, rng.pattern);
+  const { targetLevel, level, next } = begin(bridge, input.currentLevel);
   const chain = [...level.chain];
-  const pub = matchPublic(level.publicSource, chain);
-  const patterns = level.patterns!;
-  const hiddenKind = selectHidden(eligibleKinds(patterns, backToBackArmed), rng.pattern);
-  const hiddenBonus = hiddenKind && hiddenMatches(hiddenKind, patterns, chain) ? BRIDGE_CONFIG.hiddenBonus : 0;
-  const rate = finalRate(input.baseRate, pub.bonus, hiddenBonus);
+  const rate = finalRate(input.baseRate, 0, 0);
   const success = rollSuccess(rate, rng.outcome);
   const drop = success ? null : rollDrop(input.currentLevel, rng.outcome);
-  settle(next, level, targetLevel, drop, rng.pattern);
+  settle(level, drop);
   const turn: TurnLog = {
-    turn: next.turn, targetLevel, role: input.role, chain, baseRate: input.baseRate, publicLength: pub.length, publicBonus: pub.bonus,
-    hiddenKind, hiddenPattern: hiddenKind && hiddenKind !== 'backToBack' ? patterns[hiddenKind] : null, hiddenBonus,
-    bonus: appliedBonus(pub.bonus, hiddenBonus), rate, success, drop,
+    turn: next.turn, targetLevel, role: input.role, chain, baseRate: input.baseRate, publicLength: 0, publicBonus: 0,
+    hiddenKind: null, hiddenPattern: null, hiddenBonus: 0, bonus: 0, rate, success, drop,
   };
   return { bridge: finish(next, level, turn), success, drop, rate, turn };
 }
 
 // Nhập tay kết quả để kiểm thử: ghi dây như một lượt thật nhưng không roll và không đụng tới thẻ.
-export function recordOutcome(bridge: BridgeState, currentLevel: number, outcome: ManualOutcome, patternRng: Rng) {
+export function recordOutcome(bridge: BridgeState, currentLevel: number, outcome: ManualOutcome, _patternRng?: Rng) {
   if (!outcome.success && !isValidDrop(currentLevel, outcome.drop)) throw new Error(`Mức rớt phải từ +1 đến +${dropRange(currentLevel).max}.`);
-  const { targetLevel, level, next } = begin(bridge, currentLevel, patternRng);
+  const { targetLevel, level, next } = begin(bridge, currentLevel);
   const chain = [...level.chain], drop = outcome.success ? null : outcome.drop;
-  settle(next, level, targetLevel, drop, patternRng);
+  settle(level, drop);
   const turn: TurnLog = { turn: next.turn, targetLevel, role: 'manual', chain, baseRate: null, publicLength: 0, publicBonus: 0, hiddenKind: null, hiddenPattern: null, hiddenBonus: 0, bonus: 0, rate: null, success: outcome.success, drop };
   return finish(next, level, turn);
 }
