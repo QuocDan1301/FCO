@@ -568,7 +568,8 @@ export function initialSave(): Save {
 // Gói (ALL) không ghi khoảng cấp chỉ ra +1; gói có ghi khoảng cấp (vd. +1~+5) khai báo levels: [1, 5].
 // eventPriceAlpha: gói sự kiện / quà (eventOnly) phạt giá nặng hơn gói Shop (2026-11-09: người dùng giảm tỷ lệ thẻ đắt ở gói sự kiện).
 // priceAlpha (gói Shop): 0,6 → 0,5 ngày 2026-11-09, người dùng tăng nhẹ tỷ lệ thẻ đắt ở 3 gói Shop.
-export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: .8, levelDecay: .31 } as const;
+// eventPriceAlpha: 0,8 → 1,0 ngày 2026-11-09, người dùng giảm tiếp tỷ lệ thẻ đắt ở mọi gói ngoài Shop.
+export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: 1, levelDecay: .31 } as const;
 const priceAlphaOf = (pack: Pack) => pack.eventOnly ? PACK_ODDS.eventPriceAlpha : PACK_ODDS.priceAlpha;
 export const PACK_LEVELS: [number, number] = [1, 1];
 // Cấp cố định của gói (gói 26TS +5 → 5), hoặc null nếu gói rút cấp trong một khoảng.
