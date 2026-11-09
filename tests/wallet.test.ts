@@ -41,3 +41,14 @@ test('Thông báo lỗi máy chủ bằng tiếng Việt', () => {
   assert.match(walletMessage(new Error('TypeError: Failed to fetch')), /kết nối/);
   assert.match(walletMessage({ message: 'Could not find the function public.fco_bilac_config without parameters', code: 'PGRST202' }), /migration/);
 });
+
+test('Tên HLV hiện đầy đủ với tài khoản tên đăng nhập, email thật vẫn che (202611090008)', async () => {
+  const { readFileSync } = await import('node:fs');
+  const { registrationIdentity } = await import('../src/account-identity.ts');
+  const sql = readFileSync('supabase/migrations/202611090008_fco_public_full_name.sql', 'utf8');
+  const domain = registrationIdentity('hlv_test').email.split('@')[1];
+  assert.match(sql, new RegExp(`lower\\(split_part\\(e, '@', 2\\)\\) = '${domain.replace(/\./g, '\\.')}' then n`));
+  assert.match(sql, /left\(n, 3\) \|\| '\*\*\*'/, 'email thật vẫn che');
+  assert.match(sql, /create or replace function public\.fco_public_name\(p_uid uuid\)/);
+  assert.match(sql, /update public\.fco_jackpot set feed = /, 'sửa tên đã lưu trong bảng tin trúng giải');
+});

@@ -7,6 +7,7 @@ const tracks = [
   { name: 'NAMGAO', src: asset('/assets/NAMGAO.mp3') },
   { name: 'TABI', src: asset('/assets/TABI.mp3') },
   { name: 'HSM', src: asset('/assets/HSM.mp3') },
+  { name: 'TungBui', src: asset('/assets/TungBui.mp3') },
 ];
 
 export default function UpgradeMusic({ onActiveChange }: { onActiveChange: (active: boolean) => void }) {

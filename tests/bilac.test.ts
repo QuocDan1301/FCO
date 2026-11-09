@@ -78,6 +78,19 @@ test('Bi Lắc: quỹ ≥ 10.000 FC thì người chơi có thêm cơ hội Gi�
   assert.ok(chance(15000) > chance(12500) && chance(20000) <= .005);
 });
 
+test('Bi Lắc: giảm tỉ lệ người chơi trúng Giải Đặc Biệt và Giải Phụ (202611090007)', () => {
+  const sql = readFileSync('supabase/migrations/202611090007_fco_bilac_rarer_jackpot.sql', 'utf8');
+  const symbols = /when 'club' then (\d+) when 'fc' then (\d+) when 'special' then (\d+) when 'bp' then (\d+) when 'card' then (\d+)/.exec(sql)!.slice(1).map(Number);
+  assert.deepEqual(symbols, [28, 3, 2, 34, 33]);
+  assert.equal(symbols.reduce((a, b) => a + b, 0), 100);
+  const p = symbols[2] / 100;
+  assert.ok(3 * p * p * (1 - p) < .0012, 'Giải Phụ < 0,12 % mỗi lượt');
+  assert.match(sql, /random\(\) < least\(\.0025, \.0002 \* public\.fco_jackpot_pressure\(j\.pot\)\)/);
+  assert.match(sql, /if j\.pot >= 10000 and not \(balls\[1\] = 'special'/);
+  assert.match(sql, /random\(\) >= \(case when balls\[1\] = 'fc' then 0\.1 else 0\.4 end\) then/, 'giữ luật giảm x3 của 202611080005');
+  assert.match(sql, /create or replace function public\.fco_bilac_play\(p_count integer, p_mode text\)/);
+});
+
 test('Bi Lắc: số lần nhận quà mốc theo vòng 1.250 điểm', () => {
   const once = { points: 1, once: true }, m70 = { points: 70, once: false };
   assert.equal(bilacAvailable(0, once, null, 1250), 0);
