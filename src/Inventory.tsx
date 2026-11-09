@@ -50,7 +50,10 @@ export default function Inventory({ save, packs, onUse, onShop, onUseSelected, o
     }
   });
   const toggleCategory = (id: string) => setChecked(list => list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
-  const toggleItem = (id: string) => setSelected(list => list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
+  // Gói chỉ định chỉ mở chung với các gói giống hệt nó (cùng loại, cùng danh sách cầu thủ đã chọn): chọn gói chỉ định thì bỏ mọi gói khác,
+  // chọn gói thường thì bỏ gói chỉ định đang chọn.
+  const isChoose = (id: string) => !!packs.find(p => p.id === id)?.choose;
+  const toggleItem = (id: string) => setSelected(list => list.includes(id) ? list.filter(x => x !== id) : isChoose(id) ? [id] : [...list.filter(x => !isChoose(x)), id]);
   const toggleFold = (id: string) => setFolded(list => list.includes(id) ? list.filter(x => x !== id) : [...list, id]);
   const selectedItems = shown.filter(x => selected.includes(x.pack.id));
   const selectedStock = Math.min(MAX_INVENTORY_OPEN, selectedItems.reduce((sum, x) => sum + x.stock, 0));

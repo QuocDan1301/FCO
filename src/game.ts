@@ -566,16 +566,19 @@ export function initialSave(): Save {
 // nên thẻ OVR cao và thẻ đắt (hàng quốc dân) hiếm hơn; chưa có giá thì tính như thẻ rẻ nhất. Cấp cộng rút riêng trong
 // khoảng cấp của gói, mỗi cấp nặng levelDecay^(cấp − cấp thấp nhất), tức hiếm hơn cấp trước ~3,2 lần.
 // Gói (ALL) không ghi khoảng cấp chỉ ra +1; gói có ghi khoảng cấp (vd. +1~+5) khai báo levels: [1, 5].
-export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .6, levelDecay: .31 } as const;
+// eventPriceAlpha: gói sự kiện / quà (eventOnly) phạt giá nặng hơn gói Shop (2026-11-09: người dùng giảm tỷ lệ thẻ đắt ở gói sự kiện).
+// priceAlpha (gói Shop): 0,6 → 0,5 ngày 2026-11-09, người dùng tăng nhẹ tỷ lệ thẻ đắt ở 3 gói Shop.
+export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: .8, levelDecay: .31 } as const;
+const priceAlphaOf = (pack: Pack) => pack.eventOnly ? PACK_ODDS.eventPriceAlpha : PACK_ODDS.priceAlpha;
 export const PACK_LEVELS: [number, number] = [1, 1];
 // Cấp cố định của gói (gói 26TS +5 → 5), hoặc null nếu gói rút cấp trong một khoảng.
 export const packLevel = (pack: Pack) => { const [min, max] = pack.levels ?? PACK_LEVELS; return min === max ? min : null; };
 const basePrices: Record<string, (number | null)[]> = priceData.players;
 type PoolEntry = { player: Player; weight: number };
-function weightedPool(list: Player[]): PoolEntry[] {
+function weightedPool(list: Player[], alpha: number = PACK_ODDS.priceAlpha): PoolEntry[] {
   const members = list.map(player => ({ player, value: ovr({ playerId: player.id, level: 1 }), price: basePrices[String(player.id)]?.[0] ?? 0 }));
   const floor = Math.min(...members.map(m => m.value)), cheapest = Math.min(...members.map(m => m.price).filter(price => price > 0));
-  return members.map(({ player, value, price }) => ({ player, weight: Math.pow(PACK_ODDS.ovrDecay, value - floor) / Math.pow(price > 0 ? Math.max(1, price / cheapest) : 1, PACK_ODDS.priceAlpha) }));
+  return members.map(({ player, value, price }) => ({ player, weight: Math.pow(PACK_ODDS.ovrDecay, value - floor) / Math.pow(price > 0 ? Math.max(1, price / cheapest) : 1, alpha) }));
 }
 const pools = new Map<string, PoolEntry[]>();
 function cachedPool(key: string, build: () => PoolEntry[]) {
@@ -583,18 +586,18 @@ function cachedPool(key: string, build: () => PoolEntry[]) {
   if (!pool) { pool = build(); pools.set(key, pool); }
   return pool;
 }
-const tierPool = (tier: Tier) => cachedPool(tier, () => weightedPool(players.filter(p => p.tier === tier)));
+const tierPool = (tier: Tier, alpha: number = PACK_ODDS.priceAlpha) => cachedPool(`${tier}|a${alpha}`, () => weightedPool(players.filter(p => p.tier === tier), alpha));
 // Gói hỗn hợp: gộp cầu thủ các mùa có OVR +1 ≥ minOvr rồi tính trọng số như một mùa (sàn OVR, giá rẻ nhất lấy trên cả nhóm gộp).
 // Gói top price: sau khi lọc mùa / OVR chỉ giữ topPrice cầu thủ giá +1 cao nhất (bằng giá thì OVR cao hơn trước; chưa có giá xếp cuối).
-const mixedPool = (pack: Pack) => cachedPool(`${pack.seasons}|${pack.minOvr ?? 0}|${pack.topPrice ?? ''}`, () => {
+const mixedPool = (pack: Pack) => cachedPool(`${pack.seasons}|${pack.minOvr ?? 0}|${pack.topPrice ?? ''}|a${priceAlphaOf(pack)}`, () => {
   const eligible = players.filter(p => pack.seasons!.includes(p.tier) && ovr({ playerId: p.id, level: 1 }) >= (pack.minOvr ?? 0));
   const price = (p: Player) => basePrices[String(p.id)]?.[0] ?? 0;
-  return weightedPool(pack.topPrice ? [...eligible].sort((a, b) => price(b) - price(a) || ovr({ playerId: b.id, level: 1 }) - ovr({ playerId: a.id, level: 1 }) || a.id - b.id).slice(0, pack.topPrice) : eligible);
+  return weightedPool(pack.topPrice ? [...eligible].sort((a, b) => price(b) - price(a) || ovr({ playerId: b.id, level: 1 }) - ovr({ playerId: a.id, level: 1 }) || a.id - b.id).slice(0, pack.topPrice) : eligible, priceAlphaOf(pack));
 });
 // Các mùa của gói kèm tỷ lệ mùa (0–1) và trọng số từng cầu thủ trong mùa. Gói một mùa lấy tỷ lệ mùa từ weights;
 // gói hỗn hợp lấy theo phần trọng số của mùa trong nhóm gộp (mùa không có ai đủ OVR thì bỏ), giữ thứ tự seasons.
 function seasonPools(pack: Pack) {
-  if (!pack.seasons) return TIERS.flatMap((tier, i) => pack.weights[i] > 0 ? [{ tier, weight: pack.weights[i] / 100, members: tierPool(tier) }] : []);
+  if (!pack.seasons) return TIERS.flatMap((tier, i) => pack.weights[i] > 0 ? [{ tier, weight: pack.weights[i] / 100, members: tierPool(tier, priceAlphaOf(pack)) }] : []);
   const pool = mixedPool(pack), total = pool.reduce((sum, item) => sum + item.weight, 0);
   return pack.seasons.map(tier => {
     const members = pool.filter(item => item.player.tier === tier);
@@ -705,15 +708,20 @@ export function draftCandidates(pack: Pack): Player[] {
 }
 export const draftSize = (pack: Pack) => Math.min(pack.topPrice ?? 1, draftCandidates(pack).length);
 export const defaultDraft = (pack: Pack) => draftCandidates(pack).slice(0, draftSize(pack)).map(p => p.id);
-export function openDraft(state: Save, pack: Pack, playerIds: number[], rng = random): { state: Save; cards: Card[] } {
+// count gói một lượt (tối đa MAX_INVENTORY_OPEN): mỗi gói rút độc lập ngẫu nhiên 1 trong N cầu thủ đã chọn, cùng cấp của gói.
+export function openDraft(state: Save, pack: Pack, playerIds: number[], rng = random, count = 1): { state: Save; cards: Card[] } {
   if (!pack.choose) throw new Error('Gói này không phải gói chỉ định.');
+  if (!Number.isInteger(count) || count < 1 || count > MAX_INVENTORY_OPEN) throw new Error(`Hãy chọn từ 1 đến ${MAX_INVENTORY_OPEN} gói.`);
   const available = getPackStock(state, pack);
   if (available < 1) throw new Error('Bạn không còn gói này trong kho.');
+  if (count > available) throw new Error(`Chỉ còn ${available} gói chưa mở.`);
   const size = draftSize(pack), allowed = new Set(draftCandidates(pack).map(p => p.id));
   if (playerIds.length !== size || new Set(playerIds).size !== size || !playerIds.every(id => allowed.has(id))) throw new Error(`Hãy chọn đúng ${size} cầu thủ thuộc ${pack.name}.`);
-  const card = { ...makeCard(playerIds[Math.min(size - 1, Math.floor(rng() * size))]), level: (pack.levels ?? PACK_LEVELS)[1] };
-  const entry: Entry = { id: uid(), time: Date.now(), type: 'pack', title: `Mở ${pack.name}`, detail: `${getPlayer(card).name} +${card.level} · OVR ${ovr(card)} · Ngẫu nhiên 1 trong ${size} cầu thủ đã chọn` };
-  return { state: { ...state, unopened: { ...defaultUnopened(), ...state.unopened, [pack.id]: available - 1 }, cards: [card, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + 1 }, cards: [card] };
+  const level = (pack.levels ?? PACK_LEVELS)[1];
+  const cards = Array.from({ length: count }, () => ({ ...makeCard(playerIds[Math.min(size - 1, Math.floor(rng() * size))]), level }));
+  const best = [...cards].sort((a, b) => ovr(b) - ovr(a))[0];
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'pack', title: count > 1 ? `Mở ${count} ${pack.name.toLowerCase()}` : `Mở ${pack.name}`, detail: `${count > 1 ? 'Tốt nhất: ' : ''}${getPlayer(best).name} +${best.level} · OVR ${ovr(best)} · Ngẫu nhiên 1 trong ${size} cầu thủ đã chọn${count > 1 ? ' mỗi gói' : ''}` };
+  return { state: { ...state, unopened: { ...defaultUnopened(), ...state.unopened, [pack.id]: available - count }, cards: [...cards, ...state.cards], history: [entry, ...state.history].slice(0, 200), opened: state.opened + count }, cards };
 }
 // Số vạch một phôi theo chênh OVR = OVR hiện tại của phôi − OVR hiện tại của thẻ chính (cả hai đã cộng cấp thẻ; phôi +9 OVR 125 nạp như
 // phôi +1 OVR 125). Như nhau ở mọi cấp đang đập, không có hệ số phạt theo cấp:

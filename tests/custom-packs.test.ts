@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { PACK_LEVELS, TIERS, allPacks, buyPacks, customPack, defaultPacks, draw, getPackStock, getPlayer, isPackAvailable, openPacks, ovr, packOdds, packs, players, shopPacks, openChosen, choosePool, openDraft, draftCandidates, draftSize, defaultDraft, validateSave } from '../src/game.ts';
+import { PACK_LEVELS, TIERS, allPacks, random, buyPacks, customPack, defaultPacks, draw, getPackStock, getPlayer, isPackAvailable, openPacks, ovr, packOdds, packs, players, shopPacks, openChosen, choosePool, openDraft, draftCandidates, draftSize, defaultDraft, validateSave } from '../src/game.ts';
 import { initialSave } from './stocked-save.ts';
 import type { CustomPackData, Pack } from '../src/game.ts';
 import { SEASON_IDS, customArtPath, packError } from '../src/admin/pack-rules.ts';
@@ -88,7 +88,8 @@ test('Gói mặc định chưa sửa trong src/packs.json ra đúng tỷ lệ nh
     const entry = all.find(pack => pack.id === base.id);
     const tier = TIERS.find((_, i) => base.weights[i] === 100)!;
     if (!entry || entry.seasons.join() !== tier || entry.minOvr !== null) continue; // gói đã xoá / đã đổi mùa hoặc OVR ở trang quản trị
-    const mine = packOdds(customPack(entry)).pool, original = packOdds(base).pool;
+    // So cùng nhóm gói (Shop / sự kiện), vì gói sự kiện phạt giá nặng hơn (PACK_ODDS.eventPriceAlpha).
+    const mine = packOdds(customPack(entry)).pool, original = packOdds({ ...base, eventOnly: customPack(entry).eventOnly }).pool;
     assert.deepEqual(mine.map(row => row.player.id), original.map(row => row.player.id), base.id);
     mine.forEach((row, i) => assert.ok(Math.abs(row.chance - original[i].chance) < 1e-12, `${base.id} · ${row.player.name}`));
     if (entry.back === null) assert.equal(customPack(entry).back, base.id === 'stellar5' ? defaultPacks.find(p => p.id === 'stellar')!.back : base.back);
@@ -152,4 +153,22 @@ test('Gói chỉ định: danh sách mặc định là N người giá cao nhấ
   assert.throws(() => openDraft(state, pack, [...custom.slice(1), stranger.id]), /đúng/);
   assert.throws(() => openDraft({ ...state, unopened: { [pack.id]: 0 } }, pack, custom), /không còn/);
   assert.throws(() => openDraft(state, packs.find(p => !p.choose)!, custom), /không phải/);
+  // Mở nhiều gói một lượt: mỗi gói rút độc lập trong danh sách đã chọn, trừ đúng số gói, một dòng lịch sử.
+  const many = { ...initialSave(), unopened: { ...initialSave().unopened, [pack.id]: 12 } };
+  const rolls = [0, .9999999, .5, 0, .9999999];
+  let k = 0;
+  const batch = openDraft(many, pack, custom, () => rolls[k++ % rolls.length], 5);
+  assert.equal(batch.cards.length, 5);
+  assert.deepEqual(batch.cards.map(c => c.playerId), [custom[0], custom[custom.length - 1], custom[Math.floor(.5 * custom.length)], custom[0], custom[custom.length - 1]]);
+  assert.ok(batch.cards.every(c => c.level === (pack.levels ?? [1, 1])[1] && custom.includes(c.playerId)));
+  assert.equal(new Set(batch.cards.map(c => c.uid)).size, 5, 'mỗi thẻ một uid riêng');
+  assert.equal(batch.state.unopened?.[pack.id], 7);
+  assert.equal(batch.state.cards.length, many.cards.length + 5);
+  assert.equal(batch.state.opened, many.opened + 5);
+  assert.equal(batch.state.history.length, many.history.length + 1);
+  assert.match(batch.state.history[0].title, /^Mở 5 /);
+  assert.ok(validateSave(JSON.parse(JSON.stringify(batch.state))));
+  assert.throws(() => openDraft(many, pack, custom, random, 13), /Chỉ còn 12/);
+  assert.throws(() => openDraft(many, pack, custom, random, 0), /từ 1 đến/);
+  assert.throws(() => openDraft(many, pack, custom, random, 1.5), /từ 1 đến/);
 });

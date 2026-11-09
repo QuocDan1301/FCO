@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { ArrowBigUp, ArrowLeftRight, ArrowRight, Bell, Check, CircleHelp, CirclePlus, House, ShieldPlus, ChevronDown, ChevronRight, Coins, Gift, History, Info, Layers3, Maximize2, PackageOpen, PackagePlus, Plus, Search, Settings2, Shield, ShoppingBag, Sparkles, Trophy, X, Zap } from 'lucide-react';
-import { DAILY_FC, MAX_LEVEL, TIERS, UPGRADE_LEVELS, buyPacks, random, shopPacks, claimDaily, defaultDraft, openDraft, dayKey, defaultUnopened, PACK_LEVELS, getPackStock, getPlayer, initialSave, isPackAvailable, money, openPacks, openSelectedPacks, ovr, packs, players, seasons, STORAGE_KEY, uid, upgrade, upgradeInfo, validateSave } from './game';
+import { DAILY_FC, MAX_INVENTORY_OPEN, MAX_LEVEL, TIERS, UPGRADE_LEVELS, buyPacks, random, shopPacks, claimDaily, defaultDraft, openDraft, dayKey, defaultUnopened, PACK_LEVELS, getPackStock, getPlayer, initialSave, isPackAvailable, money, openPacks, openSelectedPacks, ovr, packs, players, seasons, STORAGE_KEY, uid, upgrade, upgradeInfo, validateSave } from './game';
 import SquadManager from './SquadManager';
 import TargetPicker, { DEFAULT_PICKER_VIEW } from './TargetPicker';
 import UpgradeProtection from './UpgradeProtection';
@@ -284,6 +284,8 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const readyBatch = Math.min(10, readyAvailable);
   const autoBatch = useRef(false);
   const inventoryBatch = useRef<Pack[] | null>(null);
+  // Gói chỉ định chọn từ kho Vật phẩm: mở tối đa MAX_INVENTORY_OPEN gói cùng loại một lượt như nút ở kho; mở từ màn chính thì 10 như gói thường.
+  const draftBatch = readyPack?.choose && inventoryBatch.current?.some(p => p.id === readyPack.id) ? Math.min(MAX_INVENTORY_OPEN, readyAvailable) : readyBatch;
   // Mở lại từ màn kết quả: số gói tự mở ngay khi sân khấu chuẩn bị xong (không bấm lại ở màn chuẩn bị), và lượt đó rút ngắn chờ trước khi lật gói.
   const againCount = useRef(0), fastEntry = useRef(false), fastEntryId = useRef<string | null>(null);
   // Ảnh thẻ không tải trước khi vào game: tải sẵn ảnh thẻ vừa rút lúc bắt đầu mở gói, hầm chạy vài giây là đủ để về kịp màn lật thẻ.
@@ -539,12 +541,12 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       setPackSkipReady(false); setFlipStarted(false); setEntryStarted(false); setSceneReady(false); setPhase(0); setAnimation({ id, kind: 'pack', cards: result.cards, pack, quick: !!latest.current.quick });
     } catch (e) { notify((e as Error).message); busy.current = false; }
   };
-  // Mở gói chỉ định: nhận ngẫu nhiên 1 trong N cầu thủ đã chọn, rồi chạy hiệu ứng mở gói như gói thường.
-  const openDraftPack = (pack: Pack, playerIds: number[]) => {
+  // Mở gói chỉ định: mỗi gói nhận ngẫu nhiên 1 trong N cầu thủ đã chọn (mở 1 hoặc nhiều gói một lượt), rồi chạy hiệu ứng mở gói như gói thường.
+  const openDraftPack = (pack: Pack, playerIds: number[], count = 1) => {
     if (busy.current || !packPrepared) return;
     busy.current = true;
     try {
-      const result = openDraft(latest.current, pack, playerIds);
+      const result = openDraft(latest.current, pack, playerIds, random, count);
       if (!commit(result.state)) { busy.current = false; return; }
       prefetchCards(result.cards);
       unlockCinemaAudio(latest.current.sound);
@@ -933,13 +935,16 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
           <div className="ready-content">
             <div className="ready-art"><div className={`ready-flip ${readyPack.back ? 'tm-flip' : ''}`} style={readyPack.back ? { '--tm-mask': `url("${readyPack.back}")` } as CSSProperties : undefined} aria-hidden="true"><div className="flip-face flip-front"><PackArt pack={readyPack}/></div><div className="flip-face flip-back"><img src={asset('/assets/fco-vip-opening-logo.png')} alt=""/><span>FCO VIP</span><strong>{readyPack.short}</strong><i>VINH QUANG ĐANG CHỜ</i></div>{flipping && !save.reduced && <div className="ready-glitch" aria-hidden="true"><i/></div>}</div><span className="ready-art-halo"/></div>
             <div className="ready-actions" style={{ visibility: packAnimation ? 'hidden' : undefined }} aria-hidden={!!packAnimation} inert={!!packAnimation}>
-              {readyPack.choose && draftIds ? <button className="ready-open ready-open-one" onClick={() => openDraftPack(readyPack, draftIds)} disabled={!packPrepared || !!animation || readyAvailable < 1}>Mở một vật phẩm</button> : <>
+              {readyPack.choose && draftIds ? <>
+              <button className="ready-open ready-open-one" onClick={() => openDraftPack(readyPack, draftIds)} disabled={!packPrepared || !!animation || readyAvailable < 1}>Mở 1 vật phẩm</button>
+              <button className="ready-open ready-open-batch" onClick={() => openDraftPack(readyPack, draftIds, draftBatch)} disabled={!packPrepared || !!animation || draftBatch < 2}>{draftBatch > 0 ? `Mở ${draftBatch} vật phẩm` : 'Hết vật phẩm'}</button>
+              </> : <>
               <button className="ready-open ready-open-one" onClick={() => open(readyPack, 1)} disabled={!packPrepared || !!animation || readyAvailable < 1}>Mở 1 vật phẩm</button>
               <button className="ready-open ready-open-batch" onClick={() => open(readyPack, readyBatch)} disabled={!packPrepared || !!animation || readyBatch < 2}>{readyBatch > 0 ? `Mở ${readyBatch} vật phẩm` : 'Hết vật phẩm'}</button>
               </>}
               <button className="ready-leave" onClick={closePackSession}>Rời<X size={18} strokeWidth={2.6}/></button>
             </div>
-            <p className="ready-note" aria-live="polite"><Shield size={13}/>{packAnimation && !flipStarted ? 'Đang chuẩn bị mở…' : readyPack.choose && draftIds && packPrepared && readyAvailable > 0 ? `Nhận ngẫu nhiên 1 trong ${draftIds.length} cầu thủ đã chọn.` : !packPrepared ? 'Đang chuẩn bị sân khấu…' : readyAvailable === 0 ? 'Đã hết gói. Quay lại để nhận thêm gói thử.' : readyAvailable === 1 ? 'Còn 1 gói. Nhấn Mở 1 vật phẩm để mở gói cuối cùng.' : inventoryBatch.current ? 'Mỗi lượt tối đa 150 thẻ · Mở bao nhiêu, trừ bấy nhiêu.' : 'Mỗi lượt tối đa 10 thẻ · Mở bao nhiêu, trừ bấy nhiêu.'}</p>
+            <p className="ready-note" aria-live="polite"><Shield size={13}/>{packAnimation && !flipStarted ? 'Đang chuẩn bị mở…' : readyPack.choose && draftIds && packPrepared && readyAvailable > 0 ? `Mỗi gói nhận ngẫu nhiên 1 trong ${draftIds.length} cầu thủ đã chọn${readyAvailable > 1 ? ` · mở tối đa ${draftBatch} gói cùng loại một lượt` : ''}.` : !packPrepared ? 'Đang chuẩn bị sân khấu…' : readyAvailable === 0 ? 'Đã hết gói. Quay lại để nhận thêm gói thử.' : readyAvailable === 1 ? 'Còn 1 gói. Nhấn Mở 1 vật phẩm để mở gói cuối cùng.' : inventoryBatch.current ? 'Mỗi lượt tối đa 150 thẻ · Mở bao nhiêu, trừ bấy nhiêu.' : 'Mỗi lượt tối đa 10 thẻ · Mở bao nhiêu, trừ bấy nhiêu.'}</p>
             <p className="ready-cost">Mở gói miễn phí</p>
           </div>
           </>}
