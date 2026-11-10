@@ -574,10 +574,16 @@ export function initialSave(): Save {
 // eventPriceAlpha 1,6 → 2,0 và levelDecay 0,31 → 0,2 ngày 2026-11-10: người dùng vẫn thấy ra cầu thủ đắt nhiều. Chỉ gói ngoài Shop có khoảng cấp nên levelDecay không ảnh hưởng Shop.
 // Gói mốc (quà tích lũy: blm-* của Bi Lắc, ms-* gói mốc) ngày 2026-11-10: người dùng tăng tỷ lệ cầu thủ đắt → milestonePriceAlpha 1,3
 // và milestoneLevelDecay 0,31 (như gói sự kiện trước khi giảm), các gói sự kiện khác giữ 2,0 / 0,2.
-export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: 2, levelDecay: .2, milestonePriceAlpha: 1.3, milestoneLevelDecay: .31 } as const;
+// Gói trong Danh sách quà Bi Lắc (bl-* và các gói dùng chung ở bảng quà) ngày 2026-11-10: người dùng giảm tỷ lệ cầu thủ đắt
+// → prizePriceAlpha 2,5 + prizeLevelDecay 0,15 (giá trị TB mỗi gói giảm ~3–31 %). Gói mốc (blm-*, ms-*) không thuộc danh sách quà,
+// kể cả ms-100-1 nằm trong hàng Khác nhau: vẫn theo luật gói mốc.
+// Đổi quà trong bảng (migration Bi Lắc) thì cập nhật BILAC_PRIZE_PACKS; tests/game.test.ts đối chiếu với migration.
+export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: 2, levelDecay: .2, milestonePriceAlpha: 1.3, milestoneLevelDecay: .31, prizePriceAlpha: 2.5, prizeLevelDecay: .15 } as const;
+export const BILAC_PRIZE_PACKS: ReadonlySet<string> = new Set(['eternal', 'event-4-top150', 'event-6-wb', 'event-7-109']);
 export const isMilestonePack = (pack: Pick<Pack, 'id'>) => /^(blm|ms)-/.test(pack.id);
-export const priceAlphaOf = (pack: Pack) => !pack.eventOnly ? PACK_ODDS.priceAlpha : isMilestonePack(pack) ? PACK_ODDS.milestonePriceAlpha : PACK_ODDS.eventPriceAlpha;
-export const levelDecayOf = (pack: Pick<Pack, 'id'>) => isMilestonePack(pack) ? PACK_ODDS.milestoneLevelDecay : PACK_ODDS.levelDecay;
+export const isBilacPrizePack = (pack: Pick<Pack, 'id'>) => !isMilestonePack(pack) && (/^bl-/.test(pack.id) || BILAC_PRIZE_PACKS.has(pack.id));
+export const priceAlphaOf = (pack: Pack) => !pack.eventOnly ? PACK_ODDS.priceAlpha : isMilestonePack(pack) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha;
+export const levelDecayOf = (pack: Pick<Pack, 'id'>) => isMilestonePack(pack) ? PACK_ODDS.milestoneLevelDecay : isBilacPrizePack(pack) ? PACK_ODDS.prizeLevelDecay : PACK_ODDS.levelDecay;
 export const PACK_LEVELS: [number, number] = [1, 1];
 // Cấp cố định của gói (gói 26TS +5 → 5), hoặc null nếu gói rút cấp trong một khoảng.
 export const packLevel = (pack: Pack) => { const [min, max] = pack.levels ?? PACK_LEVELS; return min === max ? min : null; };

@@ -1,8 +1,8 @@
 import { test } from 'node:test';
-import { existsSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { getTeamLogo } from '../src/teamLogos.ts';
 import assert from 'node:assert/strict';
-import { baseOvr, defaultPacks, ovr, MAX_LEVEL, PACK_LEVELS, PACK_ODDS, UPGRADE_LEVELS, buyPacks, claimDaily, dayKey, draw, getPackStock, getPlayer, isPackAvailable, makeCard, materialGauge, openPacks, openSelectedPacks, packLevel, packOdds, packs, players, upgrade, upgradeInfo, validateSave } from '../src/game.ts';
+import { baseOvr, defaultPacks, ovr, MAX_LEVEL, PACK_LEVELS, PACK_ODDS, UPGRADE_LEVELS, isBilacPrizePack, levelDecayOf, priceAlphaOf, buyPacks, claimDaily, dayKey, draw, getPackStock, getPlayer, isPackAvailable, makeCard, materialGauge, openPacks, openSelectedPacks, packLevel, packOdds, packs, players, upgrade, upgradeInfo, validateSave } from '../src/game.ts';
 import { initialSave } from './stocked-save.ts';
 import priceData from '../src/player-prices.json';
 import { rngFor, seeded } from './pack-rng.ts';
@@ -95,8 +95,9 @@ test('Tỷ lệ gói: OVR cao hơn sàn và giá +1 đắt hơn thì hiếm hơn
     // Đúng công thức: trọng số = ovrDecay^(OVR +1 − OVR sàn) ÷ max(1, giá +1 ÷ giá rẻ nhất)^priceAlpha, chuẩn hoá về tổng 1.
     const rows = pool.map(({ player }) => ({ value: ovr({ playerId: player.id, level: 1 }), price: prices[String(player.id)]?.[0] ?? 0 }));
     const floor = Math.min(...rows.map(r => r.value)), cheapest = Math.min(...rows.map(r => r.price).filter(p => p > 0));
-    // Gói sự kiện / quà (eventOnly) phạt giá nặng hơn gói Shop; gói mốc (blm-*, ms-*) nhẹ hơn gói sự kiện khác.
-    const alpha = !pack.eventOnly ? PACK_ODDS.priceAlpha : /^(blm|ms)-/.test(pack.id) ? PACK_ODDS.milestonePriceAlpha : PACK_ODDS.eventPriceAlpha;
+    // Gói sự kiện / quà (eventOnly) phạt giá nặng hơn gói Shop; gói mốc (blm-*, ms-*) nhẹ hơn, gói trong Danh sách quà Bi Lắc nặng nhất.
+    const alpha = priceAlphaOf(pack);
+    assert.equal(alpha, !pack.eventOnly ? PACK_ODDS.priceAlpha : /^(blm|ms)-/.test(pack.id) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha, pack.id);
     const weights = rows.map(r => PACK_ODDS.ovrDecay ** (r.value - floor) / Math.max(1, r.price > 0 ? r.price / cheapest : 1) ** alpha);
     const total = weights.reduce((sum, w) => sum + w, 0);
     pool.forEach((row, i) => assert.ok(Math.abs(row.chance - weights[i] / total) < 1e-12, `${pack.name} · ${row.player.name}`));
@@ -113,6 +114,9 @@ test('Tỷ lệ gói: OVR cao hơn sàn và giá +1 đắt hơn thì hiếm hơn
   // Gói mốc (blm-*, ms-*) rút cấp theo milestoneLevelDecay.
   const ms = packOdds({ ...ranged, id: 'blm-test', eventOnly: true }).levels;
   ms.slice(1).forEach((l, i) => assert.ok(Math.abs(l.chance / ms[i].chance - PACK_ODDS.milestoneLevelDecay) < 1e-12));
+  // Gói trong Danh sách quà Bi Lắc rút cấp theo prizeLevelDecay.
+  const prize = packOdds({ ...ranged, id: 'bl-test', eventOnly: true }).levels;
+  prize.slice(1).forEach((l, i) => assert.ok(Math.abs(l.chance / prize[i].chance - PACK_ODDS.prizeLevelDecay) < 1e-12));
   assert.equal(draw(ranged, rngFor(ranged, first, 0)).level, 1);
   assert.equal(draw(ranged, rngFor(ranged, first, levels[0].chance + 1e-9)).level, 2);
   assert.equal(draw(ranged, rngFor(ranged, first, .999999)).level, 5);
@@ -580,4 +584,26 @@ test('Camera luôn nhìn về phía sân khấu khi rời đường hầm', asyn
     assert.equal(cameraPose(1).z, STAGE_Z + 9.5);
     assert.equal(cameraPose(1).lookZ, STAGE_Z);
   }
+});
+
+test('Mọi gói trong Danh sách quà Bi Lắc (migration) dùng tỷ lệ quà Bi Lắc, trừ gói mốc (blm-*, ms-*)', () => {
+  const dir = new URL('../supabase/migrations/', import.meta.url);
+  const ids = new Set<string>();
+  for (const file of readdirSync(dir).filter(f => /_fco_bilac/.test(f))) {
+    for (const line of readFileSync(new URL(file, dir), 'utf8').split('\n')) {
+      if (!/update public\.fco_bilac_rows set .*rewards\s*=/.test(line)) continue;
+      for (const m of line.matchAll(/"pack":"([^"]+)"/g)) ids.add(m[1]);
+    }
+  }
+  assert.ok(ids.size >= 20, String(ids.size));
+  assert.ok(ids.has('ms-100-1'));
+  for (const id of ids) {
+    const pack = packs.find(p => p.id === id);
+    assert.ok(pack, id);
+    const milestone = /^(blm|ms)-/.test(id);
+    assert.equal(isBilacPrizePack(pack), !milestone, id);
+    assert.equal(priceAlphaOf(pack), milestone ? PACK_ODDS.milestonePriceAlpha : PACK_ODDS.prizePriceAlpha, id);
+    assert.equal(levelDecayOf(pack), milestone ? PACK_ODDS.milestoneLevelDecay : PACK_ODDS.prizeLevelDecay, id);
+  }
+  assert.equal(isBilacPrizePack({ id: 'blm-100-1' }), false);
 });
