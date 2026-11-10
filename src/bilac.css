@@ -309,3 +309,41 @@
 @keyframes bl-pulse{0%,100%{transform:scale(.92)}50%{transform:scale(1.08)}}
 .bl-pocket.is-lit{box-shadow:none;filter:drop-shadow(0 0 .5cqw #fff) drop-shadow(0 0 1.2cqw var(--bl-neon))}
 @media (prefers-reduced-motion:reduce){.bl-pocket .bl-sym.md{animation:none}}
+
+/* Bảng kết quả nhận quà: lưới ô [ảnh quà | điểm hàng], gói cùng cỡ thẻ BP (72px), nhiều quà thì cuộn trong khung. */
+.bl-result>.bl-res{width:min(620px,100%);overflow:hidden}
+.bl-res-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;width:100%;max-height:min(58dvh,440px);margin:0;padding:4px 6px 4px 2px;overflow-y:auto;list-style:none;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#29e3ff66 transparent}
+.bl-res-list.single{grid-template-columns:minmax(150px,220px);justify-content:center}
+.bl-res-item{position:relative;display:flex;align-items:center;gap:12px;min-height:128px;padding:8px 10px;border-radius:12px;background:linear-gradient(135deg,#10203a,#0a1424);border:1px solid #23406099;cursor:help;outline:none;transition:border-color .12s,box-shadow .12s}
+.bl-res-item:hover,.bl-res-item:focus-visible{border-color:#29e3ffaa;box-shadow:0 0 12px #29e3ff33}
+.bl-res-item.jackpot{border-color:#ffd16699;background:linear-gradient(135deg,#3a2a08,#141006)}
+.bl-res-art{position:relative;display:grid;place-items:center;flex:none;min-width:72px}
+.bl-res-pack{display:grid;place-items:center;width:72px;aspect-ratio:142/226;border-radius:5px;color:#9fb3d1}
+.bl-res-pack img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 2px 5px #000a)}
+.bl-res-count{position:absolute;top:-6px;right:-8px;padding:1px 6px;border-radius:999px;background:#29e3ff;color:#04121f;font-size:12px;font-weight:900;font-style:normal;box-shadow:0 1px 4px #0009}
+.bl-res-item .bl-chip.jackpot{flex-direction:column;gap:4px;padding:8px 10px;font-size:12px;white-space:normal;text-align:center}
+.bl-res-item .bl-chip.jackpot .bl-jp-icon{width:40px;height:40px}
+.bl-res-row{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1;color:#9fb3d1}
+.bl-res-row small{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.bl-res-row b{font-size:24px;font-weight:900;color:var(--bl-gold)}
+.bl-res-tip{position:absolute;left:6px;right:6px;bottom:6px;z-index:2;padding:5px 8px;border-radius:6px;background:#050a14ee;border:1px solid #29e3ff88;color:#fff;font-size:12px;font-weight:700;line-height:1.3;text-align:center;pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s,transform .12s}
+.bl-res-item:hover .bl-res-tip,.bl-res-item:focus .bl-res-tip{opacity:1;transform:none}
+@media (max-width:1200px) and (orientation:landscape) and (max-height:500px){
+  .bl-res-list{max-height:calc(100dvh - 170px);grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .bl-res-item{min-height:112px}
+  .bl-res-pack{width:60px}.bl-res-art{min-width:60px}
+  .bl-res-item .bl-bp-card{width:60px}
+}
+
+/* Hộp chọn quà mốc: các quà của một lựa chọn xếp ngang, gói cùng cỡ thẻ BP; tên hiện ở chân ảnh khi trỏ chuột. */
+.bl-pick-rewards{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:14px;flex:1}
+.bl-tile{position:relative;display:inline-flex;border-radius:8px;cursor:help;outline:none}
+.bl-tile:hover .bl-res-pack img,.bl-tile:focus-visible .bl-res-pack img{filter:drop-shadow(0 0 6px #29e3ffaa)}
+.bl-tile:focus-visible{outline:2px solid #29e3ff;outline-offset:3px}
+.bl-tile .bl-res-tip{left:50%;right:auto;bottom:4px;width:max-content;max-width:190px;transform:translate(-50%,4px)}
+.bl-tile:hover .bl-res-tip,.bl-tile:focus .bl-res-tip{opacity:1;transform:translate(-50%,0)}
+.bl-pick-item{padding:16px 12px}
+@media (max-width:1200px) and (orientation:landscape) and (max-height:500px){
+  .bl-pick-rewards{gap:10px}
+  .bl-pick .bl-res-pack{width:60px}.bl-pick .bl-res-art{min-width:60px}.bl-pick .bl-bp-card{width:60px}
+}

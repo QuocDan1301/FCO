@@ -51,6 +51,31 @@ function RewardChip({ reward, compact = false }: { reward: BilacReward; compact?
   return <span className="bl-chip pack" title={name}>{pack?.back ? <img src={pack.back} alt=""/> : <Gift size={14}/>}<em>{pack?.name ?? reward.pack}</em></span>;
 }
 
+// Một ô của bảng kết quả: ảnh quà (gói cùng cỡ thẻ BP) + bên cạnh là điểm của hàng trúng (quà mốc không có hàng).
+// Tên quà chỉ hiện khi trỏ chuột / chạm / Tab vào ô; khung tên nằm trong ô nên danh sách cuộn không che mất.
+type ResultItem = { reward: BilacReward; points: number | null };
+function RewardArt({ reward }: { reward: BilacReward }) {
+  const count = 'pack' in reward && reward.count > 1 ? reward.count : 0;
+  const pack = 'pack' in reward ? findPack(reward.pack) : undefined;
+  return <span className="bl-res-art">{'pack' in reward
+    ? <span className="bl-res-pack">{pack?.back ? <img src={pack.back} alt=""/> : <Gift size={28}/>}</span>
+    : <RewardChip reward={reward}/>}{count > 0 && <em className="bl-res-count">x{count}</em>}</span>;
+}
+// Hộp chọn quà mốc: chỉ hiện ảnh quà, tên hiện khi trỏ chuột / chạm / Tab.
+function RewardTile({ reward }: { reward: BilacReward }) {
+  const name = bilacRewardText(reward);
+  return <span className="bl-tile" tabIndex={0} aria-label={name}><RewardArt reward={reward}/><span className="bl-res-tip" aria-hidden="true">{name}</span></span>;
+}
+function ResultCard({ item }: { item: ResultItem }) {
+  const { reward, points } = item;
+  const name = bilacRewardText(reward);
+  return <li className={`bl-res-item ${isJackpot(reward) ? 'jackpot' : ''}`} tabIndex={0} aria-label={`${name}${points !== null ? ` · hàng +${points} điểm` : ''}`}>
+    <RewardArt reward={reward}/>
+    {points !== null && <span className="bl-res-row"><small>Hàng</small><b>+{points}</b><small>điểm</small></span>}
+    <span className="bl-res-tip" aria-hidden="true">{name}</span>
+  </li>;
+}
+
 export default function BilacPage({ fc, bilac, loadConfig, loadJackpot, onPlay, onClaim, onRefresh }: Props) {
   const [config, setConfig] = useState<BilacConfig | null>(null);
   const [error, setError] = useState('');
@@ -59,7 +84,7 @@ export default function BilacPage({ fc, bilac, loadConfig, loadJackpot, onPlay, 
   const [landed, setLanded] = useState<BilacSymbol[]>([]);
   const [hitRow, setHitRow] = useState('');
   const [hitReward, setHitReward] = useState<BilacReward | null>(null); // quà vừa trúng: ô đó trong Danh sách quà sáng lên
-  const [result, setResult] = useState<{ title: string; rewards: BilacReward[]; note: string } | null>(null);
+  const [result, setResult] = useState<{ title: string; items: ResultItem[]; note: string } | null>(null);
   const [picking, setPicking] = useState<number | null>(null); // mốc đang mở hộp chọn quà
   const [refreshing, setRefreshing] = useState(false);
   const refresh = () => { if (refreshing) return; setRefreshing(true); onRefresh().finally(() => setRefreshing(false)); };
@@ -111,14 +136,20 @@ export default function BilacPage({ fc, bilac, loadConfig, loadJackpot, onPlay, 
       setJackpot(outcome.jackpot);
       const rewards = outcome.plays.map(p => p.reward);
       const jackpotWin = rewards.find(r => isJackpot(r) && 'fc' in r);
-      setResult({ title: count > 1 ? `Kết quả ${count} lượt` : 'Kết quả lượt đá', rewards: summarizeBilac(rewards),
+      const byRow = new Map<string, BilacReward[]>();
+      for (const p of outcome.plays) byRow.set(p.row, [...(byRow.get(p.row) ?? []), p.reward]);
+      const items = [...byRow].flatMap(([row, list]) => {
+        const pts = config.rows.find(r => r.id === row)?.points ?? outcome.plays.find(p => p.row === row)?.points ?? 0;
+        return summarizeBilac(list).map(reward => ({ reward, points: pts }));
+      }).sort((a, b) => Number(isJackpot(b.reward)) - Number(isJackpot(a.reward)) || (b.points ?? 0) - (a.points ?? 0));
+      setResult({ title: count > 1 ? `Kết quả ${count} lượt` : 'Kết quả lượt đá', items,
         note: `+${money(outcome.points)} điểm${jackpotWin ? ` · Trúng ${bilacRewardText(jackpotWin)}!` : ''}` });
     } finally { setBusy(false); }
   };
   const claim = async (index: number, choice: number | null) => {
     if (busy) return;
     setBusy(true);
-    try { const rewards = await onClaim(index, choice); if (rewards) { setPicking(null); setResult({ title: `Quà tích lũy · Mốc ${money(config?.milestones[index]?.points ?? 0)} điểm`, rewards, note: '' }); } }
+    try { const rewards = await onClaim(index, choice); if (rewards) { setPicking(null); setResult({ title: `Quà tích lũy · Mốc ${money(config?.milestones[index]?.points ?? 0)} điểm`, items: rewards.map(reward => ({ reward, points: null })), note: '' }); } }
     finally { setBusy(false); }
   };
 
@@ -211,16 +242,16 @@ export default function BilacPage({ fc, bilac, loadConfig, loadJackpot, onPlay, 
         <h3>Mốc {money(milestones[picking].points)} điểm</h3>
         <p>Chọn 1 trong {milestones[picking].options.length} phần quà · Số lần có thể chọn: {available(picking)}</p>
         <div className="bl-pick-list">{milestones[picking].options.map((rewards, o) => <div key={o} className="bl-pick-item">
-          <div className="bl-result-list">{rewards.map((r, k) => <RewardChip key={k} reward={r}/>)}</div>
+          <div className="bl-pick-rewards">{rewards.map((r, k) => <RewardTile key={k} reward={r}/>)}</div>
           <button type="button" className="primary-button" disabled={busy || available(picking) < 1} onClick={() => void claim(picking, o)}>Chọn</button>
         </div>)}</div>
       </div>
     </div>}
     {result && <div className="bl-result" role="dialog" aria-modal="true" aria-label={result.title} onClick={() => setResult(null)}>
-      <div onClick={e => e.stopPropagation()}>
+      <div className="bl-res" onClick={e => e.stopPropagation()}>
         <button type="button" className="icon-button" aria-label="Đóng" onClick={() => setResult(null)}><X/></button>
         <h3>{result.title}</h3>
-        <div className="bl-result-list">{result.rewards.map((r, i) => <RewardChip key={i} reward={r}/>)}</div>
+        <ul className={`bl-res-list ${result.items.length === 1 ? 'single' : ''}`}>{result.items.map((item, i) => <ResultCard key={i} item={item}/>)}</ul>
         {result.note && <p>{result.note}</p>}
         <button type="button" className="primary-button" onClick={() => setResult(null)}>OK</button>
       </div>
