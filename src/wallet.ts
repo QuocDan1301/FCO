@@ -15,6 +15,8 @@ async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<
   if (!accountClient) throw new Error(LOGIN_FOR_FC);
   const { data, error } = await accountClient.rpc(fn, args).abortSignal(AbortSignal.timeout(20000));
   if (error) {
+    // Lỗi gốc của máy chủ (thông báo cho người chơi đã được dịch gọn): xem ở Console khi cần tìm nguyên nhân.
+    console.error(`[fco] ${fn}`, error);
     // Máy chủ vừa báo bảo trì: kiểm tra lại ngay để hiện màn bảo trì, khỏi chờ tới lần kiểm tra định kỳ.
     if (/FCO_MAINTENANCE|FCO_ACCOUNT_PAUSED/.test(error.message ?? '')) window.dispatchEvent(new Event(MAINTENANCE_CHANGED));
     throw new Error(walletMessage(error));
