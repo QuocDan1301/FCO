@@ -42,7 +42,7 @@
   :root .checkin{margin-bottom:10px}
   :root .checkin-days{grid-template-columns:repeat(7,minmax(0,1fr))}
   :root .checkin-fc,:root .checkin-pack{min-height:46px}
-  :root .checkin-pack img{width:28px;height:40px}
+  :root .checkin-pack .pack-img{width:28px;height:40px}
   :root .gift-code{margin-top:12px;padding-top:10px}
   /* Nâng cấp thẻ: vừa đúng một màn (khoá cuộn, screen-lock.css) — chỉ ~300 px giữa thanh trên và dock.
      Trái: thẻ chính nhỏ + chỉ số 2 cột, các dòng tăng % / năng lượng mỏng, phôi đã chọn chiếm phần còn lại.

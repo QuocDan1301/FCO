@@ -3,6 +3,7 @@ import { Check, Gift, RefreshCw, X } from 'lucide-react';
 import { asset } from './asset';
 import { money } from './game';
 import { findPack } from './event';
+import PackImage from './PackImage';
 import { bilacAvailable, bilacRewardText, bilacRound, isJackpot, shortBp, summarizeBilac } from './bilac';
 import type { BilacConfig, BilacMilestone, BilacReward, BilacResult, BilacState, BilacSymbol, ServerJackpot } from './wallet-state';
 import './bilac.css';
@@ -47,8 +48,8 @@ function RewardChip({ reward, compact = false }: { reward: BilacReward; compact?
   if ('bp' in reward) return <span className={`bl-bp-card ${compact ? 'compact' : ''}`} tabIndex={compact ? 0 : undefined} data-name={`${shortBp(reward.bp)} BP`} aria-label={`${shortBp(reward.bp)} BP`}><img src={asset('/assets/event/bp-card.webp')} alt=""/><b>{shortBp(reward.bp)}</b></span>;
   const pack = findPack(reward.pack);
   const name = bilacRewardText(reward);
-  if (compact) return <span className="bl-chip pack compact" tabIndex={0} data-name={name} aria-label={name}>{pack?.back ? <img src={pack.back} alt=""/> : <Gift size={14}/>}</span>;
-  return <span className="bl-chip pack" title={name}>{pack?.back ? <img src={pack.back} alt=""/> : <Gift size={14}/>}<em>{pack?.name ?? reward.pack}</em></span>;
+  if (compact) return <span className="bl-chip pack compact" tabIndex={0} data-name={name} aria-label={name}>{pack ? <PackImage pack={pack}/> : <Gift size={14}/>}</span>;
+  return <span className="bl-chip pack" title={name}>{pack ? <PackImage pack={pack}/> : <Gift size={14}/>}<em>{pack?.name ?? reward.pack}</em></span>;
 }
 
 // Một ô của bảng kết quả: ảnh quà (gói cùng cỡ thẻ BP) + bên cạnh là điểm của hàng trúng (quà mốc không có hàng).
@@ -58,7 +59,7 @@ function RewardArt({ reward }: { reward: BilacReward }) {
   const count = 'pack' in reward && reward.count > 1 ? reward.count : 0;
   const pack = 'pack' in reward ? findPack(reward.pack) : undefined;
   return <span className="bl-res-art">{'pack' in reward
-    ? <span className="bl-res-pack">{pack?.back ? <img src={pack.back} alt=""/> : <Gift size={28}/>}</span>
+    ? pack ? <PackImage pack={pack} className="bl-res-pack"/> : <span className="bl-res-pack missing"><Gift size={28}/></span>
     : <RewardChip reward={reward}/>}{count > 0 && <em className="bl-res-count">x{count}</em>}</span>;
 }
 // Hộp chọn quà mốc: chỉ hiện ảnh quà, tên hiện khi trỏ chuột / chạm / Tab.
@@ -251,7 +252,7 @@ export default function BilacPage({ fc, bilac, loadConfig, loadJackpot, onPlay, 
       <div className="bl-res" onClick={e => e.stopPropagation()}>
         <button type="button" className="icon-button" aria-label="Đóng" onClick={() => setResult(null)}><X/></button>
         <h3>{result.title}</h3>
-        <ul className={`bl-res-list ${result.items.length === 1 ? 'single' : ''}`}>{result.items.map((item, i) => <ResultCard key={i} item={item}/>)}</ul>
+        <ul className="bl-res-list">{result.items.map((item, i) => <ResultCard key={i} item={item}/>)}</ul>
         {result.note && <p>{result.note}</p>}
         <button type="button" className="primary-button" onClick={() => setResult(null)}>OK</button>
       </div>

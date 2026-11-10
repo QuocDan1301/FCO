@@ -23,6 +23,7 @@ import { watchName } from './nameMarquee';
 import { addToSquad, getLineups, isLocked, lineupSummary, releaseCard, removeFromSquad, teamColorBonuses, toggleLock } from './squad';
 import type { Card, Entry, Pack, Save, Tier } from './game';
 import PackOpening from './cinema/PackOpening';
+import PackImage from './PackImage';
 import ViewportPages from './ViewportPages';
 import Progressive from './Progressive';
 import AssetProgressRing from './AssetProgress';
@@ -909,7 +910,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
           <ol className="checkin-days">{CHECKIN_REWARDS.map((reward, i) => {
             const day = i + 1, done = (checkin?.done ?? 0) >= day, today = !!checkin && !checkin.claimedToday && checkin.day === day;
             return <li key={day} className={`${done ? 'is-done' : ''} ${today ? 'is-today' : ''}`} aria-label={`Ngày ${day}: ${giftRewardText(reward)}${done ? ', đã nhận' : today ? ', nhận hôm nay' : ''}`}>
-              <small>Ngày {day}</small>{'fc' in reward ? <b className="checkin-fc">{money(reward.fc)}<span>FC</span></b> : 'pack' in reward ? <span className="checkin-pack">{findPack(reward.pack)?.back && <img src={findPack(reward.pack)!.back} alt=""/>}<em>{findPack(reward.pack)?.name ?? reward.pack}</em></span> : null}
+              <small>Ngày {day}</small>{'fc' in reward ? <b className="checkin-fc">{money(reward.fc)}<span>FC</span></b> : 'pack' in reward ? <span className="checkin-pack">{findPack(reward.pack)?.back && <PackImage pack={findPack(reward.pack)!}/>}<em>{findPack(reward.pack)?.name ?? reward.pack}</em></span> : null}
               {done && <i className="checkin-check" aria-hidden="true"><Check size={14}/></i>}</li>;
           })}</ol>
         </div>
