@@ -160,6 +160,10 @@
 .pa-accounts .pa-account-pick{width:30px;padding-right:0}
 .pa-account-bulk{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 12px;border:1px solid #d9b25a55;border-radius:8px;background:#d9b25a12;font-size:13px}
 .pa-account-bulk .secondary-button{display:inline-flex;align-items:center;gap:6px;min-height:0;padding:5px 10px;font-size:12px}
+.pa-account-bulk .pa-account-bulk-delete{border-color:#e6394680;color:#ff9aa2}
+.pa-account-bulk-confirm{flex-basis:100%;display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;padding-top:8px;border-top:1px solid #e6394640}
+.pa-account-bulk-confirm .pa-field{flex:1 1 320px;margin:0}
+.pa-account-bulk-confirm .pa-account-delete{padding:0 16px}
 .pa-account-link{padding:0;border:0;background:none;color:var(--gold,#d9ba76);font-size:12px;text-decoration:underline;cursor:pointer}
 .pa-account-count{margin:0;font-size:13px;color:#aebdcc}
 .pa-account-toggle{min-height:0;padding:4px 10px;font-size:12px}

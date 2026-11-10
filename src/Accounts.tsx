@@ -3,7 +3,7 @@ import { Coins, Gift, Lock, Pause, Play, RotateCcw, Trash2, Unlock } from 'lucid
 import { money, packs } from './game';
 import { ago, hours, vnd } from './Stats';
 import { giftRewardText } from './gift-codes';
-import { adminAccountDelete, adminAccountLock, adminAccountReset, adminAccounts, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS } from './wallet';
+import { adminAccountDelete, adminAccountLock, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS } from './wallet';
 import type { AdminAccount, AdminAccountList, AdminGift, LedgerRow } from './wallet';
 import { CreditKindField, LedgerKindButton } from './LedgerKind';
 import type { CreditKind } from './LedgerKind';
@@ -157,6 +157,9 @@ export default function Accounts() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
+  // Xoá hàng loạt: mở ô xác nhận, phải gõ đúng số tài khoản đã chọn.
+  const [bulkDelete, setBulkDelete] = useState(false);
+  const [bulkDeleteText, setBulkDeleteText] = useState('');
   const request = useRef(0);
   const view = useRef({ search, sort, page, status }); view.current = { search, sort, page, status };
   // Chỉ nhận kết quả của lần tải mới nhất: bấm đổi trang / sắp xếp nhanh thì phản hồi cũ về sau không ghi đè.
@@ -175,8 +178,8 @@ export default function Accounts() {
   useEffect(() => { void load(); }, [search, sort, page, status]);
   useEffect(() => { const timer = setInterval(() => { if (document.visibilityState === 'visible') void load(); }, 60_000); return () => clearInterval(timer); }, []);
   const pages = Math.max(1, Math.ceil((data?.matched ?? 0) / PAGE_SIZE));
-  const clearSelection = () => { setSelected(new Set()); setAllMatching(false); };
-  // Admin không tạm dừng được nên không chọn được.
+  const clearSelection = () => { setSelected(new Set()); setAllMatching(false); setBulkDelete(false); setBulkDeleteText(''); };
+  // Admin không tạm dừng / xoá được nên không chọn được.
   const pageIds = (data?.accounts ?? []).filter(a => !a.admin).map(a => a.id);
   const pageAllSelected = pageIds.length > 0 && pageIds.every(id => selected.has(id));
   const toggleOne = (id: string) => { setAllMatching(false); setSelected(current => { const next = new Set(current); if (next.has(id)) next.delete(id); else next.add(id); return next; }); };
@@ -191,6 +194,33 @@ export default function Accounts() {
       clearSelection();
       await load();
     } catch (e) { setError((e as Error).message); setBusy(false); }
+  };
+  // Máy chủ xoá tối đa 200 tài khoản mỗi lần: danh sách id chia lô 200, "tất cả khớp bộ lọc" thì gọi lại tới khi remaining = 0.
+  const bulkRemove = async () => {
+    if (bulkDeleteText.trim() !== String(selectedCount)) return;
+    setBusy(true); setError(''); setNotice(''); setOpen('');
+    let deleted = 0, skippedAdmins = 0;
+    try {
+      if (allMatching) {
+        for (let round = 0; round < 1000; round++) {
+          const result = await adminAccountsDelete({ all: true, search, status });
+          deleted += result.deleted; skippedAdmins = result.skippedAdmins;
+          if (!result.remaining || !result.deleted) break;
+        }
+      } else {
+        const ids = [...selected];
+        for (let i = 0; i < ids.length; i += 200) {
+          const result = await adminAccountsDelete({ users: ids.slice(i, i + 200) });
+          deleted += result.deleted; skippedAdmins += result.skippedAdmins;
+        }
+      }
+      setNotice(`Đã xoá vĩnh viễn ${money(deleted)} tài khoản${skippedAdmins ? `, bỏ qua ${money(skippedAdmins)} admin` : ''}.`);
+      clearSelection();
+      await load();
+    } catch (e) {
+      setError(`${(e as Error).message}${deleted ? ` (đã xoá ${money(deleted)} tài khoản trước khi lỗi)` : ''}`);
+      if (deleted) { clearSelection(); await load(); } else setBusy(false);
+    }
   };
   return <section className="pa-form pa-accounts" aria-label="Quản lý tài khoản">
     <div className="pa-row"><h2 className="pa-gift-title">Tài khoản</h2><button type="button" className="secondary-button pa-gift-random" disabled={busy} onClick={() => void load()}><RotateCcw size={15}/>Tải lại</button></div>
@@ -212,14 +242,19 @@ export default function Accounts() {
       <b>Đã chọn {money(selectedCount)} tài khoản</b>
       <button type="button" className="secondary-button" disabled={busy} onClick={() => void bulkPause(true)}><Pause size={15}/>Tạm dừng</button>
       <button type="button" className="secondary-button" disabled={busy} onClick={() => void bulkPause(false)}><Play size={15}/>Bỏ tạm dừng</button>
+      <button type="button" className="secondary-button pa-account-bulk-delete" disabled={busy} aria-expanded={bulkDelete} onClick={() => { setBulkDelete(!bulkDelete); setBulkDeleteText(''); }}><Trash2 size={15}/>Xoá</button>
       <button type="button" className="pa-account-link" disabled={busy} onClick={clearSelection}>Bỏ chọn</button>
       {!allMatching && pageAllSelected && data && data.matched > data.accounts.length && <button type="button" className="pa-account-link" disabled={busy} onClick={() => setAllMatching(true)}>Chọn tất cả {money(data.matched)} tài khoản{search || status ? ' đang lọc' : ''}</button>}
+      {bulkDelete && <form className="pa-account-bulk-confirm" onSubmit={e => { e.preventDefault(); void bulkRemove(); }}>
+        <label className="pa-field"><span>Xoá vĩnh viễn {allMatching ? 'tất cả ' : ''}{money(selectedCount)} tài khoản: gõ <b>{selectedCount}</b> để xác nhận <small>Mất thẻ, BP, FC và sổ cái của các tài khoản này; không khôi phục được. Tài khoản admin được bỏ qua.{allMatching ? ' Tài khoản khớp bộ lọc lúc bấm xoá đều bị xoá, kể cả tài khoản mới đăng ký sau khi chọn.' : ''}</small></span><input value={bulkDeleteText} onChange={e => setBulkDeleteText(e.target.value.replace(/\D/g, ''))} inputMode="numeric" autoComplete="off" aria-label={`Gõ ${selectedCount} để xác nhận xoá`}/></label>
+        <button type="submit" className="pa-account-delete" disabled={busy || bulkDeleteText !== String(selectedCount)}><Trash2 size={16}/>{busy ? 'Đang xoá…' : `Xoá ${money(selectedCount)} tài khoản`}</button>
+      </form>}
     </div>}
     {data && <div className="pa-stat-players">
       <table><thead><tr><th className="pa-account-pick"><input type="checkbox" aria-label="Chọn mọi tài khoản trong trang" checked={allMatching || pageAllSelected} disabled={!pageIds.length} onChange={togglePage}/></th><th>Tài khoản</th><th>Đăng ký</th><th>Hoạt động</th><th>Giờ chơi</th><th>FC</th><th>BP</th><th>Thẻ</th><th>Gói</th><th>Đã nạp</th><th/></tr></thead>
         <tbody>{data.accounts.map(a => <Fragment key={a.id}>
           <tr className={a.locked ? 'is-locked' : undefined}>
-            <td className="pa-account-pick"><input type="checkbox" aria-label={`Chọn ${a.login}`} title={a.admin ? 'Không tạm dừng được tài khoản admin' : undefined} disabled={a.admin} checked={!a.admin && (allMatching || selected.has(a.id))} onChange={() => { if (allMatching) { setSelected(new Set(pageIds)); } toggleOne(a.id); }}/></td>
+            <td className="pa-account-pick"><input type="checkbox" aria-label={`Chọn ${a.login}`} title={a.admin ? 'Không tạm dừng hoặc xoá được tài khoản admin' : undefined} disabled={a.admin} checked={!a.admin && (allMatching || selected.has(a.id))} onChange={() => { if (allMatching) { setSelected(new Set(pageIds)); } toggleOne(a.id); }}/></td>
             <td>{a.online && <i className="pa-dot" aria-label="đang online"/>}{a.login}{a.admin && <span className="pa-badge is-admin">Admin</span>}{a.locked && <span className="pa-badge is-locked">Đã khoá</span>}{a.paused && <span className="pa-badge is-paused">Tạm dừng</span>}</td>
             <td>{new Date(a.registered).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td><td>{ago(a.lastSeen, data.now)}</td><td>{hours(a.playSeconds)}</td>
             <td>{money(a.fc)}</td><td>{a.hasSave ? money(a.bp) : '—'}</td><td>{a.hasSave ? money(a.cards) : '—'}</td><td>{a.hasSave ? money(a.packs) : '—'}</td><td>{a.topupFc ? vnd(a.topupVnd) : '—'}</td>

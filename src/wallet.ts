@@ -52,6 +52,8 @@ export const adminAccounts = (search: string, sort: string, limit: number, offse
 export const adminAccountsPause = (paused: boolean, target: { users: string[] } | { all: true; search: string; status: string | null }) => call<{ changed: number; skippedAdmins: number }>('fco_admin_accounts_pause', 'all' in target ? { p_paused: paused, p_all: true, p_search: target.search || null, p_status: target.status } : { p_paused: paused, p_users: target.users });
 export const adminAccountLock = (id: string, locked: boolean) => call<{ locked: boolean }>('fco_admin_account_lock', { p_user: id, p_locked: locked });
 export const adminAccountReset = (id: string, resetFc: boolean) => call<{ reset: boolean; fc: number }>('fco_admin_account_reset', { p_user: id, p_reset_fc: resetFc });
+// Xoá hàng loạt (migration 202611100010): mỗi lần tối đa 200 tài khoản, remaining = số còn lại cần gọi tiếp.
+export const adminAccountsDelete = (target: { users: string[] } | { all: true; search: string; status: string | null }) => call<{ deleted: number; skippedAdmins: number; remaining: number }>('fco_admin_accounts_delete', 'all' in target ? { p_all: true, p_search: target.search || null, p_status: target.status } : { p_users: target.users });
 export const adminAccountDelete = (id: string) => call<{ deleted: boolean }>('fco_admin_account_delete', { p_user: id });
 export const adminSendGift = (user: string, gift: { fc: number } | { pack: string; count: number }, note: string) => call<{ id: number; fc: number | null }>('fco_admin_send_gift', 'fc' in gift ? { p_user: user, p_fc: gift.fc, p_note: note } : { p_user: user, p_pack: gift.pack, p_count: gift.count, p_note: note });
 export const adminGiftList = (user: string) => call<AdminGift[]>('fco_admin_gift_list', { p_user: user });
