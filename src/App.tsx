@@ -872,7 +872,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
           { label: 'Shop', view: 'shop', onClick: () => switchView('shop') },
           { label: 'BXH', view: 'ranks', hint: 'Bảng xếp hạng HLV', onClick: () => switchView('ranks') },
           ...(EVENT_NCSS_ENABLED ? [{ label: 'Sự kiện', view: 'event' as View, hint: 'Nâng Cấp Siêu Sao', onClick: () => switchView('event') }] : []),
-          ...(EVENT_BILAC_ENABLED ? [{ label: 'Bi Lắc', view: 'bilac' as View, hint: 'Sự kiện Bi Lắc', onClick: () => switchView('bilac') }] : []),
+          ...(EVENT_BILAC_ENABLED ? [{ label: 'Sự kiện', view: 'bilac' as View, hint: 'Sự kiện Bi Lắc', onClick: () => switchView('bilac') }] : []),
         ];
         return <nav className="app-dock" aria-label="Menu nhanh">
           <div className="app-dock-items">{items.map(item => <button key={item.label} className={item.view === view ? 'active' : undefined} aria-current={item.view === view ? 'page' : undefined} onClick={item.onClick} title={item.hint} aria-label={item.hint ? `${item.label} · ${item.hint}` : undefined}>{item.dot && <i className="app-dock-dot" aria-hidden="true"/>}{item.label}</button>)}</div>
