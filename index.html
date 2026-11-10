@@ -10,8 +10,8 @@
       // Mọi màn cảm ứng dùng đúng bố cục PC: dựng trang ở khung tối thiểu W×H (cỡ PC chuẩn) rồi thu nhỏ cho vừa màn thật.
       // Máy tính bỏ qua thẻ viewport nên không đổi. Điện thoại cầm dọc giữ khung thường để màn yêu cầu xoay ngang đọc được.
       (function () {
-        // Máy bảng dùng đúng khung PC; điện thoại dùng khung nhỏ hơn để chữ và nút to hơn khoảng 20%.
-        var W = 1536, H = 826, PHONE_W = 1280, PHONE_H = 688;
+        // Điện thoại và máy bảng dùng đúng khung PC (cửa sổ 1536×826) để giao diện giống hệt máy tính.
+        var W = 1536, H = 826;
         if (!matchMedia("(hover: none) and (pointer: coarse)").matches) return;
         var meta = document.querySelector('meta[name="viewport"]'), last = "";
         function fit() {
@@ -19,19 +19,16 @@
           var active = document.activeElement && document.activeElement.tagName;
           if (last && (active === "INPUT" || active === "TEXTAREA")) return;
           var long = Math.max(screen.width, screen.height), short = Math.min(screen.width, screen.height);
-          var phone = short <= 600, minW = phone ? PHONE_W : W, minH = phone ? PHONE_H : H;
           var landscape = matchMedia("(orientation: landscape)").matches, content, scale = 1;
           if (!landscape && short <= 600) content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover";
           else {
             var aspect = window.innerHeight ? window.innerWidth / window.innerHeight : long / short;
             // Làm tròn 10 px để thanh địa chỉ nhích nhẹ không làm cả trang dựng lại.
-            var width = Math.max(minW, Math.ceil((minH * aspect) / 10) * 10);
+            var width = Math.max(W, Math.ceil((H * aspect) / 10) * 10);
             scale = (landscape ? long : short) / width;
             var s = scale.toFixed(4);
             content = "width=" + width + ", initial-scale=" + s + ", minimum-scale=" + s + ", maximum-scale=" + s + ", user-scalable=no, viewport-fit=cover";
           }
-          // Đánh dấu điện thoại cầm ngang để CSS giữ thanh menu dưới cỡ PC dù khung chỉ cao 688px.
-          document.documentElement.classList.toggle("fit-phone", phone && landscape);
           window.__FCO_FIT_SCALE = scale;
           if (content !== last) { last = content; meta.setAttribute("content", content); }
         }

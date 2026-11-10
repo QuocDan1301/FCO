@@ -152,6 +152,10 @@
 .pa-accounts table{width:100%;border-collapse:collapse;font-size:13px}
 .pa-accounts th,.pa-accounts td{padding:6px 8px;border-bottom:1px solid #222b37;text-align:left;white-space:nowrap}
 .pa-accounts th{font-size:12px;font-weight:600;color:var(--muted)}
+.pa-accounts .pa-sort{display:inline-flex;align-items:center;gap:4px;padding:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer;white-space:nowrap}
+.pa-accounts .pa-sort svg{opacity:.45}
+.pa-accounts .pa-sort:hover,.pa-accounts .pa-sort.is-on{color:var(--gold,#d9ba76)}
+.pa-accounts .pa-sort.is-on svg{opacity:1}
 .pa-accounts table tr.is-locked td{color:#8d99a8}
 .pa-badge{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600;vertical-align:1px}
 .pa-badge.is-admin{background:#d9b25a22;color:#f1cf7f}

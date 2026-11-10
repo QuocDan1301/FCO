@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { Coins, Gift, Lock, Pause, Play, RotateCcw, Trash2, Unlock } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Coins, Gift, Lock, Pause, Play, RotateCcw, Trash2, Unlock } from 'lucide-react';
 import { money, packs } from './game';
 import { ago, hours, vnd } from './Stats';
 import { giftRewardText } from './gift-codes';
@@ -11,10 +11,20 @@ import type { CreditKind } from './LedgerKind';
 // Quản lý tài khoản (supabase/migrations/202611080008_fco_admin_accounts.sql): mọi tài khoản đã đăng ký, cộng / trừ FC, sổ cái, khoá, xoá.
 // Máy chủ kiểm tra quyền ở mọi thao tác và không cho khoá / xoá tài khoản admin.
 const PAGE_SIZE = 50;
-type Sort = 'new' | 'active' | 'topup' | 'fc';
+// Sắp xếp (migration 202611100011): bấm tiêu đề cột; lần đầu giảm dần (lớn / mới nhất trước), bấm lại thì tăng dần.
+type Sort = 'new' | 'active' | 'play' | 'fc' | 'bp' | 'cards' | 'packs' | 'topup';
 // Bộ lọc trạng thái (migration 202611090014): đang hoạt động = đang online (2 phút gần nhất), không hoạt động = còn lại.
 const STATUSES: { id: string | null; label: string }[] = [{ id: null, label: 'Tất cả' }, { id: 'active', label: 'Đang hoạt động' }, { id: 'inactive', label: 'Không hoạt động' }, { id: 'paused', label: 'Đang tạm dừng' }];
-const SORTS: { id: Sort; label: string }[] = [{ id: 'new', label: 'Mới đăng ký' }, { id: 'active', label: 'Mới vào game' }, { id: 'topup', label: 'Nạp nhiều' }, { id: 'fc', label: 'FC nhiều' }];
+const SORTS: { id: Sort; column: string; label: string; asc: string }[] = [
+  { id: 'new', column: 'Đăng ký', label: 'Mới đăng ký', asc: 'Đăng ký lâu nhất' },
+  { id: 'active', column: 'Hoạt động', label: 'Mới vào game', asc: 'Lâu không vào game' },
+  { id: 'play', column: 'Giờ chơi', label: 'Chơi nhiều', asc: 'Chơi ít' },
+  { id: 'fc', column: 'FC', label: 'FC nhiều', asc: 'FC ít' },
+  { id: 'bp', column: 'BP', label: 'BP nhiều', asc: 'BP ít' },
+  { id: 'cards', column: 'Thẻ', label: 'Nhiều thẻ', asc: 'Ít thẻ' },
+  { id: 'packs', column: 'Gói', label: 'Nhiều gói', asc: 'Ít gói' },
+  { id: 'topup', column: 'Đã nạp', label: 'Nạp nhiều', asc: 'Nạp ít' },
+];
 const time = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });
 
 // Quà admin tặng (supabase/migrations/202611090002_fco_admin_gifts.sql): FC hoặc gói cầu thủ, không tính vào Đã nạp và doanh thu.
@@ -148,6 +158,7 @@ export default function Accounts() {
   const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<Sort>('new');
+  const [asc, setAsc] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   // Chọn hàng loạt: danh sách id, giữ khi đổi trang; allMatching = mọi tài khoản khớp tìm kiếm + bộ lọc, kể cả trang khác.
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -161,13 +172,13 @@ export default function Accounts() {
   const [bulkDelete, setBulkDelete] = useState(false);
   const [bulkDeleteText, setBulkDeleteText] = useState('');
   const request = useRef(0);
-  const view = useRef({ search, sort, page, status }); view.current = { search, sort, page, status };
+  const view = useRef({ search, sort, asc, page, status }); view.current = { search, sort, asc, page, status };
   // Chỉ nhận kết quả của lần tải mới nhất: bấm đổi trang / sắp xếp nhanh thì phản hồi cũ về sau không ghi đè.
   const load = async () => {
     const id = ++request.current, current = view.current;
     setBusy(true);
     try {
-      const result = await adminAccounts(current.search, current.sort, PAGE_SIZE, current.page * PAGE_SIZE, current.status);
+      const result = await adminAccounts(current.search, current.asc ? `${current.sort}_asc` : current.sort, PAGE_SIZE, current.page * PAGE_SIZE, current.status);
       if (id !== request.current) return;
       // Trang hiện tại vừa hết tài khoản (vd. xoá dòng cuối): lùi về trang cuối còn dữ liệu.
       if (!result.accounts.length && current.page > 0) { setPage(Math.max(0, Math.ceil(result.matched / PAGE_SIZE) - 1)); return; }
@@ -175,7 +186,12 @@ export default function Accounts() {
     } catch (e) { if (id === request.current) setError((e as Error).message); }
     finally { if (id === request.current) setBusy(false); }
   };
-  useEffect(() => { void load(); }, [search, sort, page, status]);
+  useEffect(() => { void load(); }, [search, sort, asc, page, status]);
+  const sortBy = (id: Sort, ascending = id === sort ? !asc : false) => { setSort(id); setAsc(ascending); setPage(0); setOpen(''); };
+  const sortHeader = (id: Sort) => {
+    const on = sort === id, column = SORTS.find(o => o.id === id)!.column;
+    return <th aria-sort={on ? (asc ? 'ascending' : 'descending') : undefined}><button type="button" className={`pa-sort ${on ? 'is-on' : ''}`} onClick={() => sortBy(id)} title={on && !asc ? 'Bấm để sắp tăng dần' : 'Bấm để sắp giảm dần'}>{column}{on ? (asc ? <ArrowUp size={13}/> : <ArrowDown size={13}/>) : <ArrowUpDown size={13}/>}</button></th>;
+  };
   useEffect(() => { const timer = setInterval(() => { if (document.visibilityState === 'visible') void load(); }, 60_000); return () => clearInterval(timer); }, []);
   const pages = Math.max(1, Math.ceil((data?.matched ?? 0) / PAGE_SIZE));
   const clearSelection = () => { setSelected(new Set()); setAllMatching(false); setBulkDelete(false); setBulkDeleteText(''); };
@@ -229,7 +245,7 @@ export default function Accounts() {
     {notice && <p className="pa-message is-ok" role="status">{notice}</p>}
     <form className="pa-row" onSubmit={e => { e.preventDefault(); setPage(0); setOpen(''); clearSelection(); setSearch(input.trim()); }}>
       <label className="pa-field"><span>Tìm tài khoản</span><input value={input} onChange={e => setInput(e.target.value)} placeholder="tên đăng nhập" spellCheck={false}/></label>
-      <label className="pa-field pa-narrow-sort"><span>Sắp xếp</span><select value={sort} onChange={e => { setSort(e.target.value as Sort); setPage(0); setOpen(''); }}>{SORTS.map(o => <option key={o.id} value={o.id}>{o.label}</option>)}</select></label>
+      <label className="pa-field pa-narrow-sort"><span>Sắp xếp</span><select value={`${sort}${asc ? '_asc' : ''}`} onChange={e => { const [id, dir] = e.target.value.split('_'); sortBy(id as Sort, dir === 'asc'); }}>{SORTS.map(o => <Fragment key={o.id}><option value={o.id}>{o.label}</option><option value={`${o.id}_asc`}>{o.asc}</option></Fragment>)}</select></label>
     </form>
     <div className="pa-status-filter" role="group" aria-label="Lọc theo trạng thái">
       {STATUSES.map(s => <button key={s.id ?? 'all'} type="button" className={`secondary-button ${status === s.id ? 'is-on' : ''}`} aria-pressed={status === s.id}
@@ -251,7 +267,7 @@ export default function Accounts() {
       </form>}
     </div>}
     {data && <div className="pa-stat-players">
-      <table><thead><tr><th className="pa-account-pick"><input type="checkbox" aria-label="Chọn mọi tài khoản trong trang" checked={allMatching || pageAllSelected} disabled={!pageIds.length} onChange={togglePage}/></th><th>Tài khoản</th><th>Đăng ký</th><th>Hoạt động</th><th>Giờ chơi</th><th>FC</th><th>BP</th><th>Thẻ</th><th>Gói</th><th>Đã nạp</th><th/></tr></thead>
+      <table><thead><tr><th className="pa-account-pick"><input type="checkbox" aria-label="Chọn mọi tài khoản trong trang" checked={allMatching || pageAllSelected} disabled={!pageIds.length} onChange={togglePage}/></th><th>Tài khoản</th>{SORTS.map(o => <Fragment key={o.id}>{sortHeader(o.id)}</Fragment>)}<th/></tr></thead>
         <tbody>{data.accounts.map(a => <Fragment key={a.id}>
           <tr className={a.locked ? 'is-locked' : undefined}>
             <td className="pa-account-pick"><input type="checkbox" aria-label={`Chọn ${a.login}`} title={a.admin ? 'Không tạm dừng hoặc xoá được tài khoản admin' : undefined} disabled={a.admin} checked={!a.admin && (allMatching || selected.has(a.id))} onChange={() => { if (allMatching) { setSelected(new Set(pageIds)); } toggleOne(a.id); }}/></td>

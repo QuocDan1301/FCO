@@ -23,19 +23,17 @@ test('Máy tính giữ nguyên khung hiển thị', () => {
   assert.equal(scale, undefined);
 });
 
-test('Điện thoại cầm ngang dùng khung điện thoại: cao đúng 688, thu nhỏ vừa màn', () => {
+test('Điện thoại cầm ngang dùng đúng khung PC: cao 826, thu nhỏ vừa màn', () => {
   const { content, scale } = run({ coarse: true, screenW: 390, screenH: 844, innerW: 844, innerH: 340, landscape: true });
   const width = Number(/width=(\d+)/.exec(content)?.[1]);
-  assert.ok(width >= 1280 && Math.abs(width - 688 * 844 / 340) <= 10, `width = ${width}`);
+  assert.ok(width >= 1536 && Math.abs(width - 826 * 844 / 340) <= 10, `width = ${width}`);
   assert.ok(Math.abs(scale! - 844 / width) < .001);
   assert.match(content, new RegExp(`initial-scale=${scale!.toFixed(4)}, minimum-scale=${scale!.toFixed(4)}, maximum-scale=${scale!.toFixed(4)}`));
   assert.match(content, /viewport-fit=cover/);
 });
 
-test('Chỉ điện thoại cầm ngang được đánh dấu fit-phone', () => {
-  assert.ok(run({ coarse: true, screenW: 390, screenH: 844, innerW: 844, innerH: 340, landscape: true }).classes.has('fit-phone'));
-  assert.ok(!run({ coarse: true, screenW: 390, screenH: 844, innerW: 390, innerH: 700, landscape: false }).classes.has('fit-phone'));
-  assert.ok(!run({ coarse: true, screenW: 768, screenH: 1024, innerW: 1024, innerH: 768, landscape: true }).classes.has('fit-phone'));
+test('Không còn lớp fit-phone riêng cho điện thoại', () => {
+  assert.ok(!run({ coarse: true, screenW: 390, screenH: 844, innerW: 844, innerH: 340, landscape: true }).classes.has('fit-phone'));
 });
 
 test('Máy bảng tỉ lệ 4:3 dùng đúng bề ngang PC', () => {
@@ -44,9 +42,9 @@ test('Máy bảng tỉ lệ 4:3 dùng đúng bề ngang PC', () => {
   assert.ok(Math.abs(scale! - 1024 / 1536) < .001);
 });
 
-test('Điện thoại màn ít dài hơn vẫn đủ bề ngang tối thiểu 1280', () => {
+test('Điện thoại màn ít dài hơn vẫn đủ bề ngang PC 1536', () => {
   const { content } = run({ coarse: true, screenW: 375, screenH: 667, innerW: 667, innerH: 375, landscape: true });
-  assert.match(content, /^width=1280,/);
+  assert.match(content, /^width=1536,/);
 });
 
 test('Điện thoại cầm dọc giữ khung thường để màn yêu cầu xoay ngang đọc được', () => {

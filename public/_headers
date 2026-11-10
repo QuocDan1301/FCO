@@ -1,0 +1,10 @@
+# Cloudflare Pages: cùng quy tắc cache như render.yaml.
+# Tệp trong assets/ có tên cố định (không băm) nên chỉ cache ngắn; trang và service worker luôn kiểm tra bản mới.
+/assets/*
+  Cache-Control: public, max-age=86400
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/sw.js
+  Cache-Control: no-cache

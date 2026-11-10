@@ -286,13 +286,6 @@ html,body,#root{height:100%;overflow:hidden}
 .app-dock-icons svg{width:20px;height:20px}
 .market-workspace .market-preview{display:none}
 }
-/* Điện thoại cầm ngang dựng khung cao 688px (script screen-fit) nên dính quy tắc màn thấp ở trên: giữ thanh dưới đúng cỡ PC để chữ menu không nhỏ đi. */
-html.fit-phone .app{--dock-h:48px}
-html.fit-phone .app>.app-dock{gap:clamp(16px,2.4vw,40px);padding:0 4%}
-html.fit-phone .app-dock-items>button{padding:0 clamp(12px,1.8vw,30px);font-size:clamp(14px,1.08vw,17px)}
-html.fit-phone .app-dock-dot{left:calc(clamp(12px,1.8vw,30px) - 8px)}
-html.fit-phone .app-dock-icons>button{width:36px;height:36px}
-html.fit-phone .app-dock-icons svg{width:22px;height:22px}
 @media(max-width:640px){
 .app>.topbar{height:56px}
 .main-content>.workspace{padding:12px 14px 6px}
