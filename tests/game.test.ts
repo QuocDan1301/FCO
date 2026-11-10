@@ -86,7 +86,7 @@ test('Cả bốn gói mở đúng mùa; toàn bộ 24 thẻ NO.7 có thể nhậ
 });
 
 
-test('Tỷ lệ gói: OVR cao hơn sàn và giá +1 đắt hơn thì hiếm hơn; gói (ALL) chỉ ra +1, gói ghi khoảng cấp mỗi cấp hiếm hơn ~3,2 lần', () => {
+test('Tỷ lệ gói: OVR cao hơn sàn và giá +1 đắt hơn thì hiếm hơn; gói (ALL) chỉ ra +1, gói ghi khoảng cấp mỗi cấp hiếm hơn ~5 lần', () => {
   const prices: Record<string, (number | null)[]> = priceData.players;
   for (const pack of packs.filter(isPackAvailable)) {
     const { pool, levels } = packOdds(pack);
@@ -95,8 +95,8 @@ test('Tỷ lệ gói: OVR cao hơn sàn và giá +1 đắt hơn thì hiếm hơn
     // Đúng công thức: trọng số = ovrDecay^(OVR +1 − OVR sàn) ÷ max(1, giá +1 ÷ giá rẻ nhất)^priceAlpha, chuẩn hoá về tổng 1.
     const rows = pool.map(({ player }) => ({ value: ovr({ playerId: player.id, level: 1 }), price: prices[String(player.id)]?.[0] ?? 0 }));
     const floor = Math.min(...rows.map(r => r.value)), cheapest = Math.min(...rows.map(r => r.price).filter(p => p > 0));
-    // Gói sự kiện / quà (eventOnly) phạt giá nặng hơn gói Shop.
-    const alpha = pack.eventOnly ? PACK_ODDS.eventPriceAlpha : PACK_ODDS.priceAlpha;
+    // Gói sự kiện / quà (eventOnly) phạt giá nặng hơn gói Shop; gói mốc (blm-*, ms-*) nhẹ hơn gói sự kiện khác.
+    const alpha = !pack.eventOnly ? PACK_ODDS.priceAlpha : /^(blm|ms)-/.test(pack.id) ? PACK_ODDS.milestonePriceAlpha : PACK_ODDS.eventPriceAlpha;
     const weights = rows.map(r => PACK_ODDS.ovrDecay ** (r.value - floor) / Math.max(1, r.price > 0 ? r.price / cheapest : 1) ** alpha);
     const total = weights.reduce((sum, w) => sum + w, 0);
     pool.forEach((row, i) => assert.ok(Math.abs(row.chance - weights[i] / total) < 1e-12, `${pack.name} · ${row.player.name}`));
@@ -110,6 +110,9 @@ test('Tỷ lệ gói: OVR cao hơn sàn và giá +1 đắt hơn thì hiếm hơn
   assert.deepEqual(levels.map(l => l.level), [1, 2, 3, 4, 5]);
   assert.ok(Math.abs(levels.reduce((sum, l) => sum + l.chance, 0) - 1) < 1e-12);
   levels.slice(1).forEach((l, i) => assert.ok(Math.abs(l.chance / levels[i].chance - PACK_ODDS.levelDecay) < 1e-12));
+  // Gói mốc (blm-*, ms-*) rút cấp theo milestoneLevelDecay.
+  const ms = packOdds({ ...ranged, id: 'blm-test', eventOnly: true }).levels;
+  ms.slice(1).forEach((l, i) => assert.ok(Math.abs(l.chance / ms[i].chance - PACK_ODDS.milestoneLevelDecay) < 1e-12));
   assert.equal(draw(ranged, rngFor(ranged, first, 0)).level, 1);
   assert.equal(draw(ranged, rngFor(ranged, first, levels[0].chance + 1e-9)).level, 2);
   assert.equal(draw(ranged, rngFor(ranged, first, .999999)).level, 5);

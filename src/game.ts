@@ -564,13 +564,20 @@ export function initialSave(): Save {
 }
 // Tỷ lệ trong gói: cầu thủ nặng ovrDecay^(OVR +1 − OVR +1 thấp nhất của mùa) × (giá +1 ÷ giá +1 rẻ nhất mùa)^−priceAlpha,
 // nên thẻ OVR cao và thẻ đắt (hàng quốc dân) hiếm hơn; chưa có giá thì tính như thẻ rẻ nhất. Cấp cộng rút riêng trong
-// khoảng cấp của gói, mỗi cấp nặng levelDecay^(cấp − cấp thấp nhất), tức hiếm hơn cấp trước ~3,2 lần.
+// khoảng cấp của gói, mỗi cấp nặng levelDecay^(cấp − cấp thấp nhất), tức hiếm hơn cấp trước 5 lần.
 // Gói (ALL) không ghi khoảng cấp chỉ ra +1; gói có ghi khoảng cấp (vd. +1~+5) khai báo levels: [1, 5].
 // eventPriceAlpha: gói sự kiện / quà (eventOnly) phạt giá nặng hơn gói Shop (2026-11-09: người dùng giảm tỷ lệ thẻ đắt ở gói sự kiện).
 // priceAlpha (gói Shop): 0,6 → 0,5 ngày 2026-11-09, người dùng tăng nhẹ tỷ lệ thẻ đắt ở 3 gói Shop.
 // eventPriceAlpha: 0,8 → 1,0 ngày 2026-11-09, người dùng giảm tiếp tỷ lệ thẻ đắt ở mọi gói ngoài Shop.
-export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: 1, levelDecay: .31 } as const;
-const priceAlphaOf = (pack: Pack) => pack.eventOnly ? PACK_ODDS.eventPriceAlpha : PACK_ODDS.priceAlpha;
+// eventPriceAlpha: 1,0 → 1,3 ngày 2026-11-10, người dùng giảm tiếp tỷ lệ cầu thủ giá đắt ở mọi gói ngoài Shop (nhóm 10 % đắt nhất ≈ ×0,5).
+// eventPriceAlpha: 1,3 → 1,6 ngày 2026-11-10 (cùng ngày), người dùng muốn giảm nữa (nhóm 10 % đắt nhất ≈ ×0,5 so với 1,3).
+// eventPriceAlpha 1,6 → 2,0 và levelDecay 0,31 → 0,2 ngày 2026-11-10: người dùng vẫn thấy ra cầu thủ đắt nhiều. Chỉ gói ngoài Shop có khoảng cấp nên levelDecay không ảnh hưởng Shop.
+// Gói mốc (quà tích lũy: blm-* của Bi Lắc, ms-* gói mốc) ngày 2026-11-10: người dùng tăng tỷ lệ cầu thủ đắt → milestonePriceAlpha 1,3
+// và milestoneLevelDecay 0,31 (như gói sự kiện trước khi giảm), các gói sự kiện khác giữ 2,0 / 0,2.
+export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: 2, levelDecay: .2, milestonePriceAlpha: 1.3, milestoneLevelDecay: .31 } as const;
+export const isMilestonePack = (pack: Pick<Pack, 'id'>) => /^(blm|ms)-/.test(pack.id);
+export const priceAlphaOf = (pack: Pack) => !pack.eventOnly ? PACK_ODDS.priceAlpha : isMilestonePack(pack) ? PACK_ODDS.milestonePriceAlpha : PACK_ODDS.eventPriceAlpha;
+export const levelDecayOf = (pack: Pick<Pack, 'id'>) => isMilestonePack(pack) ? PACK_ODDS.milestoneLevelDecay : PACK_ODDS.levelDecay;
 export const PACK_LEVELS: [number, number] = [1, 1];
 // Cấp cố định của gói (gói 26TS +5 → 5), hoặc null nếu gói rút cấp trong một khoảng.
 export const packLevel = (pack: Pack) => { const [min, max] = pack.levels ?? PACK_LEVELS; return min === max ? min : null; };
@@ -607,7 +614,7 @@ function seasonPools(pack: Pack) {
 }
 function levelOdds(pack: Pack) {
   const [min, max] = pack.levels ?? PACK_LEVELS;
-  const levels = Array.from({ length: max - min + 1 }, (_, i) => ({ level: min + i, weight: Math.pow(PACK_ODDS.levelDecay, i) }));
+  const levels = Array.from({ length: max - min + 1 }, (_, i) => ({ level: min + i, weight: Math.pow(levelDecayOf(pack), i) }));
   const total = levels.reduce((sum, item) => sum + item.weight, 0);
   return levels.map(item => ({ ...item, chance: item.weight / total }));
 }

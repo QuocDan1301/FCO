@@ -1,4 +1,4 @@
-// Chạy thử quà mốc Bi Lắc (migration 0007) trên PGlite: node ms-test.mjs <dự án> <migration 0001…0007>
+// Chạy thử quà mốc Bi Lắc trên PGlite: node ms-test.mjs <dự án> <mọi migration từ 202611070001, theo thứ tự>
 import { PGlite } from '@electric-sql/pglite';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
@@ -8,7 +8,7 @@ const db = new PGlite();
 await db.exec(`
   create role anon nologin; create role authenticated nologin;
   create schema auth;
-  create table auth.users (id uuid primary key, email text unique, created_at timestamptz not null default now());
+  create table auth.users (id uuid primary key, email text unique, created_at timestamptz not null default now(), banned_until timestamptz);
   create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
   create function auth.jwt() returns jsonb language sql stable as $$ select '{}'::jsonb $$;
   grant usage on schema auth to anon, authenticated; grant execute on all functions in schema auth to anon, authenticated;
@@ -38,7 +38,7 @@ await fails(as('select public.fco_bilac_claim(5)'), /FCO_MILESTONE_CHOICE/);
 await fails(as('select public.fco_bilac_claim(5, 3)'), /FCO_MILESTONE_CHOICE/);
 r = await as('select public.fco_bilac_claim(5, 2)');
 assert.equal(r.rewards[1].bp, 5000000);
-assert.deepEqual(r.wallet.bilac.claimed.slice(0, 6), [1, null, null, null, null, 1]);
+assert.deepEqual(r.wallet.bilac.claimed.slice(0, 6), [1, 0, 0, 0, 0, 1]);
 await fails(as('select public.fco_bilac_claim(6, 0)'), /FCO_MILESTONE_LOCKED/);
 // Vòng mới: đủ 1.250 điểm nữa thì mốc 70 nhận thêm 1 lần; mốc 1 điểm (once) vẫn chỉ 1 lần.
 await db.exec(`update public.fco_wallets set bilac_points = 80 + 1250 where user_id = '${B}'`);
@@ -48,4 +48,15 @@ await fails(as('select public.fco_bilac_claim(0)'), /FCO_MILESTONE_CLAIMED/);
 r = await as('select public.fco_bilac_claim(22, 3)');
 assert.deepEqual(r.rewards[0], { pack: 'blm-1250-4', count: 1 });
 assert.equal(r.wallet.bilac.claimed[5], 2);
+// 202611100003: nhận mốc giữa khi chưa nhận mốc nào — mảng phải bắt đầu từ 1 (trước đây Postgres dời chỉ số đầu thành
+// '[6:6]={1}' và to_jsonb trả [1], game hiểu nhầm là mốc 0). Chạy lại migration sửa để chuẩn hoá dữ liệu cũ đang lệch.
+await db.exec(`update public.fco_wallets set bilac_points = 80, bilac_claimed = '{}' where user_id = '${B}'`);
+r = await as('select public.fco_bilac_claim(5, 1)');
+assert.deepEqual(r.wallet.bilac.claimed, [0, 0, 0, 0, 0, 1]);
+r = await as('select public.fco_bilac_claim(0)');
+assert.deepEqual(r.wallet.bilac.claimed, [1, 0, 0, 0, 0, 1]);
+await db.exec(`update public.fco_wallets set bilac_claimed = '[4:6]={2,NULL,1}'::integer[] where user_id = '${B}'`);
+await db.exec(readFileSync(files.find(f => f.endsWith('202611100003_fco_bilac_claimed_fix.sql')), 'utf8'));
+r = await as('select public.fco_wallet()');
+assert.deepEqual(r.bilac.claimed, [0, 0, 0, 2, 0, 1]);
 console.log('MILESTONES PASS');
