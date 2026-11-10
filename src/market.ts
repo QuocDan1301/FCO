@@ -12,9 +12,9 @@ export const formatMarketPrice = (price: number | null) => price === null ? 'Ch�
 
 export const PRICE_PERIOD_HOURS = 5;
 export const PRICE_SWING_PERCENT = 10;
-const PRICE_PERIOD_MS = PRICE_PERIOD_HOURS * 3_600_000;
-// Mốc tính kỳ giá: 00:00 ngày 9/11/2026 giờ Việt Nam.
-const PRICE_EPOCH = Date.UTC(2026, 10, 8, 17);
+export const PRICE_PERIOD_MS = PRICE_PERIOD_HOURS * 3_600_000;
+// Mốc tính kỳ giá: 00:00 ngày 9/11/2026 giờ Việt Nam. Máy chủ dùng cùng mốc (src/inventory-catalog.ts gửi lên).
+export const PRICE_EPOCH = Date.UTC(2026, 10, 8, 17);
 
 // Đồng hồ máy chủ để đổi giờ trên máy không xem hoặc bán được theo giá của kỳ khác. Chưa lấy được thì dùng giờ máy.
 let clockOffset = 0;
@@ -41,7 +41,7 @@ function swungPrice(base: number, swing: number) {
   return Math.min(max, Math.max(min, Math.round(raw / unit) * unit));
 }
 // Mùa LIVE giữ đúng giá theo công thức riêng, không dao động theo kỳ. Tra Set vì hàm này chạy cho cả danh sách cầu thủ mỗi lần sắp xếp.
-const fixedPricePlayers = new Set(players.filter(p => p.tier === 'live').map(p => p.id));
+export const fixedPricePlayers: ReadonlySet<number> = new Set(players.filter(p => p.tier === 'live').map(p => p.id));
 // Giá thẻ tại một thời điểm (mặc định là bây giờ). Dùng trực tiếp để sắp xếp 3.883 cầu thủ khỏi phải dựng cả báo giá cho mỗi lần so sánh.
 export function priceAt(card: Pick<Card, 'playerId' | 'level'>, at = marketNow()) {
   const base = recordedPrices[String(card.playerId)]?.[card.level - 1] ?? null;

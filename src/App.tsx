@@ -15,6 +15,11 @@ import AdminPanel from './AdminPanel';
 import { CHECKIN_REWARDS, checkinReward } from './checkin';
 import type { BilacState, Checkin, Wallet } from './wallet-state';
 import UpgradeConfirm from './UpgradeConfirm';
+import { INVENTORY_BLOCKED, INVENTORY_LOADING, fetchInventoryState, inventoryMode, serverBuy, serverClaimGifts, serverOpen, serverOpenDraft, serverRelease, serverSell, serverShop, serverUpgrade } from './inventory-server';
+import type { InventoryState, ServerRecord } from './inventory-server';
+import { catalogVersion } from './inventory-catalog';
+import type { CloudSaveStore } from './cloud-save';
+import { emptyBridge, recordOutcome } from './upgrade/engine';
 import ReadyTunnel from './ReadyTunnel';
 import { activeProtection, protectionApplies, protectionCost, setProtection, upgradeWithProtection } from './insurance';
 import { evaluateRestore, fodderRestore, restoreApplies } from './restore';
@@ -272,6 +277,50 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     } catch { /* Vẫn cho chơi; commit sẽ báo lỗi nếu lần lưu tiếp theo thất bại. */ }
   }, []);
   const busy = useRef(false);
+  // Kho tháº» trÃªn mÃ¡y chá»§ (src/inventory-server.ts): server = mÃ¡y chá»§ má»Ÿ gÃ³i / Ä‘áº­p / mua bÃ¡n / cá»™ng quÃ ; local = game tá»± lÃ m nhÆ° trÆ°á»›c
+  // (mÃ¡y chá»§ chÆ°a cÃ³ bá»™ dá»¯ liá»‡u khá»›p báº£n game nÃ y vÃ  chÆ°a báº¯t buá»™c); blocked = Ä‘Ã£ báº¯t buá»™c mÃ  dá»¯ liá»‡u lá»‡ch; loading = Ä‘ang há»i mÃ¡y chá»§.
+  const [inventory, setInventory] = useState<InventoryState | null>(null);
+  const [inventoryMissing, setInventoryMissing] = useState(false);
+  const [catalogId, setCatalogId] = useState<string | null>(null);
+  const invMode = inventoryMode(online, inventory, catalogId, inventoryMissing);
+  const serverMode = invMode === 'server';
+  const inventoryGate = () => invMode === 'blocked' ? INVENTORY_BLOCKED : invMode === 'loading' ? INVENTORY_LOADING : null;
+  useEffect(() => {
+    if (!online) return;
+    void catalogVersion().then(setCatalogId);
+    // MÃ¡y chá»§ chÆ°a cháº¡y migration kho tháº» thÃ¬ cháº¡y nhÆ° trÆ°á»›c; lá»—i máº¡ng thÃ¬ Ä‘á»ƒ láº§n sau há»i láº¡i.
+    const load = () => fetchInventoryState().then(state => { setInventory(state); setInventoryMissing(false); }).catch(e => { if (/chÆ°a cÃ i chá»©c nÄƒng/.test((e as Error).message)) setInventoryMissing(true); });
+    void load();
+    const visible = () => { if (document.visibilityState === 'visible') void load(); };
+    document.addEventListener('visibilitychange', visible);
+    return () => document.removeEventListener('visibilitychange', visible);
+  }, [online]);
+  // ÄÃ¡nh dáº¥u báº£n lÆ°u inv = 1 khi mÃ¡y chá»§ giá»¯ kho (mÃ¡y chá»§ gá»™p báº£n lÆ°u vÃ  tá»± cá»™ng quÃ ), bá» dáº¥u khi quay vá» cháº¡y nhÆ° trÆ°á»›c.
+  useEffect(() => {
+    if (invMode !== 'server' && invMode !== 'local') return;
+    const want = invMode === 'server';
+    if ((latest.current.inv === 1) === want || busy.current) return;
+    const next: Save = { ...latest.current };
+    if (want) next.inv = 1; else delete next.inv;
+    commit(next);
+  }, [invMode]);
+  useEffect(() => { if (invMode === 'blocked') notify(INVENTORY_BLOCKED); }, [invMode]);
+  // Nháº­n báº£n lÆ°u mÃ¡y chá»§ tráº£ vá» sau má»™t thao tÃ¡c kho (giá»¯ sá»‘ FC Ä‘ang hiá»‡n, mÃ¡y chá»§ khÃ´ng lÆ°u FC trong báº£n lÆ°u).
+  // deferRender: nhÆ° commit, giá»¯ á»Ÿ pendingSave tá»›i khi Ä‘Ã³ng mÃ n Ä‘áº­p tháº».
+  const adoptRecord = (record: ServerRecord, deferRender = false): Save => {
+    const store = storage as Partial<CloudSaveStore>;
+    if (typeof store.adopt !== 'function') throw new Error('ChÆ°a káº¿t ná»‘i kho tháº» trÃªn mÃ¡y chá»§.');
+    const fc = latest.current.fc;
+    store.adopt(record);
+    const raw = storage.getItem(storageKey);
+    const data: unknown = raw ? JSON.parse(raw) : null;
+    if (!validateSave(data)) return latest.current;
+    const next: Save = fc === undefined || data.fc !== undefined ? data : { ...data, fc };
+    storedRaw.current = raw;
+    latest.current = next;
+    if (deferRender) pendingSave.current = next; else { pendingSave.current = null; setSave(next); }
+    return next;
+  };
   const [view, setView] = useState<View>('packs');
   const mainRef = useRef<HTMLElement>(null);
   const [selectedPack, setSelectedPack] = useState(packs[0]);
@@ -425,8 +474,26 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   };
   // Cửa sổ Bán (SellDialog): mọi nút Bán mở tab bán lẻ của thẻ đó; nút Bán hàng loạt mở tab hàng loạt.
   const [sellOpen, setSellOpen] = useState<{ tab: 'single' | 'bulk'; uid?: string } | null>(null);
-  const sellFromDialog = (items: SellItem[]) => {
+  const sellOnServer = async (items: SellItem[]) => {
+    busy.current = true;
+    try {
+      const sold = items.map(item => latest.current.cards.find(c => c.uid === item.uid)).filter((c): c is Card => !!c);
+      const result = await serverSell(items);
+      adoptRecord(result.save);
+      const ids = new Set(items.map(item => item.uid));
+      setMaterialIds(list => list.filter(id => !ids.has(id)));
+      if (ids.has(targetId)) { setTargetId(''); setMaterialIds([]); }
+      const what = sold.length === 1 ? ` +${sold[0].level}` : ` cáº§u thá»§`;
+      notify(`ÄÃ£ bÃ¡n ${what}. Nháº­n ${money(result.proceeds)} BP sau phÃ­.`);
+      playSound('success', latest.current.sound);
+      return true;
+    } catch (error) { notify((error as Error).message); return false; }
+    finally { busy.current = false; }
+  };
+  const sellFromDialog = (items: SellItem[]): boolean | Promise<boolean> => {
     if (busy.current) return false;
+    const gate = inventoryGate(); if (gate) { notify(gate); return false; }
+    if (serverMode) return sellOnServer(items);
     busy.current = true;
     try {
       const result = sellCards(latest.current, items, UNLIMITED_COINS);
@@ -448,9 +515,34 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     if (!quote.available) { notify(quote.reason); return; }
     setTradeError(''); setTrade(pending);
   };
+  const tradeOnServer = async (pending: MarketTrade) => {
+    const gate = inventoryGate(); if (gate) { setTradeError(gate); return; }
+    busy.current = true;
+    try {
+      if (pending.kind === 'sell') {
+        const card = latest.current.cards.find(c => c.uid === pending.card.uid);
+        if (!card || card.level !== pending.card.level) throw new Error('Tháº» Ä‘Ã£ thay Ä‘á»•i hoáº·c khÃ´ng cÃ²n trong kho. HÃ£y Ä‘Ã³ng vÃ  chá»n láº¡i cáº§u thá»§.');
+        const quote = marketQuote(card);
+        if (!quote.available) throw new Error(quote.reason);
+        const result = await serverSell([{ uid: card.uid, price: quote.price }]);
+        adoptRecord(result.save);
+        setMaterialIds(ids => ids.filter(id => id !== card.uid));
+        if (targetId === card.uid) { setTargetId(''); setMaterialIds([]); }
+        notify(`ÄÃ£ bÃ¡n ${getPlayer(card).name} +${card.level}. Nháº­n ${money(result.proceeds)} BP.`);
+      } else {
+        const result = await serverBuy(pending.card.playerId, pending.card.level, 1);
+        adoptRecord(result.save);
+        notify(`ÄÃ£ mua ${getPlayer(pending.card).name} +${pending.card.level}. Tháº» Ä‘Ã£ vÃ o kho.`);
+      }
+      tradeRef.current = null; setTrade(null);
+      playSound('success', latest.current.sound);
+    } catch (error) { setTradeError((error as Error).message); }
+    finally { busy.current = false; }
+  };
   const confirmTrade = () => {
     const pending = tradeRef.current;
     if (!pending || busy.current) return;
+    if (serverMode || inventoryGate()) { void tradeOnServer(pending); return; }
     busy.current = true;
     try {
       if (pending.kind === 'sell' && latest.current.cards.find(c => c.uid === pending.card.uid)?.level !== pending.card.level) throw new Error('Thẻ đã thay đổi hoặc không còn trong kho. Hãy đóng và chọn lại cầu thủ.');
@@ -467,8 +559,19 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     finally { busy.current = false; }
   };
   // Mua hàng loạt ở màn nâng cấp: mua đủ số lượng hoặc không mua thẻ nào (buyPlayer báo lỗi khi thiếu BP giữa chừng).
+  const bulkBuyOnServer = async (card: Pick<Card, 'playerId' | 'level'>, count: number) => {
+    const gate = inventoryGate(); if (gate) { notify(gate); return; }
+    busy.current = true;
+    try {
+      const result = await serverBuy(card.playerId, card.level, count);
+      adoptRecord(result.save);
+      notify(`ÄÃ£ mua ${count} Ã— ${getPlayer(card).name} +${card.level}. Tháº» Ä‘Ã£ vÃ o kho.`); playSound('success', latest.current.sound); setMatTab('owned');
+    } catch (e) { notify((e as Error).message); }
+    finally { busy.current = false; }
+  };
   const bulkBuy = (card: Pick<Card, 'playerId' | 'level'>, count: number) => {
     if (busy.current) return;
+    if (serverMode || inventoryGate()) { void bulkBuyOnServer(card, count); return; }
     try {
       let next = latest.current;
       for (let i = 0; i < count; i++) next = buyPlayer(next, card.playerId, card.level, UNLIMITED_COINS).state;
@@ -480,12 +583,20 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const purchasePacks = async (pack: Pack, count: number, quiet = false) => {
     if (busy.current) return false;
     if (!online) { notify(LOGIN_FOR_FC); return false; }
+    const gate = inventoryGate(); if (gate) { notify(gate); return false; }
     busy.current = true;
     try {
       buyPacks(latest.current, pack, count, UNLIMITED_COINS);
-      const wallet = await spendFc(pack.price * count, { pack: pack.id, count });
-      const next = applyWallet(buyPacks(latest.current, pack, count, true), wallet);
-      if (!commit(next)) return false;
+      if (serverMode) {
+        // MÃ¡y chá»§ trá»« FC theo giÃ¡ gÃ³i cá»§a bá»™ dá»¯ liá»‡u vÃ  thÃªm gÃ³i vÃ o kho.
+        const result = await serverShop(pack.id, count);
+        adoptRecord(result.save);
+        if (!commit(applyWallet(latest.current, result.wallet))) return false;
+      } else {
+        const wallet = await spendFc(pack.price * count, { pack: pack.id, count });
+        const next = applyWallet(buyPacks(latest.current, pack, count, true), wallet);
+        if (!commit(next)) return false;
+      }
       if (!quiet) { notify(`Đã mua ${count} ${pack.name}. Gói đã được thêm vào kho vật phẩm.`); playSound('success', latest.current.sound); }
       return true;
     } catch (error) { notify((error as Error).message); return false; }
@@ -530,9 +641,25 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     const batch = Math.min(10, getPackStock(latest.current, readyPack));
     if (batch >= 2) open(readyPack, batch);
   }, [packPrepared, readyPack]);
+  // Cháº¡y hiá»‡u á»©ng má»Ÿ gÃ³i cho cÃ¡c tháº» vá»«a nháº­n (dÃ¹ng chung cho má»Ÿ thÆ°á»ng, má»Ÿ theo lá»±a chá»n vÃ  gÃ³i chá»‰ Ä‘á»‹nh).
+  const startPackAnimation = (cards: Card[], pack: Pack, fast: boolean) => {
+    prefetchCards(cards);
+    unlockCinemaAudio(latest.current.sound);
+    const id = uid(); fastEntryId.current = fast ? id : null; fastEntry.current = false;
+    setPackSkipReady(false); setFlipStarted(false); setEntryStarted(false); setSceneReady(false); setPhase(0); setAnimation({ id, kind: 'pack', cards, pack, quick: !!latest.current.quick });
+  };
+  const openOnServer = async (pack: Pack, count: number, selection?: Pack[]) => {
+    try {
+      const result = selection ? await serverOpen(selection.map(p => p.id), null) : await serverOpen([pack.id], count);
+      adoptRecord(result.save);
+      startPackAnimation(result.cards, pack, fastEntry.current);
+    } catch (e) { notify((e as Error).message); busy.current = false; fastEntry.current = false; }
+  };
   const open = (pack: Pack, count: number, selection?: Pack[]) => {
     if (busy.current || !packPrepared) return;
+    const gate = inventoryGate(); if (gate) { notify(gate); return; }
     busy.current = true;
+    if (serverMode) { void openOnServer(pack, count, selection); return; }
     try {
       const result = selection ? openSelectedPacks(latest.current, selection) : openPacks(latest.current, pack, count);
       if (!commit(result.state)) { busy.current = false; return; }
@@ -545,7 +672,14 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   // Mở gói chỉ định: mỗi gói nhận ngẫu nhiên 1 trong N cầu thủ đã chọn (mở 1 hoặc nhiều gói một lượt), rồi chạy hiệu ứng mở gói như gói thường.
   const openDraftPack = (pack: Pack, playerIds: number[], count = 1) => {
     if (busy.current || !packPrepared) return;
+    const gate = inventoryGate(); if (gate) { notify(gate); return; }
     busy.current = true;
+    if (serverMode) {
+      fastEntry.current = false;
+      void serverOpenDraft(pack.id, playerIds, count).then(result => { adoptRecord(result.save); startPackAnimation(result.cards, pack, false); })
+        .catch(e => { notify((e as Error).message); busy.current = false; });
+      return;
+    }
     try {
       const result = openDraft(latest.current, pack, playerIds, random, count);
       if (!commit(result.state)) { busy.current = false; return; }
@@ -579,8 +713,22 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const removeSquad = (uid: string) => { if (!busy.current) commit(removeFromSquad(latest.current, uid)); };
   const updateLineup = (update: (state: Save) => Save) => { if (busy.current) return; try { commit(update(latest.current)); } catch (e) { notify((e as Error).message); } };
   const lockCard = (uid: string) => { if (busy.current) return; try { if (commit(toggleLock(latest.current, uid))) notify(isLocked(latest.current, uid) ? 'Đã khóa thẻ. Thẻ khóa không thể xóa, bán hay dùng làm nguyên liệu.' : 'Đã mở khóa thẻ.'); } catch (e) { notify((e as Error).message); } };
+  const deleteOnServer = async (cardId: string) => {
+    const gate = inventoryGate(); if (gate) { notify(gate); return; }
+    busy.current = true;
+    try {
+      releaseCard(latest.current, cardId); // bÃ¡o tháº» khoÃ¡ nhÆ° trÆ°á»›c khi gá»­i lÃªn mÃ¡y chá»§
+      const result = await serverRelease([cardId]);
+      adoptRecord(result.save);
+      commit({ ...latest.current, squad: (latest.current.squad ?? []).filter(id => id !== cardId) });
+      setMaterialIds(ids => ids.filter(id => id !== cardId)); if (targetId === cardId) setTargetId('');
+      notify('ÄÃ£ xÃ³a cáº§u thá»§ khá»i kho.');
+    } catch (e) { notify((e as Error).message); }
+    finally { busy.current = false; }
+  };
   const deleteCard = (uid: string) => {
     if (busy.current) return;
+    if (serverMode || inventoryGate()) { void deleteOnServer(uid); return; }
     try { if (commit(releaseCard(latest.current, uid))) { setMaterialIds(ids => ids.filter(id => id !== uid)); if (targetId === uid) setTargetId(''); notify('Đã xóa cầu thủ khỏi kho.'); } } catch (e) { notify((e as Error).message); }
   };
   // Nâng cấp một cầu thủ cụ thể (Quản lí CT / chi tiết cầu thủ): vào thẳng màn nâng cấp với thẻ đó làm thẻ chính, không sổ danh sách chọn cầu thủ.
@@ -592,8 +740,26 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     const pending = pendingSave.current;
     if (pending) { pendingSave.current = null; setSave(pending); setMaterialIds([]); }
   };
-  const enhance = (inline = false) => {
+  // Äáº­p tháº» trÃªn mÃ¡y chá»§: mÃ¡y chá»§ tÃ­nh nÄƒng lÆ°á»£ng, tá»· lá»‡, rá»›t cáº¥p, báº£o vá»‡, khÃ´i phá»¥c; á»Ÿ Ä‘Ã¢y chá»‰ ghi dÃ¢y Ä‘áº­p (nháº­t kÃ½) vÃ  má»©c báº£o vá»‡.
+  const enhanceOnServer = async (inline: boolean, card: Card) => {
+    const gate = inventoryGate(); if (gate) { notify(gate); return null; }
+    busy.current = true;
+    try {
+      const pct = activeProtection(latest.current, card), before = card.level;
+      const r = await serverUpgrade(card.uid, materialIds, pct);
+      const adopted = adoptRecord(r.save, inline);
+      let bridge = adopted.bridge;
+      try { bridge = recordOutcome(adopted.bridge ?? emptyBridge(), before, r.success ? { success: true } : { success: false, drop: r.drop ?? 1 }); } catch { /* DÃ¢y Ä‘áº­p chá»‰ Ä‘á»ƒ xem láº¡i. */ }
+      commit({ ...adopted, ...(bridge ? { bridge } : {}), ...(pct > 0 && !adopted.protection?.fixed ? { protection: { pct: 0, fixed: false } } : {}) }, inline);
+      const result = { success: r.success, result: r.card, droppedLevel: r.drop, restoredLevel: r.restored, shielded: r.shielded };
+      if (inline) { busy.current = false; return result; }
+      setMaterialIds([]); setPhase(result.restoredLevel !== null ? 4 : 3); setAnimation({ id: uid(), kind: 'upgrade', card: result.result, success: result.success, before, droppedLevel: result.shielded ? null : result.droppedLevel, restoredLevel: result.restoredLevel, shielded: result.shielded });
+      return result;
+    } catch (e) { notify((e as Error).message); busy.current = false; return null; }
+  };
+  const enhance = async (inline = false) => {
     if (busy.current || !target) return null;
+    if (serverMode || inventoryGate()) return enhanceOnServer(inline, target);
     busy.current = true;
     try {
       const result = upgradeWithProtection(latest.current, targetId, materialIds, undefined, UNLIMITED_COINS, { role: 'main', pct: activeProtection(latest.current, target) });
@@ -660,7 +826,9 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       if (!online) throw new Error(LOGIN_FOR_FC);
       const found = await prepareGiftCode(giftInput);
       const redeemed = await redeemGiftHash(found.hash);
-      const result = applyGiftRewards(applyWallet(latest.current, redeemed.wallet), found.code, redeemed.rewards);
+      // MÃ¡y chá»§ giá»¯ kho: BP / gÃ³i Ä‘Ã£ vÃ o kho trÃªn mÃ¡y chá»§ (save), chá»‰ cáº§n nháº­n báº£n lÆ°u má»›i.
+      if (redeemed.save) adoptRecord(redeemed.save);
+      const result = redeemed.save ? { text: redeemed.rewards.map(giftRewardText).join(', '), state: applyWallet(latest.current, redeemed.wallet) } : applyGiftRewards(applyWallet(latest.current, redeemed.wallet), found.code, redeemed.rewards);
       if (commit(result.state)) { setGiftInput(''); setGiftMessage({ ok: true, text: `Đã nhận ${result.text}.` }); notify(`Đổi gift code thành công! Đã nhận ${result.text}.`); playSound('success', latest.current.sound); }
     } catch (e) { setGiftMessage({ ok: false, text: (e as Error).message }); }
     finally { setGiftBusy(false); }
@@ -671,10 +839,12 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     if (!online) { notify(LOGIN_FOR_FC); return; }
     try {
       const wallet = await claimDailyFc(), today = dayKey();
+      // NgÃ y 7: mÃ¡y chá»§ giá»¯ kho thÃ¬ gÃ³i Ä‘Ã£ vÃ o kho vÃ  lá»‹ch sá»­ do mÃ¡y chá»§ ghi.
+      if (wallet.save) adoptRecord(wallet.save);
       const day = wallet.checkin?.day ?? 0, bonus = day ? checkinReward(day) : null;
       const bonusText = bonus ? ` + điểm danh ngày ${day}: ${giftRewardText(bonus)}` : '';
-      let state: Save = { ...latest.current, history: [{ id: uid(), time: Date.now(), type: 'gift' as const, title: day ? `Điểm danh ngày ${day}` : 'Quà điểm danh mỗi ngày', detail: `+${money(DAILY_FC)} FC${bonusText}` }, ...latest.current.history].slice(0, 200) };
-      if (bonus && 'pack' in bonus) state = grantRewards(state, [bonus]);
+      let state: Save = wallet.save ? latest.current : { ...latest.current, history: [{ id: uid(), time: Date.now(), type: 'gift' as const, title: day ? `Điểm danh ngày ${day}` : 'Quà điểm danh mỗi ngày', detail: `+${money(DAILY_FC)} FC${bonusText}` }, ...latest.current.history].slice(0, 200) };
+      if (!wallet.save && bonus && 'pack' in bonus) state = grantRewards(state, [bonus]);
       if (wallet.checkin) setCheckin(wallet.checkin);
       if (commit(applyWallet(state, wallet, today))) { notify(`Điểm danh thành công! Đã nhận ${money(DAILY_FC)} FC${bonusText}.`); playSound('success', latest.current.sound); }
     } catch (e) { notify((e as Error).message); }
@@ -742,6 +912,13 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     if (!online || claimingGifts.current || busy.current || pendingSave.current) return;
     claimingGifts.current = true;
     try {
+      if (serverMode) {
+        const claimed = await serverClaimGifts();
+        if (claimed.save) adoptRecord(claimed.save);
+        if (claimed.texts.length) { notify(`Báº¡n nháº­n Ä‘Æ°á»£c quÃ  tá»« Admin: ${claimed.texts.join(', ')}.`); playSound('success', latest.current.sound); }
+        if (claimed.fc) await refreshWallet();
+        return;
+      }
       const gifts = await fetchMyGifts();
       if (!gifts.length || busy.current || pendingSave.current) return;
       const result = applyAdminGifts(latest.current, gifts);
@@ -766,6 +943,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     if (!online) { notify(LOGIN_FOR_FC); return null; }
     try {
       const result = await playBilac(count, mode);
+      if (result.save) { noteWallet(result.wallet); adoptRecord(result.save); return commit(applyWallet(latest.current, result.wallet)) ? result : null; }
       const rewards = result.plays.map(p => p.reward);
       const granted = grantBilac(latest.current, rewards, `Bi Lắc · ${count} lượt${mode === 'free' ? ' miễn phí' : ''}`, `${summarizeBilac(rewards).map(bilacRewardText).join(', ')} · +${result.points} điểm${result.paid ? ` · −${money(result.paid)} FC` : ''}`);
       noteWallet(result.wallet);
@@ -777,6 +955,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     if (!online) { notify(LOGIN_FOR_FC); return null; }
     try {
       const result = await claimBilac(index, choice);
+      if (result.save) { noteWallet(result.wallet); adoptRecord(result.save); return commit(applyWallet(latest.current, result.wallet)) ? result.rewards : null; }
       const granted = grantBilac(latest.current, result.rewards, 'Bi Lắc · Quà mốc điểm', result.rewards.map(bilacRewardText).join(' + '));
       noteWallet(result.wallet);
       return commit(applyWallet(granted.state, result.wallet)) ? result.rewards : null;
@@ -900,7 +1079,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       {settings && <Modal label="Cài đặt trò chơi" onClose={() => setSettings(false)}><div className="modal-heading"><h2>Cài đặt trò chơi</h2><button className="icon-button" aria-label="Đóng cài đặt" onClick={() => setSettings(false)}><X/></button></div>{([{ key: 'sound' as const, title: 'Âm thanh', description: AUDIO_ENABLED ? 'Âm thanh điện tử khi mở gói và nâng cấp.' : 'Âm thanh đã tắt trong phiên bản này.' }, { key: 'reduced' as const, title: 'Giảm chuyển động', description: 'Bỏ hoạt cảnh dài, khói và hạt sáng chuyển động.' }, { key: 'quick' as const, title: 'Mở thẻ nhanh', description: 'Rút hoạt cảnh từ khoảng 10 giây xuống 3,5 giây.' }, { key: 'light' as const, title: 'Hiệu ứng nhẹ', description: 'Dùng đường hầm 2D nhẹ, phù hợp khi máy nóng hoặc hình chuyển động chậm.' }]).map(s => <label className="setting-row" key={s.key}><span><b>{s.title}</b><small>{s.description}</small></span><input type="checkbox" disabled={s.key === 'sound' && !AUDIO_ENABLED} checked={s.key === 'sound' ? AUDIO_ENABLED && !!save.sound : !!save[s.key]} onChange={e => updateSetting(s.key, e.target.checked)}/></label>)}<label className="setting-row"><span><b>Nhạc nền</b><small>Chọn loại nhạc phát trong trò chơi.</small></span><select aria-label="Loại nhạc nền" value={musicType} onChange={e => changeMusicType(e.target.value as MusicType)}><option value="instrumental">1. Nhạc không lời</option><option value="vocals">2. Nhạc có lời</option></select></label>{accountName && <div className="account-settings"><div><strong>{accountName}</strong><small role="status">{syncStatus}</small></div>{onLogout && <button disabled={signingOut} onClick={onLogout}>{signingOut ? 'Đang đăng xuất…' : 'Đăng xuất'}</button>}</div>}<div className="storage-notice"><Shield size={20}/><p>Tiến trình được đồng bộ cùng tài khoản. Hãy chờ trạng thái Đã đồng bộ trước khi đóng trang hoặc chuyển thiết bị.</p></div>{isAdmin && <button className="settings-help" onClick={() => { setSettings(false); setFcAdminOpen(true); }}><Coins size={17}/>Quản trị FC · nạp FC, gift code<ChevronRight size={16}/></button>}<button className="settings-help" onClick={() => { setSettings(false); setHelp(true); }}><CircleHelp size={17}/>Thông tin & nguồn ảnh<ChevronRight size={16}/></button>{import.meta.env.DEV && <button className="settings-help" onClick={() => { setSettings(false); setAdminOpen(true); }}><PackagePlus size={17}/>Quản trị gói · chỉ máy dev<ChevronRight size={16}/></button>}{onDeleteAccount && <div className="account-danger-zone"><h3>Xóa tài khoản</h3><p>Xóa vĩnh viễn tài khoản cùng toàn bộ kho thẻ và tiến trình.</p><button disabled={signingOut} onClick={() => { setSettings(false); onDeleteAccount(); }}>Xóa tài khoản</button></div>}</Modal>}
       {isAdmin && fcAdminOpen && <AdminPanel onClose={() => { setFcAdminOpen(false); void refreshWallet(); }}/>}
       {import.meta.env.DEV && PackAdmin && adminOpen && <Suspense fallback={null}><PackAdmin renderArt={pack => <PackArt pack={pack}/>} onClose={() => { setAdminOpen(false); history.replaceState(null, '', location.pathname + location.search); }}/></Suspense>}
-      {confirm && <UpgradeConfirm onMusicActiveChange={setUpgradeMusicActive} target={confirm.target} materials={confirm.materials} energy={upgradeInfo(confirm.target, confirm.materials).energy} restore={restoreApplies(confirm.target) ? evaluateRestore(confirm.target, confirm.materials) : null} protection={protectionApplies(confirm.target) ? { pct: activeProtection(save, confirm.target), cost: protectionCost(confirm.target, activeProtection(save, confirm.target)) } : null} reduced={save.reduced} renderCard={(card, compact) => <PlayerCard card={card} compact={compact}/>} seasonShort={seasonShort} onBack={closeConfirm} onReveal={success => playSound(success ? 'success' : 'fail', latest.current.sound)} levelBadge={levelBadge} onConfirm={() => { const result = enhance(true); if (!result) { setConfirm(null); return null; } return { success: result.success, card: result.result, before: confirm.target.level, restored: result.restoredLevel !== null }; }}/>}
+      {confirm && <UpgradeConfirm onMusicActiveChange={setUpgradeMusicActive} target={confirm.target} materials={confirm.materials} energy={upgradeInfo(confirm.target, confirm.materials).energy} restore={restoreApplies(confirm.target) ? evaluateRestore(confirm.target, confirm.materials) : null} protection={protectionApplies(confirm.target) ? { pct: activeProtection(save, confirm.target), cost: protectionCost(confirm.target, activeProtection(save, confirm.target)) } : null} reduced={save.reduced} renderCard={(card, compact) => <PlayerCard card={card} compact={compact}/>} seasonShort={seasonShort} onBack={closeConfirm} onReveal={success => playSound(success ? 'success' : 'fail', latest.current.sound)} levelBadge={levelBadge} onConfirm={async () => { const result = await enhance(true); if (!result) { setConfirm(null); return null; } return { success: result.success, card: result.result, before: confirm.target.level, restored: result.restoredLevel !== null }; }}/>}
       {protectOpen && target && protectionApplies(target) && <Modal label="Bảo vệ nâng cấp" onClose={() => setProtectOpen(false)}><UpgradeProtection card={target} pct={save.protection?.pct ?? 0} fixed={save.protection?.fixed ?? false} balance={save.balance} free={UNLIMITED_COINS} onChange={(pct, fixed) => { try { commit(setProtection(latest.current, pct, fixed)); } catch (e) { notify((e as Error).message); } }} onClose={() => setProtectOpen(false)}/></Modal>}
       {dailyOpen && <Modal className="daily-modal" label="Quà mỗi ngày" onClose={() => setDailyOpen(false)}>
         <div className="modal-heading"><div><h2>Quà mỗi ngày</h2><p>Điểm danh mỗi ngày (giờ Việt Nam) để nhận quà bên dưới.</p></div><button className="icon-button" aria-label="Đóng" onClick={() => setDailyOpen(false)}><X/></button></div>

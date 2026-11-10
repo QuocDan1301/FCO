@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { BarChart3, Coins, Gift, RotateCcw, ShieldAlert, Users, Wrench, X } from 'lucide-react';
+import { BarChart3, Boxes, Coins, Gift, RotateCcw, ShieldAlert, Users, Wrench, X } from 'lucide-react';
 import { money, packs } from './game';
 import GiftCodeAdmin from './admin/GiftCodeAdmin';
 import Accounts from './Accounts';
 import Anomalies from './Anomalies';
 import MaintenancePanel from './MaintenancePanel';
+import InventoryAdmin from './InventoryAdmin';
 import Stats from './Stats';
 import { adminCredit, adminLedger, LEDGER_REASONS } from './wallet';
 import type { LedgerRow } from './wallet';
@@ -72,7 +73,7 @@ function CreditFc() {
 }
 
 export default function AdminPanel({ onClose }: { onClose: () => void }) {
-  const [tab, setTab] = useState<'stats' | 'accounts' | 'fc' | 'gift' | 'audit' | 'maintenance'>('stats');
+  const [tab, setTab] = useState<'stats' | 'accounts' | 'fc' | 'gift' | 'audit' | 'maintenance' | 'inventory'>('stats');
   useEffect(() => { const key = (event: KeyboardEvent) => event.key === 'Escape' && onClose(); addEventListener('keydown', key); return () => removeEventListener('keydown', key); }, [onClose]);
   return <div className="pack-admin" role="dialog" aria-modal="true" aria-label="Quản trị FC">
     <header className="pa-header">
@@ -87,8 +88,9 @@ export default function AdminPanel({ onClose }: { onClose: () => void }) {
         <button className="pa-new pa-gift-nav" onClick={() => setTab('gift')} aria-pressed={tab === 'gift'}><Gift size={16}/>Gift code</button>
         <button className="pa-new pa-gift-nav" onClick={() => setTab('audit')} aria-pressed={tab === 'audit'}><ShieldAlert size={16}/>Bất thường</button>
         <button className="pa-new pa-gift-nav" onClick={() => setTab('maintenance')} aria-pressed={tab === 'maintenance'}><Wrench size={16}/>Bảo trì</button>
+        <button className="pa-new pa-gift-nav" onClick={() => setTab('inventory')} aria-pressed={tab === 'inventory'}><Boxes size={16}/>Kho thẻ</button>
       </aside>
-      {tab === 'stats' ? <Stats/> : tab === 'accounts' ? <Accounts/> : tab === 'fc' ? <CreditFc/> : tab === 'audit' ? <Anomalies/> : tab === 'maintenance' ? <MaintenancePanel/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
+      {tab === 'stats' ? <Stats/> : tab === 'accounts' ? <Accounts/> : tab === 'fc' ? <CreditFc/> : tab === 'audit' ? <Anomalies/> : tab === 'maintenance' ? <MaintenancePanel/> : tab === 'inventory' ? <InventoryAdmin/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
     </div>
   </div>;
 }

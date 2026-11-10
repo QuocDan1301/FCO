@@ -5,6 +5,7 @@ import type { MembershipId } from './membership';
 import { LOGIN_FOR_FC, walletMessage } from './wallet-state';
 import { MAINTENANCE_CHANGED } from './maintenance-state';
 import type { MaintenanceState } from './maintenance-state';
+import type { ServerRecord } from './inventory-sync';
 import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
 export * from './wallet-state';
 
@@ -21,6 +22,8 @@ async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<
   return data as T;
 }
 
+// Dùng chung cho kho thẻ trên máy chủ (src/inventory-server.ts).
+export const rpcCall = <T>(fn: string, args: Record<string, unknown> = {}) => call<T>(fn, args);
 export const fetchServerNow = () => call<number>('fco_server_now');
 export const fetchWallet = (seedPoints: number) => call<Wallet>('fco_wallet', { p_seed_points: Math.max(0, Math.floor(seedPoints)) });
 export const claimDailyFc = () => call<Wallet>('fco_claim_daily');
@@ -30,7 +33,7 @@ export const reportUpgradeRank = (ovr: number, playerId: number, level: number) 
 export const reportSquadRank = (value: number) => call<null>('fco_rank_squad', { p_value: Math.max(0, Math.floor(value)) });
 export const spendFc = (amount: number, detail: Record<string, unknown>) => call<Wallet>('fco_spend_fc', { p_amount: amount, p_reason: 'shop', p_detail: detail });
 export const buyMembership = (id: MembershipId) => call<Wallet>('fco_buy_membership', { p_tier: id });
-export const redeemGiftHash = (hash: string) => call<{ rewards: EventReward[]; wallet: Wallet }>('fco_redeem_gift', { p_hash: hash });
+export const redeemGiftHash = (hash: string) => call<{ rewards: EventReward[]; wallet: Wallet; save?: ServerRecord | null }>('fco_redeem_gift', { p_hash: hash });
 export const claimMissionFc = (id: string) => call<Wallet>('fco_event_mission', { p_id: id });
 export const playEventFc = (count: number, mode: 'fc' | 'free') => call<EventPlayResult>('fco_event_play', { p_count: count, p_mode: mode });
 export const fetchFcStats = () => call<FcStats>('fco_my_fc_stats');
@@ -62,4 +65,4 @@ export const ackMyGifts = (ids: number[]) => call<number>('fco_my_admin_gifts_ac
 export const adminStats = (search?: string) => call<AdminStats>('fco_admin_stats', { p_search: search || null, p_limit: 300 });
 export const fetchBilacConfig = () => call<BilacConfig>('fco_bilac_config');
 export const playBilac = (count: number, mode: 'fc' | 'free') => call<BilacResult>('fco_bilac_play', { p_count: count, p_mode: mode });
-export const claimBilac = (index: number, choice: number | null) => call<{ rewards: BilacReward[]; wallet: Wallet }>('fco_bilac_claim', { p_index: index, p_choice: choice });
+export const claimBilac = (index: number, choice: number | null) => call<{ rewards: BilacReward[]; wallet: Wallet; save?: ServerRecord | null }>('fco_bilac_claim', { p_index: index, p_choice: choice });

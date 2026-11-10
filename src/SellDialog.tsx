@@ -18,7 +18,8 @@ type Props = {
   renderCard: (card: Card) => ReactNode;
   levelBadge: (level: number) => string;
   seasonShort: (tier: Tier) => string;
-  onSell: (items: SellItem[]) => boolean;
+  // Promise khi máy chủ bán (src/inventory-server.ts); true = đã bán xong.
+  onSell: (items: SellItem[]) => boolean | Promise<boolean>;
   onClose: () => void;
 };
 const MODES: { id: Mode; label: string }[] = [{ id: 'fit', label: 'Đăng ký với giá phù hợp' }, { id: 'min', label: 'Đăng ký với giá thấp nhất' }, { id: 'max', label: 'Đăng ký với giá cao nhất' }];
@@ -77,7 +78,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const view = card && range ? marketView(card, range.price) : null;
   const clampPrice = () => { if (!range) return; setPriceText(full(Math.min(range.max, Math.max(range.min, price || range.price)))); };
   const step = (dir: 1 | -1) => { if (!range) return; const unit = Math.max(1, Math.round(range.price / 100)); setPriceText(full(Math.min(range.max, Math.max(range.min, (price || range.price) + dir * unit)))); };
-  const sellSingle = () => { if (card && priceOk && count >= 1 && count <= sellable && onSell(selling.map(c => ({ uid: c.uid, price })))) onClose(); };
+  const sellSingle = () => { if (card && priceOk && count >= 1 && count <= sellable) void Promise.resolve(onSell(selling.map(c => ({ uid: c.uid, price })))).then(ok => { if (ok) onClose(); }); };
 
   // ---- Bán hàng loạt ----
   const [mode, setMode] = useState<Mode>('fit');
@@ -96,7 +97,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const eligible = rows.filter(row => !row.reason);
   const allChecked = eligible.length > 0 && eligible.slice(0, MAX_BULK_SELL).every(row => checkedSet.has(row.card.uid));
   const toggle = (id: string) => setChecked(list => list.includes(id) ? list.filter(x => x !== id) : list.length >= MAX_BULK_SELL ? list : [...list, id]);
-  const sellBulk = () => { if (chosen.length && onSell(chosen.map(row => ({ uid: row.card.uid, price: priceFor(row.range!) })))) { setChecked([]); onClose(); } };
+  const sellBulk = () => { if (chosen.length) void Promise.resolve(onSell(chosen.map(row => ({ uid: row.card.uid, price: priceFor(row.range!) })))).then(ok => { if (ok) { setChecked([]); onClose(); } }); };
 
   const p = card && getPlayer(card);
   return <div className="sd-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onKeyDown={e => { if (e.key === 'Escape') onClose(); }}><div className="sd" role="dialog" aria-modal="true" aria-labelledby="sd-title">

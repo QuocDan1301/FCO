@@ -29,8 +29,9 @@ export function saveRemote(userId: string): SaveRemote {
       }
       return data ? record(data) : null;
     },
-    async write(data, revision) {
-      const result = await client.rpc('fco_commit_save', { p_data: data, p_revision: revision }).abortSignal(AbortSignal.timeout(20000));
+    async write(data, revision, merge = false) {
+      // p_merge chỉ gửi khi cần để máy chủ chưa chạy migration kho thẻ vẫn nhận lệnh như cũ.
+      const result = await client.rpc('fco_commit_save', { p_data: data, p_revision: revision, ...(merge ? { p_merge: true } : {}) }).abortSignal(AbortSignal.timeout(20000));
       if (result.error?.message.includes('FCO_SAVE_CONFLICT')) throw new SaveConflict();
       if (result.error?.message.includes('FCO_ACCOUNT_LOCKED')) throw new Error(ACCOUNT_LOCKED_MESSAGE);
       if (result.error) throw new Error('Chưa gửi được tiến trình lên máy chủ. Bản lưu vẫn còn trên máy này.');

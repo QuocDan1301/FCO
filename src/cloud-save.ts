@@ -1,12 +1,16 @@
 import { initialSave, validateSave } from './game';
 import type { Save } from './game';
+import { mergeProtected, sameSettings } from './inventory-sync';
 
 export type CloudRecord = { revision: number; data: Save };
 export type SaveRemote = {
   load(): Promise<CloudRecord | null>;
-  write(data: Save, revision: number): Promise<CloudRecord>;
+  // merge: máy chủ giữ kho (bản lưu có inv = 1): máy chủ gộp, giữ thẻ / BP / gói của mình và không so revision.
+  write(data: Save, revision: number, merge?: boolean): Promise<CloudRecord>;
 };
 type CachedSave = CloudRecord & { dirty: boolean };
+// Bản lưu do máy chủ giữ kho (src/inventory-sync.ts): game không tự đổi phần được bảo vệ, chỉ nhận từ máy chủ.
+const serverOwned = (data: Save | undefined) => data?.inv === 1;
 export type SyncStatus = 'loading' | 'saved' | 'saving' | 'error' | 'conflict';
 
 /** A durable outbox. The server accepts a write only against its current revision. */
@@ -56,7 +60,11 @@ export class CloudSaveStore {
       const remote = await this.remote.load();
       if (!this.active) return;
       const local = this.cached();
-      if (local?.dirty) {
+      if (local?.dirty && remote && serverOwned(local.data)) {
+        // Máy chủ giữ kho: phần được bảo vệ lấy từ máy chủ, cài đặt chưa gửi trên máy này vẫn giữ, không còn hai bản tiến trình.
+        const data = mergeProtected(local.data, remote.data);
+        this.persist({ revision: remote.revision, data, dirty: !sameSettings(data, remote.data) });
+      } else if (local?.dirty) {
         if (remote && JSON.stringify(remote.data) === JSON.stringify(local.data)) {
           this.persist({ ...remote, dirty: false });
         } else if (local.revision !== (remote?.revision ?? 0)) {
@@ -82,10 +90,18 @@ export class CloudSaveStore {
         if (!pending?.dirty) { this.notify('saved'); return; }
         this.notify('saving');
         try {
-          const saved = await this.remote.write(pending.data, pending.revision);
+          const merge = serverOwned(pending.data);
+          const saved = await this.remote.write(pending.data, pending.revision, merge);
           if (!this.active) return;
           const latest = this.cached();
           if (!latest) throw new Error('Không tìm thấy bản lưu trên máy.');
+          if (merge) {
+            // Máy chủ trả bản đã gộp: nhận phần được bảo vệ nếu bản này mới hơn bản trên máy (một thao tác máy chủ có thể vừa về trước).
+            const newer = saved.revision > latest.revision;
+            const data = newer ? mergeProtected(latest.data, saved.data) : latest.data;
+            this.persist({ revision: Math.max(saved.revision, latest.revision), data, dirty: !sameSettings(latest.data, pending.data) });
+            continue;
+          }
           // Another tab may already have acknowledged this write.
           if (latest.revision !== pending.revision) continue;
           this.persist({ revision: saved.revision, data: latest.data, dirty: JSON.stringify(latest.data) !== JSON.stringify(pending.data) });
@@ -131,6 +147,20 @@ export class CloudSaveStore {
     if (old) this.disk.setItem(`${this.key}:backup:${Date.now()}`, old);
     this.persist({ ...remote, dirty: false });
     this.notify('saved');
+  }
+  // Nhận bản lưu máy chủ trả về sau một thao tác kho (mở gói, đập, bán, quà…). Bản cũ hơn bản đang có thì bỏ qua.
+  // Cài đặt chưa gửi trên máy này được giữ (gộp), rồi gửi tiếp.
+  adopt(record: CloudRecord) {
+    if (!this.active || !validateSave(record.data)) throw new Error('Bản lưu máy chủ trả về không hợp lệ. Hãy tải lại trang.');
+    const local = this.cached();
+    if (local && record.revision <= local.revision) return;
+    if (!local || !local.dirty) this.persist({ ...record, dirty: false });
+    else {
+      const data = mergeProtected(local.data, record.data);
+      this.persist({ revision: record.revision, data, dirty: !sameSettings(data, record.data) });
+    }
+    if (this.cached()?.dirty) { this.notify('saving'); void this.flush().catch(() => { /* Hộp chờ vẫn giữ, màn hình cho thử lại. */ }); }
+    else this.notify('saved');
   }
   backup() { return this.disk.getItem(this.key) ?? '{}'; }
   dispose() { this.active = false; this.listeners.clear(); }

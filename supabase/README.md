@@ -88,3 +88,21 @@ Tỉ lệ quà Bi Lắc (`202611080003_fco_bilac_weights.sql`): bóng CLB 24 · 
 `202611080005_fco_bilac_less_fc.sql`: giảm quà FC — bóng FC 6 (CLB 26 · BP 32 · Thẻ 30), FC x3 chỉ giữ 10 %, món FC trong hàng FC x2 / x3 hiếm hơn; danh sách quà không đổi.
 `202611080006_fco_bilac_rare_fc.sql`: bóng FC 3 và Special 3 (CLB 27 · BP 34 · Thẻ 33) — Giải Phụ ~1/380 lượt, quà FC từ bảng ~1/25.000 lượt.
 `202611080007_fco_bilac_jackpot_chance.sql`: quỹ ≥ 10.000 FC thì mỗi lượt thêm cơ hội Giải Đặc Biệt = min(0,5 %, 0,04 % × fco_jackpot_pressure(quỹ)) để người chơi cạnh tranh với bot.
+
+## Kho thẻ trên máy chủ (`202611100013_fco_inventory_server.sql`)
+
+Chống gian lận đập thẻ / mở gói / BP: máy chủ giữ 5 phần của bản lưu (`cards`, `balance`, `unopened`, `opened`, `upgrades`). Mở gói, đập thẻ (năng lượng phôi, rớt cấp, bảo vệ, khôi phục), mua / bán ở chợ, mua gói Shop, xoá thẻ và cộng quà (Bi Lắc, gift code, điểm danh ngày 7, admin tặng) đều chạy trong các hàm `fco_inv_*`. Trình duyệt chỉ gửi cài đặt, đội hình, khoá thẻ, dây đập; `fco_commit_save(..., p_merge)` gộp, giữ phần được bảo vệ của máy chủ, lịch sử gộp theo id.
+
+Giá, OVR, tỷ lệ gói và luật đập nằm trong mã game nên **admin đồng bộ lên máy chủ**: Quản trị FC → Kho thẻ → Đồng bộ dữ liệu (`src/inventory-catalog.ts` dựng bộ dữ liệu, mã phiên bản = SHA-256). Mỗi thao tác gửi kèm mã; khác bản đã đồng bộ thì máy chủ báo `FCO_CATALOG_STALE`.
+
+Triển khai lần đầu, theo đúng thứ tự:
+1. Chạy `202611100013_fco_inventory_server.sql` trong SQL Editor (sau `202611100012`).
+2. Deploy bản web mới. Lúc này người chơi vẫn chơi như cũ vì máy chủ chưa có dữ liệu.
+3. Mở game bản mới bằng tài khoản admin → Quản trị FC → Kho thẻ → **Đồng bộ dữ liệu**. Từ lúc này game bản mới dùng kho trên máy chủ (bản lưu có `inv = 1`).
+4. Khi đã chạy ổn, bấm **Bật bắt buộc**: máy chủ không nhận thẻ / BP / gói do trình duyệt tự ghi nữa (kể cả game bản cũ), tài khoản mới bắt đầu kho trống, `fco_spend_fc` của bản cũ báo `FCO_UPDATE_REQUIRED`.
+
+Mỗi lần sau đổi giá, gói, OVR hay luật đập: deploy rồi **Đồng bộ lại** ngay. Khi đã bật bắt buộc mà chưa đồng bộ, người chơi bản mới bị chặn thao tác kho tới khi đồng bộ xong.
+
+Chưa chuyển lên máy chủ: sự kiện Nâng Cấp Siêu Sao (đang ẩn) vẫn tự cộng BP / gói trong trình duyệt nên phần quà đó bị bỏ khi máy chủ giữ kho; bật lại sự kiện thì phải chuyển nó lên máy chủ trước. BXH giá trị đội hình (`fco_rank_squad`) vẫn tin số game gửi.
+
+Chạy thử: `npx tsx scripts/inventory-fixture.ts <fixture.json>` rồi `node supabase/tests/fco-inventory.pglite.mjs <dự án> <fixture.json> <mọi migration theo thứ tự>` (cần `@electric-sql/pglite`). Test so từng giá dao động và năng lượng / tỷ lệ / khôi phục với kết quả game tính.

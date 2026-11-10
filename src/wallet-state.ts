@@ -4,12 +4,14 @@ import { dayKey } from './game';
 import type { EventReward, Save } from './game';
 import { eventState } from './event';
 import type { Membership } from './membership';
+import type { ServerRecord } from './inventory-sync';
 
 // Phần thuần của ví FC (không nạp client Supabase): kiểu dữ liệu máy chủ trả về, thông báo lỗi, áp ví vào bản lưu.
 export type Checkin = { claimedToday: boolean; day: number; done: number };
 // claimed[i] = số lần đã nhận mốc i (null = chưa nhận).
 export type BilacState = { points: number; claimed: (number | null)[]; freeToday: boolean };
-export type Wallet = { fc: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean };
+// save: bản lưu mới khi máy chủ vừa cộng quà vào kho (điểm danh ngày 7), xem src/inventory-sync.ts.
+export type Wallet = { fc: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null };
 export type ServerJackpotWin = { name: string; amount: number; kind: 'special' | 'mini'; time: number; mine: boolean };
 export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
 // Bảng xếp hạng HLV (fco_leaderboard): top 10 kỷ lục đập thẻ OVR, top 10 giá trị đội hình, hạng của người xem.
@@ -42,7 +44,7 @@ export type BilacRow = { id: string; symbol: BilacSymbol | null; kind: 'triple' 
 export type BilacConfig = { symbols: { id: BilacSymbol; label: string }[]; rows: BilacRow[]; milestones: BilacMilestone[]; round: number; prices: { count: number; price: number }[] };
 export type BilacMilestone = { points: number; options: BilacReward[][]; once: boolean };
 export type BilacPlay = { balls: BilacSymbol[]; row: string; points: number; reward: BilacReward };
-export type BilacResult = { plays: BilacPlay[]; paid: number; points: number; jackpot: ServerJackpot; wallet: Wallet };
+export type BilacResult = { plays: BilacPlay[]; paid: number; points: number; jackpot: ServerJackpot; wallet: Wallet; save?: ServerRecord | null };
 export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 
 const MESSAGES: Record<string, string> = {
@@ -69,6 +71,34 @@ const MESSAGES: Record<string, string> = {
   FCO_BAD_AMOUNT: 'Số FC không hợp lệ.',
   FCO_LEDGER_NOT_FOUND: 'Không tìm thấy dòng sổ cái này.',
   FCO_LEDGER_NOT_ADMIN_CREDIT: 'Chỉ đổi được lần cộng FC do admin thực hiện.',
+  // Kho thẻ trên máy chủ (202611100013_fco_inventory_server.sql). Mã dài đứng trước mã là phần con của nó.
+  FCO_CATALOG_MISSING: 'Máy chủ chưa có dữ liệu game. Admin cần đồng bộ dữ liệu ở Quản trị FC.',
+  FCO_CATALOG_STALE: 'Dữ liệu game vừa thay đổi. Hãy tải lại trang rồi thử lại.',
+  FCO_CATALOG_INVALID: 'Dữ liệu đồng bộ không hợp lệ, hãy đồng bộ lại.',
+  FCO_UPDATE_REQUIRED: 'Game đã có bản mới. Hãy tải lại trang.',
+  FCO_NO_SAVE: 'Chưa tải được kho thẻ trên máy chủ. Hãy tải lại trang.',
+  FCO_INVENTORY_LOCAL: 'Kho thẻ chưa chuyển lên máy chủ.',
+  FCO_NO_PACKS: 'Hãy chọn vật phẩm còn trong kho để mở.',
+  FCO_BAD_COUNT: 'Số lượng không hợp lệ.',
+  FCO_PACK_UNAVAILABLE: 'Gói này hiện không mở hoặc mua được.',
+  FCO_PACK_EMPTY: 'Gói này chưa có cầu thủ.',
+  FCO_NOT_CHOOSE_PACK: 'Gói này không phải gói chỉ định.',
+  FCO_CHOOSE_PACK: 'Đây là gói chỉ định: hãy chọn cầu thủ muốn nhận.',
+  FCO_NOT_ENOUGH_PACKS: 'Không còn đủ gói trong kho.',
+  FCO_BAD_DRAFT: 'Danh sách cầu thủ đã chọn không hợp lệ.',
+  FCO_BAD_TARGET: 'Chọn thẻ chính có cấp cộng dưới +13.',
+  FCO_BAD_MATERIALS: 'Cần chọn từ 1 đến 5 thẻ nguyên liệu khác nhau.',
+  FCO_MATERIAL_MISSING: 'Nguyên liệu không còn trong kho.',
+  FCO_MATERIAL_LOCKED: 'Có thẻ nguyên liệu đang bị khóa.',
+  FCO_UNKNOWN_PLAYER: 'Không tìm thấy cầu thủ này trong dữ liệu máy chủ.',
+  FCO_BAD_PROTECTION: 'Mức bảo vệ nâng cấp không hợp lệ.',
+  FCO_PROTECTION_LEVEL: 'Bảo vệ nâng cấp chỉ áp dụng cho thẻ từ +8.',
+  FCO_NO_PRICE: 'Thẻ này chưa có giá.',
+  FCO_NOT_ENOUGH_BP: 'Không đủ BP.',
+  FCO_BAD_SELL: 'Danh sách bán không hợp lệ.',
+  FCO_CARD_MISSING: 'Thẻ này không còn trong kho. Hãy chọn lại cầu thủ.',
+  FCO_CARD_LOCKED: 'Thẻ đang bị khóa. Mở khóa trước khi bán hoặc xóa.',
+  FCO_BAD_PRICE: 'Giá bán phải nằm trong ±10% giá thị trường. Giá có thể vừa đổi kỳ, hãy mở lại cửa sổ bán.',
   'Authentication required': 'Phiên đăng nhập đã hết. Hãy đăng nhập lại.',
 };
 export function walletMessage(error: unknown) {

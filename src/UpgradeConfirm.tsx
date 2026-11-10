@@ -9,6 +9,7 @@ import type { Card, Tier } from './game';
 import { asset } from './asset';
 import './upgrade-confirm.css';
 
+type UpgradeOutcome = { success: boolean; card: Card; before: number; restored?: boolean };
 type Props = {
   target: Card;
   materials: Card[];
@@ -22,7 +23,8 @@ type Props = {
   levelBadge: (level: number) => string;
   onBack: () => void;
   // Đập thật; trả về kết quả để màn này tự hiện thẻ lên / rớt, hoặc null nếu lỗi.
-  onConfirm: () => { success: boolean; card: Card; before: number; restored?: boolean } | null;
+  // Có thể trả Promise khi máy chủ đập thẻ (src/inventory-server.ts): chờ kết quả rồi mới dồn năng lượng.
+  onConfirm: () => UpgradeOutcome | null | Promise<UpgradeOutcome | null>;
   onReveal?: (success: boolean) => void;
   onMusicActiveChange: (active: boolean) => void;
 };
@@ -193,10 +195,17 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
   const goButton = useRef<HTMLButtonElement>(null);
   useEffect(() => { goButton.current?.focus({ preventScroll: true }); }, []);
   const [charging, setCharging] = useState(false);
-  const [prepared, setPrepared] = useState<ReturnType<Props['onConfirm']>>(null);
+  const [prepared, setPrepared] = useState<UpgradeOutcome | null>(null);
   // Kết quả tính + lưu ngay lúc bấm (JSON.stringify + localStorage nặng, làm giữa pha rung sẽ khựng); mốc PREPARE_LEAD chỉ còn dựng hiệu ứng.
-  const computed = useRef<ReturnType<Props['onConfirm']>>(null);
-  const go = () => { if (charging) return; const result = onConfirm(); if (!result) return; computed.current = result; setCharging(true); };
+  const computed = useRef<UpgradeOutcome | null>(null);
+  // waiting: đang chờ máy chủ trả kết quả, khoá nút để không gửi hai lần.
+  const [waiting, setWaiting] = useState(false);
+  const go = async () => {
+    if (charging || waiting) return;
+    setWaiting(true);
+    try { const result = await onConfirm(); if (!result) return; computed.current = result; setCharging(true); }
+    finally { setWaiting(false); }
+  };
   const [revealed, setRevealed] = useState(false);
   const outcome = revealed ? prepared : null;
   const failed = outcome && !outcome.success ? outcome : null, won = outcome?.success ? outcome : null;
@@ -303,7 +312,7 @@ export default function UpgradeConfirm({ target, materials, energy, protection, 
       <div className="uc-row"><span><RefreshCcw size={20}/>Thẻ nâng cấp lại</span><b>0 cái trong kho</b></div>
       <div className="uc-actions">
         <button className="uc-back" onClick={onBack} disabled={charging}>Trở lại</button>
-        <button className="uc-go" onClick={go} disabled={charging} ref={goButton}>Nâng cấp</button>
+        <button className="uc-go" onClick={() => void go()} disabled={charging || waiting} aria-busy={waiting || undefined} ref={goButton}>{waiting ? 'Đang gửi…' : 'Nâng cấp'}</button>
       </div>
     </aside>
   </div>;

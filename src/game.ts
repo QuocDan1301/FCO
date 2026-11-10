@@ -60,7 +60,7 @@ const isEventReward = (r: unknown): r is EventReward => !!r && typeof r === 'obj
 export type LineupSpot = { label: string; x: number; y: number };
 export type Lineup = { formation: string; slots: (string | null)[]; custom?: (LineupSpot | null)[] };
 export type Lineups = { active: number; sets: Lineup[] };
-export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; membership?: Membership; event?: EventState; reset?: string; bpReset?: string; codes?: string[] };
+export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; membership?: Membership; event?: EventState; reset?: string; bpReset?: string; codes?: string[]; inv?: 1 };
 // back: ảnh mặt sau thẻ của gói (hiện ở danh sách gói và màn chuẩn bị mở); không có thì dùng hình gói mặc định.
 // tunnel: ảnh nền chỉ hiện một lần trên cặp màn LED ở cửa hầm; các màn phía sau tắt.
 // accent: màu đèn LED / khung của đường hầm khi mở gói; không có thì dùng màu vàng mặc định.
