@@ -13,14 +13,14 @@ export type Checkin = { claimedToday: boolean; day: number; done: number };
 export type BilacState = { points: number; claimed: (number | null)[]; freeToday: boolean };
 // save: bản lưu mới khi máy chủ vừa cộng quà vào kho (điểm danh ngày 7), xem src/inventory-sync.ts.
 // stp: Star Point (migration 202611110007_fco_star_point.sql), máy chủ chưa chạy migration thì không có.
-export type Wallet = { fc: number; stp?: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null; tier?: 'classic' | 'premium'; tierUntil?: number | null; effect?: NameEffect | null };
+export type Wallet = { fc: number; stp?: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null; tier?: 'classic' | 'premium'; tierUntil?: number | null; effect?: NameEffect | null; club?: string | null };
 export type ServerJackpotWin = { name: string; amount: number; kind: 'special' | 'mini'; time: number; mine: boolean };
 export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
 // Bảng xếp hạng HLV (fco_leaderboard): top 10 kỷ lục đập thẻ OVR, top 10 giá trị đội hình, hạng của người xem.
-export type LeaderboardOvr = { name: string; ovr: number; playerId: number | null; level: number | null; mine: boolean; effect?: NameEffect | null };
-export type LeaderboardSquad = { name: string; value: number; mine: boolean; effect?: NameEffect | null };
+export type LeaderboardOvr = { name: string; ovr: number; playerId: number | null; level: number | null; mine: boolean; effect?: NameEffect | null; club?: string | null };
+export type LeaderboardSquad = { name: string; value: number; mine: boolean; effect?: NameEffect | null; club?: string | null };
 // Sút phạt đền (migration 202611110005): chuỗi bàn liên tiếp dài nhất.
-export type LeaderboardPenalty = { name: string; goals: number; mine: boolean; effect?: NameEffect | null };
+export type LeaderboardPenalty = { name: string; goals: number; mine: boolean; effect?: NameEffect | null; club?: string | null };
 export type Leaderboard = { ovr: LeaderboardOvr[]; squad: LeaderboardSquad[]; penalty?: LeaderboardPenalty[]; me: { ovr: number | null; ovrRank: number | null; squad: number | null; squadRank: number | null; penalty?: number | null; penaltyRank?: number | null } };
 export type EventPlayResult = { hits: { level: number; jar: number }[]; paid: number; jarFc: number; jackpotWins: { kind: 'special' | 'mini'; amount: number; time: number }[]; jackpot: ServerJackpot; wallet: Wallet };
 // Quà admin tặng (supabase/migrations/202611090002_fco_admin_gifts.sql); claimed chỉ có ở danh sách của admin.
@@ -54,12 +54,21 @@ export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 const MESSAGES: Record<string, string> = {
   FCO_NOT_ENOUGH_FC: 'Không đủ FC.',
   FCO_NOT_ENOUGH_STP: 'Không đủ Star Point.',
+  FCO_BAD_CLUB: 'Logo CLB không hợp lệ.',
+  FCO_RANKED_TEAM: 'Bộ đội hình đang dùng chưa đủ 11 cầu thủ.',
+  FCO_RANKED_CARD: 'Đội hình có thẻ không còn trong kho. Hãy kiểm tra lại Đội hình.',
+  FCO_RANKED_WAGE: 'Đội hình vượt mức lương 310. Hãy giảm lương đội hình ở mục Đội hình rồi đá GLXH.',
+  FCO_RANKED_TOO_FAST: 'Đợi vài giây rồi đá trận tiếp theo.',
+  FCO_RANKED_EARLY: 'Trận đấu chưa kết thúc.',
+  FCO_RANKED_IN_PROGRESS: 'Bạn đang có một trận chưa kết thúc.',
+  FCO_RANKED_NO_MATCH: 'Trận này đã kết thúc.',
   FCO_BAD_PASSWORD: 'Mật khẩu phải từ 6 đến 72 ký tự.',
   FCO_DEVICE_LIMIT: 'Thiết bị này đã nhận phần quà này cho một tài khoản khác. Mỗi thiết bị chỉ một tài khoản được nhận.',
   FCO_STP_MISSION_INCOMPLETE: 'Bạn chưa hoàn thành nhiệm vụ này hôm nay.',
   FCO_STP_MISSION_CLAIMED: 'Bạn đã nhận thưởng nhiệm vụ này hôm nay.',
   FCO_STP_MISSION_UNKNOWN: 'Nhiệm vụ không tồn tại.',
   FCO_STP_PACKAGE: 'Gói Star Point này không còn bán.',
+  FCO_STP_DAILY_LIMIT: 'Bạn đã mua gói này hôm nay. Mỗi gói Star Point mua 1 lần mỗi ngày, làm mới lúc 00:00.',
   FCO_NO_VOUCHER: 'Bạn không còn phiếu giảm thuế này.',
   FCO_VOUCHER_USELESS: 'Phiếu này không giảm thêm thuế cho tài khoản Premium (không cộng dồn).',
   FCO_BAD_VOUCHER: 'Phiếu giảm thuế không hợp lệ.',

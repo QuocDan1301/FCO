@@ -5,6 +5,7 @@ import type { GiftCode } from './gift-code-rules';
 import type { MembershipId } from './membership';
 import type { StpItem, StpPackageId } from './stp';
 import type { StpMissionId, StpMissionState } from './stp-missions';
+import type { RankedFinish, RankedMatch, RankedState } from './ranked';
 import { LOGIN_FOR_FC, walletMessage } from './wallet-state';
 import { MAINTENANCE_CHANGED } from './maintenance-state';
 import type { MaintenanceState } from './maintenance-state';
@@ -41,10 +42,19 @@ export const reportSquadRank = (value: number) => call<null>('fco_rank_squad', {
 export const spendFc = (amount: number, detail: Record<string, unknown>) => call<Wallet>('fco_spend_fc', { p_amount: amount, p_reason: 'shop', p_detail: detail });
 export const buyMembership = (id: MembershipId) => call<Wallet>('fco_buy_membership', { p_tier: id });
 // Gói Star Point (202611110007): save = bản lưu mới khi máy chủ giữ kho, null thì game tự cộng vật phẩm (grantStp).
-export const buyStpPackage = (id: StpPackageId) => call<{ wallet: Wallet; save: ServerRecord | null; items: StpItem[] }>('fco_stp_buy', { p_package: id });
+export const buyStpPackage = (id: StpPackageId) => call<{ wallet: Wallet; save: ServerRecord | null; items: StpItem[]; bought?: string[] }>('fco_stp_buy', { p_package: id });
+// Gói Star Point đã mua hôm nay (mỗi gói 1 lần mỗi ngày, 202611120001).
+export const fetchStpToday = () => call<{ day: string; bought: string[] }>('fco_stp_today');
 // Nhiệm vụ Star Point hằng ngày (202611110012).
 export const fetchStpMissions = () => call<StpMissionState>('fco_stp_missions_state');
 export const claimStpMission = (id: StpMissionId) => call<{ wallet: Wallet; reward: number; state: StpMissionState }>('fco_stp_mission_claim', { p_id: id });
+// Xếp hạng giả lập (202611120002).
+// Logo CLB tự chọn (202611120004).
+export const setClubLogo = (club: string | null) => call<Wallet>('fco_set_club_logo', { p_club: club });
+export const fetchRanked = () => call<RankedState>('fco_ranked_state');
+export const finishRanked = () => call<RankedFinish>('fco_ranked_finish');
+export const abandonRanked = () => call<RankedFinish>('fco_ranked_abandon');
+export const playRanked = (team: { formation: string; slots: { uid: string; role: string; x: number; y: number; ovr: number }[] }) => call<RankedMatch>('fco_ranked_play', { p_team: team });
 export const adminCreditStp = (login: string, amount: number, note: string) => call<{ login: string; stp: number }>('fco_admin_credit_stp', { p_login: login, p_amount: amount, p_note: note });
 export const redeemGiftHash = (hash: string) => call<{ rewards: EventReward[]; wallet: Wallet; save?: ServerRecord | null }>('fco_redeem_gift', { p_hash: hash });
 export const claimMissionFc = (id: string) => call<Wallet>('fco_event_mission', { p_id: id });

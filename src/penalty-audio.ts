@@ -109,14 +109,37 @@ export class CrowdAudio {
     src.start(t, Math.random() * 2); src.stop(t + attack + hold + release + .1);
   }
 
-  // Tiếng chân chạm bóng.
-  kick() {
+  // Còi trọng tài (GLXH): tiếng còi bi — âm cao ~3 kHz rung nhanh (viên bi trong còi) + hơi thổi.
+  //   kickoff: một hồi; foul: một hồi ngắn; half: hai hồi; full: hai hồi ngắn + một hồi dài.
+  whistle(kind: 'kickoff' | 'foul' | 'half' | 'full') {
     if (!this.ctx || !this.running) return;
+    const t = this.ctx.currentTime + .02;
+    const seq: [number, number][] = kind === 'kickoff' ? [[0, .55]] : kind === 'foul' ? [[0, .3]] : kind === 'half' ? [[0, .35], [.5, .75]] : [[0, .3], [.42, .3], [.84, 1.05]];
+    for (const [at, dur] of seq) this.blast(t + at, dur);
+  }
+  private blast(t: number, dur: number) {
+    const ctx = this.ctx!, out = ctx.createGain();
+    envelope(out.gain, t, .16, .02, Math.max(.01, dur - .08), .06);
+    out.connect(this.master!);
+    const tone = ctx.createOscillator(), over = ctx.createOscillator(), overGain = ctx.createGain(), trem = ctx.createGain();
+    tone.type = 'sine'; tone.frequency.setValueAtTime(2950, t); tone.frequency.linearRampToValueAtTime(2880, t + dur);
+    over.type = 'sine'; over.frequency.value = 5900; overGain.gain.value = .18;
+    // Viên bi: rung tần số + âm lượng ~ 34 lần / giây.
+    const trill = ctx.createOscillator(), fm = ctx.createGain(), am = ctx.createGain();
+    trill.frequency.value = 34; fm.gain.value = 140; am.gain.value = .3; trem.gain.value = .7;
+    trill.connect(fm).connect(tone.frequency); trill.connect(am).connect(trem.gain);
+    tone.connect(trem); over.connect(overGain).connect(trem); trem.connect(out);
+    for (const o of [tone, over, trill]) { o.start(t); o.stop(t + dur + .1); }
+    this.noiseBurst(t, { type: 'highpass', from: 2600, to: 3200, q: .7 }, .025, .02, Math.max(.01, dur - .08), .06);
+  }
+  // Tiếng chân chạm bóng; level 0–1 (GLXH: sút to, chuyền vừa, nhận / dắt bóng nhẹ).
+  kick(level = 1) {
+    if (!this.ctx || !this.running || level <= 0) return;
     const ctx = this.ctx, t = ctx.currentTime, osc = ctx.createOscillator(), g = ctx.createGain();
     osc.type = 'sine'; osc.frequency.setValueAtTime(150, t); osc.frequency.exponentialRampToValueAtTime(48, t + .14);
-    envelope(g.gain, t, .55, .004, .02, .16);
+    envelope(g.gain, t, .55 * level, .004, .02, .16);
     osc.connect(g).connect(this.master!); osc.start(t); osc.stop(t + .3);
-    this.noiseBurst(t, { type: 'bandpass', from: 900, to: 700, q: 1.2 }, .1, .002, .008, .05);
+    this.noiseBurst(t, { type: 'bandpass', from: 900, to: 700, q: 1.2 }, .1 * level, .002, .008, .05);
   }
   // Bóng chạm lưới: tiếng "phập" trầm + lưới rung nhẹ (nhiễu chỉ ở dải thấp, ngắn).
   netHit() {
@@ -150,3 +173,7 @@ export class CrowdAudio {
 export const PENALTY_SOUND_KEY = 'fco-penalty-sound';
 export const savedPenaltyMute = () => { try { return localStorage.getItem(PENALTY_SOUND_KEY) === 'off'; } catch { return false; } };
 export const savePenaltyMute = (muted: boolean) => { try { localStorage.setItem(PENALTY_SOUND_KEY, muted ? 'off' : 'on'); } catch { /* chỉ nhớ trong phiên này */ } };
+// Tắt / bật tiếng trong trận GLXH (khán đài + còi), nhớ riêng với Sút phạt.
+export const RANKED_SOUND_KEY = 'fco-ranked-sound';
+export const savedRankedMute = () => { try { return localStorage.getItem(RANKED_SOUND_KEY) === 'off'; } catch { return false; } };
+export const saveRankedMute = (muted: boolean) => { try { localStorage.setItem(RANKED_SOUND_KEY, muted ? 'off' : 'on'); } catch { /* chỉ nhớ trong phiên này */ } };

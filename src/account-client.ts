@@ -50,7 +50,6 @@ export function accountError(error: unknown) {
     email_exists: 'Gmail này đã được dùng cho tài khoản khác.',
     same_password: 'Mật khẩu mới phải khác mật khẩu cũ.',
     email_address_invalid: 'Địa chỉ Gmail chưa đúng.',
-    unexpected_failure: 'Chỉ nhận địa chỉ @gmail.com, hoặc máy chủ đang lỗi. Hãy thử lại.',
     user_banned: ACCOUNT_LOCKED_MESSAGE,
     email_not_confirmed: 'Hãy xác nhận email trước khi đăng nhập.',
     email_address_not_authorized: 'Chưa gửi được email xác nhận đến địa chỉ này. Vui lòng liên hệ quản trị game.',
@@ -60,5 +59,8 @@ export function accountError(error: unknown) {
     over_request_rate_limit: 'Có quá nhiều yêu cầu. Hãy đợi một lúc rồi thử lại.',
     signup_disabled: 'Máy chủ đang tạm dừng đăng ký tài khoản mới.',
   };
-  return (code && messages[code]) || 'Không thực hiện được yêu cầu. Kiểm tra kết nối rồi thử lại.';
+  if (code && messages[code]) return messages[code];
+  // Lỗi chưa có câu riêng (thường là gửi email thất bại do cấu hình SMTP): hiện kèm chi tiết để admin tra trong Supabase.
+  const detail = (error as { message?: string })?.message?.trim();
+  return detail ? `Không thực hiện được yêu cầu (${detail.slice(0, 160)}).` : 'Không thực hiện được yêu cầu. Kiểm tra kết nối rồi thử lại.';
 }

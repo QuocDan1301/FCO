@@ -1,0 +1,175 @@
+/* Xếp hạng giả lập (RankedPage.tsx): ba cột (mùa của bạn · BXH · trận gần đây) vừa một màn; trận đấu phủ cả trang với sân dọc ở giữa. */
+.main-content>.workspace.ranked-page{position:relative;display:flex;flex-direction:column;gap:10px;width:min(1280px,calc(100% - 32px));max-width:none;height:calc(100% - 20px);min-height:0;margin:10px auto;padding:14px 18px;border-radius:12px;background:rgba(11,15,21,.9);box-shadow:0 0 40px rgba(0,0,0,.6)}
+.rkd-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none}
+.rkd-head h1{display:flex;align-items:center;gap:10px;margin:0;font-size:clamp(20px,1.8vw,28px);font-weight:700}
+.rkd-head h1 svg{width:1.1em;height:1.1em;color:#ecd28f}
+.rkd-head .rk-refresh{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border:1px solid #ffffff26;border-radius:999px;background:#ffffff0d;color:#e6ebf0;font-family:inherit;font-size:14px;cursor:pointer}
+.rkd-head .rk-refresh svg{width:16px;height:16px}
+.rkd-error{margin:0;padding:8px 12px;border-radius:8px;background:#3a1418;color:#ffb4b4;font-size:13px}
+.rkd-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,.9fr);gap:12px;flex:1;min-height:0}
+.rkd-card{display:flex;flex-direction:column;gap:10px;min-height:0;padding:14px 16px;border:1px solid #ffffff14;border-radius:10px;background:#ffffff06}
+.rkd-card h2{margin:0;font-size:16px;font-weight:700;color:#e6ebf0}
+.rkd-tier{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px;border:1px solid color-mix(in srgb,var(--tier) 60%,transparent);border-radius:999px;background:color-mix(in srgb,var(--tier) 14%,transparent);color:var(--tier);font-size:12px;font-weight:700;white-space:nowrap}
+.rkd-tier b{margin-left:3px;color:#fff;font-variant-numeric:tabular-nums}
+.rkd-me>.rkd-tier{align-self:flex-start;height:34px;padding:0 14px;font-size:16px}
+.rkd-next{margin:0;font-size:13px;color:#aebdcc}
+.rkd-record{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0}
+.rkd-record>div{padding:8px;border-radius:8px;background:#ffffff0a;text-align:center}
+.rkd-record dt{font-size:11px;color:#8f99ab}
+.rkd-record dd{margin:2px 0 0;font-family:var(--display);font-size:22px;font-weight:700;color:#fff}
+.rkd-team-box{display:grid;gap:6px;padding:10px 12px;border-radius:8px;background:#38c6ff0d;border:1px solid #38c6ff2e;font-size:13px;color:#c9d6e2}
+.rkd-team-box h3{display:flex;align-items:center;gap:6px;margin:0;font-size:13px;color:#e7f3ff}
+.rkd-team-box p{margin:0}
+.rkd-team-box b{color:#38c6ff;font-size:16px}
+.rkd-names{font-size:12px;color:#8fa3b8;line-height:1.5}
+.rkd-warn{color:#ffd28a}
+.rkd-team-box .secondary-button{justify-self:start;min-height:30px;padding:0 12px}
+.rkd-find{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;margin-top:auto;border:0;border-radius:10px;background:linear-gradient(180deg,#5fd7ff,#1f8fd6);color:#04131f;font-family:var(--display);font-size:20px;font-weight:800;letter-spacing:.04em;cursor:pointer;box-shadow:0 10px 24px -12px #38c6ffaa}
+.rkd-find:hover:not(:disabled){filter:brightness(1.08)}
+.rkd-find:disabled{background:#232c36;color:#7d8794;box-shadow:none;cursor:not-allowed}
+.rkd-hint{font-size:11px;line-height:1.5;color:#8f99ab}
+.rkd-top,.rkd-history{list-style:none;margin:0;padding:0;overflow-y:auto;min-height:0;display:grid;align-content:start;gap:4px}
+.rkd-top>li{display:grid;grid-template-columns:24px minmax(0,1fr) auto auto;align-items:center;gap:8px;min-height:32px;padding:0 8px;border-radius:6px;background:#ffffff06;font-size:13px}
+.rkd-top>li.is-mine{outline:1px solid #38c6ff88;background:#38c6ff14}
+.rkd-top small{color:#8f99ab;font-size:11px;white-space:nowrap}
+.rkd-rank{font-family:var(--display);font-weight:700;color:#ecd28f;text-align:center}
+.rkd-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.rkd-history>li{display:grid;grid-template-columns:52px minmax(0,1fr) 44px;grid-template-rows:auto auto;column-gap:8px;padding:6px 8px;border-radius:6px;background:#ffffff06;border-left:3px solid #7d8794;font-size:13px}
+.rkd-history>li.is-win{border-left-color:#3ddc7a}.rkd-history>li.is-loss{border-left-color:#ff5b5b}
+.rkd-history b{font-family:var(--display);font-size:16px}
+.rkd-history span:nth-of-type(1){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rkd-history small{grid-column:1/-1;color:#8f99ab;font-size:11px}
+.is-up{color:#3ddc7a;font-weight:700}.is-down{color:#ff7a7a;font-weight:700}
+.rkd-top>li.is-empty,.rkd-history>li.is-empty{display:block;padding:10px;color:#8f99ab;background:none;border:0}
+
+/* Trận đấu */
+/* Trận đang đá phủ kín màn hình (cả thanh trên và thanh dưới): không chuyển màn được giữa trận. */
+.rkd-match{position:fixed;inset:0;z-index:2000;display:grid;grid-template-columns:minmax(250px,400px) minmax(0,calc((100vh - 28px) * .6476)) minmax(250px,400px);justify-content:center;grid-template-rows:minmax(0,1fr);gap:16px;padding:14px 18px;border-radius:12px;background:#070b10}
+.rkd-close{position:absolute;top:10px;right:10px}
+.rkd-match-side{display:flex;flex-direction:column;gap:10px;min-height:0}
+.rkd-board{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;padding:12px;border-radius:10px;background:#ffffff0a}
+.rkd-board>div{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.rkd-board b{font-family:var(--display);font-size:38px;line-height:1;color:#fff}
+.rkd-team{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:700}
+.rkd-team.is-me{color:#38c6ff}.rkd-team.is-opp{color:#ff7a7a}
+.rkd-minute{padding:4px 10px;border-radius:999px;background:#000;color:#3ddc7a;font-family:var(--display);font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.rkd-ovr{margin:0;font-size:12px;color:#8f99ab}
+.rkd-ovr b{color:#e6ebf0}
+.rkd-log{list-style:none;margin:0;padding:0;flex:1;min-height:0;overflow-y:auto;display:grid;align-content:start;gap:4px}
+.rkd-log>li{padding:6px 8px;border-radius:6px;background:#ffffff08;font-size:13px;border-left:3px solid transparent}
+.rkd-log>li span{display:inline-block;min-width:30px;font-weight:700;color:#ecd28f}
+.rkd-log>li.is-me{border-left-color:#38c6ff}.rkd-log>li.is-opp{border-left-color:#ff5b5b}
+.rkd-log>li.is-half{text-align:center;color:#8f99ab}
+.rkd-log>li.is-empty{color:#8f99ab}
+.rkd-log small{color:#8fa3b8}
+.rkd-controls{display:flex;flex-wrap:wrap;gap:6px}
+.rkd-controls button{display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 12px;border:1px solid #ffffff26;border-radius:6px;background:#ffffff0d;color:#e6ebf0;font-family:inherit;font-weight:700;cursor:pointer}
+.rkd-controls button[aria-pressed=true]{background:#38c6ff;color:#04131f;border-color:#38c6ff}
+.rkd-pitch-wrap{position:relative;display:grid;place-items:center;min-width:0;min-height:0;height:100%;overflow:hidden}
+.rkd-pitch{display:block;border-radius:8px;box-shadow:0 10px 30px #000a}
+.rkd-banner{position:absolute;top:18%;left:50%;translate:-50% 0;padding:10px 22px;border-radius:999px;font-family:var(--display);font-size:24px;font-weight:800;color:#fff;white-space:nowrap;animation:rkd-pop .35s ease-out;box-shadow:0 10px 30px #000a}
+.rkd-banner.is-me{background:linear-gradient(90deg,#1f8fd6,#38c6ff)}.rkd-banner.is-opp{background:linear-gradient(90deg,#b62a2a,#ff5b5b)}
+.rkd-banner b{margin:0 6px;color:#fff6c2}
+@keyframes rkd-pop{from{scale:.6;opacity:0}to{scale:1;opacity:1}}
+.rkd-result{position:absolute;left:50%;top:50%;translate:-50% -50%;display:grid;justify-items:center;gap:10px;min-width:280px;padding:22px 28px;border-radius:14px;background:#0b1118f2;border:1px solid #ffffff26;box-shadow:0 20px 60px #000c;text-align:center}
+.rkd-result h2{margin:0;font-family:var(--display);font-size:32px}
+.rkd-result.is-win h2{color:#3ddc7a}.rkd-result.is-loss h2{color:#ff7a7a}.rkd-result.is-draw h2{color:#ecd28f}
+.rkd-result p{margin:0;font-size:15px}
+.rkd-result-actions{display:flex;gap:8px;margin-top:4px}
+.reduced-motion .rkd-banner{animation:none}
+.rkd-club{width:1.35em;height:1.35em;object-fit:contain;vertical-align:middle;margin-right:6px;flex-shrink:0}
+.rkd-board-club{width:34px;height:34px;object-fit:contain;margin-bottom:2px}
+.rkd-rule{margin:0;padding:8px 10px;border-radius:8px;background:#ffb35c14;border:1px solid #ffb35c40;color:#ffd28a;font-size:12px;line-height:1.5}
+.rkd-saving{margin:0;color:#aebdcc;font-size:14px}
+.rkd-quit{align-self:flex-start;height:32px;padding:0 14px;border:1px solid #ff5b5b66;border-radius:6px;background:#ff5b5b14;color:#ff9a9a;font-family:inherit;font-weight:700;cursor:pointer}
+.rkd-quit:hover:not(:disabled){background:#ff5b5b26}
+.rkd-quit-ask{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px;color:#ffb4b4}
+.rkd-quit-ask span{flex-basis:100%}
+.rkd-quit-ask .secondary-button{min-height:32px;padding:0 12px}
+.rkd-team-box b.rkd-over{color:#ff7b7b}
+.rkd-progress{height:4px;border-radius:2px;background:#ffffff14;overflow:hidden}
+.rkd-progress i{display:block;height:100%;background:#3ddc7a;transition:width .5s linear}
+.rkd-stats{display:grid;gap:7px;padding:10px 12px;border-radius:10px;background:#ffffff08}
+.rkd-stats h3,.rkd-log-title{margin:0;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#8f99ab}
+.rkd-stat{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;row-gap:3px;font-size:12px;color:#c9d6e2}
+.rkd-stat span{text-align:center}
+.rkd-stat b{font-size:14px;font-variant-numeric:tabular-nums;color:#38c6ff}
+.rkd-stat b:last-of-type{text-align:right;color:#ff7a7a}
+.rkd-stat i{grid-column:1/-1;height:4px;border-radius:2px;background:linear-gradient(90deg,#38c6ff 0 var(--share),#ff5b5b var(--share) 100%);opacity:.85}
+.rkd-log>li.is-chance{font-size:12px;color:#aab6c4;background:#ffffff05}
+.rkd-log>li.is-goal{font-weight:700}
+.rkd-lineups{gap:12px;overflow-y:auto}
+.rkd-lineups section{display:grid;gap:6px;padding:10px 12px;border-radius:10px;background:#ffffff08}
+.rkd-lineups h3{display:flex;align-items:center;gap:6px;margin:0;font-size:14px;min-width:0}
+.rkd-lineups h3.is-me{color:#38c6ff}.rkd-lineups h3.is-opp{color:#ff7a7a}
+.rkd-lineups h3 img{width:22px;height:22px;object-fit:contain}
+.rkd-lineups h3 small{margin-left:auto;padding-left:8px;font-size:12px;font-weight:600;color:#8f99ab}
+.rkd-lineups ol{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+.rkd-lineups li{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:8px;padding:3px 6px;border-radius:5px;font-size:13px;background:#ffffff05}
+.rkd-lineups li b{font-variant-numeric:tabular-nums;color:#e6ebf0}
+.rkd-pname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e6ebf0}
+.rkd-pname.is-hidden{color:#6f7a8b;font-style:italic}
+.rkd-pname em{font-style:normal;color:#ecd28f}
+.rkd-role{padding:1px 0;border-radius:4px;text-align:center;font-size:11px;font-weight:800;color:#0b1118}
+.rkd-role.is-gk{background:#ffd23f}.rkd-role.is-df{background:#5aa9ff}.rkd-role.is-mf{background:#3ddc7a}.rkd-role.is-fw{background:#ff7a7a}
+.rkd-sound{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;height:30px;padding:0 12px;border:1px solid #ffffff26;border-radius:6px;background:#ffffff0d;color:#c9d6e2;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:auto}
+.rkd-sound:hover{background:#ffffff1a}
+/* Nút tiếng + bỏ trận dưới cùng cột trái. */
+.rkd-side-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:auto}
+.rkd-side-actions .rkd-sound{margin-top:0}
+.rkd-side-actions .rkd-quit-ask{flex-basis:100%}
+/* Chế độ gọn (màn nhỏ): 2 cột, cột trái ưu tiên tỉ số + diễn biến cỡ lớn, thống kê / đội hình trong tab; --z phóng chữ theo mức thu nhỏ màn. */
+.rkd-match.is-compact{--z:1;grid-template-columns:minmax(0,1fr) minmax(0,calc((100vh - 24px) * .6476));justify-content:stretch;gap:calc(10px * var(--z));padding:12px}
+.rkd-match.is-compact .rkd-match-side{gap:calc(8px * var(--z));min-width:0}
+.rkd-match.is-compact .rkd-board{padding:calc(10px * var(--z)) calc(8px * var(--z))}
+.rkd-match.is-compact .rkd-board b{font-size:calc(46px * var(--z))}
+.rkd-match.is-compact .rkd-board-club{width:calc(30px * var(--z));height:calc(30px * var(--z))}
+.rkd-match.is-compact .rkd-team{font-size:calc(13px * var(--z))}
+.rkd-match.is-compact .rkd-minute{font-size:calc(18px * var(--z));padding:calc(4px * var(--z)) calc(10px * var(--z))}
+.rkd-match.is-compact .rkd-progress{height:calc(4px * var(--z))}
+.rkd-tabs{display:flex;gap:calc(6px * var(--z, 1))}
+.rkd-tabs button{flex:1;min-height:calc(30px * var(--z, 1));border:1px solid #ffffff1f;border-radius:6px;background:#ffffff08;color:#aab6c4;font-family:inherit;font-size:calc(12px * var(--z, 1));font-weight:700;cursor:pointer}
+.rkd-tabs button.is-active{background:#38c6ff22;border-color:#38c6ff66;color:#e7f6ff}
+.rkd-match.is-compact .rkd-log{gap:calc(4px * var(--z))}
+.rkd-match.is-compact .rkd-log>li{font-size:calc(14px * var(--z));padding:calc(6px * var(--z)) calc(8px * var(--z))}
+.rkd-match.is-compact .rkd-log>li.is-chance{font-size:calc(12.5px * var(--z))}
+.rkd-match.is-compact .rkd-log>li span{min-width:calc(32px * var(--z))}
+.rkd-match.is-compact .rkd-stats{overflow-y:auto;min-height:0;gap:calc(6px * var(--z))}
+.rkd-match.is-compact .rkd-stats h3{display:none}
+.rkd-match.is-compact .rkd-stat{font-size:calc(12px * var(--z));grid-template-columns:calc(44px * var(--z)) 1fr calc(44px * var(--z))}
+.rkd-match.is-compact .rkd-stat b{font-size:calc(14px * var(--z))}
+.rkd-match.is-compact .rkd-stat i{height:calc(4px * var(--z))}
+.rkd-match.is-compact .rkd-lineups{display:flex;flex-direction:column;gap:calc(8px * var(--z));overflow-y:auto;min-height:0}
+.rkd-match.is-compact .rkd-lineups h3{font-size:calc(13px * var(--z))}
+.rkd-match.is-compact .rkd-lineups li{font-size:calc(12px * var(--z));grid-template-columns:calc(40px * var(--z)) minmax(0,1fr) auto}
+.rkd-match.is-compact .rkd-role{font-size:calc(10px * var(--z))}
+.rkd-match.is-compact .rkd-sound,.rkd-match.is-compact .rkd-quit{height:calc(30px * var(--z));font-size:calc(12px * var(--z))}
+.rkd-match.is-compact .rkd-quit-ask{font-size:calc(12px * var(--z))}
+.rkd-match.is-compact .rkd-quit-ask .secondary-button{min-height:calc(30px * var(--z));font-size:calc(12px * var(--z))}
+.rkd-match.is-compact .rkd-banner{font-size:calc(20px * var(--z))}
+.rkd-match.is-compact .rkd-result{min-width:0;width:min(92%,calc(320px * var(--z)));padding:calc(16px * var(--z))}
+.rkd-match.is-compact .rkd-result h2{font-size:calc(28px * var(--z))}
+.rkd-match.is-compact .rkd-result p{font-size:calc(14px * var(--z))}
+.rkd-match.is-compact .rkd-close{top:6px;right:6px}
+/* Bảng tỉ số mới: [logo + tên] [tỉ số – phút] [logo + tên]. */
+.rkd-board{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+.rkd-board-team{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;text-align:center}
+.rkd-board-team .rkd-team{white-space:normal;line-height:1.2}
+.rkd-board>.rkd-board-score{display:grid;grid-template-columns:auto auto auto;align-items:center;justify-items:center;column-gap:8px;row-gap:4px}
+.rkd-board-score b{font-family:var(--display);font-size:42px;line-height:1;color:#fff;font-variant-numeric:tabular-nums}
+.rkd-board-score i{font-style:normal;font-size:28px;color:#8f99ab}
+.rkd-board-score .rkd-minute{grid-column:1/-1}
+svg.rkd-board-club{padding:3px}
+svg.rkd-board-club.is-me{color:#38c6ff}svg.rkd-board-club.is-opp{color:#ff7a7a}
+.rkd-match.is-compact .rkd-board-score b{font-size:calc(46px * var(--z))}
+.rkd-match.is-compact .rkd-board-score i{font-size:calc(30px * var(--z))}
+/* BXH: logo CLB nằm cùng dòng với tên HLV (ảnh mặc định là khối nên trước đây đẩy tên xuống dòng). */
+.rkd-top .rkd-name{display:flex;align-items:center}
+.rkd-top .rkd-name .rkd-club{display:inline-block}
+/* Màn kết quả ở chế độ gọn: nút, huy hiệu bậc, nút đóng phóng theo màn. */
+.rkd-match.is-compact .rkd-result .rkd-tier{font-size:calc(13px * var(--z))}
+.rkd-match.is-compact .rkd-result .rkd-tier svg{width:calc(14px * var(--z));height:calc(14px * var(--z))}
+.rkd-match.is-compact .rkd-result-actions{gap:calc(8px * var(--z))}
+.rkd-match.is-compact .rkd-result-actions button{min-height:calc(36px * var(--z));padding:0 calc(14px * var(--z));font-size:calc(13px * var(--z))}
+.rkd-match.is-compact .rkd-result-actions button svg{width:calc(16px * var(--z));height:calc(16px * var(--z))}
+.rkd-match.is-compact .rkd-close{transform:scale(var(--z));transform-origin:top right}

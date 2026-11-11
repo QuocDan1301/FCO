@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import LinkGmail from './LinkGmail';
+import ClubLogoPicker from './ClubLogoPicker';
+import { clubLogoUrl } from './club-logo';
 import { AlertTriangle, CalendarCheck, CalendarDays, Crown, IdCard, Lock, Settings2, Sparkles, UserRound, X } from 'lucide-react';
 import { NAME_EFFECTS, avatarEffectClass, nameEffectClass } from './name-effects';
 import type { NameEffect } from './name-effects';
@@ -15,9 +17,9 @@ const dateText = (ms: number) => new Date(ms).toLocaleDateString('vi-VN', { time
 const genderLabel = (id: string | undefined) => GENDERS.find(g => g.id === id)?.label;
 
 // effect: hiệu ứng avatar + tên đang dùng (chỉ Premium); onEffect gửi lựa chọn lên máy chủ (null = tắt).
-type Props = { save: Save; accountId?: string; accountEmail?: string | null; joined?: number | null; tier?: AccountTier | null; effect?: NameEffect | null; onEffect?: (effect: NameEffect | null) => Promise<boolean> | boolean; onSave: (profile: Profile) => void; onSettings: () => void; onClose: () => void };
+type Props = { save: Save; accountId?: string; accountEmail?: string | null; club?: string | null; onClub?: (club: string | null) => Promise<boolean> | boolean; joined?: number | null; tier?: AccountTier | null; effect?: NameEffect | null; onEffect?: (effect: NameEffect | null) => Promise<boolean> | boolean; onSave: (profile: Profile) => void; onSettings: () => void; onClose: () => void };
 
-export default function ProfileCard({ save, accountId, accountEmail = null, joined, tier: tierId, effect = null, onEffect, onSave, onSettings, onClose }: Props) {
+export default function ProfileCard({ save, accountId, accountEmail = null, club = null, onClub, joined, tier: tierId, effect = null, onEffect, onSave, onSettings, onClose }: Props) {
   const profile = save.profile ?? {};
   const needGender = !profile.gender, needBirthday = !profile.birthday;
   const [gender, setGender] = useState('');
@@ -42,7 +44,7 @@ export default function ProfileCard({ save, accountId, accountEmail = null, join
   return <div className="profile-card">
     <div className="modal-heading"><h2>Thông tin HLV</h2><button className="icon-button" aria-label="Đóng thông tin" onClick={onClose}><X/></button></div>
     <div className="profile-hero">
-      <span className={`profile-avatar is-${tier.id}${avatarEffectClass(shown)}`} aria-hidden="true">{initials}</span>
+      <span className={`profile-avatar is-${tier.id}${avatarEffectClass(shown)}`} aria-hidden="true">{clubLogoUrl(club) ? <img className="profile-avatar-club" src={clubLogoUrl(club)!} alt=""/> : initials}</span>
       <div><b className={nameEffectClass(shown).trim() || undefined}>{accountId ?? 'Huấn luyện viên'}</b><span className={`profile-tier is-${tier.id}`}><Crown size={13}/>{tier.name}</span></div>
     </div>
     <dl className="profile-rows">
@@ -60,6 +62,7 @@ export default function ProfileCard({ save, accountId, accountEmail = null, join
       <div><dt><CalendarCheck size={15}/>Đã chơi</dt><dd>{joined ? `${playedDays(joined).toLocaleString('vi-VN')} ngày` : '—'}</dd></div>
       <div><dt><Crown size={15}/>Loại tài khoản</dt><dd>{tier.name}{premium && save.premiumUntil ? <small className="profile-tier-until"> · hết hạn {new Date(save.premiumUntil).toLocaleDateString('vi-VN')} · giảm 65% thuế bán</small> : null}</dd></div>
     </dl>
+    {onClub && <ClubLogoPicker value={club} onChoose={onClub}/>}
     <LinkGmail email={accountEmail}/>
     {(needGender || needBirthday)
       ? <p className="profile-hint">Giới tính và sinh nhật chỉ lưu được một lần, hãy chọn đúng trước khi lưu.</p>

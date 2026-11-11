@@ -544,4 +544,163 @@ if (files.some(f => f.includes('202611110016'))) {
   console.log('gmail accounts OK');
 }
 
+// 21. Gói Star Point mỗi gói một lần mỗi ngày (202611120001).
+if (files.some(f => f.includes('202611120001'))) {
+  await db.query(`delete from public.fco_stp_purchases where user_id = $1`, [B]);
+  await as(A, `select public.fco_admin_credit_stp('player_b', 500)`);
+  assert.deepEqual((await as(B, `select public.fco_stp_today()`)).bought, []);
+  r = await as(B, `select public.fco_stp_buy('rookie')`);
+  assert.deepEqual(r.bought, ['rookie']);
+  const stp = r.wallet.stp;
+  await assert.rejects(as(B, `select public.fco_stp_buy('rookie')`), /FCO_STP_DAILY_LIMIT/);
+  assert.equal((await as(B, `select public.fco_wallet()`)).stp, stp, 'bị chặn thì không trừ STP');
+  r = await as(B, `select public.fco_stp_buy('challenge')`);
+  assert.deepEqual(r.bought, ['challenge', 'rookie']);
+  // Sang ngày mới mua lại được.
+  await db.query(`update public.fco_stp_purchases set day = day - 1 where user_id = $1`, [B]);
+  assert.deepEqual((await as(B, `select public.fco_stp_today()`)).bought, []);
+  await as(B, `select public.fco_stp_buy('rookie')`);
+  console.log('stp daily limit OK');
+}
+
+// 22. Xếp hạng giả lập (202611120002): kiểm tra đội hình bằng kho máy chủ, chặn OVR ảo, ghép đội máy / người thật, Elo, lịch sử.
+if (files.some(f => f.includes('202611120002'))) {
+  const strong = catalog.players.filter(x => x[2][0] !== null).sort((a, b) => b[2][0] - a[2][0]).slice(0, 11);
+  const roles = ['LW', 'ST', 'RW', 'LCM', 'CM', 'RCM', 'LB', 'LCB', 'RCB', 'RB', 'GK'];
+  const team = (prefix, ovrBoost = 0) => ({ formation: '4-3-3', slots: strong.map((p, i) => ({ uid: `${prefix}${i}`, role: roles[i], x: 10 + i * 7, y: 20 + i * 6, ovr: p[2][0] + ovrBoost })) });
+  const cards = prefix => strong.map((p, i) => ({ uid: `${prefix}${i}`, playerId: p[0], level: 1, received: 0 }));
+  await setSave(B, { ...(await save(B)), cards: cards('rk') });
+  await setSave(C, { ...(await save(C)), cards: cards('rc') });
+  if (files.some(f => f.includes('202611120006'))) await db.query(`update public.fco_cat_players set wage = 20 where id = any($1)`, [strong.map(p => p[0])]);
+  await db.query(`delete from public.fco_ranked`);
+  let st = await as(B, `select public.fco_ranked_state()`);
+  assert.deepEqual([st.me.points, st.me.tier, st.me.rank], [1000, 'silver', null]);
+  // Thiếu cầu thủ / thẻ không có trong kho bị chặn.
+  await assert.rejects(as(B, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify({ formation: '4-3-3', slots: team('rk').slots.slice(0, 10) })]), /FCO_RANKED_TEAM/);
+  await assert.rejects(as(B, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team('xx'))]), /FCO_RANKED_CARD/);
+  // OVR khai khống bị chặn ở OVR thẻ + 17; không có người thật → đấu đội máy.
+  r = await as(B, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team('rk', 999))]);
+  const baseAvg = Math.round(strong.reduce((s, p) => s + p[2][0] + 17, 0) / 11);
+  assert.equal(r.me.ovr, baseAvg);
+  assert.equal(r.opp.bot, true); assert.equal(r.opp.slots.length, 11); assert.ok(Math.abs(r.opp.ovr - r.me.ovr) <= 4);
+  assert.equal(r.goals.length, r.score[0] + r.score[1]);
+  for (const g of r.goals) { assert.ok(g.minute >= 1 && g.minute <= 90); assert.ok(g.scorer >= 0 && g.scorer <= 10); assert.notEqual(g.scorer, g.assist); }
+  assert.deepEqual(r.goals.map(g => g.minute), [...r.goals.map(g => g.minute)].sort((a, b) => a - b));
+  assert.ok(!r.goals.some(g => g.side === 'me' && r.me.slots[g.scorer].role === 'GK'), 'thủ môn không ghi bàn');
+  // Đá liên tiếp quá nhanh bị chặn.
+  // Đá liền trận mới khi trận vừa bắt đầu: bị chặn (quá nhanh, hoặc trận đang diễn từ 202611120005).
+  await assert.rejects(as(B, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team('rk'))]), /FCO_RANKED_TOO_FAST|FCO_RANKED_IN_PROGRESS/);
+  if (files.some(f => f.includes('202611120005'))) {
+    // Chưa tính điểm khi bắt đầu; hết trận sớm hơn 140 giây (tua / bỏ qua) bị từ chối.
+    assert.equal(r.points, undefined); assert.equal(r.minSeconds, 140);
+    await assert.rejects(as(B, `select public.fco_ranked_finish()`), /FCO_RANKED_EARLY/);
+    await db.query(`update public.fco_ranked_pending set started_at = now() - interval '200 seconds' where user_id = $1`, [B]);
+    const fin = await as(B, `select public.fco_ranked_finish()`);
+    assert.deepEqual(fin.score, r.score);
+    assert.equal(fin.points, 1000 + fin.delta);
+    if (r.score[0] > r.score[1]) assert.ok(fin.delta >= 5); else if (r.score[0] < r.score[1]) assert.ok(fin.delta <= -5);
+    // Gọi lại finish (mở ở máy khác) trả lại kết quả trận vừa tính.
+    assert.deepEqual((await as(B, `select public.fco_ranked_finish()`)).delta, fin.delta);
+  } else {
+    assert.equal(r.points, 1000 + r.delta);
+  }
+  // C đá → gặp B (người thật, điểm gần): đối thủ là đội hình của B, tên công khai của B.
+  r = await as(C, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team('rc'))]);
+  assert.equal(r.opp.bot, false); assert.equal(r.opp.name, 'player_b'); assert.equal(r.opp.slots.length, 11); assert.equal(r.opp.slots[0].uid, undefined, 'không lộ thẻ đối thủ');
+  if (files.some(f => f.includes('202611120005'))) {
+    // C tải lại trang giữa trận: trận vẫn chạy, mở lại thấy 'live' để xem tiếp, chưa tính điểm; không đá được trận mới.
+    let cs = await as(C, `select public.fco_ranked_state()`);
+    assert.ok(cs.live && cs.live.elapsed >= 0 && cs.live.elapsed < 140); assert.deepEqual(cs.live.score, r.score); assert.equal(cs.history.length, 0);
+    await db.query(`update public.fco_ranked set last_match_at = null where user_id = $1`, [C]);
+    await assert.rejects(as(C, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team('rc'))]), /FCO_RANKED_IN_PROGRESS/);
+    // Tắt máy, quay lại sau khi trận hết giờ: kết quả thật được tính tự động (không xử thua).
+    await db.query(`update public.fco_ranked_pending set started_at = now() - interval '300 seconds' where user_id = $1`, [C]);
+    cs = await as(C, `select public.fco_ranked_state()`);
+    assert.equal(cs.live, null); assert.equal(cs.history.length, 1); assert.deepEqual([cs.history[0].for, cs.history[0].against], r.score);
+    assert.equal(cs.history[0].opponent, 'player_b');
+    // Game gọi finish muộn (trận đã được tính) vẫn nhận lại đúng kết quả.
+    assert.deepEqual((await as(C, `select public.fco_ranked_finish()`)).score, r.score);
+    // Bấm Bỏ trận: xử thua 0 – 3.
+    await db.query(`update public.fco_ranked set last_match_at = null where user_id = $1`, [C]);
+    await as(C, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team('rc'))]);
+    const ab = await as(C, `select public.fco_ranked_abandon()`);
+    assert.deepEqual(ab.score, [0, 3]); assert.ok(ab.delta <= -5);
+    cs = await as(C, `select public.fco_ranked_state()`);
+    assert.equal(cs.history[0].opponent.endsWith('(bỏ trận)'), true);
+    await assert.rejects(as(C, `select public.fco_ranked_abandon()`), /FCO_RANKED_NO_MATCH/);
+  }
+  // Lịch sử + BXH.
+  st = await as(B, `select public.fco_ranked_state()`);
+  assert.equal(st.history.length, 1); assert.ok(st.top.some(t => t.mine));
+  // Thống kê nhiều trận: đội mạnh hơn hẳn thắng nhiều hơn thua.
+  let w = 0, l = 0;
+  for (let i = 0; i < 60; i++) {
+    const gm = await one(`select public.fco_ranked_poisson(least(4.2, greatest(.35, 1.35 * exp(15 / 10.0))))`), go = await one(`select public.fco_ranked_poisson(least(4.2, greatest(.35, 1.35 * exp(-15 / 10.0))))`);
+    if (gm > go) w++; else if (gm < go) l++;
+  }
+  assert.ok(w > l * 3, `mạnh hơn 15 OVR: thắng ${w}, thua ${l}`);
+  assert.deepEqual([await one(`select public.fco_ranked_tier(899)`), await one(`select public.fco_ranked_tier(1900)`)], ['bronze', 'legend']);
+  console.log('ranked OK');
+}
+
+// 23. Logo CLB tự chọn (202611120004): ví, BXH HLV, BXH GLXH và trận GLXH trả logo.
+if (files.some(f => f.includes('202611120004'))) {
+  r = await as(B, `select public.fco_set_club_logo('Real Madrid')`);
+  assert.equal(r.club, 'Real Madrid');
+  await assert.rejects(as(B, `select public.fco_set_club_logo('<script>')`), /FCO_BAD_CLUB/);
+  const board = await as(B, `select public.fco_leaderboard()`);
+  for (const list of [board.ovr, board.squad, board.penalty]) { const mine = list.find(x => x.mine); if (mine) assert.equal(mine.club, 'Real Madrid'); }
+  const st = await as(B, `select public.fco_ranked_state()`);
+  assert.equal(st.top.find(x => x.mine).club, 'Real Madrid');
+  await db.query(`update public.fco_ranked set last_match_at = null where user_id = $1`, [C]);
+  const strong = catalog.players.filter(x => x[2][0] !== null).sort((a, b) => b[2][0] - a[2][0]).slice(0, 11);
+  const roles = ['LW', 'ST', 'RW', 'LCM', 'CM', 'RCM', 'LB', 'LCB', 'RCB', 'RB', 'GK'];
+  r = await as(C, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify({ formation: '4-3-3', slots: strong.map((p, i) => ({ uid: `rc${i}`, role: roles[i], x: 50, y: 50, ovr: p[2][0] })) })]);
+  if (!r.opp.bot) assert.equal(r.opp.club, 'Real Madrid');
+  assert.equal(r.me.club, null);
+  assert.equal((await as(B, `select public.fco_set_club_logo(null)`)).club, null);
+  console.log('club logo OK');
+}
+
+// 24. Mức lương GLXH (202611120006): đồng bộ lưu lương, đội vượt 310 bị chặn, đúng 310 vẫn đá được.
+if (files.some(f => f.includes('202611120006'))) {
+  const sample = catalog.players.find(x => x[6] > 0);
+  assert.equal(await one(`select wage from public.fco_cat_players where id = $1`, [sample[0]]), sample[6], 'Đồng bộ lưu lương cầu thủ');
+  const strong = catalog.players.filter(x => x[2][0] !== null).sort((a, b) => b[2][0] - a[2][0]).slice(0, 11), ids = strong.map(p => p[0]);
+  const roles = ['LW', 'ST', 'RW', 'LCM', 'CM', 'RCM', 'LB', 'LCB', 'RCB', 'RB', 'GK'];
+  const team = { formation: '4-3-3', slots: strong.map((p, i) => ({ uid: `rc${i}`, role: roles[i], x: 50, y: 50, ovr: p[2][0] })) };
+  await db.query(`delete from public.fco_ranked_pending where user_id = $1`, [C]);
+  await db.query(`update public.fco_ranked set last_match_at = null where user_id = $1`, [C]);
+  await db.query(`update public.fco_cat_players set wage = case when id = $2 then 31 else 29 end where id = any($1)`, [ids, ids[0]]); // 31 + 10 × 29 = 321
+  await assert.rejects(as(C, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team)]), /FCO_RANKED_WAGE/);
+  assert.equal(await one(`select count(*)::integer from public.fco_ranked_pending where user_id = $1`, [C]), 0, 'bị chặn thì không tạo trận');
+  await db.query(`update public.fco_cat_players set wage = case when id = $2 then 30 else 28 end where id = any($1)`, [ids, ids[0]]); // 30 + 10 × 28 = 310
+  const ok = await as(C, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team)]);
+  assert.equal(ok.minSeconds, 140);
+  console.log('ranked wage cap OK');
+}
+
+// 25. Viền Premium trong trận GLXH (202611120007): đội của tài khoản Premium có hiệu ứng thì trận gửi kèm; Classic thì không.
+if (files.some(f => f.includes('202611120007'))) {
+  const strong = catalog.players.filter(x => x[2][0] !== null).sort((a, b) => b[2][0] - a[2][0]).slice(0, 11);
+  const roles = ['LW', 'ST', 'RW', 'LCM', 'CM', 'RCM', 'LB', 'LCB', 'RCB', 'RB', 'GK'];
+  const team = { formation: '4-3-3', slots: strong.map((p, i) => ({ uid: `rc${i}`, role: roles[i], x: 50, y: 50, ovr: p[2][0] })) };
+  if (files.some(f => f.includes('202611120006'))) await db.query(`update public.fco_cat_players set wage = 20 where id = any($1)`, [strong.map(p => p[0])]);
+  const fresh = async () => { await db.query(`delete from public.fco_ranked_pending where user_id = $1`, [C]); await db.query(`update public.fco_ranked set last_match_at = null where user_id = $1`, [C]); };
+  await as(A, `select public.fco_admin_account_tier($1, 'premium')`, [C]);
+  await as(C, `select public.fco_set_name_effect('fire')`);
+  await fresh();
+  r = await as(C, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team)]);
+  assert.equal(r.me.effect, 'fire');
+  if (r.opp.bot) assert.equal(r.opp.effect, null);
+  const live = await as(C, `select public.fco_ranked_state()`);
+  assert.equal(live.live.me.effect, 'fire', 'xem tiếp trận vẫn có viền');
+  await as(A, `select public.fco_admin_account_tier($1, 'classic')`, [C]);
+  await fresh();
+  r = await as(C, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team)]);
+  assert.equal(r.me.effect, null);
+  await fresh();
+  console.log('ranked premium ring OK');
+}
+
 console.log('ALL OK');

@@ -100,7 +100,7 @@ test('Âm thanh sân: không có Web Audio thì không lỗi; nhạc nền tạm
   const a = new CrowdAudio(false);
   assert.doesNotThrow(() => { a.start(); a.kick(); a.netHit(); a.postHit(); a.save(); a.setMuted(true); a.pause(); a.dispose(); });
   const app = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
-  assert.match(app, /<BackgroundMusic suspended=\{upgradeMusicActive \|\| view === 'penalty'\}/);
+  assert.match(app, /<BackgroundMusic suspended=\{upgradeMusicActive \|\| view === 'penalty' \|\| \(view === 'ranked' && rankedMatchActive\)\}/);
   const html = renderToStaticMarkup(createElement(PenaltyPage, { online: true, reduced: false, onStart: async () => ({ streak: 0, best: 0 }), onShoot: async () => ({ goal: true, over: false, streak: 1, best: 1, keeper: { x: 0, y: 0 } }) }));
   assert.match(html, /class="pk-sound"[^>]*aria-label="Tắt tiếng khán giả"/);
   const page = readFileSync(new URL('../src/PenaltyPage.tsx', import.meta.url), 'utf8');

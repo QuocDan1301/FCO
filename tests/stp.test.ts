@@ -86,3 +86,10 @@ test('Phiếu giảm thuế do máy chủ giữ: gộp bản lưu lấy phiếu 
   assert.deepEqual(dirty.taxVouchers, { 30: 2 });
   assert.equal(dirty.stp, undefined);
 });
+
+test('Gói Star Point: mỗi gói mua 1 lần mỗi ngày (máy chủ chặn, game khoá nút)', () => {
+  const daily = readFileSync('supabase/migrations/202611120001_fco_stp_daily_limit.sql', 'utf8');
+  assert.match(daily, /primary key \(user_id, day, package\)/);
+  assert.match(daily, /FCO_STP_DAILY_LIMIT/);
+  assert.match(readFileSync('src/StpShop.tsx', 'utf8'), /Đã mua hôm nay/);
+});

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { Eye, ShoppingBag, X } from 'lucide-react';
+import { Check, Eye, ShoppingBag, X } from 'lucide-react';
 import { money } from './game';
 import type { Pack, Save } from './game';
 import { findPack } from './event';
@@ -15,6 +15,8 @@ type Props = {
   save: Save;
   online: boolean;
   onBuy: (id: StpPackageId) => boolean | Promise<boolean>;
+  // Gói đã mua hôm nay (mỗi gói 1 lần mỗi ngày, migration 202611120001); null = chưa tải được.
+  bought: readonly string[] | null;
   renderArt: (pack: Pack) => ReactNode;
 };
 
@@ -29,7 +31,7 @@ function ItemIcon({ item, renderArt }: { item: StpItem; renderArt: Props['render
   return <span className="stp-item-pack" aria-hidden="true">{pack ? renderArt(pack) : null}</span>;
 }
 
-function StpDialog({ pkg, stp, online, onBuy, onClose, renderArt }: { pkg: StpPackage; stp: number; online: boolean; onBuy: () => Promise<boolean>; onClose: () => void; renderArt: Props['renderArt'] }) {
+function StpDialog({ pkg, stp, online, done, onBuy, onClose, renderArt }: { pkg: StpPackage; stp: number; online: boolean; done: boolean; onBuy: () => Promise<boolean>; onClose: () => void; renderArt: Props['renderArt'] }) {
   const [busy, setBusy] = useState(false);
   useEffect(() => { const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); }; window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key); }, [onClose]);
   const affordable = stp >= pkg.price;
@@ -46,27 +48,27 @@ function StpDialog({ pkg, stp, online, onBuy, onClose, renderArt }: { pkg: StpPa
       </ul>
       <footer className="stp-dialog-foot">
         <div className="stp-dialog-price"><span>Giá</span><strong><StpIcon size={22}/>{money(pkg.price)} <small>STP</small></strong><span className="stp-dialog-have">Bạn có {money(stp)} STP</span></div>
-        {!online ? <p className="stp-dialog-error">Hãy đăng nhập tài khoản để dùng Star Point.</p> : !affordable && <p className="stp-dialog-error">Bạn chưa đủ Star Point để mua gói này.</p>}
-        <div className="stp-dialog-actions"><button className="secondary-button" onClick={onClose}>Đóng</button><button className="shop-buy" disabled={busy || !affordable || !online} onClick={() => { setBusy(true); void onBuy().then(ok => { setBusy(false); if (ok) onClose(); }); }}><ShoppingBag size={17}/>Mua · {money(pkg.price)} STP</button></div>
+        {!online ? <p className="stp-dialog-error">Hãy đăng nhập tài khoản để dùng Star Point.</p> : done ? <p className="stp-dialog-error">Bạn đã mua gói này hôm nay. Mỗi gói mua 1 lần mỗi ngày, làm mới lúc 00:00.</p> : !affordable && <p className="stp-dialog-error">Bạn chưa đủ Star Point để mua gói này.</p>}
+        <div className="stp-dialog-actions"><button className="secondary-button" onClick={onClose}>Đóng</button><button className="shop-buy" disabled={busy || done || !affordable || !online} onClick={() => { setBusy(true); void onBuy().then(ok => { setBusy(false); if (ok) onClose(); }); }}><ShoppingBag size={17}/>Mua · {money(pkg.price)} STP</button></div>
       </footer>
     </div>
   </div>, document.body);
 }
 
-export default function StpShop({ save, online, onBuy, renderArt }: Props) {
+export default function StpShop({ save, online, onBuy, bought, renderArt }: Props) {
   const [open, setOpen] = useState<StpPackage | null>(null);
   const stp = save.stp ?? 0;
   return <>
     {STP_PACKAGES.map(pkg => {
-      const affordable = stp >= pkg.price;
+      const affordable = stp >= pkg.price, done = !!bought?.includes(pkg.id);
       return <article className="shop-product stp-product" key={pkg.id} data-tone={`stp-${pkg.id}`} data-stp={pkg.id}>
         <div className="shop-product-heading"><h2>{pkg.name}</h2><span className="stp-tag">{pkg.label}</span></div>
         <button className="shop-art" onClick={() => setOpen(pkg)} aria-label={`Xem vật phẩm trong ${pkg.name}`}><img src={asset(pkg.image)} alt=""/><span className="shop-art-hint" aria-hidden="true"><Eye size={13}/>Xem vật phẩm</span></button>
         <div className="shop-total"><span>Giá mỗi gói</span><strong className="stp-price"><StpIcon size={22}/>{money(pkg.price)} <small>STP</small></strong></div>
-        <p className="shop-note shop-error">{affordable ? '' : 'Bạn chưa đủ Star Point để mua gói này.'}</p>
-        <div className="shop-actions"><button className="shop-buy" onClick={() => setOpen(pkg)}><ShoppingBag size={17}/>Mua gói</button></div>
+        <p className={`shop-note ${done ? 'stp-limit-note' : 'shop-error'}`}>{done ? 'Đã mua hôm nay · mua lại sau 00:00' : affordable ? 'Mỗi gói mua 1 lần mỗi ngày.' : 'Bạn chưa đủ Star Point để mua gói này.'}</p>
+        <div className="shop-actions"><button className={`shop-buy ${done ? 'is-added' : ''}`} onClick={() => setOpen(pkg)}>{done ? <><Check size={17}/>Đã mua hôm nay</> : <><ShoppingBag size={17}/>Mua gói</>}</button></div>
       </article>;
     })}
-    {open && <StpDialog pkg={open} stp={stp} online={online} renderArt={renderArt} onClose={() => setOpen(null)} onBuy={() => Promise.resolve(onBuy(open.id))}/>}
+    {open && <StpDialog pkg={open} stp={stp} online={online} done={!!bought?.includes(open.id)} renderArt={renderArt} onClose={() => setOpen(null)} onBuy={() => Promise.resolve(onBuy(open.id))}/>}
   </>;
 }

@@ -118,7 +118,7 @@ export default function BackgroundMusic({ suspended = false, musicType = 'vocals
     }
   };
 
-  const label = suspended ? 'Nhạc nền tạm dừng khi đập thẻ hoặc chơi Sút phạt' : loading ? 'Đang tải nhạc' : playing ? 'Tắt nhạc' : 'Bật nhạc';
+  const label = suspended ? 'Nhạc nền tạm dừng khi đập thẻ, chơi Sút phạt hoặc đang đá GLXH' : loading ? 'Đang tải nhạc' : playing ? 'Tắt nhạc' : 'Bật nhạc';
 
   return <>
     <audio ref={audioRef} src={initialSource.current} onEnded={playNextTrack} preload="auto"

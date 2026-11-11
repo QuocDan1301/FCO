@@ -174,9 +174,36 @@ export function analyzeTeamColors(startingXI: readonly Player[], config: TeamCol
   const teamWide = new Set(rules.upgrade.filter(r => r.scope === 'team').map(r => r.id));
 
   // 4. Phát buff: mỗi cầu thủ lấy 1 buff CLB/quốc gia mạnh nhất + 1 buff cấp thẻ mạnh nhất, rồi cộng dồn hai buff.
+  // CLB / quốc gia: nhiều nhóm cùng mức (vd. huyền thoại từng khoác áo nhiều CLB) thì gom người nhận vào ít nhóm nhất —
+  // lặp chọn nhóm phủ được nhiều cầu thủ chưa có màu nhất, chỉ tính người mà nhóm này đúng bằng mức tốt nhất của họ.
+  // Mỗi người vẫn nhận đúng mức cộng cao nhất, chỉ bớt team color phải hiện.
+  const value = (c: ActiveTeamColor) => c.ovr * 1000 + statSum(c.stats);
+  const bestOf = new Map<string, number>();
+  for (const p of startingXI) { let b = -1; for (const id of groupKeysOf.get(p.id)!) { const c = active.get(id); if (c) b = Math.max(b, value(c)); } bestOf.set(p.id, b); }
+  const identityOf = new Map<string, ActiveTeamColor>();
+  const candidates = [...active.values()];
+  for (;;) {
+    let pick: ActiveTeamColor | null = null, gain = 0;
+    for (const c of candidates) {
+      let n = 0;
+      for (const id of c.members) if (!identityOf.has(id) && bestOf.get(id) === value(c)) n++;
+      if (n > gain || (n > 0 && n === gain && pick && better(c, pick) > 0)) { pick = c; gain = n; }
+    }
+    if (!pick) break;
+    for (const id of pick.members) if (!identityOf.has(id) && bestOf.get(id) === value(pick)) identityOf.set(id, pick);
+  }
+  // Bỏ nhóm thừa: mọi người nhận của nhóm đều chuyển được sang nhóm khác đang hiện, cùng mức → bỏ nhóm đó (thử nhóm ít người nhận trước).
+  for (let changed = true; changed;) {
+    changed = false;
+    const used = [...new Set(identityOf.values())].sort((a, b) => [...identityOf.values()].filter(c => c === a).length - [...identityOf.values()].filter(c => c === b).length);
+    for (const c of used) {
+      const mine = [...identityOf].filter(([, v]) => v === c).map(([id]) => id);
+      const moves = mine.map(id => used.find(o => o !== c && o.members.includes(id) && value(o) === bestOf.get(id) && [...identityOf.values()].includes(o)));
+      if (moves.every(Boolean)) { mine.forEach((id, k) => identityOf.set(id, moves[k]!)); changed = true; break; }
+    }
+  }
   const players = startingXI.map((p): BuffResult => {
-    let identity: ActiveTeamColor | null = null;
-    for (const id of groupKeysOf.get(p.id)!) { const color = active.get(id); if (color && (!identity || better(color, identity) > 0)) identity = color; }
+    const identity = identityOf.get(p.id) ?? null;
     let level: ActiveTeamColor | null = null;
     for (const rule of activeRules) if ((teamWide.has(rule.key) || p.upgradeLevel >= rule.minLevel!) && (!level || rule.ovr > level.ovr || (rule.ovr === level.ovr && statSum(rule.stats) > statSum(level.stats)))) level = rule;
     const chosen = [identity, level].filter((c): c is ActiveTeamColor => !!c);

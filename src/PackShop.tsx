@@ -18,6 +18,7 @@ type Props = {
   onBuyMembership: (id: MembershipId) => boolean | Promise<boolean>;
   // Gói Star Point (src/StpShop.tsx), đứng đầu lưới.
   onBuyStp: (id: StpPackageId) => boolean | Promise<boolean>;
+  stpBought: readonly string[] | null;
   // Mở bảng nhiệm vụ Star Point; missionsReady = số phần thưởng chờ nhận.
   onStpMissions: () => void;
   missionsReady: number;
@@ -28,7 +29,7 @@ type Props = {
   renderArt: (pack: Pack) => ReactNode;
 };
 
-export default function PackShop({ save, packs, free, onBuy, onBuyMembership, onBuyStp, onStpMissions, missionsReady, online, onOpenNow, onPreview, onInventory, renderArt }: Props) {
+export default function PackShop({ save, packs, free, onBuy, onBuyMembership, onBuyStp, stpBought, onStpMissions, missionsReady, online, onOpenNow, onPreview, onInventory, renderArt }: Props) {
   const [quantities, setQuantities] = useState<Record<string, string>>({});
   const setQuantity = (id: string, value: string) => setQuantities(current => ({ ...current, [id]: value }));
   // Tổng gói chưa mở hiện trên nút Kho vật phẩm; tổng tăng (vừa mua) thì nút nảy nhẹ.
@@ -50,7 +51,7 @@ export default function PackShop({ save, packs, free, onBuy, onBuyMembership, on
       <button ref={inventoryRef} className="secondary-button shop-inventory" onClick={onInventory} aria-label={`Kho vật phẩm · ${stockTotal} gói chưa mở`}>Kho vật phẩm<b className="shop-inventory-count" aria-hidden="true">{money(stockTotal)}</b><ArrowRight size={17}/></button></div>
     </div>
     <div className="shop-grid" aria-label="Các gói đang bán">
-      <StpShop save={save} online={online} onBuy={onBuyStp} renderArt={renderArt}/>
+      <StpShop save={save} online={online} onBuy={onBuyStp} bought={stpBought} renderArt={renderArt}/>
       {MEMBERSHIPS.map(item => {
         const left = membershipLeft(save.membership?.[item.id], marketNow());
         const affordable = free || (save.fc ?? 0) >= item.price;

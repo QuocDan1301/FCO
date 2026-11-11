@@ -143,3 +143,19 @@ describe('Biên và tính thuần', () => {
     assert.throws(() => calculateTeamColorBuffs([player()], { ...DEFAULT_TEAM_COLOR_CONFIG, club: [{ tier: 1, minPlayers: 0, ovr: 1, stats: {} }] }), RangeError);
   });
 });
+
+describe('Team color hiển thị gọn', () => {
+  it('Nhiều CLB cùng mức: gom người nhận vào ít CLB nhất, mỗi người vẫn +1; chỉ hiện CLB có người được cộng', () => {
+    // X = a b c d, Y = a b e, Z = c d f → chỉ cần Y và Z (X thừa).
+    const a = player({ clubIds: ['X', 'Y'] }), b = player({ clubIds: ['X', 'Y'] }), c = player({ clubIds: ['X', 'Z'] }), d = player({ clubIds: ['X', 'Z'] });
+    const e = player({ clubIds: ['Y'] }), f = player({ clubIds: ['Z'] });
+    const report = analyzeTeamColors([a, b, c, d, e, f]);
+    assert.ok(report.players.every(r => r.ovrBonus === 1));
+    assert.deepEqual(report.active.map(x => [x.key, x.beneficiaries.length]).sort(), [['Y', 3], ['Z', 3]]);
+  });
+  it('Gom không làm giảm mức cộng: người có CLB mạnh hơn vẫn nhận CLB đó', () => {
+    const big = many(6, { clubIds: ['BIG', 'SMALL'] }), extra = many(2, { clubIds: ['SMALL'] });
+    const report = analyzeTeamColors([...big, ...extra]);
+    assert.deepEqual(report.players.map(r => r.ovrBonus), [3, 3, 3, 3, 3, 3, 3, 3]);
+  });
+});

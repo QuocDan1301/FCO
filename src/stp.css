@@ -93,3 +93,7 @@
 .stp-missions-list > li.is-claimed .stp-mission-text b { color: #8f99ab; }
 .stp-missions-note { margin-top: 12px; font-size: 11px; line-height: 1.5; color: #8f99ab; }
 @media (max-width: 640px) { .stp-missions-list > li { grid-template-columns: minmax(0, 1fr) auto; } .stp-mission-claim, .stp-mission-state { grid-column: 1 / -1; } }
+
+/* Gói Star Point đã mua hôm nay. */
+.shop-note.stp-limit-note { color: #6ee7b7; }
+.stp-product .shop-note:not(.shop-error):not(.stp-limit-note) { color: #8f99ab; }
