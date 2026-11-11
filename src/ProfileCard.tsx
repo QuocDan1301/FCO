@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import LinkGmail from './LinkGmail';
 import { AlertTriangle, CalendarCheck, CalendarDays, Crown, IdCard, Lock, Settings2, Sparkles, UserRound, X } from 'lucide-react';
 import { NAME_EFFECTS, avatarEffectClass, nameEffectClass } from './name-effects';
 import type { NameEffect } from './name-effects';
@@ -14,9 +15,9 @@ const dateText = (ms: number) => new Date(ms).toLocaleDateString('vi-VN', { time
 const genderLabel = (id: string | undefined) => GENDERS.find(g => g.id === id)?.label;
 
 // effect: hiệu ứng avatar + tên đang dùng (chỉ Premium); onEffect gửi lựa chọn lên máy chủ (null = tắt).
-type Props = { save: Save; accountId?: string; joined?: number | null; tier?: AccountTier | null; effect?: NameEffect | null; onEffect?: (effect: NameEffect | null) => Promise<boolean> | boolean; onSave: (profile: Profile) => void; onSettings: () => void; onClose: () => void };
+type Props = { save: Save; accountId?: string; accountEmail?: string | null; joined?: number | null; tier?: AccountTier | null; effect?: NameEffect | null; onEffect?: (effect: NameEffect | null) => Promise<boolean> | boolean; onSave: (profile: Profile) => void; onSettings: () => void; onClose: () => void };
 
-export default function ProfileCard({ save, accountId, joined, tier: tierId, effect = null, onEffect, onSave, onSettings, onClose }: Props) {
+export default function ProfileCard({ save, accountId, accountEmail = null, joined, tier: tierId, effect = null, onEffect, onSave, onSettings, onClose }: Props) {
   const profile = save.profile ?? {};
   const needGender = !profile.gender, needBirthday = !profile.birthday;
   const [gender, setGender] = useState('');
@@ -59,6 +60,7 @@ export default function ProfileCard({ save, accountId, joined, tier: tierId, eff
       <div><dt><CalendarCheck size={15}/>Đã chơi</dt><dd>{joined ? `${playedDays(joined).toLocaleString('vi-VN')} ngày` : '—'}</dd></div>
       <div><dt><Crown size={15}/>Loại tài khoản</dt><dd>{tier.name}{premium && save.premiumUntil ? <small className="profile-tier-until"> · hết hạn {new Date(save.premiumUntil).toLocaleDateString('vi-VN')} · giảm 65% thuế bán</small> : null}</dd></div>
     </dl>
+    <LinkGmail email={accountEmail}/>
     {(needGender || needBirthday)
       ? <p className="profile-hint">Giới tính và sinh nhật chỉ lưu được một lần, hãy chọn đúng trước khi lưu.</p>
       : <p className="profile-note">Thông tin đã lưu và không thể thay đổi.</p>}

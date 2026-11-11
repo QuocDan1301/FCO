@@ -41,3 +41,13 @@
 .profile-warning-save{background:linear-gradient(180deg,#f3be6e,#d8902f)!important;color:#1b1205!important;border-color:#f0b36b!important}
 /* Hạn Premium cạnh loại tài khoản. */
 .profile-tier-until { font-size: 11px; font-weight: 400; color: #d6c08a; }
+
+/* Liên kết Gmail cho tài khoản cũ (tên đăng nhập). */
+.profile-link-gmail { margin-top: 14px; padding: 12px 14px; border: 1px solid #62c3ff40; border-radius: 10px; background: #62c3ff0d; display: grid; gap: 8px; font-size: 13px; color: #c9d6e2; }
+.profile-link-gmail h3 { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; color: #e7f3ff; }
+.profile-link-gmail p { margin: 0; line-height: 1.5; }
+.profile-link-gmail form { display: flex; flex-wrap: wrap; gap: 8px; }
+.profile-link-gmail input { flex: 1 1 180px; min-width: 0; height: 36px; padding: 0 10px; border: 1px solid #ffffff26; border-radius: 6px; background: #0b1118; color: #fff; font: inherit; }
+.profile-link-gmail small { color: #8f99ab; }
+.profile-link-gmail.is-done { display: flex; align-items: center; gap: 6px; color: #6ee7b7; border-color: #10b98155; background: #10b98112; }
+.profile-link-error { margin: 0; color: #f5a7a7; }

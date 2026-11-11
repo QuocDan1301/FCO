@@ -7,7 +7,7 @@ import { accountClient, accountError, saveRemote } from './account-client';
 import { CloudSaveStore } from './cloud-save';
 import { STORAGE_KEY } from './game';
 import { asset } from './asset';
-import { clearAccountCache, loginIdentity, registrationIdentity } from './account-identity';
+import { clearAccountCache, loginIdentity, normalizeGmail } from './account-identity';
 import DeleteAccountDialog from './DeleteAccountDialog';
 import { deleteAccount } from './account-deletion';
 import { useMaintenance } from './maintenance';
@@ -23,56 +23,130 @@ function AccountFrame({ children }: { children: ReactNode }) {
   </div></main>;
 }
 
-function AccountForm({ maintenance }: { maintenance: MaintenanceState | null }) {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
-  const [username, setUsername] = useState('');
+// Đăng nhập / đăng ký bằng Gmail + mã xác nhận 6 số / quên mật khẩu (2026-11-11, migration 202611110016).
+// Tài khoản cũ vẫn đăng nhập bằng tên đăng nhập. Mã do Supabase gửi qua SMTP riêng (mẫu email có {{ .Token }}).
+type Mode = 'login' | 'register' | 'verify' | 'forgot' | 'reset';
+const RESEND_SECONDS = 60;
+
+function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | null; onHold: (hold: boolean) => void }) {
+  const [mode, setMode] = useState<Mode>('login');
+  const [identifier, setIdentifier] = useState('');
+  const [gmail, setGmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
+  const [code, setCode] = useState('');
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
+  const [cooldown, setCooldown] = useState(0);
   const submitting = useRef(false);
   const configured = !!accountClient;
   // Bảo trì: chỉ còn đăng nhập (admin vẫn phải vào được để tắt), không mở đăng ký.
   const closed = !!maintenance?.enabled;
-  useEffect(() => { if (closed) { setMode('login'); setError(''); setMessage(''); } }, [closed]);
-  const changeMode = (next: typeof mode) => { setMode(next); setError(''); setMessage(''); setPassword(''); setConfirmation(''); };
-  async function submit(event: FormEvent) {
-    event.preventDefault();
+  useEffect(() => { if (closed && mode !== 'login') { setMode('login'); setError(''); setMessage(''); } }, [closed]);
+  useEffect(() => { if (cooldown <= 0) return; const t = window.setTimeout(() => setCooldown(c => c - 1), 1000); return () => clearTimeout(t); }, [cooldown]);
+  const changeMode = (next: Mode) => { setMode(next); setError(''); setMessage(''); setPassword(''); setConfirmation(''); setCode(''); };
+  const sentTo = (email: string, next: Mode, text: string) => { setGmail(email); setMode(next); setCode(''); setCooldown(RESEND_SECONDS); setMessage(text); setError(''); };
+
+  async function run(task: () => Promise<void>) {
     if (!accountClient || submitting.current) return;
     setError(''); setMessage('');
-    if (mode === 'register' && password !== confirmation) { setError('Mật khẩu nhập lại chưa khớp.'); return; }
-    if (mode === 'register' && !name.trim()) { setError('Hãy nhập tên huấn luyện viên.'); return; }
     submitting.current = true; setBusy(true);
-    try {
-      if (mode === 'register') {
-        const identity = registrationIdentity(username);
-        const { data, error } = await accountClient.auth.signUp({ email: identity.email, password, options: { data: { display_name: name.trim(), login_name: identity.name } } });
-        if (error) throw error;
-        if (!data.session) { setMessage('Chưa mở được tài khoản. Vui lòng liên hệ quản trị game để kiểm tra cấu hình đăng ký.'); setPassword(''); setConfirmation(''); }
-      } else {
-        const { error } = await accountClient.auth.signInWithPassword({ email: loginIdentity(username), password });
-        if (error) throw error;
-      }
-    } catch (error) { setError(error instanceof Error && !('code' in error) ? error.message : accountError(error)); }
+    try { await task(); }
+    catch (error) { setError(error instanceof Error && !('code' in error) ? error.message : accountError(error)); }
     finally { submitting.current = false; setBusy(false); }
   }
-  return <AccountFrame><div className="account-tabs" aria-label="Tài khoản"><button type="button" aria-pressed={mode === 'login'} disabled={busy} onClick={() => changeMode('login')}>Đăng nhập</button>{!closed && <button type="button" aria-pressed={mode === 'register'} disabled={busy} onClick={() => changeMode('register')}>Đăng ký</button>}</div>
-    <h2>{mode === 'login' ? 'Trở lại sân cỏ' : 'Tạo tài khoản mới'}</h2><p>{mode === 'login' ? 'Dùng tên đăng nhập và mật khẩu để mở kho thẻ của bạn.' : 'Bắt đầu hành trình với tên huấn luyện viên của bạn.'}</p>
+  const client = () => accountClient!;
+
+  const login = () => run(async () => {
+    const email = loginIdentity(identifier);
+    const { error } = await client().auth.signInWithPassword({ email, password });
+    // Gmail chưa nhập mã xác nhận: gửi lại mã và chuyển sang bước nhập mã.
+    if (error && (error as { code?: string }).code === 'email_not_confirmed') {
+      await client().auth.resend({ type: 'signup', email });
+      sentTo(email, 'verify', `Gmail này chưa xác nhận. Đã gửi lại mã 6 số tới ${email}.`);
+      return;
+    }
+    if (error) throw error;
+  });
+
+  const register = () => run(async () => {
+    if (!name.trim()) throw new Error('Hãy nhập tên huấn luyện viên.');
+    const email = normalizeGmail(gmail);
+    if (password !== confirmation) throw new Error('Mật khẩu nhập lại chưa khớp.');
+    const { data, error } = await client().auth.signUp({ email, password, options: { data: { display_name: name.trim().slice(0, 40) } } });
+    if (error) throw error;
+    if (data.session) return; // Máy chủ chưa bật xác nhận email: vào game luôn.
+    // Gmail đã có tài khoản (Supabase không báo lỗi để chống dò email): identities rỗng.
+    if (data.user && data.user.identities?.length === 0) throw new Error('Gmail này đã có tài khoản. Hãy đăng nhập, hoặc dùng "Quên mật khẩu".');
+    sentTo(email, 'verify', `Đã gửi mã 6 số tới ${email}. Mở Gmail (xem cả mục Spam / Quảng cáo) và nhập mã để hoàn tất.`);
+  });
+
+  const verify = () => run(async () => {
+    const { error } = await client().auth.verifyOtp({ email: gmail, token: code.trim(), type: 'signup' });
+    if (error) throw error;
+  });
+
+  const forgot = () => run(async () => {
+    const email = normalizeGmail(gmail);
+    const { error } = await client().auth.resetPasswordForEmail(email);
+    if (error) throw error;
+    sentTo(email, 'reset', `Nếu ${email} có tài khoản, mã 6 số đã được gửi tới Gmail đó.`);
+  });
+
+  // Đặt lại mật khẩu: nhập mã (đăng nhập tạm) rồi đổi mật khẩu; giữ màn này tới khi đổi xong mới vào game.
+  const reset = () => run(async () => {
+    if (password !== confirmation) throw new Error('Mật khẩu nhập lại chưa khớp.');
+    if (password.length < 8) throw new Error('Mật khẩu mới cần ít nhất 8 ký tự.');
+    onHold(true);
+    try {
+      const { error } = await client().auth.verifyOtp({ email: gmail, token: code.trim(), type: 'recovery' });
+      if (error) throw error;
+      const updated = await client().auth.updateUser({ password });
+      if (updated.error) { await client().auth.signOut({ scope: 'local' }); throw updated.error; }
+    } finally { onHold(false); }
+  });
+
+  const resend = () => run(async () => {
+    const { error } = mode === 'reset' ? await client().auth.resetPasswordForEmail(gmail) : await client().auth.resend({ type: 'signup', email: gmail });
+    if (error) throw error;
+    setCooldown(RESEND_SECONDS); setMessage(`Đã gửi lại mã tới ${gmail}.`);
+  });
+
+  const submit = (event: FormEvent) => { event.preventDefault(); void ({ login, register, verify, forgot, reset }[mode])(); };
+  const passwordField = (label: string, auto: string, id = 'account-password') => <label htmlFor={id}>{label}<span className="account-password"><input id={id} name="password" type={visible ? 'text' : 'password'} autoComplete={auto} minLength={mode === 'login' ? undefined : 8} maxLength={72} required value={password} onChange={e => setPassword(e.target.value)}/><button type="button" onClick={() => setVisible(value => !value)} aria-label={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}>{visible ? <EyeOff size={18}/> : <Eye size={18}/>}</button></span></label>;
+  const confirmField = <label htmlFor="account-confirmation">Nhập lại mật khẩu<input id="account-confirmation" name="confirmation" type={visible ? 'text' : 'password'} autoComplete="new-password" required minLength={8} maxLength={72} value={confirmation} onChange={e => setConfirmation(e.target.value)}/></label>;
+  const codeField = <label htmlFor="account-code">Mã xác nhận (6 số)<input id="account-code" className="account-code" name="code" inputMode="numeric" autoComplete="one-time-code" required pattern="[0-9]{6,10}" maxLength={10} value={code} onChange={e => setCode(e.target.value.replace(/\D/g, ''))}/></label>;
+  const gmailField = <label htmlFor="account-gmail">Gmail<input id="account-gmail" name="email" type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} required maxLength={254} placeholder="tenban@gmail.com" value={gmail} onChange={e => setGmail(e.target.value)}/></label>;
+  const titles: Record<Mode, [string, string]> = {
+    login: ['Trở lại sân cỏ', 'Đăng nhập bằng Gmail. Tài khoản cũ vẫn dùng tên đăng nhập như trước.'],
+    register: ['Tạo tài khoản mới', 'Đăng ký bằng Gmail. Mã xác nhận 6 số sẽ được gửi về Gmail của bạn.'],
+    verify: ['Xác nhận Gmail', 'Nhập mã 6 số vừa gửi tới Gmail để mở tài khoản.'],
+    forgot: ['Quên mật khẩu', 'Nhập Gmail đã đăng ký để nhận mã đặt lại mật khẩu.'],
+    reset: ['Đặt mật khẩu mới', 'Nhập mã 6 số trong Gmail và mật khẩu mới.'],
+  };
+  const button: Record<Mode, string> = { login: 'Đăng nhập', register: 'Tạo tài khoản', verify: 'Xác nhận', forgot: 'Gửi mã', reset: 'Đổi mật khẩu' };
+  return <AccountFrame><div className="account-tabs" aria-label="Tài khoản"><button type="button" aria-pressed={mode === 'login'} disabled={busy} onClick={() => changeMode('login')}>Đăng nhập</button>{!closed && <button type="button" aria-pressed={mode === 'register' || mode === 'verify'} disabled={busy} onClick={() => changeMode('register')}>Đăng ký</button>}</div>
+    <h2>{titles[mode][0]}</h2><p>{titles[mode][1]}</p>
     {closed && <p className="account-maintenance" role="status"><b>Game đang bảo trì</b>{maintenanceText(maintenance)}</p>}
     {!configured && <p className="account-notice" role="status">Máy chủ tài khoản chưa được kết nối. Hãy thử lại sau.</p>}
-    <form onSubmit={event => void submit(event)} aria-busy={busy}>
+    <form onSubmit={submit} aria-busy={busy}>
       <fieldset disabled={busy || !configured}>
-        {mode === 'register' && <label htmlFor="account-name">Tên huấn luyện viên<input id="account-name" name="name" autoComplete="nickname" required maxLength={40} value={name} onChange={e => setName(e.target.value)}/></label>}
-        <label htmlFor="account-username">Tên đăng nhập<input id="account-username" name="username" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} required minLength={3} maxLength={mode === 'register' ? 24 : 254} pattern={mode === 'register' ? "[a-zA-Z0-9_]{3,24}" : undefined} value={username} onChange={e => setUsername(e.target.value)} aria-describedby={mode === 'register' ? 'username-hint' : undefined}/></label>{mode === 'register' && <small id="username-hint">3–24 ký tự: chữ a–z, số và dấu gạch dưới. Không cần email.</small>}
-        <label htmlFor="account-password">Mật khẩu<span className="account-password"><input id="account-password" name="password" type={visible ? 'text' : 'password'} autoComplete={mode === 'register' ? 'new-password' : 'current-password'} minLength={mode === 'register' ? 8 : undefined} maxLength={128} required value={password} onChange={e => setPassword(e.target.value)} aria-describedby={mode === 'register' ? 'password-hint' : undefined}/><button type="button" onClick={() => setVisible(value => !value)} aria-label={visible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}>{visible ? <EyeOff size={18}/> : <Eye size={18}/>}</button></span></label>
-        {mode === 'register' && <><small id="password-hint">Dùng ít nhất 8 ký tự.</small><label htmlFor="account-confirmation">Nhập lại mật khẩu<input id="account-confirmation" name="confirmation" type={visible ? 'text' : 'password'} autoComplete="new-password" required minLength={8} maxLength={128} value={confirmation} onChange={e => setConfirmation(e.target.value)}/></label></>}
-        <button className="account-primary" type="submit">{busy ? 'Đang xử lý…' : mode === 'login' ? 'Đăng nhập' : 'Tạo tài khoản'}<ArrowRight size={18}/></button>
+        {mode === 'login' && <><label htmlFor="account-username">Gmail hoặc tên đăng nhập<input id="account-username" name="username" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} required minLength={3} maxLength={254} value={identifier} onChange={e => setIdentifier(e.target.value)}/></label>{passwordField('Mật khẩu', 'current-password')}</>}
+        {mode === 'register' && <><label htmlFor="account-name">Tên huấn luyện viên<input id="account-name" name="name" autoComplete="nickname" required maxLength={40} value={name} onChange={e => setName(e.target.value)}/></label>{gmailField}<small>Chỉ nhận địa chỉ @gmail.com. Mỗi Gmail một tài khoản.</small>{passwordField('Mật khẩu', 'new-password')}<small>Dùng ít nhất 8 ký tự.</small>{confirmField}</>}
+        {mode === 'verify' && codeField}
+        {mode === 'forgot' && gmailField}
+        {mode === 'reset' && <>{codeField}{passwordField('Mật khẩu mới', 'new-password')}{confirmField}</>}
+        <button className="account-primary" type="submit">{busy ? 'Đang xử lý…' : button[mode]}<ArrowRight size={18}/></button>
+        {(mode === 'verify' || mode === 'reset') && <button type="button" className="account-guest" disabled={busy || cooldown > 0} onClick={() => void resend()}>{cooldown > 0 ? `Gửi lại mã sau ${cooldown} giây` : 'Gửi lại mã'}</button>}
+        {mode === 'login' && <button type="button" className="account-guest" disabled={busy} onClick={() => { changeMode('forgot'); if (identifier.includes('@')) setGmail(identifier); }}>Quên mật khẩu?</button>}
+        {(mode === 'forgot' || mode === 'reset' || mode === 'verify') && <button type="button" className="account-guest" disabled={busy} onClick={() => changeMode('login')}>Quay lại đăng nhập</button>}
       </fieldset>
       {error && <p className="account-error" role="alert">{error}</p>}{message && <p className="account-notice" role="status">{message}</p>}
     </form>
+    {mode === 'forgot' && <p className="account-footnote">Tài khoản cũ đăng ký bằng tên đăng nhập (chưa liên kết Gmail): liên hệ quản trị game để đặt lại mật khẩu.</p>}
   </AccountFrame>;
 }
 
@@ -138,7 +212,7 @@ function SavedGame({ user, maintenance, onSignOut, onDeleted }: { user: User; ma
   if (maintenanceBlocks(maintenance)) return <AccountFrame><h2>Game đang bảo trì</h2><p>{maintenanceText(maintenance)}</p><p className="account-maintenance-note">Tiến trình của bạn vẫn được giữ. Game sẽ tự mở lại khi bảo trì xong, không cần tải lại trang.</p>{error && <p role="alert" className="account-error">{error}</p>}<button className="account-guest" disabled={signingOut} onClick={() => void signOut()}>{signingOut ? 'Đang đăng xuất…' : 'Đăng xuất'}</button></AccountFrame>;
   const blocked = !store || ['loading', 'error', 'conflict'].includes(store.status);
   if (blocked) return <>{deleteDialog}<AccountFrame><h2>{store?.status === 'conflict' ? 'Có hai bản tiến trình' : store?.status === 'error' ? 'Chưa kết nối được' : 'Đang tải kho thẻ…'}</h2><p>{store?.error || 'Đang lấy dữ liệu mới nhất của tài khoản. Vui lòng chờ.'}</p>{store && store.status !== 'loading' && <div className="account-recovery"><button className="account-primary" onClick={() => void store.initialize().catch(() => {})}>Thử đồng bộ lại</button><button onClick={backup}>Tải bản sao trên máy này</button>{store.status === 'conflict' && <><p>Nạp bản máy chủ sẽ thay tiến trình đang mở. Bản trên máy này được giữ thêm trong bản sao lưu.</p><button onClick={() => void store.useCloudCopy().then(() => remount(value => value + 1)).catch(error => setError((error as Error).message))}>Nạp bản mới từ máy chủ</button></>}</div>}{error && <p role="alert" className="account-error">{error}</p>}<button className="account-guest" onClick={() => void onSignOut().catch(() => setError('Không đăng xuất được. Hãy thử lại.'))}>Đăng xuất, giữ bản lưu trên máy</button><button className="account-guest account-delete-link" onClick={() => setDeleteOpen(true)}>Xóa tài khoản</button></AccountFrame></>;
-  return <>{deleteDialog}<App key={`${user.id}:${generation}`} online storage={store} storageKey={store.key} accountName={name} joined={Date.parse(user.created_at) || null} syncStatus={store.status === 'saving' ? 'Đang đồng bộ…' : 'Đã đồng bộ'} onLogout={() => void signOut()} signingOut={signingOut} onDeleteAccount={() => setDeleteOpen(true)}/>{maintenance?.enabled && <div className="maintenance-badge" role="status">Đang bảo trì · chỉ admin vào được</div>}{error && <div className="account-floating-error" role="alert">{error}<button onClick={() => setError('')}>Đóng</button></div>}</>;
+  return <>{deleteDialog}<App key={`${user.id}:${generation}`} online storage={store} storageKey={store.key} accountName={name} accountEmail={user.email ?? null} joined={Date.parse(user.created_at) || null} syncStatus={store.status === 'saving' ? 'Đang đồng bộ…' : 'Đã đồng bộ'} onLogout={() => void signOut()} signingOut={signingOut} onDeleteAccount={() => setDeleteOpen(true)}/>{maintenance?.enabled && <div className="maintenance-badge" role="status">Đang bảo trì · chỉ admin vào được</div>}{error && <div className="account-floating-error" role="alert">{error}<button onClick={() => setError('')}>Đóng</button></div>}</>;
 }
 
 export default function AccountApp() {
@@ -146,12 +220,21 @@ export default function AccountApp() {
   const [loading, setLoading] = useState(!!accountClient);
   const [error, setError] = useState('');
   const { state: maintenance, checked } = useMaintenance(user?.id ?? null);
+  // Đặt lại mật khẩu: nhập mã làm phát sinh phiên đăng nhập trước khi kịp đổi mật khẩu; giữ màn đăng nhập tới khi đổi xong.
+  const hold = useRef(false);
+  const held = useRef<User | null | undefined>(undefined);
+  const holdSession = (value: boolean) => {
+    hold.current = value;
+    if (!value && held.current !== undefined) { const next = held.current; held.current = undefined; setUser(next); }
+  };
   useEffect(() => {
     const client = accountClient;
     if (!client) return;
     let active = true;
     const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
-      if (active) { setUser(session?.user ?? null); setLoading(false); }
+      if (!active) return;
+      if (hold.current) { held.current = session?.user ?? null; return; }
+      setUser(session?.user ?? null); setLoading(false);
     });
     void client.auth.getSession().then(({ data, error }) => {
       if (!active) return;
@@ -165,5 +248,5 @@ export default function AccountApp() {
   if (user && !checked) return <AccountFrame><h2>Đang kiểm tra đăng nhập…</h2><p>Vui lòng chờ trong giây lát.</p></AccountFrame>;
   if (user) return <SavedGame user={user} maintenance={maintenance} onDeleted={() => { setUser(null); setError('Đã xóa tài khoản và tiến trình trên máy chủ.'); }} onSignOut={async () => { const result = await accountClient!.auth.signOut({ scope: 'local' }); if (result.error) throw result.error; }}/ >;
   // Không còn chế độ khách (2026-11-07): phải đăng nhập mới vào game.
-  return <>{error && <div className="account-floating-error" role="alert">{error}</div>}<AccountForm maintenance={maintenance}/></>;
+  return <>{error && <div className="account-floating-error" role="alert">{error}</div>}<AccountForm maintenance={maintenance} onHold={holdSession}/></>;
 }

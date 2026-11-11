@@ -54,3 +54,18 @@ test('Bảo trì: chỉ chặn tài khoản thường; chưa biết trạng thá
   assert.equal(maintenanceText(null), MAINTENANCE_DEFAULT_MESSAGE);
   assert.equal(maintenanceText({ message: 'Xong lúc 22h' }), 'Xong lúc 22h');
 });
+
+test('Đăng ký chỉ nhận Gmail, chuẩn hoá giống máy chủ (fco_gmail_normalize): bỏ dấu chấm, phần +…, googlemail → gmail', async () => {
+  const { normalizeGmail, loginIdentity, isLegacyEmail } = await import('../src/account-identity.ts');
+  assert.equal(normalizeGmail(' A.B.C.D.E.F+game@GoogleMail.com '), 'abcdef@gmail.com');
+  assert.equal(normalizeGmail('hlv.fco.vip@gmail.com'), 'hlvfcovip@gmail.com');
+  for (const bad of ['someone@yahoo.com', 'abc@gmail.com', 'x@y@gmail.com', 'khongcoacong', 'ab_cdef@gmail.com']) assert.throws(() => normalizeGmail(bad), /Gmail|gmail/, bad);
+  // Đăng nhập: Gmail viết kiểu nào cũng ra cùng tài khoản; tên đăng nhập cũ vẫn dùng được.
+  assert.equal(loginIdentity('HLV.FCO.VIP+1@gmail.com'), 'hlvfcovip@gmail.com');
+  assert.equal(loginIdentity('quocdan06'), 'quocdan06@players.fco.invalid');
+  assert.equal(isLegacyEmail('quocdan06@players.fco.invalid'), true);
+  assert.equal(isLegacyEmail('hlvfcovip@gmail.com'), false);
+  // Cùng quy tắc với migration.
+  const sql = (await import('node:fs')).readFileSync('supabase/migrations/202611110016_fco_gmail_accounts.sql', 'utf8');
+  assert.match(sql, /\^\[a-z0-9\]\{6,30\}@gmail\\.com\$/);
+});

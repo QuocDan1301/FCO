@@ -4,8 +4,10 @@ import { SaveConflict } from './cloud-save';
 import { ACCOUNT_LOCKED_MESSAGE } from './account-identity';
 import type { CloudRecord, SaveRemote } from './cloud-save';
 
-const url = import.meta.env.VITE_SUPABASE_URL?.trim();
-const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
+// import.meta.env không có khi chạy test bằng node (ProfileCard → LinkGmail nạp file này): coi như chưa kết nối.
+const env: Partial<Record<string, string>> = (import.meta as { env?: Record<string, string> }).env ?? {};
+const url = env.VITE_SUPABASE_URL?.trim();
+const key = env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim();
 export const accountClient = url && key ? createClient(url, key) : null;
 
 function record(value: unknown): CloudRecord {
@@ -43,11 +45,16 @@ export function saveRemote(userId: string): SaveRemote {
 export function accountError(error: unknown) {
   const code = (error as { code?: string })?.code;
   const messages: Record<string, string> = {
-    invalid_credentials: 'Tên đăng nhập hoặc mật khẩu chưa đúng.',
+    invalid_credentials: 'Gmail / tên đăng nhập hoặc mật khẩu chưa đúng.',
+    otp_expired: 'Mã xác nhận sai hoặc đã hết hạn. Hãy kiểm tra lại hoặc bấm Gửi lại mã.',
+    email_exists: 'Gmail này đã được dùng cho tài khoản khác.',
+    same_password: 'Mật khẩu mới phải khác mật khẩu cũ.',
+    email_address_invalid: 'Địa chỉ Gmail chưa đúng.',
+    unexpected_failure: 'Chỉ nhận địa chỉ @gmail.com, hoặc máy chủ đang lỗi. Hãy thử lại.',
     user_banned: ACCOUNT_LOCKED_MESSAGE,
     email_not_confirmed: 'Hãy xác nhận email trước khi đăng nhập.',
     email_address_not_authorized: 'Chưa gửi được email xác nhận đến địa chỉ này. Vui lòng liên hệ quản trị game.',
-    user_already_exists: 'Tên đăng nhập này đã được sử dụng. Hãy chọn tên khác.',
+    user_already_exists: 'Gmail này đã có tài khoản. Hãy đăng nhập hoặc dùng Quên mật khẩu.',
     weak_password: 'Mật khẩu chưa đủ mạnh. Hãy dùng ít nhất 8 ký tự.',
     over_email_send_rate_limit: 'Bạn gửi yêu cầu quá nhanh. Hãy đợi một lúc rồi thử lại.',
     over_request_rate_limit: 'Có quá nhiều yêu cầu. Hãy đợi một lúc rồi thử lại.',

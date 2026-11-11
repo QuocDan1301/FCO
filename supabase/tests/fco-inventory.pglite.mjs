@@ -14,7 +14,7 @@ const db = new PGlite({ extensions: { pgcrypto } });
 await db.exec(`
   create role anon nologin; create role authenticated nologin;
   create schema auth;
-  create table auth.users (id uuid primary key, email text unique, created_at timestamptz not null default now(), banned_until timestamptz, encrypted_password text, updated_at timestamptz);
+  create table auth.users (id uuid primary key, email text unique, created_at timestamptz not null default now(), banned_until timestamptz, encrypted_password text, updated_at timestamptz, email_change text default '', raw_user_meta_data jsonb default '{}');
   create table auth.sessions (id uuid primary key default gen_random_uuid(), user_id uuid not null);
   create table auth.refresh_tokens (id bigserial primary key, user_id text, token text);
   create schema extensions; create extension pgcrypto schema extensions;
@@ -519,6 +519,29 @@ if (files.some(f => f.includes('202611110015'))) {
   assert.equal(await one(`select count(*)::int from auth.refresh_tokens where user_id = $1`, [C]), 0);
   assert.equal(await one(`select count(*)::int from public.fco_admin_password_resets where user_id = $1`, [C]), 1);
   console.log('admin reset password OK');
+}
+
+// 20. Chỉ đăng ký bằng Gmail chuẩn hoá (202611110016); tài khoản cũ vẫn dùng; tên công khai Gmail = tên HLV.
+if (files.some(f => f.includes('202611110016'))) {
+  assert.equal(await one(`select public.fco_gmail_normalize(' A.B.C.D.E.F+game@GoogleMail.com ')`), 'abcdef@gmail.com');
+  assert.equal(await one(`select public.fco_gmail_normalize('x@yahoo.com')`), 'x@yahoo.com');
+  const G = '00000000-0000-0000-0000-0000000000a1';
+  for (const bad of ['newplayer@players.fco.invalid', 'someone@yahoo.com', 'a.bcdef@gmail.com', 'abcdef+1@gmail.com', 'abc@gmail.com'])
+    await assert.rejects(db.query(`insert into auth.users(id, email) values ($1, $2)`, [G, bad]), /FCO_GMAIL_ONLY/, bad);
+  await db.query(`insert into auth.users(id, email, raw_user_meta_data) values ($1, 'hlvfcovip9@gmail.com', '{"display_name": "Vua Đập Thẻ"}')`, [G]);
+  assert.equal(await one(`select public.fco_public_name($1)`, [G]), 'Vua Đập Thẻ');
+  assert.equal(await one(`select public.fco_public_name($1)`, [B]), 'player_b');
+  // Tài khoản cũ: sửa thông tin khác vẫn được; liên kết Gmail phải là Gmail chuẩn hoá.
+  await db.query(`update auth.users set updated_at = now() where id = $1`, [B]);
+  await assert.rejects(db.query(`update auth.users set email_change = 'b.player1@gmail.com' where id = $1`, [B]), /FCO_GMAIL_ONLY/);
+  await db.query(`update auth.users set email_change = 'bplayer1@gmail.com' where id = $1`, [B]);
+  await db.query(`update auth.users set email = 'bplayer1@gmail.com', email_change = '' where id = $1`, [B]);
+  await assert.rejects(db.query(`update auth.users set email = 'player_b@players.fco.invalid' where id = $1`, [B]), /FCO_GMAIL_ONLY/, 'không đổi ngược về tên đăng nhập');
+  await db.exec(`alter table auth.users disable trigger fco_auth_email_guard`);
+  await db.query(`update auth.users set email = 'player_b@players.fco.invalid' where id = $1`, [B]);
+  await db.exec(`alter table auth.users enable trigger fco_auth_email_guard`);
+  await db.query(`delete from auth.users where id = $1`, [G]);
+  console.log('gmail accounts OK');
 }
 
 console.log('ALL OK');
