@@ -12,7 +12,10 @@
       (function () {
         // Điện thoại và máy bảng dùng đúng khung PC (cửa sổ 1536×826) để giao diện giống hệt máy tính.
         var W = 1536, H = 826;
-        if (!matchMedia("(hover: none) and (pointer: coarse)").matches) return;
+        // Máy có màn cảm ứng: điện thoại / máy bảng (kể cả máy Samsung có bút S Pen, Samsung Internet, DeX báo "có rê chuột").
+        // Máy tính có màn cảm ứng cũng khớp nhưng trình duyệt máy tính bỏ qua thẻ viewport nên không đổi gì.
+        var touch = matchMedia("(pointer: coarse)").matches || matchMedia("(any-pointer: coarse)").matches || (navigator.maxTouchPoints || 0) > 0;
+        if (!touch) return;
         var meta = document.querySelector('meta[name="viewport"]'), last = "";
         function fit() {
           // Bàn phím mở làm màn thấp đi: giữ nguyên, nếu không giao diện sẽ thu nhỏ thêm lúc đang gõ.
@@ -22,10 +25,16 @@
           var landscape = matchMedia("(orientation: landscape)").matches, content, scale = 1;
           if (!landscape && short <= 600) content = "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover";
           else {
-            var aspect = window.innerHeight ? window.innerWidth / window.innerHeight : long / short;
-            // Làm tròn 10 px để thanh địa chỉ nhích nhẹ không làm cả trang dựng lại.
-            var width = Math.max(W, Math.ceil((H * aspect) / 10) * 10);
-            scale = (landscape ? long : short) / width;
+            // Vùng thật đang hiện trang (đơn vị px thiết bị): trừ thanh địa chỉ, thanh trạng thái, thanh điều hướng.
+            // Không dùng screen.width/height vì gồm cả các thanh đó → trang bị phóng quá, mất thanh dưới và mép phải.
+            // visualViewport.scale là tỉ lệ đang áp nên width × scale luôn ra px thiết bị, kể cả khi thẻ viewport vừa đổi.
+            var vv = window.visualViewport, z = vv && vv.scale > 0 ? vv.scale : (window.__FCO_FIT_SCALE || 1);
+            var vw = vv ? vv.width * z : window.innerWidth * z, vh = vv ? vv.height * z : window.innerHeight * z;
+            if (!(vw > 0 && vh > 0)) { vw = long; vh = short; }
+            // Khung rộng đủ để chiều cao vừa H (làm tròn 10 px để thanh địa chỉ nhích nhẹ không dựng lại cả trang),
+            // tối thiểu W; tỉ lệ thu nhỏ theo bề ngang vùng hiện → cả chiều ngang lẫn chiều dọc đều vừa.
+            var width = Math.max(W, Math.ceil((H * vw / vh) / 10) * 10);
+            scale = Math.floor(vw / width * 10000) / 10000;
             var s = scale.toFixed(4);
             content = "width=" + width + ", initial-scale=" + s + ", minimum-scale=" + s + ", maximum-scale=" + s + ", user-scalable=no, viewport-fit=cover";
           }
@@ -34,7 +43,8 @@
         }
         fit();
         window.addEventListener("resize", fit);
-        window.addEventListener("orientationchange", fit);
+        window.addEventListener("orientationchange", function () { setTimeout(fit, 250); });
+        if (window.visualViewport) window.visualViewport.addEventListener("resize", fit);
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
