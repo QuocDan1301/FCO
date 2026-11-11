@@ -1,0 +1,24 @@
+/* 26HR (26 HEROES): tạo bởi scripts/import-hr26.py. Thẻ gốc, OVR / tên / cấp vẽ bằng HTML. */
+.rarity-dot.hr26{background:#a35cff}
+.player-card.face-art.season-hr26{aspect-ratio:259/282}
+.player-card.face-art.season-hr26>.face-art-img{filter:drop-shadow(0 0 5px #b07cff44)}
+.season-hr26[data-level="1"] .face-art-level{visibility:hidden}
+.season-hr26 .face-art-ovr{left:26.25%;top:15.25%;font-size:13.9cqw;color:#f7e0a8;letter-spacing:-.02em;text-shadow:0 .03em .08em #1a0a3a99}
+.season-hr26 .face-art-level{left:18.53%;top:59.93%;width:18.15%;height:10.28%;transform:none;object-fit:fill}
+.season-hr26{--name-size:7.3cqw;--name-color:#f7e0a8}
+.season-hr26 .face-art-name{text-shadow:0 .05em .14em #0a0420aa}
+[data-tone=hr26]{--shop-tone:#a35cff;--shop-tone2:#f3d9ff}
+.season-tag-hr26{color:#c79bff}
+.reveal-hr26 .reveal-panel{--led:#c79bff;--led2:#1a0a3a;border-color:#f3d9ff66}
+.reveal-hr26 .reveal-stats dt{color:#ffffff}
+.reveal-hr26 .reveal-podium{background:linear-gradient(180deg,#6a2fc0,#1a0a3a);border-top-color:#f3d9ff}
+.reveal-hr26 .reveal-podium span{color:#ffffff}
+.face-3959{--nx:32.05%;--nw:49.03%;--ny:80.50%}
+.face-3960{--nx:35.91%;--nw:45.17%;--ny:80.50%}
+.face-3961{--nx:37.84%;--nw:43.24%;--ny:80.50%}
+.face-3962{--nx:33.20%;--nw:47.88%;--ny:80.50%}
+.face-3963{--nx:39.77%;--nw:41.31%;--ny:80.50%}
+.face-3964{--nx:30.89%;--nw:50.19%;--ny:80.50%}
+.face-3965{--nx:39.00%;--nw:42.08%;--ny:80.50%}
+.face-3966{--nx:41.70%;--nw:39.38%;--ny:80.50%}
+.face-3967{--nx:36.68%;--nw:44.40%;--ny:80.50%}

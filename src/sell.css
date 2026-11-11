@@ -113,3 +113,7 @@
   .sd-bulk-sum{grid-template-columns:1fr;justify-items:stretch}.sd-bulk-sum select{grid-column:auto;grid-row:auto;min-width:0}
   .sd-actions{flex-wrap:wrap}.sd-sell,.sd-cancel{flex:1;min-width:0}.sd-count{width:100%;margin:0;font-size:22px}
 }
+/* Phiếu giảm thuế (gói Star Point): chọn phiếu cho lượt bán này. */
+.sd-voucher{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:15px;color:#55595f}
+.sd-voucher select{flex:1;min-width:0;height:36px;padding:0 8px;border:1px solid #2bd47d;background:#f3fff8;color:#0f5132;font:inherit;font-weight:600}
+.sd-bulk-sum .sd-voucher{margin-top:0}

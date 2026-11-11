@@ -1,0 +1,45 @@
+/* Hiệu ứng avatar + tên tài khoản Premium (src/name-effects.ts). Avatar: vòng màu xoay quanh (::before, chỉ hiện phần viền nhờ mask)
+   và quầng sáng; tên: chữ tô dải màu chạy ngang. Giảm chuyển động (cài đặt game hoặc hệ điều hành) thì giữ màu, dừng chuyển động. */
+.fx-avatar{position:relative;isolation:isolate;--fx-a:#d9ba76;--fx-b:#fff3c4;--fx-c:#8a6a2a;--fx-glow:rgba(217,186,118,.55)}
+.fx-avatar::before{content:'';position:absolute;inset:-3px;border-radius:50%;padding:2.5px;pointer-events:none;
+  background:conic-gradient(from 0deg,var(--fx-a),var(--fx-b),var(--fx-c),var(--fx-a),var(--fx-b),var(--fx-c),var(--fx-a));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+  animation:fx-spin 3.2s linear infinite}
+.fx-avatar{box-shadow:0 0 10px var(--fx-glow),0 0 22px color-mix(in srgb,var(--fx-glow) 45%,transparent);animation:fx-pulse 2.6s ease-in-out infinite}
+.fx-name{background:linear-gradient(100deg,var(--fx-a) 0%,var(--fx-b) 30%,var(--fx-a) 50%,var(--fx-c) 70%,var(--fx-a) 100%);background-size:220% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 6px var(--fx-glow));animation:fx-shine 3s linear infinite;--fx-a:#e8c87c;--fx-b:#fff6d2;--fx-c:#b08638;--fx-glow:rgba(217,186,118,.5)}
+
+.fx-gold{--fx-a:#e8c87c;--fx-b:#fff6d2;--fx-c:#a07a2c;--fx-glow:rgba(232,200,124,.55)}
+.fx-fire{--fx-a:#ff7a2f;--fx-b:#ffd36b;--fx-c:#ff2d55;--fx-glow:rgba(255,106,61,.6)}
+.fx-ice{--fx-a:#7fdcff;--fx-b:#f2fdff;--fx-c:#4f8dff;--fx-glow:rgba(127,220,255,.55)}
+.fx-neon{--fx-a:#ff4fd8;--fx-b:#4ffcff;--fx-c:#b6ff4f;--fx-glow:rgba(255,79,216,.5)}
+.fx-galaxy{--fx-a:#a77bff;--fx-b:#ffd1fb;--fx-c:#4b5dff;--fx-glow:rgba(167,123,255,.55)}
+.fx-fire.fx-avatar{animation:fx-flicker 1.4s ease-in-out infinite}
+.fx-fire.fx-avatar::before{animation-duration:1.8s}
+.fx-neon.fx-avatar,.fx-neon.fx-name{animation-name:fx-pulse,fx-hue;animation-duration:2.6s,6s;animation-timing-function:ease-in-out,linear;animation-iteration-count:infinite}
+.fx-neon.fx-name{animation-name:fx-shine,fx-hue;animation-duration:3s,6s;animation-timing-function:linear}
+.fx-galaxy.fx-avatar::before{animation-duration:5s}
+.fx-ice.fx-name{animation-duration:4s}
+
+@keyframes fx-spin{to{transform:rotate(1turn)}}
+@keyframes fx-pulse{50%{box-shadow:0 0 14px var(--fx-glow),0 0 30px color-mix(in srgb,var(--fx-glow) 60%,transparent)}}
+@keyframes fx-flicker{0%,100%{box-shadow:0 0 10px var(--fx-glow),0 0 20px rgba(255,45,85,.35)}30%{box-shadow:0 0 16px var(--fx-glow),0 0 30px rgba(255,211,107,.45)}60%{box-shadow:0 0 8px var(--fx-glow),0 0 24px rgba(255,45,85,.4)}}
+@keyframes fx-shine{to{background-position:-220% 0}}
+@keyframes fx-hue{to{filter:hue-rotate(1turn) drop-shadow(0 0 6px var(--fx-glow))}}
+
+.reduced-motion .fx-avatar,.reduced-motion .fx-avatar::before,.reduced-motion .fx-name{animation:none}
+@media(prefers-reduced-motion:reduce){.fx-avatar,.fx-avatar::before,.fx-name{animation:none}}
+
+/* Chọn hiệu ứng ở Thông tin HLV. */
+.profile-effects{display:grid;gap:10px}
+.profile-effects h3{display:flex;align-items:center;gap:8px;margin:0;font-size:14px}
+.profile-effects p{margin:0;color:var(--muted);font-size:12px}
+.profile-effect-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.profile-effect{display:grid;justify-items:center;gap:7px;padding:12px 8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:inherit;cursor:pointer;text-align:center}
+.profile-effect:hover:not(:disabled){border-color:#3a4658}
+.profile-effect[aria-pressed=true]{border-color:var(--gold);background:#1a1710;box-shadow:inset 0 0 0 1px rgba(217,186,118,.35)}
+.profile-effect:disabled{cursor:not-allowed;opacity:.55}
+.profile-effect .fx-preview{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#1c2330;font-family:var(--display);font-weight:700;font-size:12px}
+.profile-effect b{font-size:13px}
+.profile-effect small{color:var(--muted);font-size:11px;line-height:1.3}

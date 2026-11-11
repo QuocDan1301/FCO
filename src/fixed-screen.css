@@ -63,6 +63,8 @@ html,body,#root{height:100%;overflow:hidden}
 .app-dock-icons>button{position:relative;display:grid;place-items:center;width:36px;height:36px;border:0;background:none;color:#cfd4d6;cursor:pointer;filter:drop-shadow(0 2px 2px #000b);transition:color .15s}
 .app-dock-icons>button:hover,.app-dock-icons>button:focus-visible{color:#fff}
 .app-dock-icons>button.active{color:#ecd28f}
+.app-dock-icons>button.dock-zalo{transition:transform .15s}
+.app-dock-icons>button.dock-zalo:hover,.app-dock-icons>button.dock-zalo:focus-visible{transform:scale(1.08)}
 .app-dock-icons b{position:absolute;right:-1px;top:0;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#1690ff;color:#fff;font-size:10px;font-weight:700;line-height:17px;text-align:center;box-shadow:0 0 0 2px #0b130f}
 /* Inventory */
 .main-content>.inv-workspace{padding:0 4%}

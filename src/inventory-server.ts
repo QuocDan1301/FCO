@@ -16,7 +16,8 @@ export const serverOpen = (packIds: string[], count: number | null) => withVersi
 export const serverOpenDraft = (packId: string, playerIds: number[], count: number) => withVersion<{ cards: Card[]; pack: string } & WithSave>('fco_inv_open_draft', { p_pack: packId, p_players: playerIds, p_count: count });
 export type ServerUpgrade = { success: boolean; card: Card; before: number; drop: number | null; restored: number | null; shielded: boolean; cost: number; rate: number; energy: number; restoreChance: number; keep: number } & WithSave;
 export const serverUpgrade = (targetId: string, materialIds: string[], protect: number) => withVersion<ServerUpgrade>('fco_inv_upgrade', { p_target: targetId, p_materials: materialIds, p_protect: protect });
-export const serverSell = (items: SellItem[]) => withVersion<{ sold: number; total: number; fees: number; proceeds: number; tax: number } & WithSave>('fco_inv_sell', { p_items: items });
+// voucher: phiếu giảm thuế 10 / 20 / 30 (migration 202611110007); không dùng phiếu thì không gửi để chạy được cả khi chưa có migration.
+export const serverSell = (items: SellItem[], voucher: number | null = null) => withVersion<{ sold: number; total: number; fees: number; proceeds: number; tax: number } & WithSave>('fco_inv_sell', { p_items: items, ...(voucher ? { p_voucher: voucher } : {}) });
 export const serverBuy = (playerId: number, level: number, count: number) => withVersion<{ cards: Card[]; price: number } & WithSave>('fco_inv_buy', { p_player: playerId, p_level: level, p_count: count });
 export const serverShop = (packId: string, count: number) => withVersion<{ wallet: Wallet } & WithSave>('fco_inv_shop', { p_pack: packId, p_count: count });
 export const serverRelease = (uids: string[]) => rpcCall<WithSave>('fco_inv_release', { p_uids: uids });

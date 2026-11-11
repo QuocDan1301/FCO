@@ -3,7 +3,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, Coins, Gift, Lock, Pause, Play, Rotate
 import { money, packs } from './game';
 import { ago, hours, vnd } from './Stats';
 import { giftRewardText } from './gift-codes';
-import { adminAccountDelete, adminAccountLock, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS } from './wallet';
+import { adminAccountDelete, adminAccountLock, adminAccountTier, adminCreditStp, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS } from './wallet';
 import type { AdminAccount, AdminAccountList, AdminGift, LedgerRow } from './wallet';
 import { CreditKindField, LedgerKindButton } from './LedgerKind';
 import type { CreditKind } from './LedgerKind';
@@ -67,6 +67,33 @@ function SendGift({ account, busy, run, onSent }: { account: AdminAccount; busy:
   </form>;
 }
 
+// Loại tài khoản Classic / Premium (migration 202611110003): admin đặt để người chơi nhận ưu đãi riêng; không phải gói thành viên trong Shop.
+function AccountTierField({ account, busy, run }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void }) {
+  const [tier, setTier] = useState<'classic' | 'premium' | null>(null);
+  const [choice, setChoice] = useState<'classic' | 'premium'>('classic');
+  useEffect(() => { void adminAccountTier(account.id).then(r => { setTier(r.tier); setChoice(r.tier); }).catch(() => setTier(null)); }, [account.id]);
+  const name = (t: 'classic' | 'premium') => t === 'premium' ? 'Premium' : 'Classic';
+  return <form onSubmit={e => { e.preventDefault(); run(async () => { const r = await adminAccountTier(account.id, choice); setTier(r.tier); return `Đã đặt ${account.login} là tài khoản ${name(r.tier)}.`; }); }}>
+    <h3>Loại tài khoản</h3>
+    <p className="pa-gift-note">Hiện tại: <b>{tier ? name(tier) : '…'}</b>. Do admin đặt để người chơi nhận ưu đãi riêng, không liên quan gói thành viên trong Shop.</p>
+    <label className="pa-field"><span>Đặt thành</span><select value={choice} onChange={e => setChoice(e.target.value as 'classic' | 'premium')}><option value="classic">Classic</option><option value="premium">Premium</option></select></label>
+    <button type="submit" className="primary-button" disabled={busy || !tier || choice === tier}>Lưu loại tài khoản</button>
+  </form>;
+}
+// Star Point (202611110007): admin cộng / trừ STP cho tài khoản (số âm để trừ). Nguồn nhận STP cho người chơi (nhiệm vụ) sẽ thêm sau.
+function StarPointField({ account, busy, run }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void }) {
+  const [amount, setAmount] = useState('');
+  const [note, setNote] = useState('');
+  const value = Number(amount.replace(/[.\s]/g, ''));
+  const valid = /^-?[\d.\s]+$/.test(amount.trim()) && Number.isSafeInteger(value) && value !== 0;
+  return <form onSubmit={e => { e.preventDefault(); if (valid) run(async () => { const r = await adminCreditStp(account.login, value, note.trim()); setAmount(''); setNote(''); return `${value > 0 ? 'Đã cộng' : 'Đã trừ'} ${money(Math.abs(value))} STP cho ${account.login}. Số dư: ${money(r.stp)} STP.`; }); }}>
+    <h3>Star Point</h3>
+    <p className="pa-gift-note">Cộng hoặc trừ (số âm) Star Point để người chơi mua gói STP trong Shop.</p>
+    <label className="pa-field"><span>Số STP</span><input inputMode="numeric" value={amount} placeholder="vd. 100 hoặc -15" onChange={e => setAmount(e.target.value.replace(/[^\d.\s-]/g, '').slice(0, 14))}/></label>
+    <label className="pa-field"><span>Ghi chú</span><input value={note} maxLength={200} onChange={e => setNote(e.target.value)}/></label>
+    <button type="submit" className="primary-button" disabled={busy || !valid}>Cập nhật Star Point</button>
+  </form>;
+}
 function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccount; onChanged: () => void; onDeleted: (login: string) => void }) {
   const { login } = account;
   const [amount, setAmount] = useState('');
@@ -130,6 +157,8 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
         <button type="submit" className="primary-button" disabled={busy}><Coins size={16}/>Xác nhận</button>
       </form>
       <SendGift account={account} busy={busy} run={task => void run(task)} onSent={() => void loadLedger()}/>
+      <AccountTierField account={account} busy={busy} run={task => void run(task)}/>
+      <StarPointField account={account} busy={busy} run={task => void run(task)}/>
       <div className="pa-account-ledger">
         <h3>Sổ cái FC gần đây</h3>
         {ledger && !ledger.length && <p className="pa-empty">Chưa có giao dịch.</p>}

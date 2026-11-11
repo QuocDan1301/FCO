@@ -197,6 +197,17 @@ console.log('open OK');
   assert.equal(saved.data.balance, server.balance); assert.deepEqual(saved.data.cards, server.cards); assert.deepEqual(saved.data.unopened, server.unopened);
   assert.equal(saved.data.sound, true); assert.equal(saved.data.history[0].id, 'client-1');
   assert.equal(saved.data.history.length, Math.min(200, server.history.length + 1));
+  // Thông tin HLV lưu một lần (202611110002): mục máy chủ đã có thì giữ, trình duyệt chỉ điền mục còn trống.
+  const lockSql = files.find(f => f.includes('202611110002'));
+  if (lockSql) {
+    await setSave(B, { ...(await save(B)), profile: { gender: 'male' } });
+    let p = await as(B, `select public.fco_commit_save($1::jsonb, 1, true)`, [JSON.stringify({ ...(await save(B)), profile: { gender: 'female', birthday: '01-01' } })]);
+    assert.deepEqual(p.data.profile, { gender: 'male', birthday: '01-01' });
+    p = await as(B, `select public.fco_commit_save($1::jsonb, 1, true)`, [JSON.stringify({ ...(await save(B)), profile: { gender: 'other', birthday: '09-09' } })]);
+    assert.deepEqual(p.data.profile, { gender: 'male', birthday: '01-01' });
+    p = await as(B, `select public.fco_commit_save($1::jsonb, 1, true)`, [JSON.stringify({ ...(await save(B)), profile: undefined })]);
+    assert.deepEqual(p.data.profile, { gender: 'male', birthday: '01-01' }, 'bỏ profile ở trình duyệt cũng không xoá được');
+  }
   // Chưa bắt buộc: game bản cũ (không gộp) vẫn ghi đè như trước.
   const legacy = await as(C, `select public.fco_commit_save($1::jsonb, 0)`, [initial({ balance: 5 })]);
   assert.equal(legacy.data.balance, 5);
@@ -250,6 +261,162 @@ console.log('open OK');
   r = await as(C, `select public.fco_bilac_play(1, 'free')`);
   assert.equal(r.save, null);
   console.log('legacy grants OK');
+}
+
+// 11. Loại tài khoản do admin đặt (202611110003): mặc định classic, người chơi không tự đặt được, ví trả về tier.
+if (files.some(f => f.includes('202611110003'))) {
+  assert.equal((await as(B, `select public.fco_wallet()`)).tier, 'classic');
+  await assert.rejects(as(B, `select public.fco_admin_account_tier($1, 'premium')`, [B]), /FCO_ADMIN_ONLY/);
+  await assert.rejects(as(A, `select public.fco_admin_account_tier($1, 'vip')`, [B]), /FCO_BAD_TIER/);
+  assert.deepEqual(await as(A, `select public.fco_admin_account_tier($1, 'premium')`, [B]), { tier: 'premium' });
+  assert.equal((await as(B, `select public.fco_wallet()`)).tier, 'premium');
+  assert.deepEqual(await as(A, `select public.fco_admin_account_tier($1)`, [B]), { tier: 'premium' });
+  console.log('account tier OK');
+}
+// 12. Hiệu ứng avatar + tên (202611110004): chỉ Premium đặt được; về Classic thì không hiện; BXH trả hiệu ứng.
+if (files.some(f => f.includes('202611110004'))) {
+  await as(A, `select public.fco_admin_account_tier($1, 'classic')`, [B]);
+  await assert.rejects(as(B, `select public.fco_set_name_effect('fire')`), /FCO_PREMIUM_ONLY/);
+  assert.equal((await as(B, `select public.fco_set_name_effect(null)`)).effect, null);
+  await as(A, `select public.fco_admin_account_tier($1, 'premium')`, [B]);
+  await assert.rejects(as(B, `select public.fco_set_name_effect('rainbow')`), /FCO_BAD_EFFECT/);
+  assert.equal((await as(B, `select public.fco_set_name_effect('fire')`)).effect, 'fire');
+  await db.query(`insert into public.fco_ranks(user_id, best_ovr, best_player, best_level, best_at) values ($1, 150, 1, 13, now()) on conflict (user_id) do update set best_ovr = 150`, [B]);
+  let board = await as(B, `select public.fco_leaderboard()`);
+  assert.equal(board.ovr.find(r => r.mine).effect, 'fire');
+  await as(A, `select public.fco_admin_account_tier($1, 'classic')`, [B]);
+  assert.equal((await as(B, `select public.fco_wallet()`)).effect, null);
+  board = await as(B, `select public.fco_leaderboard()`);
+  assert.equal(board.ovr.find(r => r.mine).effect, null);
+  console.log('name effect OK');
+}
+// 13. Sút phạt đền (202611110005): máy chủ quyết định, mỗi bàn +1, bị bắt là hết lượt; kỷ lục lên BXH; chặn ngắm sai / sút quá nhanh.
+if (files.some(f => f.includes('202611110005'))) {
+  await assert.rejects(as(B, `select public.fco_penalty_shoot(0, 0)`), /FCO_PENALTY_NO_RUN/);
+  assert.equal((await as(B, `select public.fco_penalty_start()`)).streak, 0);
+  await assert.rejects(as(B, `select public.fco_penalty_shoot(1.5, 0)`), /FCO_PENALTY_BAD_AIM/);
+  await assert.rejects(as(B, `select public.fco_penalty_shoot(0, 'NaN'::float8)`), /FCO_PENALTY_BAD_AIM/);
+  let goals = 0, over = false, shots = 0;
+  while (!over && shots < 400) {
+    await db.query(`update public.fco_penalty_runs set last_shot = now() - interval '1 second' where user_id = $1`, [B]);
+    const r = await as(B, `select public.fco_penalty_shoot(0.98, 0.95)`);
+    shots++;
+    if (r.goal) { goals++; assert.equal(r.streak, goals); assert.ok(r.best >= goals); assert.equal(r.over, false); }
+    else { over = true; assert.equal(r.over, true); assert.equal(r.streak, goals); assert.ok(r.keeper.x > 0, 'thủ môn bay đúng hướng bóng'); }
+    if (!over && shots === 1) await assert.rejects(as(B, `select public.fco_penalty_shoot(0, 0)`), /FCO_PENALTY_TOO_FAST/);
+  }
+  assert.ok(over, 'thủ môn phải bắt được trước 400 quả');
+  await assert.rejects(as(B, `select public.fco_penalty_shoot(0, 0)`), /FCO_PENALTY_NO_RUN/);
+  const board = await as(B, `select public.fco_leaderboard()`);
+  if (goals > 0) { assert.equal(board.penalty.find(r => r.mine).goals, goals); assert.equal(board.me.penalty, goals); assert.equal(board.me.penaltyRank, 1); }
+  // Tỷ lệ bắt giữa khung ~80%: 2.000 lượt mô phỏng bằng hàm máy chủ.
+  const saved = await one(`select avg((random() < public.fco_penalty_save_chance(0, 0, 0))::int)::float8 from generate_series(1, 2000)`);
+  assert.ok(Math.abs(saved - .8) < .05, `giữa khung bắt ${saved}`);
+  console.log(`penalty OK (${goals} bàn trước khi bị bắt)`);
+}
+// 14. Kiểu sút (202611110006): sai kiểu bị chặn; căng ngắm sát xà có lúc vọt xà, trivela sát cột có lúc dội cột; game cũ gọi 2 tham số vẫn chạy.
+if (files.some(f => f.includes('202611110006'))) {
+  await as(B, `select public.fco_penalty_start()`);
+  await assert.rejects(as(B, `select public.fco_penalty_shoot(0, 0, 'chip')`), /FCO_PENALTY_BAD_KIND/);
+  const seen = { bar: 0, post: 0, saved: 0, goal: 0 };
+  for (let i = 0; i < 300; i++) {
+    const k = i % 2 ? 'trivela' : 'power';
+    await db.query(`update public.fco_penalty_runs set active = true, last_shot = now() - interval '1 second' where user_id = $1`, [B]);
+    const r = await as(B, `select public.fco_penalty_shoot($1, $2, $3)`, [k === 'power' ? 0 : 1, k === 'power' ? 1 : 0, k]);
+    assert.equal(r.kind, k);
+    if (r.miss) { assert.equal(r.miss, k === 'power' ? 'bar' : 'post'); assert.equal(r.goal, false); assert.equal(r.saved, false); assert.equal(r.over, true); seen[r.miss]++; }
+    else if (r.saved) seen.saved++; else seen.goal++;
+  }
+  assert.ok(seen.bar > 10 && seen.post > 5 && seen.goal > 0 && seen.saved > 0, JSON.stringify(seen));
+  await db.query(`update public.fco_penalty_runs set active = true, last_shot = now() - interval '1 second' where user_id = $1`, [B]);
+  assert.equal((await as(B, `select public.fco_penalty_shoot(0, 0)`)).kind, 'normal');
+  console.log(`penalty kinds OK ${JSON.stringify(seen)}`);
+}
+
+// 15. Star Point (202611110007): admin cộng STP, mua gói STP nhận đủ vật phẩm, phiếu giảm thuế do máy chủ giữ và dùng một lần khi bán.
+if (files.some(f => f.includes('202611110007'))) {
+  await db.query(`select public.fco_wallet_lock($1)`, [B]);
+  await assert.rejects(as(B, `select public.fco_stp_buy('ultimate')`), /FCO_NOT_ENOUGH_STP/);
+  await assert.rejects(as(B, `select public.fco_admin_credit_stp('player_b', 200)`), /FCO_ADMIN_ONLY/);
+  assert.equal((await as(A, `select public.fco_admin_credit_stp('player_b', 200, 'thử')`)).stp, 200);
+  assert.equal((await as(B, `select public.fco_wallet()`)).stp, 200);
+  await assert.rejects(as(B, `select public.fco_stp_buy('legend')`), /FCO_STP_PACKAGE/);
+  const before = await save(B);
+  r = await as(B, `select public.fco_stp_buy('ultimate')`);
+  assert.equal(r.wallet.stp, 100);
+  const after = r.save.data;
+  assert.equal(after.balance, before.balance + 75000000);
+  for (const id of ['stp-u-110', 'stp-u-117', 'stp-u-hg', 'stp-u-111', 'stp-u-jnm', 'stp-u-cum', 'stp-u-wg26', 'stp-u-ca', 'stp-u-118']) assert.equal(after.unopened[id], (before.unopened?.[id] ?? 0) + 1, id);
+  assert.deepEqual(after.taxVouchers, { 30: 1 });
+  assert.equal(after.history[0].type, 'gift');
+  assert.equal(after.history[0].title, 'Mua Gói STP Siêu cấp');
+  assert.equal(after.history[0].detail, '9 gói cầu thủ, 1 phiếu giảm thuế 30%, 75M BP · −100 STP');
+  // Trình duyệt không tự thêm phiếu / STP được (phần máy chủ giữ).
+  const merged = await as(B, `select public.fco_commit_save($1::jsonb, 1, true)`, [JSON.stringify({ ...after, taxVouchers: { 30: 99, 20: 5 }, stp: 9999 })]);
+  assert.deepEqual(merged.data.taxVouchers, { 30: 1 }); assert.equal(merged.data.stp, undefined);
+  // Bán dùng phiếu 30%: thuế 40% còn 10%, bớt phiếu; hết phiếu thì báo lỗi; mức phiếu lạ bị chặn.
+  await db.query(`update public.fco_wallets set svip_until = null, premium_until = null where user_id = $1`, [B]);
+  const p = catalog.players.find(x => x[3][4] !== null && x[3][4] > 100000 && !x[4]);
+  const price = await one(`select public.fco_inv_price($1, 5)`, [p[0]]);
+  await setSave(B, { ...(await save(B)), cards: [{ uid: 'v1', playerId: p[0], level: 5, received: 0 }, { uid: 'v2', playerId: p[0], level: 5, received: 0 }] });
+  await assert.rejects(as(B, `select public.fco_inv_sell($1, $2::jsonb, 25)`, [version, JSON.stringify([{ uid: 'v1', price }])]), /FCO_BAD_VOUCHER/);
+  await assert.rejects(as(B, `select public.fco_inv_sell($1, $2::jsonb, 20)`, [version, JSON.stringify([{ uid: 'v1', price }])]), /FCO_NO_VOUCHER/);
+  r = await as(B, `select public.fco_inv_sell($1, $2::jsonb, 30)`, [version, JSON.stringify([{ uid: 'v1', price }])]);
+  assert.equal(r.tax, 10); assert.equal(r.fees, Math.floor(price * 10 / 100));
+  assert.deepEqual(r.save.data.taxVouchers, {});
+  assert.match(r.save.data.history[0].detail, /Phí 10% \(phiếu −30%\)/);
+  await assert.rejects(as(B, `select public.fco_inv_sell($1, $2::jsonb, 30)`, [version, JSON.stringify([{ uid: 'v2', price }])]), /FCO_NO_VOUCHER/);
+  r = await as(B, `select public.fco_inv_sell($1, $2::jsonb)`, [version, JSON.stringify([{ uid: 'v2', price }])]);
+  assert.equal(r.tax, 40);
+  // Tài khoản game chưa để máy chủ giữ kho: chỉ trừ STP, trả vật phẩm để game tự cộng.
+  await as(A, `select public.fco_admin_credit_stp('player_c', 15)`);
+  r = await as(C, `select public.fco_stp_buy('rookie')`);
+  assert.equal(r.save, null); assert.equal(r.wallet.stp, 0);
+  assert.deepEqual(r.items.find(i => i.voucher), { voucher: 10, count: 1 });
+  assert.equal(await one(`select count(*)::int from public.fco_stp_ledger where user_id = $1`, [C]), 2);
+  console.log('star point OK');
+}
+
+// 16. Nhiệm vụ Star Point hằng ngày (202611110012): máy chủ ghi nhận khi đập thành công / đạt chuỗi sút phạt, nhận 1 lần mỗi ngày.
+if (files.some(f => f.includes('202611110012'))) {
+  const messi = catalog.players.find(x => x[1] === 'L. Messi'), ronaldo = catalog.players.find(x => x[1] === 'Cristiano Ronaldo');
+  const r9 = catalog.players.find(x => x[1] === 'Ronaldo');
+  assert.ok(messi && ronaldo && r9, 'có Messi / Cristiano Ronaldo / Ronaldo trong bộ dữ liệu');
+  assert.ok(await one(`select prosrc like '%fco_stp_mission_upgrade%' from pg_proc where proname = 'fco_inv_upgrade'`), 'đập thẻ gọi ghi nhận nhiệm vụ');
+  // Các phần sút phạt phía trên có thể đã đạt chuỗi 20 bàn thật (trigger chạy đúng): kiểm tra rồi làm lại từ đầu.
+  const state = async () => Object.fromEntries((await as(B, `select public.fco_stp_missions_state()`)).missions.map(m => [m.id, m]));
+  const best = await one(`select coalesce(max(penalty_best), 0) from public.fco_ranks where user_id = $1`, [B]);
+  if (best >= 20) assert.equal((await state()).penalty20.done, true);
+  await db.query(`delete from public.fco_stp_missions where user_id = $1`, [B]);
+  let s = await state();
+  assert.deepEqual(Object.keys(s), ['messi8', 'ronaldo8', 'penalty20', 'messi7', 'ronaldo7']);
+  assert.ok(Object.values(s).every(m => !m.done && !m.claimed));
+  await assert.rejects(as(B, `select public.fco_stp_mission_claim('messi7')`), /FCO_STP_MISSION_INCOMPLETE/);
+  await assert.rejects(as(B, `select public.fco_stp_mission_claim('nope')`), /FCO_STP_MISSION_UNKNOWN/);
+  // Ronaldo (Brazil) không tính cho nhiệm vụ C. Ronaldo; Messi lên +7 chỉ đạt nhiệm vụ +7; Cristiano Ronaldo lên +8 đạt cả +7 và +8.
+  await one(`select public.fco_stp_mission_upgrade($1, $2, 13)`, [B, r9[0]]);
+  await one(`select public.fco_stp_mission_upgrade($1, $2, 7)`, [B, messi[0]]);
+  await one(`select public.fco_stp_mission_upgrade($1, $2, 8)`, [B, ronaldo[0]]);
+  s = await state();
+  assert.deepEqual([s.messi7.done, s.messi8.done, s.ronaldo7.done, s.ronaldo8.done, s.penalty20.done], [true, false, true, true, false]);
+  // Chuỗi sút phạt vượt 20 bàn.
+  await db.query(`insert into public.fco_penalty_runs(user_id, streak, active) values ($1, 19, true) on conflict (user_id) do update set streak = 19, active = true`, [B]);
+  await db.query(`update public.fco_penalty_runs set streak = 20 where user_id = $1`, [B]);
+  assert.equal((await state()).penalty20.done, true);
+  // Nhận thưởng: cộng STP, mỗi ngày một lần.
+  const before = (await as(B, `select public.fco_wallet()`)).stp;
+  r = await as(B, `select public.fco_stp_mission_claim('ronaldo8')`);
+  assert.equal(r.wallet.stp, before + 25); assert.equal(r.reward, 25);
+  assert.equal(r.state.missions.find(m => m.id === 'ronaldo8').claimed, true);
+  await assert.rejects(as(B, `select public.fco_stp_mission_claim('ronaldo8')`), /FCO_STP_MISSION_CLAIMED/);
+  r = await as(B, `select public.fco_stp_mission_claim('penalty20')`);
+  assert.equal(r.wallet.stp, before + 45);
+  assert.equal(await one(`select count(*)::int from public.fco_stp_ledger where user_id = $1 and reason = 'mission'`, [B]), 2);
+  // Sang ngày mới: nhiệm vụ làm lại từ đầu.
+  await db.query(`update public.fco_stp_missions set day = day - 1 where user_id = $1`, [B]);
+  s = await state();
+  assert.ok(Object.values(s).every(m => !m.done && !m.claimed), 'ngày mới chưa đạt nhiệm vụ nào');
+  console.log('stp missions OK');
 }
 
 console.log('ALL OK');

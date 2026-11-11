@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Crown, RefreshCw, Shirt, Trophy } from 'lucide-react';
+import { Crown, RefreshCw, Shirt, Target, Trophy } from 'lucide-react';
 import { getPlayer, money, players } from './game';
 import { seasonShort } from './badges';
 import type { Leaderboard } from './wallet-state';
 import './ranks.css';
+import { nameEffectClass } from './name-effects';
 
 // Bảng xếp hạng HLV (supabase/migrations/202611080001_fco_ranks.sql): top 10 kỷ lục đập thẻ OVR cao nhất và top 10
 // giá trị đội hình đang dùng. Game gửi số lên ở App.tsx (đập thành công / Giá trị ĐH đổi); trang này chỉ đọc.
@@ -32,7 +33,7 @@ export default function RanksPage({ load, online, levelBadge }: Props) {
     const p = r.playerId && known.has(r.playerId) ? getPlayer({ playerId: r.playerId }) : undefined;
     return <li key={i} className={`rk-row ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}`}>
       <span className="rk-rank">{i + 1}</span>
-      <span className="rk-coach">{r.name}{r.mine && <em>Bạn</em>}</span>
+      <span className="rk-coach"><span className={nameEffectClass(r.effect).trim() || undefined}>{r.name}</span>{r.mine && <em>Bạn</em>}</span>
       <span className="rk-card">
         {/* Chỉ lấy phần mặt: ảnh gốc in sẵn ô cấp +1, cấp thật hiện ở huy hiệu bên cạnh. */}
         {p?.cardFace && <span className="squad-face rk-face"><img src={p.cardFace} alt=""/></span>}
@@ -44,8 +45,13 @@ export default function RanksPage({ load, online, levelBadge }: Props) {
   });
   const squadRows = (data?.squad ?? []).map((r, i) => <li key={i} className={`rk-row rk-row-squad ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}`}>
     <span className="rk-rank">{i + 1}</span>
-    <span className="rk-coach">{r.name}{r.mine && <em>Bạn</em>}</span>
+    <span className="rk-coach"><span className={nameEffectClass(r.effect).trim() || undefined}>{r.name}</span>{r.mine && <em>Bạn</em>}</span>
     <strong className="rk-value">{money(r.value)}<small>BP</small></strong>
+  </li>);
+  const penaltyRows = (data?.penalty ?? []).map((r, i) => <li key={i} className={`rk-row rk-row-squad ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}`}>
+    <span className="rk-rank">{i + 1}</span>
+    <span className="rk-coach"><span className={nameEffectClass(r.effect).trim() || undefined}>{r.name}</span>{r.mine && <em>Bạn</em>}</span>
+    <strong className="rk-value">{r.goals}<small>bàn</small></strong>
   </li>);
   const me = data?.me;
 
@@ -67,6 +73,12 @@ export default function RanksPage({ load, online, levelBadge }: Props) {
         <p className="rk-sub">Tổng giá 11 cầu thủ đá chính của đội hình đang dùng</p>
         <ol className="rk-list">{ten(squadRows)}</ol>
         <p className="rk-me">{me?.squad ? <>Hạng của bạn: <b>#{me.squadRank}</b> · {money(me.squad)} BP</> : 'Đội hình đang dùng chưa có giá trị — xếp cầu thủ ở màn Đội hình.'}</p>
+      </article>
+      <article className="rk-board" aria-label="Top 10 sút phạt đền">
+        <h2><Target aria-hidden="true"/>Sút phạt đền</h2>
+        <p className="rk-sub">Chuỗi bàn thắng liên tiếp dài nhất</p>
+        <ol className="rk-list">{ten(penaltyRows)}</ol>
+        <p className="rk-me">{me?.penalty ? <>Hạng của bạn: <b>#{me.penaltyRank}</b> · {me.penalty} bàn</> : 'Bạn chưa có kỷ lục — vào mục Sút phạt để chơi.'}</p>
       </article>
     </div>
   </section>;

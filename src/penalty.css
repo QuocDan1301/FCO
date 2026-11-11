@@ -1,0 +1,228 @@
+/* Mini game Sút phạt đền (src/PenaltyPage.tsx). */
+.penalty-page{display:grid;gap:12px;max-width:1100px;margin:0 auto}
+.pk-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.pk-head h1{display:flex;align-items:center;gap:9px;margin:0;font-family:var(--display);font-size:24px;letter-spacing:.4px}
+.pk-head h1 svg{color:var(--gold)}
+.pk-score{display:flex;gap:10px}
+.pk-score span{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);font-size:13px}
+.pk-score b{color:#fff;font-family:var(--display);font-size:18px}
+.pk-speed.is-up b{color:#ffb15c}
+.pk-speed.is-max{border-color:rgba(255,93,58,.6);box-shadow:0 0 12px rgba(255,93,58,.3)}
+.pk-speed.is-max b{color:#ff6b4a}
+.pk-stage{position:relative;aspect-ratio:16/10;width:100%;overflow:hidden;border-radius:12px;border:1px solid #2b3445;background:#070b14;outline:none;user-select:none;touch-action:manipulation;box-shadow:0 18px 40px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.03)}
+.pk-stage:focus-visible{box-shadow:0 0 0 2px var(--gold)}
+.pk-stage.is-shake-0{animation:pk-shake-a .45s ease-out}
+.pk-stage.is-shake-1{animation:pk-shake-b .45s ease-out}
+.pk-defs{position:absolute;width:0;height:0;overflow:hidden}
+.pk-pitch,.pk-aim-line{position:absolute;inset:0;width:100%;height:100%}
+.pk-aim-line{pointer-events:none;filter:drop-shadow(0 0 2px rgba(255,215,106,.6))}
+.pk-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(0,0,0,.5) 100%)}
+
+/* Thủ môn: đứng chờ đung đưa, bay người thì đổi sang tư thế ngang. */
+.pk-keeper{position:absolute;width:10.5%;transform:translateX(-50%);transform-origin:50% 85%;filter:drop-shadow(0 5px 6px rgba(0,0,0,.5));z-index:2}
+.pk-keeper:not(.is-diving){animation:pk-sway 1.5s ease-in-out infinite}
+.pk-keeper.is-diving{width:19%;animation:pk-dive .5s cubic-bezier(.15,.8,.3,1) both}
+.pk-keeper svg{display:block;width:100%}
+
+/* Vạch ngắm. */
+.pk-marker{position:absolute;width:5.2%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;border:2px solid #ffd76a;box-shadow:0 0 14px rgba(255,215,106,.8),inset 0 0 8px rgba(255,215,106,.5);pointer-events:none;z-index:3;animation:pk-pulse 1s ease-in-out infinite}
+.pk-marker i{position:absolute;inset:30%;border-radius:50%;background:#ff5d3a;box-shadow:0 0 8px #ff5d3a}
+.pk-marker::before,.pk-marker::after{content:'';position:absolute;background:rgba(255,215,106,.85)}
+.pk-marker::before{left:50%;top:-30%;bottom:-30%;width:2px;transform:translateX(-50%)}
+.pk-marker::after{top:50%;left:-30%;right:-30%;height:2px;transform:translateY(-50%)}
+.pk-marker.is-hidden{opacity:0;animation:none}
+
+/* Bóng + bóng đổ: bay vòng cung (lớp trong nhấc lên giữa đường), xoay khi bay. */
+.pk-ball{position:absolute;width:5.4%;aspect-ratio:1;z-index:4}
+.pk-ball>span{display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+.pk-ball svg{display:block;width:100%}
+
+/* Bóng không quay cả hình nữa: hoạ tiết bên trong cuộn (.pk-ball-panels), điểm sáng đứng yên. */
+
+.pk-ball-shadow{position:absolute;width:5%;height:1.6%;border-radius:50%;background:radial-gradient(rgba(0,0,0,.55),rgba(0,0,0,0) 70%);z-index:1}
+/* Bóng bay theo đường cong do JS vẽ (src/penalty.ts flightPath); vệt bóng mờ màu theo kiểu sút, xoay theo chiều xoáy. */
+.pk-ghost{position:absolute;width:5.4%;aspect-ratio:1;border-radius:50%;opacity:0;pointer-events:none;z-index:3;background:radial-gradient(circle,rgba(255,255,255,.85),rgba(255,255,255,0) 68%)}
+.pk-ghost.is-curl{background:radial-gradient(circle,rgba(98,195,255,.95),rgba(98,195,255,0) 68%)}
+.pk-ghost.is-power{background:radial-gradient(circle,rgba(255,150,60,.95),rgba(255,70,40,0) 70%)}
+.pk-ghost.is-trivela{background:radial-gradient(circle,rgba(255,215,106,.95),rgba(255,215,106,0) 68%)}
+.pk-ball.is-curl svg{animation-duration:.28s!important}
+.pk-ball.is-trivela svg{animation-direction:reverse!important;animation-duration:.3s!important}
+.pk-ball.is-power svg{animation-duration:.16s!important}
+.pk-ball.is-power>span{filter:drop-shadow(0 0 6px rgba(255,140,60,.9)) drop-shadow(0 2px 3px rgba(0,0,0,.5))}
+
+/* Cầu thủ sút (nhìn từ sau, sút chân trái): đứng bên phải bóng, chạy đà chéo vào bóng và vung chân trái. */
+.pk-striker{position:absolute;left:54%;bottom:-5%;width:12%;z-index:5;transform-origin:50% 100%;filter:drop-shadow(0 6px 8px rgba(0,0,0,.5))}
+.pk-striker svg{display:block;width:100%}
+.pk-striker .pk-kick-leg{transform-box:fill-box;transform-origin:50% 0}
+.pk-striker.is-kicking{animation:pk-runup .34s cubic-bezier(.4,0,.6,1) forwards}
+.pk-striker.is-kicking .pk-kick-leg{animation:pk-swing .34s ease-in forwards}
+
+/* Ghi bàn: lưới gợn, pháo giấy, chớp sáng. */
+.pk-ripple{position:absolute;width:14%;aspect-ratio:1;transform:translate(-50%,-50%);pointer-events:none;z-index:2}
+.pk-ripple i{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.75);opacity:0;animation:pk-ring .9s ease-out forwards}
+.pk-ripple i:nth-child(2){animation-delay:.12s}
+.pk-ripple i:nth-child(3){animation-delay:.24s}
+.pk-confetti{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden}
+.pk-confetti i{position:absolute;top:-4%;border-radius:1px;opacity:0;animation:pk-fall 1.5s cubic-bezier(.2,.6,.4,1) forwards}
+.pk-glare{position:absolute;inset:0;pointer-events:none;z-index:6;background:radial-gradient(circle at 50% 35%,rgba(255,230,160,.45),transparent 60%);animation:pk-glare .8s ease-out forwards}
+
+/* Thanh độ cao, chữ kết quả, lớp phủ. */
+.pk-height{position:absolute;right:2.2%;top:18%;bottom:40%;width:8px;border-radius:999px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.18);z-index:3}
+.pk-height span{position:absolute;left:50%;width:16px;height:16px;transform:translate(-50%,50%);border-radius:50%;background:#ffd76a;box-shadow:0 0 10px rgba(255,215,106,.85);transition:bottom .12s}
+.pk-flash{position:absolute;left:50%;top:36%;transform:translate(-50%,-50%);display:grid;justify-items:center;font-family:var(--display);font-size:clamp(36px,7.5vw,80px);font-weight:800;letter-spacing:3px;animation:pk-pop .5s cubic-bezier(.2,1.4,.4,1) both;pointer-events:none;z-index:7}
+.pk-flash small{font-size:.3em;letter-spacing:1px}
+.pk-flash.is-goal{color:#ffd76a;text-shadow:0 0 22px rgba(255,215,106,.85),0 5px 0 #6b4b10,0 8px 18px rgba(0,0,0,.6)}
+.pk-flash.is-saved{color:#ff6b6b;text-shadow:0 0 22px rgba(255,80,80,.75),0 5px 0 #5a1414,0 8px 18px rgba(0,0,0,.6)}
+.pk-overlay{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:12px;padding:20px;text-align:center;background:radial-gradient(ellipse at center,rgba(5,8,14,.6),rgba(5,8,14,.85));backdrop-filter:blur(3px);z-index:8}
+.pk-overlay h2{margin:0;font-family:var(--display);font-size:32px;color:var(--gold);letter-spacing:.6px;text-shadow:0 0 18px rgba(217,186,118,.45)}
+.pk-overlay p{margin:0;max-width:440px;color:#d7dce4;line-height:1.5}
+.pk-overlay button{display:inline-flex;align-items:center;gap:7px;min-width:150px;justify-content:center}
+.pk-error{margin:0;color:#ff8f8f;font-size:13px}
+
+/* Nút điều khiển + chọn kiểu sút. */
+.pk-kinds{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;flex:1;min-width:0}
+.pk-kind{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface);color:#d7dce4;font-weight:700;cursor:pointer}
+.pk-kind kbd{display:grid;place-items:center;width:18px;height:18px;border-radius:4px;border:1px solid #3a4658;color:var(--muted);font:600 10px var(--display)}
+.pk-kind[aria-checked=true]{color:#fff;border-color:var(--gold);background:#1d1910;box-shadow:inset 0 0 0 1px rgba(217,186,118,.35)}
+.pk-kind.is-curl[aria-checked=true]{border-color:#62c3ff;background:#0f1d2a;box-shadow:0 0 12px rgba(98,195,255,.25)}
+.pk-kind.is-power[aria-checked=true]{border-color:#ff8a3c;background:#2a160c;box-shadow:0 0 12px rgba(255,138,60,.25)}
+.pk-kind.is-trivela[aria-checked=true]{border-color:#ffd76a;background:#2a220c;box-shadow:0 0 12px rgba(255,215,106,.25)}
+.pk-kind:disabled{opacity:.55;cursor:default}
+.pk-kind-hint{flex-basis:100%;text-align:center;color:var(--muted);font-size:12px}
+.pk-controls{display:flex;align-items:center;justify-content:space-between;gap:14px}
+.pk-height-buttons{display:flex;align-items:center;gap:10px}
+.pk-height-buttons button{display:grid;place-items:center;width:46px;height:46px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:#fff;cursor:pointer}
+.pk-height-buttons button:active{background:#1c2636}
+.pk-height-buttons span{color:var(--muted);font-size:13px;min-width:92px;text-align:center}
+.pk-height-buttons b{color:#fff}
+.pk-shoot{min-width:180px;height:56px;border:0;border-radius:12px;background:linear-gradient(180deg,#ffe08a,#e2a92e 55%,#b57c14);color:#1b1205;font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:3px;cursor:pointer;box-shadow:0 6px 18px rgba(211,154,31,.4),inset 0 1px 0 rgba(255,255,255,.5)}
+.pk-shoot:disabled{opacity:.45;cursor:default;box-shadow:none}
+.pk-shoot:not(:disabled):active{transform:translateY(1px)}
+
+@keyframes pk-sway{0%,100%{transform:translateX(-50%)}25%{transform:translateX(-56%) translateY(-1.5%)}75%{transform:translateX(-44%) translateY(-1.5%)}}
+@keyframes pk-dive{from{opacity:.4;filter:blur(1px) drop-shadow(0 5px 6px rgba(0,0,0,.5))}to{opacity:1;filter:drop-shadow(0 5px 6px rgba(0,0,0,.5))}}
+@keyframes pk-pulse{50%{box-shadow:0 0 22px rgba(255,215,106,1),inset 0 0 10px rgba(255,215,106,.7)}}
+@keyframes pk-arc{50%{transform:translateY(-55%)}}
+@keyframes pk-spin{to{transform:rotate(1turn)}}
+@keyframes pk-trail{from{opacity:1}to{opacity:0}}
+@keyframes pk-runup{0%{transform:none}60%{transform:translate(-26%,-3%) rotate(-4deg)}100%{transform:translate(-36%,-4%) rotate(3deg)}}
+@keyframes pk-swing{0%{transform:rotate(0)}55%{transform:rotate(-28deg)}100%{transform:rotate(38deg)}}
+@keyframes pk-ring{0%{opacity:.9;transform:scale(.2)}100%{opacity:0;transform:scale(1.4)}}
+@keyframes pk-fall{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--drift),110vh) rotate(var(--spin))}}
+@keyframes pk-glare{from{opacity:1}to{opacity:0}}
+@keyframes pk-pop{from{opacity:0;transform:translate(-50%,-50%) scale(.4)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes pk-shake-a{20%{transform:translate(-6px,2px)}40%{transform:translate(5px,-2px)}60%{transform:translate(-3px,1px)}80%{transform:translate(2px,0)}}
+@keyframes pk-shake-b{20%{transform:translate(6px,-2px)}40%{transform:translate(-5px,2px)}60%{transform:translate(3px,-1px)}80%{transform:translate(-2px,0)}}
+
+.penalty-page.is-reduced .pk-ball,.penalty-page.is-reduced .pk-ball-shadow{transition-duration:.15s}
+.penalty-page.is-reduced .pk-keeper,.penalty-page.is-reduced .pk-marker,.penalty-page.is-reduced .pk-ball *,.penalty-page.is-reduced .pk-ball::after,.penalty-page.is-reduced .pk-striker,.penalty-page.is-reduced .pk-striker *,.penalty-page.is-reduced .pk-flash,.penalty-page.is-reduced .pk-stage,.penalty-page.is-reduced .pk-confetti,.penalty-page.is-reduced .pk-ripple{animation:none!important}
+.penalty-page.is-reduced .pk-confetti,.penalty-page.is-reduced .pk-ripple{display:none}
+@media(prefers-reduced-motion:reduce){.pk-keeper,.pk-marker,.pk-ball *,.pk-striker,.pk-striker *,.pk-stage{animation:none!important}.pk-confetti{display:none}}
+@media(max-width:640px){.pk-shoot{min-width:120px;height:48px;font-size:20px}.pk-height-buttons button{width:42px;height:42px}}
+
+/* Cầu thủ sút: Messi (chân trái) đứng bên phải bóng, Ronaldo (chân phải) đứng bên trái bóng, dạng chân rộng. */
+.pk-striker.is-ronaldo{left:31%;width:13%}
+.pk-striker.is-ronaldo.is-kicking{animation-name:pk-runup-r}
+.pk-striker.is-ronaldo.is-kicking .pk-kick-leg{animation-name:pk-swing-r}
+@keyframes pk-runup-r{0%{transform:none}60%{transform:translate(24%,-3%) rotate(4deg)}100%{transform:translate(33%,-4%) rotate(-3deg)}}
+@keyframes pk-swing-r{0%{transform:rotate(0)}55%{transform:rotate(28deg)}100%{transform:rotate(-38deg)}}
+/* Chọn cầu thủ ở màn bắt đầu / hết lượt. */
+.pk-shooters{display:flex;gap:10px;justify-content:center}
+.pk-shooter{display:grid;justify-items:center;gap:2px;width:118px;padding:8px 8px 10px;border-radius:10px;border:1px solid #2e3a4d;background:rgba(14,20,30,.85);color:#d7dce4;cursor:pointer}
+.pk-shooter-art{display:block;width:58px;height:62px;overflow:hidden}
+.pk-shooter-art svg{display:block;width:100%}
+.pk-shooter b{font-family:var(--display);font-size:16px;color:#fff}
+.pk-shooter small{color:var(--muted);font-size:11px}
+.pk-shooter[aria-checked=true]{border-color:var(--gold);background:rgba(40,32,14,.9);box-shadow:0 0 14px rgba(217,186,118,.3)}
+.pk-shooter.is-messi[aria-checked=true]{border-color:#79b4e3;box-shadow:0 0 14px rgba(121,180,227,.35)}
+.pk-shooter.is-ronaldo[aria-checked=true]{border-color:#e0334d;box-shadow:0 0 14px rgba(224,51,77,.35)}
+.penalty-page.is-reduced .pk-striker.is-ronaldo{animation:none!important}.pk-overlay .pk-shooter{display:grid;min-width:0;gap:2px}
+
+/* Điệu bộ sau cú sút (tay .pk-arm xoay quanh vai, đầu .pk-head, tay chống hông .pk-arms-akimbo). */
+.pk-striker svg{overflow:visible}
+.pk-striker-body{transform-origin:50% 100%}
+.pk-striker .pk-arm,.pk-striker .pk-head{transform-box:view-box}
+.pk-striker .pk-arm{transition:transform .35s cubic-bezier(.3,1.4,.5,1),opacity .15s}
+.pk-striker.is-messi .pk-arm-l{transform-origin:15px 29px}
+.pk-striker.is-messi .pk-arm-r{transform-origin:49px 29px}
+.pk-striker.is-ronaldo .pk-arm-l{transform-origin:12px 28px}
+.pk-striker.is-ronaldo .pk-arm-r{transform-origin:52px 28px}
+.pk-striker .pk-head{transform-origin:32px 23px}
+.pk-striker .pk-finger{opacity:0;transition:opacity .2s .25s}
+.pk-striker .pk-arms-akimbo{opacity:0;transition:opacity .15s}
+.pk-striker.is-kicking.is-celebrate .pk-kick-leg,.pk-striker.is-kicking.is-sad .pk-kick-leg{animation:none!important}
+/* Messi: đứng yên (không nhảy), hai tay giơ chếch chữ V, ngón trỏ chỉ lên trời, ngửa đầu nhìn trời, chùm sáng từ trên chiếu xuống. */
+.pk-striker .pk-head{transition:transform .35s ease-out}
+.pk-striker.is-messi.is-celebrate .pk-arm{transition-delay:.15s}
+.pk-striker.is-messi.is-celebrate .pk-arm-l{transform:rotate(150deg)}
+.pk-striker.is-messi.is-celebrate .pk-arm-r{transform:rotate(-150deg)}
+.pk-striker.is-messi.is-celebrate .pk-head{transform:translateY(1.6px) scaleY(.92);transition-delay:.35s}
+.pk-striker.is-messi.is-celebrate .pk-finger{opacity:1}
+.pk-striker.is-messi.is-celebrate::before{content:'';position:absolute;left:50%;bottom:60%;width:120%;height:240%;transform:translateX(-50%);pointer-events:none;
+  background:linear-gradient(to top,rgba(255,240,190,.38),rgba(255,240,190,0));clip-path:polygon(38% 100%,62% 100%,100% 0,0 0);animation:pk-beam 1.6s ease-out forwards}
+/* Ronaldo: lấy đà khuỵu gối, bật cao, xoay 180° trên không (giữa chừng đổi sang hình nhìn từ phía trước .pk-front),
+   tiếp đất dạng chân rộng, ưỡn ngực, hai tay duỗi chéo xuống. */
+.pk-striker-body{position:relative}
+.pk-front{position:absolute;inset:0;opacity:0;pointer-events:none}
+.pk-front svg{display:block;width:100%;overflow:visible}
+.pk-striker.is-ronaldo.is-celebrate .pk-striker-body{animation:pk-siu-jump 1.15s cubic-bezier(.3,.7,.4,1) forwards}
+.pk-striker.is-ronaldo.is-celebrate .pk-striker-body>svg{animation:pk-siu-back 1.15s linear forwards}
+.pk-striker.is-ronaldo.is-celebrate .pk-front{animation:pk-siu-front 1.15s linear forwards}
+@keyframes pk-siu-jump{0%{transform:none}12%{transform:translateY(3%) scaleY(.94)}42%{transform:translateY(-42%)}64%{transform:translateY(-34%)}80%{transform:translateY(3%) scale(1.08,.88)}100%{transform:none}}
+@keyframes pk-siu-back{0%{transform:none;opacity:1}40%{transform:rotateY(90deg);opacity:1}40.1%,100%{transform:rotateY(90deg);opacity:0}}
+@keyframes pk-siu-front{0%,40%{opacity:0;transform:rotateY(-90deg)}40.1%{opacity:1;transform:rotateY(-90deg)}64%,100%{opacity:1;transform:none}}
+.penalty-page.is-reduced .pk-striker.is-ronaldo.is-celebrate .pk-front{opacity:1}
+.penalty-page.is-reduced .pk-striker.is-ronaldo.is-celebrate .pk-striker-body>svg{opacity:0}
+@media(prefers-reduced-motion:reduce){.pk-striker.is-ronaldo.is-celebrate .pk-front{opacity:1}.pk-striker.is-ronaldo.is-celebrate .pk-striker-body>svg{opacity:0}}
+/* Không vào: chống hông, lắc đầu, chùng người. */
+.pk-striker.is-sad .pk-arm{opacity:0}
+.pk-striker.is-sad .pk-arms-akimbo{opacity:1}
+.pk-striker.is-sad .pk-head{animation:pk-headshake .55s ease-in-out .15s 3}
+.pk-striker.is-sad .pk-striker-body{animation:pk-slump .4s ease-out forwards}
+@keyframes pk-headshake{25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+@keyframes pk-slump{to{transform:translateY(1.5%) scaleY(.98)}}
+@keyframes pk-beam{0%{opacity:0}25%{opacity:1}100%{opacity:.55}}
+.penalty-page.is-reduced .pk-striker-body,.penalty-page.is-reduced .pk-head,.penalty-page.is-reduced .pk-striker::before{animation:none!important}
+@media(prefers-reduced-motion:reduce){.pk-striker-body,.pk-striker .pk-head,.pk-striker::before{animation:none!important}}
+/* Máy quay: cả cảnh (sân, khán đài, cầu thủ, bóng) nằm trong .pk-camera; lớp phủ / chữ / thanh độ cao nằm ngoài nên không bị zoom. */
+.pk-camera{position:absolute;inset:0;transform-origin:50% 40%;transition:transform .9s cubic-bezier(.25,.7,.3,1)}
+.pk-camera.is-shoot{transform:scale(1.07)}
+.pk-camera.is-goal{transform:scale(1.05);animation:pk-punch .6s cubic-bezier(.2,1.4,.4,1)}
+.pk-camera.is-miss{transform:scale(1.03)}
+@keyframes pk-punch{0%{transform:scale(1.07)}35%{transform:scale(1.13)}100%{transform:scale(1.05)}}
+/* Khán đài nhún nhảy khi ghi bàn, đèn flash máy ảnh nháy dày hơn. */
+.pk-crowd{transform-box:fill-box}
+.pk-camera.is-goal .pk-crowd{animation:pk-crowd .32s ease-in-out 5}
+@keyframes pk-crowd{50%{transform:translateY(-.7px)}}
+.pk-atmos{position:absolute;inset:0;pointer-events:none}
+.pk-haze{position:absolute;left:0;right:0;top:27%;height:32%;background:linear-gradient(to bottom,rgba(160,185,230,0),rgba(160,185,230,.11) 45%,rgba(160,185,230,0));mix-blend-mode:screen}
+.pk-flashbulb{position:absolute;border-radius:50%;background:#fff;box-shadow:0 0 6px 2px rgba(255,255,255,.9);opacity:0;animation:pk-bulb 5.2s linear infinite}
+.pk-camera.is-goal .pk-flashbulb{animation-duration:1.2s}
+@keyframes pk-bulb{0%,93%,100%{opacity:0}95%{opacity:1}}
+.pk-mote{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,246,214,.85);box-shadow:0 0 4px rgba(255,246,214,.8);opacity:0;animation:pk-mote 7s ease-in-out infinite}
+@keyframes pk-mote{0%{opacity:0;transform:translate(0,0)}20%{opacity:.8}80%{opacity:.55}100%{opacity:0;transform:translate(var(--drift),40px)}}
+/* Lưới phồng ở chỗ bóng vào. */
+.pk-bulge{position:absolute;inset:-14%;border-radius:50%;background:radial-gradient(circle,rgba(0,0,0,.38) 0 20%,transparent 58%),repeating-linear-gradient(45deg,rgba(240,244,252,.75) 0 1px,transparent 1px 7px),repeating-linear-gradient(-45deg,rgba(240,244,252,.75) 0 1px,transparent 1px 7px);
+  -webkit-mask:radial-gradient(circle,#000 42%,transparent 70%);mask:radial-gradient(circle,#000 42%,transparent 70%);animation:pk-bulge 1.1s cubic-bezier(.2,1.3,.4,1) forwards}
+@keyframes pk-bulge{0%{transform:scale(.2);opacity:1}35%{transform:scale(1.28)}70%{transform:scale(.95);opacity:.9}100%{transform:scale(1);opacity:0}}
+/* Vệt sáng loé ngang màn hình khi ghi bàn. */
+.pk-flare{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden}
+.pk-flare i{position:absolute;mix-blend-mode:screen;animation:pk-flare 1.1s ease-out forwards}
+.pk-flare i:nth-child(1){left:-30%;top:12%;width:70%;height:4px;border-radius:2px;background:linear-gradient(90deg,transparent,rgba(255,240,200,.95),transparent);transform:rotate(-12deg)}
+.pk-flare i:nth-child(2){left:22%;top:26%;width:9%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,215,106,.5),transparent 70%)}
+.pk-flare i:nth-child(3){left:36%;top:34%;width:5%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(98,195,255,.45),transparent 70%)}
+@keyframes pk-flare{from{opacity:0;translate:-20% 0}30%{opacity:1}to{opacity:0;translate:60% 0}}
+/* Bóng xoáy: hoạ tiết cuộn theo kiểu sút (căng nhanh hơn, trivela cuộn ngược). */
+.pk-ball.is-flying .pk-ball-panels{animation:pk-roll .32s linear infinite}
+.pk-ball.is-power .pk-ball-panels{animation-duration:.18s}
+.pk-ball.is-trivela .pk-ball-panels{animation-direction:reverse}
+@keyframes pk-roll{to{transform:translateX(20px)}}
+.penalty-page.is-reduced .pk-camera{transform:none!important;transition:none}
+.penalty-page.is-reduced .pk-camera,.penalty-page.is-reduced .pk-crowd,.penalty-page.is-reduced .pk-flashbulb,.penalty-page.is-reduced .pk-mote,.penalty-page.is-reduced .pk-bulge,.penalty-page.is-reduced .pk-flare i,.penalty-page.is-reduced .pk-ball-panels{animation:none!important}
+.penalty-page.is-reduced .pk-mote,.penalty-page.is-reduced .pk-flare{display:none}
+@media(prefers-reduced-motion:reduce){.pk-camera{transform:none!important;transition:none}.pk-camera,.pk-crowd,.pk-flashbulb,.pk-mote,.pk-bulge,.pk-flare i,.pk-ball-panels{animation:none!important}}.pk-sound{display:grid;place-items:center;width:36px;height:36px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:#d7dce4;cursor:pointer}
+.pk-sound[aria-pressed=false]{color:var(--muted)}
+.pk-sound:hover{border-color:#3a4658}
+/* Bóng lăn trên nền lưới sau khi vào: hoạ tiết cuộn chậm dần. */
+.pk-ball.is-rolling .pk-ball-panels{animation:pk-roll .45s linear infinite}
+.penalty-page.is-reduced .pk-ball.is-rolling .pk-ball-panels{animation:none}

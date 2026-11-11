@@ -3547,6 +3547,579 @@
       "published": true,
       "eventOnly": true,
       "choose": true
+    },
+    {
+      "id": "stp-u-110",
+      "name": "BLD, GRU, CU, 24EP 110+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu",
+        "ep24"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 17000000,
+      "description": "Gói hỗn hợp BLD · GRU · CU · 24EP: cầu thủ OVR từ 110, thẻ +8. Quà gói Star Point.",
+      "range": "125–133",
+      "back": "/assets/custom/stp-u-110-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-u-117",
+      "name": "SPT, 26TOTS 117+ (+5)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "spt",
+        "stellar"
+      ],
+      "minOvr": 117,
+      "topPrice": null,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 10200000,
+      "description": "Gói hỗn hợp SPT · 26TS: cầu thủ OVR từ 117, thẻ +5. Quà gói Star Point.",
+      "range": "123–132",
+      "back": "/assets/custom/stp-u-117-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-u-hg",
+      "name": "HG All (+11)",
+      "short": "HG",
+      "title": "HOME GROWN",
+      "seasons": [
+        "hg"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 6390000,
+      "description": "Gói HG: mọi cầu thủ, thẻ +11. Quà gói Star Point.",
+      "range": "124–132",
+      "back": "/assets/custom/stp-u-hg-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-u-111",
+      "name": "No.7, LE 111+ (+7)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "origin",
+        "le"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        7,
+        7
+      ],
+      "price": 7250000,
+      "description": "Gói hỗn hợp NO.7 · LE: cầu thủ OVR từ 111, thẻ +7. Quà gói Star Point.",
+      "range": "122–130",
+      "back": "/assets/custom/stp-u-111-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-u-cum",
+      "name": "CU, UT, MDL All (+8~+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ut",
+        "mdl"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        8,
+        9
+      ],
+      "price": 204000,
+      "description": "Gói hỗn hợp CU · UT · MEDALIST: mọi cầu thủ, thẻ +8 đến +9. Quà gói Star Point.",
+      "range": "115–134",
+      "back": "/assets/custom/stp-u-cum-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-u-118",
+      "name": "UC, SPT, 26TOTS, PTG 118+ (+2~+4)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "uc",
+        "spt",
+        "stellar",
+        "ptg"
+      ],
+      "minOvr": 118,
+      "topPrice": null,
+      "levels": [
+        2,
+        4
+      ],
+      "price": 2610000,
+      "description": "Gói hỗn hợp UC · SPT · 26TS · PTG: cầu thủ OVR từ 118, thẻ +2 đến +4. Quà gói Star Point.",
+      "range": "119–130",
+      "back": "/assets/custom/stp-u-118-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-s-110",
+      "name": "GRU, CU, 24EP 110+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu",
+        "ep24"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 17000000,
+      "description": "Gói hỗn hợp GRU · CU · 24EP: cầu thủ OVR từ 110, thẻ +8. Quà gói Star Point.",
+      "range": "125–132",
+      "back": "/assets/custom/stp-s-110-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-s-tp200",
+      "name": "GRU, CU, UT Top Price 200 (+8)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "gru",
+        "cu",
+        "ut"
+      ],
+      "minOvr": null,
+      "topPrice": 200,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 58700000,
+      "description": "Gói hỗn hợp GRU · CU · UT: 200 cầu thủ giá cao nhất, thẻ +8. Quà gói Star Point.",
+      "range": "127–132",
+      "back": "/assets/custom/stp-s-tp200-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-s-118",
+      "name": "UC, SPT, PTG, WG 118+",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "uc",
+        "spt",
+        "ptg",
+        "wg"
+      ],
+      "minOvr": 118,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 1350000,
+      "description": "Gói hỗn hợp UC · SPT · PTG · WG: cầu thủ OVR từ 118. Quà gói Star Point.",
+      "range": "118–126",
+      "back": "/assets/custom/stp-s-118-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-s-108",
+      "name": "BLD, GRU, CU, 24EP 108+ (+7~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu",
+        "ep24"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        7,
+        8
+      ],
+      "price": 1440000,
+      "description": "Gói hỗn hợp BLD · GRU · CU · 24EP: cầu thủ OVR từ 108, thẻ +7 đến +8. Quà gói Star Point.",
+      "range": "119–133",
+      "back": "/assets/custom/stp-s-108-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-s-108b",
+      "name": "CU, 24EP, MDL, UT 108+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ep24",
+        "mdl",
+        "ut"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 4200000,
+      "description": "Gói hỗn hợp CU · 24EP · MEDALIST · UT: cầu thủ OVR từ 108, thẻ +8. Quà gói Star Point.",
+      "range": "123–132",
+      "back": "/assets/custom/stp-s-108b-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-s-all",
+      "name": "SPT, 26TOTS, WG All (+3~+5)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "spt",
+        "stellar",
+        "wg"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        3,
+        5
+      ],
+      "price": 1110000,
+      "description": "Gói hỗn hợp SPT · 26TS · WG: mọi cầu thủ, thẻ +3 đến +5. Quà gói Star Point.",
+      "range": "116–132",
+      "back": "/assets/custom/stp-s-all-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-pw-all",
+      "name": "PTG, WG All (+5)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "ptg",
+        "wg"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 2920000,
+      "description": "Gói hỗn hợp PTG · WG: mọi cầu thủ, thẻ +5. Quà gói Star Point.",
+      "range": "120–129",
+      "back": "/assets/custom/stp-pw-all-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-c-ep120",
+      "name": "24EP chỉ định 120 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "24 ENERGETIC PLAYER",
+      "seasons": [
+        "ep24"
+      ],
+      "minOvr": null,
+      "topPrice": 120,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 16300000,
+      "description": "Gói chỉ định 24EP: tự chọn 1 trong 120 cầu thủ giá cao nhất, thẻ +8. Quà gói Star Point.",
+      "range": "125–131",
+      "back": "/assets/custom/stp-c-ep120-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "stp-c-bld",
+      "name": "BLD All (+6~+8)",
+      "short": "BLD",
+      "title": "BEST LEGENDS",
+      "seasons": [
+        "bld"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        6,
+        8
+      ],
+      "price": 69900,
+      "description": "Gói BLD: mọi cầu thủ, thẻ +6 đến +8. Quà gói Star Point.",
+      "range": "110–133",
+      "back": "/assets/custom/stp-c-bld-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-c-106",
+      "name": "CU, 24EP, MDL, UT 106+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ep24",
+        "mdl",
+        "ut"
+      ],
+      "minOvr": 106,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 2730000,
+      "description": "Gói hỗn hợp CU · 24EP · MEDALIST · UT: cầu thủ OVR từ 106, thẻ +8. Quà gói Star Point.",
+      "range": "121–132",
+      "back": "/assets/custom/stp-c-106-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-c-118",
+      "name": "SPT, 26TOTS, WG 118+ (+3~+5)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "spt",
+        "stellar",
+        "wg"
+      ],
+      "minOvr": 118,
+      "topPrice": null,
+      "levels": [
+        3,
+        5
+      ],
+      "price": 4350000,
+      "description": "Gói hỗn hợp SPT · 26TS · WG: cầu thủ OVR từ 118, thẻ +3 đến +5. Quà gói Star Point.",
+      "range": "120–132",
+      "back": "/assets/custom/stp-c-118-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-r-wg119",
+      "name": "WG 119+ (+5)",
+      "short": "WG",
+      "title": "WG",
+      "seasons": [
+        "wg"
+      ],
+      "minOvr": 119,
+      "topPrice": null,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 22500000,
+      "description": "Gói WG: cầu thủ OVR từ 119, thẻ +5. Quà gói Star Point.",
+      "range": "125–129",
+      "back": "/assets/custom/stp-r-wg119-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-r-104",
+      "name": "GRU, CU, 24EP, UT, MDL, DC 104+ (+7~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu",
+        "ep24",
+        "ut",
+        "mdl",
+        "dc"
+      ],
+      "minOvr": 104,
+      "topPrice": null,
+      "levels": [
+        7,
+        8
+      ],
+      "price": 480000,
+      "description": "Gói hỗn hợp GRU · CU · 24EP · UT · MEDALIST · DC: cầu thủ OVR từ 104, thẻ +7 đến +8. Quà gói Star Point.",
+      "range": "115–132",
+      "back": "/assets/custom/stp-r-104-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-r-ts119",
+      "name": "26TOTS 119+",
+      "short": "26TS",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": 119,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 2500000,
+      "description": "Gói 26TS: cầu thủ OVR từ 119. Quà gói Star Point.",
+      "range": "119–126",
+      "back": "/assets/custom/stp-r-ts119-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-u-jnm",
+      "name": "JNM, 24HR, DC, JVA 101+ (+9~+10)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "jnm",
+        "hr24",
+        "dc",
+        "juventus"
+      ],
+      "minOvr": 101,
+      "topPrice": null,
+      "levels": [
+        9,
+        10
+      ],
+      "price": 644000,
+      "description": "Gói hỗn hợp JNM · 24HR · DC · JUVENTUS: cầu thủ OVR từ 101, thẻ +9 đến +10. Quà gói Star Point.",
+      "range": "118–133",
+      "back": "/assets/custom/stp-u-jnm-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-u-ca",
+      "name": "CA 102+ (+11)",
+      "short": "CHELSEA",
+      "title": "AMBASSADOR CHELSEA FC",
+      "seasons": [
+        "chelsea"
+      ],
+      "minOvr": 102,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 13600000,
+      "description": "Gói CHELSEA: cầu thủ OVR từ 102, thẻ +11. Quà gói Star Point.",
+      "range": "123–127",
+      "back": "/assets/custom/stp-u-ca-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-u-wg26",
+      "name": "WG, 26HR 119+ (+5)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "wg",
+        "hr26"
+      ],
+      "minOvr": 119,
+      "topPrice": null,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 19400000,
+      "description": "Gói hỗn hợp WG · 26HR: cầu thủ OVR từ 119, thẻ +5. Quà gói Star Point.",
+      "range": "125–129",
+      "back": "/assets/custom/stp-u-wg26-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-c-106ld",
+      "name": "GRU, CU, 24EP, MDL, LD, UT 106+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu",
+        "ep24",
+        "mdl",
+        "ld",
+        "ut"
+      ],
+      "minOvr": 106,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 2510000,
+      "description": "Gói hỗn hợp GRU · CU · 24EP · MEDALIST · LD · UT: cầu thủ OVR từ 106, thẻ +8. Quà gói Star Point.",
+      "range": "121–132",
+      "back": "/assets/custom/stp-c-106ld-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "stp-r-cldm",
+      "name": "CU, LD, MDL All (+7~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "cu",
+        "ld",
+        "mdl"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        7,
+        8
+      ],
+      "price": 48600,
+      "description": "Gói hỗn hợp CU · LD · MEDALIST: mọi cầu thủ, thẻ +7 đến +8. Quà gói Star Point.",
+      "range": "111–132",
+      "back": "/assets/custom/stp-r-cldm-back.webp",
+      "published": true,
+      "eventOnly": true
     }
   ]
 }

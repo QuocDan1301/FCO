@@ -64,6 +64,10 @@ test('Gộp bản lưu: phần được bảo vệ lấy từ máy chủ, cài �
   assert.equal(merged.history[2].title, 'both', 'trùng id thì giữ bản máy chủ');
   assert.equal(mergeHistory(Array.from({ length: 150 }, (_, i) => entry(`a${i}`, i)), Array.from({ length: 150 }, (_, i) => entry(`b${i}`, i))).length, 200);
   assert.ok(sameSettings(merged, { ...merged, balance: 1, cards: [], history: [] }));
+  // Thông tin HLV đã lưu trên máy chủ không bị bản trên máy ghi đè; mục còn trống thì nhận từ máy.
+  const locked = mergeProtected({ ...local, profile: { gender: 'female', birthday: '01-01' } }, { ...server, profile: { gender: 'male' } });
+  assert.deepEqual(locked.profile, { gender: 'male', birthday: '01-01' });
+  assert.equal(mergeProtected(local, server).profile, undefined);
   assert.ok(!sameSettings(merged, { ...merged, sound: false }));
 });
 

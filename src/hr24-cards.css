@@ -1,0 +1,28 @@
+/* 24HR (24 HEROES): tạo bởi scripts/import-hr24.py. Thẻ gốc, OVR / tên / cấp vẽ bằng HTML. */
+.rarity-dot.hr24{background:#f07a1a}
+.player-card.face-art.season-hr24{aspect-ratio:259/282}
+.player-card.face-art.season-hr24>.face-art-img{filter:drop-shadow(0 0 5px #ffb04a44)}
+.season-hr24[data-level="1"] .face-art-level{visibility:hidden}
+.season-hr24 .face-art-ovr{left:27.80%;top:15.25%;font-size:13.9cqw;color:#fbf0d6;letter-spacing:-.02em;text-shadow:0 .03em .08em #5a2a0099}
+.season-hr24 .face-art-level{left:18.53%;top:60.28%;width:18.53%;height:10.64%;transform:none;object-fit:fill}
+.season-hr24{--name-size:7.3cqw;--name-color:#33373d}
+[data-tone=hr24]{--shop-tone:#f07a1a;--shop-tone2:#ffd27a}
+.season-tag-hr24{color:#ff9a3d}
+.reveal-hr24 .reveal-panel{--led:#ff9a3d;--led2:#3d1a05;border-color:#ffd27a66}
+.reveal-hr24 .reveal-stats dt{color:#ffffff}
+.reveal-hr24 .reveal-podium{background:linear-gradient(180deg,#b5520f,#3d1a05);border-top-color:#ffd27a}
+.reveal-hr24 .reveal-podium span{color:#ffffff}
+.face-3928{--nx:43.24%;--nw:37.07%;--ny:80.85%}
+.face-3929{--nx:37.45%;--nw:42.86%;--ny:80.85%}
+.face-3930{--nx:36.68%;--nw:43.63%;--ny:80.85%}
+.face-3931{--nx:33.98%;--nw:46.33%;--ny:80.85%}
+.face-3932{--nx:41.70%;--nw:38.61%;--ny:80.85%}
+.face-3933{--nx:36.68%;--nw:43.63%;--ny:80.85%}
+.face-3934{--nx:31.27%;--nw:49.03%;--ny:80.85%}
+.face-3935{--nx:38.22%;--nw:42.08%;--ny:80.85%}
+.face-3936{--nx:39.00%;--nw:41.31%;--ny:80.85%}
+.face-3937{--nx:43.63%;--nw:36.68%;--ny:80.85%}
+.face-3938{--nx:43.63%;--nw:36.68%;--ny:80.85%}
+.face-3939{--nx:42.08%;--nw:38.22%;--ny:80.85%}
+.face-3940{--nx:42.86%;--nw:37.45%;--ny:80.85%}
+.face-3941{--nx:39.00%;--nw:41.31%;--ny:80.85%}

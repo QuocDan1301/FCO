@@ -5,6 +5,8 @@ import { getPlayer, money, ovr } from './game';
 import type { Card, Save, Tier } from './game';
 import { MAX_BULK_SELL, SELL_BAND_PERCENT, marketNow, priceAt, saleFee, saleTaxPercent, sellRange } from './market';
 import type { SellItem } from './market';
+import { TAX_VOUCHERS, taxWithVoucher, voucherCount, voucherTotal } from './stp';
+import type { TaxVoucher } from './stp';
 import { usePricePeriod } from './use-price-period';
 import { asset } from './asset';
 import './sell.css';
@@ -18,8 +20,8 @@ type Props = {
   renderCard: (card: Card) => ReactNode;
   levelBadge: (level: number) => string;
   seasonShort: (tier: Tier) => string;
-  // Promise khi máy chủ bán (src/inventory-server.ts); true = đã bán xong.
-  onSell: (items: SellItem[]) => boolean | Promise<boolean>;
+  // Promise khi máy chủ bán (src/inventory-server.ts); true = đã bán xong. voucher: phiếu giảm thuế dùng cho lượt bán này.
+  onSell: (items: SellItem[], voucher: TaxVoucher | null) => boolean | Promise<boolean>;
   onClose: () => void;
 };
 const MODES: { id: Mode; label: string }[] = [{ id: 'fit', label: 'Đăng ký với giá phù hợp' }, { id: 'min', label: 'Đăng ký với giá thấp nhất' }, { id: 'max', label: 'Đăng ký với giá cao nhất' }];
@@ -56,7 +58,12 @@ function PriceChart({ history }: { history: number[] }) {
 // "Bán hàng loạt" (tick tối đa 99 thẻ, bán cùng một mức: giá phù hợp / thấp nhất / cao nhất). Bán là bán ngay, trừ phí của từng thẻ.
 export default function SellDialog({ save, initial, free, renderCard, levelBadge, seasonShort, onSell, onClose }: Props) {
   const period = usePricePeriod();
-  const taxPercent = saleTaxPercent(save);
+  // Phiếu giảm thuế (gói Star Point): trừ thẳng điểm % thuế của lượt bán này; hết phiếu đang chọn thì bỏ chọn.
+  const [chosenVoucher, setVoucher] = useState<TaxVoucher | null>(null);
+  const voucher = chosenVoucher && voucherCount(save, chosenVoucher) > 0 ? chosenVoucher : null;
+  const baseTax = saleTaxPercent(save);
+  const taxPercent = taxWithVoucher(baseTax, voucher);
+  const voucherPicker = voucherTotal(save) > 0 && <label className="sd-voucher"><span>Phiếu giảm thuế</span><select value={voucher ?? ''} onChange={e => setVoucher(e.target.value ? Number(e.target.value) as TaxVoucher : null)} aria-label="Dùng phiếu giảm thuế cho lượt bán này"><option value="">Không dùng · thuế {baseTax}%</option>{TAX_VOUCHERS.filter(pct => voucherCount(save, pct) > 0).map(pct => <option key={pct} value={pct}>Giảm {pct}% · thuế còn {taxWithVoucher(baseTax, pct)}% (còn {voucherCount(save, pct)} phiếu)</option>)}</select></label>;
   const [tab, setTab] = useState<Tab>(initial.tab);
   const [uid, setUid] = useState(initial.uid ?? '');
   const locked = useMemo(() => new Set(save.locked ?? []), [save.locked]);
@@ -78,7 +85,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const view = card && range ? marketView(card, range.price) : null;
   const clampPrice = () => { if (!range) return; setPriceText(full(Math.min(range.max, Math.max(range.min, price || range.price)))); };
   const step = (dir: 1 | -1) => { if (!range) return; const unit = Math.max(1, Math.round(range.price / 100)); setPriceText(full(Math.min(range.max, Math.max(range.min, (price || range.price) + dir * unit)))); };
-  const sellSingle = () => { if (card && priceOk && count >= 1 && count <= sellable) void Promise.resolve(onSell(selling.map(c => ({ uid: c.uid, price })))).then(ok => { if (ok) onClose(); }); };
+  const sellSingle = () => { if (card && priceOk && count >= 1 && count <= sellable) void Promise.resolve(onSell(selling.map(c => ({ uid: c.uid, price })), voucher)).then(ok => { if (ok) onClose(); }); };
 
   // ---- Bán hàng loạt ----
   const [mode, setMode] = useState<Mode>('fit');
@@ -97,7 +104,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const eligible = rows.filter(row => !row.reason);
   const allChecked = eligible.length > 0 && eligible.slice(0, MAX_BULK_SELL).every(row => checkedSet.has(row.card.uid));
   const toggle = (id: string) => setChecked(list => list.includes(id) ? list.filter(x => x !== id) : list.length >= MAX_BULK_SELL ? list : [...list, id]);
-  const sellBulk = () => { if (chosen.length) void Promise.resolve(onSell(chosen.map(row => ({ uid: row.card.uid, price: priceFor(row.range!) })))).then(ok => { if (ok) { setChecked([]); onClose(); } }); };
+  const sellBulk = () => { if (chosen.length) void Promise.resolve(onSell(chosen.map(row => ({ uid: row.card.uid, price: priceFor(row.range!) })), voucher)).then(ok => { if (ok) { setChecked([]); onClose(); } }); };
 
   const p = card && getPlayer(card);
   return <div className="sd-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onKeyDown={e => { if (e.key === 'Escape') onClose(); }}><div className="sd" role="dialog" aria-modal="true" aria-labelledby="sd-title">
@@ -134,6 +141,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
         <div className="sd-row"><span>Số lượng bán</span><div className="sd-stepper"><b>{count}</b><span><button aria-label="Tăng số lượng" disabled={count >= sellable} onClick={() => setCount(c => Math.min(sellable, c + 1))}><ChevronUp size={14}/></button><button aria-label="Giảm số lượng" disabled={count <= 1} onClick={() => setCount(c => Math.max(1, c - 1))}><ChevronDown size={14}/></button></span></div></div>
         <div className="sd-row"><span>Số lượng có thể bán</span><b className="sd-big">{sellable}</b></div>
         {locked.has(card.uid) && <p className="sd-price-note is-error">Thẻ đang bị khóa. Mở khóa trước khi bán.</p>}
+        {voucherPicker}
         <div className="sd-actions"><button className="sd-sell" disabled={!priceOk || !sellable} onClick={sellSingle}>Bán cầu thủ</button><button className="sd-cancel" onClick={onClose}>Hủy</button></div>
       </section>
     </div> : <div className="sd-empty"><p>Chọn một cầu thủ ở tab Bán hàng loạt (bấm vào tên) để bán lẻ với giá tự đặt.</p><button className="sd-cancel" onClick={() => setTab('bulk')}>Đến Bán hàng loạt</button></div>)
@@ -157,6 +165,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
       <footer className="sd-bulk-foot">
         <div className="sd-bulk-sum">
           <span className="sd-fee">Chi phí bán<i title={`Phí ${taxPercent}% giá bán của mỗi thẻ`}>?</i><b>{money(totalFee)}</b></span>
+          {voucherPicker}
           <select value={mode} onChange={e => setMode(e.target.value as Mode)} aria-label="Mức giá bán hàng loạt">{MODES.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}</select>
           <span className="sd-total">Tổng giá trị<b>{money(total)}</b></span>
         </div>

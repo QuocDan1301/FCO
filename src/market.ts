@@ -1,3 +1,5 @@
+import { taxWithVoucher, spendVoucher, voucherCount, voucherName } from './stp';
+import type { TaxVoucher } from './stp';
 import { getPlayer, makeCard, money, ovr, players, MAX_LEVEL, uid } from './game';
 import type { Card, Entry, Save } from './game';
 import priceData from './player-prices.json';
@@ -97,16 +99,17 @@ export function buyPlayer(state: Save, playerId: number, level: number, free = f
   return { state: { ...state, balance: free ? state.balance : state.balance - quote.price, cards: [card, ...state.cards], history: [entry, ...state.history].slice(0, 200) }, card, quote };
 }
 
-export function sellPlayer(state: Save, cardId: string, free = false) {
+export function sellPlayer(state: Save, cardId: string, free = false, voucher: TaxVoucher | null = null) {
   const card = state.cards.find(c => c.uid === cardId);
   if (!card) throw new Error('Thẻ này không còn trong kho. Hãy chọn lại cầu thủ.');
   if (state.locked?.includes(cardId)) throw new Error('Thẻ đang bị khóa. Mở khóa trước khi bán.');
-  const quote = marketQuote(card, saleTaxPercent(state));
+  const quote = marketQuote(card, taxWithVoucher(saleTaxPercent(state), voucher));
   if (!quote.available) throw new Error(quote.reason);
+  const paid = voucher ? spendVoucher(state, voucher) : state;
   const balance = free ? state.balance : state.balance + quote.proceeds;
   if (!Number.isSafeInteger(balance)) throw new Error('Số dư đã đạt giới hạn. Không thể bán thêm thẻ.');
-  const entry: Entry = { id: uid(), time: Date.now(), type: 'market', title: `Bán · ${getPlayer(card).name} +${card.level}`, detail: `OVR ${ovr(card)} · Giá ${money(quote.price)} BP · Phí ${quote.feePercent}%: ${money(quote.fee)} BP · ${free ? 'Thử nghiệm · Không cộng BP' : `+${money(quote.proceeds)} BP`}` };
-  return { state: { ...state, balance, cards: state.cards.filter(c => c.uid !== cardId), history: [entry, ...state.history].slice(0, 200) }, card, quote };
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'market', title: `Bán · ${getPlayer(card).name} +${card.level}`, detail: `OVR ${ovr(card)} · Giá ${money(quote.price)} BP · Phí ${quote.feePercent}%${voucher ? ` (phiếu −${voucher}%)` : ''}: ${money(quote.fee)} BP · ${free ? 'Thử nghiệm · Không cộng BP' : `+${money(quote.proceeds)} BP`}` };
+  return { state: { ...paid, balance, cards: state.cards.filter(c => c.uid !== cardId), history: [entry, ...state.history].slice(0, 200) }, card, quote };
 }
 
 // Bán theo giá tự đặt (cửa sổ Bán): giá phải nằm trong ±SELL_BAND_PERCENT% quanh giá thị trường, bán ngay theo giá đã đặt, trừ phí của từng thẻ.
@@ -119,13 +122,15 @@ export function sellRange(card: Pick<Card, 'playerId' | 'level'>) {
   return { price: quote.price, min: Math.ceil(quote.price * (100 - SELL_BAND_PERCENT) / 100), max: Math.floor(quote.price * (100 + SELL_BAND_PERCENT) / 100) };
 }
 export type SellItem = { uid: string; price: number };
-export function sellCards(state: Save, items: SellItem[], free = false) {
+// voucher: phiếu giảm thuế dùng cho cả lượt bán này (trừ thẳng điểm %, src/stp.ts), bớt 1 phiếu.
+export function sellCards(state: Save, items: SellItem[], free = false, voucher: TaxVoucher | null = null) {
   if (!items.length) throw new Error('Hãy chọn cầu thủ để bán.');
   if (items.length > MAX_BULK_SELL) throw new Error(`Mỗi lần bán tối đa ${MAX_BULK_SELL} cầu thủ.`);
   if (new Set(items.map(item => item.uid)).size !== items.length) throw new Error('Danh sách bán có thẻ bị trùng.');
   const byUid = new Map(state.cards.map(card => [card.uid, card]));
   const sold: Card[] = [];
-  const taxPercent = saleTaxPercent(state);
+  const taxPercent = taxWithVoucher(saleTaxPercent(state), voucher);
+  if (voucher && voucherCount(state, voucher) < 1) throw new Error(`Bạn không còn ${voucherName(voucher)}.`);
   let total = 0, fees = 0;
   for (const item of items) {
     const card = byUid.get(item.uid);
@@ -141,12 +146,13 @@ export function sellCards(state: Save, items: SellItem[], free = false) {
   }
   const proceeds = total - fees, balance = free ? state.balance : state.balance + proceeds;
   if (!Number.isSafeInteger(balance)) throw new Error('Số dư đã đạt giới hạn. Không thể bán thêm thẻ.');
-  const tail = `Phí ${taxPercent}%: ${money(fees)} BP · ${free ? 'Thử nghiệm · Không cộng BP' : `+${money(proceeds)} BP`}`;
+  const tail = `Phí ${taxPercent}%${voucher ? ` (phiếu −${voucher}%)` : ''}: ${money(fees)} BP · ${free ? 'Thử nghiệm · Không cộng BP' : `+${money(proceeds)} BP`}`;
   const entry: Entry = sold.length === 1
     ? { id: uid(), time: Date.now(), type: 'market', title: `Bán · ${getPlayer(sold[0]).name} +${sold[0].level}`, detail: `OVR ${ovr(sold[0])} · Giá ${money(total)} BP · ${tail}` }
     : { id: uid(), time: Date.now(), type: 'market', title: `Bán hàng loạt · ${sold.length} cầu thủ`, detail: `Tổng giá ${money(total)} BP · ${tail}` };
   const soldIds = new Set(items.map(item => item.uid));
-  return { state: { ...state, balance, cards: state.cards.filter(card => !soldIds.has(card.uid)), history: [entry, ...state.history].slice(0, 200) }, sold, total, fees, proceeds };
+  const paid = voucher ? spendVoucher(state, voucher) : state;
+  return { state: { ...paid, balance, cards: state.cards.filter(card => !soldIds.has(card.uid)), history: [entry, ...state.history].slice(0, 200) }, sold, total, fees, proceeds };
 }
 // Thẻ giá trị nhất đứng đầu (thẻ chưa có giá xếp sau); bằng giá thì OVR cao hơn đứng trước.
 export function byMarketValue<T extends Pick<Card, 'playerId' | 'level'>>(cards: readonly T[]): T[] {

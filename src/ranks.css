@@ -12,7 +12,7 @@
 @keyframes rk-spin{to{transform:rotate(360deg)}}
 .rk-note{flex:none;margin:0;font-size:13px;color:#aeb6c2}
 .rk-note.is-error{color:#ff9aa2}
-.rk-boards{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:14px}
+.rk-boards{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr) minmax(0,1fr);gap:14px}
 .rk-board{display:flex;flex-direction:column;gap:6px;min-height:0;padding:12px;border:1px solid #ffffff12;border-radius:6px;background:#0d1117cc}
 .rk-board h2{display:flex;align-items:center;gap:8px;margin:0;font-size:clamp(15px,1.3vw,20px);font-weight:700;color:#ecd28f}
 .rk-board h2 svg{width:1.1em;height:1.1em}

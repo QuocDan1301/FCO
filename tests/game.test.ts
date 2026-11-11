@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { getTeamLogo } from '../src/teamLogos.ts';
 import assert from 'node:assert/strict';
-import { baseOvr, defaultPacks, ovr, MAX_LEVEL, PACK_LEVELS, PACK_ODDS, UPGRADE_LEVELS, isBilacPrizePack, levelDecayOf, priceAlphaOf, buyPacks, claimDaily, dayKey, draw, getPackStock, getPlayer, isPackAvailable, makeCard, materialGauge, openPacks, openSelectedPacks, packLevel, packOdds, packs, players, upgrade, upgradeInfo, validateSave } from '../src/game.ts';
+import { baseOvr, defaultPacks, ovr, MAX_LEVEL, PACK_LEVELS, PACK_ODDS, UPGRADE_LEVELS, isBilacPrizePack, levelDecayOf, priceAlphaOf, priceGroupOf, buyPacks, claimDaily, dayKey, draw, getPackStock, getPlayer, isPackAvailable, makeCard, materialGauge, openPacks, openSelectedPacks, packLevel, packOdds, packs, players, upgrade, upgradeInfo, validateSave } from '../src/game.ts';
 import { initialSave } from './stocked-save.ts';
 import priceData from '../src/player-prices.json';
 import { rngFor, seeded } from './pack-rng.ts';
@@ -16,8 +16,8 @@ const cardWith = (rating: number, level = 1, skip: number[] = []) => {
   if (!player) throw new Error(`Không có cầu thủ OVR ${rating} ở +${level}`);
   return { ...makeCard(player.id), level };
 };
-test('3915 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 165 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS, 34 JNM, 20 25HR, 98 26UP và 32 LIVE; mọi gói đủ 100%', () => {
-  assert.equal(players.length, 3915);
+test('3971 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 165 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS, 34 JNM, 20 25HR, 98 26UP, 32 LIVE, 14 24HR, 17 CA, 9 26HR và 16 LD; mọi gói đủ 100%', () => {
+  assert.equal(players.length, 3971);
   assert.equal(players.filter(p => p.tier === 'live').length, 32);
   assert.equal(players.filter(p => p.tier === 'hw23').length, 195);
   assert.equal(players.filter(p => p.tier === 'ep24').length, 208);
@@ -35,6 +35,10 @@ test('3915 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRI
   assert.equal(players.filter(p => p.tier === 'juventus').length, 14);
   assert.equal(players.filter(p => p.tier === 'jnm').length, 34);
   assert.equal(players.filter(p => p.tier === 'hr25').length, 20);
+  assert.equal(players.filter(p => p.tier === 'hr24').length, 14);
+  assert.equal(players.filter(p => p.tier === 'chelsea').length, 17);
+  assert.equal(players.filter(p => p.tier === 'hr26').length, 9);
+  assert.equal(players.filter(p => p.tier === 'ld').length, 16);
   assert.equal(players.filter(p => p.tier === 'up26').length, 98);
   assert.equal(players.filter(p => p.tier === 'bdo').length, 108);
   assert.equal(players.filter(p => p.tier === 'wg').length, 155);
@@ -86,6 +90,23 @@ test('Cả bốn gói mở đúng mùa; toàn bộ 24 thẻ NO.7 có thể nhậ
 });
 
 
+test('Danh sách quà Bi Lắc: trọng số theo nhóm giá làm cầu thủ nhóm 2 và 3 hiếm hơn', () => {
+  assert.deepEqual(PACK_ODDS.prizeGroupWeights, [1, .5, .25]);
+  const share = (pack: (typeof packs)[number]) => {
+    const out = [0, 0, 0];
+    for (const row of packOdds(pack).pool) out[priceGroupOf(row.player) - 1] += row.chance;
+    return out;
+  };
+  const prize = packs.find(p => p.id === 'event-7-109')!;
+  assert.ok(isBilacPrizePack(prize));
+  // So với cùng gói khi bỏ trọng số nhóm (chia lại cho trọng số nhóm rồi chuẩn hoá).
+  const a = share(prize), raw = [0, 0, 0];
+  for (const row of packOdds(prize).pool) { const g = priceGroupOf(row.player) - 1; raw[g] += row.chance / PACK_ODDS.prizeGroupWeights[g]; }
+  const sum = raw.reduce((s, x) => s + x, 0), b = raw.map(x => x / sum);
+  assert.ok(a[0] > b[0], 'nhóm 1 tăng');
+  assert.ok(a[1] < b[1] && a[2] < b[2], 'nhóm 2 và 3 giảm');
+});
+
 test('Tỷ lệ gói: OVR cao hơn sàn và giá +1 đắt hơn thì hiếm hơn; gói (ALL) chỉ ra +1, gói ghi khoảng cấp mỗi cấp hiếm hơn ~5 lần', () => {
   const prices: Record<string, (number | null)[]> = priceData.players;
   for (const pack of packs.filter(isPackAvailable)) {
@@ -98,7 +119,9 @@ test('Tỷ lệ gói: OVR cao hơn sàn và giá +1 đắt hơn thì hiếm hơn
     // Gói sự kiện / quà (eventOnly) phạt giá nặng hơn gói Shop; gói mốc (blm-*, ms-*) nhẹ hơn, gói trong Danh sách quà Bi Lắc nặng nhất.
     const alpha = priceAlphaOf(pack);
     assert.equal(alpha, !pack.eventOnly ? PACK_ODDS.priceAlpha : /^(blm|ms)-/.test(pack.id) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha, pack.id);
-    const weights = rows.map(r => PACK_ODDS.ovrDecay ** (r.value - floor) / Math.max(1, r.price > 0 ? r.price / cheapest : 1) ** alpha);
+    // Gói trong Danh sách quà Bi Lắc nhân thêm trọng số theo nhóm giá (nhóm 1 ×1, nhóm 2 ×0,5, nhóm 3 ×0,25).
+    const group = (i: number) => isBilacPrizePack(pack) ? PACK_ODDS.prizeGroupWeights[priceGroupOf(pool[i].player) - 1] : 1;
+    const weights = rows.map((r, i) => PACK_ODDS.ovrDecay ** (r.value - floor) / Math.max(1, r.price > 0 ? r.price / cheapest : 1) ** alpha * group(i));
     const total = weights.reduce((sum, w) => sum + w, 0);
     pool.forEach((row, i) => assert.ok(Math.abs(row.chance - weights[i] / total) < 1e-12, `${pack.name} · ${row.player.name}`));
     if (!pack.levels) assert.deepEqual(levels, [{ level: 1, chance: 1 }], `${pack.name}: gói (ALL) chỉ ra +1`);

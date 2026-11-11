@@ -56,6 +56,11 @@ SEASONS = {
     'wb': dict(art='wb-back.png', badge=(32, 593, 97, 645), title=(56, 100, 410, 158), ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),
     'live': dict(art='live-back.png', badge=(259, 2032, 461, 2202), title=(543, 379, 1195, 664), ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 150),
     'up26': dict(art='up26-back.png', badge=(140, 2100, 315, 2275), title=[(620, 440, 1000, 610)], ink=lambda r, g, b: np.maximum(np.maximum(r, g), b) < 110),
+    'chelsea': dict(art='chelsea-back.png', badge=(262, 2052, 468, 2215), title=[(560, 470, 1140, 575), (410, 600, 1290, 780)], ink=lambda r, g, b: (b - r > 30) & (r < 120)),
+    # LD: ảnh gói tạm (scripts/make-ld-art.py); khi có ảnh gói thật của người dùng thì đo lại badge / title.
+    'ld': dict(art='ld-back.png', badge=(200, 2090, 410, 2250), title=[(300, 380, 1400, 640)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 215),
+    'hr26': dict(art='hr26-back.png', badge=(185, 2090, 397, 2253), title=[(410, 470, 1300, 635)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 215),
+    'hr24': dict(art='hr24-back.png', badge=(228, 2072, 450, 2248), title=[(410, 445, 1310, 640)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),
     'hr25': dict(art='hr25-back.png', badge=(193, 2083, 407, 2252), title=[(430, 445, 1270, 625)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),
     'jnm': dict(art='jnm-back.png', badge=(195, 2100, 410, 2280), title=[(270, 430, 1450, 610)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),
     'juventus': dict(art='juventus-back.png', badge=(55, 865, 155, 945), title=[(200, 105, 490, 155), (150, 165, 540, 235)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),
@@ -80,7 +85,7 @@ SEASONS = {
 KEEP_TITLES = {'stellar': '26 TOTS', 'origin': 'NUMBER 7', 'amb': 'FC AMBASSADOR', 'eternal': 'THE MOMENT', 'prime': 'INFINITE PRIME',
                'vietnam': 'VIET NAM', 'prm': 'PRIME', 'mdl': 'MEDALIST', 'uc': 'UC', 'wg': 'WG', 'ut': 'UT', 'cu': 'CU', 'gru': 'GRU', 'rtn': 'RTN', 'dc': 'DC', 'cc': 'CC', 'bld': 'BEST LEGENDS', 'wb': 'WONDERBOYS', 'spt': 'SPARTAN', 'bdo': 'BALLON D’OR', 'hw23': '23 HARD WORKER', 'ep24': '24 ENERGETIC PLAYER', 'ptg': 'PATH TO GLORY',
                'le': 'LEGEND OF EUROPA', 'hg': 'HOME GROWN', 'spl': 'SPOTLIGHT', 'ln': 'LEGENDARY NUMBERS', 'fa': 'FREE AGENT', 'lol': 'LEGEND OF THE LOAN',
-               'cap': 'CAPTAIN CLASS', 'boe21': 'BEST OF EUROPE 21', 'btb': 'BACK TO BACK', 'ebs': 'EUROPEAN BEST STARS', 'juventus': 'AMBASSADOR JUVENTUS', 'jnm': 'JOURNEYMAN', 'hr25': '25 HEROES', 'up26': '26 UP', 'live': 'LIVE'}
+               'hr24': '24 HEROES', 'chelsea': 'AMBASSADOR CHELSEA FC', 'hr26': '26 HEROES', 'ld': 'LAST DANCE', 'cap': 'CAPTAIN CLASS', 'boe21': 'BEST OF EUROPE 21', 'btb': 'BACK TO BACK', 'ebs': 'EUROPEAN BEST STARS', 'juventus': 'AMBASSADOR JUVENTUS', 'jnm': 'JOURNEYMAN', 'hr25': '25 HEROES', 'up26': '26 UP', 'live': 'LIVE'}
 
 # Góc OVR theo khung thẻ (tỉ lệ trong hộp bao của thẻ, đo từ mẫu): mép chéo đi từ mép phải ở 57% chiều cao xuống 34% bề ngang ở đáy.
 PANEL_LINE = ((1.0, .569), (.338, .973))

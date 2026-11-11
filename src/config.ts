@@ -15,6 +15,9 @@ export const TOPUP_QR = '/assets/topup-qr.webp';
 export const TOPUP_ZALO = 'https://zalo.me/0336856477';
 export const TOPUP_MIN_FC = 1_000; // nạp tối thiểu (FC)
 
+// Nhóm Zalo cộng đồng: nút Zalo trên thanh dưới (thay nút Hướng dẫn từ 2026-11-11; Hướng dẫn vẫn mở từ Cài đặt).
+export const ZALO_GROUP = 'https://zalo.me/g/euqnnlh3fqnkvsrzernm';
+
 // Sự kiện Nâng Cấp Siêu Sao (EventPage, src/event.ts, fco_event_play trên máy chủ): tạm ẩn từ 2026-11-07 để chạy sự kiện Bi Lắc.
 // Bật lại = đặt true rồi build; code, dữ liệu người chơi và hàm máy chủ vẫn giữ nguyên.
 export const EVENT_NCSS_ENABLED = false;

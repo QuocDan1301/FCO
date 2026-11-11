@@ -1,0 +1,95 @@
+/* Star Point: ô STP trên thanh trên cùng (cạnh BP / FC), 4 khung gói STP trong Shop và hộp danh sách vật phẩm (src/StpShop.tsx). */
+.topbar .wallet.wallet-stp .coin-icon.currency-icon { width: 26px; height: 26px; }
+.wallet.wallet-stp b { color: #c9a7ff; text-shadow: 0 0 12px #a274ff59; }
+.wallet.wallet-stp b span { color: #c9a7ffcc; }
+.stp-icon { display: inline-block; flex-shrink: 0; object-fit: contain; vertical-align: -3px; }
+
+[data-tone=stp-ultimate] { --shop-tone: #d4af37; --shop-tone2: #fff1c2; }
+[data-tone=stp-super] { --shop-tone: #e0457b; --shop-tone2: #ffc2dc; }
+[data-tone=stp-challenge] { --shop-tone: #22c3b2; --shop-tone2: #c8fff7; }
+[data-tone=stp-rookie] { --shop-tone: #3b8cf6; --shop-tone2: #cfe4ff; }
+.stp-product .shop-art > img { height: 100%; width: auto; object-fit: contain; transition: transform .25s cubic-bezier(.2,.8,.3,1), filter .25s; }
+.stp-product:hover .shop-art > img, .stp-product .shop-art:focus-visible > img { transform: translateY(-4px) scale(1.04); filter: drop-shadow(0 12px 14px #000a) drop-shadow(0 0 16px color-mix(in srgb, var(--shop-tone) 45%, transparent)); }
+.stp-tag { padding: 2px 9px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--shop-tone) 60%, transparent); color: var(--shop-tone2) !important; font-weight: 600; letter-spacing: .06em; }
+/* Khung chỉ có tên, ảnh, giá, ghi chú, nút: ảnh chiếm luôn 2 hàng con của số lượng / chọn nhanh để giá và nút thẳng hàng với gói khác. */
+.stp-product > .shop-art { grid-row: span 3; align-self: center; }
+.shop-total strong.stp-price { display: inline-flex; align-items: center; gap: 6px; color: #c9a7ff; text-shadow: 0 0 18px #a274ff40; }
+.shop-total strong.stp-price small { color: #b394f2; }
+
+.stp-dialog-backdrop { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 16px; background: #02050acc; backdrop-filter: blur(4px); }
+.stp-dialog { --shop-tone: #d4af37; --shop-tone2: #fff1c2; display: flex; flex-direction: column; width: min(560px, 100%); max-height: min(720px, calc(100dvh - 32px)); border-radius: 10px; border: 1px solid color-mix(in srgb, var(--shop-tone) 45%, #243041); background: radial-gradient(120% 60% at 50% 0%, color-mix(in srgb, var(--shop-tone) 18%, transparent), transparent 70%), #0e141c; box-shadow: 0 30px 80px -20px #000; overflow: hidden; }
+.stp-dialog[data-stp=super] { --shop-tone: #e0457b; --shop-tone2: #ffc2dc; }
+.stp-dialog[data-stp=challenge] { --shop-tone: #22c3b2; --shop-tone2: #c8fff7; }
+.stp-dialog[data-stp=rookie] { --shop-tone: #3b8cf6; --shop-tone2: #cfe4ff; }
+.stp-dialog-head { display: grid; grid-template-columns: 76px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 16px 16px 12px; }
+.stp-dialog-head > img { width: 76px; height: 76px; object-fit: contain; filter: drop-shadow(0 8px 12px #000a); }
+.stp-dialog-kicker { display: block; font-size: 11px; letter-spacing: .12em; color: var(--shop-tone2); }
+.stp-dialog-head h2 { margin: 2px 0; font-family: var(--display); font-size: 22px; color: #f2f4f6; }
+.stp-dialog-head p { font-size: 12px; color: #aebdcc; }
+.stp-dialog-head .icon-button { align-self: start; }
+.stp-items { list-style: none; margin: 0; padding: 0 16px; overflow-y: auto; min-height: 0; }
+.stp-items > li { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 52px; padding: 4px 0; border-bottom: 1px solid #ffffff10; }
+.stp-item-name { min-width: 0; font-family: var(--display); font-size: 16px; font-weight: 600; color: #6fb8ff; overflow-wrap: anywhere; }
+.stp-item-count { font-size: 14px; color: #6fb8ff; white-space: nowrap; }
+.stp-item-pack { display: block; width: 32px; height: 44px; justify-self: center; overflow: hidden; }
+.stp-item-pack > .pack-art { width: 100%; height: 100%; margin: 0; transform: none; }
+.stp-item-bp { width: 40px; height: 40px; object-fit: contain; }
+.stp-item-voucher { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #d6ff8a, #7ed321 55%, #3f8a0c); box-shadow: 0 0 0 1px #c6f58266; color: #10300a; line-height: 1; }
+.stp-item-voucher b { font-size: 17px; font-weight: 800; }
+.stp-item-voucher small { margin-top: -6px; font-size: 9px; font-weight: 700; }
+.stp-dialog-foot { padding: 12px 16px 16px; border-top: 1px solid #ffffff14; background: #0a0f15; }
+.stp-dialog-price { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; font-size: 12px; color: #aebdcc; }
+.stp-dialog-price strong { display: inline-flex; align-items: center; gap: 6px; font-family: var(--display); font-size: 24px; color: #c9a7ff; }
+.stp-dialog-price strong small { font-size: 12px; color: #b394f2; }
+.stp-dialog-have { margin-left: auto; }
+.stp-dialog-error { margin-top: 6px; font-size: 12px; color: #f5a7a7; }
+.stp-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.stp-dialog-actions .shop-buy { flex: 0 1 auto; padding: 0 18px; }
+.stp-dialog-actions .shop-buy:disabled { background: #232c36; color: #7d8794; box-shadow: none; cursor: not-allowed; }
+@media (max-width: 640px) {
+  .stp-dialog-head { grid-template-columns: 56px minmax(0, 1fr) auto; gap: 10px; }
+  .stp-dialog-head > img { width: 56px; height: 56px; }
+  .stp-item-name { font-size: 14px; }
+  .stp-item-count { font-size: 12px; }
+}
+/* Điện thoại ngang (màn thấp): hộp danh sách cuộn bên trong. */
+@media (max-height: 500px) {
+  .stp-dialog-head { padding: 10px 14px 8px; }
+  .stp-dialog-head > img { width: 48px; height: 48px; }
+  .stp-dialog-head { grid-template-columns: 48px minmax(0, 1fr) auto; }
+  .stp-items > li { min-height: 42px; }
+  .stp-dialog-foot { padding: 8px 14px 10px; }
+  .stp-dialog-actions { margin-top: 6px; }
+}
+
+/* Ô STP trên thanh trên cùng là nút mở Nhiệm vụ Star Point; chấm đỏ khi có thưởng chờ nhận. */
+.topbar button.wallet.wallet-stp { position: relative; display: flex; align-items: center; gap: inherit; padding: 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.topbar button.wallet.wallet-stp:hover b, .topbar button.wallet.wallet-stp:focus-visible b { color: #e2cfff; }
+.topbar button.wallet.wallet-stp:focus-visible { outline: 2px solid #c9a7ff; outline-offset: 3px; border-radius: 4px; }
+.wallet-stp-dot { position: absolute; top: -2px; left: 20px; width: 9px; height: 9px; border-radius: 50%; background: #ff4d5e; box-shadow: 0 0 0 2px #0b0f15, 0 0 8px #ff4d5e; }
+.shop-heading-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.shop-heading-actions > .shop-stp-missions { gap: 8px; border-color: #b394f266; color: #e2cfff; }
+
+/* Bảng nhiệm vụ Star Point. */
+.stp-missions-kicker { display: block; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #b394f2; }
+.stp-missions-have { display: flex; align-items: center; gap: 6px; margin: 4px 0 12px; font-size: 13px; color: #aebdcc; }
+.stp-missions-have b { color: #c9a7ff; }
+.stp-missions-have span { color: #ffb4bc; }
+.stp-missions-error { margin-bottom: 10px; font-size: 13px; color: #f5a7a7; }
+.stp-missions-loading { margin-bottom: 10px; font-size: 13px; color: #aebdcc; }
+.stp-missions-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid #ffffff12; }
+.stp-missions-list > li { display: grid; grid-template-columns: minmax(0, 1fr) auto 104px; align-items: center; gap: 12px; padding: 10px 2px; border-bottom: 1px solid #ffffff10; }
+.stp-mission-text { display: grid; gap: 2px; min-width: 0; }
+.stp-mission-text b { font-size: 14px; color: #f0f1f3; }
+.stp-mission-text small { font-size: 11px; color: #8f99ab; }
+.stp-mission-reward { display: inline-flex; align-items: center; gap: 5px; font-family: var(--display); font-size: 17px; font-weight: 700; color: #c9a7ff; white-space: nowrap; }
+.stp-mission-claim, .stp-mission-state { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 34px; border-radius: 5px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.stp-mission-claim { border: 0; background: linear-gradient(180deg, #e2cfff, #a274ff); color: #1a0a3a; cursor: pointer; box-shadow: 0 6px 16px -8px #a274ffaa; }
+.stp-mission-claim:hover:not(:disabled) { filter: brightness(1.08); }
+.stp-mission-claim:disabled { opacity: .6; cursor: default; }
+.stp-mission-state { color: #7d8794; background: #ffffff08; }
+.stp-mission-state.is-claimed { color: #6ee7b7; background: #10b98114; }
+.stp-missions-list > li.is-ready .stp-mission-text b { color: #fff; }
+.stp-missions-list > li.is-claimed .stp-mission-text b { color: #8f99ab; }
+.stp-missions-note { margin-top: 12px; font-size: 11px; line-height: 1.5; color: #8f99ab; }
+@media (max-width: 640px) { .stp-missions-list > li { grid-template-columns: minmax(0, 1fr) auto; } .stp-mission-claim, .stp-mission-state { grid-column: 1 / -1; } }

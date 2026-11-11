@@ -5,19 +5,23 @@ import type { EventReward, Save } from './game';
 import { eventState } from './event';
 import type { Membership } from './membership';
 import type { ServerRecord } from './inventory-sync';
+import type { NameEffect } from './name-effects';
 
 // Phần thuần của ví FC (không nạp client Supabase): kiểu dữ liệu máy chủ trả về, thông báo lỗi, áp ví vào bản lưu.
 export type Checkin = { claimedToday: boolean; day: number; done: number };
 // claimed[i] = số lần đã nhận mốc i (null = chưa nhận).
 export type BilacState = { points: number; claimed: (number | null)[]; freeToday: boolean };
 // save: bản lưu mới khi máy chủ vừa cộng quà vào kho (điểm danh ngày 7), xem src/inventory-sync.ts.
-export type Wallet = { fc: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null };
+// stp: Star Point (migration 202611110007_fco_star_point.sql), máy chủ chưa chạy migration thì không có.
+export type Wallet = { fc: number; stp?: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null; tier?: 'classic' | 'premium'; effect?: NameEffect | null };
 export type ServerJackpotWin = { name: string; amount: number; kind: 'special' | 'mini'; time: number; mine: boolean };
 export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
 // Bảng xếp hạng HLV (fco_leaderboard): top 10 kỷ lục đập thẻ OVR, top 10 giá trị đội hình, hạng của người xem.
-export type LeaderboardOvr = { name: string; ovr: number; playerId: number | null; level: number | null; mine: boolean };
-export type LeaderboardSquad = { name: string; value: number; mine: boolean };
-export type Leaderboard = { ovr: LeaderboardOvr[]; squad: LeaderboardSquad[]; me: { ovr: number | null; ovrRank: number | null; squad: number | null; squadRank: number | null } };
+export type LeaderboardOvr = { name: string; ovr: number; playerId: number | null; level: number | null; mine: boolean; effect?: NameEffect | null };
+export type LeaderboardSquad = { name: string; value: number; mine: boolean; effect?: NameEffect | null };
+// Sút phạt đền (migration 202611110005): chuỗi bàn liên tiếp dài nhất.
+export type LeaderboardPenalty = { name: string; goals: number; mine: boolean; effect?: NameEffect | null };
+export type Leaderboard = { ovr: LeaderboardOvr[]; squad: LeaderboardSquad[]; penalty?: LeaderboardPenalty[]; me: { ovr: number | null; ovrRank: number | null; squad: number | null; squadRank: number | null; penalty?: number | null; penaltyRank?: number | null } };
 export type EventPlayResult = { hits: { level: number; jar: number }[]; paid: number; jarFc: number; jackpotWins: { kind: 'special' | 'mini'; amount: number; time: number }[]; jackpot: ServerJackpot; wallet: Wallet };
 // Quà admin tặng (supabase/migrations/202611090002_fco_admin_gifts.sql); claimed chỉ có ở danh sách của admin.
 export type AdminGift = { id: number; rewards: EventReward[]; note: string; time: number; claimed?: boolean };
@@ -49,6 +53,13 @@ export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 
 const MESSAGES: Record<string, string> = {
   FCO_NOT_ENOUGH_FC: 'Không đủ FC.',
+  FCO_NOT_ENOUGH_STP: 'Không đủ Star Point.',
+  FCO_STP_MISSION_INCOMPLETE: 'Bạn chưa hoàn thành nhiệm vụ này hôm nay.',
+  FCO_STP_MISSION_CLAIMED: 'Bạn đã nhận thưởng nhiệm vụ này hôm nay.',
+  FCO_STP_MISSION_UNKNOWN: 'Nhiệm vụ không tồn tại.',
+  FCO_STP_PACKAGE: 'Gói Star Point này không còn bán.',
+  FCO_NO_VOUCHER: 'Bạn không còn phiếu giảm thuế này.',
+  FCO_BAD_VOUCHER: 'Phiếu giảm thuế không hợp lệ.',
   FCO_DAILY_CLAIMED: 'Bạn đã nhận quà hôm nay. Hẹn gặp lại vào ngày mai!',
   FCO_GIFT_INVALID: 'Gift code không đúng.',
   FCO_GIFT_EXPIRED: 'Gift code đã hết hạn.',
@@ -98,6 +109,12 @@ const MESSAGES: Record<string, string> = {
   FCO_BAD_SELL: 'Danh sách bán không hợp lệ.',
   FCO_CARD_MISSING: 'Thẻ này không còn trong kho. Hãy chọn lại cầu thủ.',
   FCO_CARD_LOCKED: 'Thẻ đang bị khóa. Mở khóa trước khi bán hoặc xóa.',
+  FCO_PENALTY_NO_RUN: 'Lượt sút đã kết thúc. Hãy bấm Chơi lại.',
+  FCO_PENALTY_TOO_FAST: 'Sút chậm lại một chút rồi thử lại.',
+  FCO_PENALTY_BAD_AIM: 'Hướng sút không hợp lệ.',
+  FCO_PENALTY_BAD_KIND: 'Kiểu sút không hợp lệ.',
+  FCO_PREMIUM_ONLY: 'Hiệu ứng này chỉ dành cho tài khoản Premium.',
+  FCO_BAD_EFFECT: 'Hiệu ứng không hợp lệ.',
   FCO_BAD_PRICE: 'Giá bán phải nằm trong ±10% giá thị trường. Giá có thể vừa đổi kỳ, hãy mở lại cửa sổ bán.',
   'Authentication required': 'Phiên đăng nhập đã hết. Hãy đăng nhập lại.',
 };
@@ -114,5 +131,5 @@ export function walletMessage(error: unknown) {
 export function applyWallet(state: Save, wallet: Wallet, today = dayKey()): Save {
   const event = eventState(state, today);
   const daily = wallet.dailyClaimed ? today : state.daily === today ? '' : state.daily;
-  return { ...state, fc: wallet.fc, daily, ...(wallet.membership ? { membership: wallet.membership } : {}), event: { ...event, day: today, points: wallet.event.points, free: wallet.event.free, paid: wallet.event.paid, missions: [...wallet.event.missions] } };
+  return { ...state, fc: wallet.fc, ...(wallet.stp !== undefined ? { stp: wallet.stp } : {}), daily, ...(wallet.membership ? { membership: wallet.membership } : {}), event: { ...event, day: today, points: wallet.event.points, free: wallet.event.free, paid: wallet.event.paid, missions: [...wallet.event.missions] } };
 }

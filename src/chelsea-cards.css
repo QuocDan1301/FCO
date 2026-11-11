@@ -1,0 +1,31 @@
+/* CA (AMBASSADOR CHELSEA FC): tạo bởi scripts/import-chelsea.py. Thẻ gốc, OVR / tên / cấp vẽ bằng HTML. */
+.rarity-dot.chelsea{background:#1f3fae}
+.player-card.face-art.season-chelsea{aspect-ratio:259/282}
+.player-card.face-art.season-chelsea>.face-art-img{filter:drop-shadow(0 0 5px #6f8dff44)}
+.season-chelsea[data-level="1"] .face-art-level{visibility:hidden}
+.season-chelsea .face-art-ovr{left:27.80%;top:15.25%;font-size:13.9cqw;color:#f4f6fb;letter-spacing:-.02em;text-shadow:0 .03em .08em #0a1a5a99}
+.season-chelsea .face-art-level{left:18.53%;top:60.28%;width:18.53%;height:10.64%;transform:none;object-fit:fill}
+.season-chelsea{--name-size:7.3cqw;--name-color:#33373d}
+[data-tone=chelsea]{--shop-tone:#2f55d4;--shop-tone2:#dfe6ff}
+.season-tag-chelsea{color:#6f8dff}
+.reveal-chelsea .reveal-panel{--led:#6f8dff;--led2:#0a1440;border-color:#dfe6ff66}
+.reveal-chelsea .reveal-stats dt{color:#ffffff}
+.reveal-chelsea .reveal-podium{background:linear-gradient(180deg,#1f3fae,#0a1440);border-top-color:#dfe6ff}
+.reveal-chelsea .reveal-podium span{color:#ffffff}
+.face-3942{--nx:39.77%;--nw:40.54%;--ny:80.85%}
+.face-3943{--nx:38.22%;--nw:42.08%;--ny:80.85%}
+.face-3944{--nx:44.79%;--nw:35.52%;--ny:80.85%}
+.face-3945{--nx:43.24%;--nw:37.07%;--ny:80.85%}
+.face-3946{--nx:38.61%;--nw:41.70%;--ny:80.85%}
+.face-3947{--nx:40.54%;--nw:39.77%;--ny:80.85%}
+.face-3948{--nx:37.07%;--nw:43.24%;--ny:80.85%}
+.face-3949{--nx:44.40%;--nw:35.91%;--ny:80.85%}
+.face-3950{--nx:43.24%;--nw:37.07%;--ny:80.85%}
+.face-3951{--nx:40.15%;--nw:40.15%;--ny:80.85%}
+.face-3952{--nx:39.38%;--nw:40.93%;--ny:80.85%}
+.face-3953{--nx:32.43%;--nw:47.88%;--ny:80.85%}
+.face-3954{--nx:31.27%;--nw:49.03%;--ny:80.85%}
+.face-3955{--nx:44.02%;--nw:36.29%;--ny:80.85%}
+.face-3956{--nx:43.63%;--nw:36.68%;--ny:80.85%}
+.face-3957{--nx:46.72%;--nw:33.59%;--ny:80.85%}
+.face-3958{--nx:43.63%;--nw:36.68%;--ny:80.85%}
