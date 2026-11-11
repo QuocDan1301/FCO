@@ -3,7 +3,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, Coins, Gift, Lock, Pause, Play, Rotate
 import { money, packs } from './game';
 import { ago, hours, vnd } from './Stats';
 import { giftRewardText } from './gift-codes';
-import { adminAccountDelete, adminAccountLock, adminAccountTier, adminCreditStp, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS } from './wallet';
+import { adminAccountDelete, adminAccountLock, adminAccountTier, adminCreditStp, adminResetPassword, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS } from './wallet';
 import type { AdminAccount, AdminAccountList, AdminGift, LedgerRow } from './wallet';
 import { CreditKindField, LedgerKindButton } from './LedgerKind';
 import type { CreditKind } from './LedgerKind';
@@ -81,6 +81,23 @@ function AccountTierField({ account, busy, run }: { account: AdminAccount; busy:
     <p className="pa-gift-note">Hiện tại: <b>{tier === 'premium' ? `Premium · hết hạn ${date(until)}` : tier ? 'Classic' : '…'}</b>. Premium có hạn 7 ngày: giảm 65% thuế bán (không cộng dồn giảm giá khác) và hiệu ứng tên. Không liên quan gói thành viên trong Shop.</p>
     <div className="pa-row"><button type="button" className="primary-button" disabled={busy || !tier} onClick={() => set('premium')}>{tier === 'premium' ? 'Gia hạn thêm 7 ngày' : 'Đặt Premium 7 ngày'}</button>
     {tier === 'premium' && <button type="button" className="secondary-button" disabled={busy} onClick={() => set('classic')}>Huỷ Premium</button>}</div>
+  </form>;
+}
+// Đặt lại mật khẩu (202611110015): không xem được mật khẩu cũ (chỉ lưu mã băm). Admin nhập hoặc tạo mật khẩu tạm, gửi cho người chơi;
+// tài khoản bị đăng xuất ở mọi thiết bị. Mật khẩu tạm chỉ hiện lại ở đây sau khi đặt thành công để admin chép gửi đi.
+const randomPassword = () => { const a = 'abcdefghjkmnpqrstuvwxyz23456789'; const v = crypto.getRandomValues(new Uint32Array(10)); return Array.from(v, n => a[n % a.length]).join(''); };
+function ResetPasswordField({ account, busy, run }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void }) {
+  const [password, setPassword] = useState('');
+  const [done, setDone] = useState('');
+  const valid = password.length >= 6 && new TextEncoder().encode(password).length <= 72;
+  if (account.admin) return null;
+  return <form onSubmit={e => { e.preventDefault(); if (valid) run(async () => { await adminResetPassword(account.id, password); setDone(password); setPassword(''); return `Đã đặt mật khẩu mới cho ${account.login} và đăng xuất tài khoản này ở mọi thiết bị.`; }); }}>
+    <h3>Đặt lại mật khẩu</h3>
+    <p className="pa-gift-note">Không xem được mật khẩu cũ (máy chủ chỉ lưu mã băm). Đặt mật khẩu tạm rồi gửi cho người chơi; tài khoản bị đăng xuất ở mọi thiết bị.</p>
+    <div className="pa-row"><label className="pa-field"><span>Mật khẩu mới</span><input value={password} autoComplete="new-password" spellCheck={false} maxLength={72} placeholder="Ít nhất 6 ký tự" onChange={e => { setPassword(e.target.value); setDone(''); }}/></label>
+    <button type="button" className="secondary-button" disabled={busy} onClick={() => { setPassword(randomPassword()); setDone(''); }}>Tạo ngẫu nhiên</button></div>
+    <button type="submit" className="primary-button" disabled={busy || !valid}>Đặt lại mật khẩu</button>
+    {done && <p className="pa-gift-note">Gửi cho người chơi: tài khoản <b>{account.login}</b> · mật khẩu <b className="pa-password">{done}</b></p>}
   </form>;
 }
 // Star Point (202611110007): admin cộng / trừ STP cho tài khoản (số âm để trừ). Nguồn nhận STP cho người chơi (nhiệm vụ) sẽ thêm sau.
@@ -162,6 +179,7 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
       <SendGift account={account} busy={busy} run={task => void run(task)} onSent={() => void loadLedger()}/>
       <AccountTierField account={account} busy={busy} run={task => void run(task)}/>
       <StarPointField account={account} busy={busy} run={task => void run(task)}/>
+      <ResetPasswordField account={account} busy={busy} run={task => void run(task)}/>
       <div className="pa-account-ledger">
         <h3>Sổ cái FC gần đây</h3>
         {ledger && !ledger.length && <p className="pa-empty">Chưa có giao dịch.</p>}

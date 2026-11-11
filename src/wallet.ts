@@ -1,4 +1,5 @@
 import { accountClient } from './account-client';
+import { deviceId } from './device-id';
 import type { EventReward } from './game';
 import type { GiftCode } from './gift-code-rules';
 import type { MembershipId } from './membership';
@@ -59,12 +60,19 @@ export const adminGiftSave = (code: GiftCode) => call<GiftCodeRow[]>('fco_admin_
 export const adminGiftDelete = (hash: string) => call<GiftCodeRow[]>('fco_admin_gift_delete', { p_hash: hash });
 export const adminAnomalies = () => call<AnomalyRow[]>('fco_admin_anomalies', { p_limit: 200, p_include_reviewed: false });
 export const adminAnomalyReview = (id: number, all = false) => call<AnomalyRow[]>('fco_admin_anomaly_review', { p_id: id, p_all: all });
-export const heartbeat = () => call<null>('fco_heartbeat');
+export const heartbeat = () => call<null>('fco_heartbeat', { p_device: deviceId() });
+// Nghi clone (202611110014).
+export type CloneAccount = { id: string; login: string; registered: number; lastSeen: number | null; topup: number; locked: boolean; admin: boolean };
+export type CloneGroup = { kind: 'device' | 'ip'; key: string; allowed: boolean; accounts: CloneAccount[] };
+export const adminCloneGroups = () => call<CloneGroup[]>('fco_admin_clone_groups');
+export const adminDeviceAllow = (device: string, allow: boolean) => call<null>('fco_admin_device_allow', { p_device: device, p_allow: allow });
 export const fetchMaintenanceState = () => call<MaintenanceState>('fco_maintenance_state');
 export const adminMaintenanceSet = (enabled: boolean, message: string) => call<MaintenanceState>('fco_admin_maintenance_set', { p_enabled: enabled, p_message: message });
 export const adminAccounts = (search: string, sort: string, limit: number, offset: number, status: string | null = null) => call<AdminAccountList>('fco_admin_accounts', { p_search: search || null, p_sort: sort, p_limit: limit, p_offset: offset, p_status: status });
 // target: danh sách id, hoặc all = mọi tài khoản khớp tìm kiếm + bộ lọc đang xem (kể cả ở trang khác).
 export const adminAccountsPause = (paused: boolean, target: { users: string[] } | { all: true; search: string; status: string | null }) => call<{ changed: number; skippedAdmins: number }>('fco_admin_accounts_pause', 'all' in target ? { p_paused: paused, p_all: true, p_search: target.search || null, p_status: target.status } : { p_paused: paused, p_users: target.users });
+// Đặt lại mật khẩu người chơi (202611110015): mật khẩu tạm 6–72 ký tự, đăng xuất mọi thiết bị.
+export const adminResetPassword = (user: string, password: string) => call<{ login: string }>('fco_admin_reset_password', { p_user: user, p_password: password });
 export const adminAccountLock = (id: string, locked: boolean) => call<{ locked: boolean }>('fco_admin_account_lock', { p_user: id, p_locked: locked });
 export const adminAccountReset = (id: string, resetFc: boolean) => call<{ reset: boolean; fc: number }>('fco_admin_account_reset', { p_user: id, p_reset_fc: resetFc });
 // Xoá hàng loạt (migration 202611100010): mỗi lần tối đa 200 tài khoản, remaining = số còn lại cần gọi tiếp.

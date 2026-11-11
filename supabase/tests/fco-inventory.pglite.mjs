@@ -3,17 +3,21 @@
 // Chạy:     node fco-inventory.pglite.mjs <thư mục dự án> <fixture.json> <các migration theo thứ tự…>
 // (cần @electric-sql/pglite: đặt file này cạnh node_modules có PGlite, ví dụ D:\FCOvv-tmp\pg).
 import { PGlite } from '@electric-sql/pglite';
+import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 
 const [root, fixturePath, ...files] = process.argv.slice(2);
 const fixture = JSON.parse(readFileSync(fixturePath, 'utf8'));
 const { catalog, version } = fixture;
-const db = new PGlite();
+const db = new PGlite({ extensions: { pgcrypto } });
 await db.exec(`
   create role anon nologin; create role authenticated nologin;
   create schema auth;
-  create table auth.users (id uuid primary key, email text unique, created_at timestamptz not null default now(), banned_until timestamptz);
+  create table auth.users (id uuid primary key, email text unique, created_at timestamptz not null default now(), banned_until timestamptz, encrypted_password text, updated_at timestamptz);
+  create table auth.sessions (id uuid primary key default gen_random_uuid(), user_id uuid not null);
+  create table auth.refresh_tokens (id bigserial primary key, user_id text, token text);
+  create schema extensions; create extension pgcrypto schema extensions;
   create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
   create function auth.jwt() returns jsonb language sql stable as $$ select '{}'::jsonb $$;
   grant usage on schema auth to anon, authenticated; grant execute on all functions in schema auth to anon, authenticated;
@@ -455,6 +459,66 @@ if (files.some(f => f.includes('202611110013'))) {
   assert.equal((await as(A, `select public.fco_admin_account_tier($1, 'classic')`, [B])).tier, 'classic');
   await db.query(`update public.fco_wallets set svip_until = null, premium_until = null where user_id = $1`, [B]);
   console.log('premium tax OK');
+}
+
+// 18. Hạn chế clone (202611110014): heartbeat lưu thiết bị + IP; một thiết bị một tài khoản nhận quà ngày / Bi Lắc miễn phí / mỗi gift code.
+if (files.some(f => f.includes('202611110014'))) {
+  const D1 = '11111111-1111-4111-8111-111111111111', D2 = '22222222-2222-4222-8222-222222222222';
+  const beat = async (uid, device, ip) => {
+    await db.exec(`reset role; select set_config('request.headers', '${JSON.stringify({ 'x-forwarded-for': ip + ', 10.0.0.1' })}', false)`);
+    await as(uid, `select public.fco_heartbeat($1)`, [device]);
+  };
+  await beat(B, D1, '1.2.3.4');
+  await beat(C, D1, '1.2.3.4');
+  assert.equal(await one(`select ip from public.fco_devices where user_id = $1 and device = $2`, [B, D1]), '1.2.3.4');
+  await db.query(`update public.fco_wallets set daily = null, bilac_free_day = null where user_id in ($1, $2)`, [B, C]);
+  // B nhận quà ngày trên thiết bị D1 → C (cùng D1) bị chặn.
+  await as(B, `select public.fco_claim_daily()`);
+  await assert.rejects(as(C, `select public.fco_claim_daily()`), /FCO_DEVICE_LIMIT/);
+  assert.equal(await one(`select daily from public.fco_wallets where user_id = $1`, [C]), null, 'bị chặn thì không đổi gì');
+  // Bi Lắc miễn phí cũng vậy.
+  await as(B, `select public.fco_bilac_play(1, 'free')`);
+  await assert.rejects(as(C, `select public.fco_bilac_play(1, 'free')`), /FCO_DEVICE_LIMIT/);
+  // Gift code: một lần trên một thiết bị.
+  await db.query(`insert into public.fco_gift_codes(hash, hint, rewards) values ($1, 'DV••', '[{"bp": 10}]') on conflict do nothing`, ['d'.repeat(64)]);
+  await as(B, `select public.fco_redeem_gift($1)`, ['d'.repeat(64)]);
+  await assert.rejects(as(C, `select public.fco_redeem_gift($1)`, ['d'.repeat(64)]), /FCO_DEVICE_LIMIT/);
+  // Admin cho phép thiết bị dùng chung → C nhận được.
+  await assert.rejects(as(B, `select public.fco_admin_device_allow($1, true)`, [D1]), /FCO_ADMIN_ONLY/);
+  await as(A, `select public.fco_admin_device_allow($1, true)`, [D1]);
+  await as(C, `select public.fco_claim_daily()`);
+  // Thiết bị khác thì không ảnh hưởng nhau.
+  await db.query(`update public.fco_wallets set daily = null where user_id = $1`, [A]);
+  await beat(A, D2, '5.6.7.8');
+  await as(A, `select public.fco_claim_daily()`);
+  // Nghi clone: nhóm theo thiết bị (B, C trên D1) và đánh dấu đã cho phép.
+  const groups = await as(A, `select public.fco_admin_clone_groups()`);
+  const g = groups.find(x => x.kind === 'device' && x.key === D1);
+  assert.ok(g); assert.equal(g.allowed, true);
+  assert.deepEqual(g.accounts.map(a => a.id).sort(), [B, C].sort());
+  await assert.rejects(as(B, `select public.fco_admin_clone_groups()`), /FCO_ADMIN_ONLY/);
+  // Game cũ gọi heartbeat không có mã thiết bị vẫn chạy.
+  await as(B, `select public.fco_heartbeat()`);
+  await db.exec(`reset role; select set_config('request.headers', '', false)`);
+  console.log('anti clone OK');
+}
+
+// 19. Admin đặt lại mật khẩu (202611110015): lưu bcrypt, đăng xuất mọi thiết bị, không đặt được cho admin.
+if (files.some(f => f.includes('202611110015'))) {
+  await db.query(`insert into auth.sessions(user_id) values ($1)`, [C]);
+  await db.query(`insert into auth.refresh_tokens(user_id, token) values ($1, 'x')`, [C]);
+  await assert.rejects(as(B, `select public.fco_admin_reset_password($1, 'matkhau123')`, [C]), /FCO_ADMIN_ONLY/);
+  await assert.rejects(as(A, `select public.fco_admin_reset_password($1, '123')`, [C]), /FCO_BAD_PASSWORD/);
+  await assert.rejects(as(A, `select public.fco_admin_reset_password($1, 'matkhau123')`, [A]), /FCO_ADMIN_PROTECTED/);
+  assert.deepEqual(await as(A, `select public.fco_admin_reset_password($1, 'matkhau123')`, [C]), { login: 'player_c' });
+  const hash = await one(`select encrypted_password from auth.users where id = $1`, [C]);
+  assert.match(hash, /^\$2a\$10\$/);
+  assert.equal(await one(`select extensions.crypt('matkhau123', $1) = $1`, [hash]), true, 'mật khẩu mới khớp');
+  assert.equal(await one(`select extensions.crypt('sai', $1) = $1`, [hash]), false);
+  assert.equal(await one(`select count(*)::int from auth.sessions where user_id = $1`, [C]), 0);
+  assert.equal(await one(`select count(*)::int from auth.refresh_tokens where user_id = $1`, [C]), 0);
+  assert.equal(await one(`select count(*)::int from public.fco_admin_password_resets where user_id = $1`, [C]), 1);
+  console.log('admin reset password OK');
 }
 
 console.log('ALL OK');

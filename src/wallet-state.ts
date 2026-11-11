@@ -54,6 +54,8 @@ export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 const MESSAGES: Record<string, string> = {
   FCO_NOT_ENOUGH_FC: 'Không đủ FC.',
   FCO_NOT_ENOUGH_STP: 'Không đủ Star Point.',
+  FCO_BAD_PASSWORD: 'Mật khẩu phải từ 6 đến 72 ký tự.',
+  FCO_DEVICE_LIMIT: 'Thiết bị này đã nhận phần quà này cho một tài khoản khác. Mỗi thiết bị chỉ một tài khoản được nhận.',
   FCO_STP_MISSION_INCOMPLETE: 'Bạn chưa hoàn thành nhiệm vụ này hôm nay.',
   FCO_STP_MISSION_CLAIMED: 'Bạn đã nhận thưởng nhiệm vụ này hôm nay.',
   FCO_STP_MISSION_UNKNOWN: 'Nhiệm vụ không tồn tại.',
