@@ -268,9 +268,9 @@ if (files.some(f => f.includes('202611110003'))) {
   assert.equal((await as(B, `select public.fco_wallet()`)).tier, 'classic');
   await assert.rejects(as(B, `select public.fco_admin_account_tier($1, 'premium')`, [B]), /FCO_ADMIN_ONLY/);
   await assert.rejects(as(A, `select public.fco_admin_account_tier($1, 'vip')`, [B]), /FCO_BAD_TIER/);
-  assert.deepEqual(await as(A, `select public.fco_admin_account_tier($1, 'premium')`, [B]), { tier: 'premium' });
+  assert.equal((await as(A, `select public.fco_admin_account_tier($1, 'premium')`, [B])).tier, 'premium');
   assert.equal((await as(B, `select public.fco_wallet()`)).tier, 'premium');
-  assert.deepEqual(await as(A, `select public.fco_admin_account_tier($1)`, [B]), { tier: 'premium' });
+  assert.equal((await as(A, `select public.fco_admin_account_tier($1)`, [B])).tier, 'premium');
   console.log('account tier OK');
 }
 // 12. Hiệu ứng avatar + tên (202611110004): chỉ Premium đặt được; về Classic thì không hiện; BXH trả hiệu ứng.
@@ -417,6 +417,44 @@ if (files.some(f => f.includes('202611110012'))) {
   s = await state();
   assert.ok(Object.values(s).every(m => !m.done && !m.claimed), 'ngày mới chưa đạt nhiệm vụ nào');
   console.log('stp missions OK');
+}
+
+// 17. Premium có hạn 7 ngày + giảm 65% thuế bán, không cộng dồn (202611110013).
+if (files.some(f => f.includes('202611110013'))) {
+  await as(A, `select public.fco_admin_account_tier($1, 'classic')`, [B]);
+  let r = await as(A, `select public.fco_admin_account_tier($1, 'premium')`, [B]);
+  const week = 7 * 86400000;
+  assert.equal(r.tier, 'premium'); assert.ok(Math.abs(r.until - Date.now() - week) < 120000, 'hạn 7 ngày');
+  const first = r.until;
+  r = await as(A, `select public.fco_admin_account_tier($1, 'premium')`, [B]);
+  assert.ok(Math.abs(r.until - first - week) < 5000, 'gia hạn cộng dồn thêm 7 ngày');
+  let w = await as(B, `select public.fco_wallet()`);
+  assert.equal(w.tier, 'premium'); assert.equal(w.tierUntil, r.until);
+  // Thuế: Premium 14%, kể cả khi còn gói SVIP / Premium Shop (không cộng dồn).
+  await db.query(`update public.fco_wallets set svip_until = now() + interval '1 day', premium_until = now() + interval '1 day' where user_id = $1`, [B]);
+  const p = catalog.players.find(x => x[3][4] !== null && x[3][4] > 100000 && !x[4]);
+  const price = await one(`select public.fco_inv_price($1, 5)`, [p[0]]);
+  const cards = n => Array.from({ length: n }, (_, i) => ({ uid: 'pm' + i, playerId: p[0], level: 5, received: 0 }));
+  await setSave(B, { ...(await save(B)), cards: cards(4), locked: [], taxVouchers: { 30: 1, 20: 1 } });
+  r = await as(B, `select public.fco_inv_sell($1, $2::jsonb)`, [version, JSON.stringify([{ uid: 'pm0', price }])]);
+  assert.equal(r.tax, 14); assert.equal(r.fees, Math.floor(price * 14 / 100));
+  // Phiếu 20% (40 − 20 = 20% > 14%) không giảm thêm → báo lỗi, không mất phiếu; phiếu 30% → 10%.
+  await assert.rejects(as(B, `select public.fco_inv_sell($1, $2::jsonb, 20)`, [version, JSON.stringify([{ uid: 'pm1', price }])]), /FCO_VOUCHER_USELESS/);
+  r = await as(B, `select public.fco_inv_sell($1, $2::jsonb, 30)`, [version, JSON.stringify([{ uid: 'pm1', price }])]);
+  assert.equal(r.tax, 10); assert.deepEqual(r.save.data.taxVouchers, { 20: 1 });
+  // Hết hạn → Classic: mất hiệu ứng, thuế theo gói thành viên (Premium Shop 50% → 20%).
+  await db.query(`update public.fco_wallets set account_tier_until = now() - interval '1 minute' where user_id = $1`, [B]);
+  w = await as(B, `select public.fco_wallet()`);
+  assert.equal(w.tier, 'classic'); assert.equal(w.tierUntil, null); assert.equal(w.effect, null);
+  await assert.rejects(as(B, `select public.fco_set_name_effect('gold')`), /FCO_PREMIUM_ONLY/);
+  r = await as(B, `select public.fco_inv_sell($1, $2::jsonb)`, [version, JSON.stringify([{ uid: 'pm2', price }])]);
+  assert.equal(r.tax, 20);
+  // Hết hạn rồi đặt lại: tính 7 ngày từ bây giờ, không cộng vào hạn cũ.
+  r = await as(A, `select public.fco_admin_account_tier($1, 'premium')`, [B]);
+  assert.ok(Math.abs(r.until - Date.now() - week) < 120000);
+  assert.equal((await as(A, `select public.fco_admin_account_tier($1, 'classic')`, [B])).tier, 'classic');
+  await db.query(`update public.fco_wallets set svip_until = null, premium_until = null where user_id = $1`, [B]);
+  console.log('premium tax OK');
 }
 
 console.log('ALL OK');

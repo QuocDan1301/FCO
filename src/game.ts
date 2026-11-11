@@ -66,7 +66,7 @@ const isEventReward = (r: unknown): r is EventReward => !!r && typeof r === 'obj
 export type LineupSpot = { label: string; x: number; y: number };
 export type Lineup = { formation: string; slots: (string | null)[]; custom?: (LineupSpot | null)[] };
 export type Lineups = { active: number; sets: Lineup[] };
-export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; membership?: Membership; event?: EventState; reset?: string; bpReset?: string; codes?: string[]; inv?: 1; profile?: Profile; stp?: number; taxVouchers?: TaxVouchers };
+export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; membership?: Membership; event?: EventState; reset?: string; bpReset?: string; codes?: string[]; inv?: 1; profile?: Profile; stp?: number; taxVouchers?: TaxVouchers; premiumUntil?: number | null };
 // Thông tin HLV người chơi tự chọn (src/ProfileCard.tsx): giới tính, sinh nhật 'DD-MM' (không lưu năm).
 export type Profile = { gender?: 'male' | 'female' | 'other'; birthday?: string };
 const PROFILE_MONTH_DAYS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -868,6 +868,8 @@ export function validateSave(data: unknown): data is Save {
   // FC và tiến trình sự kiện sai kiểu thì bỏ, không làm hỏng cả bản lưu.
   if (s.fc !== undefined && !(Number.isSafeInteger(s.fc) && s.fc >= 0)) delete s.fc;
   if (s.stp !== undefined && !(Number.isSafeInteger(s.stp) && s.stp >= 0)) delete s.stp;
+  // Hạn Premium (ms) chỉ để hiển thị / tính trước thuế; máy chủ tự kiểm tra khi bán.
+  if (s.premiumUntil !== undefined && s.premiumUntil !== null && !Number.isSafeInteger(s.premiumUntil)) delete s.premiumUntil;
   // Phiếu giảm thuế (src/stp.ts): chỉ giữ mức 10 / 20 / 30 với số nguyên dương.
   if (s.taxVouchers !== undefined) {
     const raw = s.taxVouchers as unknown, out: TaxVouchers = {};

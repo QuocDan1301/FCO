@@ -70,7 +70,8 @@ export const adminAccountReset = (id: string, resetFc: boolean) => call<{ reset:
 // Xoá hàng loạt (migration 202611100010): mỗi lần tối đa 200 tài khoản, remaining = số còn lại cần gọi tiếp.
 export const adminAccountsDelete = (target: { users: string[] } | { all: true; search: string; status: string | null }) => call<{ deleted: number; skippedAdmins: number; remaining: number }>('fco_admin_accounts_delete', 'all' in target ? { p_all: true, p_search: target.search || null, p_status: target.status } : { p_users: target.users });
 // Loại tài khoản Classic / Premium (migration 202611110003): tier = null chỉ đọc.
-export const adminAccountTier = (user: string, tier: 'classic' | 'premium' | null = null) => call<{ tier: 'classic' | 'premium' }>('fco_admin_account_tier', { p_user: user, p_tier: tier });
+// tier 'premium' = thêm 7 ngày (cộng dồn khi còn hạn, migration 202611110013); until = hạn Premium (ms).
+export const adminAccountTier = (user: string, tier: 'classic' | 'premium' | null = null) => call<{ tier: 'classic' | 'premium'; until?: number | null }>('fco_admin_account_tier', { p_user: user, p_tier: tier });
 // Hiệu ứng avatar + tên (migration 202611110004): chỉ tài khoản Premium đặt được, null = tắt.
 export const setNameEffect = (effect: NameEffect | null) => call<Wallet>('fco_set_name_effect', { p_effect: effect });
 export const adminAccountDelete = (id: string) => call<{ deleted: boolean }>('fco_admin_account_delete', { p_user: id });

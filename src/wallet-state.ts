@@ -13,7 +13,7 @@ export type Checkin = { claimedToday: boolean; day: number; done: number };
 export type BilacState = { points: number; claimed: (number | null)[]; freeToday: boolean };
 // save: bản lưu mới khi máy chủ vừa cộng quà vào kho (điểm danh ngày 7), xem src/inventory-sync.ts.
 // stp: Star Point (migration 202611110007_fco_star_point.sql), máy chủ chưa chạy migration thì không có.
-export type Wallet = { fc: number; stp?: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null; tier?: 'classic' | 'premium'; effect?: NameEffect | null };
+export type Wallet = { fc: number; stp?: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null; tier?: 'classic' | 'premium'; tierUntil?: number | null; effect?: NameEffect | null };
 export type ServerJackpotWin = { name: string; amount: number; kind: 'special' | 'mini'; time: number; mine: boolean };
 export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
 // Bảng xếp hạng HLV (fco_leaderboard): top 10 kỷ lục đập thẻ OVR, top 10 giá trị đội hình, hạng của người xem.
@@ -59,6 +59,7 @@ const MESSAGES: Record<string, string> = {
   FCO_STP_MISSION_UNKNOWN: 'Nhiệm vụ không tồn tại.',
   FCO_STP_PACKAGE: 'Gói Star Point này không còn bán.',
   FCO_NO_VOUCHER: 'Bạn không còn phiếu giảm thuế này.',
+  FCO_VOUCHER_USELESS: 'Phiếu này không giảm thêm thuế cho tài khoản Premium (không cộng dồn).',
   FCO_BAD_VOUCHER: 'Phiếu giảm thuế không hợp lệ.',
   FCO_DAILY_CLAIMED: 'Bạn đã nhận quà hôm nay. Hẹn gặp lại vào ngày mai!',
   FCO_GIFT_INVALID: 'Gift code không đúng.',
@@ -131,5 +132,5 @@ export function walletMessage(error: unknown) {
 export function applyWallet(state: Save, wallet: Wallet, today = dayKey()): Save {
   const event = eventState(state, today);
   const daily = wallet.dailyClaimed ? today : state.daily === today ? '' : state.daily;
-  return { ...state, fc: wallet.fc, ...(wallet.stp !== undefined ? { stp: wallet.stp } : {}), daily, ...(wallet.membership ? { membership: wallet.membership } : {}), event: { ...event, day: today, points: wallet.event.points, free: wallet.event.free, paid: wallet.event.paid, missions: [...wallet.event.missions] } };
+  return { ...state, fc: wallet.fc, ...(wallet.stp !== undefined ? { stp: wallet.stp } : {}), ...(wallet.tier ? { premiumUntil: wallet.tier === 'premium' ? wallet.tierUntil ?? null : null } : {}), daily, ...(wallet.membership ? { membership: wallet.membership } : {}), event: { ...event, day: today, points: wallet.event.points, free: wallet.event.free, paid: wallet.event.paid, missions: [...wallet.event.missions] } };
 }

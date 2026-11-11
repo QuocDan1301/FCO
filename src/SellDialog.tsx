@@ -3,9 +3,9 @@ import type { ReactNode } from 'react';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
 import type { Card, Save, Tier } from './game';
-import { MAX_BULK_SELL, SELL_BAND_PERCENT, marketNow, priceAt, saleFee, saleTaxPercent, sellRange } from './market';
+import { MAX_BULK_SELL, SELL_BAND_PERCENT, marketNow, premiumActive, priceAt, saleFee, saleTaxPercent, sellRange, taxFor, voucherHelps } from './market';
 import type { SellItem } from './market';
-import { TAX_VOUCHERS, taxWithVoucher, voucherCount, voucherTotal } from './stp';
+import { TAX_VOUCHERS, voucherCount } from './stp';
 import type { TaxVoucher } from './stp';
 import { usePricePeriod } from './use-price-period';
 import { asset } from './asset';
@@ -60,10 +60,12 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const period = usePricePeriod();
   // Phiếu giảm thuế (gói Star Point): trừ thẳng điểm % thuế của lượt bán này; hết phiếu đang chọn thì bỏ chọn.
   const [chosenVoucher, setVoucher] = useState<TaxVoucher | null>(null);
-  const voucher = chosenVoucher && voucherCount(save, chosenVoucher) > 0 ? chosenVoucher : null;
+  // Premium (giảm 65%, không cộng dồn) chỉ dùng được phiếu cho thuế thấp hơn 14%.
+  const usable = TAX_VOUCHERS.filter(pct => voucherCount(save, pct) > 0 && voucherHelps(save, pct));
+  const voucher = chosenVoucher && usable.includes(chosenVoucher) ? chosenVoucher : null;
   const baseTax = saleTaxPercent(save);
-  const taxPercent = taxWithVoucher(baseTax, voucher);
-  const voucherPicker = voucherTotal(save) > 0 && <label className="sd-voucher"><span>Phiếu giảm thuế</span><select value={voucher ?? ''} onChange={e => setVoucher(e.target.value ? Number(e.target.value) as TaxVoucher : null)} aria-label="Dùng phiếu giảm thuế cho lượt bán này"><option value="">Không dùng · thuế {baseTax}%</option>{TAX_VOUCHERS.filter(pct => voucherCount(save, pct) > 0).map(pct => <option key={pct} value={pct}>Giảm {pct}% · thuế còn {taxWithVoucher(baseTax, pct)}% (còn {voucherCount(save, pct)} phiếu)</option>)}</select></label>;
+  const taxPercent = taxFor(save, voucher);
+  const voucherPicker = usable.length > 0 && <label className="sd-voucher"><span>Phiếu giảm thuế</span><select value={voucher ?? ''} onChange={e => setVoucher(e.target.value ? Number(e.target.value) as TaxVoucher : null)} aria-label="Dùng phiếu giảm thuế cho lượt bán này"><option value="">Không dùng · thuế {baseTax}%{premiumActive(save) ? ' (Premium)' : ''}</option>{usable.map(pct => <option key={pct} value={pct}>Giảm {pct}% · thuế còn {taxFor(save, pct)}% (còn {voucherCount(save, pct)} phiếu)</option>)}</select></label>;
   const [tab, setTab] = useState<Tab>(initial.tab);
   const [uid, setUid] = useState(initial.uid ?? '');
   const locked = useMemo(() => new Set(save.locked ?? []), [save.locked]);

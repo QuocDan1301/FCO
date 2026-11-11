@@ -57,7 +57,7 @@ export default function ProfileCard({ save, accountId, joined, tier: tierId, eff
         : <>{profile.birthday!.replace('-', '/')}{locked}</>}</dd></div>
       <div><dt><CalendarDays size={15}/>Bắt đầu chơi</dt><dd>{joined ? dateText(joined) : '—'}</dd></div>
       <div><dt><CalendarCheck size={15}/>Đã chơi</dt><dd>{joined ? `${playedDays(joined).toLocaleString('vi-VN')} ngày` : '—'}</dd></div>
-      <div><dt><Crown size={15}/>Loại tài khoản</dt><dd>{tier.name}</dd></div>
+      <div><dt><Crown size={15}/>Loại tài khoản</dt><dd>{tier.name}{premium && save.premiumUntil ? <small className="profile-tier-until"> · hết hạn {new Date(save.premiumUntil).toLocaleDateString('vi-VN')} · giảm 65% thuế bán</small> : null}</dd></div>
     </dl>
     {(needGender || needBirthday)
       ? <p className="profile-hint">Giới tính và sinh nhật chỉ lưu được một lần, hãy chọn đúng trước khi lưu.</p>

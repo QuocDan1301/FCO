@@ -59,8 +59,20 @@ export function compareMarketPrices(a: Pick<Card, 'playerId' | 'level'>, b: Pick
 export type MarketTrade = { kind: 'buy' | 'sell'; card: Card };
 // Thuế bán chung cho mọi thẻ. Mua lúc −10% rồi bán ở +10% và tự đặt thêm +10% được 1,21 / 0,9 lần, thấp hơn nhiều so với mức thuế này nên không có lãi.
 export const MARKET_FEE_PERCENT = 40;
-// Thuế người chơi này phải trả, sau khi trừ phần giảm của gói thành viên còn hạn: SVIP Class 28%, Premium 20%.
-export const saleTaxPercent = (state: Pick<Save, 'membership'>, at = marketNow()) => MARKET_FEE_PERCENT * (100 - (bestMembership(state.membership, at)?.discount ?? 0)) / 100;
+// Tài khoản Premium (admin đặt, có hạn 7 ngày; migration 202611110013): giảm 65% thuế bán, KHÔNG cộng dồn với giảm giá khác.
+export const PREMIUM_TAX_DISCOUNT = 65;
+export const premiumActive = (state: Pick<Save, 'premiumUntil'>, at = marketNow()) => (state.premiumUntil ?? 0) > at;
+// Thuế người chơi này phải trả: Premium còn hạn 14% (bỏ qua gói thành viên); ngược lại trừ phần giảm của gói thành viên còn hạn (SVIP Class 28%, Premium 20%).
+export const saleTaxPercent = (state: Pick<Save, 'membership' | 'premiumUntil'>, at = marketNow()) => premiumActive(state, at)
+  ? MARKET_FEE_PERCENT * (100 - PREMIUM_TAX_DISCOUNT) / 100
+  : MARKET_FEE_PERCENT * (100 - (bestMembership(state.membership, at)?.discount ?? 0)) / 100;
+// Thuế khi dùng phiếu giảm thuế. Premium không cộng dồn: lấy mức thấp hơn giữa thuế Premium và thuế chung trừ phiếu.
+export const taxFor = (state: Pick<Save, 'membership' | 'premiumUntil'>, voucher: TaxVoucher | null | undefined, at = marketNow()) => !voucher
+  ? saleTaxPercent(state, at)
+  : premiumActive(state, at) ? Math.min(saleTaxPercent(state, at), Math.max(0, MARKET_FEE_PERCENT - voucher)) : taxWithVoucher(saleTaxPercent(state, at), voucher);
+// Phiếu có giảm thêm thuế không (Premium chỉ phiếu 30% mới thấp hơn 14%).
+export const voucherHelps = (state: Pick<Save, 'membership' | 'premiumUntil'>, voucher: TaxVoucher, at = marketNow()) => taxFor(state, voucher, at) < saleTaxPercent(state, at);
+const USELESS_VOUCHER = 'Phiếu này không giảm thêm thuế cho tài khoản Premium (không cộng dồn).';
 export const saleFee = (price: number, taxPercent = MARKET_FEE_PERCENT) => Math.floor(price * taxPercent / 100);
 
 // Phần không đổi của báo giá (phân loại, nhóm giá, tỷ lệ bảo hiểm) chỉ phụ thuộc cầu thủ + cấp nên tính một lần;
@@ -103,7 +115,8 @@ export function sellPlayer(state: Save, cardId: string, free = false, voucher: T
   const card = state.cards.find(c => c.uid === cardId);
   if (!card) throw new Error('Thẻ này không còn trong kho. Hãy chọn lại cầu thủ.');
   if (state.locked?.includes(cardId)) throw new Error('Thẻ đang bị khóa. Mở khóa trước khi bán.');
-  const quote = marketQuote(card, taxWithVoucher(saleTaxPercent(state), voucher));
+  if (voucher && !voucherHelps(state, voucher)) throw new Error(USELESS_VOUCHER);
+  const quote = marketQuote(card, taxFor(state, voucher));
   if (!quote.available) throw new Error(quote.reason);
   const paid = voucher ? spendVoucher(state, voucher) : state;
   const balance = free ? state.balance : state.balance + quote.proceeds;
@@ -129,7 +142,8 @@ export function sellCards(state: Save, items: SellItem[], free = false, voucher:
   if (new Set(items.map(item => item.uid)).size !== items.length) throw new Error('Danh sách bán có thẻ bị trùng.');
   const byUid = new Map(state.cards.map(card => [card.uid, card]));
   const sold: Card[] = [];
-  const taxPercent = taxWithVoucher(saleTaxPercent(state), voucher);
+  if (voucher && voucherCount(state, voucher) > 0 && !voucherHelps(state, voucher)) throw new Error(USELESS_VOUCHER);
+  const taxPercent = taxFor(state, voucher);
   if (voucher && voucherCount(state, voucher) < 1) throw new Error(`Bạn không còn ${voucherName(voucher)}.`);
   let total = 0, fees = 0;
   for (const item of items) {

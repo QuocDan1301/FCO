@@ -70,14 +70,17 @@ function SendGift({ account, busy, run, onSent }: { account: AdminAccount; busy:
 // Loại tài khoản Classic / Premium (migration 202611110003): admin đặt để người chơi nhận ưu đãi riêng; không phải gói thành viên trong Shop.
 function AccountTierField({ account, busy, run }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void }) {
   const [tier, setTier] = useState<'classic' | 'premium' | null>(null);
-  const [choice, setChoice] = useState<'classic' | 'premium'>('classic');
-  useEffect(() => { void adminAccountTier(account.id).then(r => { setTier(r.tier); setChoice(r.tier); }).catch(() => setTier(null)); }, [account.id]);
-  const name = (t: 'classic' | 'premium') => t === 'premium' ? 'Premium' : 'Classic';
-  return <form onSubmit={e => { e.preventDefault(); run(async () => { const r = await adminAccountTier(account.id, choice); setTier(r.tier); return `Đã đặt ${account.login} là tài khoản ${name(r.tier)}.`; }); }}>
+  const [until, setUntil] = useState<number | null>(null);
+  useEffect(() => { void adminAccountTier(account.id).then(r => { setTier(r.tier); setUntil(r.until ?? null); }).catch(() => setTier(null)); }, [account.id]);
+  const date = (ms: number | null) => ms ? new Date(ms).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }) : '';
+  // Premium có hạn 7 ngày; bấm lại khi còn hạn thì cộng thêm 7 ngày. Huỷ = về Classic ngay.
+  const set = (next: 'classic' | 'premium') => run(async () => { const r = await adminAccountTier(account.id, next); setTier(r.tier); setUntil(r.until ?? null);
+    return r.tier === 'premium' ? `${account.login} là Premium tới ${date(r.until ?? null)}.` : `Đã huỷ Premium của ${account.login}.`; });
+  return <form onSubmit={e => e.preventDefault()}>
     <h3>Loại tài khoản</h3>
-    <p className="pa-gift-note">Hiện tại: <b>{tier ? name(tier) : '…'}</b>. Do admin đặt để người chơi nhận ưu đãi riêng, không liên quan gói thành viên trong Shop.</p>
-    <label className="pa-field"><span>Đặt thành</span><select value={choice} onChange={e => setChoice(e.target.value as 'classic' | 'premium')}><option value="classic">Classic</option><option value="premium">Premium</option></select></label>
-    <button type="submit" className="primary-button" disabled={busy || !tier || choice === tier}>Lưu loại tài khoản</button>
+    <p className="pa-gift-note">Hiện tại: <b>{tier === 'premium' ? `Premium · hết hạn ${date(until)}` : tier ? 'Classic' : '…'}</b>. Premium có hạn 7 ngày: giảm 65% thuế bán (không cộng dồn giảm giá khác) và hiệu ứng tên. Không liên quan gói thành viên trong Shop.</p>
+    <div className="pa-row"><button type="button" className="primary-button" disabled={busy || !tier} onClick={() => set('premium')}>{tier === 'premium' ? 'Gia hạn thêm 7 ngày' : 'Đặt Premium 7 ngày'}</button>
+    {tier === 'premium' && <button type="button" className="secondary-button" disabled={busy} onClick={() => set('classic')}>Huỷ Premium</button>}</div>
   </form>;
 }
 // Star Point (202611110007): admin cộng / trừ STP cho tài khoản (số âm để trừ). Nguồn nhận STP cho người chơi (nhiệm vụ) sẽ thêm sau.
