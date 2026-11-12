@@ -31,6 +31,11 @@ export function saveRemote(userId: string): SaveRemote {
       }
       return data ? record(data) : null;
     },
+    async revision() {
+      const { data, error } = await client.from('fco_game_saves').select('revision').eq('user_id', userId).abortSignal(AbortSignal.timeout(20000)).maybeSingle();
+      if (error) throw new Error('Mất kết nối với máy chủ.');
+      return data ? Number(data.revision) : null;
+    },
     async write(data, revision, merge = false) {
       // p_merge chỉ gửi khi cần để máy chủ chưa chạy migration kho thẻ vẫn nhận lệnh như cũ.
       const result = await client.rpc('fco_commit_save', { p_data: data, p_revision: revision, ...(merge ? { p_merge: true } : {}) }).abortSignal(AbortSignal.timeout(20000));

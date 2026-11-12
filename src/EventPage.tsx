@@ -10,7 +10,7 @@ import { JACKPOT_TICK_MS, loadJackpot, mini, saveJackpot, tickJackpot } from './
 import type { Jackpot as LocalJackpot, JackpotWin } from './jackpot';
 // Quỹ hiển thị: quỹ chung trên máy chủ (tài khoản) hoặc quỹ mô phỏng trên máy (khách); hỏi máy chủ mỗi JACKPOT_POLL_MS.
 type Jackpot = Pick<LocalJackpot, 'pot' | 'feed'>;
-const JACKPOT_POLL_MS = 3000;
+const JACKPOT_POLL_MS = 6000;
 import './event.css';
 
 const img = (name: string) => asset(`/assets/event/${name}.webp`);

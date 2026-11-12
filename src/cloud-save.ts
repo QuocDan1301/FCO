@@ -1,16 +1,35 @@
 import { initialSave, validateSave } from './game';
 import type { Save } from './game';
-import { mergeProtected, sameSettings } from './inventory-sync';
+import { PROTECTED_KEYS, mergeProtected, sameSettings } from './inventory-sync';
 
 export type CloudRecord = { revision: number; data: Save };
 export type SaveRemote = {
   load(): Promise<CloudRecord | null>;
+  // Chỉ số phiên bản trên máy chủ (vài byte, không đọc khối dữ liệu lớn): làm mới định kỳ hỏi cái này trước,
+  // chỉ tải cả bản lưu khi máy chủ có bản mới hơn (giảm Disk IO của Supabase). null = chưa có bản lưu.
+  revision?(): Promise<number | null>;
   // merge: máy chủ giữ kho (bản lưu có inv = 1): máy chủ gộp, giữ thẻ / BP / gói của mình và không so revision.
   write(data: Save, revision: number, merge?: boolean): Promise<CloudRecord>;
 };
 type CachedSave = CloudRecord & { dirty: boolean };
 // Bản lưu do máy chủ giữ kho (src/inventory-sync.ts): game không tự đổi phần được bảo vệ, chỉ nhận từ máy chủ.
 const serverOwned = (data: Save | undefined) => data?.inv === 1;
+// Phần game chép từ ví máy chủ (applyWallet: FC, STP, hạng, quà ngày, gói thành viên, điểm / lượt sự kiện): máy chủ đã giữ trong ví,
+// không cần lưu lại. Trước đây mỗi lượt Bi Lắc / mỗi lần làm mới ví đều gửi lại nguyên bản lưu → tốn Disk IO của Supabase.
+const EVENT_MIRROR = ['day', 'points', 'free', 'paid', 'missions'] as const;
+function uploadable(s: Save) {
+  const copy: Record<string, unknown> = { ...s };
+  for (const key of [...PROTECTED_KEYS, 'history', 'fc', 'stp', 'premiumUntil', 'luxuryUntil', 'daily', 'membership']) delete copy[key];
+  if (copy.event && typeof copy.event === 'object') { const event: Record<string, unknown> = { ...(copy.event as Record<string, unknown>) }; for (const key of EVENT_MIRROR) delete event[key]; copy.event = Object.keys(event).length ? event : undefined; }
+  return JSON.stringify(Object.keys(copy).sort().filter(key => copy[key] !== undefined).map(key => [key, copy[key]]));
+}
+// Bản mới có gì máy chủ cần lưu không. Máy chủ giữ kho: chỉ cài đặt / đội hình… và dòng lịch sử mới; còn lại so nguyên bản.
+export function needsUpload(next: Save, prev: Save) {
+  if (!serverOwned(next) || !serverOwned(prev)) return JSON.stringify(next) !== JSON.stringify(prev);
+  if (uploadable(next) !== uploadable(prev)) return true;
+  const known = new Set((prev.history ?? []).map(entry => entry.id));
+  return (next.history ?? []).some(entry => !known.has(entry.id));
+}
 export type SyncStatus = 'loading' | 'saved' | 'saving' | 'error' | 'conflict';
 
 /** A durable outbox. The server accepts a write only against its current revision. */
@@ -49,7 +68,9 @@ export class CloudSaveStore {
     if (!current) throw new Error('Chưa tải được dữ liệu tài khoản.');
     const data: unknown = JSON.parse(raw);
     if (!validateSave(data)) throw new Error('Dữ liệu trò chơi không hợp lệ.');
-    this.persist({ revision: current.revision, data, dirty: true });
+    const dirty = current.dirty || needsUpload(data, current.data);
+    this.persist({ revision: current.revision, data, dirty });
+    if (!dirty) { this.notify('saved'); return; }
     this.notify('saving');
     void this.flush().catch(() => { /* The durable outbox is retained; the screen offers Retry. */ });
   };
@@ -124,6 +145,12 @@ export class CloudSaveStore {
       // A different tab can leave a pending write in the shared outbox.
       if (this.cached()?.dirty) { await this.flush(); return; }
       const started = this.cached();
+      if (this.remote.revision && started) {
+        const latest = await this.remote.revision();
+        if (!this.active) return;
+        // Không có bản mới hơn: khỏi tải cả bản lưu. Không còn bản lưu (null) thì vẫn tải để báo tài khoản đã bị xoá.
+        if (latest !== null && latest <= started.revision) return;
+      }
       const remote = await this.remote.load();
       if (!this.active) return;
       const local = this.cached();

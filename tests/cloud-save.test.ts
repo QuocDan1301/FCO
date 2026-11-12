@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { CloudSaveStore, SaveConflict } from '../src/cloud-save.ts';
+import { CloudSaveStore, SaveConflict, needsUpload } from '../src/cloud-save.ts';
 import type { CloudRecord, SaveRemote } from '../src/cloud-save.ts';
 import { BP_RESET, initialSave, makeCard, SAVE_RESET, STORAGE_KEY, validateSave } from '../src/game.ts';
 import type { Save } from '../src/game.ts';
@@ -158,4 +158,47 @@ test('Admin reset: bản reset hợp lệ, máy đang rảnh tự nhận, máy c
   assert.equal(row.data.cards.length, 0); assert.equal(row.data.balance, 0);
   await busy.useCloudCopy();
   assert.equal(state(busy).cards.length, 0); assert.equal(busy.status, 'saved');
+});
+
+test('Làm mới định kỳ chỉ hỏi số phiên bản, chỉ tải cả bản lưu khi máy chủ có bản mới', async () => {
+  const server = remote();
+  let loads = 0;
+  const api: SaveRemote = { ...server.api, async load() { loads++; return server.api.load(); }, async revision() { return server.read().revision; } };
+  const store = new CloudSaveStore('rev', api, disk());
+  await store.initialize();
+  const before = loads;
+  await store.refresh(); await store.refresh();
+  assert.equal(loads, before, 'không có bản mới thì không tải bản lưu');
+  const other = new CloudSaveStore('rev2', server.api, disk());
+  await other.initialize();
+  other.setItem('', JSON.stringify({ ...state(other), balance: 777 }));
+  await other.flush();
+  await store.refresh();
+  assert.equal(loads, before + 1);
+  assert.equal(state(store).balance, 777);
+});
+
+test('Máy chủ giữ kho: đổi FC / điểm sự kiện / thẻ từ máy chủ không gửi lại bản lưu; đổi đội hình hoặc thêm lịch sử thì gửi', async () => {
+  const base = { ...initialSave(), inv: 1 } as Save;
+  assert.equal(needsUpload({ ...base, fc: 999, stp: 5, daily: '2026-11-12', premiumUntil: 1 } as Save, base), false);
+  assert.equal(needsUpload({ ...base, balance: 123, cards: [makeCard(11)] } as Save, base), false, 'phần máy chủ giữ không gửi');
+  assert.equal(needsUpload({ ...base, event: { ...(base.event ?? {}), points: 50, free: 2 } } as Save, base), false);
+  assert.equal(needsUpload({ ...base, sound: !base.sound } as Save, base), true);
+  assert.equal(needsUpload({ ...base, squad: ['x'] } as Save, base), true);
+  assert.equal(needsUpload({ ...base, history: [{ id: 'new', time: 1, type: 'gift', title: 't', detail: 'd' }, ...base.history] } as Save, base), true);
+  assert.equal(needsUpload({ ...initialSave(), fc: 5 } as Save, initialSave()), true, 'chưa để máy chủ giữ kho thì so nguyên bản');
+  // Cửa hàng: chỉ đổi FC thì không gọi máy chủ.
+  const server = remote();
+  let writes = 0;
+  const api: SaveRemote = { ...server.api, async write(data, revision, merge) { writes++; if (merge) { const row = { data: structuredClone(data), revision: revision + 1 }; return row; } return server.api.write(data, revision); } };
+  const store = new CloudSaveStore('noop', api, disk());
+  await store.initialize();
+  store.setItem('', JSON.stringify({ ...state(store), inv: 1 }));
+  await store.flush();
+  const before = writes;
+  store.setItem('', JSON.stringify({ ...state(store), fc: 4242 }));
+  await store.flush();
+  assert.equal(writes, before);
+  assert.equal(state(store).fc, 4242, 'trên máy vẫn cập nhật');
+  assert.equal(store.status, 'saved');
 });

@@ -223,6 +223,14 @@ console.log('open OK');
   const fresh = await as(C, `select public.fco_commit_save($1::jsonb, 0)`, [initial({ balance: 777, cards: [{ uid: 'x', playerId: 1, level: 13, received: 0 }] })]);
   assert.equal(fresh.data.balance, 0); assert.deepEqual(fresh.data.cards, []);
   await assert.rejects(as(C, `select public.fco_spend_fc(10, 'shop', '{}'::jsonb)`), /FCO_UPDATE_REQUIRED/);
+  if (files.some(f => f.includes('202611120014'))) {
+    // Gửi lại bản lưu giống hệt (chỉ khác FC): không ghi lại, revision giữ nguyên.
+    const cur = await one(`select revision from public.fco_game_saves where user_id = $1`, [B]);
+    const same = await as(B, `select public.fco_commit_save($1::jsonb, $2, true)`, [JSON.stringify({ ...(await save(B)), fc: 123456 }), cur]);
+    assert.equal(same.revision, cur, 'không đổi gì thì không ghi');
+    const changed = await as(B, `select public.fco_commit_save($1::jsonb, $2, true)`, [JSON.stringify({ ...(await save(B)), sound: !(await save(B)).sound }), cur]);
+    assert.equal(changed.revision, cur + 1, 'có đổi thì vẫn ghi');
+  }
   console.log('merge / enforce OK');
 }
 

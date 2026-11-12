@@ -99,7 +99,7 @@ export default function BilacPage({ fc, bilac, loadConfig, loadJackpot, onPlay, 
   useEffect(() => {
     let alive = true;
     const update = () => { if (document.visibilityState === 'visible') loadJackpot().then(j => { if (alive) setJackpot(j); }).catch(() => { /* lần sau thử lại */ }); };
-    update(); const id = setInterval(update, 3000);
+    update(); const id = setInterval(update, 6000); // 6 giây: mỗi lần hỏi máy chủ cập nhật quỹ (ghi đĩa)
     return () => { alive = false; clearInterval(id); };
   }, [loadJackpot]);
   const toggleEffects = () => setEffects(on => { try { localStorage.setItem(EFFECTS_KEY, on ? 'off' : 'on'); } catch { /* bỏ qua */ } return !on; });

@@ -164,7 +164,7 @@ function SavedGame({ user, maintenance, onSignOut, onDeleted }: { user: User; ma
     setStore(next);
     void next.initialize().catch(() => {});
     const refresh = () => { if (document.visibilityState === 'visible') void next.refresh(); };
-    const timer = window.setInterval(refresh, 15000);
+    const timer = window.setInterval(refresh, 30000);
     window.addEventListener('focus', refresh);
     document.addEventListener('visibilitychange', refresh);
     const beforeUnload = (event: BeforeUnloadEvent) => { if (next.status !== 'saved') { event.preventDefault(); event.returnValue = ''; } };
