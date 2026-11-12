@@ -16,8 +16,8 @@ const cardWith = (rating: number, level = 1, skip: number[] = []) => {
   if (!player) throw new Error(`Không có cầu thủ OVR ${rating} ở +${level}`);
   return { ...makeCard(player.id), level };
 };
-test('3971 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 165 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS, 34 JNM, 20 25HR, 98 26UP, 32 LIVE, 14 24HR, 17 CA, 9 26HR và 16 LD; mọi gói đủ 100%', () => {
-  assert.equal(players.length, 3971);
+test('4070 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 165 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS, 34 JNM, 20 25HR, 98 26UP, 32 LIVE, 14 24HR, 17 CA, 9 26HR, 16 LD và 98 WS; mọi gói đủ 100%', () => {
+  assert.equal(players.length, 4070);
   assert.equal(players.filter(p => p.tier === 'live').length, 32);
   assert.equal(players.filter(p => p.tier === 'hw23').length, 195);
   assert.equal(players.filter(p => p.tier === 'ep24').length, 208);
@@ -39,6 +39,7 @@ test('3971 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRI
   assert.equal(players.filter(p => p.tier === 'chelsea').length, 17);
   assert.equal(players.filter(p => p.tier === 'hr26').length, 9);
   assert.equal(players.filter(p => p.tier === 'ld').length, 16);
+  assert.equal(players.filter(p => p.tier === 'ws').length, 98);
   assert.equal(players.filter(p => p.tier === 'up26').length, 98);
   assert.equal(players.filter(p => p.tier === 'bdo').length, 108);
   assert.equal(players.filter(p => p.tier === 'wg').length, 155);
@@ -59,7 +60,7 @@ test('3971 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRI
   assert.equal(players.filter(p => p.tier === 'prime').length, 60);
   assert.equal(players.filter(p => p.tier === 'origin').length, 24);
   assert.equal(players.filter(p => p.tier === 'stellar').length, 160);
-  assert.equal(players.filter(p => p.tier === 'eternal').length, 133);
+  assert.equal(players.filter(p => p.tier === 'eternal').length, 134);
   // Gói hỗn hợp để weights toàn 0 (tỷ lệ mùa tính từ nhóm cầu thủ gộp), gói một mùa cộng đủ 100%.
   for (const p of packs) assert.equal(p.weights.reduce((a, b) => a + b, 0), p.seasons ? 0 : 100);
 });
