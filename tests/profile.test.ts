@@ -5,7 +5,7 @@ import { accountTierOf, isBirthday, playedDays } from '../src/profile.ts';
 import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import ProfileCard from '../src/ProfileCard.tsx';
+import ProfileCard, { EffectPicker } from '../src/ProfileCard.tsx';
 import { NAME_EFFECTS } from '../src/name-effects.ts';
 
 test('Thông tin HLV: sinh nhật chỉ ngày/tháng hợp lệ, giới tính trong danh sách; phần sai bị bỏ khi đọc bản lưu', () => {
@@ -66,9 +66,15 @@ test('Hiệu ứng avatar + tên: danh sách khớp ràng buộc máy chủ; Cla
   const premium = render('premium', 'fire');
   assert.match(premium, /profile-avatar is-premium fx-avatar fx-fire/);
   assert.match(premium, /<b class="fx-name fx-fire">abc<\/b>/);
-  assert.match(premium, /aria-pressed="true"[^>]*><span class="fx-preview fx-avatar fx-fire"/);
+  // Nút "Hiệu ứng" nằm trong ô tên / avatar (profile-hero), ghi hiệu ứng đang dùng; lưới chọn đóng sẵn.
+  assert.match(premium, /class="profile-hero"[\s\S]*class="profile-fx-button" aria-expanded="false"[\s\S]*Hiệu ứng<small>Lửa<\/small>/);
+  assert.doesNotMatch(premium, /profile-effect-grid/);
+  const picker = (premiumOn: boolean, shown: 'fire' | null) => renderToStaticMarkup(createElement(EffectPicker, { premium: premiumOn, shown, initials: 'ABC', busy: false, onPick() {} }));
+  assert.match(picker(true, 'fire'), /aria-pressed="true"[^>]*><span class="fx-preview fx-avatar fx-fire"/);
   const classic = render('classic', 'fire');
   assert.doesNotMatch(classic, /profile-avatar[^"]*fx-avatar/, 'Classic không hiện hiệu ứng dù còn lựa chọn cũ');
-  assert.match(classic, /Dành cho tài khoản Premium/);
-  assert.equal((classic.match(/class="profile-effect"[^>]*disabled/g) ?? []).length, NAME_EFFECTS.length + 1);
+  assert.match(classic, /Hiệu ứng<small>Premium<\/small>/);
+  const locked = picker(false, null);
+  assert.match(locked, /Dành cho tài khoản Premium/);
+  assert.equal((locked.match(/class="profile-effect"[^>]*disabled/g) ?? []).length, NAME_EFFECTS.length + 1);
 });

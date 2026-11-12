@@ -4,7 +4,7 @@ import { CrowdAudio, savePenaltyMute, savedPenaltyMute } from './penalty-audio';
 import { BALL_SPOT, SHOT_KINDS, SWEEP_MAX, aimToStage, bezier, flightPath, goalSweepSpeed, keeperToStage, missTargets, sweepMultiplier } from './penalty';
 import type { PenaltyShot, PenaltyStart, Point, ShotKind } from './penalty';
 
-// Mini game Sút phạt đền (mục "Sút phạt" trên thanh dưới). Vạch ngắm lắc qua lại trên khung thành, ↑ / ↓ chỉnh độ cao, chọn kiểu sút
+// Mini game Penalty — sút phạt đền (nút "Penalty" ở menu trang chủ, trước là mục "Sút phạt" trên thanh dưới). Vạch ngắm lắc qua lại trên khung thành, ↑ / ↓ chỉnh độ cao, chọn kiểu sút
 // (Thường / Xoáy / Căng / Trivela, phím 1–4), SÚT (hoặc Space). Máy chủ quyết định vào / bị bắt / vọt xà / dội cột
 // (supabase/migrations/202611110005_fco_penalty.sql, 202611110006_fco_penalty_kinds.sql): mỗi bàn +1 điểm, không vào là hết lượt,
 // kỷ lục lên BXH. Hình vẽ bằng SVG riêng của FCO VIP; vị trí tính theo % sân khấu 16:10 (src/penalty.ts).
@@ -641,9 +641,9 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot }: Props
   const aiming = phase === 'aiming' || phase === 'idle';
   const current = SHOT_KINDS.find(k => k.id === kind)!;
 
-  return <section className={`workspace penalty-page${reduced ? ' is-reduced' : ''}`} aria-label="Sút phạt đền">
+  return <section className={`workspace penalty-page${reduced ? ' is-reduced' : ''}`} aria-label="Penalty">
     <header className="pk-head">
-      <h1><Target aria-hidden="true"/>Sút phạt đền</h1>
+      <h1><Target aria-hidden="true"/>Penalty</h1>
       <div className="pk-score" role="status">
         <button type="button" className="pk-sound" onClick={toggleMute} aria-pressed={!muted} aria-label={muted ? 'Bật tiếng khán giả' : 'Tắt tiếng khán giả'} title={muted ? 'Bật tiếng khán giả' : 'Tắt tiếng khán giả'}>{muted ? <VolumeX size={16}/> : <Volume2 size={16}/>}</button><span className={`pk-speed${goalSweepSpeed(streak) >= SWEEP_MAX ? ' is-max' : streak > 0 ? ' is-up' : ''}`} title="Vạch ngắm lắc nhanh dần theo chuỗi bàn">Tốc độ <b>×{sweepMultiplier(streak).toLocaleString('vi-VN')}</b></span><span>Bàn thắng <b>{streak}</b></span><span><Trophy size={14} aria-hidden="true"/>Kỷ lục <b>{best}</b></span></div>
     </header>
@@ -673,7 +673,7 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot }: Props
       {(phase === 'idle' || phase === 'starting' || phase === 'over') && <div className="pk-overlay">
         {phase === 'over'
           ? <><h2>Hết lượt</h2><p>Bạn ghi được <b>{streak}</b> bàn liên tiếp.{streak > 0 && streak >= best ? ' Kỷ lục mới!' : ` Kỷ lục: ${best} bàn.`}</p></>
-          : <><h2>Sút phạt đền</h2><p>Canh vạch ngắm đang lắc, chỉnh độ cao bằng ↑ ↓, chọn kiểu sút rồi bấm <b>SÚT</b>. Mỗi bàn +1 điểm; bị bắt, vọt xà hay dội cột là hết lượt. Sút càng sát góc càng khó bắt.</p></>}
+          : <><h2>Penalty</h2><p>Canh vạch ngắm đang lắc, chỉnh độ cao bằng ↑ ↓, chọn kiểu sút rồi bấm <b>SÚT</b>. Mỗi bàn +1 điểm; bị bắt, vọt xà hay dội cột là hết lượt. Sút càng sát góc càng khó bắt.</p></>}
         <div className="pk-shooters" role="radiogroup" aria-label="Chọn cầu thủ sút">
           {SHOOTERS.map(s => <button key={s.id} type="button" role="radio" aria-checked={shooter === s.id} className={`pk-shooter is-${s.id}`} onClick={() => pickShooter(s.id)} disabled={phase === 'starting'}>
             <span className="pk-shooter-art" aria-hidden="true">{s.id === 'ronaldo' ? <StrikerRonaldo/> : <Striker/>}</span>

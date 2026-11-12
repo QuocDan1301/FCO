@@ -703,4 +703,39 @@ if (files.some(f => f.includes('202611120007'))) {
   console.log('ranked premium ring OK');
 }
 
+// 26. Dòng LIVE (202611120008): mở / đập thẻ OVR > 133 và lên Top 1 BXH đăng tin chung; dưới mốc thì không.
+if (files.some(f => f.includes('202611120008'))) {
+  await db.query(`delete from public.fco_live_feed`);
+  const lvl = p => p[2].findIndex(o => o > 133) + 1, high = catalog.players.find(p => lvl(p) > 0), low = catalog.players.find(p => p[2][0] !== null && p[2][0] <= 133);
+  await db.exec(`select set_config('test.uid', '${B}', false)`);
+  await one(`select public.fco_inv_best($1::jsonb)`, [JSON.stringify([{ uid: 'x1', playerId: low[0], level: 1 }])]);
+  assert.equal(await one(`select count(*)::integer from public.fco_live_feed`), 0, 'thẻ dưới mốc không đăng tin');
+  const best = await one(`select public.fco_inv_best($1::jsonb)`, [JSON.stringify([{ uid: 'x1', playerId: low[0], level: 1 }, { uid: 'x2', playerId: high[0], level: lvl(high) }])]);
+  assert.match(best, new RegExp(`OVR ${high[2][lvl(high) - 1]}$`), 'vẫn trả thẻ tốt nhất như trước');
+  await db.exec(`select set_config('test.uid', '', false)`);
+  await one(`select public.fco_stp_mission_upgrade($1, $2, $3)`, [C, high[0], lvl(high)]);
+  await one(`select public.fco_stp_mission_upgrade($1, $2, 1)`, [C, low[0]]);
+  let feed = await as(B, `select public.fco_live_feed()`);
+  assert.deepEqual(feed.map(f => f.kind), ['upgrade', 'pack']);
+  assert.match(feed[1].text, /mở được/); assert.match(feed[0].text, /đập thành công/);
+  // Top 1: vượt hẳn người khác thì đăng, lần 2 trong 6 giờ thì không.
+  const topOvr = await one(`select coalesce(max(best_ovr), 0) from public.fco_ranks`);
+  await db.query(`insert into public.fco_ranks(user_id, best_ovr, best_at) values ($1, $2, now()) on conflict (user_id) do update set best_ovr = excluded.best_ovr`, [C, topOvr + 5]);
+  await db.query(`update public.fco_ranks set best_ovr = best_ovr + 1 where user_id = $1`, [C]);
+  feed = await as(B, `select public.fco_live_feed()`);
+  assert.equal(feed.filter(f => f.kind === 'top:ovr').length, 1);
+  assert.match(feed[0].text, /Top 1 BXH Đập thẻ OVR/);
+  await assert.rejects(as(B, `select public.fco_live_post($1, 'x', 'spam')`, [B]), /permission denied/);
+  if (files.some(f => f.includes('202611120009'))) {
+    await as(A, `select public.fco_admin_account_tier($1, 'premium')`, [C]);
+    await as(C, `select public.fco_set_name_effect('neon')`);
+    feed = await as(B, `select public.fco_live_feed()`);
+    assert.equal(feed[0].effect, 'neon'); assert.ok(feed[0].name && feed[0].text.includes(feed[0].name), 'tên nằm trong câu để tô hiệu ứng');
+    await as(A, `select public.fco_admin_account_tier($1, 'classic')`, [C]);
+    feed = await as(B, `select public.fco_live_feed()`);
+    assert.equal(feed[0].effect, null, 'hết Premium thì không còn hiệu ứng');
+  }
+  console.log('live feed OK');
+}
+
 console.log('ALL OK');

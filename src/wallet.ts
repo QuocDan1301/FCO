@@ -52,6 +52,10 @@ export const claimStpMission = (id: StpMissionId) => call<{ wallet: Wallet; rewa
 // Logo CLB tự chọn (202611120004).
 export const setClubLogo = (club: string | null) => call<Wallet>('fco_set_club_logo', { p_club: club });
 export const fetchRanked = () => call<RankedState>('fco_ranked_state');
+// Dòng LIVE trang chủ (migration 202611120008): tin chúc mừng chung, mới nhất trước.
+// name / effect: tên + hiệu ứng tên Premium hiện tại của HLV (migration 202611120009).
+export type LiveItem = { id: number; at: number; kind: string; text: string; name?: string | null; effect?: string | null };
+export const fetchLiveFeed = () => call<LiveItem[]>('fco_live_feed');
 export const finishRanked = () => call<RankedFinish>('fco_ranked_finish');
 export const abandonRanked = () => call<RankedFinish>('fco_ranked_abandon');
 export const playRanked = (team: { formation: string; slots: { uid: string; role: string; x: number; y: number; ovr: number }[] }) => call<RankedMatch>('fco_ranked_play', { p_team: team });

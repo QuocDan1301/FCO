@@ -17,9 +17,27 @@ const dateText = (ms: number) => new Date(ms).toLocaleDateString('vi-VN', { time
 const genderLabel = (id: string | undefined) => GENDERS.find(g => g.id === id)?.label;
 
 // effect: hiệu ứng avatar + tên đang dùng (chỉ Premium); onEffect gửi lựa chọn lên máy chủ (null = tắt).
-type Props = { save: Save; accountId?: string; accountEmail?: string | null; club?: string | null; onClub?: (club: string | null) => Promise<boolean> | boolean; joined?: number | null; tier?: AccountTier | null; effect?: NameEffect | null; onEffect?: (effect: NameEffect | null) => Promise<boolean> | boolean; onSave: (profile: Profile) => void; onSettings: () => void; onClose: () => void };
+type Props = { save: Save; accountId?: string; accountEmail?: string | null; club?: string | null; onClub?: (club: string | null) => Promise<boolean> | boolean; joined?: number | null; tier?: AccountTier | null; effect?: NameEffect | null;
+  // Con trỏ chuột theo hiệu ứng: đang bật? và hàm bật / tắt (lưu trên máy này).
+  cursorOn?: boolean; onCursor?: (on: boolean) => void; onEffect?: (effect: NameEffect | null) => Promise<boolean> | boolean; onSave: (profile: Profile) => void; onSettings: () => void; onClose: () => void };
 
-export default function ProfileCard({ save, accountId, accountEmail = null, club = null, onClub, joined, tier: tierId, effect = null, onEffect, onSave, onSettings, onClose }: Props) {
+// Lưới chọn hiệu ứng avatar + tên (mở từ nút "Hiệu ứng" trong ô tên / avatar HLV). Classic: khoá hết, gợi ý liên hệ admin.
+export function EffectPicker({ premium, shown, initials, busy, onPick }: { premium: boolean; shown: NameEffect | null; initials: string; busy: boolean; onPick: (fx: NameEffect | null) => void }) {
+  return <>
+    <p>{premium ? 'Chọn hiệu ứng hiện ở avatar, bảng thông tin và tên của bạn trên BXH.' : 'Dành cho tài khoản Premium. Liên hệ admin để được nâng cấp.'}</p>
+    <div className="profile-effect-grid">
+      <button type="button" className="profile-effect" aria-pressed={premium && !shown} disabled={!premium || busy} onClick={() => onPick(null)}>
+        <span className="fx-preview">{initials}</span><b>Không hiệu ứng</b><small>Avatar và tên thường</small>
+      </button>
+      {NAME_EFFECTS.map(fx => <button type="button" key={fx.id} className="profile-effect" aria-pressed={shown === fx.id} disabled={!premium || busy} onClick={() => onPick(fx.id)}>
+        <span className={`fx-preview${avatarEffectClass(fx.id)}`}>{premium ? initials : <Lock size={13}/>}</span>
+        <b className={nameEffectClass(fx.id).trim()}>{fx.name}</b><small>{fx.description}</small>
+      </button>)}
+    </div>
+  </>;
+}
+
+export default function ProfileCard({ save, accountId, accountEmail = null, club = null, onClub, joined, tier: tierId, effect = null, cursorOn = true, onCursor, onEffect, onSave, onSettings, onClose }: Props) {
   const profile = save.profile ?? {};
   const needGender = !profile.gender, needBirthday = !profile.birthday;
   const [gender, setGender] = useState('');
@@ -36,6 +54,8 @@ export default function ProfileCard({ save, accountId, accountEmail = null, club
     try { await onEffect(next); } finally { setEffectBusy(false); }
   };
   const initials = (accountId ?? 'HLV').slice(0, 3).toUpperCase();
+  const [fxOpen, setFxOpen] = useState(false);
+  const fxName = NAME_EFFECTS.find(fx => fx.id === shown)?.name ?? 'Không hiệu ứng';
   const maxDay = month ? MONTH_DAYS[month - 1] : 31;
   const birthday = day && month && day <= maxDay ? `${pad(day)}-${pad(month)}` : null;
   const ready = (!needGender || !!gender) && (!needBirthday || !!birthday);
@@ -46,7 +66,19 @@ export default function ProfileCard({ save, accountId, accountEmail = null, club
     <div className="profile-hero">
       <span className={`profile-avatar is-${tier.id}${avatarEffectClass(shown)}`} aria-hidden="true">{clubLogoUrl(club) ? <img className="profile-avatar-club" src={clubLogoUrl(club)!} alt=""/> : initials}</span>
       <div><b className={nameEffectClass(shown).trim() || undefined}>{accountId ?? 'Huấn luyện viên'}</b><span className={`profile-tier is-${tier.id}`}><Crown size={13}/>{tier.name}</span></div>
+      {/* Nút hiệu ứng avatar + tên ngay trong ô HLV: bấm để mở / đóng lưới chọn. */}
+      <button type="button" className="profile-fx-button" aria-expanded={fxOpen} aria-controls="profile-effects" onClick={() => setFxOpen(o => !o)}
+        title={premium ? 'Chọn hiệu ứng avatar và tên' : 'Hiệu ứng avatar và tên dành cho tài khoản Premium'}>
+        {premium ? <Sparkles size={16}/> : <Lock size={15}/>}<span>Hiệu ứng<small>{premium ? fxName : 'Premium'}</small></span>
+      </button>
     </div>
+    {fxOpen && <section id="profile-effects" className="profile-effects is-pop" aria-label="Hiệu ứng avatar và tên">
+      <EffectPicker premium={premium} shown={shown} initials={initials} busy={effectBusy} onPick={fx => void pickEffect(fx)}/>
+      {premium && onCursor && <label className="profile-fx-cursor">
+        <input type="checkbox" checked={cursorOn} onChange={e => onCursor(e.target.checked)}/>
+        <span><b>Con trỏ chuột theo hiệu ứng</b><small>{shown ? 'Mũi chuột đổi màu theo hiệu ứng đang dùng' : 'Chọn một hiệu ứng để đổi màu mũi chuột'}</small></span>
+      </label>}
+    </section>}
     <dl className="profile-rows">
       <div><dt><IdCard size={15}/>ID</dt><dd>{accountId ?? '—'}</dd></div>
       <div><dt><UserRound size={15}/>Giới tính</dt><dd>{needGender
@@ -67,19 +99,6 @@ export default function ProfileCard({ save, accountId, accountEmail = null, club
     {(needGender || needBirthday)
       ? <p className="profile-hint">Giới tính và sinh nhật chỉ lưu được một lần, hãy chọn đúng trước khi lưu.</p>
       : <p className="profile-note">Thông tin đã lưu và không thể thay đổi.</p>}
-    <section className="profile-effects" aria-label="Hiệu ứng avatar và tên">
-      <h3><Sparkles size={15}/>Hiệu ứng avatar và tên</h3>
-      <p>{premium ? 'Chọn hiệu ứng hiện ở avatar, bảng thông tin và tên của bạn trên BXH.' : 'Dành cho tài khoản Premium. Liên hệ admin để được nâng cấp.'}</p>
-      <div className="profile-effect-grid">
-        <button type="button" className="profile-effect" aria-pressed={premium && !shown} disabled={!premium || effectBusy} onClick={() => void pickEffect(null)}>
-          <span className="fx-preview">{initials}</span><b>Không hiệu ứng</b><small>Avatar và tên thường</small>
-        </button>
-        {NAME_EFFECTS.map(fx => <button type="button" key={fx.id} className="profile-effect" aria-pressed={shown === fx.id} disabled={!premium || effectBusy} onClick={() => void pickEffect(fx.id)}>
-          <span className={`fx-preview${avatarEffectClass(fx.id)}`}>{premium ? initials : <Lock size={13}/>}</span>
-          <b className={nameEffectClass(fx.id).trim()}>{fx.name}</b><small>{fx.description}</small>
-        </button>)}
-      </div>
-    </section>
     <div className="profile-actions">
       <button className="secondary-button" onClick={onSettings}><Settings2 size={15}/>Cài đặt trò chơi</button>
       {(needGender || needBirthday) && <button className="primary-button" onClick={() => setConfirming(true)} disabled={!ready}>Lưu thông tin</button>}

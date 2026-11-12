@@ -43,3 +43,7 @@
 .profile-effect .fx-preview{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:#1c2330;font-family:var(--display);font-weight:700;font-size:12px}
 .profile-effect b{font-size:13px}
 .profile-effect small{color:var(--muted);font-size:11px;line-height:1.3}
+/* Con trỏ chuột theo hiệu ứng Premium (src/fx-cursor.ts gắn class fx-cursor + biến --fx-cursor / --fx-cursor-pointer lên <html>). */
+html.fx-cursor,html.fx-cursor body{cursor:var(--fx-cursor),auto}
+html.fx-cursor :is(button:not(:disabled),a[href],[role=button],select,summary,label:has(input[type=checkbox])){cursor:var(--fx-cursor-pointer),pointer!important}
+html.fx-cursor :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=button]):not([type=submit]),textarea){cursor:text}

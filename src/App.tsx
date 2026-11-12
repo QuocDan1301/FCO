@@ -14,6 +14,9 @@ import './penalty.css';
 import './stp.css';
 import './ranked.css';
 import RankedPage from './RankedPage';
+import HomeModes from './HomeModes';
+import { liveTopMessages } from './live-tops';
+import { applyFxCursor, saveFxCursor, savedFxCursor } from './fx-cursor';
 import { clubLogoUrl } from './club-logo';
 import { STP_ICON, findStpPackage, grantStp, stpSummary } from './stp';
 import type { StpPackageId, TaxVoucher } from './stp';
@@ -21,7 +24,7 @@ import StpMissions from './StpMissions';
 import { claimableMissions } from './stp-missions';
 import type { StpMissionId, StpMissionState } from './stp-missions';
 import { applyAdminGifts, applyGiftRewards, giftRewardText, prepareGiftCode } from './gift-codes';
-import { LOGIN_FOR_FC, setClubLogo, fetchRanked, finishRanked, abandonRanked, playRanked, buyStpPackage, claimStpMission, fetchStpMissions, fetchStpToday, penaltyShoot, penaltyStart, setNameEffect as setNameEffectOnServer, ackMyGifts, applyWallet, claimBilac, claimDailyFc, claimMissionFc, fetchBilacConfig, fetchJackpot, fetchLeaderboard, fetchMyGifts, fetchServerNow, fetchWallet, heartbeat, playBilac, playEventFc, redeemGiftHash, reportSquadRank, reportUpgradeRank, spendFc, buyMembership } from './wallet';
+import { LOGIN_FOR_FC, setClubLogo, fetchLiveFeed, fetchRanked, finishRanked, abandonRanked, playRanked, buyStpPackage, claimStpMission, fetchStpMissions, fetchStpToday, penaltyShoot, penaltyStart, setNameEffect as setNameEffectOnServer, ackMyGifts, applyWallet, claimBilac, claimDailyFc, claimMissionFc, fetchBilacConfig, fetchJackpot, fetchLeaderboard, fetchMyGifts, fetchServerNow, fetchWallet, heartbeat, playBilac, playEventFc, redeemGiftHash, reportSquadRank, reportUpgradeRank, spendFc, buyMembership } from './wallet';
 import AdminPanel from './AdminPanel';
 import { CHECKIN_REWARDS, checkinReward } from './checkin';
 import type { BilacState, Checkin, Wallet } from './wallet-state';
@@ -47,7 +50,6 @@ import PackOpening from './cinema/PackOpening';
 import PackImage from './PackImage';
 import ViewportPages from './ViewportPages';
 import Progressive from './Progressive';
-import AssetProgressRing from './AssetProgress';
 import PackStage from './cinema/PackStage';
 import { GATE_CROSS, OPENING_CUES, OPENING_ENTRY, OPENING_RESULT, openingPhase } from './cinema/timeline';
 import { unlockCinemaAudio } from './cinema/audio';
@@ -75,6 +77,7 @@ import { prefetchImages } from './preload';
 import { getTeamLogo } from './teamLogos';
 import { asset } from './asset';
 import LiveTicker from './LiveTicker';
+import type { TickerMessage } from './LiveTicker';
 import { posGroup, seasonShort } from './badges';
 import EventPage from './EventPage';
 import { EVENT_MISSIONS, claimMilestone, eventState, findPack, grantRewards, missionProgress, recordEventPlay } from './event';
@@ -381,6 +384,10 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const [accountTier, setAccountTier] = useState<Wallet['tier'] | null>(null);
   // Hiệu ứng avatar + tên của tài khoản Premium (máy chủ chỉ trả về khi là Premium).
   const [nameEffect, setNameEffect] = useState<NameEffect | null>(null);
+  // Con trỏ chuột theo hiệu ứng Premium (bật / tắt trong Thông tin HLV, lưu trên máy này).
+  const [fxCursor, setFxCursor] = useState(savedFxCursor);
+  const toggleFxCursor = (on: boolean) => { setFxCursor(on); saveFxCursor(on); };
+  useEffect(() => { applyFxCursor(accountTier === 'premium' && fxCursor ? nameEffect : null); return () => applyFxCursor(null); }, [accountTier, nameEffect, fxCursor]);
   // Logo CLB tự chọn: avatar trên thanh trên cùng, Thông tin HLV, BXH, đội GLXH (máy chủ lưu, migration 202611120004).
   const [clubLogo, setClubLogoState] = useState<string | null>(null);
   const chooseClub = async (club: string | null) => {
@@ -479,20 +486,30 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const unseenCount = save.history.filter(entry => entry.time > seen.history).length;
   // Trang chủ: nút "Mở gói ngay" mở gói của mùa đang giới thiệu (ICON TM); tin Live lấy từ lịch sử thật + mẹo.
   const featuredPack = packs.find(pack => pack.id === 'eternal') ?? selectedPack;
-  const tickerMessages = useMemo(() => {
-    const news = save.history.slice(0, 8).flatMap(entry => {
-      if (entry.type === 'upgrade' && entry.success) { const step = entry.detail.match(/→ \+(\d+)/); return [`🔥 [Hệ thống] Chúc mừng HLV vừa nâng cấp thành công ${entry.title.replace('Thành công · ', '')}${step ? ` lên +${step[1]}` : ''}!`]; }
-      if (entry.type === 'pack') { const [name, rating] = entry.detail.split(' · '); return [`🎁 [Mở gói] HLV vừa nhận ${name}${rating?.startsWith('OVR') ? ` (${rating})` : ''} từ ${entry.title.replace(/^Mở /, '')}.`]; }
-      return [];
-    }).slice(0, 3);
-    return [
-      ...news,
-      UNLIMITED_COINS ? '✨ [Mẹo] Bạn đang ở Chế độ thử nghiệm với số BP vô hạn, hãy thoải mái trải nghiệm tại TTCN và Nâng cấp thẻ.' : '✨ [Mẹo] Bán thẻ dư tại TTCN để có thêm BP nâng cấp.',
-      '💡 [Mẹo] Dùng bản sao (cùng cầu thủ, cùng mùa) làm phôi để có cơ hội khôi phục cấp khi đập thẻ từ +5 thất bại.',
-      '🎯 [Mẹo] Bấm "Chọn tự động" ở màn nâng cấp để có bộ phôi rẻ nhất đủ 5 vạch.',
-      ...(dailyClaimed ? [] : [`🎁 [Quà] Điểm danh mỗi ngày nhận ngay ${money(DAILY_FC)} FC ở hộp quà trên thanh trên cùng.`]),
-    ];
-  }, [save.history, dailyClaimed]);
+  // Dòng LIVE: chỉ tin chúc mừng chung từ máy chủ (mở / đập thẻ OVR > 133, lên Top 1 BXH), tải lại mỗi 30 giây; không có tin thì để trống.
+  const [liveFeed, setLiveFeed] = useState<TickerMessage[]>([]);
+  useEffect(() => {
+    if (!online) { setLiveFeed([]); return; }
+    let alive = true;
+    const load = () => { void fetchLiveFeed().then(items => { if (alive) setLiveFeed(items.map(item => ({ text: item.text, name: item.name, effect: item.effect }))); }).catch(() => {}); };
+    load();
+    const timer = window.setInterval(load, 30000);
+    return () => { alive = false; clearInterval(timer); };
+  }, [online]);
+  // Không có tin chúc mừng: lần lượt Top 1, 2, 3 của từng mục BXH (chỉ tải khi đang ở trang chủ, mỗi phút một lần).
+  const [liveTops, setLiveTops] = useState<TickerMessage[]>([]);
+  useEffect(() => {
+    if (!online || view !== 'packs' || liveFeed.length) return;
+    let alive = true;
+    const playerOf = (playerId: number) => { try { const p = getPlayer({ playerId } as Card); return { name: p.name, season: seasonShort(p.tier) }; } catch { return undefined; } };
+    const load = () => { void Promise.allSettled([fetchLeaderboard(), fetchRanked()]).then(([board, ranked]) => {
+      if (alive) setLiveTops(liveTopMessages(board.status === 'fulfilled' ? board.value : null, ranked.status === 'fulfilled' ? ranked.value.top : null, playerOf));
+    }); };
+    load();
+    const timer = window.setInterval(load, 60000);
+    return () => { alive = false; clearInterval(timer); };
+  }, [online, view, liveFeed.length]);
+  const tickerMessages = liveFeed.length ? liveFeed : liveTops;
   const notify = (message: string) => setToast(message);
   useEffect(() => { if (!toast) return; const timer = setTimeout(() => setToast(''), 5500); return () => clearTimeout(timer); }, [toast]);
   useEffect(() => {
@@ -1053,10 +1070,10 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const resetFilters = () => { setQuery(''); setPosition(''); setSeason(''); setLevel(''); setMinOvr(''); setSort('ovr'); };
 
   return <div className={`app min-h-screen antialiased ${save.reduced ? 'reduced-motion' : ''}`}>
-    <header className="topbar"><a className="brand" href="#" onClick={e => { e.preventDefault(); switchView('packs'); }} aria-label="FCO VIP, trang chủ"><img src={asset('/assets/fco-vip-logo.png')} alt=""/><span>FCO<b>VIP</b></span></a><div className="header-tag"><span><span className="live-dot"/>Sân chơi của những huyền thoại</span><small title="Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.">Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.</small></div><div className="topbar-actions"><div className="wallet"><img className="coin-icon currency-icon" src={asset('/assets/currency-bp.png')} alt="BP"/><div><small>{UNLIMITED_COINS ? 'Chế độ thử nghiệm' : 'Số dư của bạn'}</small><b>{UNLIMITED_COINS ? '∞' : money(save.balance)} <span>BP</span></b></div></div><div className="wallet wallet-fc" title="FC dùng để chơi sự kiện Nâng Cấp Siêu Sao"><img className="coin-icon currency-icon" src={asset('/assets/currency-fc.png')} alt="FC"/><div><small>FC của bạn</small><b>{UNLIMITED_COINS ? '∞' : money(save.fc ?? 0)} <span>FC</span></b></div></div><button className="wallet wallet-stp" onClick={() => setMissionsOpen(true)} title="Star Point · bấm để xem nhiệm vụ nhận STP" aria-label={`Star Point ${money(save.stp ?? 0)} · Nhiệm vụ Star Point${claimableMissions(missions) ? ` · ${claimableMissions(missions)} phần thưởng chờ nhận` : ''}`}><img className="coin-icon currency-icon" src={asset(STP_ICON)} alt="STP"/><div><small>Star Point</small><b>{money(save.stp ?? 0)} <span>STP</span></b></div>{claimableMissions(missions) > 0 && <i className="wallet-stp-dot" aria-hidden="true"/>}</button><AssetProgressRing/><button className={`topbar-gift ${dailyClaimed ? '' : 'has-gift'}`} onClick={daily} aria-label={dailyClaimed ? 'Quà mỗi ngày · đã điểm danh hôm nay' : `Quà mỗi ngày · nhận ${money(DAILY_FC)} FC`} title={dailyClaimed ? 'Quà mỗi ngày · đã nhận hôm nay' : `Quà mỗi ngày · nhận ${money(DAILY_FC)} FC`}><Gift size={22}/>{!dailyClaimed && <i className="topbar-gift-dot" aria-hidden="true"/>}</button><BackgroundMusic suspended={upgradeMusicActive || view === 'penalty' || (view === 'ranked' && rankedMatchActive)} musicType={musicType}/><button className={`avatar${accountTier === 'premium' ? avatarEffectClass(nameEffect) : ''}`} aria-label="Thông tin HLV" onClick={() => setProfileOpen(true)} title={accountName ? `Huấn luyện viên ${accountName}` : undefined}>{clubLogoUrl(clubLogo) ? <img className="avatar-club" src={clubLogoUrl(clubLogo)!} alt=""/> : accountName ? accountName.slice(0, 3).toUpperCase() : 'HLV'}</button></div></header>
+    <header className="topbar"><a className="brand" href="#" onClick={e => { e.preventDefault(); switchView('packs'); }} aria-label="FCO VIP, trang chủ"><img src={asset('/assets/fco-vip-logo.png')} alt=""/><span>FCO<b>VIP</b></span></a><div className="topbar-actions"><div className="wallet"><img className="coin-icon currency-icon" src={asset('/assets/currency-bp.png')} alt="BP"/><div><small>{UNLIMITED_COINS ? 'Chế độ thử nghiệm' : 'Số dư của bạn'}</small><b>{UNLIMITED_COINS ? '∞' : money(save.balance)} <span>BP</span></b></div></div><div className="wallet wallet-fc" title="FC dùng để chơi sự kiện Nâng Cấp Siêu Sao"><img className="coin-icon currency-icon" src={asset('/assets/currency-fc.png')} alt="FC"/><div><small>FC của bạn</small><b>{UNLIMITED_COINS ? '∞' : money(save.fc ?? 0)} <span>FC</span></b></div><button type="button" className="wallet-plus" onClick={() => notify('Vui lòng liên hệ admin')} aria-label="Nạp thêm FC" title="Nạp thêm FC">+</button></div><button className="wallet wallet-stp" onClick={() => setMissionsOpen(true)} title="Star Point · bấm để xem nhiệm vụ nhận STP" aria-label={`Star Point ${money(save.stp ?? 0)} · Nhiệm vụ Star Point${claimableMissions(missions) ? ` · ${claimableMissions(missions)} phần thưởng chờ nhận` : ''}`}><img className="coin-icon currency-icon" src={asset(STP_ICON)} alt="STP"/><div><small>Star Point</small><b>{money(save.stp ?? 0)} <span>STP</span></b></div>{claimableMissions(missions) > 0 && <i className="wallet-stp-dot" aria-hidden="true"/>}</button><button className={`topbar-gift ${dailyClaimed ? '' : 'has-gift'}`} onClick={daily} aria-label={dailyClaimed ? 'Quà mỗi ngày · đã điểm danh hôm nay' : `Quà mỗi ngày · nhận ${money(DAILY_FC)} FC`} title={dailyClaimed ? 'Quà mỗi ngày · đã nhận hôm nay' : `Quà mỗi ngày · nhận ${money(DAILY_FC)} FC`}><Gift size={22}/>{!dailyClaimed && <i className="topbar-gift-dot" aria-hidden="true"/>}</button><BackgroundMusic suspended={upgradeMusicActive || view === 'penalty' || (view === 'ranked' && rankedMatchActive)} musicType={musicType}/><button className={`avatar${accountTier === 'premium' ? avatarEffectClass(nameEffect) : ''}`} aria-label="Thông tin HLV" onClick={() => setProfileOpen(true)} title={accountName ? `Huấn luyện viên ${accountName}` : undefined}>{clubLogoUrl(clubLogo) ? <img className="avatar-club" src={clubLogoUrl(clubLogo)!} alt=""/> : accountName ? accountName.slice(0, 3).toUpperCase() : 'HLV'}</button>{view !== 'packs' && <button className="topbar-home-close" onClick={() => switchView('packs')} aria-label="Đóng trang, về trang chủ" title="Về trang chủ"><X size={20}/></button>}</div></header>
     <main ref={mainRef} className={`main-content view-${view}`}>
       {view === 'packs' && <>
-        <section className="hero" aria-labelledby="hero-title"><Stadium reduced={save.reduced}/><LiveTicker messages={tickerMessages} reduced={save.reduced}/><div className="hero-content"><motion.div initial={save.reduced ? false : { opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .6 }} className="hero-copy"><div className="season-label"><span/>MÙA THẺ ICON TM</div><h1 id="hero-title">Chạm tới<br/><em>huyền thoại.</em></h1><p className="hero-sub">Trải nghiệm mở gói và nâng cấp những mùa thẻ đỉnh cao không giới hạn.</p><div className="hero-cta"><button className="cta-gold" onClick={() => prepareOpening(featuredPack)}>MỞ GÓI NGAY</button><button className="cta-glass" onClick={() => switchView('upgrade')}>ĐẬP THẺ THỬ VẬN MAY</button></div></motion.div>
+        <section className="hero" aria-label="Trang chủ"><Stadium reduced={save.reduced}/><LiveTicker messages={tickerMessages} reduced={save.reduced}/><div className="hero-content"><motion.div initial={save.reduced ? false : { opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: .5 }} className="hero-modes-wrap"><HomeModes onRanked={() => switchView('ranked')} onPenalty={() => switchView('penalty')} onUpgrade={() => switchView('upgrade')} onRanks={() => switchView('ranks')}/></motion.div>
           <div className="hero-cards"><div className="hero-orbit"/><div className="hero-card-back back-left"><PlayerCard card={preview(1)}/></div><div className="hero-card-back back-right"><PlayerCard card={preview(3)}/></div><motion.div className="hero-card-front" initial={save.reduced ? false : { opacity: 0, y: 40, rotateY: -25 }} animate={{ opacity: 1, y: 0, rotateY: -8 }} transition={{ duration: 1, delay: .15 }}><PlayerCard card={preview(31)}/></motion.div><div className="card-pedestal"/><div className="featured-note"><Sparkles size={13}/>Thẻ tiêu biểu · Không đảm bảo nhận được</div></div>
         </div></section>
       </>}
@@ -1113,10 +1130,10 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       </section>}
       {view === 'collection' && <SquadManager save={save} onAdd={addSquad} onRemove={removeSquad} onDetail={setDetail} onDelete={deleteCard} onSell={card => requestTrade({ kind: 'sell', card })} onUpgrade={upgradeCard} onLock={lockCard} onLineup={() => switchView('lineup')} onBulkSell={() => setSellOpen({ tab: 'bulk' })} levelBadge={levelBadge} seasonShort={seasonShort}/>}
           {view === 'lineup' && <LineupBoard save={save} onUpdate={updateLineup} onDetail={setDetail} onManage={() => switchView('collection')} levelBadge={levelBadge} seasonShort={seasonShort} renderCard={card => <PlayerCard card={card} compact bonus={colorBonuses.get(card.uid)}/>}/>}
-      {view === 'shop' && <PackShop save={save} packs={shopPacks} free={UNLIMITED_COINS} onBuy={(pack, count) => purchasePacks(pack, count)} onBuyMembership={purchaseMembership} onBuyStp={purchaseStp} stpBought={stpBought} onStpMissions={() => setMissionsOpen(true)} missionsReady={claimableMissions(missions)} online={online} onOpenNow={buyAndOpen} onPreview={(pack, count) => setPackPreview({ pack, count })} onInventory={() => switchView('inventory')} renderArt={pack => <PackArt pack={pack}/>}/>}
+      {view === 'shop' && <PackShop save={save} packs={shopPacks} free={UNLIMITED_COINS} onBuy={(pack, count) => purchasePacks(pack, count)} onBuyMembership={purchaseMembership} onBuyStp={purchaseStp} stpBought={stpBought} online={online} onOpenNow={buyAndOpen} onPreview={(pack, count) => setPackPreview({ pack, count })} onInventory={() => switchView('inventory')} renderArt={pack => <PackArt pack={pack}/>}/>}
       {view === 'inventory' && <Inventory save={save} packs={packs} onUse={pack => prepareOpening(pack)} onShop={() => switchView('shop')} onUseSelected={selection => selection[0] && prepareOpening(selection[0], selection)} onClose={() => switchView('packs')} renderArt={pack => <PackArt pack={pack}/>} testMode={UNLIMITED_COINS} onReceiveTest={receiveTestPacks}/>}
       {view === 'market' && <TransferMarket save={save} free={UNLIMITED_COINS} onTrade={requestTrade} onHistory={() => { setHistoryType('market'); switchView('history'); }} onOpenPacks={() => switchView('inventory')} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge}/>}
-      {view === 'ranks' && <RanksPage load={fetchLeaderboard} online={online} levelBadge={levelBadge}/>}
+      {view === 'ranks' && <RanksPage load={fetchLeaderboard} loadRanked={fetchRanked} online={online} levelBadge={levelBadge}/>}
       {view === 'ranked' && <RankedPage save={save} online={online} load={fetchRanked} play={playRanked} finish={finishRanked} abandon={abandonRanked} onLineup={() => switchView('lineup')} onMatchChange={setRankedMatchActive}/>}
       {view === 'penalty' && <PenaltyPage online={online} reduced={!!save.reduced} onStart={penaltyStart} onShoot={penaltyShoot}/>}
       {EVENT_BILAC_ENABLED && view === 'bilac' && <BilacPage fc={save.fc ?? 0} bilac={bilac} loadConfig={fetchBilacConfig} loadJackpot={fetchJackpot} onPlay={playBilacTurns} onClaim={claimBilacMilestone} onRefresh={refreshWallet}/>}
@@ -1124,17 +1141,15 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       {view === 'history' && <section className="workspace history-workspace"><div className="page-heading"><div><h1>Dấu ấn hành trình</h1><p>Lưu tối đa 200 hoạt động gần nhất trên trình duyệt này.</p></div><select aria-label="Lọc loại lịch sử" value={historyType} onChange={e => setHistoryType(e.target.value)}><option value="">Tất cả hoạt động</option><option value="pack">Mở gói</option><option value="upgrade">Nâng cấp</option><option value="gift">Điểm danh</option><option value="market">Chuyển nhượng</option><option value="shop">Mua gói</option><option value="event">Sự kiện</option></select></div>{save.history.filter(e => !historyType || e.type === historyType).length ? <ViewportPages className="history-list" itemHeight={92} resetKey={historyType}>{save.history.filter(e => !historyType || e.type === historyType).map(e => <article className="history-item" key={e.id}><div className={`history-icon ${e.success === false ? 'failure' : ''}`}>{e.type === 'pack' ? <PackageOpen size={21}/> : e.type === 'gift' ? <Gift size={21}/> : e.type === 'market' ? <ArrowLeftRight size={21}/> : e.type === 'shop' ? <ShoppingBag size={21}/> : e.type === 'event' ? <Sparkles size={21}/> : <Zap size={21}/>}</div><div><h2>{e.title}</h2><p>{historyDetail(e)}</p></div><time>{historyTime.format(e.time)}</time></article>)}</ViewportPages> : <div className="empty-state"><History size={38}/><h2>Trang sử đang chờ bạn</h2><p>Mở gói, nâng cấp hoặc nhận quà điểm danh để bắt đầu.</p><button className="primary-button" onClick={() => switchView('inventory')}>Kho vật phẩm<ArrowRight size={16}/></button></div>}</section>}
     </main>
       {(() => { // Thanh menu dưới kiểu FC Online, luôn hiện ở mọi màn (điều hướng chính của game): mục chữ ngăn bằng vạch mảnh, chấm xanh = có thứ mới; biểu tượng bên phải.
-        const hasPacks = packTotal > 0;
+        const hasPacks = packTotal > 0, missionsReady = claimableMissions(missions);
         const items: { label: string; view?: View; hint?: string; dot?: boolean; onClick: () => void }[] = [
           { label: 'Quản lý CT', view: 'collection', onClick: () => switchView('collection') },
           { label: 'Đội hình', view: 'lineup', hint: 'Sắp xếp đội hình', onClick: () => switchView('lineup') },
-          { label: 'Nâng cấp thẻ', view: 'upgrade', onClick: () => switchView('upgrade') },
           { label: 'TTCN', view: 'market', hint: 'Thị trường chuyển nhượng', onClick: () => switchView('market') },
           { label: 'Vật phẩm', view: 'inventory', hint: hasPacks ? 'Có gói chưa mở' : undefined, dot: packTotal > seen.packs, onClick: () => switchView('inventory') },
           { label: 'Shop', view: 'shop', onClick: () => switchView('shop') },
-          { label: 'BXH', view: 'ranks', hint: 'Bảng xếp hạng HLV', onClick: () => switchView('ranks') },
-          { label: 'GLXH', view: 'ranked', hint: 'Đấu xếp hạng giả lập', onClick: () => switchView('ranked') },
-          { label: 'Sút phạt', view: 'penalty', hint: 'Mini game sút phạt đền', onClick: () => switchView('penalty') },
+          // Trung tâm nhiệm vụ Star Point (trước gắn ở Shop): chấm xanh = có phần thưởng chờ nhận.
+          { label: 'Nhiệm vụ', hint: missionsReady ? `Nhiệm vụ Star Point · ${missionsReady} phần thưởng chờ nhận` : 'Nhiệm vụ Star Point hằng ngày', dot: missionsReady > 0, onClick: () => setMissionsOpen(true) },
           ...(EVENT_NCSS_ENABLED ? [{ label: 'Sự kiện', view: 'event' as View, hint: 'Nâng Cấp Siêu Sao', onClick: () => switchView('event') }] : []),
           ...(EVENT_BILAC_ENABLED ? [{ label: 'Sự kiện', view: 'bilac' as View, hint: 'Sự kiện Bi Lắc', onClick: () => switchView('bilac') }] : []),
         ];
@@ -1160,7 +1175,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
         <div className="trade-actions"><button className="secondary-button" onClick={() => setTrade(null)}>Hủy</button><button className="market-primary confirm-trade" onClick={confirmTrade} disabled={!marketQuote(trade.card).available || (trade.kind === 'buy' && !UNLIMITED_COINS && save.balance < (marketQuote(trade.card).price ?? Infinity))}>Xác nhận {trade.kind === 'buy' ? 'mua' : 'bán'}<Check size={17}/></button></div>
       </Modal>}
       {packPreview && <Modal className="pack-preview-modal" label={`Xem trước ${packPreview.pack.name}`} onClose={() => setPackPreview(null)}><PackPreview pack={packPreview.pack} count={packPreview.count} free={UNLIMITED_COINS} balance={save.fc ?? 0} onClose={() => setPackPreview(null)} onBuy={() => { const target = packPreview; void purchasePacks(target.pack, target.count).then(ok => { if (ok) setPackPreview(null); }); }} onOpenNow={() => { setPackPreview(null); void buyAndOpen(packPreview.pack, packPreview.count); }}/></Modal>}
-      {profileOpen && <Modal label="Thông tin HLV" onClose={() => setProfileOpen(false)}><ProfileCard save={save} accountId={accountName} accountEmail={accountEmail} club={clubLogo} onClub={online ? chooseClub : undefined} joined={joined} tier={accountTier} effect={nameEffect} onEffect={chooseEffect} onClose={() => setProfileOpen(false)} onSettings={() => { setProfileOpen(false); setSettings(true); }} onSave={profile => { if (commit({ ...latest.current, profile: { ...profile, ...latest.current.profile } })) notify('Đã lưu thông tin HLV.'); }}/></Modal>}
+      {profileOpen && <Modal label="Thông tin HLV" onClose={() => setProfileOpen(false)}><ProfileCard save={save} accountId={accountName} accountEmail={accountEmail} club={clubLogo} onClub={online ? chooseClub : undefined} joined={joined} tier={accountTier} effect={nameEffect} onEffect={chooseEffect} cursorOn={fxCursor} onCursor={toggleFxCursor} onClose={() => setProfileOpen(false)} onSettings={() => { setProfileOpen(false); setSettings(true); }} onSave={profile => { if (commit({ ...latest.current, profile: { ...profile, ...latest.current.profile } })) notify('Đã lưu thông tin HLV.'); }}/></Modal>}
       {missionsOpen && <Modal label="Nhiệm vụ Star Point" onClose={() => setMissionsOpen(false)}><StpMissions state={missions} error={missionsError} stp={save.stp ?? 0} onClaim={claimMission} onClose={() => setMissionsOpen(false)}/></Modal>}
       {settings && <Modal label="Cài đặt trò chơi" onClose={() => setSettings(false)}><div className="modal-heading"><h2>Cài đặt trò chơi</h2><button className="icon-button" aria-label="Đóng cài đặt" onClick={() => setSettings(false)}><X/></button></div>{([{ key: 'sound' as const, title: 'Âm thanh', description: AUDIO_ENABLED ? 'Âm thanh điện tử khi mở gói và nâng cấp.' : 'Âm thanh đã tắt trong phiên bản này.' }, { key: 'reduced' as const, title: 'Giảm chuyển động', description: 'Bỏ hoạt cảnh dài, khói và hạt sáng chuyển động.' }, { key: 'quick' as const, title: 'Mở thẻ nhanh', description: 'Rút hoạt cảnh từ khoảng 10 giây xuống 3,5 giây.' }, { key: 'light' as const, title: 'Hiệu ứng nhẹ', description: 'Dùng đường hầm 2D nhẹ, phù hợp khi máy nóng hoặc hình chuyển động chậm.' }]).map(s => <label className="setting-row" key={s.key}><span><b>{s.title}</b><small>{s.description}</small></span><input type="checkbox" disabled={s.key === 'sound' && !AUDIO_ENABLED} checked={s.key === 'sound' ? AUDIO_ENABLED && !!save.sound : !!save[s.key]} onChange={e => updateSetting(s.key, e.target.checked)}/></label>)}<label className="setting-row"><span><b>Nhạc nền</b><small>Chọn loại nhạc phát trong trò chơi.</small></span><select aria-label="Loại nhạc nền" value={musicType} onChange={e => changeMusicType(e.target.value as MusicType)}><option value="instrumental">1. Nhạc không lời</option><option value="vocals">2. Nhạc có lời</option></select></label>{accountName && <div className="account-settings"><div><strong>{accountName}</strong><small role="status">{syncStatus}</small></div>{onLogout && <button disabled={signingOut} onClick={onLogout}>{signingOut ? 'Đang đăng xuất…' : 'Đăng xuất'}</button>}</div>}<div className="storage-notice"><Shield size={20}/><p>Tiến trình được đồng bộ cùng tài khoản. Hãy chờ trạng thái Đã đồng bộ trước khi đóng trang hoặc chuyển thiết bị.</p></div>{isAdmin && <button className="settings-help" onClick={() => { setSettings(false); setFcAdminOpen(true); }}><Coins size={17}/>Quản trị FC · nạp FC, gift code<ChevronRight size={16}/></button>}<button className="settings-help" onClick={() => { setSettings(false); setHelp(true); }}><CircleHelp size={17}/>Thông tin & nguồn ảnh<ChevronRight size={16}/></button>{import.meta.env.DEV && <button className="settings-help" onClick={() => { setSettings(false); setAdminOpen(true); }}><PackagePlus size={17}/>Quản trị gói · chỉ máy dev<ChevronRight size={16}/></button>}{onDeleteAccount && <div className="account-danger-zone"><h3>Xóa tài khoản</h3><p>Xóa vĩnh viễn tài khoản cùng toàn bộ kho thẻ và tiến trình.</p><button disabled={signingOut} onClick={() => { setSettings(false); onDeleteAccount(); }}>Xóa tài khoản</button></div>}</Modal>}
       {isAdmin && fcAdminOpen && <AdminPanel onClose={() => { setFcAdminOpen(false); void refreshWallet(); }}/>}

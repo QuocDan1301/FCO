@@ -19,9 +19,6 @@ type Props = {
   // Gói Star Point (src/StpShop.tsx), đứng đầu lưới.
   onBuyStp: (id: StpPackageId) => boolean | Promise<boolean>;
   stpBought: readonly string[] | null;
-  // Mở bảng nhiệm vụ Star Point; missionsReady = số phần thưởng chờ nhận.
-  onStpMissions: () => void;
-  missionsReady: number;
   online: boolean;
   onOpenNow: (pack: Pack, count: number) => void;
   onPreview: (pack: Pack, count: number) => void;
@@ -29,7 +26,7 @@ type Props = {
   renderArt: (pack: Pack) => ReactNode;
 };
 
-export default function PackShop({ save, packs, free, onBuy, onBuyMembership, onBuyStp, stpBought, onStpMissions, missionsReady, online, onOpenNow, onPreview, onInventory, renderArt }: Props) {
+export default function PackShop({ save, packs, free, onBuy, onBuyMembership, onBuyStp, stpBought, online, onOpenNow, onPreview, onInventory, renderArt }: Props) {
   const [quantities, setQuantities] = useState<Record<string, string>>({});
   const setQuantity = (id: string, value: string) => setQuantities(current => ({ ...current, [id]: value }));
   // Tổng gói chưa mở hiện trên nút Kho vật phẩm; tổng tăng (vừa mua) thì nút nảy nhẹ.
@@ -47,7 +44,7 @@ export default function PackShop({ save, packs, free, onBuy, onBuyMembership, on
   return <section className="workspace shop-workspace" aria-labelledby="shop-title">
     <div className="page-heading shop-heading">
       <div><div className="shop-title-row"><h1 id="shop-title">Shop gói cầu thủ</h1></div><p>Chọn gói, mua số lượng bạn muốn và mở trong kho vật phẩm.</p></div>
-      <div className="shop-heading-actions"><button className="secondary-button shop-stp-missions" onClick={onStpMissions} aria-label={`Nhiệm vụ Star Point${missionsReady ? ` · ${missionsReady} phần thưởng chờ nhận` : ''}`}>Nhiệm vụ STP{missionsReady > 0 && <b className="shop-inventory-count" aria-hidden="true">{missionsReady}</b>}</button>
+      <div className="shop-heading-actions">
       <button ref={inventoryRef} className="secondary-button shop-inventory" onClick={onInventory} aria-label={`Kho vật phẩm · ${stockTotal} gói chưa mở`}>Kho vật phẩm<b className="shop-inventory-count" aria-hidden="true">{money(stockTotal)}</b><ArrowRight size={17}/></button></div>
     </div>
     <div className="shop-grid" aria-label="Các gói đang bán">

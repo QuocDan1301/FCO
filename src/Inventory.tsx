@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import { ChevronUp, Search, X } from 'lucide-react';
+import { ChevronUp, Search } from 'lucide-react';
 import { getPackStock, isPackAvailable, MAX_INVENTORY_OPEN } from './game';
 import type { Pack, Save } from './game';
 import Progressive from './Progressive';
@@ -11,7 +11,8 @@ type Props = {
   onUse: (pack: Pack) => void;
   onShop: () => void;
   onUseSelected: (packs: Pack[]) => void;
-  onClose: () => void;
+  // Không còn dùng: nút đóng riêng đã bỏ, về trang chủ bằng nút X chung trên thanh trên cùng.
+  onClose?: () => void;
   renderArt: (pack: Pack) => ReactNode;
   testMode?: boolean;
   onReceiveTest?: (pack: Pack) => void;
@@ -34,7 +35,7 @@ const sorts: { id: Sort; label: string }[] = [{ id: 'new', label: 'Mới nhất'
 const categoryOf = (_: Pack) => ['pack', 'player'];
 
 // Kho vật phẩm kiểu FC Online: khung giữa màn (thanh tiêu đề + nút đóng), tab Kho / Vật phẩm, bộ lọc thu gọn được, lưới gói 4 cột.
-export default function Inventory({ save, packs, onUse, onShop, onUseSelected, onClose, renderArt }: Props) {
+export default function Inventory({ save, packs, onUse, onShop, onUseSelected, renderArt }: Props) {
   const [checked, setChecked] = useState<string[]>(['player']);
   const [sort, setSort] = useState<Sort>('new');
   const [selected, setSelected] = useState<string[]>([]);
@@ -67,7 +68,7 @@ export default function Inventory({ save, packs, onUse, onShop, onUseSelected, o
   </>;
 
   return <section className="workspace inv-workspace" aria-labelledby="inv-title">
-    <header className="inv-head"><h1 id="inv-title">Vật phẩm</h1><button className="inv-close" onClick={onClose} aria-label="Đóng kho vật phẩm" title="Đóng"><X size={20}/></button></header>
+    <header className="inv-head"><h1 id="inv-title">Vật phẩm</h1></header>
     <div className="inv-top">
       <div className="inv-tabs"><span className="inv-tab-muted" aria-disabled="true" title="Chưa có vật phẩm trong mục Kho">Kho</span><span className="inv-tab-active" aria-current="page">Vật phẩm</span></div>
       <p className="inv-capacity"><span>Số loại đang sở hữu</span> <b>{owned.length} / {CAPACITY.toLocaleString('vi-VN')}</b> cái<span className="inv-help" role="img" aria-label={`Kho chứa tối đa ${CAPACITY.toLocaleString('vi-VN')} loại vật phẩm; mỗi loại gói tính là 1 loại dù có nhiều gói.`} title={`Kho chứa tối đa ${CAPACITY.toLocaleString('vi-VN')} loại vật phẩm; mỗi loại gói tính là 1 loại dù có nhiều gói.`}>?</span></p>
