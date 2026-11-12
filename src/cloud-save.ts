@@ -36,6 +36,9 @@ export type SyncStatus = 'loading' | 'saved' | 'saving' | 'error' | 'conflict';
 export class CloudSaveStore {
   status: SyncStatus = 'loading';
   error = '';
+  // Đã có dữ liệu tài khoản trên máy (lần tải đầu xong). Từ đó lỗi mạng / máy chủ chậm chỉ báo "đang thử lại", không chặn màn chơi
+  // (trước đây một lần làm mới lỗi là cả game bị thay bằng màn "Chưa kết nối được" → người chơi tưởng văng game).
+  ready = false;
   private running: Promise<void> | null = null;
   private listeners = new Set<() => void>();
   private active = true;
@@ -63,7 +66,7 @@ export class CloudSaveStore {
     return value ? JSON.stringify(value.data) : null;
   };
   setItem = (_key: string, raw: string) => {
-    if (!this.active || ['error', 'conflict', 'loading'].includes(this.status)) throw new Error('Đang chờ đồng bộ tài khoản.');
+    if (!this.active || this.status === 'conflict' || this.status === 'loading' || (this.status === 'error' && !this.ready)) throw new Error('Đang chờ đồng bộ tài khoản.');
     const current = this.cached();
     if (!current) throw new Error('Chưa tải được dữ liệu tài khoản.');
     const data: unknown = JSON.parse(raw);
@@ -72,7 +75,7 @@ export class CloudSaveStore {
     this.persist({ revision: current.revision, data, dirty });
     if (!dirty) { this.notify('saved'); return; }
     this.notify('saving');
-    void this.flush().catch(() => { /* The durable outbox is retained; the screen offers Retry. */ });
+    void this.flush().catch(() => { /* Hộp chờ vẫn giữ trên máy; lần làm mới sau tự gửi lại. */ });
   };
 
   async initialize() {
@@ -95,6 +98,7 @@ export class CloudSaveStore {
       } else {
         this.persist(remote ? { ...remote, dirty: false } : { revision: 0, data: initialSave(), dirty: true });
       }
+      this.ready = true;
       this.notify(this.cached()?.dirty ? 'saving' : 'saved');
       await this.flush();
     } catch (error) {
@@ -140,7 +144,8 @@ export class CloudSaveStore {
   }
 
   async refresh() {
-    if (!this.active || this.running || this.status !== 'saved') return;
+    if (!this.active || this.running || !(this.status === 'saved' || (this.status === 'error' && this.ready))) return;
+    const recovered = () => { if (this.status === 'error') this.notify('saved'); };
     try {
       // A different tab can leave a pending write in the shared outbox.
       if (this.cached()?.dirty) { await this.flush(); return; }
@@ -149,18 +154,20 @@ export class CloudSaveStore {
         const latest = await this.remote.revision();
         if (!this.active) return;
         // Không có bản mới hơn: khỏi tải cả bản lưu. Không còn bản lưu (null) thì vẫn tải để báo tài khoản đã bị xoá.
-        if (latest !== null && latest <= started.revision) return;
+        if (latest !== null && latest <= started.revision) { recovered(); return; }
       }
       const remote = await this.remote.load();
       if (!this.active) return;
       const local = this.cached();
-      if (!remote || !local || !started || remote.revision <= local.revision) return;
+      if (!remote || !local || !started || remote.revision <= local.revision) { recovered(); return; }
       if (local.revision !== started.revision || JSON.stringify(local.data) !== JSON.stringify(started.data)) return;
       if (local.dirty) return; // A gameplay action arrived while the read was in flight.
       this.persist({ ...remote, dirty: false });
       this.notify('saved');
       if (typeof window !== 'undefined') window.dispatchEvent(new StorageEvent('storage', { key: this.key }));
     } catch (error) {
+      // Tài khoản đã bị xoá / phiên hết hạn: phải đăng nhập lại, nên chặn màn chơi để người chơi đọc được thông báo.
+      if (error instanceof Error && /bị xóa|hết hạn/.test(error.message)) this.ready = false;
       this.notify('error', error instanceof Error ? error.message : 'Mất kết nối với máy chủ.');
     }
   }

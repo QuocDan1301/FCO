@@ -202,3 +202,33 @@ test('Máy chủ giữ kho: đổi FC / điểm sự kiện / thẻ từ máy ch
   assert.equal(state(store).fc, 4242, 'trên máy vẫn cập nhật');
   assert.equal(store.status, 'saved');
 });
+
+test('Đang chơi mà mất kết nối: không chặn game, vẫn lưu trên máy, làm mới sau tự gửi lại và hết báo lỗi', async () => {
+  const storage = disk(), server = remote(), store = new CloudSaveStore('k', server.api, storage);
+  await store.initialize();
+  assert.equal(store.ready, true);
+  server.offline(true);
+  await store.refresh();
+  assert.equal(store.status, 'error', 'báo mất kết nối');
+  store.setItem('', JSON.stringify({ ...state(store), sound: !state(store).sound, balance: 55 }));
+  assert.equal(JSON.parse(storage.getItem('k')!).dirty, true, 'thao tác vẫn lưu trên máy');
+  await store.flush().catch(() => {});
+  server.offline(false);
+  await store.refresh();
+  assert.equal(store.status, 'saved', 'tự hồi phục');
+  assert.equal(server.read().data.balance, 55, 'đã gửi phần chờ');
+  // Lần tải đầu thất bại (chưa có dữ liệu): vẫn chặn như cũ.
+  const fresh = new CloudSaveStore('k2', server.api, disk());
+  server.offline(true);
+  await assert.rejects(fresh.initialize());
+  assert.equal(fresh.ready, false);
+  assert.throws(() => fresh.setItem('', JSON.stringify(initialSave())), /Đang chờ đồng bộ/);
+});
+
+test('Tài khoản bị xoá khi đang chơi: chặn màn để báo đăng nhập lại', async () => {
+  const server = remote(), store = new CloudSaveStore('del', { ...server.api, async revision() { return null; }, async load() { throw new Error('Tài khoản đã bị xóa hoặc phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.'); } }, disk());
+  await store.initialize().catch(() => {});
+  (store as unknown as { ready: boolean }).ready = true; store.status = 'saved';
+  await store.refresh();
+  assert.equal(store.status, 'error'); assert.equal(store.ready, false);
+});
