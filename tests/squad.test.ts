@@ -306,3 +306,13 @@ test('Sơ đồ đã lưu: thẻ rời đội hình / bị bán thì ô thành t
   const unknownFormation = { ...state, lineups: { active: 0, sets: [0, 1, 2].map(() => ({ formation: 'x', slots: Array(XI).fill(null) })) } };
   assert.equal(getLineups(unknownFormation).sets[0].formation, DEFAULT_FORMATION);
 });
+test('Sơ đồ: đủ 35 sơ đồ như game; mỗi ô nằm đúng vùng vị trí của nhãn (kéo nhẹ không đổi vị trí)', () => {
+  const wanted = ['3-1-2-1-3', '3-1-4-2', '3-2-2-1-2', '3-2-3-2', '3-4-1-2', '3-4-3', '3-4-3F', '3-5-2', '4-1-2-1-2', '4-1-2-1-2C', '4-1-2-3', '4-1-2-3F', '4-1-3-2', '4-1-4-1',
+    '4-2-1-3', '4-2-1-3A', '4-2-1-3D', '4-2-2-1-1', '4-2-2-2', '4-2-2-2A', '4-2-3-1', '4-2-4', '4-3-1-2', '4-3-2-1', '4-3-3', '4-3-3F', '4-4-1-1', '4-4-2', '4-4-2F', '4-5-1',
+    '5-1-2-1-1', '5-2-1-2', '5-2-3', '5-3-2', '5-4-1'];
+  assert.deepEqual(Object.keys(FORMATIONS).sort(), [...wanted].sort());
+  for (const [name, slots] of Object.entries(FORMATIONS)) for (const [i, s] of slots.entries()) {
+    const taken = new Set(slots.map(o => o.label)); void i;
+    assert.equal(zoneAt(s.x, s.y, taken)?.label, s.label, `${name}: ${s.label} (${s.x}, ${s.y})`);
+  }
+});
