@@ -1016,6 +1016,9 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
         if (claimed.fc) await refreshWallet();
         return;
       }
+      // Kho do máy chủ giữ (inv = 1) nhưng bộ dữ liệu chưa khớp (admin chưa / đồng bộ nhầm bản): KHÔNG tự cộng quà trên máy —
+      // máy chủ sẽ bỏ phần này khi gộp bản lưu nên gói mất mà quà đã bị đánh dấu nhận. Để quà chờ tới khi khớp, máy chủ tự cộng.
+      if (latest.current.inv === 1) return;
       const gifts = await fetchMyGifts();
       if (!gifts.length || busy.current || pendingSave.current) return;
       const result = applyAdminGifts(latest.current, gifts);
