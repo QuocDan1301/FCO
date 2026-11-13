@@ -4120,6 +4120,28 @@
       "back": "/assets/custom/stp-r-cldm-back.webp",
       "published": true,
       "eventOnly": true
+    },
+    {
+      "id": "legend-of-the-loan-13",
+      "name": "LEGEND OF THE LOAN chỉ định 50 +13",
+      "short": "LEGEND",
+      "title": "LEGEND OF THE LOAN",
+      "seasons": [
+        "lol"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        13,
+        13
+      ],
+      "price": 1,
+      "description": "Gói chỉ định LOL: tự chọn 50 cầu thủ, mở gói nhận ngẫu nhiên 1 người trong danh sách, thẻ +13.",
+      "range": "129–134",
+      "back": "/assets/custom/legend-of-the-loan-13-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
     }
   ]
 }

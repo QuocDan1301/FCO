@@ -132,7 +132,10 @@ test('Gói chỉ có từ sự kiện: không bán trong Shop, kho mặc định
   // … cộng các gói quà Bi Lắc (hàng quà + quà mốc) và gói Star Point do máy chủ cấp, lấy từ migration.
   const bilacSql = ['202611070005_fco_bilac.sql', '202611070006_fco_bilac_prizes.sql', '202611070007_fco_bilac_milestones.sql', '202611110007_fco_star_point.sql', '202611110008_fco_stp_24hr.sql', '202611110009_fco_stp_ca.sql', '202611110010_fco_stp_26hr.sql', '202611110011_fco_stp_ld.sql'].map(f => readFileSync(`supabase/migrations/${f}`, 'utf8')).join('\n');
   for (const m of bilacSql.matchAll(/"pack":"([^"]+)"/g)) used.add(m[1]);
-  assert.deepEqual([...used].filter(id => packs.find(p => p.id === id)?.eventOnly).sort(), eventPacks.map(p => p.id).sort());
+  // Mọi gói được nhắc trong quà sự kiện / Bi Lắc / Star Point đều có thật. Gói không bán Shop có thể chỉ dùng để admin tặng / gift code
+  // (trang tạo gói có ô "Không bán trong Shop" từ 2026-11-13) nên không bắt buộc phải nằm trong quà sự kiện.
+  for (const id of used) assert.ok(packs.some(p => p.id === id) || defaultPacks.some(p => p.id === id), `quà sự kiện trỏ tới gói không tồn tại: ${id}`);
+  assert.ok([...used].some(id => packs.find(p => p.id === id)?.eventOnly), 'có gói chỉ nhận từ sự kiện');
   const save = initialSave();
   for (const pack of eventPacks) {
     assert.ok(!shopPacks.includes(pack));
