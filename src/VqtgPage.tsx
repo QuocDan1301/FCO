@@ -166,7 +166,7 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
   useEffect(() => {
     let alive = true;
     const update = () => { if (document.visibilityState === 'visible') loadJackpot().then(j => { if (alive) setJackpot(j); }).catch(() => { /* lần sau thử lại */ }); };
-    update(); const id = setInterval(update, 6000);
+    update(); const id = setInterval(update, 10000); // 10 giây: đỡ tải máy chủ (mọi người ở trang sự kiện cùng hỏi)
     return () => { alive = false; clearInterval(id); };
   }, [loadJackpot]);
 
@@ -174,7 +174,7 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
   useEffect(() => {
     let alive = true;
     const load = () => { if (document.visibilityState === 'visible') loadTop().then(t => { if (alive) setTop(t); }).catch(() => { /* lần sau thử lại */ }); };
-    load(); const id = setInterval(load, 30000);
+    load(); const id = setInterval(load, 60000);
     return () => { alive = false; clearInterval(id); };
   }, [loadTop, vqtg?.tickets]);
 
