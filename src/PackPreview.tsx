@@ -1,11 +1,13 @@
-import { ShoppingBag, X, Zap } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronDown, ChevronUp, ShoppingBag, X, Zap } from 'lucide-react';
 import { money, ovr, packOdds } from './game';
-import type { Pack } from './game';
+import type { Card, Pack } from './game';
 import { marketQuote } from './market';
 import { GradeBadge, PositionBadge } from './badges';
 import { asset } from './asset';
 
-type Props = { pack: Pack; count: number; free: boolean; balance: number; onBuy: () => void; onOpenNow: () => void; onClose: () => void };
+// onPlayer: bấm một cầu thủ để xem Thông tin cầu thủ (thẻ ở cấp thấp nhất gói ra; thẻ xem thử, không thuộc kho).
+type Props = { pack: Pack; count: number; free: boolean; balance: number; onBuy: () => void; onOpenNow: () => void; onClose: () => void; onPlayer?: (card: Card) => void };
 
 const TOP = 10;
 // Tỷ lệ (0–1) ra phần trăm: từ 1% trở lên 1 chữ số thập phân, nhỏ hơn giữ 2 chữ số có nghĩa (0,00032%).
@@ -17,12 +19,15 @@ const percent = (chance: number) => {
 };
 
 // Xem trước gói ở Shop: tỷ lệ công bố theo packOdds (OVR cao / giá +1 đắt thì hiếm hơn), tỷ lệ cấp cộng và 10 cầu thủ OVR (+1) cao nhất.
-export default function PackPreview({ pack, count, free, balance, onBuy, onOpenNow, onClose }: Props) {
+export default function PackPreview({ pack, count, free, balance, onBuy, onOpenNow, onClose, onPlayer }: Props) {
+  const [all, setAll] = useState(false);
   const { pool, levels } = packOdds(pack);
   // OVR / giá hiện ở cấp thấp nhất gói có thể ra: gói cấp cố định (26TS +5) đúng cấp đó, gói +6~+8 theo +6, gói (ALL) theo +1.
   const shownLevel = levels[0].level;
   const rows = pool.map(({ player, chance }) => { const card = { playerId: player.id, level: shownLevel }; return { player, chance, value: ovr(card), price: marketQuote(card).price }; });
-  const top = [...rows].sort((a, b) => b.value - a.value || (b.price ?? 0) - (a.price ?? 0) || a.player.name.localeCompare(b.player.name)).slice(0, TOP);
+  const sorted = [...rows].sort((a, b) => b.value - a.value || (b.price ?? 0) - (a.price ?? 0) || a.player.name.localeCompare(b.player.name));
+  const top = all ? sorted : sorted.slice(0, TOP);
+  const open = (playerId: number) => onPlayer?.({ uid: `preview-${pack.id}-${playerId}`, playerId, level: shownLevel, received: 0 });
   const likeliest = rows.reduce((best, row) => row.chance > best.chance ? row : best, rows[0]);
   const cost = count * pack.price, affordable = free || balance >= cost, single = levels.length === 1;
   return <div className="pack-preview" data-pack={pack.id} data-tone={pack.tone ?? pack.id}>
@@ -30,8 +35,9 @@ export default function PackPreview({ pack, count, free, balance, onBuy, onOpenN
     <p className="pack-preview-sub"><span><b>{rows.length}</b> cầu thủ</span><span>OVR <b>{pack.range}</b></span>{single && <span>Thẻ <b>+{levels[0].level}</b></span>}{likeliest && <span>Dễ ra nhất <b>{likeliest.player.name} {percent(likeliest.chance)}</b></span>}</p>
     {/* Gói chỉ ra một cấp (gói ALL ra +1) thì không cần dòng tỷ lệ cấp. */}
     {!single && <div className="pack-preview-levels" aria-label="Tỷ lệ cấp thẻ">{levels.map(({ level, chance }) => <span key={level}><GradeBadge level={level}/><b>{percent(chance)}</b></span>)}</div>}
-    <h3 className="pack-preview-title">Top {top.length} OVR cao nhất</h3>
-    <ol className="pack-preview-list">{top.map(({ player, value, price, chance }, index) => <li key={player.id}>
+    <h3 className="pack-preview-title">{all ? `Tất cả ${rows.length} cầu thủ` : `Top ${top.length} OVR cao nhất`}{onPlayer && <small> · bấm cầu thủ để xem thông tin</small>}</h3>
+    <ol className={`pack-preview-list${all ? ' is-all' : ''}`}>{top.map(({ player, value, price, chance }, index) => <li key={player.id}
+      {...(onPlayer ? { className: 'is-link', role: 'button', tabIndex: 0, title: `Xem thông tin ${player.name}`, onClick: () => open(player.id), onKeyDown: (e: { key: string; preventDefault: () => void }) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(player.id); } } } : {})}>
       <span className="pack-preview-rank">{index + 1}</span>
       <img src={player.cardFace || asset('/assets/silhouette.svg')} alt="" loading="lazy"/>
       <PositionBadge pos={player.pos}/>
@@ -40,6 +46,7 @@ export default function PackPreview({ pack, count, free, balance, onBuy, onOpenN
       <span className="pack-preview-chance" aria-label={`Tỷ lệ ${percent(chance)}`}>{percent(chance)}</span>
       <span className="pack-preview-price">{price === null ? '—' : `${money(price)} BP`}</span>
     </li>)}</ol>
+    {rows.length > TOP && <button type="button" className="secondary-button pack-preview-more" onClick={() => setAll(v => !v)}>{all ? <><ChevronUp size={16}/>Thu gọn</> : <><ChevronDown size={16}/>Xem tất cả {rows.length} cầu thủ</>}</button>}
     <p className="fine-print">{single ? `Mỗi gói ra 1 thẻ +${levels[0].level}. Cầu thủ OVR càng cao so với mức thấp nhất của gói và giá +1 càng đắt thì càng hiếm.` : `Mỗi gói ra 1 thẻ. Cầu thủ OVR càng cao so với mức thấp nhất của gói và giá +1 càng đắt thì càng hiếm; cấp cộng rút riêng, mỗi cấp hiếm hơn cấp trước khoảng ${(levels[0].chance / levels[1].chance).toLocaleString('vi-VN', { maximumFractionDigits: 1 })} lần. Tỷ lệ cầu thủ tính cho mọi cấp.`} Giá là giá thẻ +{shownLevel} ở TTCN. Đây là tỷ lệ của trò chơi giả lập, không phải tỷ lệ chính thức của FC Online.</p>
     <div className="shop-actions pack-preview-actions">
       <button className="shop-buy" disabled={!affordable} onClick={onBuy}><ShoppingBag size={17}/>Mua {count} gói · {money(cost)} FC</button>

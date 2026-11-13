@@ -56,10 +56,22 @@ function preloadAssets(): Plugin {
   };
 }
 
+// Mã phiên bản của mỗi lần build (commit trên Cloudflare Pages / GitHub, hoặc thời điểm build). Game đang mở so với version.json
+// trên máy chủ để biết đã có bản mới (src/update-check.ts).
+const BUILD_ID = (process.env.CF_PAGES_COMMIT_SHA || process.env.GITHUB_SHA || '').slice(0, 12) + '-' + Date.now().toString(36);
+function buildVersion(): Plugin {
+  return {
+    name: 'build-version',
+    apply: 'build',
+    generateBundle() { this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ build: BUILD_ID }) }); },
+  };
+}
+
 export default defineConfig({
+  define: { __BUILD_ID__: JSON.stringify(BUILD_ID) },
   // GitHub Pages phục vụ game ở /FCO/; Render (render.yaml) đặt BASE_PATH=/ để chạy ở gốc tên miền.
   base: process.env.BASE_PATH || "/FCO/",
-  plugins: [react(), tailwindcss(), excelPrices(), preloadAssets(), packAdmin(), publishedPacksOnly()],
+  plugins: [react(), tailwindcss(), excelPrices(), preloadAssets(), packAdmin(), publishedPacksOnly(), buildVersion()],
   // Biên dịch sẵn module chính và gói thư viện khi khởi động để lần mở trang đầu không phải chờ.
   server: {
     warmup: { clientFiles: ["./src/main.tsx", "./src/App.tsx", "./src/cinema/*.tsx"] },

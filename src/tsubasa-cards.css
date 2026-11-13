@@ -1,0 +1,17 @@
+/* TSUBASA (CAPTAIN TSUBASA): tạo bởi scripts/import-tsubasa.py. Thẻ gốc (vị trí in lại tiếng Anh), OVR / tên / cấp vẽ bằng HTML. */
+.rarity-dot.tsubasa{background:#3a7bea}
+.player-card.face-art.season-tsubasa{aspect-ratio:264/310}
+.player-card.face-art.season-tsubasa>.face-art-img{filter:drop-shadow(0 0 5px #4a8cff44)}
+.season-tsubasa[data-level="1"] .face-art-level{visibility:hidden}
+.season-tsubasa .face-art-ovr{left:29.55%;top:22.10%;font-size:12.2cqw;color:#1929c9;letter-spacing:-.02em}
+.season-tsubasa .face-art-level{left:20.45%;top:61.94%;width:18.18%;height:9.68%;transform:none;object-fit:fill}
+.season-tsubasa{--name-size:6.4cqw;--name-color:#1929c9;--nx:16.67%;--nw:66.67%;--ny:80.32%}
+.season-tsubasa .face-art-name{text-align:center}
+.season-tsubasa .face-art-name.is-long{text-align:left}
+.season-tsubasa .face-art-name>b::before{content:"";display:inline-block;width:1.539em;height:1.243em;margin-right:.35em;vertical-align:-0.178em;background:url(/assets/tsubasa-label.webp) center/100% 100% no-repeat}
+[data-tone=tsubasa]{--shop-tone:#3a7bea;--shop-tone2:#0f1d44}
+.season-tag-tsubasa{color:#7fb2ff}
+.reveal-tsubasa .reveal-panel{--led:#7fb2ff;--led2:#0b1430;border-color:#e8f0ff66}
+.reveal-tsubasa .reveal-stats dt{color:#ffffff}
+.reveal-tsubasa .reveal-podium{background:linear-gradient(180deg,#1d3a7a,#0b1430);border-top-color:#ff5a4a}
+.reveal-tsubasa .reveal-podium span{color:#ffffff}

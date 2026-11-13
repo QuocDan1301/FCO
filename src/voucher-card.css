@@ -1,0 +1,5 @@
+/* Phiếu giảm thuế (VoucherCard.tsx): chữ số % đúng chỗ "30%" của ảnh gốc, cỡ theo bề ngang thẻ. */
+.voucher-card{position:relative;display:block;height:100%;aspect-ratio:198/336;max-width:100%;container-type:inline-size;filter:drop-shadow(0 2px 4px #0008)}
+.voucher-card img{display:block;width:100%;height:100%;object-fit:contain}
+.voucher-card b{position:absolute;right:5%;top:73.5%;font:700 20cqi/1 var(--display);color:#fff;letter-spacing:-.02em}
+.voucher-card b small{font-size:.55em;font-weight:600}

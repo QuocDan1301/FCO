@@ -11,8 +11,10 @@ import { MAINTENANCE_CHANGED } from './maintenance-state';
 import type { MaintenanceState } from './maintenance-state';
 import type { ServerRecord } from './inventory-sync';
 import type { NameEffect } from './name-effects';
-import type { PenaltyShot, PenaltyStart, ShotKind } from './penalty';
-import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
+import type { LineupBoardId, PublicLineupView } from './public-lineup';
+import type { PenaltyKeep, PenaltyShot, PenaltyStart, ShotKind } from './penalty';
+import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, VqtgConfig, VqtgResult, VqtgReward, VqtgTop, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
+import { checkForUpdate, requestReload } from './update-check';
 export * from './wallet-state';
 
 // Ví FC trên máy chủ (supabase/migrations/202611070001_fco_wallet.sql): số FC, quà ngày, gift code, lượt sự kiện và jackpot
@@ -25,6 +27,8 @@ async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<
     console.error(`[fco] ${fn}`, error);
     // Máy chủ vừa báo bảo trì: kiểm tra lại ngay để hiện màn bảo trì, khỏi chờ tới lần kiểm tra định kỳ.
     if (/FCO_MAINTENANCE|FCO_ACCOUNT_PAUSED/.test(error.message ?? '')) window.dispatchEvent(new Event(MAINTENANCE_CHANGED));
+    // Dữ liệu game trên máy chủ đã đổi: có bản game mới thì tải lại luôn (bản mới chưa đồng bộ dữ liệu thì chỉ báo lỗi, tránh tải lại liên tục).
+    if (/FCO_CATALOG_STALE/.test(error.message ?? '')) void checkForUpdate().then(fresh => { if (fresh) requestReload(); });
     throw new Error(walletMessage(error));
   }
   return data as T;
@@ -52,6 +56,8 @@ export const claimStpMission = (id: StpMissionId) => call<{ wallet: Wallet; rewa
 // Logo CLB tự chọn (202611120004).
 export const setClubLogo = (club: string | null) => call<Wallet>('fco_set_club_logo', { p_club: club });
 export const fetchRanked = () => call<RankedState>('fco_ranked_state');
+// Đội hình đang dùng của HLV ở hạng p_rank trên một BXH (migration 202611120012).
+export const viewLineup = (board: LineupBoardId, rank: number) => call<PublicLineupView | null>('fco_view_lineup', { p_board: board, p_rank: rank });
 // Dòng LIVE trang chủ (migration 202611120008): tin chúc mừng chung, mới nhất trước.
 // name / effect: tên + hiệu ứng tên Premium hiện tại của HLV (migration 202611120009).
 export type LiveItem = { id: number; at: number; kind: string; text: string; name?: string | null; effect?: string | null };
@@ -93,11 +99,18 @@ export const adminAccountReset = (id: string, resetFc: boolean) => call<{ reset:
 export const adminAccountsDelete = (target: { users: string[] } | { all: true; search: string; status: string | null }) => call<{ deleted: number; skippedAdmins: number; remaining: number }>('fco_admin_accounts_delete', 'all' in target ? { p_all: true, p_search: target.search || null, p_status: target.status } : { p_users: target.users });
 // Loại tài khoản Classic / Premium (migration 202611110003): tier = null chỉ đọc.
 // tier 'premium' = thêm 7 ngày (cộng dồn khi còn hạn, migration 202611110013); until = hạn Premium (ms).
-export const adminAccountTier = (user: string, tier: 'classic' | 'premium' | null = null) => call<{ tier: 'classic' | 'premium'; until?: number | null }>('fco_admin_account_tier', { p_user: user, p_tier: tier });
+export const adminAccountTier = (user: string, tier: 'classic' | 'premium' | 'luxury' | null = null) => call<{ tier: 'classic' | 'premium' | 'luxury'; until?: number | null }>('fco_admin_account_tier', { p_user: user, p_tier: tier });
 // Hiệu ứng avatar + tên (migration 202611110004): chỉ tài khoản Premium đặt được, null = tắt.
 export const setNameEffect = (effect: NameEffect | null) => call<Wallet>('fco_set_name_effect', { p_effect: effect });
 export const adminAccountDelete = (id: string) => call<{ deleted: boolean }>('fco_admin_account_delete', { p_user: id });
 export const adminSendGift = (user: string, gift: { fc: number } | { pack: string; count: number }, note: string) => call<{ id: number; fc: number | null }>('fco_admin_send_gift', 'fc' in gift ? { p_user: user, p_fc: gift.fc, p_note: note } : { p_user: user, p_pack: gift.pack, p_count: gift.count, p_note: note });
+// Tặng quà hàng loạt (migration 202611130002): mỗi lần tối đa 200 tài khoản, remaining = số còn lại; cùng batch không tặng trùng.
+export const adminGiftBulk = (batch: string, target: { users: string[] } | { all: true; search: string; status: string | null }, gift: { fc: number } | { pack: string; count: number }, note: string) =>
+  call<{ sent: number; remaining: number; total: number }>('fco_admin_gift_bulk', { p_batch: batch, ...('all' in target ? { p_all: true, p_search: target.search, p_status: target.status } : { p_users: target.users }), ...('fc' in gift ? { p_fc: gift.fc } : { p_pack: gift.pack, p_count: gift.count }), p_note: note });
+// Admin trừ FC (migration 202611130003): lý do 'admin_deduct', không tính Đã nạp / doanh thu. clamp: không đủ thì trừ hết số còn lại,
+// không thì bỏ qua (skipped). Mỗi lần tối đa 200 tài khoản; cùng batch không trừ hai lần; done / doneFc = cả đợt tới giờ.
+export const adminDeduct = (batch: string, target: { users: string[] } | { all: true; search: string; status: string | null }, amount: number, clamp: boolean, note: string) =>
+  call<{ deducted: number; fc: number; balance: number | null; skipped: number; remaining: number; done: number; doneFc: number }>('fco_admin_deduct', { p_batch: batch, p_amount: amount, ...('all' in target ? { p_all: true, p_search: target.search, p_status: target.status } : { p_users: target.users }), p_clamp: clamp, p_note: note });
 export const adminGiftList = (user: string) => call<AdminGift[]>('fco_admin_gift_list', { p_user: user });
 export const fetchMyGifts = () => call<AdminGift[]>('fco_my_admin_gifts');
 export const ackMyGifts = (ids: number[]) => call<number>('fco_my_admin_gifts_ack', { p_ids: ids });
@@ -106,6 +119,12 @@ export const adminStats = (search?: string) => call<AdminStats>('fco_admin_stats
 export const penaltyStart = () => call<PenaltyStart>('fco_penalty_start');
 // Kiểu sút (migration 202611110006): kiểu Thường không gửi p_kind để máy chủ chưa chạy migration mới vẫn nhận.
 export const penaltyShoot = (x: number, y: number, kind: ShotKind = 'normal') => call<PenaltyShot>('fco_penalty_shoot', { p_x: x, p_y: y, ...(kind === 'normal' ? {} : { p_kind: kind }) });
+// Làm thủ môn: gửi điểm bay người, máy chủ tung cú sút của máy (migration 202611120013).
+export const penaltyKeep = (x: number, y: number) => call<PenaltyKeep>('fco_penalty_keep', { p_x: x, p_y: y });
 export const fetchBilacConfig = () => call<BilacConfig>('fco_bilac_config');
 export const playBilac = (count: number, mode: 'fc' | 'free') => call<BilacResult>('fco_bilac_play', { p_count: count, p_mode: mode });
 export const claimBilac = (index: number, choice: number | null) => call<{ rewards: BilacReward[]; wallet: Wallet; save?: ServerRecord | null }>('fco_bilac_claim', { p_index: index, p_choice: choice });
+export const fetchVqtgConfig = () => call<VqtgConfig>('fco_vqtg_config');
+export const playVqtg = (count: number, mode: 'fc' | 'free', pick?: number) => call<VqtgResult>('fco_vqtg_play', { p_count: count, p_mode: mode, ...(pick ? { p_pick: pick } : {}) });
+export const fetchVqtgTop = () => call<VqtgTop>('fco_vqtg_top');
+export const claimVqtg = (index: number, choice: number | null) => call<{ rewards: VqtgReward[]; wallet: Wallet; save?: ServerRecord | null }>('fco_vqtg_claim', { p_index: index, p_choice: choice });

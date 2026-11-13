@@ -1,0 +1,27 @@
+/* EL (ETERNAL LEGENDS): tạo bởi scripts/import-el.py. Thẻ gốc (vị trí in lại tiếng Anh), OVR / tên / cấp vẽ bằng HTML. */
+.rarity-dot.el{background:#d9bf7c}
+.player-card.face-art.season-el{aspect-ratio:273/293}
+.player-card.face-art.season-el>.face-art-img{filter:drop-shadow(0 0 5px #e8cf8a44)}
+.season-el[data-level="1"] .face-art-level{visibility:hidden}
+.season-el .face-art-ovr{left:28.75%;top:17.68%;font-size:11.36cqw;color:#eedfb0;letter-spacing:-.02em;text-shadow:0 .03em .1em #1a1206}
+.season-el .face-art-level{left:20.15%;top:59.73%;width:16.85%;height:9.90%;transform:none;object-fit:fill}
+.season-el{--name-size:6.6cqw;--name-color:#373a40;--nx:19.78%;--nw:59.34%;--ny:79.52%}
+.season-el .face-art-name{text-align:center}
+.season-el .face-art-name.is-long{text-align:left}
+.season-el .face-art-name>b::before{content:"";display:inline-block;width:1.388em;height:1.166em;margin-right:.3em;vertical-align:-0.167em;background:url(/assets/el-label.webp) center/100% 100% no-repeat}
+.el-dust{position:absolute;inset:0;pointer-events:none;z-index:1;-webkit-mask:var(--el-dust-mask) center/100% 100% no-repeat;mask:var(--el-dust-mask) center/100% 100% no-repeat}
+.el-dust::before,.el-dust::after{content:"";position:absolute;inset:0;background-repeat:repeat}
+.el-dust::before{background-image:radial-gradient(2.08cqw 2.08cqw at 18% 22%,#fffbe6,#ffd25acc 40%,transparent 72%),radial-gradient(1.44cqw 1.44cqw at 63% 8%,#fff3c4,#f0bd42cc 40%,transparent 72%),radial-gradient(2.4cqw 2.4cqw at 82% 57%,#fffbe6,#ffcf4ddd 40%,transparent 72%),radial-gradient(1.28cqw 1.28cqw at 37% 74%,#ffefb0,#e5b23fcc 40%,transparent 72%),radial-gradient(1.76cqw 1.76cqw at 8% 88%,#fff6d2,#f4c652cc 40%,transparent 72%),radial-gradient(1.12cqw 1.12cqw at 52% 40%,#fff1be,#e8b645bb 40%,transparent 72%);background-size:22cqw 29cqw;filter:drop-shadow(0 0 .9cqw #ffc94d);animation:el-dust-fall 3s linear infinite,el-dust-glint 1.4s ease-in-out infinite alternate}
+.el-dust::after{background-image:radial-gradient(1.12cqw 1.12cqw at 30% 40%,#fff1bd,#e3b04499 40%,transparent 72%),radial-gradient(1.6cqw 1.6cqw at 75% 15%,#fff8db,#f0c25ab3 40%,transparent 72%),radial-gradient(0.96cqw 0.96cqw at 55% 85%,#ffe9a8,#d6a2379e 40%,transparent 72%),radial-gradient(1.28cqw 1.28cqw at 10% 60%,#fff4cc,#ecbd4ca8 40%,transparent 72%);background-size:32cqw 39cqw;opacity:.8;animation:el-dust-fall-far 5s linear infinite}
+@keyframes el-dust-fall{from{background-position:0 0}to{background-position:-22cqw 29cqw}}
+@keyframes el-dust-fall-far{from{background-position:0 0}to{background-position:-32cqw 39cqw}}
+@keyframes el-dust-glint{from{opacity:.7}to{opacity:1}}
+.reduced-motion .el-dust,.opening-reduced .el-dust,.still .el-dust{display:none}
+@media (prefers-reduced-motion:reduce){.el-dust{display:none}}
+[data-tone=el]{--shop-tone:#d9bf7c;--shop-tone2:#2a2118}
+.season-tag-el{color:#e8cf8a}
+.reveal-el .reveal-panel{--led:#e8cf8a;--led2:#16110a;border-color:#f3ead466}
+.reveal-el .reveal-stats dt{color:#ffffff}
+.reveal-el .reveal-podium{background:linear-gradient(180deg,#3a2f1e,#16110a);border-top-color:#e8cf8a}
+.reveal-el .reveal-podium span{color:#ffffff}
+.face-4086 .face-art-name>b::before{background-image:url(/assets/el-label-dark.webp)}

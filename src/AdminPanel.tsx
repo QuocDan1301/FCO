@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { BarChart3, Boxes, Coins, Copy, Gift, RotateCcw, ShieldAlert, Users, Wrench, X } from 'lucide-react';
+import type { FormEvent } from 'react';
+import { BarChart3, Boxes, Coins, Copy, Gift, RotateCcw, Search, ShieldAlert, Users, Wrench, X } from 'lucide-react';
 import { money, packs } from './game';
 import GiftCodeAdmin from './admin/GiftCodeAdmin';
 import Accounts from './Accounts';
@@ -8,7 +9,9 @@ import CloneSuspects from './CloneSuspects';
 import MaintenancePanel from './MaintenancePanel';
 import InventoryAdmin from './InventoryAdmin';
 import Stats from './Stats';
-import { adminCredit, adminLedger, LEDGER_REASONS } from './wallet';
+import { adminAnomalies, adminCloneGroups, adminCredit, adminLedger, fetchMaintenanceState, LEDGER_REASONS } from './wallet';
+import { fetchInventoryState } from './inventory-server';
+import { catalogVersion } from './inventory-catalog';
 import type { LedgerRow } from './wallet';
 import './admin/pack-admin.css';
 import { TOPUP_VND_PER_1000_FC } from './config';
@@ -73,26 +76,91 @@ function CreditFc() {
   </section>;
 }
 
+// Mục quản trị, chia nhóm. Huy hiệu: việc đang cần xử lý (bất thường chưa xem, nhóm nghi clone, bảo trì đang bật, kho thẻ cần đồng bộ).
+type Tab = 'stats' | 'accounts' | 'fc' | 'gift' | 'audit' | 'clones' | 'maintenance' | 'inventory';
+type Badges = { audit?: number; clones?: number; maintenance?: boolean; inventory?: 'sync' | 'off' | null };
+const GROUPS: { title: string; items: { id: Tab; label: string; hint: string; icon: typeof Users }[] }[] = [
+  { title: 'Tổng quan', items: [{ id: 'stats', label: 'Thống kê', hint: 'Người chơi, giờ chơi, doanh thu', icon: BarChart3 }] },
+  { title: 'Người chơi', items: [
+    { id: 'accounts', label: 'Tài khoản', hint: 'Tìm, nạp FC, tặng quà, hạng, khoá', icon: Users },
+    { id: 'fc', label: 'Nạp FC & sổ cái', hint: 'Cộng FC theo bill, xem giao dịch', icon: Coins },
+    { id: 'gift', label: 'Gift code', hint: 'Tạo và quản lý mã quà', icon: Gift },
+  ] },
+  { title: 'An ninh', items: [
+    { id: 'audit', label: 'Bất thường', hint: 'Bản lưu tăng BP / thẻ bất thường', icon: ShieldAlert },
+    { id: 'clones', label: 'Nghi clone', hint: 'Nhiều tài khoản cùng thiết bị / IP', icon: Copy },
+  ] },
+  { title: 'Hệ thống', items: [
+    { id: 'inventory', label: 'Kho thẻ', hint: 'Đồng bộ dữ liệu cầu thủ, gói, giá', icon: Boxes },
+    { id: 'maintenance', label: 'Bảo trì', hint: 'Đóng game, thông báo người chơi', icon: Wrench },
+  ] },
+];
+const TAB_KEY = 'fco-admin-tab';
+const savedTab = (): Tab => { try { const v = localStorage.getItem(TAB_KEY) as Tab | null; return v && GROUPS.some(g => g.items.some(i => i.id === v)) ? v : 'stats'; } catch { return 'stats'; } };
+
+// Đếm việc cần xử lý cho huy hiệu thanh bên (mỗi phút một lần; lỗi thì bỏ qua huy hiệu đó).
+async function loadBadges(): Promise<Badges> {
+  const [audit, clones, maintenance, inventory, local] = await Promise.allSettled([adminAnomalies(), adminCloneGroups(), fetchMaintenanceState(), fetchInventoryState(), catalogVersion()]);
+  const ok = <T,>(r: PromiseSettledResult<T>) => r.status === 'fulfilled' ? r.value : undefined;
+  const inv = ok(inventory), ver = ok(local);
+  return {
+    audit: ok(audit)?.length,
+    clones: ok(clones)?.filter(g => !g.allowed).length,
+    maintenance: ok(maintenance)?.enabled,
+    inventory: inv ? (inv.version !== ver ? 'sync' : !inv.enforced ? 'off' : null) : null,
+  };
+}
+
 export default function AdminPanel({ onClose }: { onClose: () => void }) {
-  const [tab, setTab] = useState<'stats' | 'accounts' | 'fc' | 'gift' | 'audit' | 'clones' | 'maintenance' | 'inventory'>('stats');
+  const [tab, setTabState] = useState<Tab>(savedTab);
+  const [badges, setBadges] = useState<Badges>({});
+  const [query, setQuery] = useState('');
+  // Tìm người chơi ở đầu trang: mở Tài khoản với từ khoá (key đổi để danh sách tải lại theo từ khoá mới).
+  const [find, setFind] = useState({ text: '', n: 0 });
+  const setTab = (next: Tab) => { setTabState(next); try { localStorage.setItem(TAB_KEY, next); } catch { /* chỉ nhớ trong phiên */ } };
   useEffect(() => { const key = (event: KeyboardEvent) => event.key === 'Escape' && onClose(); addEventListener('keydown', key); return () => removeEventListener('keydown', key); }, [onClose]);
-  return <div className="pack-admin" role="dialog" aria-modal="true" aria-label="Quản trị FC">
-    <header className="pa-header">
-      <div><h1>Quản trị FC</h1><p>Chỉ tài khoản admin thấy trang này. Mọi thao tác được máy chủ kiểm tra quyền.</p></div>
+  useEffect(() => {
+    let alive = true;
+    const refresh = () => { void loadBadges().then(b => { if (alive) setBadges(b); }).catch(() => {}); };
+    refresh();
+    const timer = setInterval(() => { if (document.visibilityState === 'visible') refresh(); }, 60_000);
+    return () => { alive = false; clearInterval(timer); };
+  }, [tab]);
+  const badgeOf = (id: Tab) => {
+    if (id === 'audit' && badges.audit) return <b className="pa-nav-badge is-warn">{badges.audit > 99 ? '99+' : badges.audit}</b>;
+    if (id === 'clones' && badges.clones) return <b className="pa-nav-badge is-warn">{badges.clones > 99 ? '99+' : badges.clones}</b>;
+    if (id === 'maintenance' && badges.maintenance) return <b className="pa-nav-badge is-danger">Đang bật</b>;
+    if (id === 'inventory' && badges.inventory === 'sync') return <b className="pa-nav-badge is-danger">Cần đồng bộ</b>;
+    if (id === 'inventory' && badges.inventory === 'off') return <b className="pa-nav-badge is-warn">Chưa bắt buộc</b>;
+    return null;
+  };
+  const current = GROUPS.flatMap(g => g.items).find(i => i.id === tab)!;
+  const search = (event: FormEvent) => { event.preventDefault(); const text = query.trim(); setFind(f => ({ text, n: f.n + 1 })); setTab('accounts'); };
+  return <div className="pack-admin pa-admin" role="dialog" aria-modal="true" aria-label="Quản trị FCO VIP">
+    <header className="pa-header pa-admin-header">
+      <div className="pa-admin-title"><h1>Quản trị FCO VIP</h1><p>Chỉ tài khoản admin thấy trang này · mọi thao tác được máy chủ kiểm tra quyền</p></div>
+      <form className="pa-admin-search" role="search" onSubmit={search}>
+        <Search size={16} aria-hidden="true"/>
+        <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Tìm người chơi: tên đăng nhập, Gmail…" aria-label="Tìm người chơi" spellCheck={false}/>
+        <button type="submit" className="primary-button">Tìm</button>
+      </form>
       <button className="icon-button" onClick={onClose} aria-label="Đóng trang quản trị"><X/></button>
     </header>
-    <div className="pa-body">
-      <aside className="pa-list" aria-label="Mục quản trị">
-        <button className="pa-new pa-gift-nav" onClick={() => setTab('stats')} aria-pressed={tab === 'stats'}><BarChart3 size={16}/>Thống kê</button>
-        <button className="pa-new pa-gift-nav" onClick={() => setTab('accounts')} aria-pressed={tab === 'accounts'}><Users size={16}/>Tài khoản</button>
-        <button className="pa-new pa-gift-nav" onClick={() => setTab('fc')} aria-pressed={tab === 'fc'}><Coins size={16}/>Nạp FC</button>
-        <button className="pa-new pa-gift-nav" onClick={() => setTab('gift')} aria-pressed={tab === 'gift'}><Gift size={16}/>Gift code</button>
-        <button className="pa-new pa-gift-nav" onClick={() => setTab('audit')} aria-pressed={tab === 'audit'}><ShieldAlert size={16}/>Bất thường</button>
-        <button className="pa-new pa-gift-nav" onClick={() => setTab('clones')} aria-pressed={tab === 'clones'}><Copy size={16}/>Nghi clone</button>
-        <button className="pa-new pa-gift-nav" onClick={() => setTab('maintenance')} aria-pressed={tab === 'maintenance'}><Wrench size={16}/>Bảo trì</button>
-        <button className="pa-new pa-gift-nav" onClick={() => setTab('inventory')} aria-pressed={tab === 'inventory'}><Boxes size={16}/>Kho thẻ</button>
-      </aside>
-      {tab === 'stats' ? <Stats/> : tab === 'accounts' ? <Accounts/> : tab === 'fc' ? <CreditFc/> : tab === 'audit' ? <Anomalies/> : tab === 'clones' ? <CloneSuspects/> : tab === 'maintenance' ? <MaintenancePanel/> : tab === 'inventory' ? <InventoryAdmin/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
+    <div className="pa-body pa-admin-body">
+      <nav className="pa-list pa-admin-nav" aria-label="Mục quản trị">
+        {GROUPS.map(group => <div key={group.title} className="pa-nav-group">
+          <h2>{group.title}</h2>
+          {group.items.map(item => <button key={item.id} type="button" className="pa-nav-item" aria-current={tab === item.id ? 'page' : undefined} onClick={() => setTab(item.id)}>
+            <item.icon size={18} aria-hidden="true"/>
+            <span><b>{item.label}</b><small>{item.hint}</small></span>
+            {badgeOf(item.id)}
+          </button>)}
+        </div>)}
+      </nav>
+      <main className="pa-admin-main" aria-label={current.label}>
+        <div className="pa-admin-crumb"><current.icon size={16} aria-hidden="true"/><span>{GROUPS.find(g => g.items.includes(current))!.title}</span><b>{current.label}</b></div>
+        {tab === 'stats' ? <Stats/> : tab === 'accounts' ? <Accounts key={find.n} initialSearch={find.text}/> : tab === 'fc' ? <CreditFc/> : tab === 'audit' ? <Anomalies/> : tab === 'clones' ? <CloneSuspects/> : tab === 'maintenance' ? <MaintenancePanel/> : tab === 'inventory' ? <InventoryAdmin/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
+      </main>
     </div>
   </div>;
 }

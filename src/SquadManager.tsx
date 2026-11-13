@@ -3,7 +3,7 @@ import type { MouseEvent } from 'react';
 import { AlertTriangle, ArrowLeft, ArrowRight, ChevronDown, ChevronsUp, LayoutGrid, Lock, LockOpen, Search, Settings, ShoppingCart, Trash2 } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
 import type { Card, Player, Save, Tier } from './game';
-import { marketQuote } from './market';
+import { isTradeLocked, marketQuote } from './market';
 import { activeTeamColors, isLocked, positionGroup, squadCards, squadSummary, teamColorDetails, SQUAD_LIMIT, SQUAD_WAGE_CAP } from './squad';
 import { teamColorName } from './teamColor';
 import type { BuffResult } from './teamColor';
@@ -67,11 +67,12 @@ function Row({ card, lineup, locked, count, color, levelBadge, seasonShort, ...a
   const shownOvr = ovr(card) + (color?.ovrBonus ?? 0);
   const ovrNote = color?.applied.length ? [`OVR thẻ ${ovr(card)}`, ...color.applied.map(c => `${teamColorName(c)} +${c.ovr}`)].join(' · ') : undefined;
   // Rê chuột (hoặc chạm / Tab / bấm bánh răng) thì thanh thao tác phủ lên phần chỉ số bên phải.
+  const tradeLocked = isTradeLocked(card);
   const actions = <span className="squad-hover" role="cell">
     <button onClick={act.onLock} className={locked ? 'on' : ''} title={locked ? 'Mở khóa' : 'Khóa'} aria-label={`${locked ? 'Mở khóa' : 'Khóa'} ${p.name}`} aria-pressed={locked}>{locked ? <Lock size={16}/> : <LockOpen size={16}/>}</button>
     <button onClick={act.onDetail} title="Thông tin" aria-label={`Thông tin ${p.name}`}><Search size={16}/></button>
     <button onClick={act.onDelete} disabled={locked} title={locked ? 'Thẻ đang khóa' : 'Xóa cầu thủ'} aria-label={`Xóa ${p.name}`}><Trash2 size={16}/></button>
-    <button className="squad-act" onClick={act.onSell} disabled={locked} title={locked ? 'Thẻ đang khóa' : 'Bán ở TTCN'} aria-label={`Bán ${p.name}`}><ShoppingCart size={15}/><span>Bán</span></button>
+    <button className="squad-act" onClick={act.onSell} disabled={locked || tradeLocked} title={tradeLocked ? 'Khóa giao dịch' : locked ? 'Thẻ đang khóa' : 'Bán ở TTCN'} aria-label={`Bán ${p.name}`}><ShoppingCart size={15}/><span>Bán</span></button>
     <button className="squad-act-upgrade" onClick={act.onUpgrade} title="Đập thẻ ngay" aria-label={`Đập thẻ ${p.name}`}><svg viewBox="0 0 24 18" aria-hidden="true"><path d="M12 1.5 19.5 9H15v4.5H9V9H4.5z"/><rect x="6" y="14.5" width="12" height="2" rx=".5"/></svg></button>
     <button className="squad-move" onClick={act.onMove} aria-label={lineup ? `Đưa ${p.name} ra khỏi đội hình` : `Đưa ${p.name} vào đội hình`}>{lineup ? <><span>Rời ĐH</span><ArrowRight size={16}/></> : <><ArrowLeft size={16}/><span>Vào ĐH</span></>}</button>
   </span>;

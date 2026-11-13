@@ -104,7 +104,7 @@ html,body,#root{height:100%;overflow:hidden}
 .fco-upgrade .fco-left{overflow-x:hidden;overflow-y:auto;padding:18px;gap:10px}
 .fco-upgrade .fco-target{grid-template-columns:minmax(100px,38%) minmax(0,1fr);gap:16px;flex:1 0 auto;min-height:min-content}
 .fco-upgrade .fco-target-card{width:100%;height:100%;min-height:0;container-type:size;display:flex;align-items:center;justify-content:center}
-.fco-upgrade .fco-target-card .player-card{height:min(100cqh,calc(100cqw * 1.25));width:auto}
+.fco-upgrade .fco-target-card .player-card{width:min(100cqw,calc(100cqh * .918));height:auto}
 .fco-upgrade .fco-stats h2{font-size:26px}
 .fco-upgrade .fco-stats dl>div{padding:5px 0;font-size:12px}
 .fco-upgrade .fco-target-card .empty-card{height:100%;min-height:80px;width:100%}
@@ -146,7 +146,8 @@ html,body,#root{height:100%;overflow:hidden}
 .market-workspace .market-pagination>button{min-height:36px}
 .market-workspace .market-preview{position:relative;top:auto;height:100%;min-height:0;display:flex;flex-direction:column;padding:12px}
 .market-workspace .market-preview-card{flex:1;min-height:0;container-type:size}
-.market-workspace .market-preview-card>.player-card{width:auto;height:min(100cqh,calc(100cqw * 1.25))}
+/* Thẻ ảnh có tỉ lệ 0,918–0,932 (rộng/cao): bề ngang ≤ khung và ≤ 0,918 × chiều cao khung, chiều cao theo tỉ lệ thẻ nên thẻ vừa khung, không bị bóp, OVR / tên đúng chỗ. */
+.market-workspace .market-preview-card>.player-card{width:min(100cqw,calc(100cqh * .918));height:auto;max-width:none}
 .market-workspace .market-preview h2{margin-top:8px;font-size:18px}
 .market-workspace .market-preview dl{margin-top:8px}
 .market-workspace .market-preview dl>div{padding:5px 0}
@@ -178,7 +179,7 @@ html,body,#root{height:100%;overflow:hidden}
 .opening-finished .batch-caption{flex-shrink:0;margin-bottom:8px}
 .opening-finished .opening-batch-grid{width:100%;max-width:none;margin:0;align-items:stretch}
 .opening-batch-grid>.viewport-page-items>div{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:0;container-type:size}
-.opening-batch-grid .viewport-page-items .player-card{height:min(calc(100cqh - 58px),calc(100cqw * 1.2));width:auto}
+.opening-batch-grid .viewport-page-items .player-card{width:min(100cqw,calc((100cqh - 58px) * .918));height:auto}
 .opening-batch-grid>.viewport-page-items>div>span{font-size:13px;line-height:1.3;margin-top:6px}
 .opening-batch-grid>.viewport-page-items>div>b{font-size:10px;color:#9eb0be;margin-top:4px}
 .opening-batch-grid>.viewport-page-items>div>small{font-size:10px;color:#ecd195;margin-top:4px}

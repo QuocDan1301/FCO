@@ -212,3 +212,54 @@
 .pa-clone-bar > span { flex: 1 1 260px; min-width: 0; }
 .pa-clone-warn { color: #fca5a5; font-size: 12px; }
 .pa-clone-bar .pa-account-delete, .pa-clone-bar .secondary-button { min-height: 30px; padding: 0 12px; gap: 5px; }
+/* Nút loại tài khoản (Premium / Luxury / Huỷ): xuống dòng khi ô hẹp, không tràn sang ô bên cạnh. */
+.pa-account-columns .pa-tier-actions{flex-wrap:wrap;align-items:stretch}
+.pa-account-columns .pa-tier-actions>button{flex:1 1 140px;min-width:0;white-space:normal;line-height:1.25}
+/* ===== Trang quản trị (AdminPanel.tsx): thanh bên chia nhóm có huy hiệu, ô tìm người chơi trên đầu, nội dung một cột rộng. ===== */
+.pa-admin-header{gap:18px}
+.pa-admin-title{min-width:0}
+.pa-admin-search{display:flex;align-items:center;gap:8px;flex:1;max-width:560px;margin-left:auto;padding:0 6px 0 12px;border:1px solid #2c3644;border-radius:8px;background:#0f141c}
+.pa-admin-search:focus-within{border-color:var(--gold)}
+.pa-admin-search svg{flex:none;color:var(--muted)}
+.pa-admin-search input{flex:1;min-width:0;min-height:38px;border:0;background:none;color:#f0f1f3;font:inherit;font-size:14px;outline:none}
+.pa-admin-search .primary-button{min-height:30px;padding:0 14px;font-size:13px}
+.pa-admin-body{grid-template-columns:260px minmax(0,1fr)}
+.pa-admin-nav{gap:14px;background:#0b0f15}
+.pa-nav-group{display:flex;flex-direction:column;gap:3px}
+.pa-nav-group h2{margin:0 0 4px 10px!important;font-size:10.5px;letter-spacing:.09em}
+.pa-nav-item{position:relative;display:flex;align-items:center;gap:11px;width:100%;padding:9px 10px;border:1px solid transparent;border-radius:8px;background:none;color:#c5ccd6;text-align:left;cursor:pointer;transition:background .15s,border-color .15s}
+.pa-nav-item>svg{flex:none;color:#8f99ab}
+.pa-nav-item span{flex:1;min-width:0;display:grid;gap:1px}
+.pa-nav-item b{font-size:14px;font-weight:700;color:#e9edf2}
+.pa-nav-item small{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pa-nav-item:hover{background:#ffffff08}
+.pa-nav-item[aria-current=page]{border-color:#d9ba7655;background:linear-gradient(90deg,#d9ba761f,#d9ba7608)}
+.pa-nav-item[aria-current=page]::before{content:'';position:absolute;left:-1px;top:9px;bottom:9px;width:3px;border-radius:2px;background:var(--gold)}
+.pa-nav-item[aria-current=page]>svg{color:var(--gold)}
+.pa-nav-badge{flex:none;padding:2px 7px;border-radius:999px;font-size:10.5px;font-weight:800;white-space:nowrap}
+.pa-nav-badge.is-warn{background:#ffb35c26;color:#ffc27a;border:1px solid #ffb35c55}
+.pa-nav-badge.is-danger{background:#ff5b5b26;color:#ff9a9a;border:1px solid #ff5b5b66}
+.pa-admin-main{display:flex;flex-direction:column;gap:12px;min-width:0}
+.pa-admin-main>section,.pa-admin-main>div:not(.pa-admin-crumb){min-width:0}
+.pa-admin-crumb{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.pa-admin-crumb b{color:#e9edf2}
+.pa-admin-crumb span::after{content:'›';margin-left:7px;color:#5a6575}
+/* Mục có 2 khối (Nạp FC, Gift code…): hai cột trong vùng nội dung. */
+.pa-admin-main>.pa-gift{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(320px,.9fr);gap:24px;align-items:start}
+/* Ô quản lý một tài khoản: tóm tắt + tab. */
+.pa-account-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.pa-account-summary span{display:grid;gap:2px;padding:8px 10px;border:1px solid #222b37;border-radius:6px;background:#0f141c}
+.pa-account-summary small{font-size:11px;color:var(--muted)}
+.pa-account-summary b{font-size:15px;font-variant-numeric:tabular-nums}
+.pa-account-tabs{display:flex;flex-wrap:wrap;gap:6px;border-bottom:1px solid #222b37;padding-bottom:8px}
+.pa-account-tabs button{min-height:32px;padding:0 14px;border:1px solid #2c3644;border-radius:6px;background:#0f141c;color:#c5ccd6;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.pa-account-tabs button:hover{border-color:#3d4a5c}
+.pa-account-tabs button.is-on{border-color:var(--gold);background:#d9ba761a;color:var(--gold)}
+.pa-account-tabs button.is-danger.is-on{border-color:#e6394680;background:#e6394618;color:#ff9aa2}
+@media(max-width:1100px){.pa-admin-body{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}.pa-admin-nav{align-items:center;padding:8px 12px}.pa-nav-item b{white-space:nowrap}.pa-admin-title p{display:none}.pa-admin-nav{flex-direction:row;overflow-x:auto;gap:8px;border-right:0;border-bottom:1px solid var(--line)}.pa-nav-group{flex-direction:row;align-items:center}.pa-nav-group h2{display:none}.pa-nav-item{width:auto}.pa-nav-item small{display:none}.pa-admin-main>.pa-gift{grid-template-columns:minmax(0,1fr)}}
+/* Thống kê trong trang quản trị là cột dọc (.pa-stats dạng lưới 3 cột là của bảng số liệu ở PackAdmin). */
+.pa-admin-main>.pa-stats{display:flex;flex-direction:column;max-width:1180px}
+
+/* Tặng quà hàng loạt (Accounts.tsx): form xếp lưới trên thanh thao tác. */
+.pa-account-bulk-gift{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;align-items:end}
+.pa-account-bulk-gift .pa-gift-note{grid-column:1/-1;margin:0}

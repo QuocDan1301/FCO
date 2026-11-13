@@ -18,6 +18,12 @@ export function normalizeGmail(value: string) {
   return `${name}@gmail.com`;
 }
 export const isLegacyEmail = (email: string | null | undefined) => !!email && email.toLowerCase().endsWith('@players.fco.invalid');
+// Gmail che bớt để hiện trong Thông tin HLV: giữ 3 ký tự đầu và 2 ký tự cuối phần tên (abcdefgh@gmail.com → abc***gh@gmail.com).
+export function maskEmail(email: string) {
+  const [name = '', domain = ''] = email.split('@');
+  if (!domain) return email;
+  return name.length <= 5 ? `${name.slice(0, 1)}***@${domain}` : `${name.slice(0, 3)}***${name.slice(-2)}@${domain}`;
+}
 export function loginIdentity(value: string) {
   // Tài khoản cũ vẫn dùng tên đăng nhập; Gmail được chuẩn hoá như lúc đăng ký.
   const name = normalizeLoginName(value);

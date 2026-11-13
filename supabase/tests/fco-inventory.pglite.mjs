@@ -12,7 +12,7 @@ const fixture = JSON.parse(readFileSync(fixturePath, 'utf8'));
 const { catalog, version } = fixture;
 const db = new PGlite({ extensions: { pgcrypto } });
 await db.exec(`
-  create role anon nologin; create role authenticated nologin;
+  create role anon nologin; create role authenticated nologin; create role service_role nologin;
   create schema auth;
   create table auth.users (id uuid primary key, email text unique, created_at timestamptz not null default now(), banned_until timestamptz, encrypted_password text, updated_at timestamptz, email_change text default '', raw_user_meta_data jsonb default '{}');
   create table auth.sessions (id uuid primary key default gen_random_uuid(), user_id uuid not null);
@@ -344,7 +344,73 @@ if (files.some(f => f.includes('202611110006'))) {
   assert.equal((await as(B, `select public.fco_penalty_shoot(0, 0)`)).kind, 'normal');
   console.log(`penalty kinds OK ${JSON.stringify(seen)}`);
 }
+// 14b. Làm thủ môn (202611120013): chuỗi dùng chung với vai sút, bắt được / máy sút hỏng +1, thủng lưới hết lượt; chặn điểm sai / quá nhanh.
+if (files.some(f => f.includes('202611120013'))) {
+  await db.query(`update public.fco_penalty_runs set active = false where user_id = $1`, [B]);
+  await assert.rejects(as(B, `select public.fco_penalty_keep(0, 0)`), /FCO_PENALTY_NO_RUN/);
+  await as(B, `select public.fco_penalty_start()`);
+  await assert.rejects(as(B, `select public.fco_penalty_keep(-1.2, 0)`), /FCO_PENALTY_BAD_AIM/);
+  // Sút vào (vai sút) rồi đổi sang thủ môn: chuỗi đi tiếp.
+  let streak = 0, over = false, n = 0;
+  const seen = { saved: 0, miss: 0, goal: 0 };
+  while (!over && n < 300) {
+    await db.query(`update public.fco_penalty_runs set last_shot = now() - interval '1 second' where user_id = $1`, [B]);
+    const r = n % 2 ? await as(B, `select public.fco_penalty_keep($1, $2)`, [n % 4 === 1 ? -.75 : .75, .4]) : await as(B, `select public.fco_penalty_shoot(0.98, 0.95, 'curl')`);
+    n++;
+    assert.equal(!!r.shot, n % 2 === 0, 'lượt chẵn là bắt (có cú sút của máy), lượt lẻ là sút');
+    if (r.over) { over = true; assert.equal(r.streak, streak); if (r.shot) seen.goal++; break; }
+    streak++; assert.equal(r.streak, streak);
+    if (r.shot) { assert.ok(Math.abs(r.shot.x) <= 1 && r.shot.y >= 0 && r.shot.y <= 1); assert.ok(['normal', 'curl', 'power', 'trivela'].includes(r.shot.kind)); if (r.miss) seen.miss++; else { assert.equal(r.saved, true); seen.saved++; } }
+  }
+  assert.ok(over, 'phải có lúc thất bại');
+  assert.ok(await one(`select penalty_best >= $2 from public.fco_ranks where user_id = $1`, [B, streak]), 'kỷ lục tính cả lượt bắt được');
+  await assert.rejects(as(B, `select public.fco_penalty_keep(0, 0)`), /FCO_PENALTY_NO_RUN/);
+  // 200 lượt bắt liên tục (mở lại lượt khi thua): có bắt được, có máy sút hỏng, có thủng lưới; thành công thì chuỗi +1.
+  for (let i = 0; i < 200; i++) {
+    const before = await one(`select streak from public.fco_penalty_runs where user_id = $1`, [B]);
+    await db.query(`update public.fco_penalty_runs set active = true, last_shot = now() - interval '1 second' where user_id = $1`, [B]);
+    const r = await as(B, `select public.fco_penalty_keep($1, $2)`, [i % 2 ? -.75 : .75, (i % 3) / 2]);
+    if (r.goal) { seen.goal++; assert.equal(r.over, true); assert.equal(r.saved, false); assert.equal(r.miss, null); assert.equal(r.streak, before); }
+    else { assert.equal(r.over, false); assert.equal(r.streak, before + 1); if (r.miss) { assert.ok(['bar', 'post'].includes(r.miss)); seen.miss++; } else { assert.equal(r.saved, true); seen.saved++; } }
+  }
+  assert.ok(seen.saved > 20 && seen.miss > 0 && seen.goal > 20, JSON.stringify(seen));
+  // Quá nhanh bị chặn.
+  await as(B, `select public.fco_penalty_start()`);
+  await db.query(`update public.fco_penalty_runs set last_shot = now() where user_id = $1`, [B]);
+  await assert.rejects(as(B, `select public.fco_penalty_keep(0, 0)`), /FCO_PENALTY_TOO_FAST/);
+  // Tỷ lệ: đúng điểm 90%, lệch hẳn sang bên kia 5%, chuỗi dài khó hơn.
+  assert.ok(Math.abs(await one(`select public.fco_penalty_keep_chance(.7, .4, .7, .4, 0)`) - .9) < 1e-9);
+  assert.ok(Math.abs(await one(`select public.fco_penalty_keep_chance(-.8, .2, .8, .9, 0)`) - .05) < 1e-9);
+  assert.ok(Math.abs(await one(`select public.fco_penalty_keep_chance(.7, .4, .7, .4, 40)`) - .75) < 1e-9);
+  // Mô phỏng 3.000 lượt (đoán một góc cố định): bắt / máy hỏng khoảng 35–60%, không dễ hơn sút.
+  const rate = await one(`select avg((random() < .04 + public.fco_penalty_miss_chance(s.x, s.y, s.k) or random() < public.fco_penalty_keep_chance(-.75, .4, s.x, s.y, 0))::int)::float8
+    from (select case when r < .4 then -(.45 + random() * .55) when r < .8 then .45 + random() * .55 else (random() - .5) * .9 end x, random() y,
+                 (array['normal', 'curl', 'power', 'trivela'])[1 + floor(random() * 4)::integer] k from (select random() r from generate_series(1, 3000)) g) s`);
+  assert.ok(rate > .3 && rate < .65, `tỷ lệ thủ môn thành công ${rate}`);
+  assert.equal(await one(`select title from public.fco_stp_mission_defs where id = 'penalty20'`), 'Đạt chuỗi 20 trong Penalty');
+  await assert.rejects(as(B, `select public.fco_penalty_keep_chance(0, 0, 0, 0, 0)`), /permission denied/);
+  console.log(`penalty keeper OK ${JSON.stringify(seen)} rate=${rate.toFixed(2)}`);
+}
 
+// 14c. Tặng quà hàng loạt (202611130002): FC vào ví mỗi tài khoản, gọi lại cùng đợt không tặng trùng, gói chờ nhận, chỉ admin.
+if (files.some(f => f.includes('202611130002'))) {
+  const fcOf = uid => one(`select fc from public.fco_wallets where user_id = $1`, [uid]);
+  const [b0, c0] = [await fcOf(B) ?? 0, await fcOf(C) ?? 0];
+  const batch = '11111111-2222-3333-4444-555555555555';
+  await assert.rejects(as(B, `select public.fco_admin_gift_bulk($1, $2::uuid[], false, null, null, 100)`, [batch, [B, C]]), /FCO_ADMIN_ONLY/);
+  let r = await as(A, `select public.fco_admin_gift_bulk($1, $2::uuid[], false, null, null, 100, null, null, 'quà sự kiện')`, [batch, [B, C]]);
+  assert.deepEqual([r.sent, r.remaining, r.total], [2, 0, 2]);
+  r = await as(A, `select public.fco_admin_gift_bulk($1, $2::uuid[], false, null, null, 100, null, null, 'quà sự kiện')`, [batch, [B, C]]);
+  assert.deepEqual([r.sent, r.total], [0, 2], 'gọi lại cùng đợt không tặng trùng');
+  assert.deepEqual([await fcOf(B), await fcOf(C)], [b0 + 100, c0 + 100]);
+  assert.equal(await one(`select count(*)::int from public.fco_fc_ledger where reason = 'admin_gift' and detail->>'batch' = $1`, [batch]), 2);
+  // Gói cho mọi tài khoản khớp tìm kiếm "player_" (B, C), không cho admin A.
+  r = await as(A, `select public.fco_admin_gift_bulk(gen_random_uuid(), null, true, 'player_', null, null, 'eternal', 2, '')`);
+  assert.equal(r.total, 2);
+  assert.ok((await as(B, `select public.fco_my_admin_gifts()`)).some(g => g.rewards[0].pack === 'eternal' && g.rewards[0].count === 2));
+  await assert.rejects(as(A, `select public.fco_admin_gift_bulk(gen_random_uuid(), $1::uuid[], false, null, null, 100, 'eternal', 1)`, [[B]]), /FCO_GIFT_BAD_REWARDS/);
+  console.log('admin bulk gift OK');
+}
 // 15. Star Point (202611110007): admin cộng STP, mua gói STP nhận đủ vật phẩm, phiếu giảm thuế do máy chủ giữ và dùng một lần khi bán.
 if (files.some(f => f.includes('202611110007'))) {
   await db.query(`select public.fco_wallet_lock($1)`, [B]);
@@ -615,6 +681,10 @@ if (files.some(f => f.includes('202611120002'))) {
   // C đá → gặp B (người thật, điểm gần): đối thủ là đội hình của B, tên công khai của B.
   r = await as(C, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team('rc'))]);
   assert.equal(r.opp.bot, false); assert.equal(r.opp.name, 'player_b'); assert.equal(r.opp.slots.length, 11); assert.equal(r.opp.slots[0].uid, undefined, 'không lộ thẻ đối thủ');
+  if (files.some(f => f.includes('202611120012'))) {
+    // Danh sách đội hình trong trận hiện cầu thủ + cấp của đối thủ (lấy từ kho máy chủ).
+    assert.deepEqual(r.opp.slots.map(s => s.pid), strong.map(p => p[0])); assert.ok(r.opp.slots.every(s => s.lv === 1));
+  }
   if (files.some(f => f.includes('202611120005'))) {
     // C tải lại trang giữa trận: trận vẫn chạy, mở lại thấy 'live' để xem tiếp, chưa tính điểm; không đá được trận mới.
     let cs = await as(C, `select public.fco_ranked_state()`);
@@ -640,6 +710,50 @@ if (files.some(f => f.includes('202611120002'))) {
   // Lịch sử + BXH.
   st = await as(B, `select public.fco_ranked_state()`);
   assert.equal(st.history.length, 1); assert.ok(st.top.some(t => t.mine));
+  if (files.some(f => f.includes('202611130001'))) {
+    // Chỉ số cầu thủ: SQL khớp game (rawStats / teamRating), trận có sức công / thủ và chỉ số từng ô.
+    for (const [id, pos, overall, values] of fixture.statSamples) {
+      const got = await one(`select public.fco_stat_values($1, $2, $3)`, [id, pos, overall]);
+      assert.equal(got.length, values.length, `${id}`);
+      got.forEach((v, i) => assert.ok(Math.abs(v - values[i]) < 1e-9, `chỉ số ${id} #${i}: ${v} ≠ ${values[i]}`));
+    }
+    for (const { slots, rating } of fixture.teamSamples) {
+      const got = await one(`select public.fco_team_rating($1::jsonb)`, [JSON.stringify(slots)]);
+      assert.ok(Math.abs(got.attack - rating.attack) < 1e-9 && Math.abs(got.defense - rating.defense) < 1e-9, JSON.stringify({ got, rating }));
+    }
+    await db.query(`update public.fco_ranked set last_match_at = null where user_id = $1`, [B]);
+    await db.query(`update public.fco_ranked_pending set started_at = now() - interval '300 seconds' where user_id = $1`, [B]);
+    await as(B, `select public.fco_ranked_state()`);
+    const rm = await as(B, `select public.fco_ranked_play($1::jsonb)`, [JSON.stringify(team('rk'))]);
+    assert.ok(rm.me.attack > 0 && rm.me.defense > 0 && rm.opp.attack > 0 && rm.opp.defense > 0, JSON.stringify([rm.me.attack, rm.me.defense, rm.opp.attack, rm.opp.defense]));
+    assert.ok(rm.me.slots.every(s => typeof s.att === 'number' && typeof s.pace === 'number' && s.pid > 0), 'ô đội mình có chỉ số');
+    assert.ok(rm.opp.slots.every(s => typeof s.att === 'number'), 'ô đối thủ có chỉ số');
+    assert.equal(await one(`select pos from public.fco_cat_players where id = $1`, [strong[0][0]]), catalog.players.find(p => p[0] === strong[0][0])[7]);
+    // Người ghi bàn ưu tiên dứt điểm tốt: cùng vị trí, att cao hơn thì trọng số lớn hơn.
+    assert.ok(await one(`select public.fco_ranked_pick_weight('{"role":"ST","ovr":120,"att":130}'::jsonb, false) > public.fco_ranked_pick_weight('{"role":"ST","ovr":120,"att":110}'::jsonb, false)`));
+    await db.query(`update public.fco_ranked_pending set started_at = now() - interval '300 seconds' where user_id = $1`, [B]);
+    await as(B, `select public.fco_ranked_state()`);
+    console.log('ranked stats OK');
+  }
+  if (files.some(f => f.includes('202611120012'))) {
+    // Xem đội hình HLV khác từ BXH: đúng người theo hạng, 11 ô cầu thủ + cấp, không lộ mã thẻ; chưa xếp đội hình → lineup null.
+    const rankB = st.top.findIndex(t => t.mine) + 1;
+    let v = await as(C, `select public.fco_view_lineup('ranked', $1)`, [rankB]);
+    assert.equal(v.name, 'player_b'); assert.equal(v.mine, false); assert.equal(v.lineup, null);
+    await setSave(B, { ...(await save(B)), squad: cards('rk').map(c => c.uid), lineups: { active: 0, sets: [{ formation: '4-3-3', slots: [...cards('rk').map(c => c.uid).slice(0, 10), 'gone'], custom: [{ label: 'ST', x: 50, y: 10 }] }] } });
+    v = await as(C, `select public.fco_view_lineup('ranked', $1)`, [rankB]);
+    assert.equal(v.lineup.formation, '4-3-3'); assert.equal(v.lineup.slots.length, 11);
+    assert.deepEqual(v.lineup.slots.slice(0, 10).map(s => s.playerId), strong.slice(0, 10).map(p => p[0]));
+    assert.equal(v.lineup.slots[10], null, 'thẻ không còn trong kho thì ô trống');
+    assert.equal(v.lineup.custom.length, 11); assert.equal(v.lineup.custom[0].label, 'ST');
+    assert.ok(!JSON.stringify(v).includes('rk0'), 'không lộ mã thẻ');
+    assert.equal((await as(B, `select public.fco_view_lineup('ranked', $1)`, [rankB])).mine, true);
+    assert.equal(await as(C, `select public.fco_view_lineup('ranked', 20)`), null);
+    await assert.rejects(as(C, `select public.fco_view_lineup('xx', 1)`), /FCO_BAD_BOARD/);
+    await assert.rejects(as(C, `select public.fco_view_lineup('ovr', 0)`), /FCO_BAD_RANK/);
+    await assert.rejects(as(C, `select public.fco_lineup_public($1)`, [B]), /permission denied/);
+    console.log('view lineup OK');
+  }
   // Thống kê nhiều trận: đội mạnh hơn hẳn thắng nhiều hơn thua.
   let w = 0, l = 0;
   for (let i = 0; i < 60; i++) {
@@ -744,6 +858,31 @@ if (files.some(f => f.includes('202611120008'))) {
     assert.equal(feed[0].effect, null, 'hết Premium thì không còn hiệu ứng');
   }
   console.log('live feed OK');
+}
+
+
+// 28. Hạng Luxury (202611120011): 30 ngày cộng dồn, thuế 10%, hiệu ứng Luxury chỉ cho Luxury.
+if (files.some(f => f.includes('202611120011'))) {
+  await as(A, `select public.fco_admin_account_tier($1, 'classic')`, [C]);
+  let r = await as(A, `select public.fco_admin_account_tier($1, 'luxury')`, [C]);
+  assert.equal(r.tier, 'luxury');
+  const first = r.until;
+  r = await as(A, `select public.fco_admin_account_tier($1, 'luxury')`, [C]);
+  assert.ok(Math.abs(r.until - first - 30 * 86400e3) < 5000, 'cộng dồn 30 ngày');
+  assert.equal(await one(`select public.fco_inv_tax($1, $2::jsonb)`, [C, JSON.stringify({ marketFee: 40, membership: { svip: 28, premium: 20 } })]), 10);
+  assert.equal((await as(C, `select public.fco_set_name_effect('prism')`)).effect, 'prism');
+  let w = await as(C, `select public.fco_wallet()`);
+  assert.deepEqual([w.tier, w.effect, typeof w.tierUntil], ['luxury', 'prism', 'number']);
+  // Về Premium: hiệu ứng Luxury không hiện, không đặt được; hiệu ứng thường vẫn được.
+  await as(A, `select public.fco_admin_account_tier($1, 'premium')`, [C]);
+  w = await as(C, `select public.fco_wallet()`);
+  assert.deepEqual([w.tier, w.effect], ['premium', null]);
+  await assert.rejects(as(C, `select public.fco_set_name_effect('diamond')`), /FCO_LUXURY_ONLY/);
+  assert.equal((await as(C, `select public.fco_set_name_effect('gold')`)).effect, 'gold');
+  assert.equal(await one(`select public.fco_inv_tax($1, $2::jsonb)`, [C, JSON.stringify({ marketFee: 40, membership: { svip: 28, premium: 20 } })]), 14);
+  await assert.rejects(as(A, `select public.fco_admin_account_tier($1, 'vip')`, [C]), /FCO_BAD_TIER/);
+  await as(A, `select public.fco_admin_account_tier($1, 'classic')`, [C]);
+  console.log('luxury OK');
 }
 
 console.log('ALL OK');

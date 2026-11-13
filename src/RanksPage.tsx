@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import type { ReactNode } from 'react';
 import { Crown, Medal, RefreshCw, Shirt, Swords, Target, Trophy } from 'lucide-react';
 import { getPlayer, money, players } from './game';
@@ -9,16 +10,27 @@ import { nameEffectClass } from './name-effects';
 import { clubLogoUrl } from './club-logo';
 import { tierById } from './ranked';
 import type { RankedState } from './ranked';
+import LineupViewer from './LineupViewer';
+import type { LineupBoardId, PublicLineupView } from './public-lineup';
 
 // Bảng xếp hạng HLV (supabase/migrations/202611080001_fco_ranks.sql): top 10 kỷ lục đập thẻ OVR cao nhất, giá trị đội hình đang dùng,
 // Penalty và GLXH (điểm xếp hạng giả lập, fco_ranked_state). Game gửi số lên ở App.tsx (đập thành công / Giá trị ĐH đổi); trang này chỉ đọc.
 // loadRanked: BXH GLXH (fco_ranked_state) — bảng thứ tư, top 10 theo điểm xếp hạng.
-type Props = { load: () => Promise<Leaderboard>; loadRanked?: () => Promise<RankedState>; online: boolean; levelBadge: (level: number) => string };
+// viewLineup: bấm một HLV để xem đội hình đang dùng của họ (fco_view_lineup).
+type Props = { load: () => Promise<Leaderboard>; loadRanked?: () => Promise<RankedState>; online: boolean; levelBadge: (level: number) => string; viewLineup?: (board: LineupBoardId, rank: number) => Promise<PublicLineupView | null> };
 
 const PLACE = ['gold', 'silver', 'bronze'];
 const known = new Set(players.map(p => p.id));
 
-export default function RanksPage({ load, loadRanked, online, levelBadge }: Props) {
+export default function RanksPage({ load, loadRanked, online, levelBadge, viewLineup }: Props) {
+  const [viewing, setViewing] = useState<{ board: LineupBoardId; rank: number; name: string } | null>(null);
+  // Dòng HLV bấm được (chuột / Enter / Space) để mở đội hình.
+  const open = (board: LineupBoardId, rank: number, name: string) => viewLineup ? {
+    role: 'button', tabIndex: 0, title: `Xem đội hình của ${name}`,
+    onClick: () => setViewing({ board, rank, name }),
+    onKeyDown: (e: ReactKeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setViewing({ board, rank, name }); } },
+  } : {};
+  const link = viewLineup ? ' is-link' : '';
   const [data, setData] = useState<Leaderboard | null>(null);
   const [ranked, setRanked] = useState<RankedState | null>(null);
   const [error, setError] = useState('');
@@ -36,7 +48,7 @@ export default function RanksPage({ load, loadRanked, online, levelBadge }: Prop
 
   const ovrRows = (data?.ovr ?? []).map((r, i) => {
     const p = r.playerId && known.has(r.playerId) ? getPlayer({ playerId: r.playerId }) : undefined;
-    return <li key={i} className={`rk-row ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}`}>
+    return <li key={i} className={`rk-row ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}${link}`} {...open('ovr', i + 1, r.name)}>
       <span className="rk-rank">{i + 1}</span>
       <span className="rk-coach">{clubLogoUrl(r.club) && <img className="rk-club" src={clubLogoUrl(r.club)!} alt=""/>}<span className={nameEffectClass(r.effect).trim() || undefined}>{r.name}</span>{r.mine && <em>Bạn</em>}</span>
       <span className="rk-card">
@@ -48,17 +60,17 @@ export default function RanksPage({ load, loadRanked, online, levelBadge }: Prop
       <strong className="rk-value">{r.ovr}<small>OVR</small></strong>
     </li>;
   });
-  const squadRows = (data?.squad ?? []).map((r, i) => <li key={i} className={`rk-row rk-row-squad ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}`}>
+  const squadRows = (data?.squad ?? []).map((r, i) => <li key={i} className={`rk-row rk-row-squad ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}${link}`} {...open('squad', i + 1, r.name)}>
     <span className="rk-rank">{i + 1}</span>
     <span className="rk-coach">{clubLogoUrl(r.club) && <img className="rk-club" src={clubLogoUrl(r.club)!} alt=""/>}<span className={nameEffectClass(r.effect).trim() || undefined}>{r.name}</span>{r.mine && <em>Bạn</em>}</span>
     <strong className="rk-value">{money(r.value)}<small>BP</small></strong>
   </li>);
-  const penaltyRows = (data?.penalty ?? []).map((r, i) => <li key={i} className={`rk-row rk-row-squad ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}`}>
+  const penaltyRows = (data?.penalty ?? []).map((r, i) => <li key={i} className={`rk-row rk-row-squad ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}${link}`} {...open('penalty', i + 1, r.name)}>
     <span className="rk-rank">{i + 1}</span>
     <span className="rk-coach">{clubLogoUrl(r.club) && <img className="rk-club" src={clubLogoUrl(r.club)!} alt=""/>}<span className={nameEffectClass(r.effect).trim() || undefined}>{r.name}</span>{r.mine && <em>Bạn</em>}</span>
-    <strong className="rk-value">{r.goals}<small>bàn</small></strong>
+    <strong className="rk-value">{r.goals}<small>chuỗi</small></strong>
   </li>);
-  const rankedRows = (ranked?.top ?? []).slice(0, 10).map((r, i) => { const tier = tierById(r.tier); return <li key={i} className={`rk-row rk-row-squad rk-row-ranked ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}`}>
+  const rankedRows = (ranked?.top ?? []).slice(0, 10).map((r, i) => { const tier = tierById(r.tier); return <li key={i} className={`rk-row rk-row-squad rk-row-ranked ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}${link}`} {...open('ranked', i + 1, r.name)}>
     <span className="rk-rank">{i + 1}</span>
     <span className="rk-coach">{clubLogoUrl(r.club) && <img className="rk-club" src={clubLogoUrl(r.club)!} alt=""/>}<span className={nameEffectClass(r.effect as never).trim() || undefined}>{r.name}</span>{r.mine && <em>Bạn</em>}</span>
     <strong className="rk-value"><span>{r.points.toLocaleString('vi-VN')}<small>điểm</small></span><span className="rk-tier" style={{ color: tier.color }}><Medal aria-hidden="true"/>{tier.name}</span></strong>
@@ -74,7 +86,7 @@ export default function RanksPage({ load, loadRanked, online, levelBadge }: Prop
     <div className="rk-boards">
       <article className="rk-board" aria-label="Top 10 đập thẻ OVR cao nhất">
         <h2><Crown aria-hidden="true"/>Đập thẻ OVR cao nhất</h2>
-        <p className="rk-sub">Kỷ lục OVR khi đập thẻ thành công</p>
+        <p className="rk-sub">Kỷ lục OVR khi đập thẻ thành công{viewLineup ? ' · bấm HLV để xem đội hình' : ''}</p>
         <ol className="rk-list">{ten(ovrRows)}</ol>
         <p className="rk-me">{me?.ovr ? <>Hạng của bạn: <b>#{me.ovrRank}</b> · {me.ovr} OVR</> : 'Bạn chưa có kỷ lục — đập thẻ thành công để lên bảng.'}</p>
       </article>
@@ -86,9 +98,9 @@ export default function RanksPage({ load, loadRanked, online, levelBadge }: Prop
       </article>
       <article className="rk-board" aria-label="Top 10 Penalty">
         <h2><Target aria-hidden="true"/>Penalty</h2>
-        <p className="rk-sub">Chuỗi bàn thắng liên tiếp dài nhất</p>
+        <p className="rk-sub">Chuỗi dài nhất (sút vào hoặc bắt được)</p>
         <ol className="rk-list">{ten(penaltyRows)}</ol>
-        <p className="rk-me">{me?.penalty ? <>Hạng của bạn: <b>#{me.penaltyRank}</b> · {me.penalty} bàn</> : 'Bạn chưa có kỷ lục — vào Penalty ở trang chủ để chơi.'}</p>
+        <p className="rk-me">{me?.penalty ? <>Hạng của bạn: <b>#{me.penaltyRank}</b> · chuỗi {me.penalty}</> : 'Bạn chưa có kỷ lục — vào Penalty ở trang chủ để chơi.'}</p>
       </article>
       {loadRanked && <article className="rk-board" aria-label="Top 10 GLXH">
         <h2><Swords aria-hidden="true"/>GLXH</h2>
@@ -97,5 +109,6 @@ export default function RanksPage({ load, loadRanked, online, levelBadge }: Prop
         <p className="rk-me">{rankedMe?.rank ? <>Hạng của bạn: <b>#{rankedMe.rank}</b> · {rankedMe.points.toLocaleString('vi-VN')} điểm · {tierById(rankedMe.tier).name}</> : 'Bạn chưa đá trận GLXH nào — vào GLXH ở trang chủ để thi đấu.'}</p>
       </article>}
     </div>
+    {viewing && viewLineup && <LineupViewer {...viewing} load={viewLineup} levelBadge={levelBadge} onClose={() => setViewing(null)}/>}
   </section>;
 }

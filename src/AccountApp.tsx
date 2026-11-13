@@ -63,10 +63,10 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
   const login = () => run(async () => {
     const email = loginIdentity(identifier);
     const { error } = await client().auth.signInWithPassword({ email, password });
-    // Gmail chưa nhập mã xác nhận: gửi lại mã và chuyển sang bước nhập mã.
-    if (error && (error as { code?: string }).code === 'email_not_confirmed') {
-      await client().auth.resend({ type: 'signup', email });
-      sentTo(email, 'verify', `Gmail này chưa xác nhận. Đã gửi lại mã 6 số tới ${email}.`);
+    // Gmail chưa nhập mã xác nhận: chuyển sang ô nhập mã, KHÔNG tự gửi mã mới (mã mới làm mã trong mail mất hiệu lực).
+    if (error && ((error as { code?: string }).code === 'email_not_confirmed' || /email not confirmed/i.test(error.message))) {
+      setGmail(email); setMode('verify'); setCode(''); setCooldown(0); setError('');
+      setMessage(`Gmail ${email} chưa xác nhận. Nhập mã 6 số trong mail mới nhất (xem cả Spam / Quảng cáo), hoặc bấm "Gửi lại mã".`);
       return;
     }
     if (error) throw error;
@@ -80,12 +80,18 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
     if (error) throw error;
     if (data.session) return; // Máy chủ chưa bật xác nhận email: vào game luôn.
     // Gmail đã có tài khoản (Supabase không báo lỗi để chống dò email): identities rỗng.
-    if (data.user && data.user.identities?.length === 0) throw new Error('Gmail này đã có tài khoản. Hãy đăng nhập, hoặc dùng "Quên mật khẩu".');
+    // Gmail đã đăng ký trước đó (Supabase không nói rõ đã xác nhận hay chưa): gửi lại mã và mở ô nhập mã cho trường hợp chưa xác nhận.
+    if (data.user && data.user.identities?.length === 0) {
+      const again = await client().auth.resend({ type: 'signup', email });
+      if (again.error) throw new Error('Gmail này đã có tài khoản. Hãy đăng nhập, hoặc dùng "Quên mật khẩu".');
+      sentTo(email, 'verify', `Gmail này đã đăng ký nhưng chưa xác nhận. Đã gửi lại mã 6 số tới ${email}. Nếu bạn đã xác nhận rồi, hãy bấm "Quay lại đăng nhập".`);
+      return;
+    }
     sentTo(email, 'verify', `Đã gửi mã 6 số tới ${email}. Mở Gmail (xem cả mục Spam / Quảng cáo) và nhập mã để hoàn tất.`);
   });
 
   const verify = () => run(async () => {
-    const { error } = await client().auth.verifyOtp({ email: gmail, token: code.trim(), type: 'signup' });
+    const { error } = await client().auth.verifyOtp({ email: normalizeGmail(gmail), token: code.trim(), type: 'signup' });
     if (error) throw error;
   });
 
@@ -110,9 +116,10 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
   });
 
   const resend = () => run(async () => {
-    const { error } = mode === 'reset' ? await client().auth.resetPasswordForEmail(gmail) : await client().auth.resend({ type: 'signup', email: gmail });
+    const email = normalizeGmail(gmail);
+    const { error } = mode === 'reset' ? await client().auth.resetPasswordForEmail(email) : await client().auth.resend({ type: 'signup', email });
     if (error) throw error;
-    setCooldown(RESEND_SECONDS); setMessage(`Đã gửi lại mã tới ${gmail}.`);
+    setGmail(email); setCooldown(RESEND_SECONDS); setMessage(`Đã gửi lại mã tới ${email}. Chỉ mã trong mail MỚI NHẤT dùng được.`);
   });
 
   const submit = (event: FormEvent) => { event.preventDefault(); void ({ login, register, verify, forgot, reset }[mode])(); };
@@ -123,7 +130,7 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
   const titles: Record<Mode, [string, string]> = {
     login: ['Trở lại sân cỏ', 'Đăng nhập bằng Gmail. Tài khoản cũ vẫn dùng tên đăng nhập như trước.'],
     register: ['Tạo tài khoản mới', 'Đăng ký bằng Gmail. Mã xác nhận 6 số sẽ được gửi về Gmail của bạn.'],
-    verify: ['Xác nhận Gmail', 'Nhập mã 6 số vừa gửi tới Gmail để mở tài khoản.'],
+    verify: ['Xác nhận Gmail', 'Nhập mã 6 số trong mail gửi tới Gmail để mở tài khoản.'],
     forgot: ['Quên mật khẩu', 'Nhập Gmail đã đăng ký để nhận mã đặt lại mật khẩu.'],
     reset: ['Đặt mật khẩu mới', 'Nhập mã 6 số trong Gmail và mật khẩu mới.'],
   };
@@ -136,12 +143,14 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
       <fieldset disabled={busy || !configured}>
         {mode === 'login' && <><label htmlFor="account-username">Gmail hoặc tên đăng nhập<input id="account-username" name="username" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} required minLength={3} maxLength={254} value={identifier} onChange={e => setIdentifier(e.target.value)}/></label>{passwordField('Mật khẩu', 'current-password')}</>}
         {mode === 'register' && <><label htmlFor="account-name">Tên huấn luyện viên<input id="account-name" name="name" autoComplete="nickname" required maxLength={40} value={name} onChange={e => setName(e.target.value)}/></label>{gmailField}<small>Chỉ nhận địa chỉ @gmail.com. Mỗi Gmail một tài khoản.</small>{passwordField('Mật khẩu', 'new-password')}<small>Dùng ít nhất 8 ký tự.</small>{confirmField}</>}
-        {mode === 'verify' && codeField}
+        {mode === 'verify' && <>{gmailField}{codeField}</>}
         {mode === 'forgot' && gmailField}
         {mode === 'reset' && <>{codeField}{passwordField('Mật khẩu mới', 'new-password')}{confirmField}</>}
         <button className="account-primary" type="submit">{busy ? 'Đang xử lý…' : button[mode]}<ArrowRight size={18}/></button>
-        {(mode === 'verify' || mode === 'reset') && <button type="button" className="account-guest" disabled={busy || cooldown > 0} onClick={() => void resend()}>{cooldown > 0 ? `Gửi lại mã sau ${cooldown} giây` : 'Gửi lại mã'}</button>}
+        {(mode === 'verify' || mode === 'reset') && <button type="button" className="account-guest" disabled={busy || cooldown > 0 || !gmail.trim()} onClick={() => void resend()}>{cooldown > 0 ? `Gửi lại mã sau ${cooldown} giây` : 'Gửi lại mã'}</button>}
         {mode === 'login' && <button type="button" className="account-guest" disabled={busy} onClick={() => { changeMode('forgot'); if (identifier.includes('@')) setGmail(identifier); }}>Quên mật khẩu?</button>}
+        {/* Đã đăng ký nhưng lỡ đóng màn nhập mã: vào thẳng ô nhập mã (không gửi mã mới). */}
+        {(mode === 'login' || mode === 'register') && !closed && <button type="button" className="account-guest" disabled={busy} onClick={() => { const g = mode === 'login' && identifier.includes('@') ? identifier : gmail; changeMode('verify'); setGmail(g); setMessage('Nhập Gmail đã đăng ký và mã 6 số trong mail mới nhất. Chưa có mã thì bấm "Gửi lại mã".'); }}>Đã đăng ký? Nhập mã xác nhận</button>}
         {(mode === 'forgot' || mode === 'reset' || mode === 'verify') && <button type="button" className="account-guest" disabled={busy} onClick={() => changeMode('login')}>Quay lại đăng nhập</button>}
       </fieldset>
       {error && <p className="account-error" role="alert">{error}</p>}{message && <p className="account-notice" role="status">{message}</p>}

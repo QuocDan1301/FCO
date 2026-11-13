@@ -21,6 +21,8 @@ export function playedDays(joined: number, now = Date.now()) {
   return Math.max(1, Math.round((today - start) / 86_400_000) + 1);
 }
 // Loại tài khoản do admin đặt cho từng người chơi (fco_wallets.account_tier, migration 202611110003), không phải gói thành viên trong Shop.
-export type AccountTier = 'classic' | 'premium';
-export const ACCOUNT_TIERS: Record<AccountTier, string> = { classic: 'Classic', premium: 'Premium' };
-export const accountTierOf = (tier: unknown): AccountTier => tier === 'premium' ? 'premium' : 'classic';
+export type AccountTier = 'classic' | 'premium' | 'luxury';
+export const ACCOUNT_TIERS: Record<AccountTier, string> = { classic: 'Classic', premium: 'Premium', luxury: 'Luxury' };
+export const accountTierOf = (tier: unknown): AccountTier => tier === 'premium' || tier === 'luxury' ? tier : 'classic';
+// Hạng trả phí (Premium / Luxury, migration 202611120011): dùng được hiệu ứng tên; Luxury thêm hiệu ứng riêng.
+export const paidTier = (tier: unknown) => tier === 'premium' || tier === 'luxury';

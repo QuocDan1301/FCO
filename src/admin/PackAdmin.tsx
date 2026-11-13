@@ -24,7 +24,7 @@ const HASH = '#quan-tri';
 const NEW = 'new';
 // Mã gói mặc định không dùng lại cho gói mới (bản lưu người chơi còn số gói theo mã này); chữ in trên ảnh gốc để ghép lại khi cần.
 const defaultIds = new Set(defaultPacks.map(pack => pack.id));
-const DEFAULT_TITLES: Record<string, string> = { ws: 'WINNING STREAK', ld: 'LAST DANCE', hr26: '26 HEROES', hr24: '24 HEROES', chelsea: 'AMBASSADOR CHELSEA FC', eternal: 'THE MOMENT', stellar: '26 TOTS', stellar5: '26 TOTS', origin: 'NUMBER 7', prime: 'INFINITE PRIME', vietnam: 'VIET NAM', prm: 'PRIME', mdl: 'MEDALIST', amb: 'FC AMBASSADOR', uc: 'UC', wg: 'WG', ut: 'UT', cu: 'CU', gru: 'GRU', rtn: 'RTN', dc: 'DC', cc: 'CC', bld: 'BEST LEGENDS', wb: 'WONDERBOYS', spt: 'SPARTAN', bdo: 'BALLON D’OR', hw23: '23 HARD WORKER', ep24: '24 ENERGETIC PLAYER', ptg: 'PATH TO GLORY', le: 'LEGEND OF EUROPA', hg: 'HOME GROWN', spl: 'SPOTLIGHT', ln: 'LEGENDARY NUMBERS', fa: 'FREE AGENT', lol: 'LEGEND OF THE LOAN', cap: 'CAPTAIN CLASS', boe21: 'BEST OF EUROPE 21', btb: 'BACK TO BACK', ebs: 'EUROPEAN BEST STARS', juventus: 'AMBASSADOR JUVENTUS', jnm: 'JOURNEYMAN', hr25: '25 HEROES', up26: '26 UP', live: 'LIVE' };
+const DEFAULT_TITLES: Record<string, string> = { tsubasa: 'CAPTAIN TSUBASA', el: 'ETERNAL LEGENDS', ws: 'WINNING STREAK', ld: 'LAST DANCE', hr26: '26 HEROES', hr24: '24 HEROES', chelsea: 'AMBASSADOR CHELSEA FC', eternal: 'THE MOMENT', stellar: '26 TOTS', stellar5: '26 TOTS', origin: 'NUMBER 7', prime: 'INFINITE PRIME', vietnam: 'VIET NAM', prm: 'PRIME', mdl: 'MEDALIST', amb: 'FC AMBASSADOR', uc: 'UC', wg: 'WG', ut: 'UT', cu: 'CU', gru: 'GRU', rtn: 'RTN', dc: 'DC', cc: 'CC', bld: 'BEST LEGENDS', wb: 'WONDERBOYS', spt: 'SPARTAN', bdo: 'BALLON D’OR', hw23: '23 HARD WORKER', ep24: '24 ENERGETIC PLAYER', ptg: 'PATH TO GLORY', le: 'LEGEND OF EUROPA', hg: 'HOME GROWN', spl: 'SPOTLIGHT', ln: 'LEGENDARY NUMBERS', fa: 'FREE AGENT', lol: 'LEGEND OF THE LOAN', cap: 'CAPTAIN CLASS', boe21: 'BEST OF EUROPE 21', btb: 'BACK TO BACK', ebs: 'EUROPEAN BEST STARS', juventus: 'AMBASSADOR JUVENTUS', jnm: 'JOURNEYMAN', hr25: '25 HEROES', up26: '26 UP', live: 'LIVE' };
 const percent = (value: number) => `${new Intl.NumberFormat('vi-VN', { maximumFractionDigits: value < .1 ? 2 : 1 }).format(value * 100)}%`;
 const round3 = (value: number) => { if (value <= 0) return 0; const step = 10 ** Math.max(0, Math.floor(Math.log10(value)) - 2); return Math.round(value / step) * step; };
 const slug = (text: string) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24);
@@ -59,10 +59,11 @@ function defaultEntry(pack: Pack): CustomPackData {
   return { id: pack.id, name: pack.name, short: pack.short, title: DEFAULT_TITLES[pack.id] ?? pack.short, seasons: TIERS.filter((_, i) => pack.weights[i] > 0), minOvr: null, levels, price: pack.price, description: pack.description, range: packStats({ ...pack, levels }).range, back: null, published: true };
 }
 
-type Form = { id: string; title: string; name: string; short: string; seasons: Tier[]; minOvr: string; topPrice: string; levels: [number, number]; price: string; description: string; published: boolean };
+// eventOnly: không bán trong Shop (chỉ làm quà / sự kiện / gift code). choose: gói chỉ định, topPrice = số cầu thủ người chơi chọn vào danh sách.
+type Form = { id: string; title: string; name: string; short: string; seasons: Tier[]; minOvr: string; topPrice: string; levels: [number, number]; price: string; description: string; published: boolean; eventOnly: boolean; choose: boolean };
 type Touched = Partial<Record<'id' | 'name' | 'short' | 'description', boolean>>;
-const emptyForm = (): Form => ({ id: '', title: '', name: '', short: '', seasons: [], minOvr: '', topPrice: '', levels: [1, 1], price: '', description: '', published: false });
-const toForm = (data: CustomPackData): Form => ({ ...data, minOvr: data.minOvr === null ? '' : String(data.minOvr), topPrice: data.topPrice == null ? '' : String(data.topPrice), price: String(data.price) });
+const emptyForm = (): Form => ({ id: '', title: '', name: '', short: '', seasons: [], minOvr: '', topPrice: '', levels: [1, 1], price: '', description: '', published: false, eventOnly: false, choose: false });
+const toForm = (data: CustomPackData): Form => ({ ...data, minOvr: data.minOvr === null ? '' : String(data.minOvr), topPrice: data.topPrice == null ? '' : String(data.topPrice), price: String(data.price), eventOnly: !!data.eventOnly, choose: !!data.choose });
 // Ô OVR để trống = không giới hạn OVR (ảnh gói không in góc ▲OVR).
 const parseMinOvr = (text: string) => text.trim() === '' ? null : Number(text);
 const artKey = (form: Form) => JSON.stringify([form.id, form.title.trim().toUpperCase(), form.seasons, form.minOvr, form.topPrice]);
@@ -81,7 +82,7 @@ function Editor({ data, config, renderArt, status, setStatus, persist, onDone }:
     const next = { ...form, ...patch }, mark = edited ? { ...touched, [edited]: true } : touched;
     if (edited) setTouched(mark);
     const title = next.title.trim().toUpperCase(), minOvr = parseMinOvr(next.minOvr), topPrice = parseMinOvr(next.topPrice);
-    if (!mark.name) next.name = title ? `${title}${topPrice ? ` ${topPrice}` : minOvr ? ` ${minOvr}+` : ''}${levelLabel(next.levels)}` : '';
+    if (!mark.name) next.name = title ? `${title}${next.choose ? ` chỉ định${topPrice ? ` ${topPrice}` : ''}` : topPrice ? ` ${topPrice}` : minOvr ? ` ${minOvr}+` : ''}${levelLabel(next.levels)}` : '';
     if (!mark.short) next.short = title.split(/\s+/)[0]?.slice(0, 12) ?? '';
     if (!mark.id && !data) {
       const base = [slug(title), next.levels[1] > 1 ? (next.levels[0] === next.levels[1] ? `${next.levels[1]}` : `${next.levels[0]}-${next.levels[1]}`) : ''].filter(Boolean).join('-');
@@ -89,12 +90,14 @@ function Editor({ data, config, renderArt, status, setStatus, persist, onDone }:
       while (id && taken(id)) id = `${base}-${n++}`;
       next.id = id;
     }
-    if (!mark.description) next.description = next.seasons.length ? `Gói ${next.seasons.length > 1 ? 'hỗn hợp ' : ''}${next.seasons.map(seasonShort).join(' · ')}${topPrice ? `, ${topPrice} cầu thủ giá cao nhất` : ''}${minOvr ? `, cầu thủ OVR từ ${minOvr}` : ''}${levelText(next.levels)}.` : '';
+    if (!mark.description) next.description = !next.seasons.length ? '' : next.choose
+      ? `Gói chỉ định ${next.seasons.map(seasonShort).join(' · ')}: tự chọn ${topPrice ?? 'N'} cầu thủ${minOvr ? ` OVR từ ${minOvr}` : ''}, mở gói nhận ngẫu nhiên 1 người trong danh sách${levelText(next.levels)}.`
+      : `Gói ${next.seasons.length > 1 ? 'hỗn hợp ' : ''}${next.seasons.map(seasonShort).join(' · ')}${topPrice ? `, ${topPrice} cầu thủ giá cao nhất` : ''}${minOvr ? `, cầu thủ OVR từ ${minOvr}` : ''}${levelText(next.levels)}.`;
     setForm(next);
   };
 
   const minOvr = parseMinOvr(form.minOvr), topPrice = parseMinOvr(form.topPrice);
-  const stats = useMemo(() => form.seasons.length && (minOvr === null || Number.isInteger(minOvr)) ? packStats(customPack({ ...form, minOvr, topPrice, price: 0, range: '', back: null, published: false })) : null, [form.seasons, form.levels, minOvr, topPrice]);
+  const stats = useMemo(() => form.seasons.length && (minOvr === null || Number.isInteger(minOvr)) ? packStats(customPack({ ...form, minOvr, topPrice, price: 0, range: '', back: null, published: false })) : null, [form.seasons, form.levels, minOvr, topPrice, form.choose, form.eventOnly]);
   const suggested = stats ? round3(stats.ev * PRICE_RATIO) : 0;
   const problems = [
     !form.title.trim() && 'Nhập chữ in trên ảnh.',
@@ -103,7 +106,9 @@ function Editor({ data, config, renderArt, status, setStatus, persist, onDone }:
     !data && taken(form.id) && 'Mã gói đã có (hoặc là mã gói mặc định), hãy đổi mã khác.',
     !form.seasons.length && 'Chọn ít nhất một mùa.',
     minOvr !== null && !(Number.isInteger(minOvr) && minOvr >= 0 && minOvr <= 200) && 'OVR tối thiểu là số nguyên 0–200 hoặc để trống.',
-    topPrice !== null && !(Number.isInteger(topPrice) && topPrice >= 1 && topPrice <= 9999) && 'Top price là số nguyên 1–9999 hoặc để trống.',
+    form.choose && topPrice === null && 'Nhập số cầu thủ chỉ định (người chơi chọn bao nhiêu cầu thủ vào danh sách).',
+    topPrice !== null && !(Number.isInteger(topPrice) && topPrice >= 1 && topPrice <= 9999) && (form.choose ? 'Số cầu thủ chỉ định là số nguyên 1–9999.' : 'Top price là số nguyên 1–9999 hoặc để trống.'),
+    form.choose && stats && topPrice !== null && stats.count > 0 && topPrice > stats.count && `Gói chỉ có ${stats.count} cầu thủ hợp lệ: số cầu thủ chỉ định tối đa ${stats.count}.`,
     !/^\d+$/.test(form.price) && 'Nhập giá FC (số nguyên).',
   ].filter(Boolean) as string[];
   // Chưa có cầu thủ nào đủ điều kiện (mùa mới chưa thêm thẻ, hoặc OVR tối thiểu quá cao): vẫn lưu được, Shop hiện "Sắp ra mắt".
@@ -113,7 +118,7 @@ function Editor({ data, config, renderArt, status, setStatus, persist, onDone }:
   const compose = async () => {
     setBusy('compose'); setStatus(null);
     try {
-      const result = await call<{ url: string }>('/compose', { method: 'POST', body: JSON.stringify({ id: form.id, title: form.title.trim().toUpperCase(), seasons: form.seasons, minOvr, topPrice, choose: !!data?.choose }) });
+      const result = await call<{ url: string }>('/compose', { method: 'POST', body: JSON.stringify({ id: form.id, title: form.title.trim().toUpperCase(), seasons: form.seasons, minOvr, topPrice, choose: form.choose }) });
       setArt({ url: result.url, key: artKey(form), composed: true });
       return true;
     } catch (error) { setStatus({ kind: 'error', text: `Ghép ảnh lỗi: ${(error as Error).message}` }); return false; }
@@ -125,7 +130,7 @@ function Editor({ data, config, renderArt, status, setStatus, persist, onDone }:
     if (!artFresh && !(await compose())) return;
     setBusy('save');
     const composed = artFresh ? !!art?.composed : true;
-    const entry: CustomPackData = { id: form.id, name: form.name.trim(), short: form.short.trim(), title: form.title.trim().toUpperCase(), seasons: form.seasons, minOvr, topPrice, levels: form.levels, price: Number(form.price), description: form.description.trim(), range: stats.range, back: composed ? customArtPath(form.id) : null, published: form.published , ...(data?.eventOnly ? { eventOnly: true } : {}), ...(data?.choose ? { choose: true } : {}) };
+    const entry: CustomPackData = { id: form.id, name: form.name.trim(), short: form.short.trim(), title: form.title.trim().toUpperCase(), seasons: form.seasons, minOvr, topPrice, levels: form.levels, price: Number(form.price), description: form.description.trim(), range: stats.range, back: composed ? customArtPath(form.id) : null, published: form.published, ...(form.eventOnly ? { eventOnly: true } : {}), ...(form.choose ? { choose: true } : {}) };
     const packs = data ? config.packs.map(pack => pack.id === data.id ? entry : pack) : [...config.packs, entry];
     const ok = await persist({ packs }, entry.published ? `Đã lưu ${entry.name}.${data ? '' : ' Gói đã vào danh sách gói có sẵn.'} Người chơi thấy sau khi đưa lên git.` : `Đã lưu ${entry.name} ở dạng nháp: chỉ thấy khi chạy npm run dev.`);
     setBusy('');
@@ -168,7 +173,9 @@ function Editor({ data, config, renderArt, status, setStatus, persist, onDone }:
 
       <div className="pa-row">
         <label className="pa-field"><span>OVR tối thiểu (theo +1) <small>· để trống = không giới hạn</small></span><input inputMode="numeric" placeholder="Không giới hạn" value={form.minOvr} onChange={e => update({ minOvr: e.target.value.replace(/\D/g, '').slice(0, 3) })}/></label>
-        <label className="pa-field"><span>Top price <small>· số cầu thủ giá cao nhất, trống = gói thường</small></span><input inputMode="numeric" placeholder="Không" value={form.topPrice} onChange={e => update({ topPrice: e.target.value.replace(/\D/g, '').slice(0, 4) })}/></label>
+        <label className="pa-field">{form.choose
+          ? <span>Số cầu thủ chỉ định <small>· người chơi chọn ngần ấy cầu thủ, mở gói nhận ngẫu nhiên 1 người</small></span>
+          : <span>Top price <small>· số cầu thủ giá cao nhất, trống = gói thường</small></span>}<input inputMode="numeric" placeholder={form.choose ? 'vd. 30' : 'Không'} value={form.topPrice} onChange={e => update({ topPrice: e.target.value.replace(/\D/g, '').slice(0, 4) })}/></label>
         <label className="pa-field"><span>Cấp thẻ từ</span><select value={form.levels[0]} onChange={e => { const min = Number(e.target.value); update({ levels: [min, Math.max(min, form.levels[1])] }); }}>{levelOptions.map(l => <option key={l} value={l}>+{l}</option>)}</select></label>
         <label className="pa-field"><span>đến</span><select value={form.levels[1]} onChange={e => { const max = Number(e.target.value); update({ levels: [Math.min(form.levels[0], max), max] }); }}>{levelOptions.map(l => <option key={l} value={l}>+{l}</option>)}</select></label>
       </div>
@@ -177,6 +184,8 @@ function Editor({ data, config, renderArt, status, setStatus, persist, onDone }:
         {suggested > 0 && <button className="pa-suggest" onClick={() => update({ price: String(suggested) })}>Dùng giá gợi ý {money(suggested)}</button>}
       </div>
       <label className="pa-field"><span>Mô tả</span><textarea rows={2} maxLength={160} value={form.description} onChange={e => update({ description: e.target.value }, 'description')}/></label>
+      <label className="pa-publish"><input type="checkbox" checked={form.choose} onChange={e => update({ choose: e.target.checked })}/><span><b>Gói chỉ định</b><small>Người chơi tự chọn danh sách cầu thủ (đúng số ở ô "Số cầu thủ chỉ định", lấy từ mọi cầu thủ hợp lệ của gói); mở gói nhận ngẫu nhiên 1 người trong danh sách.</small></span></label>
+      <label className="pa-publish"><input type="checkbox" checked={form.eventOnly} onChange={e => update({ eventOnly: e.target.checked })}/><span><b>Không bán trong Shop</b><small>Gói chỉ dùng làm quà: admin tặng, gift code, quà sự kiện / mốc. Người chơi không mua được ở Shop.</small></span></label>
       <label className="pa-publish"><input type="checkbox" checked={form.published} onChange={e => update({ published: e.target.checked })}/><span><b>Hiện cho người chơi</b><small>Tắt = gói nháp, chỉ thấy khi chạy npm run dev. Bật rồi đưa lên git thì người chơi mới thấy gói.</small></span></label>
 
       {problems.length > 0 && <ul className="pa-problems">{problems.map(problem => <li key={problem}>{problem}</li>)}</ul>}

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { makeCard, players, validateSave } from '../src/game.ts';
-import { MARKET_FEE_PERCENT, PREMIUM_TAX_DISCOUNT, marketQuote, saleTaxPercent, sellCards, sellRange, taxFor, voucherHelps } from '../src/market.ts';
+import { LUXURY_TAX_DISCOUNT, MARKET_FEE_PERCENT, PREMIUM_TAX_DISCOUNT, marketQuote, saleTaxPercent, sellCards, sellRange, taxFor, voucherHelps } from '../src/market.ts';
 import { applyWallet } from '../src/wallet-state.ts';
 import { initialSave } from './stocked-save.ts';
 
@@ -48,4 +48,21 @@ test('Ví máy chủ đặt hạn Premium vào bản lưu; về Classic thì xo�
   assert.equal(applyWallet(p, base).premiumUntil, NOW + 7 * DAY, 'máy chủ cũ không gửi tier thì giữ nguyên');
   const dirty = JSON.parse(JSON.stringify({ ...initialSave(), premiumUntil: 'x' }));
   assert.ok(validateSave(dirty)); assert.equal(dirty.premiumUntil, undefined);
+});
+
+test('Luxury giảm 75% thuế bán (40% → 10%), hạn 30 ngày; không cộng dồn; ví máy chủ đặt hạn Luxury', () => {
+  assert.equal(LUXURY_TAX_DISCOUNT, 75);
+  const lux = { luxuryUntil: NOW + DAY };
+  assert.equal(saleTaxPercent(lux, NOW), 10);
+  assert.equal(saleTaxPercent({ ...lux, membership: { svip: NOW + DAY } }, NOW), 10);
+  assert.equal(saleTaxPercent({ luxuryUntil: NOW - 1 }, NOW), MARKET_FEE_PERCENT);
+  assert.equal(voucherHelps(lux, 30, NOW), false, 'phiếu 30% cho 10% bằng Luxury → không dùng');
+  const sql = readFileSync('supabase/migrations/202611120011_fco_luxury.sql', 'utf8');
+  assert.match(sql, /\* \(100 - 75\) \/ 100/);
+  assert.match(sql, /interval '30 days'/);
+  const base = { fc: 0, dailyClaimed: false, event: { points: 0, free: 0, paid: 0, missions: [] }, admin: false };
+  const s = applyWallet(initialSave(), { ...base, tier: 'luxury', tierUntil: NOW + 30 * DAY });
+  assert.deepEqual([s.luxuryUntil, s.premiumUntil], [NOW + 30 * DAY, null]);
+  const back = applyWallet(s, { ...base, tier: 'classic', tierUntil: null });
+  assert.deepEqual([back.luxuryUntil, back.premiumUntil], [null, null]);
 });

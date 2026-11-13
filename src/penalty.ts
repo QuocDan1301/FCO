@@ -59,3 +59,23 @@ export function missTargets(miss: 'bar' | 'post', aim: Point) {
   const post = aim.left >= 50 ? 76 : 24, out = aim.left >= 50 ? 1 : -1;
   return { hit: { left: post - out * 1.4, top: aim.top }, after: { left: post + out * 13, top: Math.min(70, aim.top + 18) } };
 }
+// Vai trò (người dùng yêu cầu 2026-11-12): cầu thủ sút hoặc thủ môn, đổi được sau mỗi lượt; sút vào hay bắt được đều +1 chuỗi.
+export type PenaltyRole = 'shooter' | 'keeper';
+// Kết quả khi làm thủ môn (fco_penalty_keep, migration 202611120013): goal = bị thủng lưới (hết lượt); saved = bắt được; miss = máy sút hỏng.
+export type PenaltyKeep = { saved: boolean; goal: boolean; over: boolean; miss?: 'bar' | 'post' | null; shot: { x: number; y: number; kind: ShotKind }; streak: number; best: number };
+// Tỷ lệ bắt được khi làm thủ môn: theo khoảng cách điểm bay người (kx, ky) tới điểm bóng (sx, sy), lệch ngang tính nặng gấp đôi lệch dọc;
+// 5% … 90%, chuỗi càng dài càng khó. Khớp fco_penalty_keep_chance.
+export function keepChance(kx: number, ky: number, sx: number, sy: number, streak: number) {
+  const dist = Math.hypot(1.2 * (sx - kx), .6 * (sy - ky));
+  return Math.max(.05, Math.min(.9, 1 - .7 * dist) - Math.min(.15, .01 * Math.max(0, streak)));
+}
+// Máy sút hỏng: 4% + rủi ro của kiểu sút.
+export const machineMissChance = (x: number, y: number, kind: ShotKind) => .04 + missChance(x, y, kind);
+// Điểm bấm trên sân khấu (%) → điểm bay người (ngược với aimToStage), luôn trong khung thành.
+export const stageToAim = (left: number, top: number) => ({ x: Math.max(-1, Math.min(1, (left - 50) / 23.5)), y: Math.max(0, Math.min(1, (52.5 - top) / 28.5)) });
+// Ô chọn nhanh hướng bay người (phím ← → ↑ ↓ di chuyển từng nấc 0,25).
+export const KEEPER_ZONES = [
+  { id: 'tl', name: 'Trái cao', x: -.75, y: .75 }, { id: 'tc', name: 'Giữa cao', x: 0, y: .75 }, { id: 'tr', name: 'Phải cao', x: .75, y: .75 },
+  { id: 'bl', name: 'Trái thấp', x: -.75, y: .2 }, { id: 'bc', name: 'Giữa thấp', x: 0, y: .2 }, { id: 'br', name: 'Phải thấp', x: .75, y: .2 },
+] as const;
+export const KEEPER_STEP = .25;

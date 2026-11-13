@@ -29,8 +29,8 @@ const groupOrder = { fw: 0, mf: 1, df: 2, gk: 3 };
 
 // Sân phối cảnh: toạ độ sân (0–100) chiếu lên hình thang hẹp dần về phía khung thành đối phương.
 const TOP = .74;
-const depth = (y: number) => TOP + (1 - TOP) * y / 100;
-const project = (x: number, y: number): [number, number] => [50 + (x - 50) * .92 * depth(y), 3 + y * .86];
+export const depth = (y: number) => TOP + (1 - TOP) * y / 100;
+export const project = (x: number, y: number): [number, number] => [50 + (x - 50) * .92 * depth(y), 3 + y * .86];
 // Ngược lại: điểm trên khung sân (%) về toạ độ sân, để biết con trỏ đang ở vùng vị trí nào.
 const unproject = (px: number, py: number): [number, number] => { const y = (py - 3) / .86; return [50 + (px - 50) / (.92 * depth(y)), y]; };
 const path = (points: [number, number][], close = false) => points.map(([x, y], i) => `${i ? 'L' : 'M'}${project(x, y).map(n => n.toFixed(2)).join(' ')}`).join('') + (close ? 'Z' : '');
@@ -51,7 +51,7 @@ const FRONT_FACE = `M${FRONT_LEFT.toFixed(2)} ${FRONT_Y.toFixed(2)}H${FRONT_RIGH
 const goal = (y: number, lift: number) => { const [x0, py] = project(44, y), [x1] = project(56, y); return { frame: `M${x0.toFixed(2)} ${py.toFixed(2)}V${(py + lift).toFixed(2)}H${x1.toFixed(2)}V${py.toFixed(2)}`, net: Array.from({ length: 7 }, (_, i) => { const x = x0 + (x1 - x0) * (i + 1) / 8; return `M${x.toFixed(2)} ${py.toFixed(2)}V${(py + lift).toFixed(2)}`; }).join('') + `M${x0.toFixed(2)} ${(py + lift / 2).toFixed(2)}H${x1.toFixed(2)}` }; };
 const GOAL_TOP = goal(0, -2.2), GOAL_BOTTOM = goal(100, 2.2);
 // Sân tĩnh dựng một lần: lớp vùng kéo nằm ở SVG riêng nên kéo cầu thủ không vẽ lại cỏ và bộ lọc độ hạt.
-const PITCH_ART = <svg className="lu-pitch-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+export const PITCH_ART = <svg className="lu-pitch-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
   <defs>
     <clipPath id="lu-turf-clip"><path d={TURF}/></clipPath>
     <radialGradient id="lu-floodlight" cx="50%" cy="34%" r="62%"><stop offset="0" stopColor="#fff6c8" stopOpacity=".3"/><stop offset=".55" stopColor="#fff6c8" stopOpacity=".07"/><stop offset="1" stopColor="#fff6c8" stopOpacity="0"/></radialGradient>
@@ -76,9 +76,9 @@ const PITCH_ART = <svg className="lu-pitch-art" viewBox="0 0 100 100" preserveAs
   {[GOAL_TOP, GOAL_BOTTOM].map((g, i) => <g key={i}><path d={g.net} className="lu-goal-net"/><path d={g.frame} className="lu-goal"/></g>)}
 </svg>;
 
-const Face = ({ card, className }: { card: Card; className: string }) => { const p = getPlayer(card); return <span className={className}><img src={p.cardFace || p.image || asset('/assets/silhouette.svg')} alt="" loading="lazy" draggable={false}/></span>; };
+export const Face = ({ card, className }: { card: Card; className: string }) => { const p = getPlayer(card); return <span className={className}><img src={p.cardFace || p.image || asset('/assets/silhouette.svg')} alt="" loading="lazy" draggable={false}/></span>; };
 const colorName = (c: AppliedBuff) => colorNameOf(c);
-const Wage = ({ card }: { card: Card }) => <span className="squad-wage"><b>{getPlayer(card).wage ?? 0}</b></span>;
+export const Wage = ({ card }: { card: Card }) => <span className="squad-wage"><b>{getPlayer(card).wage ?? 0}</b></span>;
 
 // Màn Đội hình: chọn bộ A/B/C và sơ đồ, xếp 11 cầu thủ của đội hình riêng lên sân; bấm (hoặc kéo) hai ô để đổi chỗ.
 export default function LineupBoard({ save, onUpdate, onDetail, onManage, levelBadge, seasonShort, renderCard }: Props) {

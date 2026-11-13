@@ -21,5 +21,10 @@ export const ZALO_GROUP = 'https://zalo.me/g/euqnnlh3fqnkvsrzernm';
 // Sự kiện Nâng Cấp Siêu Sao (EventPage, src/event.ts, fco_event_play trên máy chủ): tạm ẩn từ 2026-11-07 để chạy sự kiện Bi Lắc.
 // Bật lại = đặt true rồi build; code, dữ liệu người chơi và hàm máy chủ vẫn giữ nguyên.
 export const EVENT_NCSS_ENABLED = false;
-// Sự kiện Bi Lắc (src/BilacPage.tsx, supabase/migrations/202611070005_fco_bilac.sql): nút "Bi Lắc" trên thanh dưới.
-export const EVENT_BILAC_ENABLED = true;
+// Sự kiện Bi Lắc (src/BilacPage.tsx, supabase/migrations/202611070005_fco_bilac.sql): nút "Sự kiện" trên thanh dưới.
+// Tạm ẩn từ 2026-11-13 để chuẩn bị sự kiện Vòng Quanh Thế Giới. Bật lại = đặt true rồi build; điểm, quà mốc, dữ liệu người chơi
+// và hàm máy chủ vẫn giữ nguyên.
+export const EVENT_BILAC_ENABLED = false;
+// Sự kiện Vòng Quanh Thế Giới (src/VqtgPage.tsx, supabase/migrations/202611130004_fco_vqtg.sql): nút "Sự kiện" trên thanh dưới,
+// thay chỗ Bi Lắc từ 2026-11-13. Cần chạy migration trước khi build bật cờ này.
+export const EVENT_VQTG_ENABLED = true;

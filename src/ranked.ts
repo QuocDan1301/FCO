@@ -23,14 +23,16 @@ export function nextTier(points: number) {
   return next ? { tier: next, need: next.min - points } : null;
 }
 
-export type RankedSlot = { uid?: string; role: string; ovr: number; x?: number; y?: number };
+// pid / lv: cầu thủ + cấp thẻ của ô đối thủ người thật (migration 202611120012); đội máy / thẻ đã bán thì không có.
+// att / cre / def / pace / gk: chỉ số ô do máy chủ tính (migration 202611130001); trận cũ không có.
+export type RankedSlot = { uid?: string; role: string; ovr: number; x?: number; y?: number; pid?: number; lv?: number; pos?: string; att?: number; cre?: number; def?: number; pace?: number; gk?: number };
 export type RankedGoal = { minute: number; side: 'me' | 'opp'; scorer: number; assist: number | null };
 export type RankedMe = { points: number; tier: RankedTierId; wins: number; draws: number; losses: number; rank: number | null };
 export type RankedMatch = {
   seed: number; score: [number, number]; goals: RankedGoal[];
   // effect: viền Premium của chủ đội (name-effects.ts), migration 202611120007.
-  me: { ovr: number; formation: string; slots: RankedSlot[]; club?: string | null; effect?: string | null };
-  opp: { name: string; ovr: number; bot: boolean; formation: string | null; slots: RankedSlot[]; club?: string | null; effect?: string | null };
+  me: { ovr: number; formation: string; slots: RankedSlot[]; club?: string | null; effect?: string | null; attack?: number; defense?: number };
+  opp: { name: string; ovr: number; bot: boolean; formation: string | null; slots: RankedSlot[]; club?: string | null; effect?: string | null; attack?: number; defense?: number };
   // Chưa có điểm lúc bắt đầu: điểm tính khi hết trận (RankedFinish, migration 202611120005). elapsed = số giây trận đã diễn (xem tiếp).
   minSeconds?: number; elapsed?: number;
 };

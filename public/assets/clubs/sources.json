@@ -1158,5 +1158,10 @@
     "name": "SC Freiburg",
     "url": "https://a.espncdn.com/i/teamlogos/soccer/500/126.png",
     "page": "https://www.espn.com/soccer/club/_/id/126"
+  },
+  {
+    "club": "Sampdoria",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/2734.png",
+    "asset": "/assets/clubs/2734.webp"
   }
 ]

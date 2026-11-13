@@ -1,22 +1,27 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp, RotateCcw, Target, Trophy, Volume2, VolumeX } from 'lucide-react';
+import { ChevronDown, ChevronUp, Hand, RotateCcw, Target, Trophy, Volume2, VolumeX } from 'lucide-react';
 import { CrowdAudio, savePenaltyMute, savedPenaltyMute } from './penalty-audio';
-import { BALL_SPOT, SHOT_KINDS, SWEEP_MAX, aimToStage, bezier, flightPath, goalSweepSpeed, keeperToStage, missTargets, sweepMultiplier } from './penalty';
-import type { PenaltyShot, PenaltyStart, Point, ShotKind } from './penalty';
+import { setUpdateHold } from './update-check';
+import { BALL_SPOT, KEEPER_STEP, KEEPER_ZONES, SHOT_KINDS, SWEEP_MAX, aimToStage, bezier, flightPath, goalSweepSpeed, keeperToStage, missTargets, stageToAim, sweepMultiplier } from './penalty';
+import type { PenaltyKeep, PenaltyRole, PenaltyShot, PenaltyStart, Point, ShotKind } from './penalty';
 
 // Mini game Penalty — sút phạt đền (nút "Penalty" ở menu trang chủ, trước là mục "Sút phạt" trên thanh dưới). Vạch ngắm lắc qua lại trên khung thành, ↑ / ↓ chỉnh độ cao, chọn kiểu sút
 // (Thường / Xoáy / Căng / Trivela, phím 1–4), SÚT (hoặc Space). Máy chủ quyết định vào / bị bắt / vọt xà / dội cột
 // (supabase/migrations/202611110005_fco_penalty.sql, 202611110006_fco_penalty_kinds.sql): mỗi bàn +1 điểm, không vào là hết lượt,
 // kỷ lục lên BXH. Hình vẽ bằng SVG riêng của FCO VIP; vị trí tính theo % sân khấu 16:10 (src/penalty.ts).
 type Phase = 'idle' | 'starting' | 'aiming' | 'shooting' | 'result' | 'over';
-type Props = { online: boolean; reduced: boolean; onStart: () => Promise<PenaltyStart>; onShoot: (x: number, y: number, kind: ShotKind) => Promise<PenaltyShot> };
+// onKeep: làm thủ môn (migration 202611120013). Không có thì chỉ có vai sút.
+type Props = { online: boolean; reduced: boolean; onStart: () => Promise<PenaltyStart>; onShoot: (x: number, y: number, kind: ShotKind) => Promise<PenaltyShot>; onKeep?: (x: number, y: number) => Promise<PenaltyKeep> };
 
 const HEIGHT_STEP = .1;
 const SHADOW_SPOT = { left: 50, top: 89.6 };
 const CONFETTI = ['#ffd76a', '#ffffff', '#ff5d3a', '#62c3ff', '#d9ba76', '#7dff9a'];
 // Số bóng mờ kéo theo khi bóng bay (vệt màu theo kiểu sút).
 const GHOSTS = 6;
-const RESULT_TEXT = { goal: 'VÀO!', saved: 'BỊ BẮT!', bar: 'VỌT XÀ!', post: 'DỘI CỘT!' } as const;
+const RESULT_TEXT = { goal: 'VÀO!', saved: 'BỊ BẮT!', bar: 'VỌT XÀ!', post: 'DỘI CỘT!', caught: 'BẮT ĐƯỢC!', conceded: 'THỦNG LƯỚI!' } as const;
+// Vai đang chơi (cầu thủ sút / thủ môn), nhớ trên máy này; đổi được giữa hai lượt sút, chuỗi dùng chung.
+const ROLE_KEY = 'fco-penalty-role';
+const savedRole = (): PenaltyRole => { try { return localStorage.getItem(ROLE_KEY) === 'keeper' ? 'keeper' : 'shooter'; } catch { return 'shooter'; } };
 // Cầu thủ sút: chỉ khác ngoại hình và chân sút (không đổi tỷ lệ), nhớ lựa chọn trên máy này.
 type Shooter = 'messi' | 'ronaldo';
 const SHOOTERS: { id: Shooter; name: string; foot: string }[] = [{ id: 'messi', name: 'Messi', foot: 'Chân trái' }, { id: 'ronaldo', name: 'Ronaldo', foot: 'Chân phải' }];
@@ -447,8 +452,10 @@ function Pitch() {
   </svg>;
 }
 
-export default function PenaltyPage({ online, reduced, onStart, onShoot }: Props) {
+export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep }: Props) {
   const [phase, setPhase] = useState<Phase>('idle');
+  // Đang trong lượt sút: không tải lại sang bản mới giữa chừng.
+  useEffect(() => { setUpdateHold('penalty', phase !== 'idle' && phase !== 'over'); return () => setUpdateHold('penalty', false); }, [phase]);
   const [streak, setStreak] = useState(0);
   const [best, setBest] = useState(0);
   const [height, setHeight] = useState(.3);
@@ -465,8 +472,12 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot }: Props
     document.addEventListener('visibilitychange', visible);
     return () => { document.removeEventListener('visibilitychange', visible); audio.current?.dispose(); };
   }, []);
+  const [role, setRole] = useState<PenaltyRole>(() => onKeep ? savedRole() : 'shooter');
+  // Điểm thủ môn (người chơi) sẽ bay người tới: x −1…1, y 0…1.
+  const [dive, setDive] = useState({ x: 0, y: .2 });
   const pickShooter = (next: Shooter) => { setShooter(next); try { localStorage.setItem(SHOOTER_KEY, next); } catch { /* chỉ nhớ trong phiên này */ } };
-  const [message, setMessage] = useState<{ kind: keyof typeof RESULT_TEXT; text: string } | null>(null);
+  // good: lượt thành công (+1 chuỗi) — sút vào, hoặc làm thủ môn bắt được / máy sút hỏng.
+  const [message, setMessage] = useState<{ kind: keyof typeof RESULT_TEXT; text: string; good: boolean } | null>(null);
   const [error, setError] = useState('');
   const [keeper, setKeeper] = useState({ x: 0, y: 0 });
   const [kicking, setKicking] = useState(false);
@@ -477,12 +488,19 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot }: Props
   // Máy quay: zoom dần vào khung thành khi sút, giật zoom khi ghi bàn, lùi nhẹ khi không vào.
   const [camera, setCamera] = useState<'idle' | 'shoot' | 'goal' | 'miss'>('idle');
   const [flying, setFlying] = useState<ShotKind | null>(null);
-  const [burst, setBurst] = useState<{ id: number; left: number; top: number } | null>(null);
+  // net: bóng rung lưới (bàn thắng); bắt được thì chỉ pháo giấy.
+  const [burst, setBurst] = useState<{ id: number; left: number; top: number; net?: boolean } | null>(null);
   const [shake, setShake] = useState(0);
   const stage = useRef<HTMLDivElement>(null), marker = useRef<HTMLDivElement>(null), line = useRef<SVGLineElement>(null);
   const ball = useRef<HTMLDivElement>(null), shadow = useRef<HTMLDivElement>(null), ghosts = useRef<(HTMLDivElement | null)[]>([]);
-  const aimX = useRef(0), phaseRef = useRef<Phase>('idle'), heightRef = useRef(height), streakRef = useRef(0), kindRef = useRef(kind);
-  phaseRef.current = phase; heightRef.current = height; streakRef.current = streak; kindRef.current = kind;
+  const aimX = useRef(0), phaseRef = useRef<Phase>('idle'), heightRef = useRef(height), streakRef = useRef(0), kindRef = useRef(kind), roleRef = useRef(role), diveRef = useRef(dive);
+  phaseRef.current = phase; heightRef.current = height; streakRef.current = streak; kindRef.current = kind; roleRef.current = role; diveRef.current = dive;
+  // Đổi vai: chỉ giữa hai lượt (đang chờ sút / trước khi bắt đầu / hết lượt).
+  const canSwitch = phase === 'aiming' || phase === 'idle' || phase === 'over';
+  const pickRole = (next: PenaltyRole) => { if (!onKeep || !(phaseRef.current === 'aiming' || phaseRef.current === 'idle' || phaseRef.current === 'over')) return; setRole(next); try { localStorage.setItem(ROLE_KEY, next); } catch { /* chỉ nhớ trong phiên này */ } };
+  const diveFree = () => phaseRef.current === 'aiming' || phaseRef.current === 'idle' || phaseRef.current === 'over';
+  const setDiveAt = (at: { x: number; y: number }) => { if (diveFree()) setDive({ x: Math.max(-1, Math.min(1, at.x)), y: Math.max(0, Math.min(1, at.y)) }); };
+  const moveDive = (dx: number, dy: number) => { if (diveFree()) setDive(d => ({ x: Math.max(-1, Math.min(1, Math.round((d.x + dx) * 100) / 100)), y: Math.max(0, Math.min(1, Math.round((d.y + dy) * 100) / 100)) })); };
   // Pháo giấy khi ghi bàn: vị trí / màu / độ trễ cố định theo lượt nổ.
   const confetti = useMemo(() => burst ? Array.from({ length: 36 }, (_, i) => ({
     left: Math.random() * 100, delay: Math.random() * .35, drift: (Math.random() - .5) * 30, color: CONFETTI[i % CONFETTI.length], spin: Math.random() * 720 - 360, size: 5 + Math.random() * 6,
@@ -590,9 +608,9 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot }: Props
     if (shot.goal) audio.current?.netHit(); else if (miss) audio.current?.postHit(); else audio.current?.save();
     if (shot.goal) {
       setStreak(shot.streak); setBest(shot.best);
-      setBurst({ id: Date.now(), left: target.left, top: target.top });
+      setBurst({ id: Date.now(), left: target.left, top: target.top, net: true });
       setPose('celebrate'); setCamera('goal');
-      setMessage({ kind: 'goal', text: RESULT_TEXT.goal }); setPhase('result');
+      setMessage({ kind: 'goal', text: RESULT_TEXT.goal, good: true }); setPhase('result');
       void settleInNet(target, shotKind);
       await wait(1700);
       setMessage(null); resetScene();
@@ -606,17 +624,66 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot }: Props
       // Vọt xà: bóng bay tiếp lên khán đài; dội cột: bóng bật ra ngoài.
       const after = missTargets(miss, aim).after;
       setShake(n => n + 1);
-      setMessage({ kind: miss, text: RESULT_TEXT[miss] }); setPhase('result');
+      setMessage({ kind: miss, text: RESULT_TEXT[miss], good: false }); setPhase('result');
       await fly(target, { left: (target.left + after.left) / 2, top: Math.min(target.top, after.top) - (miss === 'bar' ? 4 : 2) }, after, 520, [.42, miss === 'bar' ? .3 : .5], [56.6, miss === 'bar' ? 50 : after.top + 2]);
     } else {
       // Thủ môn đẩy bóng: bóng bật ra rồi rơi xuống cỏ, sân rung nhẹ.
       const keeperAt = keeperToStage(shot.keeper.x, shot.keeper.y), side = shot.keeper.x >= 0 ? 1 : -1;
       const out = { left: Math.max(6, Math.min(94, keeperAt.left + side * 16)), top: 66 };
       setShake(n => n + 1);
-      setMessage({ kind: 'saved', text: RESULT_TEXT.saved }); setPhase('result');
+      setMessage({ kind: 'saved', text: RESULT_TEXT.saved, good: false }); setPhase('result');
       await fly(target, { left: (target.left + out.left) / 2, top: Math.min(target.top, out.top) - 6 }, out, 520, [.42, .62], [56.6, 68]);
     }
     await wait(900);
+    setPhase('over');
+  };
+  // Làm thủ môn: chốt điểm bay người rồi máy mới sút (máy chủ quyết định). Bắt được / máy sút hỏng: +1 chuỗi, đá tiếp; thủng lưới: hết lượt.
+  const keep = async () => {
+    if (phaseRef.current !== 'aiming' || !onKeep) return;
+    const { x, y } = diveRef.current;
+    setPhase('shooting'); setError('');
+    setKicking(true); setCamera('shoot');
+    setTimeout(() => audio.current?.kick(), reduced ? 0 : 280);
+    let res: PenaltyKeep;
+    try { [res] = await Promise.all([onKeep(x, y), wait(300)]); }
+    catch (e) { setError((e as Error).message); setKicking(false); setCamera('idle'); setPhase('aiming'); return; }
+    const shotAt = aimToStage(res.shot.x, res.shot.y), miss = res.miss ?? null;
+    // Bắt được: bóng tới tay thủ môn (gần điểm bay người); thủng lưới / sút hỏng: tới đúng điểm máy sút.
+    const target = miss ? missTargets(miss, shotAt).hit : res.saved ? aimToStage(x * .8 + res.shot.x * .2, y * .8 + res.shot.y * .2) : shotAt;
+    const path = flightPath(res.shot.kind, target);
+    setFlying(res.shot.kind);
+    if (res.shot.kind === 'power') setShake(n => n + 1);
+    const flight = fly(BALL_SPOT, path.control, target, path.duration, [1, .42], [SHADOW_SPOT.top, 56.6], res.shot.kind === 'power' ? t => t : undefined);
+    await wait(Math.min(90, path.duration / 5));
+    setKeeper({ x, y });
+    await flight;
+    setFlying(null);
+    if (res.goal) audio.current?.netHit(); else if (miss) audio.current?.postHit(); else audio.current?.save();
+    setBest(res.best);
+    if (!res.goal) {
+      setStreak(res.streak);
+      setPose('sad'); setCamera('miss'); setShake(n => n + 1);
+      setBurst({ id: Date.now(), left: target.left, top: target.top });
+      setMessage({ kind: miss ?? 'caught', text: miss ? RESULT_TEXT[miss] : RESULT_TEXT.caught, good: true }); setPhase('result');
+      if (miss) {
+        const after = missTargets(miss, shotAt).after;
+        await fly(target, { left: (target.left + after.left) / 2, top: Math.min(target.top, after.top) - (miss === 'bar' ? 4 : 2) }, after, 520, [.42, miss === 'bar' ? .3 : .5], [56.6, miss === 'bar' ? 50 : after.top + 2]);
+      } else {
+        const keeperAt = keeperToStage(x, y), side = x >= 0 ? 1 : -1;
+        const out = { left: Math.max(6, Math.min(94, keeperAt.left + side * 16)), top: 66 };
+        await fly(target, { left: (target.left + out.left) / 2, top: Math.min(target.top, out.top) - 6 }, out, 520, [.42, .62], [56.6, 68]);
+      }
+      await wait(1000);
+      setMessage(null); resetScene();
+      await wait(380);
+      setPhase('aiming');
+      return;
+    }
+    setPose('celebrate'); setCamera('goal');
+    setBurst({ id: Date.now(), left: target.left, top: target.top, net: true });
+    setMessage({ kind: 'conceded', text: RESULT_TEXT.conceded, good: false }); setPhase('result');
+    void settleInNet(target, res.shot.kind);
+    await wait(1700);
     setPhase('over');
   };
   const nudge = (delta: number) => { if (phaseRef.current === 'aiming' || phaseRef.current === 'idle' || phaseRef.current === 'over') setHeight(h => Math.max(0, Math.min(1, Math.round((h + delta) * 10) / 10))); };
@@ -624,6 +691,15 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot }: Props
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.closest?.('input, textarea, select')) return;
+      if (roleRef.current === 'keeper') {
+        const step: Record<string, [number, number]> = { ArrowLeft: [-KEEPER_STEP, 0], ArrowRight: [KEEPER_STEP, 0], ArrowUp: [0, KEEPER_STEP], ArrowDown: [0, -KEEPER_STEP] };
+        if (step[e.key]) { e.preventDefault(); moveDive(...step[e.key]); return; }
+        if (e.key === ' ' || e.key === 'Enter') {
+          if (phaseRef.current === 'aiming') { e.preventDefault(); void keep(); }
+          else if ((phaseRef.current === 'idle' || phaseRef.current === 'over') && document.activeElement === stage.current) { e.preventDefault(); void start(); }
+        }
+        return;
+      }
       const picked = SHOT_KINDS.find(k => k.key === e.key);
       if (picked) { choose(picked.id); return; }
       if (e.key === 'ArrowUp') { e.preventDefault(); nudge(HEIGHT_STEP); }
@@ -636,44 +712,57 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot }: Props
     addEventListener('keydown', key);
     return () => removeEventListener('keydown', key);
   });
-  const diving = keeper.x !== 0 || keeper.y !== 0;
+  // Bay người sang hai bên; bóng gần giữa thì bật nhảy tại chỗ (tư thế đứng, nâng lên theo độ cao).
+  const diving = Math.abs(keeper.x) >= .2;
   const keeperAt = keeperToStage(keeper.x, keeper.y);
+  const keeping = role === 'keeper';
+  const diveAt = aimToStage(dive.x, dive.y);
+  const zoneOn = (z: { x: number; y: number }) => Math.abs(z.x - dive.x) < .01 && Math.abs(z.y - dive.y) < .01;
   const aiming = phase === 'aiming' || phase === 'idle';
   const current = SHOT_KINDS.find(k => k.id === kind)!;
 
   return <section className={`workspace penalty-page${reduced ? ' is-reduced' : ''}`} aria-label="Penalty">
     <header className="pk-head">
       <h1><Target aria-hidden="true"/>Penalty</h1>
+      {onKeep && <div className="pk-roles" role="radiogroup" aria-label="Vai trò (đổi được sau mỗi lượt sút)">
+        <button type="button" role="radio" aria-checked={!keeping} onClick={() => pickRole('shooter')} disabled={!canSwitch}><Target size={15} aria-hidden="true"/>Cầu thủ sút</button>
+        <button type="button" role="radio" aria-checked={keeping} onClick={() => pickRole('keeper')} disabled={!canSwitch}><Hand size={15} aria-hidden="true"/>Thủ môn</button>
+      </div>}
       <div className="pk-score" role="status">
-        <button type="button" className="pk-sound" onClick={toggleMute} aria-pressed={!muted} aria-label={muted ? 'Bật tiếng khán giả' : 'Tắt tiếng khán giả'} title={muted ? 'Bật tiếng khán giả' : 'Tắt tiếng khán giả'}>{muted ? <VolumeX size={16}/> : <Volume2 size={16}/>}</button><span className={`pk-speed${goalSweepSpeed(streak) >= SWEEP_MAX ? ' is-max' : streak > 0 ? ' is-up' : ''}`} title="Vạch ngắm lắc nhanh dần theo chuỗi bàn">Tốc độ <b>×{sweepMultiplier(streak).toLocaleString('vi-VN')}</b></span><span>Bàn thắng <b>{streak}</b></span><span><Trophy size={14} aria-hidden="true"/>Kỷ lục <b>{best}</b></span></div>
+        <button type="button" className="pk-sound" onClick={toggleMute} aria-pressed={!muted} aria-label={muted ? 'Bật tiếng khán giả' : 'Tắt tiếng khán giả'} title={muted ? 'Bật tiếng khán giả' : 'Tắt tiếng khán giả'}>{muted ? <VolumeX size={16}/> : <Volume2 size={16}/>}</button>{!keeping && <span className={`pk-speed${goalSweepSpeed(streak) >= SWEEP_MAX ? ' is-max' : streak > 0 ? ' is-up' : ''}`} title="Vạch ngắm lắc nhanh dần theo chuỗi">Tốc độ <b>×{sweepMultiplier(streak).toLocaleString('vi-VN')}</b></span>}<span title="Sút vào hoặc bắt được đều +1">Chuỗi <b>{streak}</b></span><span><Trophy size={14} aria-hidden="true"/>Kỷ lục <b>{best}</b></span></div>
     </header>
-    <div className={`pk-stage${shake ? ` is-shake-${shake % 2}` : ''}`} ref={stage} tabIndex={0} aria-label="Sân sút phạt: ↑ ↓ chỉnh độ cao, 1–4 chọn kiểu sút, Space để sút">
+    <div className={`pk-stage${shake ? ` is-shake-${shake % 2}` : ''}${keeping && phase === 'aiming' ? ' is-keeping' : ''}`} ref={stage} tabIndex={0} aria-label={keeping ? 'Sân penalty: bấm vào khung thành hoặc ← → ↑ ↓ chọn hướng bay người, Space để bắt' : 'Sân sút phạt: ↑ ↓ chỉnh độ cao, 1–4 chọn kiểu sút, Space để sút'}
+      onClick={e => { if (roleRef.current !== 'keeper' || phaseRef.current !== 'aiming' || !stage.current) return; const r = stage.current.getBoundingClientRect(); setDiveAt(stageToAim((e.clientX - r.left) / r.width * 100, (e.clientY - r.top) / r.height * 100)); }}>
       <SharedDefs/>
       <div className={`pk-camera is-${camera}`}>
       <Pitch/>
       <Atmosphere/>
-      {burst && <div key={`ripple-${burst.id}`} className="pk-ripple" style={{ left: `${burst.left}%`, top: `${burst.top}%` }} aria-hidden="true"><b className="pk-bulge"/><i/><i/><i/></div>}
+      {burst?.net && <div key={`ripple-${burst.id}`} className="pk-ripple" style={{ left: `${burst.left}%`, top: `${burst.top}%` }} aria-hidden="true"><b className="pk-bulge"/><i/><i/><i/></div>}
       <svg className="pk-aim-line" viewBox="0 0 160 100" preserveAspectRatio="none" aria-hidden="true">
-        {aiming && <line ref={line} x1={BALL_SPOT.left * 1.6} y1={BALL_SPOT.top - 3} x2="80" y2="40" stroke="#ffd76a" strokeWidth=".7" strokeDasharray="2 1.6" strokeLinecap="round"/>}
+        {aiming && !keeping && <line ref={line} x1={BALL_SPOT.left * 1.6} y1={BALL_SPOT.top - 3} x2="80" y2="40" stroke="#ffd76a" strokeWidth=".7" strokeDasharray="2 1.6" strokeLinecap="round"/>}
       </svg>
       {diving
         ? <div className="pk-keeper is-diving" style={{ left: `${keeperAt.left}%`, bottom: `${keeperAt.bottom - 2}%`, transform: `translateX(-50%) scaleX(${keeper.x < 0 ? -1 : 1}) rotate(${-keeper.y * 22}deg)` }}><KeeperDive/></div>
-        : <div className="pk-keeper" style={{ left: `${keeperAt.left}%`, bottom: `${keeperAt.bottom}%` }}><KeeperReady/></div>}
-      <div className={`pk-marker${aiming ? '' : ' is-hidden'}`} ref={marker} aria-hidden="true"><i/></div>
+        : <div className={`pk-keeper${keeper.y > .05 ? ' is-jump' : ''}`} style={{ left: `${keeperAt.left}%`, bottom: `${keeperAt.bottom}%` }}><KeeperReady/></div>}
+      <div className={`pk-marker${aiming && !keeping ? '' : ' is-hidden'}`} ref={marker} aria-hidden="true"><i/></div>
+      {keeping && aiming && <div className="pk-dive-target" style={{ left: `${diveAt.left}%`, top: `${diveAt.top}%` }} aria-hidden="true"><Hand/></div>}
       <div className="pk-ball-shadow" ref={shadow} aria-hidden="true"/>
       {Array.from({ length: GHOSTS }, (_, i) => <div key={i} className={`pk-ghost is-${flying ?? 'normal'}`} ref={el => { ghosts.current[i] = el; }} aria-hidden="true"/>)}
       <div className={`pk-ball${flying ? ` is-flying is-${flying}` : ''}${rolling ? ' is-rolling' : ''}`} ref={ball}><span><Ball/></span></div>
       <div className={`pk-striker is-${shooter}${kicking ? ' is-kicking' : ''}${pose ? ` is-${pose}` : ''}`} aria-hidden="true"><div className="pk-striker-body">{shooter === 'ronaldo' ? <><StrikerRonaldo/><div className="pk-front"><StrikerRonaldoFront/></div></> : <Striker/>}</div></div>
       </div>
       <div className="pk-vignette" aria-hidden="true"/>
-      <div className="pk-height" aria-hidden="true"><span style={{ bottom: `${height * 100}%` }}/></div>
+      {!keeping && <div className="pk-height" aria-hidden="true"><span style={{ bottom: `${height * 100}%` }}/></div>}
       {burst && <div key={`confetti-${burst.id}`} className="pk-confetti" aria-hidden="true">{confetti.map((c, i) => <i key={i} style={{ left: `${c.left}%`, animationDelay: `${c.delay}s`, background: c.color, width: c.size, height: c.size * .45, ['--drift' as string]: `${c.drift}px`, ['--spin' as string]: `${c.spin}deg` }}/>)}</div>}
-      {message && <div className={`pk-flash is-${message.kind === 'goal' ? 'goal' : 'saved'}`} role="status">{message.text}{message.kind === 'goal' && <small>+1 điểm</small>}</div>}
-      {message?.kind === 'goal' && <><div className="pk-glare" aria-hidden="true"/><div className="pk-flare" aria-hidden="true"><i/><i/><i/></div></>}
+      {message && <div className={`pk-flash is-${message.good ? 'goal' : 'saved'}`} role="status">{message.text}{message.good && <small>+1 chuỗi</small>}</div>}
+      {message?.good && <><div className="pk-glare" aria-hidden="true"/><div className="pk-flare" aria-hidden="true"><i/><i/><i/></div></>}
       {(phase === 'idle' || phase === 'starting' || phase === 'over') && <div className="pk-overlay">
         {phase === 'over'
-          ? <><h2>Hết lượt</h2><p>Bạn ghi được <b>{streak}</b> bàn liên tiếp.{streak > 0 && streak >= best ? ' Kỷ lục mới!' : ` Kỷ lục: ${best} bàn.`}</p></>
-          : <><h2>Penalty</h2><p>Canh vạch ngắm đang lắc, chỉnh độ cao bằng ↑ ↓, chọn kiểu sút rồi bấm <b>SÚT</b>. Mỗi bàn +1 điểm; bị bắt, vọt xà hay dội cột là hết lượt. Sút càng sát góc càng khó bắt.</p></>}
+          ? <><h2>Hết lượt</h2><p>Chuỗi thành công: <b>{streak}</b>.{streak > 0 && streak >= best ? ' Kỷ lục mới!' : ` Kỷ lục: ${best}.`}</p></>
+          : <><h2>Penalty</h2><p>{keeping
+            ? <>Làm <b>thủ môn</b>: chọn hướng bay người (bấm vào khung thành hoặc ← → ↑ ↓) rồi bấm <b>BẮT</b>. Đoán đúng hướng bóng thì dễ bắt.</>
+            : <>Canh vạch ngắm đang lắc, chỉnh độ cao bằng ↑ ↓, chọn kiểu sút rồi bấm <b>SÚT</b>. Sút càng sát góc càng khó bắt.</>}
+            {' '}Sút vào hay bắt được đều +1 chuỗi; thất bại là hết lượt.{onKeep ? ' Đổi vai Cầu thủ sút / Thủ môn sau mỗi lượt.' : ''}</p></>}
         <div className="pk-shooters" role="radiogroup" aria-label="Chọn cầu thủ sút">
           {SHOOTERS.map(s => <button key={s.id} type="button" role="radio" aria-checked={shooter === s.id} className={`pk-shooter is-${s.id}`} onClick={() => pickShooter(s.id)} disabled={phase === 'starting'}>
             <span className="pk-shooter-art" aria-hidden="true">{s.id === 'ronaldo' ? <StrikerRonaldo/> : <Striker/>}</span>
@@ -685,7 +774,13 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot }: Props
       </div>}
     </div>
     {error && <p className="pk-error" role="alert">{error}</p>}
-    <div className="pk-controls">
+    {keeping ? <div className="pk-controls is-keeper">
+      <div className="pk-zones" role="radiogroup" aria-label="Hướng bay người">
+        {KEEPER_ZONES.map(z => <button key={z.id} type="button" role="radio" aria-checked={zoneOn(z)} className={`pk-zone is-${z.id}`} onClick={() => setDiveAt(z)} disabled={phase === 'shooting' || phase === 'result'}>{z.name}</button>)}
+      </div>
+      <small className="pk-kind-hint pk-keep-hint">Chọn ô hoặc bấm thẳng vào khung thành (← → ↑ ↓). Máy sút sau khi bạn bấm BẮT.</small>
+      <button type="button" className="pk-shoot is-keep" onClick={() => void keep()} disabled={phase !== 'aiming'}>BẮT</button>
+    </div> : <div className="pk-controls">
       <div className="pk-height-buttons">
         <button type="button" onClick={() => nudge(HEIGHT_STEP)} aria-label="Nâng bóng cao hơn"><ChevronUp/></button>
         <span>Độ cao <b>{Math.round(height * 100)}%</b></span>
@@ -698,6 +793,6 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot }: Props
         <small className="pk-kind-hint">{current.hint}</small>
       </div>
       <button type="button" className="pk-shoot" onClick={() => void shoot()} disabled={phase !== 'aiming'}>SÚT</button>
-    </div>
+    </div>}
   </section>;
 }

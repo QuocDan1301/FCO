@@ -1,9 +1,9 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, ArrowUpDown, Coins, Gift, Lock, Pause, Play, RotateCcw, Trash2, Unlock } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, CircleMinus, Coins, Gift, Lock, Pause, Play, RotateCcw, Trash2, Unlock } from 'lucide-react';
 import { money, packs } from './game';
 import { ago, hours, vnd } from './Stats';
 import { giftRewardText } from './gift-codes';
-import { adminAccountDelete, adminAccountLock, adminAccountTier, adminCreditStp, adminResetPassword, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS } from './wallet';
+import { adminAccountDelete, adminAccountLock, adminAccountTier, adminCreditStp, adminResetPassword, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS, adminGiftBulk, adminDeduct } from './wallet';
 import type { AdminAccount, AdminAccountList, AdminGift, LedgerRow } from './wallet';
 import { CreditKindField, LedgerKindButton } from './LedgerKind';
 import type { CreditKind } from './LedgerKind';
@@ -69,18 +69,20 @@ function SendGift({ account, busy, run, onSent }: { account: AdminAccount; busy:
 
 // Loại tài khoản Classic / Premium (migration 202611110003): admin đặt để người chơi nhận ưu đãi riêng; không phải gói thành viên trong Shop.
 function AccountTierField({ account, busy, run }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void }) {
-  const [tier, setTier] = useState<'classic' | 'premium' | null>(null);
+  const [tier, setTier] = useState<'classic' | 'premium' | 'luxury' | null>(null);
   const [until, setUntil] = useState<number | null>(null);
   useEffect(() => { void adminAccountTier(account.id).then(r => { setTier(r.tier); setUntil(r.until ?? null); }).catch(() => setTier(null)); }, [account.id]);
   const date = (ms: number | null) => ms ? new Date(ms).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }) : '';
-  // Premium có hạn 7 ngày; bấm lại khi còn hạn thì cộng thêm 7 ngày. Huỷ = về Classic ngay.
-  const set = (next: 'classic' | 'premium') => run(async () => { const r = await adminAccountTier(account.id, next); setTier(r.tier); setUntil(r.until ?? null);
-    return r.tier === 'premium' ? `${account.login} là Premium tới ${date(r.until ?? null)}.` : `Đã huỷ Premium của ${account.login}.`; });
+  // Premium có hạn 7 ngày, Luxury 30 ngày; bấm lại khi đang cùng hạng thì cộng dồn. Huỷ = về Classic ngay.
+  const name = (t: string | null) => t === 'luxury' ? 'Luxury' : 'Premium';
+  const set = (next: 'classic' | 'premium' | 'luxury') => run(async () => { const before = tier; const r = await adminAccountTier(account.id, next); setTier(r.tier); setUntil(r.until ?? null);
+    return r.tier !== 'classic' ? `${account.login} là ${name(r.tier)} tới ${date(r.until ?? null)}.` : `Đã huỷ ${name(before)} của ${account.login}.`; });
   return <form onSubmit={e => e.preventDefault()}>
     <h3>Loại tài khoản</h3>
-    <p className="pa-gift-note">Hiện tại: <b>{tier === 'premium' ? `Premium · hết hạn ${date(until)}` : tier ? 'Classic' : '…'}</b>. Premium có hạn 7 ngày: giảm 65% thuế bán (không cộng dồn giảm giá khác) và hiệu ứng tên. Không liên quan gói thành viên trong Shop.</p>
-    <div className="pa-row"><button type="button" className="primary-button" disabled={busy || !tier} onClick={() => set('premium')}>{tier === 'premium' ? 'Gia hạn thêm 7 ngày' : 'Đặt Premium 7 ngày'}</button>
-    {tier === 'premium' && <button type="button" className="secondary-button" disabled={busy} onClick={() => set('classic')}>Huỷ Premium</button>}</div>
+    <p className="pa-gift-note">Hiện tại: <b>{tier === 'premium' || tier === 'luxury' ? `${name(tier)} · hết hạn ${date(until)}` : tier ? 'Classic' : '…'}</b>. Premium 7 ngày: giảm 65% thuế bán và 5 hiệu ứng tên. Luxury 30 ngày: giảm 75% thuế bán, thêm 5 hiệu ứng Luxury. Không cộng dồn giảm giá khác; không liên quan gói thành viên trong Shop. Đổi hạng thì hạn mới tính từ bây giờ.</p>
+    <div className="pa-row pa-tier-actions"><button type="button" className="primary-button" disabled={busy || !tier} onClick={() => set('premium')}>{tier === 'premium' ? 'Gia hạn Premium 7 ngày' : 'Đặt Premium 7 ngày'}</button>
+    <button type="button" className="primary-button" disabled={busy || !tier} onClick={() => set('luxury')}>{tier === 'luxury' ? 'Gia hạn Luxury 30 ngày' : 'Đặt Luxury 30 ngày'}</button>
+    {(tier === 'premium' || tier === 'luxury') && <button type="button" className="secondary-button" disabled={busy} onClick={() => set('classic')}>Huỷ {name(tier)}</button>}</div>
   </form>;
 }
 // Đặt lại mật khẩu (202611110015): không xem được mật khẩu cũ (chỉ lưu mã băm). Admin nhập hoặc tạo mật khẩu tạm, gửi cho người chơi;
@@ -114,6 +116,37 @@ function StarPointField({ account, busy, run }: { account: AdminAccount; busy: b
     <button type="submit" className="primary-button" disabled={busy || !valid}>Cập nhật Star Point</button>
   </form>;
 }
+// Trừ FC (migration 202611130003): thu hồi / phạt, lý do 'admin_deduct', không làm giảm Đã nạp và doanh thu như ô Cộng / trừ FC nhập số âm.
+function DeductFc({ account, busy, run, onDone }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void; onDone: () => void }) {
+  const [amount, setAmount] = useState('');
+  const [note, setNote] = useState('');
+  const [clamp, setClamp] = useState(false);
+  // Mã đợt: bấm lại sau lỗi mạng thì máy chủ không trừ lần hai; đổi số / tài khoản thì đợt mới.
+  const batch = useRef<string | null>(null);
+  useEffect(() => { batch.current = null; }, [amount, clamp, account.id]);
+  const value = Number(amount.replace(/[.\s]/g, ''));
+  const valid = Number.isSafeInteger(value) && value > 0;
+  const submit = () => {
+    if (!valid) return;
+    if (!confirm(`Trừ ${money(value)} FC của ${account.login}?${clamp ? ' Không đủ thì trừ hết số đang có.' : ''}\n(Không tính vào Đã nạp và doanh thu)`)) return;
+    run(async () => {
+      const id = batch.current ??= crypto.randomUUID();
+      const r = await adminDeduct(id, { users: [account.id] }, value, clamp, note.trim());
+      batch.current = null;
+      if (!r.done) throw new Error(r.skipped ? `${account.login} không đủ ${money(value)} FC (hoặc chưa vào game lần nào). Tích "Không đủ thì trừ hết" để trừ hết số đang có.` : 'Không trừ được FC.');
+      setAmount(''); setNote(''); setClamp(false); onDone();
+      return `Đã trừ ${money(r.doneFc)} FC của ${account.login}${r.balance !== null ? ` · còn ${money(r.balance)} FC` : ''}.`;
+    });
+  };
+  return <form onSubmit={e => { e.preventDefault(); submit(); }}>
+    <h3>Trừ FC</h3>
+    <p className="pa-gift-note">Thu hồi FC (phạt, cộng nhầm quà…). Không tính vào Đã nạp, doanh thu và FC người chơi đã dùng. Sửa một lần nạp theo bill bị nhầm thì dùng ô Cộng / trừ FC với số âm.</p>
+    <label className="pa-field"><span>Số FC cần trừ <small>đang có {money(account.fc)} FC</small></span><input value={amount} inputMode="numeric" onChange={e => setAmount(e.target.value.replace(/[^\d.\s]/g, '').slice(0, 16))} placeholder="vd. 5000" autoComplete="off"/></label>
+    <label className="pa-field"><span>Lý do <small>ghi vào sổ cái</small></span><input value={note} onChange={e => setNote(e.target.value)} maxLength={200}/></label>
+    <label className="pa-account-check"><input type="checkbox" checked={clamp} onChange={e => setClamp(e.target.checked)}/>Không đủ thì trừ hết số đang có</label>
+    <button type="submit" className="primary-button" disabled={busy || !valid}><CircleMinus size={16}/>Trừ FC</button>
+  </form>;
+}
 function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccount; onChanged: () => void; onDeleted: (login: string) => void }) {
   const { login } = account;
   const [amount, setAmount] = useState('');
@@ -125,6 +158,8 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
   const [deleteText, setDeleteText] = useState('');
   const [resetText, setResetText] = useState('');
   const [resetFc, setResetFc] = useState(false);
+  // Nhóm thao tác đang mở (tab trong ô quản lý tài khoản).
+  const [section, setSection] = useState<'money' | 'tier' | 'security' | 'danger'>('money');
   const value = Number(amount.replace(/[.\s]/g, ''));
   const loadLedger = () => adminLedger(login).then(rows => setLedger(rows.slice(0, 10))).catch(e => setStatus({ kind: 'error', text: (e as Error).message }));
   useEffect(() => { void loadLedger(); }, [login]);
@@ -166,29 +201,48 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
     try { await adminAccountDelete(account.id); onDeleted(login); }
     catch (e) { setStatus({ kind: 'error', text: (e as Error).message }); setBusy(false); }
   };
+  const SECTIONS: { id: typeof section; label: string }[] = [{ id: 'money', label: 'Tiền & quà' }, { id: 'tier', label: 'Hạng tài khoản' }, { id: 'security', label: 'Bảo mật' }, { id: 'danger', label: 'Khoá / reset / xoá' }];
   return <div className="pa-account-manage">
+    {/* Tóm tắt nhanh tài khoản. */}
+    <div className="pa-account-summary">
+      <span><small>FC</small><b>{money(account.fc)}</b></span>
+      <span><small>BP</small><b>{account.hasSave ? money(account.bp) : '—'}</b></span>
+      <span><small>Thẻ</small><b>{account.hasSave ? money(account.cards) : '—'}</b></span>
+      <span><small>Gói</small><b>{account.hasSave ? money(account.packs) : '—'}</b></span>
+      <span><small>Đã nạp</small><b>{account.topupFc ? vnd(account.topupVnd) : '—'}</b></span>
+      <span><small>Giờ chơi</small><b>{hours(account.playSeconds)}</b></span>
+      <span><small>Đăng ký</small><b>{new Date(account.registered).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</b></span>
+    </div>
+    <div className="pa-account-tabs" role="tablist" aria-label={`Quản lý ${login}`}>
+      {SECTIONS.map(s => <button key={s.id} type="button" role="tab" aria-selected={section === s.id} className={`${section === s.id ? 'is-on' : ''}${s.id === 'danger' ? ' is-danger' : ''}`} onClick={() => setSection(s.id)}>{s.label}</button>)}
+    </div>
     {status && <p className={`pa-message is-${status.kind}`} role={status.kind === 'error' ? 'alert' : 'status'}>{status.text}</p>}
     <div className="pa-account-columns">
-      <form onSubmit={e => { e.preventDefault(); credit(); }}>
+      {section === 'money' && <><form onSubmit={e => { e.preventDefault(); credit(); }}>
         <h3>Cộng / trừ FC</h3>
         <CreditKindField kind={kind} onChange={setKind}/>
-        <label className="pa-field"><span>Số FC <small>{Number.isSafeInteger(value) && value ? `${value > 0 ? '+' : '−'}${money(Math.abs(value))} FC` : 'số âm để trừ'}</small></span><input value={amount} onChange={e => setAmount(e.target.value)} placeholder="vd. 100000" autoComplete="off"/></label>
+        <label className="pa-field"><span>Số FC <small>{Number.isSafeInteger(value) && value ? `${value > 0 ? '+' : '−'}${money(Math.abs(value))} FC` : 'số âm = sửa nạp nhầm'}</small></span><input value={amount} onChange={e => setAmount(e.target.value)} placeholder="vd. 100000" autoComplete="off"/></label>
         <label className="pa-field"><span>Ghi chú <small>vd. mã giao dịch ngân hàng</small></span><input value={note} onChange={e => setNote(e.target.value)} maxLength={200}/></label>
         <button type="submit" className="primary-button" disabled={busy}><Coins size={16}/>Xác nhận</button>
       </form>
+      <DeductFc account={account} busy={busy} run={task => void run(task)} onDone={() => void loadLedger()}/>
       <SendGift account={account} busy={busy} run={task => void run(task)} onSent={() => void loadLedger()}/>
-      <AccountTierField account={account} busy={busy} run={task => void run(task)}/>
       <StarPointField account={account} busy={busy} run={task => void run(task)}/>
-      <ResetPasswordField account={account} busy={busy} run={task => void run(task)}/>
       <div className="pa-account-ledger">
         <h3>Sổ cái FC gần đây</h3>
         {ledger && !ledger.length && <p className="pa-empty">Chưa có giao dịch.</p>}
         {ledger?.map((row, i) => <p key={`${row.time}-${i}`}><b className={row.delta > 0 ? 'pa-plus' : 'pa-minus'}>{row.delta > 0 ? '+' : '−'}{money(Math.abs(row.delta))} FC</b> <small>{LEDGER_REASONS[row.reason] ?? row.reason}{row.note ? ` · ${row.note}` : ''} · còn {money(row.balance)} · {time(row.time)}</small> <LedgerKindButton row={row} onChanged={() => { void loadLedger(); onChanged(); }} onError={text => setStatus({ kind: 'error', text })}/></p>)}
-      </div>
+      </div></>}
+      {section === 'tier' && <AccountTierField account={account} busy={busy} run={task => void run(task)}/>}
+      {section === 'security' && <><ResetPasswordField account={account} busy={busy} run={task => void run(task)}/>
       <div className="pa-account-danger">
-        <h3>Khoá / tạm dừng / reset / xoá</h3>
+        <h3>Khoá / tạm dừng</h3>
+        {account.admin && <p className="pa-gift-note">Tài khoản admin không khoá hoặc tạm dừng được.</p>}
         {!account.admin && <button type="button" className="secondary-button" disabled={busy} onClick={lock}>{account.locked ? <Unlock size={16}/> : <Lock size={16}/>}{account.locked ? 'Mở khoá tài khoản' : 'Khoá tài khoản'}</button>}
         {!account.admin && <button type="button" className="secondary-button" disabled={busy} onClick={pause}>{account.paused ? <Play size={16}/> : <Pause size={16}/>}{account.paused ? 'Bỏ tạm dừng' : 'Tạm dừng tài khoản'}</button>}
+      </div></>}
+      {section === 'danger' && <div className="pa-account-danger">
+        <h3>Reset / xoá tài khoản</h3>
         <form onSubmit={e => { e.preventDefault(); reset(); }}>
           <label className="pa-field"><span>Reset về như mới: gõ <b>{login}</b> để xác nhận <small>Mất thẻ, BP, gói, đội hình, lịch sử, tiến trình sự kiện, chuỗi điểm danh và kỷ lục BXH; không khôi phục được. Giữ tên đăng nhập, mật khẩu và sổ cái.</small></span><input value={resetText} onChange={e => setResetText(e.target.value)} autoComplete="off" spellCheck={false} aria-label={`Gõ ${login} để xác nhận reset`}/></label>
           <label className="pa-account-check"><input type="checkbox" checked={resetFc} onChange={e => setResetFc(e.target.checked)}/>Xoá luôn FC (đang có {money(account.fc)} FC)</label>
@@ -198,15 +252,16 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
           <label className="pa-field"><span>Xoá vĩnh viễn: gõ <b>{login}</b> để xác nhận <small>Mất thẻ, BP, FC và sổ cái của tài khoản; không khôi phục được.</small></span><input value={deleteText} onChange={e => setDeleteText(e.target.value)} autoComplete="off" spellCheck={false} aria-label={`Gõ ${login} để xác nhận xoá`}/></label>
           <button type="submit" className="pa-account-delete" disabled={busy || deleteText !== login}><Trash2 size={16}/>Xoá tài khoản</button>
         </form>}
-      </div>
+      </div>}
     </div>
   </div>;
 }
 
-export default function Accounts() {
+// initialSearch: từ khoá gõ ở ô "Tìm người chơi" trên đầu trang quản trị.
+export default function Accounts({ initialSearch = '' }: { initialSearch?: string } = {}) {
   const [data, setData] = useState<AdminAccountList | null>(null);
-  const [input, setInput] = useState('');
-  const [search, setSearch] = useState('');
+  const [input, setInput] = useState(initialSearch);
+  const [search, setSearch] = useState(initialSearch);
   const [sort, setSort] = useState<Sort>('new');
   const [asc, setAsc] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
@@ -220,6 +275,22 @@ export default function Accounts() {
   const [busy, setBusy] = useState(false);
   // Xoá hàng loạt: mở ô xác nhận, phải gõ đúng số tài khoản đã chọn.
   const [bulkDelete, setBulkDelete] = useState(false);
+  // Tặng quà hàng loạt: form trên thanh thao tác; tiến độ hiện ở dòng trạng thái.
+  const [bulkGift, setBulkGift] = useState(false);
+  const [giftKind, setGiftKind] = useState<'fc' | 'pack'>('pack');
+  const [giftAmount, setGiftAmount] = useState('1');
+  const [giftPack, setGiftPack] = useState('');
+  const [giftNote, setGiftNote] = useState('');
+  // Mã đợt tặng: giữ khi bấm lại sau lỗi (máy chủ bỏ qua người đã nhận trong đợt), đổi khi tặng xong / đổi quà / đổi danh sách chọn.
+  const giftBatch = useRef<string | null>(null);
+  useEffect(() => { giftBatch.current = null; }, [giftKind, giftAmount, giftPack, selected, allMatching, search, status]);
+  // Trừ FC hàng loạt (migration 202611130003): cùng mã đợt thì gọi lại không trừ hai lần.
+  const [bulkDeduct, setBulkDeduct] = useState(false);
+  const [deductAmount, setDeductAmount] = useState('');
+  const [deductNote, setDeductNote] = useState('');
+  const [deductClamp, setDeductClamp] = useState(false);
+  const deductBatch = useRef<string | null>(null);
+  useEffect(() => { deductBatch.current = null; }, [deductAmount, deductClamp, selected, allMatching, search, status]);
   const [bulkDeleteText, setBulkDeleteText] = useState('');
   const request = useRef(0);
   const view = useRef({ search, sort, asc, page, status }); view.current = { search, sort, asc, page, status };
@@ -244,7 +315,7 @@ export default function Accounts() {
   };
   useEffect(() => { const timer = setInterval(() => { if (document.visibilityState === 'visible') void load(); }, 60_000); return () => clearInterval(timer); }, []);
   const pages = Math.max(1, Math.ceil((data?.matched ?? 0) / PAGE_SIZE));
-  const clearSelection = () => { setSelected(new Set()); setAllMatching(false); setBulkDelete(false); setBulkDeleteText(''); };
+  const clearSelection = () => { setSelected(new Set()); setAllMatching(false); setBulkDelete(false); setBulkDeleteText(''); setBulkGift(false); setBulkDeduct(false); };
   // Admin không tạm dừng / xoá được nên không chọn được.
   const pageIds = (data?.accounts ?? []).filter(a => !a.admin).map(a => a.id);
   const pageAllSelected = pageIds.length > 0 && pageIds.every(id => selected.has(id));
@@ -262,6 +333,51 @@ export default function Accounts() {
     } catch (e) { setError((e as Error).message); setBusy(false); }
   };
   // Máy chủ xoá tối đa 200 tài khoản mỗi lần: danh sách id chia lô 200, "tất cả khớp bộ lọc" thì gọi lại tới khi remaining = 0.
+  const bulkSendGift = async () => {
+    const value = Number(giftAmount);
+    if (!Number.isSafeInteger(value) || value <= 0) { setError(giftKind === 'fc' ? 'Nhập số FC muốn tặng.' : 'Nhập số gói muốn tặng.'); return; }
+    if (giftKind === 'pack' && !giftPack) { setError('Chọn gói muốn tặng.'); return; }
+    if (giftKind === 'pack' && value > 1000) { setError('Mỗi tài khoản tối đa 1.000 gói một lần tặng.'); return; }
+    const gift = giftKind === 'fc' ? { fc: value } : { pack: giftPack, count: value };
+    const text = giftRewardText(gift);
+    if (!confirm(`Tặng ${text} cho ${allMatching ? 'tất cả ' : ''}${money(selectedCount)} tài khoản?${giftNote.trim() ? `\nLời nhắn: ${giftNote.trim()}` : ''}`)) return;
+    const batch = giftBatch.current ??= crypto.randomUUID();
+    const target = allMatching ? { all: true as const, search, status } : { users: [...selected] };
+    setBusy(true); setError(''); setNotice('');
+    try {
+      let total = 0;
+      for (let round = 0; round < 1000; round++) {
+        const result = await adminGiftBulk(batch, target, gift, giftNote.trim());
+        total = result.total;
+        setNotice(`Đang tặng ${text}… ${money(total)} tài khoản xong${result.remaining ? `, còn ${money(result.remaining)}` : ''}.`);
+        if (!result.remaining) break;
+      }
+      setNotice(`Đã tặng ${text} cho ${money(total)} tài khoản. ${giftKind === 'fc' ? 'FC đã vào ví.' : 'Gói vào kho khi người chơi mở game.'}`);
+      giftBatch.current = null;
+      setBulkGift(false); setGiftNote(''); clearSelection(); void load();
+    } catch (e) { setError(`${(e as Error).message} Bấm Tặng quà lại để tặng nốt (giữ nguyên quà và danh sách chọn thì người đã nhận không nhận trùng).`); }
+    finally { setBusy(false); }
+  };
+  const bulkDeductFc = async () => {
+    const value = Number(deductAmount.replace(/[.\s]/g, ''));
+    if (!Number.isSafeInteger(value) || value <= 0) { setError('Nhập số FC muốn trừ.'); return; }
+    if (!confirm(`Trừ ${money(value)} FC của ${allMatching ? 'tất cả ' : ''}${money(selectedCount)} tài khoản?\n${deductClamp ? 'Tài khoản không đủ thì trừ hết số đang có.' : 'Tài khoản không đủ FC thì bỏ qua.'}${allMatching ? ' Bỏ qua tài khoản admin.' : ''}\n(Không tính vào Đã nạp và doanh thu)`)) return;
+    const batch = deductBatch.current ??= crypto.randomUUID();
+    const target = allMatching ? { all: true as const, search, status } : { users: [...selected] };
+    setBusy(true); setError(''); setNotice('');
+    try {
+      let result = null;
+      for (let round = 0; round < 1000; round++) {
+        result = await adminDeduct(batch, target, value, deductClamp, deductNote.trim());
+        setNotice(`Đang trừ FC… ${money(result.done)} tài khoản xong${result.remaining ? `, còn ${money(result.remaining)}` : ''}.`);
+        if (!result.remaining) break;
+      }
+      setNotice(`Đã trừ tổng ${money(result?.doneFc ?? 0)} FC của ${money(result?.done ?? 0)} tài khoản${result?.skipped ? `, bỏ qua ${money(result.skipped)} tài khoản ${deductClamp ? 'không có FC' : 'không đủ FC'}` : ''}.`);
+      deductBatch.current = null;
+      setBulkDeduct(false); setDeductAmount(''); setDeductNote(''); setDeductClamp(false); clearSelection(); void load();
+    } catch (e) { setError(`${(e as Error).message} Bấm Trừ FC lại để trừ nốt (giữ nguyên số FC và danh sách chọn thì tài khoản đã bị trừ không bị trừ lần nữa).`); }
+    finally { setBusy(false); }
+  };
   const bulkRemove = async () => {
     if (bulkDeleteText.trim() !== String(selectedCount)) return;
     setBusy(true); setError(''); setNotice(''); setOpen('');
@@ -308,9 +424,26 @@ export default function Accounts() {
       <b>Đã chọn {money(selectedCount)} tài khoản</b>
       <button type="button" className="secondary-button" disabled={busy} onClick={() => void bulkPause(true)}><Pause size={15}/>Tạm dừng</button>
       <button type="button" className="secondary-button" disabled={busy} onClick={() => void bulkPause(false)}><Play size={15}/>Bỏ tạm dừng</button>
-      <button type="button" className="secondary-button pa-account-bulk-delete" disabled={busy} aria-expanded={bulkDelete} onClick={() => { setBulkDelete(!bulkDelete); setBulkDeleteText(''); }}><Trash2 size={15}/>Xoá</button>
+      <button type="button" className="secondary-button" disabled={busy} aria-expanded={bulkGift} onClick={() => { setBulkGift(!bulkGift); setBulkDelete(false); setBulkDeduct(false); }}><Gift size={15}/>Tặng quà</button>
+      <button type="button" className="secondary-button" disabled={busy} aria-expanded={bulkDeduct} onClick={() => { setBulkDeduct(!bulkDeduct); setBulkGift(false); setBulkDelete(false); }}><CircleMinus size={15}/>Trừ FC</button>
+      <button type="button" className="secondary-button pa-account-bulk-delete" disabled={busy} aria-expanded={bulkDelete} onClick={() => { setBulkDelete(!bulkDelete); setBulkDeleteText(''); setBulkGift(false); setBulkDeduct(false); }}><Trash2 size={15}/>Xoá</button>
       <button type="button" className="pa-account-link" disabled={busy} onClick={clearSelection}>Bỏ chọn</button>
       {!allMatching && pageAllSelected && data && data.matched > data.accounts.length && <button type="button" className="pa-account-link" disabled={busy} onClick={() => setAllMatching(true)}>Chọn tất cả {money(data.matched)} tài khoản{search || status ? ' đang lọc' : ''}</button>}
+      {bulkGift && <form className="pa-account-bulk-confirm pa-account-bulk-gift" onSubmit={e => { e.preventDefault(); void bulkSendGift(); }}>
+          <label className="pa-field"><span>Loại quà</span><select value={giftKind} onChange={e => { const k = e.target.value as 'fc' | 'pack'; setGiftKind(k); setGiftAmount(k === 'pack' ? '1' : ''); }}><option value="pack">Gói cầu thủ</option><option value="fc">FC</option></select></label>
+          {giftKind === 'pack' && <label className="pa-field"><span>Gói</span><select value={giftPack} onChange={e => setGiftPack(e.target.value)}><option value="">Chọn gói…</option>{packs.filter(p => !p.draft).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}
+          <label className="pa-field"><span>{giftKind === 'fc' ? 'Số FC mỗi tài khoản' : 'Số gói mỗi tài khoản'}</span><input value={giftAmount} onChange={e => setGiftAmount(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder={giftKind === 'fc' ? 'vd. 5000' : '1'} autoComplete="off"/></label>
+          <label className="pa-field"><span>Lời nhắn <small>người chơi thấy trong lịch sử</small></span><input value={giftNote} onChange={e => setGiftNote(e.target.value)} maxLength={200}/></label>
+          <button type="submit" className="primary-button" disabled={busy}><Gift size={16}/>{busy ? 'Đang tặng…' : `Tặng cho ${allMatching ? 'tất cả ' : ''}${money(selectedCount)} tài khoản`}</button>
+          <p className="pa-gift-note">Không tính vào Đã nạp và doanh thu. FC vào ví ngay; gói vào kho khi người chơi mở game. Mỗi tài khoản nhận đúng một lần trong đợt tặng.</p>
+        </form>}
+      {bulkDeduct && <form className="pa-account-bulk-confirm pa-account-bulk-gift" onSubmit={e => { e.preventDefault(); void bulkDeductFc(); }}>
+          <label className="pa-field"><span>Số FC trừ mỗi tài khoản</span><input value={deductAmount} onChange={e => setDeductAmount(e.target.value.replace(/[^\d.\s]/g, '').slice(0, 16))} inputMode="numeric" placeholder="vd. 5000" autoComplete="off"/></label>
+          <label className="pa-field"><span>Lý do <small>ghi vào sổ cái</small></span><input value={deductNote} onChange={e => setDeductNote(e.target.value)} maxLength={200}/></label>
+          <label className="pa-account-check"><input type="checkbox" checked={deductClamp} onChange={e => setDeductClamp(e.target.checked)}/>Không đủ thì trừ hết số đang có</label>
+          <button type="submit" className="primary-button" disabled={busy}><CircleMinus size={16}/>{busy ? 'Đang trừ…' : `Trừ FC của ${allMatching ? 'tất cả ' : ''}${money(selectedCount)} tài khoản`}</button>
+          <p className="pa-gift-note">Không tính vào Đã nạp và doanh thu. {deductClamp ? 'Tài khoản không đủ thì trừ về 0.' : 'Tài khoản không đủ FC thì bỏ qua, không trừ.'} Mỗi tài khoản bị trừ đúng một lần trong đợt.</p>
+        </form>}
       {bulkDelete && <form className="pa-account-bulk-confirm" onSubmit={e => { e.preventDefault(); void bulkRemove(); }}>
         <label className="pa-field"><span>Xoá vĩnh viễn {allMatching ? 'tất cả ' : ''}{money(selectedCount)} tài khoản: gõ <b>{selectedCount}</b> để xác nhận <small>Mất thẻ, BP, FC và sổ cái của các tài khoản này; không khôi phục được. Tài khoản admin được bỏ qua.{allMatching ? ' Tài khoản khớp bộ lọc lúc bấm xoá đều bị xoá, kể cả tài khoản mới đăng ký sau khi chọn.' : ''}</small></span><input value={bulkDeleteText} onChange={e => setBulkDeleteText(e.target.value.replace(/\D/g, ''))} inputMode="numeric" autoComplete="off" aria-label={`Gõ ${selectedCount} để xác nhận xoá`}/></label>
         <button type="submit" className="pa-account-delete" disabled={busy || bulkDeleteText !== String(selectedCount)}><Trash2 size={16}/>{busy ? 'Đang xoá…' : `Xoá ${money(selectedCount)} tài khoản`}</button>

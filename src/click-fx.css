@@ -1,0 +1,17 @@
+/* Hiệu ứng click điện tử (click-fx.ts): lớp phủ không bắt chuột, nằm trên mọi thứ. */
+.click-fx-layer{position:fixed;inset:0;z-index:99999;pointer-events:none;overflow:hidden;contain:strict}
+/* Cỡ hiệu ứng: thu nhỏ quanh điểm bấm (người dùng muốn nhỏ lại 2026-11-12). */
+.click-fx{position:absolute;width:0;height:0;transform:scale(.6)}
+.click-fx svg{position:absolute;left:-46px;top:-46px;width:92px;height:92px;overflow:visible;filter:drop-shadow(0 0 3px var(--c2)) drop-shadow(0 0 7px var(--c3))}
+.click-fx-bolt{fill:none;stroke:var(--c1);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;opacity:0;animation:click-fx-bolt .42s cubic-bezier(.2,.8,.3,1) forwards}
+.click-fx i{position:absolute;left:0;top:0;border-radius:50%;transform:translate(-50%,-50%)}
+.click-fx-ring{width:44px;height:44px;border:2px solid var(--c2);box-shadow:0 0 10px var(--c2),inset 0 0 8px var(--c3);animation:click-fx-ring .46s ease-out forwards}
+.click-fx-ring.is-outer{width:60px;height:60px;border-width:1px;border-style:dashed;border-color:var(--c1);box-shadow:none;animation:click-fx-ring-outer .52s ease-out forwards}
+.click-fx-core{width:12px;height:12px;background:radial-gradient(circle,var(--c1) 0,var(--c2) 45%,transparent 72%);animation:click-fx-core .3s ease-out forwards}
+.click-fx b{position:absolute;left:-1.5px;top:-1.5px;width:3px;height:3px;border-radius:1px;background:var(--c1);box-shadow:0 0 6px var(--c2);animation:click-fx-spark .5s ease-out forwards}
+@keyframes click-fx-bolt{0%{opacity:0;stroke-dashoffset:60}18%{opacity:1}55%{opacity:1;stroke-dashoffset:0}100%{opacity:0;stroke-dashoffset:0}}
+@keyframes click-fx-ring{0%{opacity:1;transform:translate(-50%,-50%) scale(.15)}100%{opacity:0;transform:translate(-50%,-50%) scale(1)}}
+@keyframes click-fx-ring-outer{0%{opacity:.9;transform:translate(-50%,-50%) scale(.3) rotate(0)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.05) rotate(90deg)}}
+@keyframes click-fx-core{0%{opacity:1;transform:translate(-50%,-50%) scale(1.6)}100%{opacity:0;transform:translate(-50%,-50%) scale(.4)}}
+@keyframes click-fx-spark{0%{opacity:1;transform:translate(0,0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.4)}}
+@media(prefers-reduced-motion:reduce){.click-fx-layer{display:none}}

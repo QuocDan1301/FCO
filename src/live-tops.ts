@@ -21,7 +21,7 @@ export function liveTopMessages(board: Leaderboard | null, ranked: RankedTop[] |
     return { name: r.name, effect: r.effect, text: parts.join(' · ') };
   }));
   add('Giá trị đội hình', (board?.squad ?? []).filter(r => r.value > 0).map(r => ({ name: r.name, effect: r.effect, text: `${money(r.value)} BP` })));
-  add('Penalty', (board?.penalty ?? []).filter(r => r.goals > 0).map(r => ({ name: r.name, effect: r.effect, text: `${r.goals} bàn liên tiếp` })));
+  add('Penalty', (board?.penalty ?? []).filter(r => r.goals > 0).map(r => ({ name: r.name, effect: r.effect, text: `chuỗi ${r.goals}` })));
   add('GLXH', (ranked ?? []).map(r => ({ name: r.name, effect: r.effect, text: `${fmt(r.points)} điểm` })));
   return out;
 }

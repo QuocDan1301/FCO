@@ -25,10 +25,11 @@ test('Mùa LIVE có đủ ảnh gói, hầm, nhãn mùa', () => {
   for (const path of [pack.back, pack.tunnel]) assert.ok(path && existsSync(`public${path}`));
 });
 
-test('32 thẻ LIVE khớp danh sách, mỗi thẻ có ảnh, cờ và logo CLB', () => {
-  assert.equal(roster.length, 32);
+test('33 thẻ LIVE khớp danh sách, mỗi thẻ có ảnh, cờ và logo CLB', () => {
+  // 32 thẻ đầu + G. Vicario (id 4084) thêm 2026-11-13.
+  assert.equal(roster.length, 33);
   assert.equal(new Set(players.map(p => p.id)).size, players.length);
-  assert.equal(new Set(roster.map(p => p.cardFace)).size, 32);
+  assert.equal(new Set(roster.map(p => p.cardFace)).size, 33);
   for (const [i, p] of roster.entries()) {
     const [name, rating, pos, wage, flag, club] = source[i];
     assert.deepEqual([p.name, p.ovr, p.pos, p.wage, p.flag, p.club], [name, Number(rating), pos, Number(wage), flag, club]);
@@ -50,9 +51,9 @@ test('Mọi thẻ LIVE: +1 đồng giá 1.000 BP, mỗi cấp nhân 2, không da
   }
 });
 
-test('Gói LIVE ra đủ 32 cầu thủ, mở và bán được', () => {
+test('Gói LIVE ra đủ 33 cầu thủ, mở và bán được', () => {
   assert.ok(isPackAvailable(pack));
-  assert.equal(packOdds(pack).pool.length, 32);
+  assert.equal(packOdds(pack).pool.length, 33);
   for (const p of roster) assert.equal(draw(pack, rngFor(pack, p.id)).playerId, p.id, p.name);
   const opened = openPacks({ ...initialSave(), unopened: { ...initialSave().unopened, live: 15 } }, pack, 15, Math.random);
   assert.equal(opened.cards.length, 15);

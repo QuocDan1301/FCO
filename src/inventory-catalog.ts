@@ -21,7 +21,8 @@ export type CatalogRules = {
 };
 // Cầu thủ: [id, tên, OVR từng cấp +1…+13, giá chuẩn từng cấp (null = chưa có giá), giá cố định (không dao động), tỷ lệ bảo hiểm].
 // [id, tên, OVR theo cấp, giá theo cấp, giá cố định, tỷ lệ bảo hiểm, lương] — lương dùng cho mức lương GLXH (202611120006).
-export type CatalogPlayer = [number, string, number[], (number | null)[], boolean, number, number];
+// [id, tên, OVR +1…+13, giá, giá cố định, tỷ lệ bảo hiểm, lương, vị trí sở trường (GLXH tính chỉ số, migration 202611130001)]
+export type CatalogPlayer = [number, string, number[], (number | null)[], boolean, number, number, string];
 // Gói: tỷ lệ từng cầu thủ và từng cấp đúng như packOdds; gói chỉ định giữ danh sách cầu thủ được chọn.
 export type CatalogPack = {
   id: string; name: string; label: string; price: number; shop: boolean; choose: boolean; available: boolean;
@@ -59,7 +60,7 @@ export function catalogPlayers(): CatalogPlayer[] {
     const ovrs = levels.map(level => ovr({ playerId: player.id, level }));
     if (!ovrs.every(Number.isInteger)) throw new Error(`OVR của ${player.name} phải là số nguyên.`);
     const prices = levels.map(level => recordedPrices[String(player.id)]?.[level - 1] ?? null);
-    return [player.id, player.name, ovrs, prices, fixedPricePlayers.has(player.id), insuranceRate(player.ovr), player.wage ?? 0];
+    return [player.id, player.name, ovrs, prices, fixedPricePlayers.has(player.id), insuranceRate(player.ovr), player.wage ?? 0, player.pos];
   });
 }
 

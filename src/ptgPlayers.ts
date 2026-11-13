@@ -1,7 +1,7 @@
 import { asset } from './asset';
 import type { Player } from './game';
 
-// 165 thẻ mùa PTG (PATH TO GLORY) từ ảnh người dùng cung cấp; giá +1 theo bảng giá người dùng gửi, +2…+13 cùng họ công thức "117 · ×1" của bp2.
+// 166 thẻ mùa PTG (PATH TO GLORY) từ ảnh người dùng cung cấp; giá +1 theo bảng giá người dùng gửi, +2…+13 cùng họ công thức "117 · ×1" của bp2.
 // Logo đội theo logo in ở góc dưới phải mỗi thẻ (clubLogos.json / thư mục clubs). Thẻ in khiên xám (cầu thủ tự do) ghi CLB "Tự do" như mùa MEDALIST
 // và dùng đúng khiên xám đó; khiên tròn có rắn ở Serie A (bản không bản quyền) là Inter.
 const freeLogo = asset('/assets/ptg-free-team.webp');
@@ -175,4 +175,6 @@ export const ptgPlayers: Player[] = [
   { id: 2694, name: "Neymar Jr", ovr: 114, pos: 'CAM', nation: 'Brazil', flag: 'BR', club: "Tự do", tier: 'ptg', wage: 28, cardFace: asset('/assets/ptg-neymar-jr-card.webp'), teamLogo: freeLogo },
   { id: 2695, name: "M. Almirón", ovr: 114, pos: 'RW', nation: 'Paraguay', flag: 'PY', club: "Atlanta United", tier: 'ptg', wage: 27, cardFace: asset('/assets/ptg-m-almiron-card.webp') },
   { id: 2696, name: "C. Pulisic", ovr: 114, pos: 'LW', nation: 'Mỹ', flag: 'US', club: "Milano", tier: 'ptg', wage: 27, cardFace: asset('/assets/ptg-c-pulisic-card.webp') },
+  // Thêm 2026-11-13 theo ảnh người dùng gửi (id 4083, sau mùa WS).
+  { id: 4083, name: "N. Mazraoui", ovr: 111, pos: 'LB', nation: 'Ma-rốc', flag: 'MA', club: "Manchester Đỏ", tier: 'ptg', wage: 24, cardFace: asset('/assets/ptg-n-mazraoui-card.webp') },
 ];

@@ -1,13 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { Medal, RefreshCw, Shield, Swords, Trophy, Users, Volume2, VolumeX, X } from 'lucide-react';
-import type { Save } from './game';
+import { getPlayer, players } from './game';
+import type { Save, Tier } from './game';
+import { seasonShort } from './badges';
+import LineupViewer from './LineupViewer';
+import { teamRating } from './ranked-ratings';
+import type { LineupBoardId, PublicLineupView } from './public-lineup';
 import { FORMATIONS, DEFAULT_FORMATION } from './squad';
 import { RANKED_START, RANKED_WAGE_CAP, nextTier, rankedTeam, tierById, tierOf } from './ranked';
 import type { RankedFinish, RankedMatch, RankedState } from './ranked';
 import { MatchSim, ballAt, minuteAt, statsAt } from './ranked-sim';
 import type { SimEvent, SimSlot } from './ranked-sim';
-import { isNameEffect, nameEffectClass } from './name-effects';
+import { isNameEffect, nameEffectClass, isLuxuryEffect } from './name-effects';
 import type { NameEffect } from './name-effects';
 import { clubLogoUrl } from './club-logo';
 import { CrowdAudio, saveRankedMute, savedRankedMute } from './penalty-audio';
@@ -26,7 +31,11 @@ type Props = {
   onLineup: () => void;
   // Đang mở trận (App tắt nhạc nền, chỉ còn tiếng khán đài + còi).
   onMatchChange?: (active: boolean) => void;
+  // Bấm HLV trên BXH GLXH để xem đội hình đang dùng.
+  viewLineup?: (board: LineupBoardId, rank: number) => Promise<PublicLineupView | null>;
+  levelBadge?: (level: number) => string;
 };
+const knownPlayers = new Set(players.map(p => p.id));
 
 const ME = '#38c6ff', OPP = '#ff5b5b';
 const fmt = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
@@ -48,7 +57,7 @@ const conic = (ctx: Ctx, x: number, y: number, rot: number, colors: string[]) =>
   colors.forEach((c, i) => g.addColorStop(i / (colors.length - 1), c));
   return g;
 };
-// Viền Premium quanh chấm cầu thủ, cùng kiểu hiệu ứng avatar chủ đội đã chọn (Hoàng kim, Lửa, Băng, Neon, Thiên hà).
+// Viền Premium / Luxury quanh chấm cầu thủ, cùng kiểu hiệu ứng avatar chủ đội đã chọn.
 function premiumRing(ctx: Ctx, x: number, y: number, r: number, fx: NameEffect, t: number, seed: number) {
   const R = r * 1.3, lw = Math.max(2, r * .26);
   ctx.save();
@@ -56,8 +65,20 @@ function premiumRing(ctx: Ctx, x: number, y: number, r: number, fx: NameEffect, 
   else if (fx === 'fire') { const f = .7 + .3 * Math.sin(t * 13 + seed); ctx.shadowColor = '#ff5a1f'; ctx.shadowBlur = r * (.7 + .7 * f); ctx.strokeStyle = conic(ctx, x, y, -t * 3, ['#ffe066', '#ff7a00', '#e8261c', '#ff7a00', '#ffe066']); }
   else if (fx === 'ice') { ctx.shadowColor = '#8fe8ff'; ctx.shadowBlur = r * .8; ctx.strokeStyle = conic(ctx, x, y, t * 1.5, ['#ffffff', '#7fdcff', '#2f9bff', '#7fdcff', '#ffffff']); }
   else if (fx === 'neon') { const h = (t * 120 + seed * 40) % 360; ctx.shadowColor = `hsl(${h},100%,60%)`; ctx.shadowBlur = r; ctx.strokeStyle = conic(ctx, x, y, t * 3, [0, 90, 180, 270, 360].map(d => `hsl(${(h + d) % 360},100%,60%)`)); }
-  else { ctx.shadowColor = '#8a5cff'; ctx.shadowBlur = r * .9; ctx.strokeStyle = conic(ctx, x, y, t * 1.8, ['#4b2bd6', '#c86bff', '#3fb5ff', '#c86bff', '#4b2bd6']); }
+  else if (fx === 'galaxy') { ctx.shadowColor = '#8a5cff'; ctx.shadowBlur = r * .9; ctx.strokeStyle = conic(ctx, x, y, t * 1.8, ['#4b2bd6', '#c86bff', '#3fb5ff', '#c86bff', '#4b2bd6']); }
+  // Luxury: màu riêng + vòng ngoài mảnh + hạt sáng bay quanh.
+  else if (fx === 'diamond') { ctx.shadowColor = '#c8f0ff'; ctx.shadowBlur = r * 1.1; ctx.strokeStyle = conic(ctx, x, y, t * 3, ['#ffffff', '#bfeaff', '#f2d4ff', '#7fc8ff', '#ffffff']); }
+  else if (fx === 'aurora') { const h = 140 + 60 * Math.sin(t * .7 + seed); ctx.shadowColor = `hsl(${h},100%,62%)`; ctx.shadowBlur = r * 1.1; ctx.strokeStyle = conic(ctx, x, y, t * 1.2, ['#45ffb4', '#61d9ff', '#b07bff', '#ff7ad9', '#45ffb4']); }
+  else if (fx === 'phoenix') { const f = .7 + .3 * Math.sin(t * 15 + seed); ctx.shadowColor = '#ff4a1a'; ctx.shadowBlur = r * (1 + .8 * f); ctx.strokeStyle = conic(ctx, x, y, -t * 3.6, ['#ffd34a', '#ff7a1a', '#ff2d2e', '#ff2d6e', '#ffd34a']); }
+  else if (fx === 'royal') { ctx.shadowColor = '#b48cff'; ctx.shadowBlur = r; ctx.strokeStyle = conic(ctx, x, y, t * 2, ['#ffd76a', '#fff4c7', '#8b4dff', '#c9a0ff', '#ffd76a']); }
+  else { const h = (t * 160 + seed * 30) % 360; ctx.shadowColor = `hsl(${h},100%,70%)`; ctx.shadowBlur = r; ctx.strokeStyle = conic(ctx, x, y, t * 3.4, [0, 60, 120, 180, 240, 300, 360].map(d => `hsl(${(h + d) % 360},100%,62%)`)); }
   ctx.lineWidth = lw; ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.stroke();
+  if (isLuxuryEffect(fx)) {
+    ctx.lineWidth = Math.max(1, lw * .4); ctx.globalAlpha = .8; ctx.beginPath(); ctx.arc(x, y, R + lw * 1.1, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
+    ctx.shadowBlur = r * .6; ctx.fillStyle = fx === 'phoenix' ? '#ffd34a' : '#ffffff';
+    for (let k = 0; k < 4; k++) { const ang = -t * 2.6 + k * Math.PI / 2 + seed, rr = R + lw * 1.1; ctx.globalAlpha = .55 + .45 * Math.sin(t * 6 + k + seed); ctx.beginPath(); ctx.arc(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr, lw * .45, 0, Math.PI * 2); ctx.fill(); }
+    ctx.globalAlpha = 1;
+  }
   if (fx === 'ice' || fx === 'galaxy') {
     ctx.shadowBlur = 0; ctx.fillStyle = '#fff';
     for (let k = 0; k < 3; k++) { const ang = t * (fx === 'ice' ? 1.6 : 2.2) + k * 2.094 + seed; ctx.beginPath(); ctx.arc(x + Math.cos(ang) * R, y + Math.sin(ang) * R, lw * .5, 0, Math.PI * 2); ctx.fill(); }
@@ -198,13 +219,18 @@ function StatRow({ label, a, b, pct }: { label: string; a: number; b: number; pc
 }
 const roleLine = (role: string) => role === 'GK' ? 'gk' : /B$/.test(role) ? 'df' : /M/.test(role) ? 'mf' : 'fw';
 
-function MatchView({ match, names, onClose, onAgain, finish, abandon }: { match: RankedMatch; names: Map<string, string>; onClose: () => void; onAgain: () => void; finish: () => Promise<RankedFinish>; abandon: () => Promise<RankedFinish> }) {
+// info: mùa + cấp thẻ cầu thủ đội mình (theo mã thẻ) để danh sách đội hình hiện giống đội đối thủ.
+type MineInfo = Map<string, { tier: Tier; level: number } | null>;
+function MatchView({ match, names, info, onClose, onAgain, finish, abandon }: { match: RankedMatch; names: Map<string, string>; info: MineInfo; onClose: () => void; onAgain: () => void; finish: () => Promise<RankedFinish>; abandon: () => Promise<RankedFinish> }) {
   const teams = useMemo(() => {
-    const me: SimSlot[] = match.me.slots.map(s => ({ role: s.role, fx: s.x ?? 50, fy: s.y ?? 50, name: s.uid ? names.get(s.uid) : undefined }));
+    const paceOf = (s: { pace?: number; ovr: number }) => s.pace !== undefined ? s.pace - s.ovr : undefined;
+    const me: SimSlot[] = match.me.slots.map(s => ({ role: s.role, fx: s.x ?? 50, fy: s.y ?? 50, name: s.uid ? names.get(s.uid) : undefined, pace: paceOf(s) }));
     const base = FORMATIONS[match.opp.formation ?? ''] ?? FORMATIONS['4-3-3'] ?? FORMATIONS[DEFAULT_FORMATION];
-    const opp: SimSlot[] = match.opp.slots.map((s, i) => ({ role: s.role, fx: s.x ?? base[i]?.x ?? 50, fy: s.y ?? base[i]?.y ?? 50 }));
+    const opp: SimSlot[] = match.opp.slots.map((s, i) => ({ role: s.role, fx: s.x ?? base[i]?.x ?? 50, fy: s.y ?? base[i]?.y ?? 50, pace: paceOf(s) }));
     return { me, opp };
   }, [match, names]);
+  // Cầu thủ đối thủ (người thật) chỉ hiện ở danh sách đội hình + diễn biến, trên sân vẫn là chấm không tên.
+  const oppPlayers = useMemo(() => match.opp.slots.map(s => s.pid && knownPlayers.has(s.pid) ? getPlayer({ playerId: s.pid }) : null), [match]);
   const sim = useMemo(() => new MatchSim(teams, match.goals, match.seed), [teams, match]);
   // Viền Premium của chủ mỗi đội (máy chủ chỉ gửi khi Premium còn hạn).
   const fx = useMemo<Fx>(() => ({ me: isNameEffect(match.me.effect) ? match.me.effect : null, opp: isNameEffect(match.opp.effect) ? match.opp.effect : null }), [match]);
@@ -322,15 +348,18 @@ function MatchView({ match, names, onClose, onAgain, finish, abandon }: { match:
     return () => cancelAnimationFrame(raf);
   }, [sim, fx, kicks, touches]);
   useEffect(() => { if (!banner) return; const t = window.setTimeout(() => setBanner(null), 2200); return () => clearTimeout(t); }, [banner]);
-  const who = (e: SimEvent, i: number | null | undefined) => i === null || i === undefined ? '' : e.side === 'me' ? teams.me[i]?.name ?? '' : 'Cầu thủ đối phương';
+  const who = (e: SimEvent, i: number | null | undefined) => i === null || i === undefined ? '' : e.side === 'me' ? teams.me[i]?.name ?? '' : oppPlayers[i]?.name ?? 'Cầu thủ đối phương';
   const result = match.score[0] > match.score[1] ? 'win' : match.score[0] < match.score[1] ? 'loss' : 'draw';
   // Thống kê cập nhật mỗi phút trận; bàn thắng theo cầu thủ đội mình (đã diễn).
   const stats = useMemo(() => statsAt(sim.tl, sim.t), [sim, minute, finished]); // eslint-disable-line react-hooks/exhaustive-deps
   const goalsBy = useMemo(() => { const m = new Map<number, number>(); for (const e of log) if (e.kind === 'goal' && e.side === 'me' && e.scorer !== undefined) m.set(e.scorer, (m.get(e.scorer) ?? 0) + 1); return m; }, [log]);
+  const oppGoals = useMemo(() => { const m = new Map<number, number>(); for (const e of log) if (e.kind === 'goal' && e.side === 'opp' && e.scorer !== undefined && e.scorer !== null) m.set(e.scorer, (m.get(e.scorer) ?? 0) + 1); return m; }, [log]);
   const myKeeper = teams.me.find(s => s.role === 'GK')?.name ?? 'Thủ môn';
   const line = (e: SimEvent) => {
     const at = <span>{e.minute >= 0 ? e.minute : minuteAt(sim.tl, e.t)}'</span>;
     if (e.kind === 'half') return <li key={`h${e.t}`} className="is-half">Hết hiệp 1</li>;
+    if (e.kind === 'corner') return <li key={`c${e.t}`} className={`is-chance ${e.side === 'me' ? 'is-me' : 'is-opp'}`}>{at}⛳ Phạt góc cho {e.side === 'me' ? 'đội bạn' : 'đối phương'}</li>;
+    if (e.kind === 'freekick') return <li key={`f${e.t}`} className={`is-chance ${e.side === 'me' ? 'is-me' : 'is-opp'}`}>{at}🎯 Đá phạt trực tiếp cho {e.side === 'me' ? 'đội bạn' : 'đối phương'}</li>;
     if (e.kind === 'offside') return <li key={`o${e.t}`} className={`is-chance ${e.side === 'me' ? 'is-me' : 'is-opp'}`}>{at}🚩 {e.side === 'me' ? 'Đội bạn' : 'Đối phương'} việt vị</li>;
     if (e.kind === 'goal') return <li key={`g${e.t}`} className={`is-goal ${e.side === 'me' ? 'is-me' : 'is-opp'}`}>{at}⚽ {who(e, e.scorer)}{e.side === 'me' && e.assist !== null && e.assist !== undefined ? <small> · kiến tạo {who(e, e.assist)}</small> : null}</li>;
     const text = e.kind === 'save' ? (e.side === 'me' ? 'Thủ môn đối phương cản phá' : `${myKeeper} cứu thua`) : e.side === 'me' ? 'Đội bạn dứt điểm chệch khung thành' : 'Đối phương sút ra ngoài';
@@ -339,11 +368,14 @@ function MatchView({ match, names, onClose, onAgain, finish, abandon }: { match:
   const statsBox = <div className="rkd-stats">
         <h3>Thống kê trận</h3>
         <StatRow label="OVR đội" a={match.me.ovr} b={match.opp.ovr}/>
+        {match.me.attack !== undefined && match.opp.attack !== undefined && <StatRow label="Tấn công" a={Math.round(match.me.attack)} b={Math.round(match.opp.attack)}/>}
+        {match.me.defense !== undefined && match.opp.defense !== undefined && <StatRow label="Phòng ngự" a={Math.round(match.me.defense)} b={Math.round(match.opp.defense)}/>}
         <StatRow label="Kiểm soát bóng" a={stats.possession[0]} b={stats.possession[1]} pct/>
         <StatRow label="Sút bóng" a={stats.shots[0]} b={stats.shots[1]}/>
         <StatRow label="Sút trúng đích" a={stats.onTarget[0]} b={stats.onTarget[1]}/>
         <StatRow label="Chuyền thành công" a={stats.passes[0]} b={stats.passes[1]}/>
         <StatRow label="Cướp bóng" a={stats.tackles[0]} b={stats.tackles[1]}/>
+        <StatRow label="Phạt góc" a={stats.corners[0]} b={stats.corners[1]}/>
         <StatRow label="Việt vị" a={stats.offsides[0]} b={stats.offsides[1]}/>
   </div>;
   const logBox = <ol className="rkd-log">
@@ -353,11 +385,13 @@ function MatchView({ match, names, onClose, onAgain, finish, abandon }: { match:
   const lineupBox = <>
       <section>
         <h3 className="is-me">{clubLogoUrl(match.me.club) && <img src={clubLogoUrl(match.me.club)!} alt=""/>}<span className={nameEffectClass(fx.me).trim() || undefined}>Đội bạn</span><small>{match.me.formation}</small></h3>
-        <ol>{teams.me.map((s, i) => <li key={i}><span className={`rkd-role is-${roleLine(s.role)}`}>{s.role}</span><span className="rkd-pname">{s.name}{goalsBy.get(i) ? <em> ⚽{goalsBy.get(i)! > 1 ? `×${goalsBy.get(i)}` : ''}</em> : null}</span><b>{match.me.slots[i]?.ovr}</b></li>)}</ol>
+        <ol>{teams.me.map((s, i) => { const uid = match.me.slots[i]?.uid, m = uid ? info.get(uid) : null; return <li key={i}><span className={`rkd-role is-${roleLine(s.role)}`}>{s.role}</span><span className="rkd-pname">{m && <b className={`squad-season season-tag-${m.tier}`}>{seasonShort(m.tier)}</b>}{s.name}{m ? <small className="rkd-lv">+{m.level}</small> : null}{goalsBy.get(i) ? <em> ⚽{goalsBy.get(i)! > 1 ? `×${goalsBy.get(i)}` : ''}</em> : null}</span><b>{match.me.slots[i]?.ovr}</b></li>; })}</ol>
       </section>
       <section>
         <h3 className="is-opp">{clubLogoUrl(match.opp.club) && <img src={clubLogoUrl(match.opp.club)!} alt=""/>}<span className={nameEffectClass(fx.opp).trim() || undefined}>{match.opp.name}</span><small>{match.opp.formation ?? '4-3-3'}</small></h3>
-        <ol>{match.opp.slots.map((s, i) => <li key={i}><span className={`rkd-role is-${roleLine(s.role)}`}>{s.role}</span><span className="rkd-pname is-hidden">Cầu thủ đối phương</span><b>{s.ovr}</b></li>)}</ol>
+        <ol>{match.opp.slots.map((s, i) => { const p = oppPlayers[i]; return <li key={i}><span className={`rkd-role is-${roleLine(s.role)}`}>{s.role}</span>{p
+          ? <span className="rkd-pname"><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b>{p.name}{s.lv ? <small className="rkd-lv">+{s.lv}</small> : null}{oppGoals.get(i) ? <em> ⚽{oppGoals.get(i)! > 1 ? `×${oppGoals.get(i)}` : ''}</em> : null}</span>
+          : <span className="rkd-pname is-hidden">{match.opp.bot ? 'Cầu thủ máy' : 'Cầu thủ đối phương'}</span>}<b>{s.ovr}</b></li>; })}</ol>
       </section>
   </>;
   // Màn nhỏ (điện thoại / máy tính bảng thu nhỏ khung PC, cửa sổ hẹp hoặc thấp): ưu tiên tỉ số + diễn biến cỡ lớn bên trái,
@@ -403,13 +437,17 @@ function MatchView({ match, names, onClose, onAgain, finish, abandon }: { match:
   </div>;
 }
 
-export default function RankedPage({ save, online, load, play, finish, abandon, onLineup, onMatchChange }: Props) {
+export default function RankedPage({ save, online, load, play, finish, abandon, onLineup, onMatchChange, viewLineup, levelBadge }: Props) {
+  const [viewing, setViewing] = useState<{ rank: number; name: string } | null>(null);
   const [state, setState] = useState<RankedState | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [match, setMatch] = useState<RankedMatch | null>(null);
   const team = useMemo(() => rankedTeam(save), [save]);
   const names = useMemo(() => new Map(team.slots.map(s => [s.uid, s.name])), [team]);
+  // Sức công / thủ đội hình đang dùng (chỉ số cầu thủ, giống máy chủ tính khi đá).
+  const rating = useMemo(() => { if (!team.ready) return null; const byUid = new Map(save.cards.map(c => [c.uid, c])); return teamRating(team.slots.map(s => { const c = byUid.get(s.uid); return { role: s.role, ovr: s.ovr, pid: c?.playerId ?? null, pos: c ? getPlayer(c).pos : null }; })); }, [save, team]);
+  const info = useMemo<MineInfo>(() => { const byUid = new Map(save.cards.map(c => [c.uid, c])); return new Map(team.slots.map(s => { const c = byUid.get(s.uid); return [s.uid, c ? { tier: getPlayer(c).tier, level: c.level } : null]; })); }, [save, team]);
   // Có trận đang diễn (tải lại tab / tắt máy giữa trận) thì mở lại để xem tiếp.
   const refresh = useCallback(() => { if (!online) return; load().then(s => { setState(s); setError(''); if (s.live) setMatch(m => m ?? s.live!); }).catch(e => setError((e as Error).message)); }, [load, online]);
   useEffect(() => { refresh(); }, [refresh]);
@@ -438,7 +476,8 @@ export default function RankedPage({ save, online, load, play, finish, abandon, 
         <dl className="rkd-record"><div><dt>Thắng</dt><dd>{me.wins}</dd></div><div><dt>Hoà</dt><dd>{me.draws}</dd></div><div><dt>Thua</dt><dd>{me.losses}</dd></div></dl>
         <div className="rkd-team-box">
           <h3><Users size={15}/>Đội hình thi đấu {team.formation ? `· ${team.formation}` : ''}</h3>
-          {team.ready ? <><p>OVR đội <b>{team.ovr}</b> (bộ đội hình đang dùng) · Lương <b className={team.overWage ? 'rkd-over' : undefined}>{team.wage}/{RANKED_WAGE_CAP}</b></p><p className="rkd-names">{team.slots.map(s => s.name).join(' · ')}</p>
+          {team.ready ? <><p>OVR đội <b>{team.ovr}</b> (bộ đội hình đang dùng) · Lương <b className={team.overWage ? 'rkd-over' : undefined}>{team.wage}/{RANKED_WAGE_CAP}</b></p>
+            {rating && <p className="rkd-rating" title="Từ chỉ số cầu thủ: xếp đúng người đúng chỗ, công thủ cân bằng thì có lợi thế (tối đa ~27% cơ hội ghi bàn)">Tấn công <b>{Math.round(rating.attack)}</b> · Phòng ngự <b>{Math.round(rating.defense)}</b></p>}<p className="rkd-names">{team.slots.map(s => s.name).join(' · ')}</p>
             {team.overWage && <p className="rkd-warn">Đội hình vượt mức lương {team.wage - RANKED_WAGE_CAP}. Giảm lương xuống tối đa {RANKED_WAGE_CAP} ở mục Đội hình để thi đấu.</p>}</>
             : <p className="rkd-warn">Bộ đội hình đang dùng mới có {team.filled}/11 cầu thủ. Xếp đủ 11 người ở mục Đội hình để thi đấu.</p>}
           {(!team.ready || team.overWage) && <button type="button" className="secondary-button" onClick={onLineup}>Đến Đội hình</button>}
@@ -448,7 +487,8 @@ export default function RankedPage({ save, online, load, play, finish, abandon, 
       <article className="rkd-card">
         <h2>Bảng xếp hạng</h2>
         <ol className="rkd-top">
-          {(state?.top ?? []).map((t, k) => <li key={k} className={t.mine ? 'is-mine' : undefined}><span className="rkd-rank">{k + 1}</span><span className={`rkd-name${nameEffectClass(t.effect as never)}`}>{clubLogoUrl(t.club) && <img className="rkd-club" src={clubLogoUrl(t.club)!} alt=""/>}{t.name}</span><TierBadge id={t.tier} points={t.points}/><small>{t.wins}T {t.draws}H {t.losses}B</small></li>)}
+          {(state?.top ?? []).map((t, k) => <li key={k} className={`${t.mine ? 'is-mine' : ''}${viewLineup && levelBadge ? ' is-link' : ''}`.trim() || undefined}
+            {...(viewLineup && levelBadge ? { role: 'button', tabIndex: 0, title: `Xem đội hình của ${t.name}`, onClick: () => setViewing({ rank: k + 1, name: t.name }), onKeyDown: (e: { key: string; preventDefault: () => void }) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setViewing({ rank: k + 1, name: t.name }); } } } : {})}><span className="rkd-rank">{k + 1}</span><span className={`rkd-name${nameEffectClass(t.effect as never)}`}>{clubLogoUrl(t.club) && <img className="rkd-club" src={clubLogoUrl(t.club)!} alt=""/>}{t.name}</span><TierBadge id={t.tier} points={t.points}/><small>{t.wins}T {t.draws}H {t.losses}B</small></li>)}
           {state && !state.top.length && <li className="is-empty">Chưa có ai thi đấu.</li>}
         </ol>
       </article>
@@ -461,6 +501,7 @@ export default function RankedPage({ save, online, load, play, finish, abandon, 
         </ol>
       </article>
     </div>
-    {match && <MatchView key={`${match.seed}`} match={match} names={names} finish={finish} abandon={abandon} onClose={close} onAgain={() => { setMatch(null); void find(); }}/>}
+    {viewing && viewLineup && levelBadge && <LineupViewer board="ranked" rank={viewing.rank} name={viewing.name} load={viewLineup} levelBadge={levelBadge} onClose={() => setViewing(null)}/>}
+    {match && <MatchView key={`${match.seed}`} match={match} names={names} info={info} finish={finish} abandon={abandon} onClose={close} onAgain={() => { setMatch(null); void find(); }}/>}
   </section>;
 }

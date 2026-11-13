@@ -4,10 +4,11 @@ import { readFileSync } from 'node:fs';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import PenaltyPage from '../src/PenaltyPage.tsx';
-import { SHOT_KINDS, aimToStage, flightPath, goalSweepSpeed, keeperToStage, missChance, missTargets, saveChance, sweepMultiplier } from '../src/penalty.ts';
+import { KEEPER_ZONES, SHOT_KINDS, aimToStage, flightPath, goalSweepSpeed, keepChance, keeperToStage, machineMissChance, missChance, missTargets, saveChance, stageToAim, sweepMultiplier } from '../src/penalty.ts';
 
 const sql = readFileSync(new URL('../supabase/migrations/202611110005_fco_penalty.sql', import.meta.url), 'utf8');
 const kindsSql = readFileSync(new URL('../supabase/migrations/202611110006_fco_penalty_kinds.sql', import.meta.url), 'utf8');
+const keeperSql = readFileSync(new URL('../supabase/migrations/202611120013_fco_penalty_keeper.sql', import.meta.url), 'utf8');
 
 test('Sút phạt: điểm ngắm luôn nằm trong khung thành (giữa hai cột, dưới xà, trên vạch cầu môn)', () => {
   for (const x of [-1, -.5, 0, .5, 1]) for (const y of [0, .5, 1]) {
@@ -107,4 +108,23 @@ test('Âm thanh sân: không có Web Audio thì không lỗi; nhạc nền tạm
   for (const call of ['audio.current?.netHit()', 'audio.current?.postHit()', 'audio.current?.save()', 'audio.current?.kick()', 'audio.current?.start()']) assert.ok(page.includes(call), call);
   // Không có tiếng khán giả phản ứng khi vào / không vào (người dùng bỏ).
   assert.ok(!page.includes('cheer()') && !page.includes('groan()'));
+});
+test('Penalty làm thủ môn: tỷ lệ bắt giống máy chủ, điểm bấm đổi ngược đúng, ô chọn nhanh nằm trong khung', () => {
+  assert.ok(keeperSql.includes('greatest(.05, least(.9, 1 - .7 * sqrt(power(1.2 * (p_sx - p_kx), 2) + power(.6 * (p_sy - p_ky), 2))) - least(.15, .01 * greatest(0, p_streak)))'));
+  assert.ok(keeperSql.includes('.04 + public.fco_penalty_miss_chance(sx, sy, kind)'));
+  const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
+  assert.ok(near(keepChance(.7, .4, .7, .4, 0), .9)); assert.ok(near(keepChance(-.8, .2, .8, .9, 0), .05)); assert.ok(near(keepChance(.7, .4, .7, .4, 40), .75));
+  assert.ok(keepChance(-.75, .4, -.8, .5, 0) > keepChance(-.75, .4, 0, .5, 0), 'đoán đúng hướng dễ bắt hơn');
+  assert.ok(near(machineMissChance(0, 0, 'normal'), .04)); assert.ok(near(machineMissChance(0, 1, 'power'), .34));
+  for (const [x, y] of [[-1, 0], [0, .5], [.6, 1], [1, .2]]) { const at = aimToStage(x, y), back = stageToAim(at.left, at.top); assert.ok(near(back.x, x) && near(back.y, y), `${x},${y}`); }
+  assert.deepEqual(stageToAim(0, 0), { x: -1, y: 1 }); assert.deepEqual(stageToAim(100, 100), { x: 1, y: 0 });
+  assert.equal(KEEPER_ZONES.length, 6);
+});
+
+test('Penalty: có nút đổi vai Cầu thủ sút / Thủ môn khi game hỗ trợ thủ môn; chuỗi thay cho bàn thắng', () => {
+  const props = { online: true, reduced: false, onStart: async () => ({ streak: 0, best: 3 }), onShoot: async () => ({ goal: true, over: false, streak: 1, best: 3, keeper: { x: 0, y: 0 } }) };
+  const html = renderToStaticMarkup(createElement(PenaltyPage, { ...props, onKeep: async () => ({ saved: true, goal: false, over: false, streak: 1, best: 3, shot: { x: .5, y: .5, kind: 'normal' as const } }) }));
+  assert.match(html, /role="radiogroup" aria-label="Vai trò/); assert.match(html, /Cầu thủ sút/); assert.match(html, /Thủ môn/);
+  assert.match(html, /Chuỗi <b>0<\/b>/);
+  assert.doesNotMatch(renderToStaticMarkup(createElement(PenaltyPage, props)), /aria-label="Vai trò/, 'bản không có thủ môn thì không hiện nút đổi vai');
 });

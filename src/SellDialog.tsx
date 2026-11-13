@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
 import type { Card, Save, Tier } from './game';
-import { MAX_BULK_SELL, SELL_BAND_PERCENT, marketNow, premiumActive, priceAt, saleFee, saleTaxPercent, sellRange, taxFor, voucherHelps } from './market';
+import { MAX_BULK_SELL, SELL_BAND_PERCENT, marketNow, premiumActive, priceAt, saleFee, saleTaxPercent, sellRange, taxFor, voucherHelps, isTradeLocked, TRADE_LOCKED } from './market';
 import type { SellItem } from './market';
 import { TAX_VOUCHERS, voucherCount } from './stp';
 import type { TaxVoucher } from './stp';
@@ -81,7 +81,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const priceOk = !!range && price >= range.min && price <= range.max;
   // Thẻ giống hệt (cùng cầu thủ + cấp, chưa khóa, không nằm trong đội hình riêng) bán cùng giá; thẻ đang chọn luôn tính.
   const twins = card ? [card, ...save.cards.filter(c => c.uid !== card.uid && c.playerId === card.playerId && c.level === card.level && !locked.has(c.uid) && !squad.has(c.uid))] : [];
-  const sellable = card && !locked.has(card.uid) ? twins.length : 0;
+  const sellable = card && !locked.has(card.uid) && !isTradeLocked(card) ? twins.length : 0;
   const selling = twins.slice(0, count);
   const sellingFees = selling.length * saleFee(price, taxPercent);
   const view = card && range ? marketView(card, range.price) : null;
@@ -95,7 +95,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const [checked, setChecked] = useState<string[]>([]);
   const rows = useMemo(() => save.cards.map(c => {
     const r = sellRange(c);
-    const reason = locked.has(c.uid) ? 'Đã khóa' : squad.has(c.uid) ? 'Trong đội hình' : !r ? 'Chưa có giá' : null;
+    const reason = isTradeLocked(c) ? 'Khóa giao dịch' : locked.has(c.uid) ? 'Đã khóa' : squad.has(c.uid) ? 'Trong đội hình' : !r ? 'Chưa có giá' : null;
     return { card: c, range: r, reason };
   }).sort((a, b) => (sortDesc ? -1 : 1) * (ovr(a.card) - ovr(b.card)) || (b.range?.price ?? -1) - (a.range?.price ?? -1)), [save.cards, locked, squad, sortDesc, period]);
   const priceFor = (r: NonNullable<ReturnType<typeof sellRange>>) => mode === 'min' ? r.min : mode === 'max' ? r.max : r.price;
@@ -142,7 +142,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
         <p className={`sd-price-note ${range && !priceOk ? 'is-error' : ''}`}>{!range ? marketPriceMissing(card) : !priceOk ? `Giá phải từ ${money(range.min)} đến ${money(range.max)} (±${SELL_BAND_PERCENT}% giá thị trường)` : `${money(price)} · nhận ${money(price * selling.length - sellingFees)} BP sau phí ${taxPercent}%`}</p>
         <div className="sd-row"><span>Số lượng bán</span><div className="sd-stepper"><b>{count}</b><span><button aria-label="Tăng số lượng" disabled={count >= sellable} onClick={() => setCount(c => Math.min(sellable, c + 1))}><ChevronUp size={14}/></button><button aria-label="Giảm số lượng" disabled={count <= 1} onClick={() => setCount(c => Math.max(1, c - 1))}><ChevronDown size={14}/></button></span></div></div>
         <div className="sd-row"><span>Số lượng có thể bán</span><b className="sd-big">{sellable}</b></div>
-        {locked.has(card.uid) && <p className="sd-price-note is-error">Thẻ đang bị khóa. Mở khóa trước khi bán.</p>}
+        {isTradeLocked(card) ? <p className="sd-price-note is-error">{TRADE_LOCKED}</p> : locked.has(card.uid) && <p className="sd-price-note is-error">Thẻ đang bị khóa. Mở khóa trước khi bán.</p>}
         {voucherPicker}
         <div className="sd-actions"><button className="sd-sell" disabled={!priceOk || !sellable} onClick={sellSingle}>Bán cầu thủ</button><button className="sd-cancel" onClick={onClose}>Hủy</button></div>
       </section>

@@ -1,14 +1,16 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { players } from '../src/game.ts';
 import { STP_MISSIONS, claimableMissions } from '../src/stp-missions.ts';
 
 const sql = readFileSync('supabase/migrations/202611110012_fco_stp_missions.sql', 'utf8');
+// Đổi tên nhiệm vụ ở migration sau (vd. 202611120013: penalty20 tính cả bắt được).
+const renames = new Map(readdirSync('supabase/migrations').sort().flatMap(f => [...readFileSync(`supabase/migrations/${f}`, 'utf8').matchAll(/update public\.fco_stp_mission_defs set title = '([^']+)' where id = '(\w+)'/g)].map(m => [m[2], m[1]] as const)));
 
 test('Nhiệm vụ Star Point hằng ngày khớp bảng fco_stp_mission_defs (thứ tự, tên, thưởng, cầu thủ, mức)', () => {
   const rows = [...sql.matchAll(/\('(\w+)', '([^']+)', '(upgrade|penalty)', '\{([^}]*)\}', (\w+), (\w+), (\d+), (\d+)\)/g)]
-    .map(m => ({ id: m[1], title: m[2], kind: m[3], names: m[4] ? m[4].split(',').map(s => JSON.parse(s)) : [], level: m[5] === 'null' ? null : Number(m[5]), goals: m[6] === 'null' ? null : Number(m[6]), reward: Number(m[7]), sort: Number(m[8]) }));
+    .map(m => ({ id: m[1], title: renames.get(m[1]) ?? m[2], kind: m[3], names: m[4] ? m[4].split(',').map(s => JSON.parse(s)) : [], level: m[5] === 'null' ? null : Number(m[5]), goals: m[6] === 'null' ? null : Number(m[6]), reward: Number(m[7]), sort: Number(m[8]) }));
   assert.deepEqual(rows.map(r => r.id), STP_MISSIONS.map(m => m.id));
   assert.deepEqual(rows.map(r => r.reward), [25, 25, 20, 15, 15]);
   for (const [i, m] of STP_MISSIONS.entries()) { assert.equal(rows[i].title, m.title); assert.equal(rows[i].reward, m.reward); assert.equal(rows[i].sort, i + 1); }

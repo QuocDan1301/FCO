@@ -110,7 +110,7 @@ test('Nhận bóng không khựng: người cầm bóng hầu như luôn đang c
     while (!sim.done) {
       sim.step(dt);
       // Không tính lúc trọng tài dừng trận (phạm lỗi) và lúc thủ môn giữ bóng chờ phát — đứng yên khi đó là đúng.
-      const st = sim.state(), h = st.kind === 'foul' || (st.holder && sim.teams[st.holder.side][st.holder.i].role === 'GK') ? null : st.holder;
+      const st = sim.state(), h = st.kind === 'foul' || st.kind === 'setpiece' || (st.holder && sim.teams[st.holder.side][st.holder.i].role === 'GK') ? null : st.holder;
       if (h) { const p = sim.pos[h.side][h.i], q = prev[h.side][h.i]; total++; if (Math.hypot(p.x - q.x, p.y - q.y) / dt < 1.5) still++; }
       for (const side of ['me', 'opp'] as const) sim.pos[side].forEach((p, i) => { prev[side][i] = { ...p }; });
     }
@@ -181,7 +181,8 @@ test('Thủ môn cầm bóng: không ai giành bóng từ tay thủ môn, đối
     const keys = sim.tl.keys;
     for (let j = 1; j < keys.length; j++) {
       if (keys[j].kind !== 'win') continue;
-      let k = j - 1; while (k > 0 && !keys[k].holder) k--;
+      // Chỉ tính cướp bóng trực tiếp khi thủ môn đang cầm (đoạn ngay trước có người giữ); cắt đường phát bóng của thủ môn là hợp lệ.
+      const k = j - 1; if (!keys[k].holder) continue;
       const before = keys[k].holder!;
       assert.notEqual(sim.teams[before.side][before.i].role, 'GK', `giành bóng từ tay thủ môn lúc ${keys[j].t.toFixed(1)}s`);
     }
@@ -224,4 +225,57 @@ test('Việt vị: bàn thắng không việt vị; mọi đường chuyền cho
     assert.equal(tl.events.filter(e => e.kind === 'goal').length, 3);
   }
   assert.ok(calls / passes < .06, `việt vị quá nhiều: ${calls}/${passes}`);
+});
+
+test('Thủ môn không bao giờ dắt bóng / rời vòng cấm khi kiến tạo; hậu vệ chạy chậm hơn tiền vệ, tiền đạo', () => {
+  const gk = teams.me.findIndex(s => s.role === 'GK'), cb = teams.me.findIndex(s => s.role === 'CB');
+  let defMax = 0, attMax = 0, gkOut = 0;
+  for (const seed of [2, 4, 9]) {
+    const sim = new MatchSim(teams, [{ minute: 20, side: 'me', scorer: 0, assist: gk }, { minute: 50, side: 'me', scorer: 1, assist: cb }, { minute: 75, side: 'opp', scorer: 1, assist: null }], seed);
+    for (const k of sim.tl.keys) if (k.holder && k.kind === 'run') assert.notEqual(sim.teams[k.holder.side][k.holder.i].role, 'GK', `thủ môn dắt bóng lúc ${k.t.toFixed(1)}s`);
+    assert.equal(sim.tl.events.filter(e => e.kind === 'goal').length, 3);
+    const dt = 1 / 30, prev = { me: sim.pos.me.map(p => ({ ...p })), opp: sim.pos.opp.map(p => ({ ...p })) };
+    while (!sim.done) {
+      sim.step(dt);
+      const st = sim.state();
+      for (const side of ['me', 'opp'] as const) sim.pos[side].forEach((p, i) => {
+        const role = sim.teams[side][i].role, v = Math.hypot(p.x - prev[side][i].x, p.y - prev[side][i].y) / dt; prev[side][i] = { ...p };
+        const busy = (st.holder?.side === side && st.holder.i === i) || (st.receiver?.side === side && st.receiver.i === i);
+        if (role === 'GK') { if ((side === 'me' ? p.y : 100 - p.y) < 78) gkOut++; return; }
+        if (busy) return;
+        if (['CB', 'LB', 'RB'].includes(role)) defMax = Math.max(defMax, v); else attMax = Math.max(attMax, v);
+      });
+    }
+  }
+  assert.equal(gkOut, 0, 'thủ môn rời vòng cấm');
+  assert.ok(defMax <= 17 && defMax < attMax, `hậu vệ ${defMax.toFixed(1)} / tiền vệ, tiền đạo ${attMax.toFixed(1)}`);
+});
+
+test('Phạt góc và đá phạt: có trong trận; dàn quân đúng (vòng cấm đông người, hàng rào 9,15 m); bàn thắng đủ', () => {
+  let corners = 0, freekicks = 0, boxOk = 0, boxChecks = 0, wallOk = 0, wallChecks = 0;
+  for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+    const goals = [{ minute: 15, side: 'me' as const, scorer: 0, assist: 2 }, { minute: 40, side: 'opp' as const, scorer: 1, assist: null }, { minute: 70, side: 'me' as const, scorer: 1, assist: 3 }, { minute: 85, side: 'opp' as const, scorer: 0, assist: null }];
+    const sim = new MatchSim(teams, goals, seed), tl = sim.tl;
+    assert.equal(tl.events.filter(e => e.kind === 'goal').length, 4, `seed ${seed}`);
+    corners += tl.events.filter(e => e.kind === 'corner').length; freekicks += tl.events.filter(e => e.kind === 'freekick').length;
+    // Cuối đoạn dàn quân: kiểm tra vị trí.
+    for (const k of tl.keys) {
+      if (k.kind !== 'setpiece') continue;
+      const s = ballAt(tl, k.t - .01); if (!s.sp) continue;
+      sim.t = 0; sim.step(k.t - .02);
+      const att = s.sp.side, def = att === 'me' ? 'opp' : 'me', fy = (p: { x: number; y: number }) => att === 'me' ? p.y : 100 - p.y, fx = (p: { x: number; y: number }) => att === 'me' ? p.x : 100 - p.x;
+      const inBox = (side: 'me' | 'opp') => sim.pos[side].filter((p, i) => sim.teams[side][i].role !== 'GK' && fy(p) < 17 && fx(p) > 20 && fx(p) < 80).length;
+      if (s.sp.type === 'corner') { boxChecks++; if (inBox(att) >= 4 && inBox(def) >= 5) boxOk++; }
+      else {
+        wallChecks++;
+        const b = { x: fx(s.ball), y: fy(s.ball) };
+        const wall = sim.pos[def].filter((p, i) => sim.teams[def][i].role !== 'GK' && Math.abs(Math.hypot((fx(p) - b.x) * .68, (fy(p) - b.y) * 1.05) - 9.15) < 1.5).length;
+        if (wall >= 3) wallOk++;
+      }
+    }
+  }
+  assert.ok(corners >= 16, `phạt góc ${corners} / 8 trận`);
+  assert.ok(freekicks >= 4, `đá phạt trực tiếp ${freekicks} / 8 trận`);
+  assert.ok(boxChecks > 0 && boxOk / boxChecks > .8, `dàn quân phạt góc ${boxOk}/${boxChecks}`);
+  assert.ok(wallChecks > 0 && wallOk / wallChecks > .8, `hàng rào ${wallOk}/${wallChecks}`);
 });

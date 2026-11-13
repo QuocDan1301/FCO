@@ -40,5 +40,15 @@ for (let i = 0; i < 400; i++) {
   const info = upgradeInfo(target, materials), restore = evaluateRestore(target, materials);
   upgrades.push({ target: [t.id, level], materials: mats, energy: info.energy, rate: finalRate(info.chance, 0, 0), restore: restore.chance, keep: restore.floor });
 }
-writeFileSync(out, JSON.stringify({ version, catalog, prices, upgrades }));
+// Chỉ số cầu thủ (GLXH, migration 202611130001): mẫu rawStats và sức công / thủ đội để test SQL khớp game.
+const { rawStats } = await import('../src/player-stats');
+const { teamRating } = await import('../src/ranked-ratings');
+const { players: allPlayers } = await import('../src/game');
+const statSamples = allPlayers.filter((_, i) => i % 97 === 0).flatMap(p => [99, 123.5].map(overall => [p.id, p.pos, overall, rawStats(p, overall).values] as const));
+const roles = ['LW', 'ST', 'RW', 'LCM', 'CDM', 'RCM', 'LB', 'LCB', 'RCB', 'RWB', 'GK'];
+const teamSamples = Array.from({ length: 6 }, (_, k) => {
+  const slots = roles.map((role, i) => { const p = allPlayers[(k * 131 + i * 337) % allPlayers.length]; return { role, ovr: 100 + ((k * 7 + i * 3) % 30), pid: k === 5 ? null : p.id, pos: k === 5 ? null : p.pos }; });
+  return { slots, rating: teamRating(slots) };
+});
+writeFileSync(out, JSON.stringify({ version, catalog, prices, upgrades, statSamples, teamSamples }));
 console.log(`fixture: ${prices.length} giá, ${upgrades.length} lượt đập, version ${version.slice(0, 12)}`);

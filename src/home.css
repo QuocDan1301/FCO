@@ -171,3 +171,7 @@
 .app>.topbar .wallet.wallet-fc{position:relative}
 .app>.topbar .wallet-plus{position:absolute;top:-6px;right:-6px;display:grid;place-items:center;width:18px;height:18px;padding:0;border:1.5px solid #0b1018;border-radius:50%;background:linear-gradient(180deg,#5cf08f,#22b85a);color:#06210f;font-family:var(--display);font-size:15px;font-weight:900;line-height:1;cursor:pointer;box-shadow:0 2px 6px #0008;transition:transform .15s,filter .15s}
 .app>.topbar .wallet-plus:hover,.app>.topbar .wallet-plus:focus-visible{transform:scale(1.15);filter:brightness(1.1);outline:none}
+/* Thanh báo bản cập nhật mới (UpdateBanner.tsx): nổi giữa đầu màn hình, trên mọi lớp. */
+.update-banner{position:fixed;top:10px;left:50%;translate:-50% 0;z-index:5000;display:flex;align-items:center;gap:12px;padding:8px 10px 8px 16px;border:1px solid #d9ba7666;border-radius:999px;background:#0b1018f2;color:#f1f4f8;font-size:13px;font-weight:600;box-shadow:0 10px 30px #000b;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:update-in .3s ease-out}
+.update-banner button{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 14px;border:0;border-radius:999px;background:linear-gradient(135deg,#f6dc8e,#c99a3c);color:#1a1205;font-family:inherit;font-size:12.5px;font-weight:800;cursor:pointer}
+@keyframes update-in{from{opacity:0;translate:-50% -8px}to{opacity:1;translate:-50% 0}}

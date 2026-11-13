@@ -16,7 +16,7 @@ const base = defaultPacks.find(p => p.id === 'ptg')!;
 const logos: Record<string, string> = clubLogos;
 const FREE = ['M. Depay', 'M. Arnautović', 'J. Arias', 'C. Montes', 'Neymar Jr'];
 
-// Mùa PTG (PATH TO GLORY): ảnh gói, ảnh nền đường hầm và 165 thẻ.
+// Mùa PTG (PATH TO GLORY): ảnh gói, ảnh nền đường hầm và 166 thẻ (165 thẻ đầu + N. Mazraoui id 4083 thêm 2026-11-13).
 test('Mùa PTG có tên, nhãn, ảnh gói / đường hầm và gói gốc 100% PTG', () => {
   assert.ok(TIERS.includes('ptg'));
   assert.ok((SEASON_IDS as readonly string[]).includes('ptg'));
@@ -29,10 +29,10 @@ test('Mùa PTG có tên, nhãn, ảnh gói / đường hầm và gói gốc 100%
   for (const file of ['ptg-back.png', 'ptg-back.webp', 'ptg-tunnel.webp', 'ptg-free-team.webp']) assert.ok(existsSync(`public/assets/${file}`), file);
 });
 
-test('165 thẻ PTG: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1…+13 tăng dần, OVR khớp khoảng gói', () => {
-  assert.equal(roster.length, 165);
+test('166 thẻ PTG: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1…+13 tăng dần, OVR khớp khoảng gói', () => {
+  assert.equal(roster.length, 166);
   assert.equal(new Set(players.map(p => p.id)).size, players.length);
-  assert.deepEqual(roster.map(p => p.id), Array.from({ length: 165 }, (_, i) => 2532 + i));
+  assert.deepEqual(roster.map(p => p.id), [...Array.from({ length: 165 }, (_, i) => 2532 + i), 4083]);
   assert.equal(new Set(roster.map(p => p.cardFace)).size, roster.length);
   for (const p of roster) {
     assert.ok(p.cardFace && existsSync(`public${p.cardFace}`), `ảnh ${p.name}`);
@@ -58,7 +58,7 @@ test('165 thẻ PTG: ID riêng, đủ ảnh thẻ / logo đội / cờ, giá +1�
 test('Gói PTG mở bán, mỗi thẻ PTG đều rút được và chỉ ra thẻ PTG; mua, mở, lưu được', () => {
   const ptg = allPacks.find(p => p.id === 'ptg') ?? base;
   assert.equal(isPackAvailable(ptg), true);
-  assert.equal(packOdds(ptg).pool.length, 165);
+  assert.equal(packOdds(ptg).pool.length, 166);
   for (const player of roster) assert.equal(draw(ptg, rngFor(ptg, player.id)).playerId, player.id, player.name);
   const opened = openPacks(initialSave(), ptg, 15, Math.random);
   assert.ok(opened.cards.every(card => getPlayer(card).tier === 'ptg'));

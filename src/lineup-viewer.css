@@ -1,0 +1,43 @@
+/* Xem đội hình HLV khác (LineupViewer.tsx): khung nổi giữa màn, sân bên trái + danh sách 11 cầu thủ bên phải. */
+.lv-backdrop{position:fixed;inset:0;z-index:4000;display:grid;place-items:center;padding:16px;background:#03060acc;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);animation:lv-in .2s ease-out}
+.lv-panel{display:flex;flex-direction:column;gap:10px;width:min(1180px,100%);height:min(780px,100%);min-height:0;padding:14px 16px;border:1px solid #ffffff1f;border-radius:14px;background:linear-gradient(180deg,#1a1f26f5,#11151bf5);color:#f1f4f8;box-shadow:0 24px 60px #000c}
+.lv-head{display:flex;align-items:center;gap:12px;min-width:0}
+.lv-club{flex:none;width:44px;height:44px;object-fit:contain;color:#8f99ab}
+.lv-title{min-width:0;flex:1}
+.lv-title h2{display:flex;align-items:center;gap:8px;margin:0;font-family:var(--display);font-size:20px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lv-title h2 em{padding:1px 7px;border-radius:999px;background:#d9ba7626;color:#f6dc8e;font-size:11px;font-style:normal}
+.lv-title p{margin:2px 0 0;font-size:12.5px;color:#9aa4b2}
+.lv-stats{display:flex;gap:8px;margin:0}
+.lv-stats div{padding:5px 12px;border-radius:8px;background:#ffffff0a;text-align:center}
+.lv-stats dt{font-size:11px;color:#8f99ab}
+.lv-stats dd{margin:0;font-family:var(--display);font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.lv-close{flex:none}
+.lv-colors{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.lv-colors>small{font-size:11.5px;color:#8f99ab;margin-right:2px}
+.lv-main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px}
+.lv-pitch-wrap{display:flex;flex-direction:column;min-width:0;min-height:0}
+.lv-pitch{margin-top:0}
+.lv-token{cursor:default}
+.lv-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:3px;min-height:0;overflow-y:auto}
+.lv-list li{display:grid;grid-template-columns:44px minmax(0,1fr) 30px 34px;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;background:#ffffff08;font-size:13px}
+.lv-list li.is-empty{opacity:.55}
+.lv-name{display:flex;align-items:center;gap:6px;min-width:0}
+.lv-name strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lv-list .squad-level-img{width:30px;height:auto}
+.lv-ovr{font-family:var(--display);font-size:16px;text-align:right;font-variant-numeric:tabular-nums}
+.lv-note{margin:auto;padding:24px;text-align:center;color:#c5ccd6}
+.lv-note.is-error{color:#ff9a9a}
+@keyframes lv-in{from{opacity:0}to{opacity:1}}
+@media(max-width:900px),(max-height:560px){
+  .lv-backdrop{padding:8px}
+  .lv-panel{height:100%;padding:10px 12px;gap:8px}
+  .lv-main{grid-template-columns:minmax(0,1fr) 240px;gap:10px}
+  .lv-stats div{padding:3px 8px}.lv-stats dd{font-size:15px}
+  .lv-club{width:34px;height:34px}.lv-title h2{font-size:17px}
+  .lv-list li{grid-template-columns:38px minmax(0,1fr) 26px 30px;gap:6px;padding:3px 6px;font-size:12px}
+}
+@media(max-width:620px){.lv-main{grid-template-columns:minmax(0,1fr)}.lv-list{display:none}.lv-stats{display:none}}
+/* BXH: dòng HLV bấm được để xem đội hình. */
+.rk-row.is-link,.rkd-top li.is-link{cursor:pointer}
+.rk-row.is-link:hover,.rkd-top li.is-link:hover{filter:brightness(1.18)}
+.rk-row.is-link:focus-visible,.rkd-top li.is-link:focus-visible{outline:2px solid #7bc9ff;outline-offset:1px}

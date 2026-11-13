@@ -35,4 +35,6 @@ export const livePlayers: Player[] = [
   { id: 3925, name: "V. Milinković-Savić", ovr: 74, pos: "GK", nation: "Serbia", flag: "RS", club: "Napoli", tier: "live", wage: 6, cardFace: asset("/assets/live-3925-card.webp") },
   { id: 3926, name: "A. Lunin", ovr: 73, pos: "GK", nation: "Ukraine", flag: "UA", club: "Madrid", tier: "live", wage: 6, cardFace: asset("/assets/live-3926-card.webp") },
   { id: 3927, name: "K. Grabara", ovr: 73, pos: "GK", nation: "Ba Lan", flag: "PL", club: "Juventus", tier: "live", wage: 6, cardFace: asset("/assets/live-3927-card.webp") },
+  // Thêm 2026-11-13 theo ảnh người dùng gửi (id 4084, sau N. Mazraoui PTG 4083); CLB theo logo in trên thẻ.
+  { id: 4084, name: "G. Vicario", ovr: 73, pos: "GK", nation: "Ý", flag: "IT", club: "Juventus", tier: "live", wage: 5, cardFace: asset("/assets/live-4084-card.webp") },
 ];

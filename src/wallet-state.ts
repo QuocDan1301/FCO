@@ -11,9 +11,12 @@ import type { NameEffect } from './name-effects';
 export type Checkin = { claimedToday: boolean; day: number; done: number };
 // claimed[i] = số lần đã nhận mốc i (null = chưa nhận).
 export type BilacState = { points: number; claimed: (number | null)[]; freeToday: boolean };
+// Vòng Quanh Thế Giới: ô quân đang đứng (0 = Bắt đầu), số lượt Chỉ định, còn lượt miễn phí hôm nay (fco_wallet_json 'vqtg').
+// claimed[i] = số lần đã nhận quà mốc i của Shop Đổi Vé; paid = đã từng chơi trả FC (mốc 1 vé chỉ nhận bằng lượt trả phí).
+export type VqtgState = { pos: number; picks: number; tickets: number; freeToday: boolean; claimed?: number[]; paid?: boolean };
 // save: bản lưu mới khi máy chủ vừa cộng quà vào kho (điểm danh ngày 7), xem src/inventory-sync.ts.
 // stp: Star Point (migration 202611110007_fco_star_point.sql), máy chủ chưa chạy migration thì không có.
-export type Wallet = { fc: number; stp?: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null; tier?: 'classic' | 'premium'; tierUntil?: number | null; effect?: NameEffect | null; club?: string | null };
+export type Wallet = { fc: number; stp?: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; vqtg?: VqtgState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null; tier?: 'classic' | 'premium' | 'luxury'; tierUntil?: number | null; effect?: NameEffect | null; club?: string | null };
 export type ServerJackpotWin = { name: string; amount: number; kind: 'special' | 'mini'; time: number; mine: boolean };
 export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
 // Bảng xếp hạng HLV (fco_leaderboard): top 10 kỷ lục đập thẻ OVR, top 10 giá trị đội hình, hạng của người xem.
@@ -39,7 +42,7 @@ export type FcStats = { topup: number; spent: number };
 export type AdminAccount = { id: string; login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; topupVnd: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean; paused: boolean };
 // online: số tài khoản đang online (migration 202611090014); chưa chạy migration thì không có.
 export type AdminAccountList = { total: number; matched: number; online?: number; accounts: AdminAccount[]; now: number };
-export const LEDGER_REASONS: Record<string, string> = { admin: 'Admin nạp', admin_old: 'Admin nạp (trước reset)', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', admin_gift: 'Admin tặng quà', reset: 'Admin reset tài khoản' };
+export const LEDGER_REASONS: Record<string, string> = { admin: 'Admin nạp', admin_old: 'Admin nạp (trước reset)', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', admin_gift: 'Admin tặng quà', admin_deduct: 'Admin trừ FC', reset: 'Admin reset tài khoản' };
 export type AdminStats = { summary: StatsSummary; days: StatsDay[]; players: StatsPlayer[]; now: number };
 // Bi Lắc (supabase/migrations/202611070005_fco_bilac.sql): quà {fc} / {bp} / {pack,count}; quà Giải Đặc Biệt / Phụ trả về {fc, jackpot}.
 export type BilacReward = EventReward | { fc: number; jackpot: 'special' | 'mini' } | { jackpot: 'special' | 'mini' };
@@ -48,7 +51,20 @@ export type BilacRow = { id: string; symbol: BilacSymbol | null; kind: 'triple' 
 export type BilacConfig = { symbols: { id: BilacSymbol; label: string }[]; rows: BilacRow[]; milestones: BilacMilestone[]; round: number; prices: { count: number; price: number }[] };
 export type BilacMilestone = { points: number; options: BilacReward[][]; once: boolean };
 export type BilacPlay = { balls: BilacSymbol[]; row: string; points: number; reward: BilacReward };
-export type BilacResult = { plays: BilacPlay[]; paid: number; points: number; jackpot: ServerJackpot; wallet: Wallet; save?: ServerRecord | null };
+export type BilacResult = { plays: BilacPlay[]; paid: number; points: number; jackpot: ServerJackpot; wallet: Wallet; save?: ServerRecord | null; miniFeed?: VqtgMiniWin[] };
+// Vòng Quanh Thế Giới (supabase/migrations/202611130004_fco_vqtg.sql): mỗi lượt lắc roll, đi from → to; pick = được +1 Chỉ định,
+// pool = trúng cả Quỹ BP. reward null khi ô không có quà (ô Chỉ định).
+// Quà mốc Shop Đổi Vé có thêm phiếu giảm thuế {voucher, count}.
+export type VqtgReward = BilacReward | { voucher: number; count: number };
+export type VqtgMilestone = { idx: number; tickets: number; options: VqtgReward[][]; once: boolean; paidOnly: boolean };
+// Đua top nhận quà hot: top 5 theo vé (fco_vqtg_top).
+export type VqtgTopRow = { rank: number; name: string; tickets: number; mine: boolean; effect?: NameEffect | null; club?: string | null };
+export type VqtgTop = { top: VqtgTopRow[]; me: { tickets: number; rank: number | null }; rewards: { rank: number; rewards: VqtgReward[]; note?: string }[] };
+// Tin người trúng Mini Jackpot (BP) của VQTG, lưu riêng với bảng tin Jackpot FC.
+export type VqtgMiniWin = { name: string; amount: number; time: number; mine: boolean };
+export type VqtgConfig = { tiles: import('./vqtg').VqtgTile[]; prices: { count: number; price: number }[]; bpPool: number; milestones?: VqtgMilestone[]; round?: number; miniFeed?: VqtgMiniWin[] };
+export type VqtgPlay = { roll: number; from: number; to: number; kind: import('./vqtg').VqtgTileKind; reward: BilacReward | null; pick?: number; pool?: boolean; tickets?: number };
+export type VqtgResult = { plays: VqtgPlay[]; paid: number; picks: number; pos: number; tickets: number; bpPool: number; jackpot: ServerJackpot; wallet: Wallet; save?: ServerRecord | null; miniFeed?: VqtgMiniWin[] };
 export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 
 const MESSAGES: Record<string, string> = {
@@ -121,11 +137,13 @@ const MESSAGES: Record<string, string> = {
   FCO_BAD_SELL: 'Danh sách bán không hợp lệ.',
   FCO_CARD_MISSING: 'Thẻ này không còn trong kho. Hãy chọn lại cầu thủ.',
   FCO_CARD_LOCKED: 'Thẻ đang bị khóa. Mở khóa trước khi bán hoặc xóa.',
+  FCO_TRADE_LOCKED: 'Thẻ mùa này bị khóa giao dịch: không mua / bán được trên TTCN.',
   FCO_PENALTY_NO_RUN: 'Lượt sút đã kết thúc. Hãy bấm Chơi lại.',
   FCO_PENALTY_TOO_FAST: 'Sút chậm lại một chút rồi thử lại.',
   FCO_PENALTY_BAD_AIM: 'Hướng sút không hợp lệ.',
   FCO_PENALTY_BAD_KIND: 'Kiểu sút không hợp lệ.',
   FCO_PREMIUM_ONLY: 'Hiệu ứng này chỉ dành cho tài khoản Premium.',
+  FCO_LUXURY_ONLY: 'Hiệu ứng này chỉ dành cho tài khoản Luxury.',
   FCO_BAD_EFFECT: 'Hiệu ứng không hợp lệ.',
   FCO_BAD_PRICE: 'Giá bán phải nằm trong ±10% giá thị trường. Giá có thể vừa đổi kỳ, hãy mở lại cửa sổ bán.',
   'Authentication required': 'Phiên đăng nhập đã hết. Hãy đăng nhập lại.',
@@ -143,5 +161,5 @@ export function walletMessage(error: unknown) {
 export function applyWallet(state: Save, wallet: Wallet, today = dayKey()): Save {
   const event = eventState(state, today);
   const daily = wallet.dailyClaimed ? today : state.daily === today ? '' : state.daily;
-  return { ...state, fc: wallet.fc, ...(wallet.stp !== undefined ? { stp: wallet.stp } : {}), ...(wallet.tier ? { premiumUntil: wallet.tier === 'premium' ? wallet.tierUntil ?? null : null } : {}), daily, ...(wallet.membership ? { membership: wallet.membership } : {}), event: { ...event, day: today, points: wallet.event.points, free: wallet.event.free, paid: wallet.event.paid, missions: [...wallet.event.missions] } };
+  return { ...state, fc: wallet.fc, ...(wallet.stp !== undefined ? { stp: wallet.stp } : {}), ...(wallet.tier ? { premiumUntil: wallet.tier === 'premium' ? wallet.tierUntil ?? null : null, luxuryUntil: wallet.tier === 'luxury' ? wallet.tierUntil ?? null : null } : {}), daily, ...(wallet.membership ? { membership: wallet.membership } : {}), event: { ...event, day: today, points: wallet.event.points, free: wallet.event.free, paid: wallet.event.paid, missions: [...wallet.event.missions] } };
 }

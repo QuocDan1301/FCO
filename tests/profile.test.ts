@@ -58,10 +58,11 @@ test('Thông tin HLV đã lưu thì không còn ô chọn / nút lưu; còn tr�
   assert.doesNotMatch(half, /aria-label="Giới tính"/); assert.match(half, /aria-label="Ngày sinh"/);
 });
 test('Hiệu ứng avatar + tên: danh sách khớp ràng buộc máy chủ; Classic bị khoá, Premium chọn được và hiện trên avatar / tên', () => {
-  const sql = readFileSync(new URL('../supabase/migrations/202611110004_fco_name_effect.sql', import.meta.url), 'utf8');
-  const ids = NAME_EFFECTS.map(e => `'${e.id}'`).join(', ');
+  const sql = readFileSync(new URL('../supabase/migrations/202611120011_fco_luxury.sql', import.meta.url), 'utf8');
+  const ids = NAME_EFFECTS.map(e => `'${e.id}'`).join(', '), lux = NAME_EFFECTS.filter(e => e.luxury).map(e => `'${e.id}'`).join(', ');
   assert.ok(sql.includes(`check (name_effect in (${ids}))`), 'ràng buộc check trên bảng');
   assert.ok(sql.includes(`p_effect not in (${ids})`), 'kiểm tra trong fco_set_name_effect');
+  assert.ok(sql.includes(`select p_effect in (${lux})`), 'danh sách hiệu ứng Luxury');
   const render = (tier: 'classic' | 'premium', effect: 'fire' | null) => renderToStaticMarkup(createElement(ProfileCard, { save: initialSave(), accountId: 'abc', joined: null, tier, effect, onEffect: () => true, onSave() {}, onSettings() {}, onClose() {} }));
   const premium = render('premium', 'fire');
   assert.match(premium, /profile-avatar is-premium fx-avatar fx-fire/);
@@ -76,5 +77,17 @@ test('Hiệu ứng avatar + tên: danh sách khớp ràng buộc máy chủ; Cla
   assert.match(classic, /Hiệu ứng<small>Premium<\/small>/);
   const locked = picker(false, null);
   assert.match(locked, /Dành cho tài khoản Premium/);
-  assert.equal((locked.match(/class="profile-effect"[^>]*disabled/g) ?? []).length, NAME_EFFECTS.length + 1);
+  assert.equal((locked.match(/class="profile-effect( is-luxury)?"[^>]*disabled/g) ?? []).length, NAME_EFFECTS.length + 1);
+});
+test('Hạng Luxury: hiện huy hiệu Luxury, hiệu ứng Luxury mở cho Luxury, khoá với Premium', () => {
+  const render = (tier: 'premium' | 'luxury', effect: 'prism' | null) => renderToStaticMarkup(createElement(ProfileCard, { save: initialSave(), accountId: 'abc', joined: null, tier, effect, onEffect: () => true, onSave() {}, onSettings() {}, onClose() {} }));
+  const lux = render('luxury', 'prism');
+  assert.match(lux, /profile-avatar is-luxury fx-avatar fx-prism fx-lux/);
+  assert.match(lux, /profile-tier is-luxury/);
+  assert.doesNotMatch(render('premium', 'prism'), /fx-prism/, 'Premium để hiệu ứng Luxury thì không hiện');
+  const picker = (premium: boolean, luxury: boolean) => renderToStaticMarkup(createElement(EffectPicker, { premium, luxury, shown: null, initials: 'AB', busy: false, onPick() {} }));
+  const luxCount = NAME_EFFECTS.filter(e => e.luxury).length;
+  assert.equal(luxCount, 5);
+  assert.equal((picker(true, false).match(/class="profile-effect is-luxury"[^>]*disabled/g) ?? []).length, luxCount, 'Premium: nhóm Luxury bị khoá');
+  assert.equal((picker(true, true).match(/class="profile-effect is-luxury"[^>]*disabled/g) ?? []).length, 0, 'Luxury: mở hết');
 });

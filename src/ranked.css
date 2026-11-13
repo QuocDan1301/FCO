@@ -173,3 +173,7 @@ svg.rkd-board-club.is-me{color:#38c6ff}svg.rkd-board-club.is-opp{color:#ff7a7a}
 .rkd-match.is-compact .rkd-result-actions button{min-height:calc(36px * var(--z));padding:0 calc(14px * var(--z));font-size:calc(13px * var(--z))}
 .rkd-match.is-compact .rkd-result-actions button svg{width:calc(16px * var(--z));height:calc(16px * var(--z))}
 .rkd-match.is-compact .rkd-close{transform:scale(var(--z));transform-origin:top right}
+/* Tên cầu thủ đối thủ trong danh sách đội hình GLXH: mùa + tên + cấp. */
+.rkd-lineups .rkd-pname .squad-season{margin-right:5px}
+.rkd-lineups .rkd-lv{margin-left:5px;font-size:11px;font-weight:700;color:#f6dc8e}
+.rkd-rating{margin:2px 0 0;font-size:13px;color:#c5ccd6}.rkd-rating b{color:#7dff9a}

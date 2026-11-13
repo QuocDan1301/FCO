@@ -8,6 +8,7 @@ import { findPack } from './event';
 import { STP_ICON, STP_PACKAGES, stpItemName } from './stp';
 import type { StpItem, StpPackage, StpPackageId } from './stp';
 import { asset } from './asset';
+import VoucherCard from './VoucherCard';
 
 // Gói Star Point trong Shop (src/stp.ts): 4 khung đứng đầu lưới Shop (cùng khung 7 hàng con với gói cầu thủ), thứ tự Siêu cấp → Tân binh.
 // Bấm ảnh hoặc "Mua" mở danh sách vật phẩm (mua 1 gói nhận đủ cả danh sách); nút xác nhận trong danh sách mới trừ STP.
@@ -25,7 +26,7 @@ export function StpIcon({ size = 18 }: { size?: number }) {
 }
 
 function ItemIcon({ item, renderArt }: { item: StpItem; renderArt: Props['renderArt'] }) {
-  if ('voucher' in item) return <span className="stp-item-voucher" aria-hidden="true"><b>%</b><small>{item.voucher}%</small></span>;
+  if ('voucher' in item) return <span className="stp-item-voucher" aria-hidden="true"><VoucherCard pct={item.voucher}/></span>;
   if ('bp' in item) return <img className="stp-item-bp" src={asset('/assets/currency-bp.png')} alt=""/>;
   const pack = findPack(item.pack);
   return <span className="stp-item-pack" aria-hidden="true">{pack ? renderArt(pack) : null}</span>;

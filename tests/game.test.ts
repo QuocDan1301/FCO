@@ -16,12 +16,12 @@ const cardWith = (rating: number, level = 1, skip: number[] = []) => {
   if (!player) throw new Error(`Không có cầu thủ OVR ${rating} ở +${level}`);
   return { ...makeCard(player.id), level };
 };
-test('4070 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 165 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS, 34 JNM, 20 25HR, 98 26UP, 32 LIVE, 14 24HR, 17 CA, 9 26HR, 16 LD và 98 WS; mọi gói đủ 100%', () => {
-  assert.equal(players.length, 4070);
-  assert.equal(players.filter(p => p.tier === 'live').length, 32);
+test('4182 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 166 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS, 34 JNM, 20 25HR, 98 26UP, 33 LIVE, 14 24HR, 17 CA, 9 26HR, 16 LD, 98 WS, 92 EL và 18 TSUBASA; mọi gói đủ 100%', () => {
+  assert.equal(players.length, 4182);
+  assert.equal(players.filter(p => p.tier === 'live').length, 33);
   assert.equal(players.filter(p => p.tier === 'hw23').length, 195);
   assert.equal(players.filter(p => p.tier === 'ep24').length, 208);
-  assert.equal(players.filter(p => p.tier === 'ptg').length, 165);
+  assert.equal(players.filter(p => p.tier === 'ptg').length, 166);
   assert.equal(players.filter(p => p.tier === 'le').length, 165);
   assert.equal(players.filter(p => p.tier === 'hg').length, 116);
   assert.equal(players.filter(p => p.tier === 'spl').length, 90);
@@ -40,6 +40,8 @@ test('4070 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRI
   assert.equal(players.filter(p => p.tier === 'hr26').length, 9);
   assert.equal(players.filter(p => p.tier === 'ld').length, 16);
   assert.equal(players.filter(p => p.tier === 'ws').length, 98);
+  assert.equal(players.filter(p => p.tier === 'el').length, 92);
+  assert.equal(players.filter(p => p.tier === 'tsubasa').length, 18);
   assert.equal(players.filter(p => p.tier === 'up26').length, 98);
   assert.equal(players.filter(p => p.tier === 'bdo').length, 108);
   assert.equal(players.filter(p => p.tier === 'wg').length, 155);
@@ -119,7 +121,7 @@ test('Tỷ lệ gói: OVR cao hơn sàn và giá +1 đắt hơn thì hiếm hơn
     const floor = Math.min(...rows.map(r => r.value)), cheapest = Math.min(...rows.map(r => r.price).filter(p => p > 0));
     // Gói sự kiện / quà (eventOnly) phạt giá nặng hơn gói Shop; gói mốc (blm-*, ms-*) nhẹ hơn, gói trong Danh sách quà Bi Lắc nặng nhất.
     const alpha = priceAlphaOf(pack);
-    assert.equal(alpha, !pack.eventOnly ? PACK_ODDS.priceAlpha : /^(blm|ms)-/.test(pack.id) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha, pack.id);
+    assert.equal(alpha, !pack.eventOnly ? PACK_ODDS.priceAlpha : /^(blm|ms|vqm)-/.test(pack.id) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha, pack.id);
     // Gói trong Danh sách quà Bi Lắc nhân thêm trọng số theo nhóm giá (nhóm 1 ×1, nhóm 2 ×0,5, nhóm 3 ×0,25).
     const group = (i: number) => isBilacPrizePack(pack) ? PACK_ODDS.prizeGroupWeights[priceGroupOf(pool[i].player) - 1] : 1;
     const weights = rows.map((r, i) => PACK_ODDS.ovrDecay ** (r.value - floor) / Math.max(1, r.price > 0 ? r.price / cheapest : 1) ** alpha * group(i));

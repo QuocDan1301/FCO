@@ -46,6 +46,8 @@ import './chelsea-cards.css';
 import './hr26-cards.css';
 import './ld-cards.css';
 import './ws-cards.css';
+import './el-cards.css';
+import './tsubasa-cards.css';
 import './card-names.css';
 import './market.css';
 import './inventory.css';

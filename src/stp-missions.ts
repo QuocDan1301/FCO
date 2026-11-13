@@ -6,7 +6,7 @@ export type StpMission = { id: StpMissionId; title: string; reward: number; hint
 export const STP_MISSIONS: readonly StpMission[] = [
   { id: 'messi8', title: 'Nâng cấp L. Messi mùa bất kì lên +8', reward: 25, hint: 'Đập thẻ L. Messi thành công lên +8 trở lên' },
   { id: 'ronaldo8', title: 'Nâng cấp C. Ronaldo mùa bất kì lên +8', reward: 25, hint: 'Đập thẻ Cristiano Ronaldo thành công lên +8 trở lên' },
-  { id: 'penalty20', title: 'Đạt 20 bàn liên tiếp trong Sút phạt đền', reward: 20, hint: 'Ghi 20 bàn liên tiếp trong một lượt Penalty' },
+  { id: 'penalty20', title: 'Đạt chuỗi 20 trong Penalty', reward: 20, hint: 'Chuỗi 20 lượt thành công (sút vào hoặc bắt được) trong một lượt Penalty' },
   { id: 'messi7', title: 'Nâng cấp L. Messi mùa bất kì lên +7', reward: 15, hint: 'Đập thẻ L. Messi thành công lên +7 trở lên' },
   { id: 'ronaldo7', title: 'Nâng cấp C. Ronaldo mùa bất kì lên +7', reward: 15, hint: 'Đập thẻ Cristiano Ronaldo thành công lên +7 trở lên' },
 ];
