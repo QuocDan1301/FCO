@@ -243,7 +243,8 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
   const tiles = config?.tiles ?? [];
   const price1 = config?.prices.find(p => p.count === 1)?.price ?? 0;
   const picks = vqtg?.picks ?? 0;
-  const canPick = !busy && !!config && picks > 0 && fc >= price1;
+  // Dùng Chỉ định miễn phí (không tốn FC, migration 202611130018).
+  const canPick = !busy && !!config && picks > 0;
   const pin = tokenPoint(token);
   // Người trúng Jackpot (FC) và Mini Jackpot (BP) là 2 người khác nhau: hiện tin mới nhất của mỗi loại.
   const latest = [jackpot.feed.find(w => w.kind === 'special'), miniFeed[0]];
@@ -310,7 +311,7 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
       <div className="vq-dialog" onClick={e => e.stopPropagation()}>
         <button type="button" className="icon-button" aria-label="Đóng" onClick={() => setModal(null)}><X/></button>
         <h3>Chỉ định số xúc xắc</h3>
-        <p>Còn {picks} lượt Chỉ định · lượt này {money(price1)} FC. Không chọn được số dừng ở ô Mini Jackpot (ô 10) và Giải Đặc Biệt (ô 14).</p>
+        <p>Còn {picks} lượt Chỉ định · lượt này <b>miễn phí</b>. Không chọn được số dừng ở ô Mini Jackpot (ô 10) và Giải Đặc Biệt (ô 14).</p>
         <div className="vq-pick-grid">{[1, 2, 3, 4, 5, 6].map(n => {
           const ok = vqtgPickAllowed(tiles, vqtg.pos, n);
           return <button key={n} type="button" disabled={busy || !ok} onClick={() => void play(1, 'fc', n)}><b>{n}</b><small>→ ô {(vqtg.pos + n - 1) % 16 + 1}</small><small className="vq-pick-tk">+{rollTickets(n)} vé</small></button>;
@@ -325,7 +326,7 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
         <ul>
           <li>Mỗi lượt quay vòng xúc xắc ra số 1–6, quân đi đúng số ô theo chiều kim đồng hồ (hết ô 16 quay về ô 1) và nhận quà ô dừng.</li>
           <li>Ô quà: nhận ngẫu nhiên 1 trong 4 món của ô; trỏ chuột / chạm vào món quà để xem tên.</li>
-          <li>Ô 6 · Chỉ định: nhận 1 lượt Chỉ định. Bấm ô 6 để tự chọn số xúc xắc cho lượt sau (giá 1 lượt); không chọn được số dừng ở ô 10 và ô 14.</li>
+          <li>Ô 6 · Chỉ định: nhận 1 lượt Chỉ định. Bấm ô 6 để tự chọn số xúc xắc cho lượt sau, miễn phí (không tốn FC, vẫn được vé); không chọn được số dừng ở ô 10 và ô 14.</li>
           <li>Ô 10 · Mini Jackpot: {Math.round(VQTG_RULES.bpChance * 100)}% trúng Mini Jackpot BP. Mini Jackpot tăng theo Giải Đặc Biệt: cứ 1.000 FC quỹ Giải Đặc Biệt thì Mini Jackpot được {shortBp(miniJackpotBp(1000))} BP. Không trúng thì lượt đó không có quà.</li>
           <li>Ô 14 · Giải Đặc Biệt: cơ hội nhận cả quỹ FC chung (tăng dần khi quỹ lớn); quỹ chưa tới 10.000 FC thì quân không dừng ở ô này (xúc xắc tự lắc lại). Giải Đặc Biệt nổ thì Mini Jackpot cũng nổ cùng lúc nhưng về tay một HLV khác, cả hai về mức thấp. Không trúng thì lượt đó không có quà.</li>
           <li>Giá: {(config?.prices ?? []).map(p => `${p.count} lần ${money(p.price)} FC`).join(' · ')}. Mỗi ngày có 1 lượt miễn phí.</li>

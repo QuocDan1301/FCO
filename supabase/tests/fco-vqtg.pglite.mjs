@@ -159,4 +159,10 @@ for (let k = 0; k < 120; k++) {
   assert.notEqual(res.plays[0].to, 14, 'quỹ dưới 10.000 FC không dừng ô 14');
   assert.equal(res.plays[0].tickets, [1, 2, 2, 2, 3, 6][res.plays[0].roll - 1]);
 }
+// Dùng Chỉ định không tốn FC (202611130018): FC giữ nguyên, trừ 1 lượt Chỉ định, vẫn được vé.
+await db.exec(`update public.fco_wallets set vqtg_picks = 1, vqtg_pos = 2, fc = 500 where user_id = '${U}'; update public.fco_jackpot set pot = 20000 where id = 1`);
+const fcBefore = (await wallet()).fc;
+const pr = await as(`select public.fco_vqtg_play(1, 'fc', 3)`);
+assert.equal(pr.paid, 0); assert.equal(pr.picks, 0); assert.equal(pr.plays[0].tickets, 2);
+assert.equal((await wallet()).fc, fcBefore + (pr.plays[0].reward?.fc ?? 0), 'không trừ FC');
 console.log('fco-vqtg OK');
