@@ -48,3 +48,11 @@ test('Tự đồng bộ dữ liệu kho thẻ (202611140014): GitHub Actions sau
   const app = readFileSync('src/App.tsx', 'utf8');
   assert.match(app, /autoSynced\.current = catalogId;\n\s+adminSyncCatalog\(\)/);
 });
+test('Giá trị đội hình (202611140015): cập nhật khi lưu, bỏ ghi sổ khai khống (báo nhầm do lệch thời gian)', () => {
+  const sql = readFileSync('supabase/migrations/202611140015_fco_squad_value_refresh.sql', 'utf8');
+  const rank = sql.slice(sql.indexOf('create or replace function public.fco_rank_squad('), sql.indexOf('$$;', sql.indexOf('create or replace function public.fco_rank_squad(')));
+  assert.doesNotMatch(rank, /fco_flag/);
+  assert.match(sql, /perform public\.fco_squad_rank_refresh\(owner_id\);\n\s+return jsonb_build_object\('revision'/);
+  assert.match(sql, /perform public\.fco_plus8_from_history\(owner_id, saved\.data\);/, 'giữ tự bù +8 của 202611140013');
+  assert.match(sql, /delete from public\.fco_cheat_flags where kind = 'squad_value';/);
+});
