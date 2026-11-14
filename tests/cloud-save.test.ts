@@ -232,3 +232,23 @@ test('Tài khoản bị xoá khi đang chơi: chặn màn để báo đăng nh�
   await store.refresh();
   assert.equal(store.status, 'error'); assert.equal(store.ready, false);
 });
+
+test('Máy chủ giữ kho: nhiều thay đổi liên tiếp gom thành 1 lần gửi sau khi yên; ẩn tab thì gửi ngay (giảm Disk IO)', async () => {
+  const server = remote();
+  let writes = 0;
+  const api: SaveRemote = { ...server.api, async write(data, revision, merge) { writes++; if (merge) return { data: structuredClone(data), revision: revision + 1 }; return server.api.write(data, revision); } };
+  const store = new CloudSaveStore('batch', api, disk(), 40);
+  await store.initialize();
+  store.setItem('', JSON.stringify({ ...state(store), inv: 1 }));
+  await store.flush();
+  const before = writes;
+  for (let i = 0; i < 5; i++) store.setItem('', JSON.stringify({ ...state(store), quick: i % 2 === 0, sound: i % 2 === 1 }));
+  assert.equal(writes, before, 'chưa gửi ngay');
+  assert.equal(store.status, 'saving');
+  await new Promise(resolve => setTimeout(resolve, 120));
+  await store.flush();
+  assert.equal(writes, before + 1, '5 thay đổi chỉ gửi 1 lần');
+  assert.deepEqual([state(store).quick, state(store).sound], [true, false]);
+  assert.equal(store.status, 'saved');
+  store.dispose();
+});

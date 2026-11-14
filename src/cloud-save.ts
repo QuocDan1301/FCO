@@ -31,6 +31,10 @@ export function needsUpload(next: Save, prev: Save) {
   return (next.history ?? []).some(entry => !known.has(entry.id));
 }
 export type SyncStatus = 'loading' | 'saved' | 'saving' | 'error' | 'conflict';
+// Gom các thay đổi cài đặt / đội hình… của bản lưu do máy chủ giữ kho: chờ yên UPLOAD_DELAY_MS rồi mới gửi một lần (trước đây mỗi thao tác
+// nhỏ gửi nguyên bản lưu → fco_commit_save chiếm phần lớn Disk IO Supabase, 2026-11-14). Ẩn tab / đóng trang thì gửi ngay; bản lưu vẫn
+// nằm trong hộp chờ trên máy nên không mất gì nếu chưa kịp gửi.
+export const UPLOAD_DELAY_MS = 6000;
 
 /** A durable outbox. The server accepts a write only against its current revision. */
 export class CloudSaveStore {
@@ -42,8 +46,18 @@ export class CloudSaveStore {
   private running: Promise<void> | null = null;
   private listeners = new Set<() => void>();
   private active = true;
+  private timer: ReturnType<typeof setTimeout> | null = null;
+  private onHide = () => { if (typeof document === 'undefined' || document.visibilityState === 'hidden') this.flushSoon(0); };
 
-  constructor(readonly key: string, private remote: SaveRemote, private disk: Pick<Storage, 'getItem' | 'setItem'>) {}
+  constructor(readonly key: string, private remote: SaveRemote, private disk: Pick<Storage, 'getItem' | 'setItem'>, private uploadDelay = UPLOAD_DELAY_MS) {
+    if (typeof window !== 'undefined') { window.addEventListener('pagehide', this.onHide); document.addEventListener('visibilitychange', this.onHide); }
+  }
+  // Gửi hộp chờ sau `delay` ms (gom nhiều thay đổi liên tiếp thành một lần gửi); 0 = gửi ngay.
+  private flushSoon(delay = this.uploadDelay) {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    const go = () => { this.timer = null; void this.flush().catch(() => { /* Hộp chờ vẫn giữ trên máy; lần làm mới sau tự gửi lại. */ }); };
+    if (delay <= 0) go(); else this.timer = setTimeout(go, delay);
+  }
 
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   private notify(status: SyncStatus, error = '') {
@@ -75,7 +89,8 @@ export class CloudSaveStore {
     this.persist({ revision: current.revision, data, dirty });
     if (!dirty) { this.notify('saved'); return; }
     this.notify('saving');
-    void this.flush().catch(() => { /* Hộp chờ vẫn giữ trên máy; lần làm mới sau tự gửi lại. */ });
+    // Máy chủ giữ kho: phần còn phải gửi chỉ là cài đặt / đội hình / lịch sử → gom lại. Chưa giữ kho: gửi ngay như cũ.
+    this.flushSoon(serverOwned(data) ? this.uploadDelay : 0);
   };
 
   async initialize() {
@@ -193,11 +208,15 @@ export class CloudSaveStore {
       const data = mergeProtected(local.data, record.data);
       this.persist({ revision: record.revision, data, dirty: !sameSettings(data, record.data) });
     }
-    if (this.cached()?.dirty) { this.notify('saving'); void this.flush().catch(() => { /* Hộp chờ vẫn giữ, màn hình cho thử lại. */ }); }
+    if (this.cached()?.dirty) { this.notify('saving'); this.flushSoon(); }
     else this.notify('saved');
   }
   backup() { return this.disk.getItem(this.key) ?? '{}'; }
-  dispose() { this.active = false; this.listeners.clear(); }
+  dispose() {
+    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    if (typeof window !== 'undefined') { window.removeEventListener('pagehide', this.onHide); document.removeEventListener('visibilitychange', this.onHide); }
+    this.active = false; this.listeners.clear();
+  }
 }
 
 export class SaveConflict extends Error {
