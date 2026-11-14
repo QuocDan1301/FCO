@@ -58,3 +58,36 @@ test('Máy chủ mở gói theo cấp cố định (202611140006): nhận fixedL
   assert.match(sql, /coalesce\(r->'fixedLevels', '\[\]'\)/);
   assert.match(sql, /coalesce\(nullif\(pk\.fixed_levels\[k\], 0\), pk\.levels\[public\.fco_inv_pick\(pk\.level_weights\)\]\)/);
 });
+test('Bù BXH +8 (202611140011): lấy lượt đập thành công lên +8 từ lịch sử từ 0h 14/11, ghép thẻ +8 đang giữ, chạy lại được', () => {
+  const sql = readFileSync('supabase/migrations/202611140011_fco_plus8_backfill.sql', 'utf8');
+  assert.match(sql, /e->>'detail' ~ '→ \\\+8\( \|\$\)'/);
+  assert.match(sql, /timestamptz '2026-11-14 00:00:00\+07'/);
+  assert.match(sql, /\(card->>'level'\)::integer >= 8/);
+  assert.match(sql, /on conflict do nothing;/);
+});
+test('Lịch sử đập +8 (202611140012): xem theo hạng 1..10 hoặc của mình, ghi rõ có tính điểm không, không lộ mã người chơi', () => {
+  const sql = readFileSync('supabase/migrations/202611140012_fco_plus8_history.sql', 'utf8');
+  assert.match(sql, /if p_rank is null then target := uid;/);
+  assert.match(sql, /'counted', x\.k <= 3/);
+  assert.doesNotMatch(sql, /'user'|'uid'/);
+  const page = readFileSync('src/Plus8Page.tsx', 'utf8');
+  assert.match(page, /clickable\(i \+ 1, r\.name\)/);
+  assert.match(page, /clickable\(null, 'Bạn'\)/);
+});
+test('BXH +8 tự bù khi kho chưa bắt buộc (202611140013): ghi từ lịch sử mỗi lần lưu, kho bắt buộc thì không đọc lịch sử', () => {
+  const sql = readFileSync('supabase/migrations/202611140013_fco_plus8_auto.sql', 'utf8');
+  assert.match(sql, /if not coalesce\(\(select enforced from public\.fco_inventory where id = 1\), false\) then\n\s+perform public\.fco_plus8_from_history\(owner_id, saved\.data\);/);
+  assert.match(sql, /revoke all on function public\.fco_plus8_from_history\(uuid, jsonb\) from public, anon, authenticated;/);
+});
+test('Gói quà BXH +8 tăng tỷ lệ OVR (mức Nhẹ, 2026-11-14): phạt giá như Shop, không phạt OVR, so OVR theo cấp thật lúc nhận', async () => {
+  const { packs, packOdds, ovr, fixedLevel, priceAlphaOf, ovrDecayOf, PACK_ODDS } = await import('../src/game.ts');
+  assert.equal(PACK_ODDS.rankPrizePriceAlpha, .5);
+  assert.equal(PACK_ODDS.rankPrizeOvrDecay, 1);
+  const p8 = packs.find(p => p.id === 'p8-1')!, other = packs.find(p => p.id === 'vqt-1')!;
+  assert.deepEqual([priceAlphaOf(p8), ovrDecayOf(p8)], [.5, 1]);
+  assert.deepEqual([priceAlphaOf(other), ovrDecayOf(other)], [PACK_ODDS.eventPriceAlpha, PACK_ODDS.ovrDecay], 'gói sự kiện khác giữ nguyên');
+  // OVR trung bình nhận được cao hơn luật sự kiện cũ (129,3 ở gói Top 1).
+  let avg = 0;
+  for (const { player, chance } of packOdds(p8).pool) avg += chance * ovr({ playerId: player.id, level: fixedLevel(p8, player) ?? 8 });
+  assert.ok(avg > 129.5, `OVR TB ${avg}`);
+});

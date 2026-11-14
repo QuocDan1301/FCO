@@ -614,13 +614,17 @@ export function initialSave(): Save {
 // → prizePriceAlpha 2,5 + prizeLevelDecay 0,15 (giá trị TB mỗi gói giảm ~3–31 %). Gói mốc (blm-*, ms-*) không thuộc danh sách quà,
 // kể cả ms-100-1 nằm trong hàng Khác nhau: vẫn theo luật gói mốc.
 // Đổi quà trong bảng (migration Bi Lắc) thì cập nhật BILAC_PRIZE_PACKS; tests/game.test.ts đối chiếu với migration.
-export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: 2, levelDecay: .2, milestonePriceAlpha: 1.3, milestoneLevelDecay: .31, prizePriceAlpha: 2.5, prizeLevelDecay: .15, prizeGroupWeights: [1, .5, .25] } as const;
+// Gói quà BXH "Đập 8 liền tay" (p8-*) ngày 2026-11-14: người dùng tăng tỷ lệ ra cầu thủ OVR cao → luật riêng rankPrize (phạt giá nhẹ như
+// Shop, gần như không phạt OVR) thay cho eventPriceAlpha 2,0 + ovrDecay 0,82 của gói sự kiện.
+export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: 2, levelDecay: .2, milestonePriceAlpha: 1.3, milestoneLevelDecay: .31, prizePriceAlpha: 2.5, prizeLevelDecay: .15, prizeGroupWeights: [1, .5, .25], rankPrizePriceAlpha: .5, rankPrizeOvrDecay: 1 } as const;
 export const BILAC_PRIZE_PACKS: ReadonlySet<string> = new Set(['eternal', 'event-4-top150', 'event-6-wb', 'event-7-109']);
 // vqm-* = quà mốc Shop Đổi Vé của Vòng Quanh Thế Giới, cùng luật gói mốc.
 export const isMilestonePack = (pack: Pick<Pack, 'id'>) => /^(blm|ms|vqm)-/.test(pack.id);
 // Gói quà ô của Vòng Quanh Thế Giới (vq-*) cũng là danh sách quà sự kiện → cùng luật với bl-*.
 export const isBilacPrizePack = (pack: Pick<Pack, 'id'>) => !isMilestonePack(pack) && (/^(bl|vq)-/.test(pack.id) || BILAC_PRIZE_PACKS.has(pack.id));
-export const priceAlphaOf = (pack: Pack) => !pack.eventOnly ? PACK_ODDS.priceAlpha : isMilestonePack(pack) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha;
+export const isRankPrizePack = (pack: Pick<Pack, 'id'>) => /^p8-/.test(pack.id);
+export const ovrDecayOf = (pack: Pick<Pack, 'id'>) => isRankPrizePack(pack) ? PACK_ODDS.rankPrizeOvrDecay : PACK_ODDS.ovrDecay;
+export const priceAlphaOf = (pack: Pack) => !pack.eventOnly ? PACK_ODDS.priceAlpha : isRankPrizePack(pack) ? PACK_ODDS.rankPrizePriceAlpha : isMilestonePack(pack) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha;
 // Nhóm giá của cầu thủ (1 / 2 / 3, theo tên như bảng giá); thiếu thì coi là nhóm 2.
 // Gói trong Danh sách quà Bi Lắc nhân thêm prizeGroupWeights theo nhóm (2026-11-11: giảm tỷ lệ ra cầu thủ nhóm 2 và 3).
 const priceGroups = priceGroupData.groups as Record<string, number>;
@@ -632,10 +636,11 @@ export const PACK_LEVELS: [number, number] = [1, 1];
 export const packLevel = (pack: Pack) => { const [min, max] = pack.levels ?? PACK_LEVELS; return min === max ? min : null; };
 const basePrices: Record<string, (number | null)[]> = priceData.players;
 type PoolEntry = { player: Player; weight: number };
-function weightedPool(list: Player[], alpha: number = PACK_ODDS.priceAlpha, groupWeights: readonly number[] | null = null): PoolEntry[] {
-  const members = list.map(player => ({ player, value: ovr({ playerId: player.id, level: 1 }), price: basePrices[String(player.id)]?.[0] ?? 0 }));
+// levelOf: cấp dùng để so OVR (mặc định +1). Gói quà BXH +8 so theo cấp thật lúc nhận (EL +1, mùa khác +8) để "ưu tiên OVR cao" công bằng giữa các mùa.
+function weightedPool(list: Player[], alpha: number = PACK_ODDS.priceAlpha, groupWeights: readonly number[] | null = null, decay: number = PACK_ODDS.ovrDecay, levelOf: (player: Player) => number = () => 1): PoolEntry[] {
+  const members = list.map(player => ({ player, value: ovr({ playerId: player.id, level: levelOf(player) }), price: basePrices[String(player.id)]?.[0] ?? 0 }));
   const floor = Math.min(...members.map(m => m.value)), cheapest = Math.min(...members.map(m => m.price).filter(price => price > 0));
-  return members.map(({ player, value, price }) => ({ player, weight: Math.pow(PACK_ODDS.ovrDecay, value - floor) / Math.pow(price > 0 ? Math.max(1, price / cheapest) : 1, alpha) * (groupWeights ? groupWeights[priceGroupOf(player) - 1] ?? 1 : 1) }));
+  return members.map(({ player, value, price }) => ({ player, weight: Math.pow(decay, value - floor) / Math.pow(price > 0 ? Math.max(1, price / cheapest) : 1, alpha) * (groupWeights ? groupWeights[priceGroupOf(player) - 1] ?? 1 : 1) }));
 }
 const pools = new Map<string, PoolEntry[]>();
 function cachedPool(key: string, build: () => PoolEntry[]) {
@@ -643,18 +648,18 @@ function cachedPool(key: string, build: () => PoolEntry[]) {
   if (!pool) { pool = build(); pools.set(key, pool); }
   return pool;
 }
-const tierPool = (tier: Tier, alpha: number = PACK_ODDS.priceAlpha, groupWeights: readonly number[] | null = null) => cachedPool(`${tier}|a${alpha}|g${groupWeights ?? ''}`, () => weightedPool(players.filter(p => p.tier === tier), alpha, groupWeights));
+const tierPool = (tier: Tier, alpha: number = PACK_ODDS.priceAlpha, groupWeights: readonly number[] | null = null, decay: number = PACK_ODDS.ovrDecay) => cachedPool(`${tier}|a${alpha}|g${groupWeights ?? ''}|d${decay}`, () => weightedPool(players.filter(p => p.tier === tier), alpha, groupWeights, decay));
 // Gói hỗn hợp: gộp cầu thủ các mùa có OVR +1 ≥ minOvr rồi tính trọng số như một mùa (sàn OVR, giá rẻ nhất lấy trên cả nhóm gộp).
 // Gói top price: sau khi lọc mùa / OVR chỉ giữ topPrice cầu thủ giá +1 cao nhất (bằng giá thì OVR cao hơn trước; chưa có giá xếp cuối).
-const mixedPool = (pack: Pack) => cachedPool(`${pack.seasons}|${pack.minOvr ?? 0}|${pack.topPrice ?? ''}|a${priceAlphaOf(pack)}|g${groupWeightsOf(pack) ?? ''}`, () => {
+const mixedPool = (pack: Pack) => cachedPool(`${pack.seasons}|${pack.minOvr ?? 0}|${pack.topPrice ?? ''}|a${priceAlphaOf(pack)}|g${groupWeightsOf(pack) ?? ''}|d${ovrDecayOf(pack)}|l${isRankPrizePack(pack) ? `${JSON.stringify(pack.seasonLevels ?? {})}${(pack.levels ?? PACK_LEVELS)[1]}` : ''}`, () => {
   const eligible = players.filter(p => pack.seasons!.includes(p.tier) && ovr({ playerId: p.id, level: 1 }) >= (pack.minOvr ?? 0));
   const price = (p: Player) => basePrices[String(p.id)]?.[0] ?? 0;
-  return weightedPool(pack.topPrice ? [...eligible].sort((a, b) => price(b) - price(a) || ovr({ playerId: b.id, level: 1 }) - ovr({ playerId: a.id, level: 1 }) || a.id - b.id).slice(0, pack.topPrice) : eligible, priceAlphaOf(pack), groupWeightsOf(pack));
+  return weightedPool(pack.topPrice ? [...eligible].sort((a, b) => price(b) - price(a) || ovr({ playerId: b.id, level: 1 }) - ovr({ playerId: a.id, level: 1 }) || a.id - b.id).slice(0, pack.topPrice) : eligible, priceAlphaOf(pack), groupWeightsOf(pack), ovrDecayOf(pack), isRankPrizePack(pack) ? player => fixedLevel(pack, player) ?? (pack.levels ?? PACK_LEVELS)[1] : undefined);
 });
 // Các mùa của gói kèm tỷ lệ mùa (0–1) và trọng số từng cầu thủ trong mùa. Gói một mùa lấy tỷ lệ mùa từ weights;
 // gói hỗn hợp lấy theo phần trọng số của mùa trong nhóm gộp (mùa không có ai đủ OVR thì bỏ), giữ thứ tự seasons.
 function seasonPools(pack: Pack) {
-  if (!pack.seasons) return TIERS.flatMap((tier, i) => pack.weights[i] > 0 ? [{ tier, weight: pack.weights[i] / 100, members: tierPool(tier, priceAlphaOf(pack), groupWeightsOf(pack)) }] : []);
+  if (!pack.seasons) return TIERS.flatMap((tier, i) => pack.weights[i] > 0 ? [{ tier, weight: pack.weights[i] / 100, members: tierPool(tier, priceAlphaOf(pack), groupWeightsOf(pack), ovrDecayOf(pack)) }] : []);
   const pool = mixedPool(pack), total = pool.reduce((sum, item) => sum + item.weight, 0);
   return pack.seasons.map(tier => {
     const members = pool.filter(item => item.player.tier === tier);

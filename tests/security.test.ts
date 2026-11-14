@@ -16,3 +16,22 @@ test('Vá bảo mật (202611140009): khoá API sự kiện ẩn, máy chủ t�
   assert.match(config, /EVENT_NCSS_ENABLED = false/);
   assert.match(config, /EVENT_BILAC_ENABLED = false/);
 });
+test('Chống gian lận (202611140010): sổ nghi vấn, chống dò gift code, nút khiên admin', () => {
+  const sql = readFileSync('supabase/migrations/202611140010_fco_cheat_guard.sql', 'utf8');
+  for (const kind of ['squad_value', 'ranked_ovr', 'views_spam', 'save_tamper', 'gift_guess']) assert.ok(sql.includes(`'${kind}'`), kind);
+  assert.match(sql, /revoke all on public\.fco_cheat_flags from public, anon, authenticated;/);
+  assert.match(sql, /revoke all on function public\.fco_flag\(uuid, text, jsonb\) from public, anon, authenticated;/);
+  assert.match(sql, /raise exception 'FCO_GIFT_TOO_MANY'/);
+  assert.match(sql, /return jsonb_build_object\('error', 'FCO_GIFT_INVALID'\);/);
+  for (const fn of ['fco_admin_cheat_flags', 'fco_admin_cheat_review', 'fco_admin_guard_summary']) {
+    const body = sql.slice(sql.indexOf(`function public.${fn}(`), sql.indexOf('$$;', sql.indexOf(`function public.${fn}(`)));
+    assert.match(body, /fco_require_admin\(\)/, `${fn} chỉ admin`);
+  }
+  const wallet = readFileSync('src/wallet.ts', 'utf8');
+  assert.match(wallet, /if \('error' in result\) throw new Error\(walletMessage\(result\.error\)\);/);
+  const app = readFileSync('src/App.tsx', 'utf8');
+  assert.match(app, /\{isAdmin && \(\(\) => \{ const unsafe/);
+  assert.match(app, /setAdminTab\('guard'\); setFcAdminOpen\(true\);/);
+  const admin = readFileSync('src/AdminPanel.tsx', 'utf8');
+  assert.match(admin, /id: 'guard', label: 'Chống gian lận'/);
+});

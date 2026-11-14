@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { BarChart3, Boxes, Coins, Copy, Gift, RotateCcw, Search, ShieldAlert, Users, Wrench, X } from 'lucide-react';
+import { BarChart3, Boxes, Coins, Copy, Gift, RotateCcw, Search, ShieldAlert, ShieldCheck, Users, Wrench, X } from 'lucide-react';
 import { money, packs } from './game';
 import GiftCodeAdmin from './admin/GiftCodeAdmin';
 import Accounts from './Accounts';
 import Anomalies from './Anomalies';
+import GuardPanel from './GuardPanel';
 import CloneSuspects from './CloneSuspects';
 import MaintenancePanel from './MaintenancePanel';
 import InventoryAdmin from './InventoryAdmin';
 import Stats from './Stats';
-import { adminAnomalies, adminCloneGroups, adminCredit, adminLedger, fetchMaintenanceState, LEDGER_REASONS } from './wallet';
+import { adminAnomalies, adminCloneGroups, adminCredit, adminLedger, fetchMaintenanceState, LEDGER_REASONS, adminGuardSummary } from './wallet';
 import { fetchInventoryState } from './inventory-server';
 import { catalogVersion } from './inventory-catalog';
 import type { LedgerRow } from './wallet';
@@ -77,8 +78,9 @@ function CreditFc() {
 }
 
 // Mục quản trị, chia nhóm. Huy hiệu: việc đang cần xử lý (bất thường chưa xem, nhóm nghi clone, bảo trì đang bật, kho thẻ cần đồng bộ).
-type Tab = 'stats' | 'accounts' | 'fc' | 'gift' | 'audit' | 'clones' | 'maintenance' | 'inventory';
-type Badges = { audit?: number; clones?: number; maintenance?: boolean; inventory?: 'sync' | 'off' | null };
+export type AdminTab = 'stats' | 'accounts' | 'fc' | 'gift' | 'guard' | 'audit' | 'clones' | 'maintenance' | 'inventory';
+type Tab = AdminTab;
+type Badges = { audit?: number; clones?: number; maintenance?: boolean; inventory?: 'sync' | 'off' | null; guard?: number | 'off' };
 const GROUPS: { title: string; items: { id: Tab; label: string; hint: string; icon: typeof Users }[] }[] = [
   { title: 'Tổng quan', items: [{ id: 'stats', label: 'Thống kê', hint: 'Người chơi, giờ chơi, doanh thu', icon: BarChart3 }] },
   { title: 'Người chơi', items: [
@@ -87,6 +89,7 @@ const GROUPS: { title: string; items: { id: Tab; label: string; hint: string; ic
     { id: 'gift', label: 'Gift code', hint: 'Tạo và quản lý mã quà', icon: Gift },
   ] },
   { title: 'An ninh', items: [
+    { id: 'guard', label: 'Chống gian lận', hint: 'Bảo vệ một chạm, sổ nghi vấn, khoá nhanh', icon: ShieldCheck },
     { id: 'audit', label: 'Bất thường', hint: 'Bản lưu tăng BP / thẻ bất thường', icon: ShieldAlert },
     { id: 'clones', label: 'Nghi clone', hint: 'Nhiều tài khoản cùng thiết bị / IP', icon: Copy },
   ] },
@@ -100,7 +103,7 @@ const savedTab = (): Tab => { try { const v = localStorage.getItem(TAB_KEY) as T
 
 // Đếm việc cần xử lý cho huy hiệu thanh bên (mỗi phút một lần; lỗi thì bỏ qua huy hiệu đó).
 async function loadBadges(): Promise<Badges> {
-  const [audit, clones, maintenance, inventory, local] = await Promise.allSettled([adminAnomalies(), adminCloneGroups(), fetchMaintenanceState(), fetchInventoryState(), catalogVersion()]);
+  const [audit, clones, maintenance, inventory, local, guard] = await Promise.allSettled([adminAnomalies(), adminCloneGroups(), fetchMaintenanceState(), fetchInventoryState(), catalogVersion(), adminGuardSummary()]);
   const ok = <T,>(r: PromiseSettledResult<T>) => r.status === 'fulfilled' ? r.value : undefined;
   const inv = ok(inventory), ver = ok(local);
   return {
@@ -108,11 +111,14 @@ async function loadBadges(): Promise<Badges> {
     clones: ok(clones)?.filter(g => !g.allowed).length,
     maintenance: ok(maintenance)?.enabled,
     inventory: inv ? (inv.version !== ver ? 'sync' : !inv.enforced ? 'off' : null) : null,
+    // Chống gian lận: chưa bắt buộc kho / dữ liệu lệch thì báo đỏ, không thì số HLV nghi vấn mới.
+    guard: inv && (!inv.enforced || inv.version !== ver) ? 'off' : ok(guard)?.suspects,
   };
 }
 
-export default function AdminPanel({ onClose }: { onClose: () => void }) {
-  const [tab, setTabState] = useState<Tab>(savedTab);
+// initialTab: nút khiên trên thanh trên cùng mở thẳng mục Chống gian lận.
+export default function AdminPanel({ onClose, initialTab }: { onClose: () => void; initialTab?: Tab }) {
+  const [tab, setTabState] = useState<Tab>(() => initialTab ?? savedTab());
   const [badges, setBadges] = useState<Badges>({});
   const [query, setQuery] = useState('');
   // Tìm người chơi ở đầu trang: mở Tài khoản với từ khoá (key đổi để danh sách tải lại theo từ khoá mới).
@@ -127,6 +133,8 @@ export default function AdminPanel({ onClose }: { onClose: () => void }) {
     return () => { alive = false; clearInterval(timer); };
   }, [tab]);
   const badgeOf = (id: Tab) => {
+    if (id === 'guard' && badges.guard === 'off') return <b className="pa-nav-badge is-danger">Chưa bảo vệ</b>;
+    if (id === 'guard' && typeof badges.guard === 'number' && badges.guard > 0) return <b className="pa-nav-badge is-danger">{badges.guard > 99 ? '99+' : badges.guard}</b>;
     if (id === 'audit' && badges.audit) return <b className="pa-nav-badge is-warn">{badges.audit > 99 ? '99+' : badges.audit}</b>;
     if (id === 'clones' && badges.clones) return <b className="pa-nav-badge is-warn">{badges.clones > 99 ? '99+' : badges.clones}</b>;
     if (id === 'maintenance' && badges.maintenance) return <b className="pa-nav-badge is-danger">Đang bật</b>;
@@ -159,7 +167,7 @@ export default function AdminPanel({ onClose }: { onClose: () => void }) {
       </nav>
       <main className="pa-admin-main" aria-label={current.label}>
         <div className="pa-admin-crumb"><current.icon size={16} aria-hidden="true"/><span>{GROUPS.find(g => g.items.includes(current))!.title}</span><b>{current.label}</b></div>
-        {tab === 'stats' ? <Stats/> : tab === 'accounts' ? <Accounts key={find.n} initialSearch={find.text}/> : tab === 'fc' ? <CreditFc/> : tab === 'audit' ? <Anomalies/> : tab === 'clones' ? <CloneSuspects/> : tab === 'maintenance' ? <MaintenancePanel/> : tab === 'inventory' ? <InventoryAdmin/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
+        {tab === 'stats' ? <Stats/> : tab === 'accounts' ? <Accounts key={find.n} initialSearch={find.text}/> : tab === 'fc' ? <CreditFc/> : tab === 'guard' ? <GuardPanel onOpenTab={setTab} onFind={text => { setFind(f => ({ text, n: f.n + 1 })); setTab('accounts'); }}/> : tab === 'audit' ? <Anomalies/> : tab === 'clones' ? <CloneSuspects/> : tab === 'maintenance' ? <MaintenancePanel/> : tab === 'inventory' ? <InventoryAdmin/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
       </main>
     </div>
   </div>;

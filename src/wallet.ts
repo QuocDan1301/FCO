@@ -13,7 +13,7 @@ import type { ServerRecord } from './inventory-sync';
 import type { NameEffect } from './name-effects';
 import type { LineupBoardId, PublicLineupView } from './public-lineup';
 import type { PenaltyKeep, PenaltyShot, PenaltyStart, ShotKind } from './penalty';
-import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, VqtgConfig, VqtgResult, VqtgReward, VqtgTop, Plus8Board, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
+import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, CheatSuspect, GuardSummary, BilacConfig, BilacResult, BilacReward, VqtgConfig, VqtgResult, VqtgReward, VqtgTop, Plus8Board, Plus8History, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
 import { checkForUpdate, requestReload } from './update-check';
 export * from './wallet-state';
 
@@ -66,7 +66,12 @@ export const finishRanked = () => call<RankedFinish>('fco_ranked_finish');
 export const abandonRanked = () => call<RankedFinish>('fco_ranked_abandon');
 export const playRanked = (team: { formation: string; slots: { uid: string; role: string; x: number; y: number; ovr: number }[] }) => call<RankedMatch>('fco_ranked_play', { p_team: team });
 export const adminCreditStp = (login: string, amount: number, note: string) => call<{ login: string; stp: number }>('fco_admin_credit_stp', { p_login: login, p_amount: amount, p_note: note });
-export const redeemGiftHash = (hash: string) => call<{ rewards: EventReward[]; wallet: Wallet; save?: ServerRecord | null }>('fco_redeem_gift', { p_hash: hash });
+// Code sai: máy chủ trả {error} thay vì báo lỗi để còn ghi lại lần thử (chống dò code, migration 202611140010).
+export const redeemGiftHash = async (hash: string) => {
+  const result = await call<{ rewards: EventReward[]; wallet: Wallet; save?: ServerRecord | null } | { error: string }>('fco_redeem_gift', { p_hash: hash });
+  if ('error' in result) throw new Error(walletMessage(result.error));
+  return result;
+};
 export const claimMissionFc = (id: string) => call<Wallet>('fco_event_mission', { p_id: id });
 export const playEventFc = (count: number, mode: 'fc' | 'free') => call<EventPlayResult>('fco_event_play', { p_count: count, p_mode: mode });
 export const fetchFcStats = () => call<FcStats>('fco_my_fc_stats');
@@ -78,12 +83,18 @@ export const adminLedger = (login?: string) => call<LedgerRow[]>('fco_admin_ledg
 export const adminGiftCodes = () => call<GiftCodeRow[]>('fco_admin_gift_codes');
 export const adminGiftSave = (code: GiftCode) => call<GiftCodeRow[]>('fco_admin_gift_save', { p_hash: code.hash, p_hint: code.hint, p_rewards: code.rewards, p_expires: code.expires });
 export const adminGiftDelete = (hash: string) => call<GiftCodeRow[]>('fco_admin_gift_delete', { p_hash: hash });
+// Chống gian lận (202611140010): sổ nghi vấn, đánh dấu đã xem, tóm tắt cho nút riêng của admin.
+export const adminCheatFlags = (all = false) => call<CheatSuspect[]>('fco_admin_cheat_flags', { p_all: all });
+export const adminCheatReview = (user: string, kind: string | null = null) => call<CheatSuspect[]>('fco_admin_cheat_review', { p_user: user, p_kind: kind });
+export const adminGuardSummary = () => call<GuardSummary>('fco_admin_guard_summary');
 export const adminAnomalies = () => call<AnomalyRow[]>('fco_admin_anomalies', { p_limit: 200, p_include_reviewed: false });
 export const adminAnomalyReview = (id: number, all = false) => call<AnomalyRow[]>('fco_admin_anomaly_review', { p_id: id, p_all: all });
 // views: lượt xem thẻ gom trên máy (src/player-views.ts), gửi kèm để khỏi thêm lệnh máy chủ.
 export const heartbeat = (views: Record<string, number> | null = null) => call<null>('fco_heartbeat', { p_device: deviceId(), ...(views ? { p_views: views } : {}) });
 // 5 cầu thủ được xem nhiều nhất 7 ngày gần đây (Tâm điểm TTCN).
 export const fetchPlus8Board = () => call<Plus8Board>('fco_plus8_board');
+// rank = hạng 1..10 trên bảng, null = của mình.
+export const fetchPlus8History = (rank: number | null) => call<Plus8History | null>('fco_plus8_history', { p_rank: rank });
 export const fetchTopViewed = () => call<{ id: number; views: number }[]>('fco_top_viewed');
 // Nghi clone (202611110014).
 export type CloneAccount = { id: string; login: string; registered: number; lastSeen: number | null; topup: number; locked: boolean; admin: boolean };

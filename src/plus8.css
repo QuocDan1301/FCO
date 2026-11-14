@@ -55,3 +55,26 @@
 @media(max-width:900px){.hero-hot-text b{font-size:22px}.hero-hot-icon{width:42px;height:42px}}
 .reduced-motion .hero-hot::after,.reduced-motion .p8-hero::after,.reduced-motion .p8-hot,.reduced-motion .hero-hot-badge{animation:none}
 @media(prefers-reduced-motion:reduce){.hero-hot::after,.p8-hero::after,.p8-hot,.hero-hot-badge{animation:none}}
+/* Lịch sử đập +8 của một HLV (bấm dòng BXH / ô Thành tích của bạn). */
+.p8-page .rk-row.is-link,.p8-me.is-link{cursor:pointer}
+.p8-page .rk-row.is-link:hover,.p8-page .rk-row.is-link:focus-visible{filter:brightness(1.18);outline:none}
+.p8-me.is-link:hover,.p8-me.is-link:focus-visible{box-shadow:inset 0 0 0 1px #ffd35a;outline:none}
+.p8-me-hint{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#ffd35a}
+.p8-me-hint svg{width:14px;height:14px}
+.p8-hist-backdrop{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:#000b}
+.p8-hist{display:flex;flex-direction:column;gap:10px;width:min(560px,100%);max-height:min(80vh,640px);padding:14px 16px;border-radius:14px;background:linear-gradient(170deg,#2a1608,#120d0a);box-shadow:inset 0 0 0 1px #e8b04a66,0 20px 60px #000c}
+.p8-hist header{display:flex;align-items:center;gap:8px}
+.p8-hist h2{display:flex;align-items:center;gap:8px;margin:0;font-family:var(--display);font-size:20px;color:#ffd35a}
+.p8-hist h2 svg{width:20px;height:20px}
+.p8-hist header .icon-button{margin-left:auto}
+.p8-hist-sum{margin:0;font-size:13.5px;color:#d8cdb6}.p8-hist-sum b{color:#ffd35a;font-size:16px}
+.p8-hist-list{display:grid;gap:6px;margin:0;padding:0 2px 0 0;overflow-y:auto;list-style:none}
+.p8-hist-list li{display:grid;grid-template-columns:40px minmax(0,1fr) auto auto;align-items:center;gap:10px;padding:5px 10px;border-radius:9px;background:#ffffff0d;box-shadow:inset 0 0 0 1px #ffffff14}
+.p8-hist-list li.is-over{opacity:.55}
+.p8-hist-list .rk-face{width:40px;height:40px}
+.p8-hist-noface{width:40px;height:40px;border-radius:6px;background:#ffffff14}
+.p8-hist-name{display:flex;align-items:center;gap:6px;min-width:0;font-weight:800;color:#f4ead6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.p8-hist-name em{font-style:normal;color:#ffd35a}
+.p8-hist-time{font-size:12px;color:#c9b48a;font-variant-numeric:tabular-nums}
+.p8-hist-tag{padding:2px 8px;border-radius:999px;font-size:11px;font-weight:800;background:#ffffff14;color:#c9b48a;white-space:nowrap}
+.p8-hist-tag.is-ok{background:#1f8f4a33;color:#8ff0b3}

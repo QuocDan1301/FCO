@@ -27,6 +27,8 @@ export type LeaderboardPenalty = { name: string; goals: number; mine: boolean; e
 // BXH "Đập +8 nhiều nhất" (fco_plus8_board): số cầu thủ khác nhau đập thành công lên +8, mỗi mùa tối đa 3.
 export type Plus8Row = { name: string; count: number; mine: boolean; effect?: NameEffect | null; club?: string | null };
 export type Plus8Board = { top: Plus8Row[]; me: { count: number; rank: number | null } };
+// Lịch sử đập +8 của một HLV (fco_plus8_history, 202611140012): counted = được tính điểm (mỗi mùa 3 cầu thủ đạt sớm nhất).
+export type Plus8History = { name: string; mine: boolean; club?: string | null; items: { pid: number; at: number; counted: boolean }[] };
 export type Leaderboard = { ovr: LeaderboardOvr[]; squad: LeaderboardSquad[]; penalty?: LeaderboardPenalty[]; me: { ovr: number | null; ovrRank: number | null; squad: number | null; squadRank: number | null; penalty?: number | null; penaltyRank?: number | null } };
 export type EventPlayResult = { hits: { level: number; jar: number }[]; paid: number; jarFc: number; jackpotWins: { kind: 'special' | 'mini'; amount: number; time: number }[]; jackpot: ServerJackpot; wallet: Wallet };
 // Quà admin tặng (supabase/migrations/202611090002_fco_admin_gifts.sql); claimed chỉ có ở danh sách của admin.
@@ -35,6 +37,10 @@ export type LedgerRow = { id?: number; time: number; login: string; delta: numbe
 // Dòng cộng FC do admin thực hiện đổi được giữa nạp ('admin') và tặng ('admin_gift'), xem 202611090010_fco_admin_fc_gift.sql.
 export const canMarkGift = (row: LedgerRow) => row.id !== undefined && row.admin && row.delta > 0 && (row.reason === 'admin' || row.reason === 'admin_gift');
 export type GiftCodeRow = { hash: string; hint: string; rewards: EventReward[]; expires: string | null; created: string; used: number };
+// Sổ nghi vấn gian lận (fco_admin_cheat_flags, migration 202611140010): mỗi HLV một dòng, mỗi loại một mục.
+export type CheatKind = { kind: string; hits: number; last: number; detail: Record<string, unknown> | null; fresh: boolean };
+export type CheatSuspect = { user: string; login: string; name: string; locked: boolean; fresh: boolean; last: number; kinds: CheatKind[] };
+export type GuardSummary = { suspects: number; anomalies: number; enforced: boolean; version: string | null };
 export type AnomalyRow = { id: number; time: number; login: string; flags: string[]; bpBefore: number | null; bpAfter: number; cardsBefore: number | null; cardsAfter: number; packsBefore: number | null; packsAfter: number; history: string[]; reviewed: boolean };
 export type StatsSummary = { registered: number; registeredToday: number; registered7: number; online: number; activeToday: number; active7: number; playSecondsToday: number; playSeconds7: number; playSecondsAll: number; topupFcToday: number; topupFc7: number; topupFc30: number; topupFcAll: number; topupVndToday: number; topupVnd7: number; topupVnd30: number; topupVndAll: number; payers: number };
 export type StatsDay = { day: string; active: number; seconds: number; topupFc: number; topupVnd: number; registered: number };
@@ -93,6 +99,7 @@ const MESSAGES: Record<string, string> = {
   FCO_BAD_VOUCHER: 'Phiếu giảm thuế không hợp lệ.',
   FCO_DAILY_CLAIMED: 'Bạn đã nhận quà hôm nay. Hẹn gặp lại vào ngày mai!',
   FCO_GIFT_INVALID: 'Gift code không đúng.',
+  FCO_GIFT_TOO_MANY: 'Bạn nhập sai gift code quá nhiều lần. Hãy thử lại sau 10 phút.',
   FCO_GIFT_EXPIRED: 'Gift code đã hết hạn.',
   FCO_GIFT_USED: 'Bạn đã dùng gift code này rồi.',
   FCO_GIFT_EXISTS: 'Code này đã có.',

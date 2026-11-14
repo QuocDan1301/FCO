@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Flame, Gift, RefreshCw, Trophy, Zap } from 'lucide-react';
+import { Flame, Gift, History, RefreshCw, Trophy, X, Zap } from 'lucide-react';
+import { getPlayer, players } from './game';
+import { seasonShort } from './badges';
 import { findPack } from './event';
 import PackImage from './PackImage';
-import type { Plus8Board } from './wallet-state';
+import type { Plus8Board, Plus8History } from './wallet-state';
 import { nameEffectClass } from './name-effects';
 import { clubLogoUrl } from './club-logo';
 import './ranks.css';
@@ -10,14 +12,27 @@ import './plus8.css';
 
 // Sự kiện HOT "Đập 8 liền tay – Nhận ngay quà chất" (nút ở trang chủ, người dùng yêu cầu 2026-11-14): BXH số cầu thủ khác nhau
 // HLV đập thành công lên +8, mỗi mùa tối đa 3 (máy chủ: fco_plus8_board, migration 202611140005).
-type Props = { load?: () => Promise<Plus8Board>; online: boolean; onUpgrade: () => void };
+// loadHistory: lịch sử đập +8 của HLV hạng N (null = của mình), mở khi bấm dòng BXH / ô Thành tích của bạn.
+type Props = { load?: () => Promise<Plus8Board>; loadHistory?: (rank: number | null) => Promise<Plus8History | null>; online: boolean; onUpgrade: () => void };
+const known = new Set(players.map(p => p.id));
+const when = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 
 const PLACE = ['gold', 'silver', 'bronze'];
 // Quà Top 1–5 (người dùng 2026-11-14): gói MULTI EL · CU · UT · CC 114+ … 110+ (+8) — p8-1 … p8-5 trong src/packs.json.
 // Riêng thẻ EL trong gói luôn +1 (seasonLevels): ảnh / tên gói không ghi, chỉ nói ở thể lệ.
 export const PLUS8_PRIZES = [1, 2, 3, 4, 5].map(rank => ({ rank, pack: `p8-${rank}` }));
 
-export default function Plus8Page({ load, online, onUpgrade }: Props) {
+export default function Plus8Page({ load, loadHistory, online, onUpgrade }: Props) {
+  const [history, setHistory] = useState<{ title: string; data: Plus8History | null; error?: string } | null>(null);
+  const openHistory = (rank: number | null, name: string) => {
+    if (!loadHistory) return;
+    setHistory({ title: name, data: null });
+    loadHistory(rank).then(data => setHistory({ title: data?.name ?? name, data })).catch(e => setHistory({ title: name, data: null, error: (e as Error).message }));
+  };
+  const clickable = (rank: number | null, name: string) => loadHistory ? {
+    role: 'button', tabIndex: 0, title: `Xem lịch sử đập +8 của ${name}`, onClick: () => openHistory(rank, name),
+    onKeyDown: (e: { key: string; preventDefault: () => void }) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openHistory(rank, name); } },
+  } : {};
   const [data, setData] = useState<Plus8Board | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,7 +43,7 @@ export default function Plus8Page({ load, online, onUpgrade }: Props) {
   }, [load, online]);
   useEffect(() => { refresh(); }, [refresh]);
 
-  const rows = (data?.top ?? []).map((r, i) => <li key={i} className={`rk-row rk-row-squad ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}`}>
+  const rows = (data?.top ?? []).map((r, i) => <li key={i} className={`rk-row rk-row-squad ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}${loadHistory ? ' is-link' : ''}`} {...clickable(i + 1, r.name)}>
     <span className="rk-rank">{i + 1}</span>
     <span className="rk-coach">{clubLogoUrl(r.club) && <img className="rk-club" src={clubLogoUrl(r.club)!} alt=""/>}<span className={nameEffectClass(r.effect).trim() || undefined}>{r.name}</span>{r.mine && <em>Bạn</em>}</span>
     <strong className="rk-value">{r.count}<small>cầu thủ</small></strong>
@@ -45,10 +60,11 @@ export default function Plus8Page({ load, online, onUpgrade }: Props) {
     </header>
     <div className="p8-body">
       <aside className="p8-side">
-        <div className="p8-me">
+        <div className={`p8-me ${loadHistory ? 'is-link' : ''}`} {...clickable(null, 'Bạn')}>
           <small>Thành tích của bạn</small>
           <b>{me?.count ?? 0}<span>cầu thủ +8</span></b>
           <p>{me?.rank ? <>Hạng hiện tại <strong>#{me.rank}</strong></> : 'Chưa có trên bảng'}</p>
+          {loadHistory && <span className="p8-me-hint"><History aria-hidden="true"/>Xem lịch sử đập +8</span>}
         </div>
         <ul className="p8-rules">
           <li><Zap aria-hidden="true"/><span>Đập thẻ <b>thành công lên +8</b> để ghi điểm. Thẻ +8 có sẵn từ gói hay mua ở TTCN không tính.</span></li>
@@ -63,7 +79,7 @@ export default function Plus8Page({ load, online, onUpgrade }: Props) {
         <h2><Trophy aria-hidden="true"/>Top 10 HLV
           <button type="button" className="rk-refresh p8-refresh" onClick={refresh} disabled={loading || !online}><RefreshCw aria-hidden="true" className={loading ? 'is-spin' : ''}/>Làm mới</button>
         </h2>
-        <p className="rk-sub">Số cầu thủ khác nhau đập lên +8 · mỗi mùa tối đa 3</p>
+        <p className="rk-sub">Số cầu thủ khác nhau đập lên +8 · mỗi mùa tối đa 3{loadHistory ? ' · bấm HLV để xem lịch sử' : ''}</p>
         {!online ? <p className="rk-note">Hãy đăng nhập để xem bảng xếp hạng.</p> : error ? <p className="rk-note is-error" role="alert">{error}</p> : null}
         <ol className="rk-list">{rows}{empty}</ol>
       </article>
@@ -76,5 +92,24 @@ export default function Plus8Page({ load, online, onUpgrade }: Props) {
         </li>; })}</ol>
       </aside>
     </div>
+    {history && <div className="p8-hist-backdrop" role="dialog" aria-modal="true" aria-label={`Lịch sử đập +8 của ${history.title}`} onClick={() => setHistory(null)}>
+      <div className="p8-hist" onClick={e => e.stopPropagation()}>
+        <header><h2><History aria-hidden="true"/>Lịch sử đập +8 · {history.data?.mine ? 'Bạn' : history.title}</h2>
+          <button type="button" className="icon-button" aria-label="Đóng" onClick={() => setHistory(null)}><X/></button></header>
+        {history.error ? <p className="rk-note is-error" role="alert">{history.error}</p>
+          : !history.data ? <p className="rk-note">Đang tải…</p>
+          : !history.data.items.length ? <p className="rk-note">Chưa đập thành công cầu thủ nào lên +8.</p>
+          : <>
+            <p className="p8-hist-sum"><b>{history.data.items.filter(i => i.counted).length}</b> cầu thủ được tính · {history.data.items.length} lượt +8</p>
+            <ol className="p8-hist-list">{history.data.items.map(item => { const p = known.has(item.pid) ? getPlayer({ playerId: item.pid }) : undefined;
+              return <li key={item.pid} className={item.counted ? '' : 'is-over'}>
+                {p?.cardFace ? <span className="squad-face rk-face"><img src={p.cardFace} alt=""/></span> : <span className="p8-hist-noface"/>}
+                <span className="p8-hist-name">{p && <b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b>}{p?.name ?? `#${item.pid}`}<em>+8</em></span>
+                <span className="p8-hist-time">{when(item.at)}</span>
+                <span className={`p8-hist-tag ${item.counted ? 'is-ok' : ''}`}>{item.counted ? 'Tính điểm' : 'Vượt 3 / mùa'}</span>
+              </li>; })}</ol>
+          </>}
+      </div>
+    </div>}
   </section>;
 }

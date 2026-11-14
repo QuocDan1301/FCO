@@ -1,0 +1,45 @@
+/* Quản trị FC → Chống gian lận (src/GuardPanel.tsx) và nút khiên của admin trên thanh trên cùng (App.tsx .topbar-guard). Nền tối như pack-admin.css. */
+.pa-guard{gap:12px}
+.pa-guard-hero{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;padding:14px 16px;border-radius:10px;border:1px solid}
+.pa-guard-hero>div{display:grid;gap:3px;min-width:0}
+.pa-guard-hero b{font-size:17px}
+.pa-guard-hero small{font-size:12.5px;color:var(--muted)}
+.pa-guard-hero.is-ok{background:#1f8f4a1f;border-color:#39c26f66;color:#9ff0bf}
+.pa-guard-hero.is-bad{background:#ff5b5b1a;border-color:#ff5b5b66;color:#ffb0b0}
+.pa-guard-hero .primary-button{background:#e5484d;border-color:#e5484d;color:#fff}
+.pa-guard-checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin:0;padding:0;list-style:none}
+.pa-guard-checks li{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border:1px solid #2c3644;border-radius:8px;background:#0f141c}
+.pa-guard-checks li>svg{flex:none;margin-top:2px;color:var(--muted)}
+.pa-guard-checks li.is-ok>svg{color:#4ade80}
+.pa-guard-checks li.is-bad{border-color:#ff5b5b66;background:#ff5b5b12}
+.pa-guard-checks li.is-bad>svg{color:#ff7a7a}
+.pa-guard-checks span{display:grid;gap:2px;min-width:0}
+.pa-guard-checks b{font-size:13.5px}
+.pa-guard-checks small{font-size:12px;color:var(--muted);line-height:1.35}
+.pa-guard-counts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pa-guard-counts>*{display:grid;gap:2px;padding:10px 12px;border:1px solid #2c3644;border-radius:8px;background:#0f141c;color:inherit;text-align:left;font:inherit}
+.pa-guard-counts>button{cursor:pointer}
+.pa-guard-counts>button:hover,.pa-guard-counts>button:focus-visible{border-color:#5b7aa3;outline:none}
+.pa-guard-counts b{font-size:22px;font-variant-numeric:tabular-nums}
+.pa-guard-counts small{font-size:12px;color:var(--muted)}
+.pa-guard-listhead h3{margin:0;font-size:15px}
+.pa-guard-listhead .pa-check{display:inline-flex;align-items:center;gap:6px;margin-left:auto;font-size:13px;color:var(--muted);cursor:pointer}
+.pa-guard-suspect.is-fresh{border-color:#ff5b5b55}
+.pa-guard-login{font-weight:400;letter-spacing:0}
+.pa-guard-locked{margin-left:8px;padding:1px 7px;border-radius:999px;background:#ff5b5b26;color:#ff9a9a;font-size:11px;font-style:normal;font-weight:800;letter-spacing:0}
+.pa-guard-kinds{display:flex;flex-wrap:wrap;gap:6px}
+.pa-guard-chip{display:inline-grid;gap:1px;padding:3px 9px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid}
+.pa-guard-chip small{font-size:11px;font-weight:400;color:inherit;opacity:.8}
+.pa-guard-chip.is-danger{background:#ff5b5b1f;border-color:#ff5b5b55;color:#ffb0b0}
+.pa-guard-chip.is-warn{background:#ffb35c1a;border-color:#ffb35c55;color:#ffd19a}
+.pa-guard-chip:not(.is-fresh){opacity:.6}
+.pa-guard-lock:hover,.pa-guard-lock:focus-visible{color:#ff7a7a}
+@media(max-width:700px){.pa-guard-hero{grid-template-columns:auto minmax(0,1fr)}.pa-guard-hero>button{grid-column:1/-1}.pa-guard-counts{grid-template-columns:1fr}}
+
+/* Nút khiên của admin trên thanh trên cùng: mở thẳng Chống gian lận; chấm đỏ = chưa bảo vệ, số = việc cần xem. */
+.topbar-guard{position:relative;flex:none;display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:none;color:#8f99ab;cursor:pointer;transition:background-color .2s,color .2s}
+.topbar-guard:hover,.topbar-guard:focus-visible{background:#ffffff12;color:#f0f1f3;outline:none}
+.topbar-guard:focus-visible{box-shadow:0 0 0 2px #7bc9ff}
+.topbar-guard.is-ok{color:#4ade80}
+.topbar-guard.is-alert{color:#ff7a7a}
+.topbar-guard-badge{position:absolute;top:-2px;right:-4px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;background:#e5484d;color:#fff;font:800 10px/16px system-ui,sans-serif;font-style:normal;text-align:center;box-shadow:0 0 0 2px #0b0f16}
