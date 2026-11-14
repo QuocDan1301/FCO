@@ -44,7 +44,7 @@ import './profile.css';
 import './name-effects.css';
 import { avatarEffectClass } from './name-effects';
 import type { NameEffect } from './name-effects';
-import { INVENTORY_BLOCKED, INVENTORY_LOADING, fetchInventoryState, inventoryMode, serverBuy, serverClaimGifts, serverOpen, serverOpenDraft, serverRelease, serverSell, serverShop, serverUpgrade } from './inventory-server';
+import { INVENTORY_BLOCKED, INVENTORY_LOADING, adminSyncCatalog, fetchInventoryState, inventoryMode, serverBuy, serverClaimGifts, serverOpen, serverOpenDraft, serverRelease, serverSell, serverShop, serverUpgrade } from './inventory-server';
 import type { InventoryState, ServerRecord } from './inventory-server';
 import { catalogVersion } from './inventory-catalog';
 import type { CloudSaveStore } from './cloud-save';
@@ -1000,6 +1000,15 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   // Nút khiên Chống gian lận (chỉ admin, người dùng 2026-11-14): mở thẳng mục Chống gian lận; tóm tắt hỏi máy chủ 3 phút / lần khi đang mở game.
   const [adminTab, setAdminTab] = useState<AdminTab | undefined>();
   const [guard, setGuard] = useState<GuardSummary | null>(null);
+  // Tự đồng bộ dữ liệu kho thẻ khi ADMIN mở bản game mới mà máy chủ còn dữ liệu cũ (dự phòng cho bước tự đồng bộ trên GitHub Actions,
+  // người dùng 2026-11-14). Mỗi mã dữ liệu chỉ thử một lần mỗi phiên; lỗi thì để admin bấm tay ở mục Chống gian lận.
+  const autoSynced = useRef<string | null>(null);
+  useEffect(() => {
+    if (!isAdmin || !online || !inventory || !catalogId || inventory.version === catalogId || autoSynced.current === catalogId) return;
+    autoSynced.current = catalogId;
+    adminSyncCatalog().then(state => { setInventory(state); notify('Đã tự đồng bộ dữ liệu kho thẻ của bản game mới lên máy chủ.'); })
+      .catch(e => notify(`Chưa tự đồng bộ được dữ liệu kho thẻ: ${(e as Error).message}`));
+  }, [isAdmin, online, inventory?.version, catalogId]);
   useEffect(() => {
     if (!isAdmin) return;
     let alive = true;

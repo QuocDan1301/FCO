@@ -22,6 +22,8 @@ export interface Player {
   clubIds: readonly string[];
   /** Chuỗi rỗng = không tính team color quốc gia. */
   nationId: string;
+  /** Mùa thẻ (vd. 'GRU'); trống / thiếu = không tính team color mùa (thêm 2026-11-14). */
+  seasonId?: string;
 }
 
 /** Mốc team color CLB / quốc gia: kích hoạt khi nhóm có từ minPlayers cầu thủ (mốc kế tiếp là giới hạn trên). */
@@ -45,11 +47,15 @@ export interface TeamColorConfig {
   maxPlayers: number;
   club: readonly TeamColorTier[];
   nation: readonly TeamColorTier[];
+  /** Team color mùa: cùng mốc với CLB / quốc gia; thiếu = không có. */
+  season?: readonly TeamColorTier[];
   upgrade: readonly UpgradeTeamColorRule[];
 }
 
 // 'lineup': phần cộng cố định cho mọi cầu thủ đá chính (squad.ts), không phải team color nhưng hiện cùng chỗ.
-export type TeamColorKind = 'club' | 'nation' | 'upgrade' | 'lineup';
+// 'season': team color mùa thẻ (2026-11-14) — như CLB / quốc gia, mỗi cầu thủ chỉ nhận MỘT trong ba loại (loại mạnh nhất).
+export type TeamColorKind = 'club' | 'nation' | 'season' | 'upgrade' | 'lineup';
+type IdentityKind = 'club' | 'nation' | 'season';
 /** Một buff một cầu thủ thực nhận (key = mã CLB / quốc gia / id quy tắc cấp thẻ). */
 export interface AppliedBuff {
   kind: TeamColorKind;
@@ -82,7 +88,7 @@ export interface TeamColorReport {
 // - Cấp thẻ theo bảng người dùng (2026-11-09), đếm số thẻ đạt từ mức đó trở lên:
 //   Đồng (+3): từ 3 thẻ +1. Bạc (+5): 3–5 thẻ +1, từ 6 thẻ +2. Vàng (+8): 3–5 thẻ +1, 6–7 thẻ +3, từ 8 thẻ +4.
 //   Bạch kim (+11): 5–7 thẻ +4, từ 8 thẻ +5 (không có mốc 3–4 thẻ).
-// Trang gắn chỉ số phụ riêng cho từng CLB / quốc gia; game dùng chung theo loại: CLB chuyền / rê, quốc gia tốc độ / thể lực.
+// Trang gắn chỉ số phụ riêng cho từng CLB / quốc gia; game dùng chung theo loại: CLB chuyền / rê, quốc gia tốc độ / thể lực, mùa sút / phòng ngự.
 const tiers = ([first, second]: readonly [StatKey, StatKey]): TeamColorTier[] => [
   { tier: 1, minPlayers: 3, ovr: 1, stats: {} },
   { tier: 2, minPlayers: 6, ovr: 3, stats: {} },
@@ -98,18 +104,19 @@ const UPGRADE_COLORS: { id: string; name: string; minLevel: number; tiers: [numb
 ];
 export const upgradeColorName = (minLevel: number) => UPGRADE_COLORS.find(c => c.minLevel === minLevel)?.name ?? `Cấp +${minLevel}`;
 // Tên hiển thị của một team color: "QG Brazil cấp 1", "Vàng cấp 2".
-export const teamColorName = (c: Pick<AppliedBuff, 'kind' | 'key' | 'tier' | 'minLevel'>) => c.kind === 'lineup' ? 'Vào đội hình' : `${c.kind === 'upgrade' ? upgradeColorName(c.minLevel!) : `${c.kind === 'club' ? 'CLB' : 'QG'} ${c.key}`} cấp ${c.tier}`;
+export const teamColorName = (c: Pick<AppliedBuff, 'kind' | 'key' | 'tier' | 'minLevel'>) => c.kind === 'lineup' ? 'Vào đội hình' : `${c.kind === 'upgrade' ? upgradeColorName(c.minLevel!) : `${c.kind === 'club' ? 'CLB' : c.kind === 'season' ? 'Mùa' : 'QG'} ${c.key}`} cấp ${c.tier}`;
 export const DEFAULT_TEAM_COLOR_CONFIG: TeamColorConfig = {
   maxPlayers: 11,
   club: tiers(['passing', 'dribbling']),
   nation: tiers(['pace', 'physical']),
+  season: tiers(['shooting', 'defending']),
   upgrade: UPGRADE_COLORS.flatMap(color => color.tiers.map(([minPlayers, ovr], i) => ({ id: `${color.id}-${i + 1}`, tier: i + 1, minLevel: color.minLevel, minPlayers, ovr, stats: {} }))),
 };
 
 const statSum = (stats: StatBonus) => STAT_KEYS.reduce((sum, key) => sum + (stats[key] ?? 0), 0);
 const isCount = (n: number) => Number.isInteger(n) && n >= 1;
 // Cấu hình được chuẩn hoá (sắp mốc giảm dần) một lần cho mỗi đối tượng cấu hình — hàm tính chạy liên tục khi xếp đội hình.
-const prepared = new WeakMap<TeamColorConfig, { club: TeamColorTier[]; nation: TeamColorTier[]; upgrade: UpgradeTeamColorRule[] }>();
+const prepared = new WeakMap<TeamColorConfig, { club: TeamColorTier[]; nation: TeamColorTier[]; season: TeamColorTier[]; upgrade: UpgradeTeamColorRule[] }>();
 function prepare(config: TeamColorConfig) {
   const hit = prepared.get(config);
   if (hit) return hit;
@@ -120,7 +127,7 @@ function prepare(config: TeamColorConfig) {
   const byPlayers = (list: readonly TeamColorTier[]) => { list.forEach(checkTier); return [...list].sort((a, b) => b.minPlayers - a.minPlayers); };
   config.upgrade.forEach(rule => { checkTier(rule); if (!Number.isInteger(rule.minLevel)) throw new RangeError(`Quy tắc ${rule.id}: minLevel phải là số nguyên.`); });
   if (new Set(config.upgrade.map(r => r.id)).size !== config.upgrade.length) throw new RangeError('id quy tắc cấp thẻ bị trùng.');
-  const result = { club: byPlayers(config.club), nation: byPlayers(config.nation), upgrade: [...config.upgrade].sort((a, b) => b.minLevel - a.minLevel) };
+  const result = { club: byPlayers(config.club), nation: byPlayers(config.nation), season: byPlayers(config.season ?? []), upgrade: [...config.upgrade].sort((a, b) => b.minLevel - a.minLevel) };
   prepared.set(config, result);
   return result;
 }
@@ -144,9 +151,9 @@ export function analyzeTeamColors(startingXI: readonly Player[], config: TeamCol
   }
 
   // 1. Đếm nhóm CLB / quốc gia trong một lượt (Set bỏ CLB trùng trong cùng một cầu thủ).
-  const groups = new Map<string, { kind: 'club' | 'nation'; key: string; members: string[] }>();
+  const groups = new Map<string, { kind: IdentityKind; key: string; members: string[] }>();
   const groupKeysOf = new Map<string, string[]>();
-  const join = (player: Player, kind: 'club' | 'nation', key: string) => {
+  const join = (player: Player, kind: IdentityKind, key: string) => {
     const id = `${kind}:${key}`;
     const group = groups.get(id);
     if (group) group.members.push(player.id); else groups.set(id, { kind, key, members: [player.id] });
@@ -156,11 +163,12 @@ export function analyzeTeamColors(startingXI: readonly Player[], config: TeamCol
     groupKeysOf.set(p.id, []);
     for (const club of new Set(p.clubIds)) if (club) join(p, 'club', club);
     if (p.nationId) join(p, 'nation', p.nationId);
+    if (p.seasonId) join(p, 'season', p.seasonId);
   }
   // 2. Nhóm đủ người → team color kích hoạt ở mốc cao nhất đạt được.
   const active = new Map<string, ActiveTeamColor>();
   for (const [id, group] of groups) {
-    const tier = reachedTier(group.members.length, group.kind === 'club' ? rules.club : rules.nation);
+    const tier = reachedTier(group.members.length, rules[group.kind]);
     if (tier) active.set(id, { kind: group.kind, key: group.key, tier: tier.tier, ovr: tier.ovr, stats: { ...tier.stats }, members: group.members, beneficiaries: [] });
   }
   // 3. Cấp thẻ: sắp cấp giảm dần một lần, quy tắc đã sắp minLevel giảm dần → đếm "cấp ≥ minLevel" bằng một con trỏ chạy tới.
@@ -218,7 +226,7 @@ export function analyzeTeamColors(startingXI: readonly Player[], config: TeamCol
   });
 
   // Danh sách kích hoạt: CLB → quốc gia → cấp thẻ; trong từng loại mốc cao trước, nhóm đông trước.
-  const order = { club: 0, nation: 1, upgrade: 2, lineup: 3 };
+  const order = { club: 0, nation: 1, season: 2, upgrade: 3, lineup: 4 };
   // Team color không ai nhận thì không hiện: đủ thẻ +8 thì không còn hiện bạc; 3 cầu thủ Pháp đều đã nhận CLB Barcelona mạnh hơn
   // thì không hiện QG Pháp (CLB và quốc gia không cộng dồn, mỗi người chỉ nhận một mức).
   const list = [...active.values(), ...activeRules].filter(color => color.beneficiaries.length).sort((a, b) => order[a.kind] - order[b.kind] || (b.minLevel ?? 0) - (a.minLevel ?? 0) || b.tier - a.tier || b.members.length - a.members.length || (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));

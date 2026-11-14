@@ -39,3 +39,19 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # Tự đồng bộ dữ liệu kho thẻ (cầu thủ, giá, gói, luật đập) lên Supabase ngay sau khi deploy — admin không phải bấm Đồng bộ.
+  # Cần secret SUPABASE_SERVICE_ROLE_KEY (Settings → Secrets and variables → Actions); chưa có thì bước này tự bỏ qua.
+  sync-catalog:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsx scripts/sync-catalog.ts
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

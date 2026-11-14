@@ -35,3 +35,16 @@ test('Chống gian lận (202611140010): sổ nghi vấn, chống dò gift code,
   const admin = readFileSync('src/AdminPanel.tsx', 'utf8');
   assert.match(admin, /id: 'guard', label: 'Chống gian lận'/);
 });
+test('Tự đồng bộ dữ liệu kho thẻ (202611140014): GitHub Actions sau deploy + admin mở bản mới; service_role chỉ dùng 4 hàm đồng bộ', () => {
+  const sql = readFileSync('supabase/migrations/202611140014_fco_catalog_service_sync.sql', 'utf8');
+  assert.equal((sql.match(/public\.fco_require_catalog_writer\(\)/g) ?? []).length, 6, 'định nghĩa + thu quyền + 4 hàm đồng bộ');
+  assert.doesNotMatch(sql, /fco_admin_inventory_enforce/);
+  const wf = readFileSync('.github/workflows/deploy.yml', 'utf8');
+  assert.match(wf, /sync-catalog:\n\s+needs: deploy/);
+  assert.match(wf, /SUPABASE_SERVICE_ROLE_KEY: \$\{\{ secrets\.SUPABASE_SERVICE_ROLE_KEY \}\}/);
+  const script = readFileSync('scripts/sync-catalog.ts', 'utf8');
+  assert.match(script, /process\.exit\(0\)/, 'chưa có secret thì bỏ qua, deploy vẫn xanh');
+  assert.doesNotMatch(script, /eyJ[A-Za-z0-9_-]{20,}|sb_secret_/, 'không chứa khoá');
+  const app = readFileSync('src/App.tsx', 'utf8');
+  assert.match(app, /autoSynced\.current = catalogId;\n\s+adminSyncCatalog\(\)/);
+});

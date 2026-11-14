@@ -1,4 +1,4 @@
-import { getPlayer, ovr, players } from './game';
+import { getPlayer, ovr, players, seasons } from './game';
 import type { Card, Lineup, Lineups, Player, Save } from './game';
 import clubHistoryData from './player-club-history.json';
 import { marketQuote } from './market';
@@ -301,7 +301,7 @@ export function lineupTeamColor(state: Pick<Save, 'cards' | 'squad'>, set: Lineu
     const card = uid ? byUid.get(uid) : undefined;
     if (!card) return [];
     const p = getPlayer(card);
-    return [{ id: card.uid, baseOvr: slotOvr(card, slots[i].role), upgradeLevel: card.level, clubIds: playerClubs(p), nationId: p.nation ?? '' }];
+    return [{ id: card.uid, baseOvr: slotOvr(card, slots[i].role), upgradeLevel: card.level, clubIds: playerClubs(p), nationId: p.nation ?? '', seasonId: seasons[p.tier] ?? '' }];
   }));
   return { ...report, players: report.players.map(r => ({ ...r, ovrBonus: r.ovrBonus + LINEUP_BONUS, finalOvr: r.finalOvr + LINEUP_BONUS, applied: [LINEUP_BUFF, ...r.applied] })) };
 }
@@ -310,7 +310,7 @@ export function activeTeamColors(state: Pick<Save, 'cards' | 'squad' | 'lineups'
   const lineups = getLineups(state), active = lineupTeamColor(state, lineups.sets[lineups.active]).active;
   // Màu cấp thẻ mạnh nhất (danh sách đã sắp mức thẻ giảm dần): màu (bronze / silver / gold / platinum) và số thẻ tối thiểu của mốc đang đạt.
   const level = active.find(c => c.kind === 'upgrade'), rule = level && DEFAULT_TEAM_COLOR_CONFIG.upgrade.find(r => r.id === level.key);
-  return { club: active.find(c => c.kind === 'club')?.key, nation: active.find(c => c.kind === 'nation')?.key,
+  return { club: active.find(c => c.kind === 'club')?.key, nation: active.find(c => c.kind === 'nation')?.key, season: active.find(c => c.kind === 'season')?.key,
     upgrade: level && rule ? { color: level.key.replace(/-\d+$/, ''), name: upgradeColorName(rule.minLevel), tier: level.tier, minPlayers: rule.minPlayers, ovr: level.ovr } : undefined };
 }
 // Phần OVR cộng thẳng và từng nguồn cộng của mọi cầu thủ trong đội hình riêng: người đá chính ở bộ đang dùng có +5 và team color,
