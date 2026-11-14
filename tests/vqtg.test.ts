@@ -166,3 +166,8 @@ test('Chọn nhanh Shop Đổi Vé (202611140008): nhận nhiều lượt một 
   const page = readFileSync('src/VqtgPage.tsx', 'utf8');
   assert.match(page, /const QUICK_MIN = 2, QUICK_MAX = 100;/);
 });
+test('Jackpot VQTG gấp 3 (202611140019): 0,96% × áp lực quỹ mỗi lần dừng ô 14, trần 12%', () => {
+  const sql = readFileSync('supabase/migrations/202611140019_fco_vqtg_jackpot_x3.sql', 'utf8');
+  assert.match(sql, /if random\(\) < least\(\.12, \.0096 \* public\.fco_jackpot_pressure\(j\.pot\)\) then hit := 'special'; end if;/);
+  assert.doesNotMatch(sql, /least\(\.04, \.0032/);
+});

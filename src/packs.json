@@ -5881,6 +5881,28 @@
       "back": "/assets/custom/p8-5-back.webp",
       "published": true,
       "eventOnly": true
+    },
+    {
+      "id": "captain-tsubasa-7",
+      "name": "CAPTAIN TSUBASA chỉ định 1 +7",
+      "short": "CAPTAIN",
+      "title": "CAPTAIN TSUBASA",
+      "seasons": [
+        "tsubasa"
+      ],
+      "minOvr": null,
+      "topPrice": 1,
+      "levels": [
+        7,
+        7
+      ],
+      "price": 1,
+      "description": "Gói chỉ định TSUBASA: tự chọn 1 cầu thủ, mở gói nhận ngẫu nhiên 1 người trong danh sách, thẻ +7.",
+      "range": "141–141",
+      "back": "/assets/custom/captain-tsubasa-7-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
     }
   ]
 }
