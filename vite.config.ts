@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import type { Plugin } from "vite";
-import { execFile } from "node:child_process";
+import { execFile, execFileSync } from "node:child_process";
 import path from "node:path";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import react from "@vitejs/plugin-react";
@@ -67,8 +67,16 @@ function buildVersion(): Plugin {
   };
 }
 
+// Mã dữ liệu kho thẻ tính một lần bằng Node, gắn cố định vào game (src/inventory-catalog.ts): mọi trình duyệt (kể cả Safari / iPhone)
+// gửi cùng một mã cho máy chủ. Lỗi thì để trống, game tự tính như trước.
+function catalogVersionAtBuild() {
+  try { return execFileSync(process.execPath, ['--import', 'tsx', 'scripts/print-catalog-version.ts'], { encoding: 'utf8', timeout: 120000 }).trim(); }
+  catch (e) { console.warn('[catalog-version] không tính được:', (e as Error).message); return ''; }
+}
+const CATALOG_VERSION = catalogVersionAtBuild();
+
 export default defineConfig({
-  define: { __BUILD_ID__: JSON.stringify(BUILD_ID) },
+  define: { __BUILD_ID__: JSON.stringify(BUILD_ID), __CATALOG_VERSION__: JSON.stringify(CATALOG_VERSION) },
   // GitHub Pages phục vụ game ở /FCO/; Render (render.yaml) đặt BASE_PATH=/ để chạy ở gốc tên miền.
   base: process.env.BASE_PATH || "/FCO/",
   plugins: [react(), tailwindcss(), excelPrices(), preloadAssets(), packAdmin(), publishedPacksOnly(), buildVersion()],

@@ -59,3 +59,15 @@ test('Giá trị đội hình (202611140015): cập nhật khi lưu, bỏ ghi s�
   assert.match(sql, /perform public\.fco_plus8_from_history\(owner_id, saved\.data\);/, 'giữ tự bù +8 của 202611140013');
   assert.match(sql, /delete from public\.fco_cheat_flags where kind = 'squad_value';/);
 });
+test('Mã dữ liệu kho thẻ tính lúc build, mọi trình duyệt dùng chung (Safari lệch Math.pow, sự cố 2026-11-14)', async () => {
+  const vite = readFileSync('vite.config.ts', 'utf8');
+  assert.match(vite, /__CATALOG_VERSION__: JSON\.stringify\(CATALOG_VERSION\)/);
+  assert.match(vite, /scripts\/print-catalog-version\.ts/);
+  const src = readFileSync('src/inventory-catalog.ts', 'utf8');
+  assert.match(src, /BUILT_VERSION \? Promise\.resolve\(BUILT_VERSION\) : computeCatalogVersion\(\)/);
+  // Không có hằng build (test / script Node) thì tự tính, ra đúng mã 64 ký tự hex.
+  const { catalogVersion, computeCatalogVersion } = await import('../src/inventory-catalog.ts');
+  const v = await catalogVersion();
+  assert.match(v, /^[0-9a-f]{64}$/);
+  assert.equal(v, await computeCatalogVersion());
+});

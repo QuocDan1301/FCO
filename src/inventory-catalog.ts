@@ -90,5 +90,11 @@ async function sha256(text: string) {
   return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 let version: Promise<string> | null = null;
+// Mã tính lúc build (vite.config.ts → scripts/print-catalog-version.ts, chạy bằng Node). Mọi trình duyệt dùng chung mã này: Safari / iPhone
+// tính Math.pow lệch chữ số cuối so với Chrome nên tự băm bộ dữ liệu sẽ ra mã khác → bị chặn khi kho máy chủ bắt buộc (sự cố 2026-11-14).
+// Không có (test, script Node) thì tự tính — Node cùng engine với bước build nên ra cùng mã.
+declare const __CATALOG_VERSION__: string | undefined;
+const BUILT_VERSION = typeof __CATALOG_VERSION__ === 'string' && /^[0-9a-f]{64}$/.test(__CATALOG_VERSION__) ? __CATALOG_VERSION__ : null;
+export const computeCatalogVersion = (catalog = buildCatalog()) => sha256(JSON.stringify(catalog));
 // Mã phiên bản của bộ dữ liệu đang chạy (tính một lần mỗi phiên).
-export const catalogVersion = (catalog = buildCatalog()) => catalog === built ? (version ??= sha256(JSON.stringify(catalog))) : sha256(JSON.stringify(catalog));
+export const catalogVersion = (catalog = buildCatalog()) => catalog === built || !catalog ? (version ??= BUILT_VERSION ? Promise.resolve(BUILT_VERSION) : computeCatalogVersion()) : computeCatalogVersion(catalog);
