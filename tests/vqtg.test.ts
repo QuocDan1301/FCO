@@ -171,3 +171,10 @@ test('Jackpot VQTG gấp 3 (202611140019): 0,96% × áp lực quỹ mỗi lần 
   assert.match(sql, /if random\(\) < least\(\.12, \.0096 \* public\.fco_jackpot_pressure\(j\.pot\)\) then hit := 'special'; end if;/);
   assert.doesNotMatch(sql, /least\(\.04, \.0032/);
 });
+test('Khôi phục VQTG (202611140020): đặt lại bản mới nhất của rules / config / play, dọn tin Mini 0 BP', () => {
+  const sql = readFileSync('supabase/migrations/202611140020_fco_vqtg_restore.sql', 'utf8');
+  assert.match(sql, /'bpPerJackpotFc'/);
+  assert.match(sql, /least\(\.12, \.0096 \* public\.fco_jackpot_pressure\(j\.pot\)\)/);
+  assert.match(sql, /price := 0;   -- Lượt dùng Chỉ định miễn phí/);
+  assert.match(sql, /where coalesce\(\(e->>'amount'\)::numeric, 0\) > 0/);
+});
