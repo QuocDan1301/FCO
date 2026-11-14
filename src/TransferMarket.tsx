@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode, UIEvent } from 'react';
-import { ArrowRight, ChevronDown, History, Search, Sparkles } from 'lucide-react';
+import { ArrowRight, ChevronDown, History, Search, Sparkles, Eye } from 'lucide-react';
 import { getPlayer, MAX_LEVEL, money, ovr, players, seasons } from './game';
 import type { Card, Save } from './game';
 import { marketQuote, compareMarketPrices, formatMarketPrice, nextPriceChange, saleTaxPercent, isTradeLocked, TRADE_LOCKED } from './market';
@@ -56,7 +56,8 @@ function spotlights() {
 
 // Ô 3 Tâm điểm: thẻ được mở Thông tin nhiều nhất 7 ngày (máy chủ đếm, fco_top_viewed).
 // Lưu 10 phút trong bộ nhớ để mở TTCN nhiều lần không hỏi lại máy chủ.
-let viewedCache: { at: number; ids: number[] } | null = null;
+// rows giữ cả số lượt xem để hiện trên ô Tâm điểm (người dùng 2026-11-14).
+let viewedCache: { at: number; rows: { id: number; views: number }[] } | null = null;
 const VIEWED_TTL = 10 * 60_000, EMPTY_TTL = 30_000; // chưa có dữ liệu thì chỉ nhớ 30 giây
 /** Vừa gửi lượt xem lên máy chủ: lần mở TTCN sau hỏi lại. */
 export const forgetTopViewed = () => { viewedCache = null; if (typeof window !== 'undefined') window.dispatchEvent(new Event('fco-views-sent')); };
@@ -64,7 +65,7 @@ export const forgetTopViewed = () => { viewedCache = null; if (typeof window !==
 export default function TransferMarket({ save, free, onTrade, onHistory, onOpenPacks, renderCard, levelBadge, onDetail, loadTopViewed }: Props) {
   // Vừa vào TTCN là thấy Tâm điểm.
   const [mode, setMode] = useState<'buy' | 'sell' | 'spotlight'>('spotlight');
-  const [viewedIds, setViewedIds] = useState<number[]>(() => viewedCache?.ids ?? []);
+  const [viewedRows, setViewedRows] = useState<{ id: number; views: number }[]>(() => viewedCache?.rows ?? []);
   // Hỏi lại khi mở trang / mở tab Tâm điểm, và ngay sau khi game vừa gửi lượt xem lên máy chủ (đang đứng ở TTCN vẫn cập nhật).
   const [viewsTick, setViewsTick] = useState(0);
   useEffect(() => {
@@ -73,16 +74,16 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
     return () => window.removeEventListener('fco-views-sent', bump);
   }, []);
   useEffect(() => {
-    if (!loadTopViewed || (viewedCache && Date.now() - viewedCache.at < (viewedCache.ids.length ? VIEWED_TTL : EMPTY_TTL))) return;
+    if (!loadTopViewed || (viewedCache && Date.now() - viewedCache.at < (viewedCache.rows.length ? VIEWED_TTL : EMPTY_TTL))) return;
     let alive = true;
-    loadTopViewed().then(rows => { viewedCache = { at: Date.now(), ids: rows.map(r => r.id) }; if (alive) setViewedIds(viewedCache.ids); }).catch(() => { /* để trống, thử lại lần sau */ });
+    loadTopViewed().then(rows => { viewedCache = { at: Date.now(), rows }; if (alive) setViewedRows(rows); }).catch(() => { /* để trống, thử lại lần sau */ });
     return () => { alive = false; };
   }, [loadTopViewed, viewsTick, mode]);
   const spots = (() => {
     // Đúng thẻ nhiều lượt xem nhất (kể cả trùng ô 1–2 hay mùa khóa giao dịch — nút Mua tự khóa); chỉ bỏ id không còn trong game.
     const base = spotlights();
-    const id = viewedIds.find(pid => players.some(p => p.id === pid));
-    return id ? [...base, { label: 'Được xem nhiều nhất', hint: 'Thẻ HLV mở xem nhiều nhất 7 ngày qua', card: marketCard(id, 1) }] : base;
+    const top = viewedRows.find(row => players.some(p => p.id === row.id));
+    return top ? [...base, { label: 'Được xem nhiều nhất', hint: 'Thẻ HLV mở xem nhiều nhất 7 ngày qua', card: marketCard(top.id, 1), views: top.views }] : base;
   })();
   const viewedPending = spots.length < 3;
   const listRef = useRef<HTMLDivElement>(null);
@@ -156,12 +157,12 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
         <button className="text-action" onClick={onHistory}><History size={16}/>Lịch sử giao dịch<ArrowRight size={15}/></button>
       </div>
     </div>
-    <div className="market-tabs" role="group" aria-label="Loại giao dịch"><button aria-pressed={mode === 'buy'} onClick={() => switchMode('buy')}>Mua cầu thủ<span>{players.length}</span></button><button aria-pressed={mode === 'sell'} onClick={() => switchMode('sell')}>Bán cầu thủ<span>{save.cards.length}</span></button><button className="market-tab-spotlight" aria-pressed={mode === 'spotlight'} onClick={() => switchMode('spotlight')}><Sparkles size={14}/>Tâm điểm</button></div>
+    <div className="market-tabs" role="group" aria-label="Loại giao dịch"><button className="market-tab-spotlight" aria-pressed={mode === 'spotlight'} onClick={() => switchMode('spotlight')}><Sparkles size={14}/>Tâm điểm</button><button aria-pressed={mode === 'buy'} onClick={() => switchMode('buy')}>Mua cầu thủ<span>{players.length}</span></button><button aria-pressed={mode === 'sell'} onClick={() => switchMode('sell')}>Bán cầu thủ<span>{save.cards.length}</span></button></div>
     {mode === 'spotlight' ? <div className="market-spotlight">{spots.map((spot, i) => {
       const player = getPlayer(spot.card), spotQuote = marketQuote(spot.card);
       return <article className={`spotlight-item spotlight-${i}`} key={spot.label}>
         <header><span className="spotlight-rank">{i + 1}</span><div><h3>{spot.label}</h3><small>{spot.hint}</small></div></header>
-        <div className="spotlight-card">{renderCard(spot.card)}</div>
+        <div className="spotlight-card">{renderCard(spot.card)}{'views' in spot && typeof spot.views === 'number' && <span className="spotlight-views" title="Số lượt HLV mở xem thẻ này trong 7 ngày qua"><Eye size={14} aria-hidden="true"/>{spot.views.toLocaleString('vi-VN')} lượt xem</span>}</div>
         <div className="spotlight-info"><b>{player.name}</b><span className="market-badges"><PositionBadge pos={player.pos}/><SeasonBadge tier={player.tier}/><img className="market-level-img" src={levelBadge(1)} alt="+1"/><span className="spotlight-ovr">OVR <b>{ovr(spot.card)}</b></span></span></div>
         <div className={`spotlight-price${isUnpriced(spotQuote) ? ' is-unpriced' : ''}`}><span>Giá +1{isUnpriced(spotQuote) && <small>Chưa định giá</small>}</span><b>{formatMarketPrice(spotQuote.price)}</b></div>
         <div className="spotlight-actions"><button className="secondary-button" onClick={() => onDetail ? onDetail(spot.card) : viewInList(spot.card)}>Xem chi tiết</button><button className="market-primary" disabled={!canBuy(spot.card, spotQuote)} onClick={() => onTrade({ kind: 'buy', card: spot.card })}>Mua<ArrowRight size={15}/></button></div>

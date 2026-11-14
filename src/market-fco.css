@@ -142,3 +142,8 @@
 .market-workspace .market-preview>.market-grades,.market-workspace .market-preview>.market-primary,.market-workspace .market-preview>small{grid-column:1/-1}
 .market-workspace .market-preview>.market-grades{margin-top:10px}
 }
+
+/* Ô Tâm điểm "Được xem nhiều nhất": số lượt xem 7 ngày nổi trên góc dưới thẻ (người dùng 2026-11-14). */
+.spotlight-card{position:relative}
+.spotlight-views{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:#0b0f16e6;box-shadow:0 0 0 1px #d9be7c88,0 4px 12px #000a;color:#ffe08a;font-size:12px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+.spotlight-views svg{flex:none;color:#d9be7c}
