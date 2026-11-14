@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import AccountApp from './AccountApp';
 import { background, critical } from 'virtual:preload-assets';
 import { asset } from './asset';
-import { canLoadInBackground, preloadResources, tooManyFailed } from './preload';
+import { canLoadInBackground, isConstrainedDevice, preloadResources, tooManyFailed } from './preload';
 import { assetProgress } from './asset-progress';
 import './styles.css';
 import './prime-cards.css';
@@ -106,7 +106,7 @@ async function start() {
     ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><ReadyGame /></React.StrictMode>);
     // Vào game rồi mới tải dần ảnh gói, hầm, hiệu ứng; lỗi ở đây không ảnh hưởng gì (trình duyệt tự tải lại khi cần).
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
-    if (!window.__FCO_STANDALONE__ && canLoadInBackground(connection)) {
+    if (!window.__FCO_STANDALONE__ && canLoadInBackground(connection) && !isConstrainedDevice()) {
       // Phần tải lúc vào game đã xong: vòng tròn trên thanh trên cùng tính cả phần đó vào tổng.
       const base = critical.length;
       assetProgress.update(base, base + background.length);

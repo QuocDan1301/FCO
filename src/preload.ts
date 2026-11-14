@@ -43,6 +43,14 @@ export async function preloadResources(
 
 // Tải nền chỉ chạy khi mạng đủ khoẻ và người dùng không bật tiết kiệm dữ liệu; máy không báo thông tin mạng thì coi như được.
 export const canLoadInBackground = (connection?: { saveData?: boolean; effectiveType?: string }) => !connection?.saveData && !/2g|3g/.test(connection?.effectiveType ?? '');
+// Điện thoại / máy tính bảng / trình duyệt trong app (Zalo, Facebook…) KHÔNG tải nền ~270 MB ảnh (2026-11-14: Safari iPhone mở từ Zalo
+// báo "Đã có sự cố xảy ra liên tục" — trang bị tắt vì quá bộ nhớ; còn tốn 4G). Ảnh vẫn tải khi cần hiện. Chỉ máy tính để bàn / laptop tải nền.
+export function isConstrainedDevice(nav: { userAgent?: string; maxTouchPoints?: number; deviceMemory?: number } = typeof navigator === 'undefined' ? {} : navigator as never) {
+  const ua = nav.userAgent ?? '';
+  if (/iPhone|iPad|iPod|Android|Mobile|Zalo|FBAN|FBAV|Instagram|Line\/|wv\)/i.test(ua)) return true;
+  if (/Macintosh/.test(ua) && (nav.maxTouchPoints ?? 0) > 1) return true; // iPad báo là Mac
+  return typeof nav.deviceMemory === 'number' && nav.deviceMemory <= 4;
+}
 
 // Tải sẵn ảnh sắp dùng vào bộ nhớ đệm trình duyệt (không chờ).
 export function prefetchImages(urls: (string | undefined)[]) {

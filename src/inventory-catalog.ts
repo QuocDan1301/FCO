@@ -124,4 +124,5 @@ declare const __CATALOG_VERSION__: string | undefined;
 const BUILT_VERSION = typeof __CATALOG_VERSION__ === 'string' && /^[0-9a-f]{64}$/.test(__CATALOG_VERSION__) ? __CATALOG_VERSION__ : null;
 export const computeCatalogVersion = (catalog = buildCatalog()) => sha256(JSON.stringify(catalog));
 // Mã phiên bản của bộ dữ liệu đang chạy (tính một lần mỗi phiên).
-export const catalogVersion = (catalog = buildCatalog()) => catalog === built || !catalog ? (version ??= BUILT_VERSION ? Promise.resolve(BUILT_VERSION) : computeCatalogVersion()) : computeCatalogVersion(catalog);
+// Có mã build thì KHÔNG dựng bộ dữ liệu (~28 MB, mọi người chơi lúc mở game) — chỉ admin đồng bộ / script mới dựng.
+export const catalogVersion = (catalog?: Catalog) => catalog && catalog !== built ? computeCatalogVersion(catalog) : (version ??= BUILT_VERSION ? Promise.resolve(BUILT_VERSION) : computeCatalogVersion());
