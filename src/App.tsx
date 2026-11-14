@@ -19,7 +19,7 @@ import RankedPage from './RankedPage';
 import HomeModes from './HomeModes';
 import ZaloIcon from './ZaloIcon';
 import UpdateBanner from './UpdateBanner';
-import { reloadIntoView, setUpdateHold, takeNextView, updateReady } from './update-check';
+import { checkForUpdate, reloadIntoView, setUpdateHold, takeNextView, updateReady } from './update-check';
 import { liveTopMessages } from './live-tops';
 import { CURSOR_COLORS, applyFxCursor, saveFxCursor, savedFxCursor } from './fx-cursor';
 import { ELECTRIC, installClickFx } from './click-fx';
@@ -1004,10 +1004,14 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   // người dùng 2026-11-14). Mỗi mã dữ liệu chỉ thử một lần mỗi phiên; lỗi thì để admin bấm tay ở mục Chống gian lận.
   const autoSynced = useRef<string | null>(null);
   useEffect(() => {
-    if (!isAdmin || !online || !inventory || !catalogId || inventory.version === catalogId || autoSynced.current === catalogId) return;
+    // Bản chạy thử (npm run dev) và tab đang chạy bản CŨ (đã có bản mới hơn trên web) không được tự đồng bộ: ghi đè dữ liệu cũ lên máy chủ
+    // sẽ chặn mọi người chơi đang dùng bản mới (sự cố 2026-11-14).
+    if (import.meta.env.DEV || !isAdmin || !online || !inventory || !catalogId || inventory.version === catalogId || autoSynced.current === catalogId) return;
     autoSynced.current = catalogId;
-    adminSyncCatalog().then(state => { setInventory(state); notify('Đã tự đồng bộ dữ liệu kho thẻ của bản game mới lên máy chủ.'); })
-      .catch(e => notify(`Chưa tự đồng bộ được dữ liệu kho thẻ: ${(e as Error).message}`));
+    void checkForUpdate().then(newer => {
+      if (newer) { notify('Tab này đang chạy bản game cũ nên không tự đồng bộ. Hãy tải lại trang.'); return; }
+      return adminSyncCatalog().then(state => { setInventory(state); notify('Đã tự đồng bộ dữ liệu kho thẻ của bản game mới lên máy chủ.'); });
+    }).catch(e => notify(`Chưa tự đồng bộ được dữ liệu kho thẻ: ${(e as Error).message}`));
   }, [isAdmin, online, inventory?.version, catalogId]);
   useEffect(() => {
     if (!isAdmin) return;

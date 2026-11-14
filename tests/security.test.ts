@@ -46,7 +46,10 @@ test('Tự đồng bộ dữ liệu kho thẻ (202611140014): GitHub Actions sau
   assert.match(script, /process\.exit\(0\)/, 'chưa có secret thì bỏ qua, deploy vẫn xanh');
   assert.doesNotMatch(script, /eyJ[A-Za-z0-9_-]{20,}|sb_secret_/, 'không chứa khoá');
   const app = readFileSync('src/App.tsx', 'utf8');
-  assert.match(app, /autoSynced\.current = catalogId;\n\s+adminSyncCatalog\(\)/);
+  assert.match(app, /if \(import\.meta\.env\.DEV \|\| !isAdmin/, 'bản chạy thử không tự đồng bộ');
+  assert.match(app, /if \(newer\) \{ notify\('Tab này đang chạy bản game cũ/, 'tab bản cũ không tự đồng bộ');
+  assert.match(readFileSync('src/GuardPanel.tsx', 'utf8'), /if \(!synced && await api\.stale\(\)\) throw new Error\(STALE\);/);
+  assert.match(readFileSync('src/InventoryAdmin.tsx', 'utf8'), /if \(await checkForUpdate\(\)\) throw new Error/);
 });
 test('Giá trị đội hình (202611140015): cập nhật khi lưu, bỏ ghi sổ khai khống (báo nhầm do lệch thời gian)', () => {
   const sql = readFileSync('supabase/migrations/202611140015_fco_squad_value_refresh.sql', 'utf8');

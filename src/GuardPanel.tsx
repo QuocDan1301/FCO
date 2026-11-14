@@ -5,6 +5,7 @@ import { adminAccountLock, adminCheatFlags, adminCheatReview, adminCloneGroups, 
 import type { CheatKind, CheatSuspect, GuardSummary } from './wallet-state';
 import { adminInventoryEnforce, adminSyncCatalog } from './inventory-server';
 import { catalogVersion } from './inventory-catalog';
+import { checkForUpdate } from './update-check';
 import './guard.css';
 
 // Quản trị FC → An ninh → Chống gian lận (người dùng 2026-11-14: "Update mạnh cơ chế chống hack cheat … 1 nút riêng bên ngoài").
@@ -12,10 +13,12 @@ import './guard.css';
 // kho máy chủ), số việc cần xem, và sổ nghi vấn (fco_cheat_flags, migration 202611140010) với nút Khoá / Xem tài khoản / Đã xem.
 type Tab = 'audit' | 'clones';
 // api: thay lệnh máy chủ (chụp kiểm tra giao diện bằng dữ liệu mẫu); bỏ trống = máy chủ thật.
-const REAL_API = { summary: adminGuardSummary, flags: adminCheatFlags, review: adminCheatReview, clones: adminCloneGroups, lock: adminAccountLock, sync: adminSyncCatalog, enforce: adminInventoryEnforce, version: catalogVersion };
+const REAL_API = { stale: checkForUpdate, summary: adminGuardSummary, flags: adminCheatFlags, review: adminCheatReview, clones: adminCloneGroups, lock: adminAccountLock, sync: adminSyncCatalog, enforce: adminInventoryEnforce, version: catalogVersion };
 export type GuardApi = typeof REAL_API;
 type Props = { onOpenTab: (tab: Tab) => void; onFind: (text: string) => void; api?: Partial<GuardApi> };
 type Status = { kind: 'ok' | 'error'; text: string } | null;
+// Tab đang chạy bản cũ mà đồng bộ thì máy chủ nhận dữ liệu cũ → người chơi bản mới bị chặn.
+const STALE = 'Tab này đang chạy bản game cũ (đã có bản mới trên web). Tải lại trang (Ctrl + F5) rồi đồng bộ.';
 
 export const CHEAT_KINDS: Record<string, { label: string; tone: 'danger' | 'warn'; hint: string }> = {
   save_tamper: { label: 'Sửa bản lưu', tone: 'danger', hint: 'Gửi bản lưu có BP / gói / thẻ vượt xa máy chủ (máy chủ đã giữ nguyên số thật).' },
@@ -61,6 +64,7 @@ export default function GuardPanel({ onOpenTab, onFind, api: custom }: Props) {
     if (!confirm('Bật bảo vệ toàn diện?\n\n• Đồng bộ dữ liệu của bản game đang mở lên máy chủ (nếu lệch).\n• Bắt buộc kho thẻ do máy chủ giữ: người chơi không tự sửa được thẻ / BP / gói nữa.\n• Người đang mở bản game cũ phải tải lại trang.\n\nTừ giờ mỗi lần deploy đổi giá / gói / OVR, hãy đồng bộ lại ngay.')) return;
     setBusy(true); setStatus(null);
     try {
+      if (!synced && await api.stale()) throw new Error(STALE);
       if (!synced) { setProgress([0, 1]); await api.sync((done, total) => setProgress([done, total])); setProgress(null); }
       await api.enforce(true);
       setStatus({ kind: 'ok', text: 'Đã bật bảo vệ: dữ liệu khớp và kho thẻ do máy chủ giữ.' });
@@ -70,7 +74,7 @@ export default function GuardPanel({ onOpenTab, onFind, api: custom }: Props) {
   };
   const syncOnly = async () => {
     setBusy(true); setStatus(null); setProgress([0, 1]);
-    try { await api.sync((done, total) => setProgress([done, total])); setStatus({ kind: 'ok', text: 'Đã đồng bộ dữ liệu.' }); await load(); }
+    try { if (await api.stale()) throw new Error(STALE); await api.sync((done, total) => setProgress([done, total])); setStatus({ kind: 'ok', text: 'Đã đồng bộ dữ liệu.' }); await load(); }
     catch (e) { setStatus({ kind: 'error', text: (e as Error).message }); }
     finally { setBusy(false); setProgress(null); }
   };

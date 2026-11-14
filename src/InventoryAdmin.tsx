@@ -3,6 +3,7 @@ import { RefreshCw, ShieldCheck, UploadCloud } from 'lucide-react';
 import { adminInventoryEnforce, adminSyncCatalog, fetchInventoryState } from './inventory-server';
 import type { InventoryState } from './inventory-server';
 import { catalogVersion } from './inventory-catalog';
+import { checkForUpdate } from './update-check';
 
 // Quản trị FC → Kho thẻ: đồng bộ bộ dữ liệu của bản game đang mở (giá, OVR, tỷ lệ gói, luật đập) lên máy chủ
 // và bật "bắt buộc" để máy chủ không nhận thẻ / BP / gói do trình duyệt tự ghi (supabase/migrations/202611100013_fco_inventory_server.sql).
@@ -22,6 +23,7 @@ export default function InventoryAdmin() {
   const sync = async () => {
     setBusy(true); setStatus(null); setProgress([0, 1]);
     try {
+      if (await checkForUpdate()) throw new Error('Tab này đang chạy bản game cũ (đã có bản mới trên web). Tải lại trang (Ctrl + F5) rồi đồng bộ.');
       const next = await adminSyncCatalog((done, total) => setProgress([done, total]));
       setState(next);
       setStatus({ kind: 'ok', text: 'Đã đồng bộ. Người chơi mở bản game này sẽ dùng kho thẻ trên máy chủ.' });
