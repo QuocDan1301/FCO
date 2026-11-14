@@ -166,7 +166,7 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
   useEffect(() => {
     let alive = true;
     const update = () => { if (document.visibilityState === 'visible') loadJackpot().then(j => { if (alive) setJackpot(j); }).catch(() => { /* lần sau thử lại */ }); };
-    update(); const id = setInterval(update, 10000); // 10 giây: đỡ tải máy chủ (mọi người ở trang sự kiện cùng hỏi)
+    update(); const id = setInterval(update, 30000); // 30 giây: đỡ ghi đĩa máy chủ (mọi người ở trang sự kiện cùng hỏi); lượt quay tự trả quỹ mới
     return () => { alive = false; clearInterval(id); };
   }, [loadJackpot]);
 
@@ -328,7 +328,7 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
           <li>Ô quà: nhận ngẫu nhiên 1 trong 4 món của ô; trỏ chuột / chạm vào món quà để xem tên.</li>
           <li>Ô 6 · Chỉ định: nhận 1 lượt Chỉ định. Bấm ô 6 để tự chọn số xúc xắc cho lượt sau, miễn phí (không tốn FC, vẫn được vé); không chọn được số dừng ở ô 10 và ô 14.</li>
           <li>Ô 10 · Mini Jackpot: {Math.round(VQTG_RULES.bpChance * 100)}% trúng Mini Jackpot BP. Mini Jackpot tăng theo Giải Đặc Biệt: cứ 1.000 FC quỹ Giải Đặc Biệt thì Mini Jackpot được {shortBp(miniJackpotBp(1000))} BP. Không trúng thì lượt đó không có quà.</li>
-          <li>Ô 14 · Giải Đặc Biệt: cơ hội nhận cả quỹ FC chung (tăng dần khi quỹ lớn); quỹ chưa tới 10.000 FC thì quân không dừng ở ô này (xúc xắc tự lắc lại). Giải Đặc Biệt nổ thì Mini Jackpot cũng nổ cùng lúc nhưng về tay một HLV khác, cả hai về mức thấp. Không trúng thì lượt đó không có quà.</li>
+          <li>Ô 14 · Giải Đặc Biệt: cơ hội nhận cả quỹ FC chung (tăng dần khi quỹ lớn); quỹ chưa tới 10.000 FC thì quân không dừng ở ô 10 và ô 14 (xúc xắc tự lắc lại). Giải Đặc Biệt nổ thì Mini Jackpot cũng nổ cùng lúc nhưng về tay một HLV khác, cả hai về mức thấp. Không trúng thì lượt đó không có quà.</li>
           <li>Giá: {(config?.prices ?? []).map(p => `${p.count} lần ${money(p.price)} FC`).join(' · ')}. Mỗi ngày có 1 lượt miễn phí.</li>
           <li>Mỗi lượt chơi (kể cả lượt miễn phí) được vé theo số lắc: số 1 được 1 vé, số 2 / 3 / 4 được 2 vé, số 5 được 3 vé, số 6 được 6 vé (vé in cạnh số trên vòng quay). Dùng Chỉ định chọn số nhiều vé để đủ mốc nhanh hơn. Shop Đổi Vé (kéo xuống dưới bàn): đủ vé của mốc là nhận quà, vé không bị trừ; qua mốc cuối thì sang vòng mới, mỗi mốc nhận lại được. Mốc 1 vé chỉ nhận khi đã chơi lượt trả phí.</li>
           <li>Quà BP và gói vào thẳng kho; FC cộng vào ví. Xem lại ở Lịch sử → Sự kiện.</li>

@@ -152,11 +152,11 @@ assert.equal(c2.miniFeed[0].mine, false);
 const n2 = c2.miniFeed.length;
 c2 = await as('select public.fco_vqtg_config()');
 assert.equal(c2.miniFeed.length, n2, 'không ghi trùng');
-// Quỹ < 10.000 FC: không bao giờ dừng ở ô 14 (202611130014).
-for (let k = 0; k < 120; k++) {
-  await db.exec(`update public.fco_wallets set vqtg_pos = 13, vqtg_picks = 0, fc = 100000 where user_id = '${U}'; update public.fco_jackpot set pot = 5000 where id = 1`);
+// Quỹ < 10.000 FC: không bao giờ dừng ở ô 10 / 14 (202611130014, 202611130019); thử từ ô 8 (tới được 10) và ô 13.
+for (let k = 0; k < 240; k++) {
+  await db.exec(`update public.fco_wallets set vqtg_pos = ${k % 2 ? 13 : 8}, vqtg_picks = 0, fc = 100000 where user_id = '${U}'; update public.fco_jackpot set pot = 5000 where id = 1`);
   const res = await as(`select public.fco_vqtg_play(1, 'fc')`);
-  assert.notEqual(res.plays[0].to, 14, 'quỹ dưới 10.000 FC không dừng ô 14');
+  assert.ok(![10, 14].includes(res.plays[0].to), 'quỹ dưới 10.000 FC không dừng ô 10 / 14');
   assert.equal(res.plays[0].tickets, [1, 2, 2, 2, 3, 6][res.plays[0].roll - 1]);
 }
 // Dùng Chỉ định không tốn FC (202611130018): FC giữ nguyên, trừ 1 lượt Chỉ định, vẫn được vé.

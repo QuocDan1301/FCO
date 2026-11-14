@@ -24,7 +24,8 @@ test('Bot chỉ săn được giải khi quỹ từ 10.000 FC; trúng đặc bi�
   assert.equal(high.feed[0].kind, 'special');
   assert.ok(high.feed[0].amount >= JACKPOT_MIN + 5_000);
   assert.equal(high.pot, JACKPOT_RESET);
-  assert.match(botName(seq(.1, .2, .3, .4, .5, .6)), /^[A-Za-z]+\d*$/);
+  assert.match(botName(seq(.1, .2, .3, .4, .5, .6)), /^[a-z]+\d*$/);
+  assert.match(botName(seq(.9, .9, .1, .9, .1, .1)), /^[a-z]+\d*$/, 'tên bot luôn chữ thường');
   // Quỹ càng lớn bot càng dễ nổ; chạm JACKPOT_MAX thì chắc chắn có bot trúng Giải Đặc Biệt.
   assert.equal(JACKPOT_MIN, 13_000); assert.equal(JACKPOT_MAX, 23_000);
   assert.ok(botSpecialOdds(22_000) > botSpecialOdds(15_000) && botSpecialOdds(15_000) > botSpecialOdds(13_000));

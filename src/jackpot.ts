@@ -46,13 +46,13 @@ export function saveJackpot(jackpot: Jackpot) {
   try { localStorage.setItem(JACKPOT_KEY, JSON.stringify(jackpot)); } catch { /* Không lưu được thì quỹ chỉ sống trong phiên này. */ }
 }
 
-// Tên bot kiểu tên tài khoản: ghép âm tiết, thêm chữ số.
+// Tên bot kiểu tên tài khoản: ghép âm tiết chữ thường, thêm chữ số.
 const SYLLABLES = ['thim', 'trinh', 'duc', 'anh', 'khoa', 'minh', 'tuan', 'huy', 'nam', 'long', 'quan', 'bao', 'phuc', 'dat', 'vinh', 'son', 'kha', 'hieu'];
 export function botName(rng: () => number) {
   const pick = () => SYLLABLES[Math.floor(rng() * SYLLABLES.length)];
   const name = pick() + pick() + (rng() < .5 ? pick().slice(0, 2) : '');
-  const styled = rng() < .4 ? name.toUpperCase().slice(0, 3) + name.slice(3) : name;
-  return styled + (rng() < .7 ? String(Math.floor(rng() * 1000)) : '');
+  rng(); // giữ nhịp số ngẫu nhiên như trước (từng dùng để viết hoa 3 chữ đầu); tên bot giờ luôn chữ thường.
+  return name + (rng() < .7 ? String(Math.floor(rng() * 1000)) : '');
 }
 
 function win(jackpot: Jackpot, kind: JackpotWin['kind'], name: string, time: number, mine = false): { jackpot: Jackpot; won: JackpotWin } {
