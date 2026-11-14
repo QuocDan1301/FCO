@@ -84,7 +84,8 @@ const isProfileBirthday = (value: unknown) => typeof value === 'string' && /^\d{
 // tone = id gói mùa có màu Shop dùng chung; draft = gói nháp của trang quản trị (chỉ hiện khi chạy npm run dev).
 // eventOnly = gói chỉ nhận từ sự kiện: không bán trong Shop.
 // choose = gói chỉ định: mở gói thì người chơi tự chọn 1 trong topPrice cầu thủ giá cao nhất (openChosen), không rút ngẫu nhiên.
-export type Pack = { id: string; name: string; short: string; price: number; weights: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]; levels?: [number, number]; seasons?: Tier[]; minOvr?: number; topPrice?: number; eventOnly?: boolean; choose?: boolean; description: string; range: string; color: string; back?: string; tunnel?: string; accent?: string; stage?: { top: string; ring: string; led?: string }; tone?: string; draft?: boolean };
+// seasonLevels = cấp cố định theo mùa trong gói hỗn hợp (vd. { el: 1 }: thẻ EL luôn +1, mùa khác theo levels). Máy chủ nhận qua fixedLevels.
+export type Pack = { id: string; name: string; short: string; price: number; weights: [number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number, number]; levels?: [number, number]; seasons?: Tier[]; minOvr?: number; topPrice?: number; eventOnly?: boolean; choose?: boolean; seasonLevels?: Partial<Record<Tier, number>>; description: string; range: string; color: string; back?: string; tunnel?: string; accent?: string; stage?: { top: string; ring: string; led?: string }; tone?: string; draft?: boolean };
 const no7TeamLogo = asset('/assets/no7-team.webp');
 export const seasons: Record<Tier, string> = { origin: 'NO.7', stellar: '26TS', eternal: 'ICON TM', prime: 'INFINITE PRIME', vietnam: 'VIETNAM', prm: 'PRIME', mdl: 'MEDALIST', amb: 'FC AMBASSADOR', uc: 'UC', wg: 'WG', ut: 'UT', cu: 'CU', gru: 'GRU', rtn: 'RTN', dc: 'DC', cc: 'CC', bld: 'BLD', wb: 'WB', spt: 'SPT', bdo: 'BDO', hw23: '23HW', ep24: '24EP', ptg: 'PTG', le: 'LE', hg: 'HG', spl: 'SPL', ln: 'LN', fa: 'FA', lol: 'LOL', cap: 'CAP', boe21: 'BOE21', btb: 'BTB', ebs: 'EBS', juventus: 'JUVENTUS', jnm: 'JNM', hr25: '25HR', up26: '26UP', live: 'LIVE', hr24: '24HR', chelsea: 'CHELSEA', hr26: '26HR', ld: 'LD', ws: 'WS', el: 'EL', tsubasa: 'TSUBASA' };
 export const players: Player[] = [
@@ -526,10 +527,10 @@ export const defaultPacks: Pack[] = [
 ];
 // Mỗi gói trong src/packs.json: màu, đường hầm, sân khấu và màu Shop lấy theo gói gốc của mùa đầu tiên;
 // back = ảnh ghép ở trang quản trị (/assets/custom/…), null = ảnh gói gốc của mùa đầu tiên. title = chữ in khi ghép ảnh.
-export type CustomPackData = { id: string; name: string; short: string; title: string; seasons: Tier[]; minOvr: number | null; topPrice?: number | null; levels: [number, number]; price: number; description: string; range: string; back: string | null; published: boolean; eventOnly?: boolean; choose?: boolean };
+export type CustomPackData = { id: string; name: string; short: string; title: string; seasons: Tier[]; minOvr: number | null; topPrice?: number | null; levels: [number, number]; price: number; description: string; range: string; back: string | null; published: boolean; eventOnly?: boolean; choose?: boolean; seasonLevels?: Partial<Record<Tier, number>> };
 export function customPack(data: CustomPackData): Pack {
   const theme = defaultPacks.find(p => p.weights[TIERS.indexOf(data.seasons[0])] === 100 && !p.levels) ?? defaultPacks[0];
-  return { id: data.id, name: data.name, short: data.short, price: data.price, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], levels: data.levels, seasons: data.seasons, minOvr: data.minOvr ?? undefined, topPrice: data.topPrice ?? undefined, description: data.description, range: data.range, color: theme.color, back: data.back ? asset(data.back) : theme.back, tunnel: theme.tunnel ?? theme.back, accent: theme.accent, stage: theme.stage, tone: theme.tone ?? theme.id, draft: !data.published, ...(data.eventOnly ? { eventOnly: true } : {}), ...(data.choose ? { choose: true } : {}) };
+  return { id: data.id, name: data.name, short: data.short, price: data.price, weights: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], levels: data.levels, seasons: data.seasons, minOvr: data.minOvr ?? undefined, topPrice: data.topPrice ?? undefined, description: data.description, range: data.range, color: theme.color, back: data.back ? asset(data.back) : theme.back, tunnel: theme.tunnel ?? theme.back, accent: theme.accent, stage: theme.stage, tone: theme.tone ?? theme.id, draft: !data.published, ...(data.eventOnly ? { eventOnly: true } : {}), ...(data.choose ? { choose: true } : {}), ...(data.seasonLevels ? { seasonLevels: data.seasonLevels } : {}) };
 }
 // Gói nháp chỉ hiện khi chạy npm run dev; bản build còn bỏ hẳn gói nháp khỏi JSON (publishedPacksOnly trong scripts/pack-admin.ts).
 const showDrafts = (import.meta as { env?: { DEV?: boolean } }).env?.DEV === true;
@@ -672,6 +673,8 @@ function pick<T extends { weight: number }>(items: T[], value: number) {
   for (const item of items) { if (left < item.weight) return item; left -= item.weight; }
   return items[items.length - 1];
 }
+// Cấp cố định của cầu thủ trong gói (seasonLevels theo mùa), null = theo bảng cấp của gói.
+export const fixedLevel = (pack: Pack, player: Pick<Player, 'tier'>): number | null => pack.seasonLevels?.[player.tier] ?? null;
 // Bảng tỷ lệ công bố của gói (0–1): từng cầu thủ (đã nhân tỷ lệ mùa) và từng cấp cộng.
 export function packOdds(pack: Pack) {
   const pool = seasonPools(pack).flatMap(({ weight: share, members }) => {
@@ -683,8 +686,9 @@ export function packOdds(pack: Pack) {
 export function draw(pack: Pack, rng = random): Card {
   if (!isPackAvailable(pack)) throw new Error(`${pack.name} chưa có cầu thủ. Vui lòng chờ cập nhật.`);
   // Lượt 1 chọn mùa theo tỷ lệ mùa, lượt 2 chọn cầu thủ trong mùa, lượt 3 chọn cấp.
-  const card = makeCard(pick(pick(seasonPools(pack), rng()).members, rng()).player.id);
-  return { ...card, level: pick(levelOdds(pack), rng()).level };
+  const player = pick(pick(seasonPools(pack), rng()).members, rng()).player;
+  const rolled = pick(levelOdds(pack), rng()).level;
+  return { ...makeCard(player.id), level: fixedLevel(pack, player) ?? rolled };
 }
 export const getPackStock = (state: Save, pack: Pack): number => state.unopened?.[pack.id] ?? 0;
 

@@ -1,4 +1,4 @@
-import { GAUGE_ABOVE_STEP, GAUGE_BELOW, MAX_INVENTORY_OPEN, MAX_LEVEL, PACK_LEVELS, PROTECT_MIN_LEVEL, RESTORE_MIN_LEVEL, UPGRADE_LEVELS, draftCandidates, draftSize, isPackAvailable, ovr, packOdds, packs, players } from './game';
+import { GAUGE_ABOVE_STEP, GAUGE_BELOW, MAX_INVENTORY_OPEN, MAX_LEVEL, PACK_LEVELS, PROTECT_MIN_LEVEL, RESTORE_MIN_LEVEL, UPGRADE_LEVELS, draftCandidates, draftSize, fixedLevel, isPackAvailable, ovr, packOdds, packs, players } from './game';
 import type { Pack } from './game';
 import priceData from './player-prices.json';
 import { MARKET_FEE_PERCENT, MAX_BULK_SELL, PRICE_EPOCH, PRICE_PERIOD_MS, PRICE_SWING_PERCENT, SELL_BAND_PERCENT, fixedPricePlayers } from './market';
@@ -28,6 +28,8 @@ export type CatalogPack = {
   id: string; name: string; label: string; price: number; shop: boolean; choose: boolean; available: boolean;
   players: number[]; weights: number[]; levels: number[]; levelWeights: number[];
   draft: number[]; draftSize: number; draftLevel: number;
+  // Cấp cố định từng cầu thủ (cùng thứ tự players, 0 = theo levels); rỗng khi gói không có seasonLevels (202611140006).
+  fixedLevels: number[];
 };
 export type Catalog = { rules: CatalogRules; players: CatalogPlayer[]; packs: CatalogPack[] };
 
@@ -73,6 +75,7 @@ export function catalogPack(pack: Pack): CatalogPack {
     players: odds.pool.map(row => row.player.id), weights: odds.pool.map(row => row.chance),
     levels: odds.levels.map(row => row.level), levelWeights: odds.levels.map(row => row.chance),
     draft, draftSize: available && pack.choose ? draftSize(pack) : 0, draftLevel: (pack.levels ?? PACK_LEVELS)[1],
+    fixedLevels: pack.seasonLevels ? odds.pool.map(row => fixedLevel(pack, row.player) ?? 0) : [],
   };
 }
 

@@ -221,6 +221,15 @@
 .vq-choose-opt{--th:92px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;padding:10px 14px;border-radius:12px;background:#fff8ea;box-shadow:inset 0 0 0 2px #e2c88e;text-align:left}
 .vq-choose-opt p{margin:0;font-weight:700;color:#4a2a0c}
 .vq-choose-opt .vq-ms-btn{min-width:90px}
+/* Chọn nhanh (mốc còn ≥ 3 lượt): bộ đếm − số + và nút Tất cả cho từng lựa chọn, nút Nhận nhanh bên dưới. */
+.vq-quick-head{margin:4px 0 0;font-weight:700}.vq-quick-head b{color:#137a2c}
+.vq-quick{display:flex;align-items:center;gap:6px}
+.vq-quick>button{display:grid;place-items:center;min-width:34px;height:34px;padding:0 8px;border:0;border-radius:999px;background:linear-gradient(180deg,#f7d98a,#d9a441);box-shadow:inset 0 0 0 2px #fff3c4,0 0 0 2px #8a5520;color:#5e3410;font:900 18px/1 var(--display);cursor:pointer}
+.vq-quick>button:disabled{opacity:.45;cursor:default}
+.vq-quick>b{min-width:34px;font:900 20px/1 var(--display);color:#4a2a0c;text-align:center;font-variant-numeric:tabular-nums}
+.vq-quick>.vq-quick-all{font-size:12px;text-transform:uppercase}
+.vq-quick-go{margin-top:14px;color:#fff;background:linear-gradient(180deg,#3cc25a,#137a2c);box-shadow:inset 0 0 0 2px #b5f7c3,0 0 0 2px #0b4a1b}
+.vq-quick-go:disabled{filter:grayscale(.7);opacity:.6}
 
 @media (max-height:560px),(max-width:900px){
   .vq-shop{--gx:10px;padding-top:18px}
@@ -228,7 +237,7 @@
   .vq-shop-singles,.vq-shop-grid{--th:62px;gap:16px 10px}.vq-shop-singles{border-width:14px;border-image-width:14px;padding:2px}.vq-shop-grid{padding:12% 5%}
   .vq-shop-grid{--th:52px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
   .vq-ms-btn{min-width:110px;padding:8px 14px;font-size:12.5px}
-  .vq-choose-opt{--th:64px;grid-template-columns:auto minmax(0,1fr);}.vq-choose-opt .vq-ms-btn{grid-column:1/-1;justify-self:end}
+  .vq-choose-opt{--th:64px;grid-template-columns:auto minmax(0,1fr);}.vq-choose-opt .vq-ms-btn,.vq-choose-opt .vq-quick{grid-column:1/-1;justify-self:end}
 }
 @media (prefers-reduced-motion:reduce){.vq-ms.is-ready .vq-ms-btn{animation:none}}
 

@@ -9,6 +9,7 @@ import UpgradeProtection from './UpgradeProtection';
 import './upgrade-bridge.css';
 import './daily-gift.css';
 import RanksPage from './RanksPage';
+import Plus8Page from './Plus8Page';
 import PenaltyPage from './PenaltyPage';
 import PlayerDetail from './PlayerDetail';
 import './penalty.css';
@@ -16,6 +17,7 @@ import './stp.css';
 import './ranked.css';
 import RankedPage from './RankedPage';
 import HomeModes from './HomeModes';
+import ZaloIcon from './ZaloIcon';
 import UpdateBanner from './UpdateBanner';
 import { reloadIntoView, setUpdateHold, takeNextView, updateReady } from './update-check';
 import { liveTopMessages } from './live-tops';
@@ -30,7 +32,7 @@ import { claimableMissions } from './stp-missions';
 import type { StpMissionId, StpMissionState } from './stp-missions';
 import { applyAdminGifts, applyGiftRewards, giftRewardText, prepareGiftCode } from './gift-codes';
 import { viewLineup } from './wallet';
-import { LOGIN_FOR_FC, setClubLogo, fetchLiveFeed, fetchRanked, finishRanked, abandonRanked, playRanked, buyStpPackage, claimStpMission, fetchStpMissions, fetchStpToday, penaltyShoot, penaltyStart, penaltyKeep, setNameEffect as setNameEffectOnServer, ackMyGifts, applyWallet, claimBilac, claimDailyFc, claimMissionFc, fetchBilacConfig, fetchVqtgConfig, fetchVqtgTop, playVqtg, claimVqtg, fetchJackpot, fetchLeaderboard, fetchMyGifts, fetchServerNow, fetchWallet, heartbeat, playBilac, playEventFc, redeemGiftHash, reportSquadRank, reportUpgradeRank, spendFc, buyMembership } from './wallet';
+import { LOGIN_FOR_FC, setClubLogo, fetchLiveFeed, fetchRanked, finishRanked, abandonRanked, playRanked, buyStpPackage, claimStpMission, fetchStpMissions, fetchStpToday, penaltyShoot, penaltyStart, penaltyKeep, setNameEffect as setNameEffectOnServer, ackMyGifts, applyWallet, claimBilac, claimDailyFc, claimMissionFc, fetchBilacConfig, fetchVqtgConfig, fetchVqtgTop, fetchTopViewed, fetchPlus8Board, playVqtg, claimVqtg, claimVqtgMany, fetchJackpot, fetchLeaderboard, fetchMyGifts, fetchServerNow, fetchWallet, heartbeat, playBilac, playEventFc, redeemGiftHash, reportSquadRank, reportUpgradeRank, spendFc, buyMembership } from './wallet';
 import AdminPanel from './AdminPanel';
 import { CHECKIN_REWARDS, checkinReward } from './checkin';
 import type { BilacReward, BilacState, Checkin, VqtgState, Wallet } from './wallet-state';
@@ -63,7 +65,8 @@ import { AUDIO_ENABLED, EVENT_BILAC_ENABLED, EVENT_NCSS_ENABLED, EVENT_VQTG_ENAB
 import BilacPage from './BilacPage';
 import VqtgPage from './VqtgPage';
 import { grantBilac, summarizeBilac, bilacRewardText } from './bilac';
-import TransferMarket from './TransferMarket';
+import { noteView, restoreViews, takeViews } from './player-views';
+import TransferMarket, { forgetTopViewed } from './TransferMarket';
 import UpgradeMarket from './UpgradeMarket';
 import LineupBoard from './LineupBoard';
 import DraftPicker, { DraftSummary } from './DraftPicker';
@@ -134,7 +137,7 @@ function CardSortSelect({ id, value, onChange }: { id: string; value: CardSort; 
 // Lịch sử lưu từ trước khi bỏ tiền xu vẫn ghi "xu": hiển thị theo đơn vị duy nhất BP.
 const historyDetail = (entry: Entry) => (entry.type === 'upgrade' ? entry.detail.replace(/ · Tỷ lệ [0-9.,]+%/g, '') : entry.detail).replace(/(^|[\s(])xu(?=$|[\s·.,)])/g, '$1BP').replace(/(\d{1,3}(?:[.,]\d{3})+|\d{7,})(?=\s*BP)/g, value => money(Number(value.replace(/[.,]/g, ''))));
 
-type View = 'packs' | 'upgrade' | 'collection' | 'lineup' | 'inventory' | 'history' | 'market' | 'shop' | 'event' | 'bilac' | 'vqtg' | 'ranks' | 'penalty' | 'ranked';
+type View = 'packs' | 'upgrade' | 'collection' | 'lineup' | 'inventory' | 'history' | 'market' | 'shop' | 'event' | 'bilac' | 'vqtg' | 'ranks' | 'penalty' | 'ranked' | 'plus8';
 type Animation = { id: string; kind: 'pack'; cards: Card[]; pack: Pack; quick: boolean } | { id: string; kind: 'upgrade'; card: Card; success: boolean; before: number; droppedLevel: number | null; restoredLevel: number | null; shielded?: boolean };
 const preview = (id: number): Card => ({ uid: `preview-${id}`, playerId: id, level: 1, received: 0 });
 let audioContext: AudioContext | undefined;
@@ -187,7 +190,7 @@ function PlayerCard({ card, className = '', compact = false, bonus = 0 }: { card
   const sheen = player.tier === 'eternal' || player.tier === 'prime' || player.tier === 'el' ? <span className={`itm-sheen ${player.cardFace ? 'itm-sheen-masked' : ''}`} aria-hidden="true" style={{ '--itm-sheen-mask': player.cardFace ? `url("${player.cardFace}")` : undefined, '--itm-sheen-delay': `${-(player.id % 11) * .47}s` } as CSSProperties}><span className="itm-sheen-streak"/></span> : null;
   // Thẻ có ảnh mặt trước riêng: OVR và cấp thẻ vẽ đè lên ảnh để đổi theo mỗi lần nâng cấp; tên vẽ lại bằng chữ (tên in trên ảnh đã xoá).
   if (player.cardFace) return <div data-level={card.level} className={`player-card face-art season-${player.tier} face-${player.id} ${compact ? 'compact' : ''} ${className}`} aria-label={`${player.name}, OVR ${shownOvr}, ${player.pos}, ${seasons[player.tier]}, cộng ${card.level}`}>
-    <img className="face-art-img" src={player.cardFace} alt="" loading={compact ? 'lazy' : 'eager'}/>{player.tier === 'el' && <span className="el-dust" aria-hidden="true" style={{ '--el-dust-mask': `url("${player.cardFace.replace('-card.webp', '-fx.webp')}")` } as CSSProperties}/>}{sheen}<strong className="face-art-ovr">{shownOvr}</strong><img className="face-art-level" src={levelBadge(card.level)} alt={`+${card.level}`}/><span className="face-art-name" ref={watchName} aria-hidden="true"><b>{player.name}</b></span>
+    <img className="face-art-img" src={player.cardFace} alt="" loading={compact ? 'lazy' : 'eager'}/>{player.tier === 'tsubasa' && <span className="tsu-fx" aria-hidden="true" style={{ '--tsu-mask': `url("${player.cardFace}")`, '--tsu-delay': `${-(player.id % 7) * .5}s` } as CSSProperties}><i className="tsu-star s1"/><i className="tsu-star s2"/><i className="tsu-star s3"/><i className="tsu-star s4"/></span>}{player.tier === 'el' && <span className="el-dust" aria-hidden="true" style={{ '--el-dust-mask': `url("${player.cardFace.replace('-card.webp', '-fx.webp')}")` } as CSSProperties}/>}{sheen}<strong className="face-art-ovr">{shownOvr}</strong><img className="face-art-level" src={levelBadge(card.level)} alt={`+${card.level}`}/><span className="face-art-name" ref={watchName} aria-hidden="true"><b>{player.name}</b></span>
   </div>;
   return <div className={`player-card ${theme} ${compact ? 'compact' : ''} ${className}`} aria-label={`${player.name}, OVR ${shownOvr}, ${player.pos}, ${seasons[player.tier]}, cộng ${card.level}`}>
     <div className="card-inside"><div className="card-etching"/><div className="card-topline">{seasons[player.tier]}<span>◆</span></div><div className="card-rating"><strong>{shownOvr}</strong><span>{player.pos}</span><Flag code={player.flag}/><div className="club-mini" title={cardTeam}>{player.tier === 'eternal' ? player.flag : cardTeam.slice(0, 2).toUpperCase()}</div></div>
@@ -285,14 +288,7 @@ const readSeen = (key: string) => {
 // joined: ngày tạo tài khoản (ms), hiện ở Thông tin HLV.
 type AppProps = { storage?: Pick<Storage, 'getItem' | 'setItem'>; storageKey?: string; accountName?: string; accountEmail?: string | null; joined?: number | null; syncStatus?: string; onLogout?: () => void; onDeleteAccount?: () => void; signingOut?: boolean; online?: boolean };
 
-// Biểu tượng Zalo (vẽ riêng): ô vuông bo tròn xanh Zalo, bong bóng chat trắng ghi chữ "Zalo".
-function ZaloIcon() {
-  return <svg viewBox="0 0 48 48" width="24" height="24" aria-hidden="true" className="zalo-icon">
-    <rect x="2" y="2" width="44" height="44" rx="12" fill="#0068ff"/>
-    <path d="M24 10c-9.4 0-16 5.6-16 12.6 0 4 2.2 7.5 5.7 9.8l-1.6 5.1 5.8-3c1.9.5 3.9.8 6.1.8 9.4 0 16-5.6 16-12.7S33.4 10 24 10z" fill="#fff"/>
-    <text x="24" y="27" textAnchor="middle" fontFamily="Arial, Helvetica, sans-serif" fontWeight="700" fontSize="10.5" fill="#0068ff">Zalo</text>
-  </svg>;
-}
+// ZaloIcon: src/ZaloIcon.tsx (dùng chung với trang đăng nhập).
 
 export default function App({ storage = localStorage, storageKey = STORAGE_KEY, accountName, accountEmail = null, joined = null, syncStatus, onLogout, onDeleteAccount, signingOut = false, online = false }: AppProps = {}) {
   const seenKey = `${storageKey}:seen`;
@@ -429,6 +425,10 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   // Thông tin cầu thủ mở từ Xem trước gói (thẻ xem thử, không có nút nâng cấp); mở chồng lên, Esc đóng cửa sổ này trước.
   const [previewCard, setPreviewCard] = useState<Card | null>(null);
   const [detail, setDetail] = useState<Card | null>(null);
+  // Đếm lượt mở Thông tin cầu thủ (Tâm điểm TTCN "Được xem nhiều nhất").
+  useEffect(() => { if (detail) noteView(detail.playerId); }, [detail?.uid, detail?.playerId]);
+  // Xem thẻ chưa sở hữu (TTCN, gói…) mở bảng xem trước riêng — cũng tính lượt xem.
+  useEffect(() => { if (previewCard) noteView(previewCard.playerId); }, [previewCard?.uid, previewCard?.playerId, previewCard?.level]);
   // Gói chỉ định: danh sách N cầu thủ đã chọn lần trước của từng gói (mở lại gói cùng loại thì giữ danh sách).
   const draftMemory = useRef(new Map<string, number[]>());
   // Danh sách đã chốt ở lượt mở gói chỉ định hiện tại (null = đang lập danh sách trong DraftPicker).
@@ -1089,10 +1089,11 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     } catch (e) { notify((e as Error).message); return null; }
   };
   // Shop Đổi Vé (VQTG): máy chủ giữ kho thì nhận bản lưu mới; không thì cộng gói / BP / phiếu thuế trên máy như Bi Lắc.
-  const claimVqtgMilestone = async (index: number, choice: number | null) => {
+  // choice là mảng = Chọn nhanh nhiều lượt (claimVqtgMany).
+  const claimVqtgMilestone = async (index: number, choice: number | null | number[]) => {
     if (!online) { notify(LOGIN_FOR_FC); return null; }
     try {
-      const result = await claimVqtg(index, choice);
+      const result = Array.isArray(choice) ? await claimVqtgMany(index, choice) : await claimVqtg(index, choice);
       if (result.save) { noteWallet(result.wallet); adoptRecord(result.save); return commit(applyWallet(latest.current, result.wallet)) ? result.rewards : null; }
       const vouchers = result.rewards.filter((r): r is { voucher: number; count: number } => 'voucher' in r);
       const others = result.rewards.filter((r): r is BilacReward => !('voucher' in r));
@@ -1116,7 +1117,12 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   // Thống kê cho admin (online, giờ chơi): báo máy chủ mỗi phút khi tab game đang hiện; máy chủ tự tính giờ chơi (tối đa 90 giây mỗi lần).
   useEffect(() => {
     if (!online) return;
-    const beat = () => { if (document.visibilityState === 'visible') void heartbeat().catch(() => { /* Lỗi mạng: lần sau gửi lại. */ }); };
+    const beat = () => {
+      if (document.visibilityState !== 'visible') return;
+      const views = takeViews();
+      // Lỗi (mạng, hoặc máy chủ chưa chạy migration lượt xem): giữ lượt xem cho lần sau, vẫn báo đang chơi không kèm lượt xem.
+      void heartbeat(views).then(() => { if (views) forgetTopViewed(); }).catch(() => { restoreViews(views); if (views) void heartbeat().catch(() => { /* lần sau gửi lại */ }); });
+    };
     beat();
     const id = setInterval(beat, 60_000);
     document.addEventListener('visibilitychange', beat);
@@ -1128,7 +1134,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     <header className="topbar"><a className="brand" href="#" onClick={e => { e.preventDefault(); switchView('packs'); }} aria-label="FCO VIP, trang chủ"><img src={asset('/assets/fco-vip-logo.png')} alt=""/><span>FCO<b>VIP</b></span></a><div className="topbar-actions"><div className="wallet"><img className="coin-icon currency-icon" src={asset('/assets/currency-bp.png')} alt="BP"/><div><small>{UNLIMITED_COINS ? 'Chế độ thử nghiệm' : 'Số dư của bạn'}</small><b>{UNLIMITED_COINS ? '∞' : money(save.balance)} <span>BP</span></b></div></div><div className="wallet wallet-fc" title="FC dùng để chơi sự kiện Nâng Cấp Siêu Sao"><img className="coin-icon currency-icon" src={asset('/assets/currency-fc.png')} alt="FC"/><div><small>FC của bạn</small><b>{UNLIMITED_COINS ? '∞' : money(save.fc ?? 0)} <span>FC</span></b></div><button type="button" className="wallet-plus" onClick={() => notify('Vui lòng liên hệ admin')} aria-label="Nạp thêm FC" title="Nạp thêm FC">+</button></div><button className="wallet wallet-stp" onClick={() => setMissionsOpen(true)} title="Star Point · bấm để xem nhiệm vụ nhận STP" aria-label={`Star Point ${money(save.stp ?? 0)} · Nhiệm vụ Star Point${claimableMissions(missions) ? ` · ${claimableMissions(missions)} phần thưởng chờ nhận` : ''}`}><img className="coin-icon currency-icon" src={asset(STP_ICON)} alt="STP"/><div><small>Star Point</small><b>{money(save.stp ?? 0)} <span>STP</span></b></div>{claimableMissions(missions) > 0 && <i className="wallet-stp-dot" aria-hidden="true"/>}</button><button className={`topbar-gift ${dailyClaimed ? '' : 'has-gift'}`} onClick={daily} aria-label={dailyClaimed ? 'Quà mỗi ngày · đã điểm danh hôm nay' : `Quà mỗi ngày · nhận ${money(DAILY_FC)} FC`} title={dailyClaimed ? 'Quà mỗi ngày · đã nhận hôm nay' : `Quà mỗi ngày · nhận ${money(DAILY_FC)} FC`}><Gift size={22}/>{!dailyClaimed && <i className="topbar-gift-dot" aria-hidden="true"/>}</button><BackgroundMusic suspended={upgradeMusicActive || view === 'penalty' || (view === 'ranked' && rankedMatchActive)} musicType={musicType}/><button className={`avatar${(accountTier === 'premium' || accountTier === 'luxury') ? avatarEffectClass(nameEffect) : ''}`} aria-label="Thông tin HLV" onClick={() => setProfileOpen(true)} title={accountName ? `Huấn luyện viên ${accountName}` : undefined}>{clubLogoUrl(clubLogo) ? <img className="avatar-club" src={clubLogoUrl(clubLogo)!} alt=""/> : accountName ? accountName.slice(0, 3).toUpperCase() : 'HLV'}</button>{view !== 'packs' && <button className="topbar-home-close" onClick={() => switchView('packs')} aria-label="Đóng trang, về trang chủ" title="Về trang chủ"><X size={20}/></button>}</div></header>
     <main ref={mainRef} className={`main-content view-${view}`}>
       {view === 'packs' && <>
-        <section className="hero" aria-label="Trang chủ"><Stadium reduced={save.reduced}/><LiveTicker messages={tickerMessages} reduced={save.reduced}/><div className="hero-content"><motion.div initial={save.reduced ? false : { opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: .5 }} className="hero-modes-wrap"><HomeModes onRanked={() => switchView('ranked')} onPenalty={() => switchView('penalty')} onUpgrade={() => switchView('upgrade')} onRanks={() => switchView('ranks')}/></motion.div>
+        <section className="hero" aria-label="Trang chủ"><Stadium reduced={save.reduced}/><LiveTicker messages={tickerMessages} reduced={save.reduced}/><div className="hero-content"><motion.div initial={save.reduced ? false : { opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: .5 }} className="hero-modes-wrap"><HomeModes onRanked={() => switchView('ranked')} onPenalty={() => switchView('penalty')} onUpgrade={() => switchView('upgrade')} onRanks={() => switchView('ranks')} onPlus8={() => switchView('plus8')}/></motion.div>
           <div className="hero-cards"><div className="hero-orbit"/><div className="hero-card-back back-left"><PlayerCard card={preview(1)}/></div><div className="hero-card-back back-right"><PlayerCard card={preview(3)}/></div><motion.div className="hero-card-front" initial={save.reduced ? false : { opacity: 0, y: 40, rotateY: -25 }} animate={{ opacity: 1, y: 0, rotateY: -8 }} transition={{ duration: 1, delay: .15 }}><PlayerCard card={preview(31)}/></motion.div><div className="card-pedestal"/><div className="featured-note"><Sparkles size={13}/>Thẻ tiêu biểu · Không đảm bảo nhận được</div></div>
         </div></section>
       </>}
@@ -1187,7 +1193,8 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
           {view === 'lineup' && <LineupBoard save={save} onUpdate={updateLineup} onDetail={setDetail} onManage={() => switchView('collection')} levelBadge={levelBadge} seasonShort={seasonShort} renderCard={card => <PlayerCard card={card} compact bonus={colorBonuses.get(card.uid)}/>}/>}
       {view === 'shop' && <PackShop save={save} packs={shopPacks} free={UNLIMITED_COINS} onBuy={(pack, count) => purchasePacks(pack, count)} onBuyMembership={purchaseMembership} onBuyStp={purchaseStp} stpBought={stpBought} online={online} onOpenNow={buyAndOpen} onPreview={(pack, count) => setPackPreview({ pack, count })} onInventory={() => switchView('inventory')} renderArt={pack => <PackArt pack={pack}/>}/>}
       {view === 'inventory' && <Inventory save={save} packs={packs} onUse={pack => prepareOpening(pack)} onShop={() => switchView('shop')} onUseSelected={selection => selection[0] && prepareOpening(selection[0], selection)} onClose={() => switchView('packs')} renderArt={pack => <PackArt pack={pack}/>} testMode={UNLIMITED_COINS} onReceiveTest={receiveTestPacks}/>}
-      {view === 'market' && <TransferMarket save={save} free={UNLIMITED_COINS} onTrade={requestTrade} onHistory={() => { setHistoryType('market'); switchView('history'); }} onOpenPacks={() => switchView('inventory')} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge} onDetail={card => save.cards.some(c => c.uid === card.uid) ? setDetail(card) : setPreviewCard(card)}/>}
+      {view === 'market' && <TransferMarket loadTopViewed={online ? fetchTopViewed : undefined} save={save} free={UNLIMITED_COINS} onTrade={requestTrade} onHistory={() => { setHistoryType('market'); switchView('history'); }} onOpenPacks={() => switchView('inventory')} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge} onDetail={card => save.cards.some(c => c.uid === card.uid) ? setDetail(card) : setPreviewCard(card)}/>}
+      {view === 'plus8' && <Plus8Page load={online ? fetchPlus8Board : undefined} online={online} onUpgrade={() => switchView('upgrade')}/>}
       {view === 'ranks' && <RanksPage load={fetchLeaderboard} loadRanked={fetchRanked} online={online} levelBadge={levelBadge} viewLineup={viewLineup}/>}
       {view === 'ranked' && <RankedPage save={save} online={online} load={fetchRanked} play={playRanked} finish={finishRanked} abandon={abandonRanked} onLineup={() => switchView('lineup')} onMatchChange={setRankedMatchActive} viewLineup={viewLineup} levelBadge={levelBadge}/>}
       {view === 'penalty' && <PenaltyPage online={online} reduced={!!save.reduced} onStart={penaltyStart} onShoot={penaltyShoot} onKeep={penaltyKeep}/>}

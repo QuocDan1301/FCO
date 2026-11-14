@@ -13,11 +13,15 @@ import { deleteAccount } from './account-deletion';
 import { useMaintenance } from './maintenance';
 import { ACCOUNT_PAUSED_MESSAGE, maintenanceBlocks, maintenanceText } from './maintenance-state';
 import type { MaintenanceState } from './maintenance-state';
+import ZaloIcon from './ZaloIcon';
+import { ZALO_GROUP } from './config';
 import './account.css';
 
 function AccountFrame({ children }: { children: ReactNode }) {
   return <main className="account-screen" data-ui="account"><img className="account-background" src={asset('/assets/login-background.png')} alt="" aria-hidden="true"/><div className="account-layout">
-    <header className="account-brand"><img src={asset('/assets/fco-vip-logo.png')} alt=""/><strong>FCO VIP</strong><span>Tài khoản huấn luyện viên</span></header>
+    <header className="account-brand"><img src={asset('/assets/fco-vip-logo.png')} alt=""/><strong>FCO VIP</strong><span>Tài khoản huấn luyện viên</span>
+      {/* Nhóm Zalo cộng đồng (người dùng 2026-11-14): hỏi đáp / hỗ trợ khi chưa vào được game, vd. không nhận được mã Gmail. */}
+      <a className="account-zalo" href={ZALO_GROUP} target="_blank" rel="noopener noreferrer" aria-label="Nhóm Zalo cộng đồng" title="Tham gia nhóm Zalo"><ZaloIcon size={30}/><span>Nhóm Zalo</span></a></header>
     <section className="account-intro"><h1>Đội bóng của bạn.<br/> Trên mọi thiết bị.</h1><p>Đăng nhập để tiếp tục hành trình mở thẻ, xây đội hình và nâng cấp cầu thủ.</p><dl><div><dt>Kho cầu thủ riêng</dt><dd>Tài khoản mới bắt đầu với kho cầu thủ trống.</dd></div><div><dt>Tiến trình theo bạn</dt><dd>Kho thẻ, BP, FC và vật phẩm được lưu cùng tài khoản.</dd></div></dl><small>Dự án giả lập của người hâm mộ. Không có thanh toán bằng tiền thật.</small></section>
     <section className="account-panel">{children}</section>
   </div></main>;

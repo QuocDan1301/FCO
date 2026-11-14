@@ -13,7 +13,7 @@ import type { ServerRecord } from './inventory-sync';
 import type { NameEffect } from './name-effects';
 import type { LineupBoardId, PublicLineupView } from './public-lineup';
 import type { PenaltyKeep, PenaltyShot, PenaltyStart, ShotKind } from './penalty';
-import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, VqtgConfig, VqtgResult, VqtgReward, VqtgTop, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
+import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, BilacConfig, BilacResult, BilacReward, VqtgConfig, VqtgResult, VqtgReward, VqtgTop, Plus8Board, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
 import { checkForUpdate, requestReload } from './update-check';
 export * from './wallet-state';
 
@@ -80,7 +80,11 @@ export const adminGiftSave = (code: GiftCode) => call<GiftCodeRow[]>('fco_admin_
 export const adminGiftDelete = (hash: string) => call<GiftCodeRow[]>('fco_admin_gift_delete', { p_hash: hash });
 export const adminAnomalies = () => call<AnomalyRow[]>('fco_admin_anomalies', { p_limit: 200, p_include_reviewed: false });
 export const adminAnomalyReview = (id: number, all = false) => call<AnomalyRow[]>('fco_admin_anomaly_review', { p_id: id, p_all: all });
-export const heartbeat = () => call<null>('fco_heartbeat', { p_device: deviceId() });
+// views: lượt xem thẻ gom trên máy (src/player-views.ts), gửi kèm để khỏi thêm lệnh máy chủ.
+export const heartbeat = (views: Record<string, number> | null = null) => call<null>('fco_heartbeat', { p_device: deviceId(), ...(views ? { p_views: views } : {}) });
+// 5 cầu thủ được xem nhiều nhất 7 ngày gần đây (Tâm điểm TTCN).
+export const fetchPlus8Board = () => call<Plus8Board>('fco_plus8_board');
+export const fetchTopViewed = () => call<{ id: number; views: number }[]>('fco_top_viewed');
 // Nghi clone (202611110014).
 export type CloneAccount = { id: string; login: string; registered: number; lastSeen: number | null; topup: number; locked: boolean; admin: boolean };
 export type CloneGroup = { kind: 'device' | 'ip'; key: string; allowed: boolean; accounts: CloneAccount[] };
@@ -128,3 +132,5 @@ export const fetchVqtgConfig = () => call<VqtgConfig>('fco_vqtg_config');
 export const playVqtg = (count: number, mode: 'fc' | 'free', pick?: number) => call<VqtgResult>('fco_vqtg_play', { p_count: count, p_mode: mode, ...(pick ? { p_pick: pick } : {}) });
 export const fetchVqtgTop = () => call<VqtgTop>('fco_vqtg_top');
 export const claimVqtg = (index: number, choice: number | null) => call<{ rewards: VqtgReward[]; wallet: Wallet; save?: ServerRecord | null }>('fco_vqtg_claim', { p_index: index, p_choice: choice });
+// Chọn nhanh Shop Đổi Vé (202611140008): nhiều lượt một mốc trong một lần, choices = lựa chọn từng lượt; quà cùng loại máy chủ gộp sẵn.
+export const claimVqtgMany = (index: number, choices: number[]) => call<{ rewards: VqtgReward[]; count: number; wallet: Wallet; save?: ServerRecord | null }>('fco_vqtg_claim_many', { p_index: index, p_choices: choices });

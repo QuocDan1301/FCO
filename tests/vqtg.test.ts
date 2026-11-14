@@ -157,3 +157,12 @@ test('Đua top đếm ngược 7 ngày từ 0h 13/11/2026 tới 0h 20/11/2026 gi
   assert.equal(raceCountdown(VQTG_RACE_END + 1).left, 0);
   assert.equal(raceCountdown(VQTG_RACE_START - 1).started, false);
 });
+
+test('Chọn nhanh Shop Đổi Vé (202611140008): nhận nhiều lượt một mốc trong một lần, tối đa 100, gộp quà', () => {
+  const sql = readFileSync('supabase/migrations/202611140008_fco_vqtg_claim_many.sql', 'utf8');
+  assert.match(sql, /if n < 1 or n > 100 then raise exception 'FCO_BAD_COUNT'/);
+  assert.match(sql, /if done \+ n > reached then raise exception 'FCO_MILESTONE_CLAIMED'/);
+  assert.match(sql, /grant execute on function public\.fco_vqtg_claim_many\(integer, integer\[\]\) to authenticated/);
+  const page = readFileSync('src/VqtgPage.tsx', 'utf8');
+  assert.match(page, /const QUICK_MIN = 2, QUICK_MAX = 100;/);
+});

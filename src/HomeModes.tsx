@@ -1,6 +1,10 @@
 // Menu chế độ chơi ở trang chủ (thay phần giới thiệu "Chạm tới huyền thoại", người dùng yêu cầu 2026-11-12):
 // biểu tượng nét trắng + chữ lớn xếp dọc. Biểu tượng tự vẽ.
-type Props = { onRanked: () => void; onPenalty: () => void; onUpgrade: () => void; onRanks: () => void };
+import { Flame } from 'lucide-react';
+import './plus8.css';
+
+// onPlus8: nút sự kiện HOT "Đập 8 liền tay" (BXH đập +8, src/Plus8Page.tsx) đứng đầu menu.
+type Props = { onRanked: () => void; onPenalty: () => void; onUpgrade: () => void; onRanks: () => void; onPlus8?: () => void };
 
 const stroke = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
 
@@ -25,7 +29,12 @@ const UpgradeIcon = () => <svg viewBox="0 0 24 24" aria-hidden="true" {...stroke
   <path d="M20.5 2.5v2.4M19.3 3.7h2.4" strokeWidth="1.3"/>
 </svg>;
 
-export default function HomeModes({ onRanked, onPenalty, onUpgrade, onRanks }: Props) {
+// Sự kiện Đập 8: lá bài +8 với tia sét.
+const Plus8Icon = () => <svg viewBox="0 0 24 24" aria-hidden="true" {...stroke}>
+  <path d="M6 3.5h12v17H6z"/><path d="M13 6.5l-3.6 6h3.2l-1.6 5.2 4.4-6.6h-3.2z" fill="currentColor" strokeWidth="1"/>
+</svg>;
+
+export default function HomeModes({ onRanked, onPenalty, onUpgrade, onRanks, onPlus8 }: Props) {
   const modes = [
     { id: 'ranked', label: 'GLXH', hint: 'Đấu xếp hạng giả lập', icon: <RankedIcon/>, onClick: onRanked },
     { id: 'penalty', label: 'Penalty', hint: 'Sút phạt đền', icon: <PenaltyIcon/>, onClick: onPenalty },
@@ -33,6 +42,11 @@ export default function HomeModes({ onRanked, onPenalty, onUpgrade, onRanks }: P
     { id: 'ranks', label: 'BXH', hint: 'Bảng xếp hạng HLV', icon: <RanksIcon/>, onClick: onRanks },
   ];
   return <nav className="hero-modes" aria-label="Chế độ chơi">
+    {onPlus8 && <button type="button" className="hero-hot" onClick={onPlus8} aria-label="Sự kiện hot · Đập 8 liền tay · Nhận ngay quà chất">
+      <span className="hero-hot-icon"><Plus8Icon/></span>
+      <span className="hero-hot-text"><b>Đập 8 liền tay</b><small>Nhận ngay quà chất</small></span>
+      <span className="hero-hot-badge"><Flame aria-hidden="true"/>Hot</span>
+    </button>}
     {modes.map(m => <button key={m.id} type="button" className={`hero-mode is-${m.id}`} onClick={m.onClick} aria-label={`${m.label} · ${m.hint}`}>
       <span className="hero-mode-icon">{m.icon}</span>
       <span className="hero-mode-text"><b>{m.label}</b><small>{m.hint}</small></span>

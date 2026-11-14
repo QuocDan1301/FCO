@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { ArrowDown, ArrowUp, ImagePlus, Plus, RotateCcw, Save, Trash2, X } from 'lucide-react';
-import { TIERS, customPack, defaultPacks, money, ovr, packOdds, seasons } from '../game';
+import { TIERS, customPack, defaultPacks, fixedLevel, money, ovr, packOdds, seasons } from '../game';
 import type { CustomPackData, Pack, Tier } from '../game';
 import { marketQuote } from '../market';
 import { seasonShort } from '../badges';
@@ -46,9 +46,9 @@ function packStats(pack: Pack) {
   const tiers = pack.seasons ?? TIERS.filter((_, i) => pack.weights[i] > 0);
   if (!pool.length) return { count: 0, range: '', ev: 0, levels, shares: tiers.map(tier => ({ tier, share: 0 })), likeliest: [] as typeof pool };
   let ev = 0;
-  for (const { player, chance } of pool) for (const level of levels) ev += chance * level.chance * (marketQuote({ playerId: player.id, level: level.level }).price ?? 0);
+  for (const { player, chance } of pool) for (const level of levels) ev += chance * level.chance * (marketQuote({ playerId: player.id, level: fixedLevel(pack, player) ?? level.level }).price ?? 0);
   const low = levels[0].level, high = levels[levels.length - 1].level;
-  const range = `${Math.min(...pool.map(r => ovr({ playerId: r.player.id, level: low })))}–${Math.max(...pool.map(r => ovr({ playerId: r.player.id, level: high })))}`;
+  const range = `${Math.min(...pool.map(r => ovr({ playerId: r.player.id, level: fixedLevel(pack, r.player) ?? low })))}–${Math.max(...pool.map(r => ovr({ playerId: r.player.id, level: fixedLevel(pack, r.player) ?? high })))}`;
   const shares = tiers.map(tier => ({ tier, share: pool.filter(r => r.player.tier === tier).reduce((sum, r) => sum + r.chance, 0) }));
   return { count: pool.length, range, ev, levels, shares, likeliest: [...pool].sort((a, b) => b.chance - a.chance).slice(0, 5) };
 }
@@ -60,7 +60,7 @@ function defaultEntry(pack: Pack): CustomPackData {
 }
 
 // eventOnly: không bán trong Shop (chỉ làm quà / sự kiện / gift code). choose: gói chỉ định, topPrice = số cầu thủ người chơi chọn vào danh sách.
-type Form = { id: string; title: string; name: string; short: string; seasons: Tier[]; minOvr: string; topPrice: string; levels: [number, number]; price: string; description: string; published: boolean; eventOnly: boolean; choose: boolean };
+type Form = { id: string; title: string; name: string; short: string; seasons: Tier[]; minOvr: string; topPrice: string; levels: [number, number]; price: string; description: string; published: boolean; eventOnly: boolean; choose: boolean; seasonLevels?: CustomPackData['seasonLevels'] };
 type Touched = Partial<Record<'id' | 'name' | 'short' | 'description', boolean>>;
 const emptyForm = (): Form => ({ id: '', title: '', name: '', short: '', seasons: [], minOvr: '', topPrice: '', levels: [1, 1], price: '', description: '', published: false, eventOnly: false, choose: false });
 const toForm = (data: CustomPackData): Form => ({ ...data, minOvr: data.minOvr === null ? '' : String(data.minOvr), topPrice: data.topPrice == null ? '' : String(data.topPrice), price: String(data.price), eventOnly: !!data.eventOnly, choose: !!data.choose });
@@ -130,7 +130,7 @@ function Editor({ data, config, renderArt, status, setStatus, persist, onDone }:
     if (!artFresh && !(await compose())) return;
     setBusy('save');
     const composed = artFresh ? !!art?.composed : true;
-    const entry: CustomPackData = { id: form.id, name: form.name.trim(), short: form.short.trim(), title: form.title.trim().toUpperCase(), seasons: form.seasons, minOvr, topPrice, levels: form.levels, price: Number(form.price), description: form.description.trim(), range: stats.range, back: composed ? customArtPath(form.id) : null, published: form.published, ...(form.eventOnly ? { eventOnly: true } : {}), ...(form.choose ? { choose: true } : {}) };
+    const entry: CustomPackData = { id: form.id, name: form.name.trim(), short: form.short.trim(), title: form.title.trim().toUpperCase(), seasons: form.seasons, minOvr, topPrice, levels: form.levels, price: Number(form.price), description: form.description.trim(), range: stats.range, back: composed ? customArtPath(form.id) : null, published: form.published, ...(form.eventOnly ? { eventOnly: true } : {}), ...(form.choose ? { choose: true } : {}), ...(form.seasonLevels ? { seasonLevels: form.seasonLevels } : {}) };
     const packs = data ? config.packs.map(pack => pack.id === data.id ? entry : pack) : [...config.packs, entry];
     const ok = await persist({ packs }, entry.published ? `Đã lưu ${entry.name}.${data ? '' : ' Gói đã vào danh sách gói có sẵn.'} Người chơi thấy sau khi đưa lên git.` : `Đã lưu ${entry.name} ở dạng nháp: chỉ thấy khi chạy npm run dev.`);
     setBusy('');

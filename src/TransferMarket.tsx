@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode, UIEvent } from 'react';
-import { ArrowRight, ChevronDown, History, Info, Search, Sparkles } from 'lucide-react';
+import { ArrowRight, ChevronDown, History, Search, Sparkles } from 'lucide-react';
 import { getPlayer, MAX_LEVEL, money, ovr, players, seasons } from './game';
 import type { Card, Save } from './game';
 import { marketQuote, compareMarketPrices, formatMarketPrice, nextPriceChange, saleTaxPercent, isTradeLocked, TRADE_LOCKED } from './market';
@@ -21,6 +21,7 @@ type Props = {
   levelBadge: (level: number) => string;
   // Mở Thông tin cầu thủ (giá, sự nghiệp CLB, chỉ số) của thẻ đang xem.
   onDetail?: (card: Card) => void;
+  loadTopViewed?: () => Promise<{ id: number; views: number }[]>;
 };
 const normalize = (value: string) => value.toLocaleLowerCase('vi').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').trim();
 
@@ -49,14 +50,41 @@ function spotlights() {
   const picks: [string, string, Card | undefined][] = [
     ['OVR cao nhất', 'Chỉ số tổng cao nhất thị trường', take([...base].sort((a, b) => ovr(b) - ovr(a)))],
     ['Giá trị cao nhất', 'Thẻ đắt giá nhất ở cấp +1', take([...base].sort((a, b) => compareMarketPrices(a, b, true)))],
-    ['Ngôi sao Việt Nam', 'Tuyển thủ Việt Nam OVR cao nhất', take(base.filter(c => getPlayer(c).nation === 'Việt Nam').sort((a, b) => ovr(b) - ovr(a)))],
   ];
   return spotlightCache = picks.filter((pick): pick is [string, string, Card] => !!pick[2]).map(([label, hint, card]) => ({ label, hint, card }));
 }
 
-export default function TransferMarket({ save, free, onTrade, onHistory, onOpenPacks, renderCard, levelBadge, onDetail }: Props) {
+// Ô 3 Tâm điểm: thẻ được mở Thông tin nhiều nhất 7 ngày (máy chủ đếm, fco_top_viewed).
+// Lưu 10 phút trong bộ nhớ để mở TTCN nhiều lần không hỏi lại máy chủ.
+let viewedCache: { at: number; ids: number[] } | null = null;
+const VIEWED_TTL = 10 * 60_000, EMPTY_TTL = 30_000; // chưa có dữ liệu thì chỉ nhớ 30 giây
+/** Vừa gửi lượt xem lên máy chủ: lần mở TTCN sau hỏi lại. */
+export const forgetTopViewed = () => { viewedCache = null; if (typeof window !== 'undefined') window.dispatchEvent(new Event('fco-views-sent')); };
+
+export default function TransferMarket({ save, free, onTrade, onHistory, onOpenPacks, renderCard, levelBadge, onDetail, loadTopViewed }: Props) {
   // Vừa vào TTCN là thấy Tâm điểm.
   const [mode, setMode] = useState<'buy' | 'sell' | 'spotlight'>('spotlight');
+  const [viewedIds, setViewedIds] = useState<number[]>(() => viewedCache?.ids ?? []);
+  // Hỏi lại khi mở trang / mở tab Tâm điểm, và ngay sau khi game vừa gửi lượt xem lên máy chủ (đang đứng ở TTCN vẫn cập nhật).
+  const [viewsTick, setViewsTick] = useState(0);
+  useEffect(() => {
+    const bump = () => setViewsTick(t => t + 1);
+    window.addEventListener('fco-views-sent', bump);
+    return () => window.removeEventListener('fco-views-sent', bump);
+  }, []);
+  useEffect(() => {
+    if (!loadTopViewed || (viewedCache && Date.now() - viewedCache.at < (viewedCache.ids.length ? VIEWED_TTL : EMPTY_TTL))) return;
+    let alive = true;
+    loadTopViewed().then(rows => { viewedCache = { at: Date.now(), ids: rows.map(r => r.id) }; if (alive) setViewedIds(viewedCache.ids); }).catch(() => { /* để trống, thử lại lần sau */ });
+    return () => { alive = false; };
+  }, [loadTopViewed, viewsTick, mode]);
+  const spots = (() => {
+    // Đúng thẻ nhiều lượt xem nhất (kể cả trùng ô 1–2 hay mùa khóa giao dịch — nút Mua tự khóa); chỉ bỏ id không còn trong game.
+    const base = spotlights();
+    const id = viewedIds.find(pid => players.some(p => p.id === pid));
+    return id ? [...base, { label: 'Được xem nhiều nhất', hint: 'Thẻ HLV mở xem nhiều nhất 7 ngày qua', card: marketCard(id, 1) }] : base;
+  })();
+  const viewedPending = spots.length < 3;
   const listRef = useRef<HTMLDivElement>(null);
   const [query, setQuery] = useState('');
   const [position, setPosition] = useState('');
@@ -129,7 +157,7 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
       </div>
     </div>
     <div className="market-tabs" role="group" aria-label="Loại giao dịch"><button aria-pressed={mode === 'buy'} onClick={() => switchMode('buy')}>Mua cầu thủ<span>{players.length}</span></button><button aria-pressed={mode === 'sell'} onClick={() => switchMode('sell')}>Bán cầu thủ<span>{save.cards.length}</span></button><button className="market-tab-spotlight" aria-pressed={mode === 'spotlight'} onClick={() => switchMode('spotlight')}><Sparkles size={14}/>Tâm điểm</button></div>
-    {mode === 'spotlight' ? <div className="market-spotlight">{spotlights().map((spot, i) => {
+    {mode === 'spotlight' ? <div className="market-spotlight">{spots.map((spot, i) => {
       const player = getPlayer(spot.card), spotQuote = marketQuote(spot.card);
       return <article className={`spotlight-item spotlight-${i}`} key={spot.label}>
         <header><span className="spotlight-rank">{i + 1}</span><div><h3>{spot.label}</h3><small>{spot.hint}</small></div></header>
@@ -138,7 +166,10 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
         <div className={`spotlight-price${isUnpriced(spotQuote) ? ' is-unpriced' : ''}`}><span>Giá +1{isUnpriced(spotQuote) && <small>Chưa định giá</small>}</span><b>{formatMarketPrice(spotQuote.price)}</b></div>
         <div className="spotlight-actions"><button className="secondary-button" onClick={() => onDetail ? onDetail(spot.card) : viewInList(spot.card)}>Xem chi tiết</button><button className="market-primary" disabled={!canBuy(spot.card, spotQuote)} onClick={() => onTrade({ kind: 'buy', card: spot.card })}>Mua<ArrowRight size={15}/></button></div>
       </article>;
-    })}</div> : <>
+    })}{viewedPending && <article className="spotlight-item spotlight-2 spotlight-empty">
+        <header><span className="spotlight-rank">3</span><div><h3>Được xem nhiều nhất</h3><small>Thẻ HLV mở xem nhiều nhất 7 ngày qua</small></div></header>
+        <div className="spotlight-card spotlight-wait"><p>Đang thống kê lượt xem…<br/><small>Mở <b>Thông tin cầu thủ</b> của bất kỳ thẻ nào để góp lượt xem; ô này cập nhật sau khoảng 1 phút.</small></p></div>
+      </article>}</div> : <>
     <div className={`market-filters ${filtersExpanded ? 'filters-open' : ''}`}>
       <div className="search-field"><Search size={17}/><input aria-label="Tìm cầu thủ trên thị trường" placeholder="Tìm tên cầu thủ…" value={query} onChange={e => { setQuery(e.target.value); setPage(0); }}/></div>
       <button className="market-filter-toggle" aria-expanded={filtersExpanded} aria-controls="market-filter-fields" onClick={() => setFiltersExpanded(value => !value)}>{filtersExpanded ? 'Ẩn bộ lọc' : 'Bộ lọc'}<span>{[position, season, !buying && sellLevel, buying && buyLevel !== '1' ? buyLevel : ''].filter(Boolean).length || ''}</span></button>
@@ -149,7 +180,7 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
     </div>
     <div className="market-count"><label className="market-unavailable-filter"><input type="checkbox" checked={unavailableOnly} onChange={event => { setUnavailableOnly(event.target.checked); setPage(0); }}/>Chỉ thẻ chưa có giá</label><span role="status">{filtered.length ? `${money(filtered.length)} thẻ` : '0 thẻ phù hợp'}</span><button className="text-action" onClick={reset}>Đặt lại bộ lọc</button></div>
     {visible.length ? <div className="market-layout"><div className="market-list-panel">
-      <div className="market-columns">{column(['position', 'position-desc'], 'Vị trí')}<span/>{column(['name', 'name-desc'], 'Tên cầu thủ')}{column(['wage-desc', 'wage'], 'Lương', 'is-center')}{column(['ovr', 'ovr-asc'], 'OVR', 'is-center')}{column(['level', 'level-asc'], 'Thẻ', 'is-center')}{column(['price-desc', 'price'], buying ? 'Giá' : 'Nhận sau phí', 'is-end')}<span/></div>
+      <div className="market-columns">{column(['position', 'position-desc'], 'Vị trí')}<span/>{column(['name', 'name-desc'], 'Tên cầu thủ')}{column(['wage-desc', 'wage'], 'Lương', 'is-center')}{column(['ovr', 'ovr-asc'], 'OVR', 'is-center')}{column(['level', 'level-asc'], 'Thẻ', 'is-center')}{column(['price-desc', 'price'], buying ? 'Giá' : 'Nhận sau phí', 'is-end')}<span/><span/></div>
       <div ref={listRef} className="market-list" onScroll={loadMore}>{visible.map(card => {
         const player = getPlayer(card), rowQuote = marketQuote(card, taxPercent), unpriced = isUnpriced(rowQuote), shown = buying ? rowQuote.price : rowQuote.proceeds;
         const tradeLocked = isTradeLocked(card);
@@ -164,13 +195,13 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
           <strong className="market-ovr">{ovr(card)}</strong>
           <span className="market-level"><img src={levelBadge(card.level)} alt={`+${card.level}`}/></span>
           <div className={`market-price${unpriced || !rowQuote.available ? ' is-unpriced' : ''}`} title={rowQuote.reason || [formatMarketPrice(shown), rowQuote.liquidityNote, `Giá đổi lúc ${nextChange}`].filter(Boolean).join(' · ')}><b>{shown === null ? '—' : money(shown)}</b>{note && <small>{note}</small>}</div>
+          {onDetail ? <button type="button" className="market-row-info" title="Thông tin cầu thủ" aria-label={`Thông tin ${player.name} +${card.level}`} onClick={event => { event.stopPropagation(); onDetail(card); }}><Search size={17}/></button> : <span/>}
           <button className="market-row-action" disabled={!canAfford} aria-label={`${buying ? 'Mua' : 'Bán'} ${player.name} +${card.level}`} onClick={event => { event.stopPropagation(); onTrade({ kind: buying ? 'buy' : 'sell', card }); }}>{buying ? 'Mua' : 'Bán'}<ArrowRight size={14}/></button>
         </article>;
       })}</div>
     </div><aside className="market-preview" aria-label="Cầu thủ đang xem">{onDetail ? <button type="button" className="market-preview-card is-link" onClick={() => onDetail(panelCard)} aria-label={`Thông tin ${getPlayer(panelCard).name}`}>{renderCard(panelCard)}</button> : <div className="market-preview-card">{renderCard(panelCard)}</div>}<h2>{getPlayer(panelCard).name}</h2>
       <div className="market-preview-badges"><PositionBadge pos={getPlayer(panelCard).pos}/><SeasonBadge tier={getPlayer(panelCard).tier}/><span className="market-preview-ovr">OVR <b>{ovr(panelCard)}</b></span><img className="market-level-img" src={levelBadge(panelCard.level)} alt={`+${panelCard.level}`}/></div>
       {buying && <div className="market-grades" role="group" aria-label="Chọn nhanh cấp thẻ muốn mua">{Array.from({ length: MAX_LEVEL }, (_, i) => i + 1).map(level => <button key={level} aria-pressed={panelCard.level === level} aria-label={`Xem giá +${level}`} onClick={() => setPanelLevel(level)}><img className="market-level-img" src={levelBadge(level)} alt=""/></button>)}</div>}
-      {onDetail && <button type="button" className="secondary-button market-info" onClick={() => onDetail(panelCard)}><Info size={15}/>Thông tin cầu thủ</button>}
       <dl><div><dt>Giá thẻ</dt><dd className={isUnpriced(quote) ? 'is-unpriced' : undefined}>{formatMarketPrice(quote.price)}{isUnpriced(quote) && <small> · Chưa định giá</small>}</dd></div>{!buying && <><div><dt>Phí bán {quote.feePercent}%</dt><dd>−{formatMarketPrice(quote.fee)}</dd></div><div className="market-total"><dt>Bạn nhận</dt><dd>{formatMarketPrice(quote.proceeds)}</dd></div></>}</dl>
       <button className="market-primary" disabled={isTradeLocked(panelCard) || !quote.available || (buying && !free && save.balance < (quote.price ?? Infinity))} onClick={() => onTrade({ kind: buying ? 'buy' : 'sell', card: panelCard })}>{buying ? 'Mua cầu thủ' : 'Bán cầu thủ'}<ArrowRight size={16}/></button>
       <small>{isTradeLocked(panelCard) ? TRADE_LOCKED : !quote.available ? quote.reason : [quote.liquidityNote, quote.insuranceFee === null ? '' : `Bảo hiểm lên +${panelCard.level + 1}: ${formatMarketPrice(quote.insuranceFee)} (${Math.round(quote.insuranceRate * 100)}% giá thẻ).`].filter(Boolean).join(' ')}</small></aside></div> : <div className="empty-state market-empty"><Search size={32}/><h2>{!buying && !save.cards.length ? 'Kho cầu thủ đang trống' : 'Không tìm thấy cầu thủ'}</h2><p>{!buying && !save.cards.length ? 'Mở gói hoặc mua cầu thủ để bổ sung vào kho.' : 'Thử đổi tên, vị trí, mùa thẻ hoặc cấp thẻ.'}</p><button className="secondary-button" onClick={!buying && !save.cards.length ? onOpenPacks : reset}>{!buying && !save.cards.length ? 'Mở gói cầu thủ' : 'Đặt lại bộ lọc'}</button></div>}

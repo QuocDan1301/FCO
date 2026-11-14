@@ -14,7 +14,10 @@
 /* 2–3. Danh sách kiểu bảng Quản lí CT: vị trí (vạch màu tuyến, lớp squad-pos) · ảnh thẻ · mùa + tên · lương (lục giác squad-wage) · OVR ·
    huy hiệu cấp · giá · thao tác; tiêu đề cột bấm để sắp xếp. */
 .market-badges{display:flex;align-items:center;gap:5px;min-width:0;flex-wrap:nowrap}
-.market-columns,.market-workspace .market-row{display:grid;grid-template-columns:62px 44px minmax(0,1fr) 46px 54px 48px minmax(84px,120px) 72px;align-items:center;gap:8px}
+.market-columns,.market-workspace .market-row{display:grid;grid-template-columns:62px 44px minmax(0,1fr) 46px 54px 48px minmax(84px,120px) 34px 72px;align-items:center;gap:8px}
+/* Nút kính lúp mở Thông tin cầu thủ trên từng hàng. */
+.market-row-info{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;color:#aeb6c2;background:#ffffff0d}
+.market-row-info:hover,.market-row-info:focus-visible{color:#fff;background:#ffffff26}
 .market-columns{flex-shrink:0;height:32px;padding:0 12px;background:#232a33;border-radius:4px 4px 0 0;font-size:12px;color:#aeb6c2;overflow:hidden;scrollbar-width:thin;scrollbar-gutter:stable}
 .market-col{display:flex;align-items:center;gap:3px;padding:0;background:none;border:0;font-size:12px;color:inherit;white-space:nowrap;cursor:pointer}
 .market-col:hover,.market-col.on{color:#f0f1f3}
@@ -54,12 +57,13 @@
 .market-workspace .market-row{height:48px}
 }
 @media(max-width:1100px) and (min-width:641px){
-.market-columns,.market-workspace .market-row{grid-template-columns:54px 36px minmax(0,1fr) 38px 46px 40px minmax(70px,96px) 56px;gap:6px}
+.market-columns,.market-workspace .market-row{grid-template-columns:54px 36px minmax(0,1fr) 38px 46px 40px minmax(70px,96px) 30px 56px;gap:6px}
 .market-workspace .market-player b{font-size:14px}
 }
 /* Điện thoại: bỏ cột lương và cấp thẻ; huỷ bố cục 2 dòng cũ của hàng (market.css / fixed-screen.css / phone.css). */
 @media(max-width:640px){
-.market-columns,.market-workspace .market-row{grid-template-columns:44px 30px minmax(0,1fr) 34px 64px 48px;gap:5px}
+.market-columns,.market-workspace .market-row{grid-template-columns:44px 30px minmax(0,1fr) 34px 64px 30px 48px;gap:5px}
+.market-row-info{width:28px;height:28px}
 .market-columns{padding:0 8px}
 .market-columns>.market-col:nth-of-type(3),.market-columns>.market-col:nth-of-type(5),.market-row .squad-wage,.market-row .market-level{display:none}
 .market-workspace .market-list{--page-item-height:52}
@@ -107,6 +111,8 @@
 .spotlight-item h3{font-family:var(--display);font-size:17px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#f2f4f6}
 .spotlight-item header small{display:block;font-size:11px;color:#8f99ab;margin-top:2px}
 .spotlight-card{flex:1;min-height:120px;container-type:size;display:flex;align-items:center;justify-content:center;margin:10px 0}
+.spotlight-wait p{max-width:260px;margin:0;padding:18px;border:1px dashed #ffffff33;border-radius:12px;text-align:center;color:#cfd6e4;font-size:15px;font-weight:700;line-height:1.5}
+.spotlight-wait small{display:block;margin-top:6px;font-size:12.5px;font-weight:500;color:#9aa3b5}
 .spotlight-card>.player-card{height:min(100cqh,calc(100cqw * 1.09));width:auto;transition:scale .35s cubic-bezier(.22,1,.36,1)}
 .spotlight-item:hover .spotlight-card>.player-card{scale:1.04}
 .spotlight-info{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}

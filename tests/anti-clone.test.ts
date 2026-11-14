@@ -13,7 +13,7 @@ test('Hạn chế clone: mã thiết bị lưu cố định trong trình duyệt
   assert.match(id, /^[0-9a-f-]{36}$/);
   assert.equal(store.get('fco-device'), id);
   assert.equal(deviceId(), id);
-  assert.match(readFileSync('src/wallet.ts', 'utf8'), /'fco_heartbeat', \{ p_device: deviceId\(\) \}/);
+  assert.match(readFileSync('src/wallet.ts', 'utf8'), /'fco_heartbeat', \{ p_device: deviceId\(\)/);
 });
 
 test('Hạn chế clone: quà ngày, Bi Lắc miễn phí, gift code bị giới hạn theo thiết bị; thông báo dễ hiểu', () => {

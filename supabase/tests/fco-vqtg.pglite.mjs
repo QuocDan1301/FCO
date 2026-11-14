@@ -119,7 +119,8 @@ for (let k = 0; k < 200; k++) {
   const p = res.plays[0];
   if (p.to === 14 && p.reward?.jackpot === 'special') { jackpots++; assert.equal(res.jackpot.pot, 2000); }
   if (p.to === 14 && p.reward?.jackpot === 'mini') minis++;
-  if (p.to === 14 && !p.reward?.jackpot) assert.equal(p.reward, null, 'ô 14 không trúng thì không có quà (202611130005)');
+  assert.ok(p.to !== 14 || p.reward?.jackpot === 'special', 'chỉ trúng mới đứng ở ô 14 (202611140007)');
+  assert.ok(p.to !== 10 || p.pool === true, 'chỉ trúng mới đứng ở ô 10 (202611140007)');
 }
 console.log('ô 14 trúng Giải Đặc Biệt', jackpots, '· Giải Phụ', minis);
 assert.equal(minis, 0, 'ô 14 không còn Giải Phụ (202611130010)');
@@ -159,7 +160,20 @@ for (let k = 0; k < 240; k++) {
   assert.ok(![10, 14].includes(res.plays[0].to), 'quỹ dưới 10.000 FC không dừng ô 10 / 14');
   assert.equal(res.plays[0].tickets, [1, 2, 2, 2, 3, 6][res.plays[0].roll - 1]);
 }
-// Dùng Chỉ định không tốn FC (202611130018): FC giữ nguyên, trừ 1 lượt Chỉ định, vẫn được vé.
+// Chỉ trúng mới đứng ở ô 10 / 14 (202611140007): quỹ ≥ 10.000 FC, nhiều lượt 10 từ ô 8 / 13 → mọi lượt dừng ô 10 / 14 đều là trúng.
+for (let k = 0; k < 120; k++) {
+  await db.exec(`update public.fco_wallets set vqtg_pos = ${k % 2 ? 13 : 8}, vqtg_picks = 0, fc = 100000 where user_id = '${U}'; update public.fco_jackpot set pot = 20000 where id = 1`);
+  const res = await as(`select public.fco_vqtg_play(10, 'fc')`);
+  for (const p of res.plays) {
+    if (p.to === 10) assert.ok(p.pool && p.reward?.bp > 0, 'đứng ô 10 = trúng Mini Jackpot');
+    if (p.to === 14) assert.equal(p.reward?.jackpot, 'special', 'đứng ô 14 = trúng Giải Đặc Biệt');
+    assert.equal(p.tickets, [1, 2, 2, 2, 3, 6][p.roll - 1]);
+  }
+}
+// Người đang đứng ô 10 / 14 mà không trúng: chạy lại migration thì lùi về ô trước; người trong bảng tin trúng giữ nguyên.
+await db.exec(`update public.fco_wallets set vqtg_pos = 14 where user_id = '${U}'; update public.fco_jackpot set feed = '[]' where id = 1`);
+await db.exec(readFileSync(`${root}/supabase/migrations/202611140007_fco_vqtg_stand_only_win.sql`, 'utf8'));
+assert.equal((await wallet()).vqtg_pos, 13);// Dùng Chỉ định không tốn FC (202611130018): FC giữ nguyên, trừ 1 lượt Chỉ định, vẫn được vé.
 await db.exec(`update public.fco_wallets set vqtg_picks = 1, vqtg_pos = 2, fc = 500 where user_id = '${U}'; update public.fco_jackpot set pot = 20000 where id = 1`);
 const fcBefore = (await wallet()).fc;
 const pr = await as(`select public.fco_vqtg_play(1, 'fc', 3)`);

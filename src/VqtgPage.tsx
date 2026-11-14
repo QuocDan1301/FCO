@@ -24,7 +24,8 @@ import './vqtg.css';
 type Props = {
   fc: number; vqtg: VqtgState | null; loadConfig: () => Promise<VqtgConfig>; loadTop: () => Promise<VqtgTop>; loadJackpot: () => Promise<ServerJackpot>;
   onPlay: (count: number, mode: 'fc' | 'free', pick?: number) => Promise<VqtgResult | null>;
-  onClaim: (index: number, choice: number | null) => Promise<VqtgReward[] | null>;
+  // choice: số lựa chọn (1 lượt) hoặc mảng lựa chọn từng lượt (Chọn nhanh, nhận nhiều lượt một lần).
+  onClaim: (index: number, choice: number | null | number[]) => Promise<VqtgReward[] | null>;
   onRefresh: () => Promise<void>; onHistory: () => void;
 };
 const EFFECTS_KEY = 'fco-vqtg-effects';
@@ -130,6 +131,9 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
   const [received, setReceived] = useState<BilacReward[]>([]);
   const [modal, setModal] = useState<'pick' | 'guide' | 'received' | null>(null);
   const [choosing, setChoosing] = useState<VqtgMilestone | null>(null);
+  // Chọn nhanh: số lượt muốn nhận ở từng lựa chọn của mốc đang chọn.
+  const [quick, setQuick] = useState<number[]>([]);
+  useEffect(() => { setQuick([]); }, [choosing?.idx]);
   const [miniFeed, setMiniFeed] = useState<VqtgMiniWin[]>([]);
   const [top, setTop] = useState<VqtgTop | null>(null);
   const [tip, setTip] = useState<Tip | null>(null);
@@ -229,17 +233,29 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
   };
 
   // Nhận quà mốc Shop Đổi Vé (máy chủ kiểm tra đủ vé / số lần); mốc nhiều lựa chọn mở hộp chọn trước.
-  const claim = async (m: VqtgMilestone, choice: number | null) => {
+  const claim = async (m: VqtgMilestone, choice: number | null | number[]) => {
     if (busy) return;
     setBusy(true);
     try {
       const rewards = await onClaim(m.idx, choice);
       if (!rewards) return;
       setChoosing(null); setReceived(list => [...list, ...rewards.filter((r): r is BilacReward => !('voucher' in r))]);
-      setResult({ title: `Quà mốc ${money(m.tickets)} vé`, rewards, notes: [] });
+      const times = Array.isArray(choice) ? choice.length : 1;
+      setResult({ title: `Quà mốc ${money(m.tickets)} vé${times > 1 ? ` × ${times}` : ''}`, rewards, notes: [] });
     } finally { setBusy(false); }
   };
 
+  // Chọn nhanh khi mốc nhiều lựa chọn còn từ 2 lượt trở lên (người dùng 2026-11-14): đặt số lượt từng lựa chọn rồi nhận một lần.
+  const chooseLeft = choosing && vqtg ? vqtgAvailable(vqtg.tickets, choosing, vqtg.claimed?.[choosing.idx], config?.round ?? 1, !!vqtg.paid) : 0;
+  const quickMode = chooseLeft >= QUICK_MIN, quickCap = Math.min(chooseLeft, QUICK_MAX);
+  const quickTotal = quick.reduce((n, c) => n + (c || 0), 0);
+  // Đổi số lượt lựa chọn i thêm delta (tính trên giá trị mới nhất để bấm nhanh liên tiếp không mất lượt); tổng không vượt quickCap.
+  const bumpQuick = (i: number, delta: number) => setQuick(list => {
+    const next = choosing ? choosing.options.map((_, k) => list[k] ?? 0) : [...list];
+    const others = next.reduce((n, c, k) => n + (k === i ? 0 : c), 0);
+    next[i] = Math.max(0, Math.min(next[i] + delta, quickCap - others));
+    return next;
+  });
   const tiles = config?.tiles ?? [];
   const price1 = config?.prices.find(p => p.count === 1)?.price ?? 0;
   const picks = vqtg?.picks ?? 0;
@@ -299,11 +315,20 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
       <div className="vq-dialog vq-choose" onClick={e => e.stopPropagation()}>
         <button type="button" className="icon-button" aria-label="Đóng" onClick={() => setChoosing(null)}><X/></button>
         <h3>Mốc {money(choosing.tickets)} vé · chọn 1 trong {choosing.options.length}</h3>
-        <div className="vq-choose-list">{choosing.options.map((opt, i) => <div key={i} className="vq-choose-opt">
+        {quickMode && <p className="vq-quick-head">Chọn nhanh · còn <b>{money(chooseLeft)}</b> lượt · đã chọn <b>{quickTotal}</b>{chooseLeft > QUICK_MAX ? ` (tối đa ${QUICK_MAX} lượt mỗi lần)` : ''}</p>}
+        <div className="vq-choose-list">{choosing.options.map((opt, i) => <div key={i} className={`vq-choose-opt ${quickMode ? 'is-quick' : ''}`}>
           <div className="vq-bundle">{opt.map((r, j) => <Thumb key={j} reward={r}/>)}</div>
           <p>{opt.map(rewardText).join(' + ')}</p>
-          <button type="button" className="vq-ms-btn" disabled={busy} onClick={() => void claim(choosing, i)}>Chọn</button>
+          {quickMode ? <div className="vq-quick" role="group" aria-label={`Số lượt chọn ${opt.map(rewardText).join(' + ')}`}>
+            <button type="button" disabled={busy || !quick[i]} onClick={() => bumpQuick(i, -1)} aria-label="Bớt 1">−</button>
+            <b>{quick[i] ?? 0}</b>
+            <button type="button" disabled={busy || quickTotal >= quickCap} onClick={() => bumpQuick(i, 1)} aria-label="Thêm 1">+</button>
+            <button type="button" className="vq-quick-all" disabled={busy} onClick={() => setQuick(choosing.options.map((_, k) => k === i ? quickCap : 0))}>Tất cả</button>
+          </div>
+          : <button type="button" className="vq-ms-btn" disabled={busy} onClick={() => void claim(choosing, i)}>Chọn</button>}
         </div>)}</div>
+        {quickMode && <button type="button" className="vq-ms-btn vq-quick-go" disabled={busy || !quickTotal}
+          onClick={() => void claim(choosing, quick.flatMap((n, i) => Array.from({ length: n }, () => i)))}>Nhận nhanh {quickTotal || ''} lượt</button>}
       </div>
     </div>}
 
@@ -327,8 +352,8 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
           <li>Mỗi lượt quay vòng xúc xắc ra số 1–6, quân đi đúng số ô theo chiều kim đồng hồ (hết ô 16 quay về ô 1) và nhận quà ô dừng.</li>
           <li>Ô quà: nhận ngẫu nhiên 1 trong 4 món của ô; trỏ chuột / chạm vào món quà để xem tên.</li>
           <li>Ô 6 · Chỉ định: nhận 1 lượt Chỉ định. Bấm ô 6 để tự chọn số xúc xắc cho lượt sau, miễn phí (không tốn FC, vẫn được vé); không chọn được số dừng ở ô 10 và ô 14.</li>
-          <li>Ô 10 · Mini Jackpot: {Math.round(VQTG_RULES.bpChance * 100)}% trúng Mini Jackpot BP. Mini Jackpot tăng theo Giải Đặc Biệt: cứ 1.000 FC quỹ Giải Đặc Biệt thì Mini Jackpot được {shortBp(miniJackpotBp(1000))} BP. Không trúng thì lượt đó không có quà.</li>
-          <li>Ô 14 · Giải Đặc Biệt: cơ hội nhận cả quỹ FC chung (tăng dần khi quỹ lớn); quỹ chưa tới 10.000 FC thì quân không dừng ở ô 10 và ô 14 (xúc xắc tự lắc lại). Giải Đặc Biệt nổ thì Mini Jackpot cũng nổ cùng lúc nhưng về tay một HLV khác, cả hai về mức thấp. Không trúng thì lượt đó không có quà.</li>
+          <li>Ô 10 · Mini Jackpot: {Math.round(VQTG_RULES.bpChance * 100)}% trúng Mini Jackpot BP. Mini Jackpot tăng theo Giải Đặc Biệt: cứ 1.000 FC quỹ Giải Đặc Biệt thì Mini Jackpot được {shortBp(miniJackpotBp(1000))} BP. Chỉ trúng mới được đứng ở ô này; không trúng thì xúc xắc tự lắc lại sang ô khác và nhận quà ô đó.</li>
+          <li>Ô 14 · Giải Đặc Biệt: cơ hội nhận cả quỹ FC chung (tăng dần khi quỹ lớn); quỹ chưa tới 10.000 FC thì quân không dừng ở ô 10 và ô 14 (xúc xắc tự lắc lại). Giải Đặc Biệt nổ thì Mini Jackpot cũng nổ cùng lúc nhưng về tay một HLV khác, cả hai về mức thấp. Chỉ trúng mới được đứng ở ô này; không trúng thì xúc xắc tự lắc lại sang ô khác.</li>
           <li>Giá: {(config?.prices ?? []).map(p => `${p.count} lần ${money(p.price)} FC`).join(' · ')}. Mỗi ngày có 1 lượt miễn phí.</li>
           <li>Mỗi lượt chơi (kể cả lượt miễn phí) được vé theo số lắc: số 1 được 1 vé, số 2 / 3 / 4 được 2 vé, số 5 được 3 vé, số 6 được 6 vé (vé in cạnh số trên vòng quay). Dùng Chỉ định chọn số nhiều vé để đủ mốc nhanh hơn. Shop Đổi Vé (kéo xuống dưới bàn): đủ vé của mốc là nhận quà, vé không bị trừ; qua mốc cuối thì sang vòng mới, mỗi mốc nhận lại được. Mốc 1 vé chỉ nhận khi đã chơi lượt trả phí.</li>
           <li>Quà BP và gói vào thẳng kho; FC cộng vào ví. Xem lại ở Lịch sử → Sự kiện.</li>
@@ -363,6 +388,8 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
   </TipContext.Provider>;
 }
 
+const QUICK_MIN = 2, QUICK_MAX = 100; // máy chủ nhận tối đa 100 lượt mỗi lần (fco_vqtg_claim_many)
+
 // Shop Đổi Vé: vé tích lũy (không bị trừ), đủ vé là nhận; hết mốc cuối thì sang vòng mới, mỗi mốc nhận lại được (fco_vqtg_claim).
 function VqtgShop({ milestones, round, tickets, claimed, paid, busy, onClaim, children }: {
   milestones: VqtgMilestone[]; round: number; tickets: number; claimed: number[]; paid: boolean; busy: boolean; onClaim: (m: VqtgMilestone) => void; children?: ReactNode;
@@ -394,7 +421,7 @@ function VqtgShop({ milestones, round, tickets, claimed, paid, busy, onClaim, ch
         <small className="vq-ms-count">Số lần có thể chọn quà: <b>{left}</b></small>
         <div className="vq-ms-opts">{m.options.map((opt, i) => <div key={i} className="vq-bundle">{opt.map((r, j) => <Thumb key={j} reward={r}/>)}</div>)}
           {done && <i className="vq-ms-check" aria-label="Đã nhận"><Check/></i>}</div>
-        <button type="button" className="vq-ms-btn" disabled={busy || !left} onClick={() => onClaim(m)}>{money(m.tickets)} vé (chọn 1 trong {m.options.length})</button>
+        <button type="button" className="vq-ms-btn" disabled={busy || !left} onClick={() => onClaim(m)}>{left >= QUICK_MIN ? `Chọn nhanh · ${money(left)} lượt` : `${money(m.tickets)} vé (chọn 1 trong ${m.options.length})`}</button>
       </div>; })}</div></div>
     {children}
   </section>;

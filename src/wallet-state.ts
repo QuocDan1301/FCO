@@ -24,6 +24,9 @@ export type LeaderboardOvr = { name: string; ovr: number; playerId: number | nul
 export type LeaderboardSquad = { name: string; value: number; mine: boolean; effect?: NameEffect | null; club?: string | null };
 // Sút phạt đền (migration 202611110005): chuỗi bàn liên tiếp dài nhất.
 export type LeaderboardPenalty = { name: string; goals: number; mine: boolean; effect?: NameEffect | null; club?: string | null };
+// BXH "Đập +8 nhiều nhất" (fco_plus8_board): số cầu thủ khác nhau đập thành công lên +8, mỗi mùa tối đa 3.
+export type Plus8Row = { name: string; count: number; mine: boolean; effect?: NameEffect | null; club?: string | null };
+export type Plus8Board = { top: Plus8Row[]; me: { count: number; rank: number | null } };
 export type Leaderboard = { ovr: LeaderboardOvr[]; squad: LeaderboardSquad[]; penalty?: LeaderboardPenalty[]; me: { ovr: number | null; ovrRank: number | null; squad: number | null; squadRank: number | null; penalty?: number | null; penaltyRank?: number | null } };
 export type EventPlayResult = { hits: { level: number; jar: number }[]; paid: number; jarFc: number; jackpotWins: { kind: 'special' | 'mini'; amount: number; time: number }[]; jackpot: ServerJackpot; wallet: Wallet };
 // Quà admin tặng (supabase/migrations/202611090002_fco_admin_gifts.sql); claimed chỉ có ở danh sách của admin.

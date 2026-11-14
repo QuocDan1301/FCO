@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { PACK_LEVELS, TIERS, allPacks, random, buyPacks, customPack, defaultPacks, draw, getPackStock, getPlayer, isPackAvailable, openPacks, ovr, packOdds, packs, players, shopPacks, openChosen, choosePool, openDraft, draftCandidates, draftSize, defaultDraft, validateSave } from '../src/game.ts';
+import { PACK_LEVELS, TIERS, allPacks, random, buyPacks, customPack, defaultPacks, draw, getPackStock, getPlayer, isPackAvailable, openPacks, ovr, packOdds, fixedLevel, packs, players, shopPacks, openChosen, choosePool, openDraft, draftCandidates, draftSize, defaultDraft, validateSave } from '../src/game.ts';
 import { initialSave } from './stocked-save.ts';
 import type { CustomPackData, Pack } from '../src/game.ts';
 import { SEASON_IDS, customArtPath, packError } from '../src/admin/pack-rules.ts';
@@ -17,7 +17,9 @@ const sample: CustomPackData = { id: 'mau-thu', name: 'MẪU THỬ', short: 'MAU
 const rangeOf = (pack: Pack) => {
   const { pool, levels } = packOdds(pack);
   if (!pool.length) return '';
-  return `${Math.min(...pool.map(r => ovr({ playerId: r.player.id, level: levels[0].level })))}–${Math.max(...pool.map(r => ovr({ playerId: r.player.id, level: levels[levels.length - 1].level })))}`;
+  // Mùa có cấp cố định (seasonLevels, vd. EL luôn +1) tính theo cấp đó.
+  const at = (r: { player: { id: number; tier: Pack['seasons'] extends (infer T)[] | undefined ? T : never } }, level: number) => ovr({ playerId: r.player.id, level: fixedLevel(pack, r.player) ?? level });
+  return `${Math.min(...pool.map(r => at(r, levels[0].level)))}–${Math.max(...pool.map(r => at(r, levels[levels.length - 1].level)))}`;
 };
 
 test('Gói trong src/packs.json: dữ liệu hợp lệ, mã không trùng, có ảnh gói, khoảng OVR đúng; mùa khớp TIERS và bảng ghép ảnh', () => {
@@ -56,7 +58,7 @@ test('Gói rút đúng: chỉ mùa đã chọn, đủ OVR +1 tối thiểu, đú
     // Gói chỉ định không rút ngẫu nhiên: mở bằng cách chọn cầu thủ (openChosen).
     if (pack.choose) { const chosen = openChosen(stocked, pack, eligible[0].id); assert.equal(chosen.card.level, high); assert.equal(validateSave(JSON.parse(JSON.stringify(chosen.state))), true); continue; }
     const opened = openPacks(stocked, pack, 15, seeded(5));
-    assert.ok(opened.cards.every(card => card.level >= low && card.level <= high && eligible.some(p => p.id === card.playerId)), data.id);
+    assert.ok(opened.cards.every(card => (card.level === fixedLevel(pack, getPlayer(card)) || card.level >= low && card.level <= high) && eligible.some(p => p.id === card.playerId)), data.id);
     assert.equal(validateSave(JSON.parse(JSON.stringify(opened.state))), true);
   }
   for (const pack of shopPacks.filter(isPackAvailable)) assert.equal(getPackStock(buyPacks(initialSave(), pack, 2, true), pack), 17);

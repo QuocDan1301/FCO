@@ -5746,6 +5746,141 @@
       "published": true,
       "eventOnly": true,
       "choose": true
+    },
+    {
+      "id": "p8-1",
+      "name": "EL, CU, UT, CC 114+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "el",
+        "cu",
+        "ut",
+        "cc"
+      ],
+      "minOvr": 114,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "seasonLevels": {
+        "el": 1
+      },
+      "price": 98600000,
+      "description": "Gói hỗn hợp EL · CU · UT · CC, cầu thủ OVR từ 114, thẻ +8. Quà Top 1 sự kiện Đập 8 liền tay.",
+      "range": "127–137",
+      "back": "/assets/custom/p8-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "p8-2",
+      "name": "EL, CU, UT, CC 113+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "el",
+        "cu",
+        "ut",
+        "cc"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "seasonLevels": {
+        "el": 1
+      },
+      "price": 60300000,
+      "description": "Gói hỗn hợp EL · CU · UT · CC, cầu thủ OVR từ 113, thẻ +8. Quà Top 2 sự kiện Đập 8 liền tay.",
+      "range": "127–137",
+      "back": "/assets/custom/p8-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "p8-3",
+      "name": "EL, CU, UT, CC 112+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "el",
+        "cu",
+        "ut",
+        "cc"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "seasonLevels": {
+        "el": 1
+      },
+      "price": 40600000,
+      "description": "Gói hỗn hợp EL · CU · UT · CC, cầu thủ OVR từ 112, thẻ +8. Quà Top 3 sự kiện Đập 8 liền tay.",
+      "range": "127–137",
+      "back": "/assets/custom/p8-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "p8-4",
+      "name": "EL, CU, UT, CC 111+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "el",
+        "cu",
+        "ut",
+        "cc"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "seasonLevels": {
+        "el": 1
+      },
+      "price": 27300000,
+      "description": "Gói hỗn hợp EL · CU · UT · CC, cầu thủ OVR từ 111, thẻ +8. Quà Top 4 sự kiện Đập 8 liền tay.",
+      "range": "126–137",
+      "back": "/assets/custom/p8-4-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "p8-5",
+      "name": "EL, CU, UT, CC 110+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "el",
+        "cu",
+        "ut",
+        "cc"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "seasonLevels": {
+        "el": 1
+      },
+      "price": 18100000,
+      "description": "Gói hỗn hợp EL · CU · UT · CC, cầu thủ OVR từ 110, thẻ +8. Quà Top 5 sự kiện Đập 8 liền tay.",
+      "range": "125–137",
+      "back": "/assets/custom/p8-5-back.webp",
+      "published": true,
+      "eventOnly": true
     }
   ]
 }

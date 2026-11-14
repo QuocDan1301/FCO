@@ -1,0 +1,57 @@
+/* Sự kiện HOT "Đập 8 liền tay" (src/Plus8Page.tsx) + nút ở trang chủ (src/HomeModes.tsx). */
+.p8-page{display:flex;flex-direction:column;gap:14px}
+.p8-hero{position:relative;display:grid;justify-items:center;gap:2px;padding:18px 16px 16px;border-radius:16px;overflow:hidden;text-align:center;
+  background:radial-gradient(120% 140% at 50% 0%,#ff7a1a55,transparent 60%),linear-gradient(135deg,#3a0d0d,#1a0b14 55%,#2a1206);box-shadow:inset 0 0 0 1px #ff9a4a55,0 10px 30px #0008}
+.p8-hero::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#ffffff1f 45%,transparent 60%);transform:translateX(-100%);animation:p8-shine 3.6s ease-in-out infinite;pointer-events:none}
+@keyframes p8-shine{0%,55%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.p8-hero h1{margin:0;font-family:var(--display);font-size:clamp(30px,4.4vw,52px);font-weight:900;line-height:1;letter-spacing:.5px;text-transform:uppercase;
+  background:linear-gradient(180deg,#fff6c8,#ffc23d 55%,#ff7a1a);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 8px #000c)}
+.p8-tag{margin:0;font-size:clamp(14px,1.6vw,19px);font-weight:800;color:#ffe2b8;letter-spacing:.6px;text-transform:uppercase}
+.p8-hot,.hero-hot-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:linear-gradient(90deg,#ff3b2f,#ff8a00);color:#fff;
+  font-size:12px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;box-shadow:0 0 14px #ff5a1f99;animation:p8-pulse 1.4s ease-in-out infinite}
+.p8-hot svg,.hero-hot-badge svg{width:13px;height:13px}
+@keyframes p8-pulse{0%,100%{transform:scale(1);box-shadow:0 0 10px #ff5a1f88}50%{transform:scale(1.07);box-shadow:0 0 20px #ff7a1fcc}}
+.p8-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr) minmax(0,250px);gap:14px;align-items:stretch}
+.p8-side{display:flex;flex-direction:column;gap:12px;min-height:0;overflow-y:auto}
+.p8-board{min-height:0}
+.p8-me{display:grid;gap:4px;padding:14px 16px;border-radius:14px;background:linear-gradient(160deg,#2b1a0a,#14100c);box-shadow:inset 0 0 0 1px #e8b04a55}
+.p8-me small{font-size:12px;font-weight:700;color:#c9b48a;text-transform:uppercase;letter-spacing:.5px}
+.p8-me b{display:flex;align-items:baseline;gap:8px;font-family:var(--display);font-size:44px;font-weight:900;line-height:1;color:#ffd35a}
+.p8-me b span{font-size:15px;font-weight:700;color:#f3e3c0}
+.p8-me p{margin:0;font-size:14px;color:#d8cdb6}.p8-me strong{color:#ffd35a}
+.p8-rules{display:grid;gap:8px;margin:0;padding:12px 14px;list-style:none;border-radius:14px;background:#ffffff0a;box-shadow:inset 0 0 0 1px #ffffff14}
+.p8-rules li{display:grid;grid-template-columns:15px minmax(0,1fr);gap:8px;font-size:13.5px;line-height:1.4;color:#d7dce4}
+.p8-rules svg{flex:none;width:15px;height:15px;margin-top:2px;color:#ffb020}
+.p8-rules b{color:#ffe08a}
+.p8-go{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border:0;border-radius:12px;cursor:pointer;
+  background:linear-gradient(180deg,#ffb02e,#ff6a00);color:#1b0b00;font-family:var(--display);font-size:19px;font-weight:900;text-transform:uppercase;box-shadow:0 6px 18px #ff6a0066,inset 0 1px 0 #fff8}
+.p8-go:hover,.p8-go:focus-visible{filter:brightness(1.08);outline:none}
+.p8-go svg{width:18px;height:18px}
+.p8-board h2{display:flex;align-items:center;gap:8px}
+.p8-prizes{display:flex;flex-direction:column;gap:8px;min-height:0;padding:12px;border-radius:14px;background:linear-gradient(170deg,#2a1608,#120d0a);box-shadow:inset 0 0 0 1px #e8b04a44}
+.p8-prizes h2{display:flex;align-items:center;gap:8px;margin:0;font-family:var(--display);font-size:20px;color:#ffd35a}
+.p8-prizes h2 svg{width:20px;height:20px}
+.p8-prizes ol{flex:1;min-height:0;display:grid;grid-template-rows:repeat(5,minmax(0,1fr));gap:6px;margin:0;padding:0;list-style:none}
+.p8-prizes li{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:center;gap:10px;min-height:0;padding:4px 10px;border-radius:10px;background:#ffffff0a;box-shadow:inset 0 0 0 1px #ffffff12}
+.p8-prizes li.gold{background:linear-gradient(90deg,#5a3d0c,#ffffff08)}.p8-prizes li.silver{background:linear-gradient(90deg,#3a414c,#ffffff08)}.p8-prizes li.bronze{background:linear-gradient(90deg,#4d2c17,#ffffff08)}
+.p8-prize-rank{font-family:var(--display);font-size:15px;font-weight:900;color:#ffe08a;white-space:nowrap}
+.p8-prize-art.pack-img{display:block;height:100%;max-height:96px;aspect-ratio:.663;width:auto}
+.p8-prize-name{font-size:12.5px;font-weight:700;line-height:1.3;color:#f1e6cf}
+.p8-refresh{margin-left:auto}
+@media (max-width:1200px){.p8-body{grid-template-columns:minmax(0,280px) minmax(0,1fr) minmax(0,210px)}}
+@media (max-width:900px) and (orientation:portrait){.p8-body{grid-template-columns:minmax(0,1fr)}.p8-board{min-height:420px}.p8-prizes ol{grid-template-rows:none}.p8-prizes li{height:84px}}
+@media (orientation:landscape) and (max-height:500px){.p8-page{gap:6px}.p8-body{grid-template-columns:200px minmax(0,1fr) 170px;gap:6px}.p8-prizes{padding:6px;gap:4px}.p8-prizes h2{font-size:14px}.p8-prizes li{gap:5px;padding:2px 6px}.p8-prize-rank{font-size:11px}.p8-prize-name{font-size:9.5px}.p8-hero{padding:6px 10px}.p8-hero h1{font-size:24px}.p8-tag{font-size:12px}.p8-hot{font-size:10px;padding:2px 8px}.p8-me{padding:8px 10px}.p8-me b{font-size:28px}.p8-side{gap:6px}.p8-rules{padding:8px 10px;gap:5px}.p8-rules li{font-size:11px}.p8-go{height:36px;font-size:15px}}
+/* Nút sự kiện HOT ở trang chủ: nổi bật trên menu chế độ. */
+.hero-hot{position:relative;display:flex;align-items:center;gap:14px;width:100%;padding:10px 18px 10px 12px;border:0;border-radius:14px;cursor:pointer;text-align:left;overflow:hidden;color:#fff;
+  background:linear-gradient(100deg,#7a1407ee,#c2410ccc 55%,#7a1407aa);box-shadow:inset 0 0 0 1px #ffb46a88,0 8px 24px #ff4d0040;transition:transform .2s,filter .2s}
+.hero-hot::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#ffffff33 45%,transparent 60%);transform:translateX(-100%);animation:p8-shine 3.2s ease-in-out infinite;pointer-events:none}
+.hero-hot:hover,.hero-hot:focus-visible{transform:translateX(4px);filter:brightness(1.1);outline:none}
+.hero-hot-icon{display:grid;place-items:center;flex:none;width:52px;height:52px;border-radius:12px;background:#0004;color:#ffd35a;filter:drop-shadow(0 0 8px #ff8a00aa)}
+.hero-hot-icon svg{width:34px;height:34px}
+.hero-hot-text{display:grid;gap:3px;min-width:0}
+.hero-hot-text b{font-family:var(--display);font-size:28px;font-weight:900;line-height:1;text-transform:uppercase;letter-spacing:.3px;text-shadow:0 2px 8px #000a}
+.hero-hot-text small{font-size:14px;font-weight:800;color:#ffe2b8;text-transform:uppercase;letter-spacing:.5px}
+.hero-hot-badge{position:absolute;top:8px;right:10px;font-size:10.5px;padding:2px 8px}
+@media(max-width:900px){.hero-hot-text b{font-size:22px}.hero-hot-icon{width:42px;height:42px}}
+.reduced-motion .hero-hot::after,.reduced-motion .p8-hero::after,.reduced-motion .p8-hot,.reduced-motion .hero-hot-badge{animation:none}
+@media(prefers-reduced-motion:reduce){.hero-hot::after,.p8-hero::after,.p8-hot,.hero-hot-badge{animation:none}}

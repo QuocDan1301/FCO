@@ -77,7 +77,24 @@ await assert.rejects(as('select public.fco_vqtg_claim(23)'), /FCO_MILESTONE_UNKN
 await setTickets(1900);
 r = await as('select public.fco_vqtg_claim(22, 2)');
 assert.ok(r.rewards.some(x => x.voucher === 30));
-// Reset tài khoản (202611130009): xoá vé, mốc đã nhận, vị trí, Chỉ định; "đã chơi trả phí" tính lại từ sau reset.
+// Chọn nhanh (202611140008): nhận nhiều lượt một mốc trong một lần, gộp quà cùng loại; không vượt số lượt còn lại.
+await setTickets(70 + 1900 * 5); // mốc 70: đạt 6 lượt, đã nhận 2 → còn 4
+await assert.rejects(as(`select public.fco_vqtg_claim_many(5, '{}')`), /FCO_BAD_COUNT/);
+await assert.rejects(as(`select public.fco_vqtg_claim_many(5, array[0, 9])`), /FCO_MILESTONE_CHOICE/);
+await assert.rejects(as(`select public.fco_vqtg_claim_many(5, array[0, 0, 0, 0, 0])`), /FCO_MILESTONE_CLAIMED/);
+r = await as(`select public.fco_vqtg_claim_many(5, array[0, 0, 1])`);
+assert.equal(r.count, 3); assert.equal(r.wallet.vqtg.claimed[5], 5);
+const sumOf = (list, key) => list.filter(x => key in x).reduce((n, x) => n + Number(x[key === 'pack' ? 'count' : key] ?? 1), 0);
+const expect = [...cfg.milestones[5].options[0], ...cfg.milestones[5].options[0], ...cfg.milestones[5].options[1]];
+for (const key of ['pack', 'bp', 'fc', 'voucher']) assert.equal(sumOf(r.rewards, key), sumOf(expect, key), `gộp ${key}`);
+assert.equal(new Set(r.rewards.filter(x => x.pack).map(x => x.pack)).size, r.rewards.filter(x => x.pack).length, 'mỗi gói một dòng');
+await assert.rejects(as(`select public.fco_vqtg_claim_many(5, array[2, 2])`), /FCO_MILESTONE_CLAIMED/);
+r = await as(`select public.fco_vqtg_claim_many(5, array[2])`);
+assert.equal(r.wallet.vqtg.claimed[5], 6);
+// Mốc 1 lựa chọn cũng nhận nhanh được (lựa chọn 0).
+r = await as(`select public.fco_vqtg_claim_many(1, array[0, 0])`);
+assert.equal(r.wallet.vqtg.claimed[1], 3);
+await setTickets(1900);// Reset tài khoản (202611130009): xoá vé, mốc đã nhận, vị trí, Chỉ định; "đã chơi trả phí" tính lại từ sau reset.
 await db.query(`insert into public.fco_admins(user_id) values ($1) on conflict do nothing`, [U]);
 await db.exec(`update public.fco_wallets set vqtg_pos = 7, vqtg_picks = 2 where user_id = '${U}'`);
 r = await as(`select public.fco_admin_account_reset('${U}', false)`);
