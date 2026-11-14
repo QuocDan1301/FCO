@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import type { ReactNode } from 'react';
-import { Crown, Medal, RefreshCw, Shirt, Swords, Target, Trophy } from 'lucide-react';
+import { Crown, Gift, Medal, RefreshCw, Shirt, Swords, Target, Trophy, X } from 'lucide-react';
 import { getPlayer, money, players } from './game';
 import { seasonShort } from './badges';
-import type { Leaderboard } from './wallet-state';
+import type { Leaderboard, RankRound } from './wallet-state';
+import { marketNow } from './market';
+import { roundLeft } from './rank-round';
 import './ranks.css';
 import { nameEffectClass } from './name-effects';
 import { clubLogoUrl } from './club-logo';
@@ -17,12 +19,22 @@ import type { LineupBoardId, PublicLineupView } from './public-lineup';
 // Penalty và GLXH (điểm xếp hạng giả lập, fco_ranked_state). Game gửi số lên ở App.tsx (đập thành công / Giá trị ĐH đổi); trang này chỉ đọc.
 // loadRanked: BXH GLXH (fco_ranked_state) — bảng thứ tư, top 10 theo điểm xếp hạng.
 // viewLineup: bấm một HLV để xem đội hình đang dùng của họ (fco_view_lineup).
-type Props = { load: () => Promise<Leaderboard>; loadRanked?: () => Promise<RankedState>; online: boolean; levelBadge: (level: number) => string; viewLineup?: (board: LineupBoardId, rank: number) => Promise<PublicLineupView | null> };
+// loadRound: vòng đua BXH GLXH + Penalty (hộp quà Top 1–3, đếm ngược, reset mỗi 7 ngày — migration 202611140017).
+type Props = { load: () => Promise<Leaderboard>; loadRanked?: () => Promise<RankedState>; loadRound?: () => Promise<RankRound>; online: boolean; levelBadge: (level: number) => string; viewLineup?: (board: LineupBoardId, rank: number) => Promise<PublicLineupView | null> };
 
 const PLACE = ['gold', 'silver', 'bronze'];
 const known = new Set(players.map(p => p.id));
 
-export default function RanksPage({ load, loadRanked, online, levelBadge, viewLineup }: Props) {
+type RoundBoard = 'ranked' | 'penalty';
+const BOARD_NAME: Record<RoundBoard, string> = { ranked: 'GLXH', penalty: 'Penalty' };
+const endText = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
+
+export default function RanksPage({ load, loadRanked, loadRound, online, levelBadge, viewLineup }: Props) {
+  const [round, setRound] = useState<RankRound | null>(null);
+  const [prizeOf, setPrizeOf] = useState<RoundBoard | null>(null);
+  const [now, setNow] = useState(() => marketNow());
+  useEffect(() => { if (!loadRound) return; const id = setInterval(() => setNow(marketNow()), 1000); return () => clearInterval(id); }, [loadRound]);
+  const left = round ? roundLeft(round.endsAt, now) : null;
   const [viewing, setViewing] = useState<{ board: LineupBoardId; rank: number; name: string } | null>(null);
   // Dòng HLV bấm được (chuột / Enter / Space) để mở đội hình.
   const open = (board: LineupBoardId, rank: number, name: string) => viewLineup ? {
@@ -38,8 +50,15 @@ export default function RanksPage({ load, loadRanked, online, levelBadge, viewLi
   const refresh = useCallback(() => {
     if (!online) return;
     setLoading(true); setError('');
-    Promise.all([load().then(setData), loadRanked ? loadRanked().then(setRanked) : null]).catch(e => setError((e as Error).message)).finally(() => setLoading(false));
-  }, [load, loadRanked, online]);
+    // Hỏi vòng đua TRƯỚC (hết giờ thì máy chủ chốt quà + reset), rồi mới tải BXH để thấy bảng đã reset.
+    const roundFirst = loadRound ? loadRound().then(setRound).catch(() => { /* chưa có migration: ẩn hộp quà */ }) : Promise.resolve();
+    roundFirst.then(() => Promise.all([load().then(setData), loadRanked ? loadRanked().then(setRanked) : null])).catch(e => setError((e as Error).message)).finally(() => setLoading(false));
+  }, [load, loadRanked, loadRound, online]);
+  // Hết giờ khi đang mở trang: tải lại (máy chủ chốt vòng, bắt đầu vòng mới).
+  const ended = !!left?.done;
+  useEffect(() => { if (ended) { const id = setTimeout(refresh, 2500); return () => clearTimeout(id); } }, [ended, refresh]);
+  // Hộp quà nằm cùng hàng tiêu đề bảng (người dùng 2026-11-14); đếm ngược chỉ hiện trong popup.
+  const giftButton = (board: RoundBoard) => round ? <button type="button" className="rk-gift" onClick={() => setPrizeOf(board)} aria-label={`Quà Top 1–3 BXH ${BOARD_NAME[board]}`} title="Xem quà Top 1–3"><Gift aria-hidden="true"/></button> : null;
   useEffect(() => { refresh(); }, [refresh]);
 
   // Luôn đủ 10 dòng để hai bảng cao bằng nhau; dòng chưa có người ghi "Chưa có".
@@ -97,18 +116,30 @@ export default function RanksPage({ load, loadRanked, online, levelBadge, viewLi
         <p className="rk-me">{me?.squad ? <>Hạng của bạn: <b>#{me.squadRank}</b> · {money(me.squad)} BP</> : 'Đội hình đang dùng chưa có giá trị — xếp cầu thủ ở màn Đội hình.'}</p>
       </article>
       <article className="rk-board" aria-label="Top 10 Penalty">
-        <h2><Target aria-hidden="true"/>Penalty</h2>
+        <h2><Target aria-hidden="true"/>Penalty{giftButton('penalty')}</h2>
         <p className="rk-sub">Chuỗi dài nhất (sút vào hoặc bắt được)</p>
         <ol className="rk-list">{ten(penaltyRows)}</ol>
         <p className="rk-me">{me?.penalty ? <>Hạng của bạn: <b>#{me.penaltyRank}</b> · chuỗi {me.penalty}</> : 'Bạn chưa có kỷ lục — vào Penalty ở trang chủ để chơi.'}</p>
       </article>
       {loadRanked && <article className="rk-board" aria-label="Top 10 GLXH">
-        <h2><Swords aria-hidden="true"/>GLXH</h2>
+        <h2><Swords aria-hidden="true"/>GLXH{giftButton('ranked')}</h2>
         <p className="rk-sub">Điểm xếp hạng giả lập</p>
         <ol className="rk-list">{ten(rankedRows)}</ol>
         <p className="rk-me">{rankedMe?.rank ? <>Hạng của bạn: <b>#{rankedMe.rank}</b> · {rankedMe.points.toLocaleString('vi-VN')} điểm · {tierById(rankedMe.tier).name}</> : 'Bạn chưa đá trận GLXH nào — vào GLXH ở trang chủ để thi đấu.'}</p>
       </article>}
     </div>
+    {prizeOf && round && <div className="rk-prize-backdrop" role="dialog" aria-modal="true" aria-label={`Quà BXH ${BOARD_NAME[prizeOf]}`} onClick={() => setPrizeOf(null)}>
+      <div className="rk-prize" onClick={e => e.stopPropagation()}>
+        <header><Gift aria-hidden="true"/><h2>Quà BXH {BOARD_NAME[prizeOf]}</h2>
+          <button type="button" className="icon-button" aria-label="Đóng" onClick={() => setPrizeOf(null)}><X/></button></header>
+        <ol className="rk-prize-list">{round.prizes.slice(0, 3).map((fc, i) => <li key={i} className={PLACE[i]}>
+          <span className="rk-rank">{i + 1}</span><b>Top {i + 1}</b><strong>{money(fc)} <small>FC</small></strong></li>)}</ol>
+        <div className="rk-prize-clock"><small>{left?.done ? 'Đang chốt vòng…' : 'Kết thúc sau'}</small>{left && !left.done && <b>{left.text}</b>}<em>Hạn chót {endText(round.endsAt)}</em></div>
+        <p className="rk-prize-note">Hết giờ, Top 1–3 tự nhận FC vào ví, BXH {BOARD_NAME[prizeOf]} reset và bắt đầu vòng mới 7 ngày.</p>
+        {round.last[prizeOf]?.length ? <div className="rk-prize-last"><h3>Đợt trước</h3>
+          <ol>{round.last[prizeOf]!.map(w => <li key={w.rank} className={w.mine ? 'is-mine' : ''}><span>Top {w.rank}</span><b>{w.mine ? 'Bạn' : w.name}</b><small>{prizeOf === 'ranked' ? `${w.score.toLocaleString('vi-VN')} điểm` : `chuỗi ${w.score}`} · +{money(w.fc)} FC</small></li>)}</ol></div> : null}
+      </div>
+    </div>}
     {viewing && viewLineup && <LineupViewer {...viewing} load={viewLineup} levelBadge={levelBadge} onClose={() => setViewing(null)}/>}
   </section>;
 }

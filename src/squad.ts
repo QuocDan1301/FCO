@@ -57,7 +57,9 @@ export function releaseCard(state: Save, uid: string): Save {
 // ---- Sơ đồ đội hình (màn Đội hình): 3 bộ A/B/C, mỗi bộ 11 ô lấy cầu thủ từ đội hình riêng; cầu thủ còn lại là dự bị (Thay thế). ----
 // x: 0 biên trái → 100 biên phải; y: 0 khung thành đối phương → 100 khung thành nhà. Ô xếp từ hàng công xuống thủ môn, trái sang phải.
 export type FormationSlot = { label: string; role: string; x: number; y: number };
+// Nhãn → vị trí tính OVR; slotRole dùng chung cho máy chủ (bộ dữ liệu kho thẻ).
 const ROLE: Record<string, string> = { LS: 'ST', RS: 'ST', LCM: 'CM', RCM: 'CM', LDM: 'CDM', RDM: 'CDM', LAM: 'CAM', RAM: 'CAM', LCB: 'CB', RCB: 'CB' };
+export const slotRole = (label: string) => ROLE[label] ?? label;
 // `LineupSpot` lưu nhãn vị trí (LCM…); role là vị trí dùng để tính OVR (CM…).
 const at = (label: string, x: number, y: number): FormationSlot => ({ label, role: ROLE[label] ?? label, x, y });
 const GK = at('GK', 50, 92);
@@ -117,7 +119,8 @@ const WING_ROWS: [string, string, number, number][] = [['LW', 'RW', 0, 30], ['LM
 // Giữa sân, mỗi hàng có ba vị trí trái / giữa / phải; cách chia phụ thuộc hàng đó đã có ai (xem zoneAt).
 const CENTER_ROWS: [string, string, string, number, number][] = [['LS', 'ST', 'RS', 0, 21], ['LF', 'CF', 'RF', 21, 30], ['LAM', 'CAM', 'RAM', 30, 40], ['LCM', 'CM', 'RCM', 40, 52], ['LDM', 'CDM', 'RDM', 52, 66], ['LCB', 'CB', 'RCB', 66, 84]];
 const GK_TOP = 84;
-const ZONE_LABELS = new Set(['GK', ...WING_ROWS.flatMap(r => [r[0], r[1]]), ...CENTER_ROWS.flatMap(r => [r[0], r[1], r[2]])]);
+// Mọi nhãn ô đội hình (kéo thả) — xuất cho bộ dữ liệu máy chủ (GLXH tự tính OVR, 2026-11-14).
+export const ZONE_LABELS = new Set(['GK', ...WING_ROWS.flatMap(r => [r[0], r[1]]), ...CENTER_ROWS.flatMap(r => [r[0], r[1], r[2]])]);
 const zone = (label: string, x0: number, y0: number, x1: number, y1: number): Zone => ({ label, role: ROLE[label] ?? label, x0, y0, x1, y1 });
 // Vùng tại điểm (x, y). taken = vị trí của 10 ô còn lại, quyết định cách chia hàng giữa sân:
 // hàng trống là một vùng rộng (ST, CDM…); có người bên trái / phải thì chia đôi (LCM | RCM); có người ở giữa thì chia ba.

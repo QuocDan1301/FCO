@@ -6,6 +6,9 @@ import { FLAT_PRICE } from './group-price';
 import { insuranceRate } from './pricing';
 import { MEMBERSHIPS } from './membership';
 import { BRIDGE_CONFIG } from './upgrade/config';
+import { FORMATIONS, LINEUP_BONUS, ZONE_LABELS, playerClubs, playerPositions, positionPenalty, slotRole } from './squad';
+import { DEFAULT_TEAM_COLOR_CONFIG } from './teamColor';
+import { seasons } from './game';
 
 // Kho thẻ trên máy chủ (supabase/migrations/202611100013_fco_inventory_server.sql): máy chủ mở gói, đập thẻ, mua / bán theo đúng
 // dữ liệu của game. Dữ liệu đó nằm trong mã game (cầu thủ, OVR sửa tay, bảng giá, gói, luật đập) nên game dựng "bộ dữ liệu"
@@ -18,11 +21,18 @@ export type CatalogRules = {
   dropWeights: Record<string, [number, number][]>; protectMin: number; restoreMin: number; maxOpen: number;
   marketFee: number; sellBand: number; maxBulkSell: number; priceEpoch: number; pricePeriodMs: number; priceSwing: number; flatPrice: number;
   membership: Record<string, number>;
+  // GLXH: máy chủ tự tính OVR từng ô (202611140016) — nhãn ô → vị trí, bảng trừ OVR vị trí → ô, luật team color, +5 đội hình.
+  ranked: {
+    labels: Record<string, string>; penalty: Record<string, Record<string, number>>; lineupBonus: number;
+    identity: Record<'club' | 'nation' | 'season', { minPlayers: number; ovr: number }[]>;
+    upgrade: { minLevel: number; minPlayers: number; ovr: number; team: boolean }[];
+  };
 };
 // Cầu thủ: [id, tên, OVR từng cấp +1…+13, giá chuẩn từng cấp (null = chưa có giá), giá cố định (không dao động), tỷ lệ bảo hiểm].
 // [id, tên, OVR theo cấp, giá theo cấp, giá cố định, tỷ lệ bảo hiểm, lương] — lương dùng cho mức lương GLXH (202611120006).
 // [id, tên, OVR +1…+13, giá, giá cố định, tỷ lệ bảo hiểm, lương, vị trí sở trường (GLXH tính chỉ số, migration 202611130001)]
-export type CatalogPlayer = [number, string, number[], (number | null)[], boolean, number, number, string];
+// … + [vị trí đá được (mọi mùa), CLB tính team color (cả CLB cũ), quốc tịch, mùa] cho GLXH tự tính team color (202611140016).
+export type CatalogPlayer = [number, string, number[], (number | null)[], boolean, number, number, string, string[], string[], string, string];
 // Gói: tỷ lệ từng cầu thủ và từng cấp đúng như packOdds; gói chỉ định giữ danh sách cầu thủ được chọn.
 export type CatalogPack = {
   id: string; name: string; label: string; price: number; shop: boolean; choose: boolean; available: boolean;
@@ -53,6 +63,22 @@ export function catalogRules(): CatalogRules {
     priceSwing: PRICE_SWING_PERCENT,
     flatPrice: FLAT_PRICE,
     membership: Object.fromEntries(MEMBERSHIPS.map(item => [item.id, item.discount])),
+    ranked: rankedRules(),
+  };
+}
+
+function rankedRules(): CatalogRules['ranked'] {
+  const labels = [...new Set([...ZONE_LABELS, ...Object.values(FORMATIONS).flat().map(s => s.label)])].sort();
+  const roles = [...new Set(labels.map(slotRole))].sort();
+  const positions = [...new Set([...players.map(p => p.pos), ...roles])].sort();
+  const tiers = (list: readonly { minPlayers: number; ovr: number }[] | undefined) => (list ?? []).map(t => ({ minPlayers: t.minPlayers, ovr: t.ovr }));
+  const c = DEFAULT_TEAM_COLOR_CONFIG;
+  return {
+    labels: Object.fromEntries(labels.map(l => [l, slotRole(l)])),
+    penalty: Object.fromEntries(positions.map(pos => [pos, Object.fromEntries(roles.map(role => [role, positionPenalty(pos, role)]))])),
+    lineupBonus: LINEUP_BONUS,
+    identity: { club: tiers(c.club), nation: tiers(c.nation), season: tiers(c.season) },
+    upgrade: c.upgrade.map(r => ({ minLevel: r.minLevel, minPlayers: r.minPlayers, ovr: r.ovr, team: r.scope === 'team' })),
   };
 }
 
@@ -62,7 +88,8 @@ export function catalogPlayers(): CatalogPlayer[] {
     const ovrs = levels.map(level => ovr({ playerId: player.id, level }));
     if (!ovrs.every(Number.isInteger)) throw new Error(`OVR của ${player.name} phải là số nguyên.`);
     const prices = levels.map(level => recordedPrices[String(player.id)]?.[level - 1] ?? null);
-    return [player.id, player.name, ovrs, prices, fixedPricePlayers.has(player.id), insuranceRate(player.ovr), player.wage ?? 0, player.pos];
+    return [player.id, player.name, ovrs, prices, fixedPricePlayers.has(player.id), insuranceRate(player.ovr), player.wage ?? 0, player.pos,
+      playerPositions(player), playerClubs(player), player.nation ?? '', seasons[player.tier] ?? ''];
   });
 }
 

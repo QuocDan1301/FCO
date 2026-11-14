@@ -22,7 +22,7 @@ const STALE = 'Tab này đang chạy bản game cũ (đã có bản mới trên 
 
 export const CHEAT_KINDS: Record<string, { label: string; tone: 'danger' | 'warn'; hint: string }> = {
   save_tamper: { label: 'Sửa bản lưu', tone: 'danger', hint: 'Gửi bản lưu có BP / gói / thẻ vượt xa máy chủ (máy chủ đã giữ nguyên số thật).' },
-  ranked_ovr: { label: 'GLXH khai OVR quá mức', tone: 'danger', hint: 'Khai OVR cầu thủ cao hơn mức tối đa có thể (gốc +17).' },
+  ranked_ovr: { label: 'GLXH khai OVR quá mức', tone: 'danger', hint: 'Game gửi OVR cầu thủ cao hơn số máy chủ tự tính (vị trí + team color); trận vẫn dùng số thật.' },
   squad_value: { label: 'Khai khống giá trị đội hình', tone: 'danger', hint: 'Gửi giá trị đội hình cao hơn hẳn số máy chủ tự tính (BXH dùng số thật).' },
   gift_guess: { label: 'Dò gift code', tone: 'warn', hint: 'Nhập sai gift code; sai 10 lần / 10 phút bị khoá thử 10 phút.' },
   views_spam: { label: 'Spam lượt xem thẻ', tone: 'warn', hint: 'Gửi lượt xem dồn dập để đẩy thẻ lên Tâm điểm (máy chủ không tính).' },
@@ -93,7 +93,7 @@ export default function GuardPanel({ onOpenTab, onFind, api: custom }: Props) {
     { ok: summary ? summary.enforced : null, title: 'Kho thẻ do máy chủ giữ', text: summary?.enforced ? 'Thẻ, BP, gói chỉ đổi qua máy chủ.' : 'ĐANG TẮT: người chơi gọi thẳng API là tự ghi được thẻ / BP / gói.' },
     { ok: summary ? synced : null, title: 'Dữ liệu game đồng bộ', text: synced ? 'Máy chủ dùng đúng giá, gói, OVR của bản đang mở.' : 'Lệch với bản game đang mở: cần đồng bộ.' },
     { ok: true, title: 'Khoá API sự kiện đã ẩn', text: 'Bi Lắc, Nâng Cấp Siêu Sao không chơi được qua API (202611140009).' },
-    { ok: true, title: 'BXH tính trên máy chủ', text: 'Giá trị đội hình, đập +8, GLXH dùng số máy chủ tự tính / kiểm.' },
+    { ok: true, title: 'BXH tính trên máy chủ', text: 'Giá trị đội hình, đập +8 và OVR từng cầu thủ GLXH do máy chủ tự tính.' },
     { ok: true, title: 'Ghi sổ nghi vấn + chống dò code', text: 'Mọi hành vi lạ được ghi bên dưới; sai gift code 10 lần bị khoá thử 10 phút.' },
   ];
   const fresh = rows?.filter(r => r.fresh).length ?? 0;

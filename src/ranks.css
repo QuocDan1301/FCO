@@ -58,3 +58,38 @@
 .rk-row-ranked .rk-value{display:grid;justify-items:end;gap:1px;line-height:1.05}
 .rk-tier{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:700}
 .rk-tier svg{width:12px;height:12px}
+
+/* Vòng đua BXH GLXH + Penalty: hộp quà + đếm ngược dưới tiêu đề bảng; popup quà Top 1–3 (202611140017). */
+.rk-round{display:flex;align-items:center;gap:8px;margin:2px 0 4px}
+.rk-board h2 .rk-gift{margin-left:auto}
+.rk-gift{display:grid;place-items:center;flex:none;width:30px;height:30px;padding:0;border:0;border-radius:10px;cursor:pointer;color:#fff;
+  background:linear-gradient(180deg,#ff8a3d,#e5484d);box-shadow:0 0 0 1px #ffd0a8aa,0 4px 12px #e5484d66;animation:rk-gift-bob 2.4s ease-in-out infinite}
+.rk-gift svg,.rk-board h2 .rk-gift svg{width:17px;height:17px}
+.rk-gift:hover,.rk-gift:focus-visible{filter:brightness(1.12);outline:none}
+@keyframes rk-gift-bob{0%,80%,100%{transform:rotate(0)}85%{transform:rotate(-10deg)}90%{transform:rotate(9deg)}95%{transform:rotate(-5deg)}}
+.rk-round-time{display:grid;line-height:1.15;min-width:0}
+.rk-round-time small{font-size:11px;color:#b9a77a}
+.rk-round-time b{font-size:15px;font-weight:800;color:#ffd35a;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rk-prize-backdrop{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:16px;background:#000b}
+.rk-prize{display:flex;flex-direction:column;gap:12px;width:min(420px,100%);padding:16px;border-radius:14px;background:linear-gradient(170deg,#241a0c,#100d0a);box-shadow:inset 0 0 0 1px #e8b04a66,0 20px 60px #000c}
+.rk-prize header{display:flex;align-items:center;gap:8px;color:#ffd35a}
+.rk-prize header>svg{width:22px;height:22px}
+.rk-prize h2{margin:0;font-size:18px;font-weight:800}
+.rk-prize header .icon-button{margin-left:auto}
+.rk-prize-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.rk-prize-list li{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:#ffffff0d;box-shadow:inset 0 0 0 1px #ffffff14}
+.rk-prize-list li.gold{background:linear-gradient(90deg,#5a3d0c,#ffffff08)}.rk-prize-list li.silver{background:linear-gradient(90deg,#3a414c,#ffffff08)}.rk-prize-list li.bronze{background:linear-gradient(90deg,#4d2c17,#ffffff08)}
+.rk-prize-list b{font-size:15px;color:#f4ead6}
+.rk-prize-list strong{font-size:20px;font-weight:900;color:#7cf0a6;font-variant-numeric:tabular-nums}
+.rk-prize-list strong small{font-size:12px;color:#c7f5d6}
+.rk-prize-clock{display:grid;justify-items:center;gap:2px;padding:10px;border-radius:10px;background:#00000040}
+.rk-prize-clock small{font-size:12px;color:#c9b48a;text-transform:uppercase;letter-spacing:.04em}
+.rk-prize-clock b{font-size:26px;font-weight:900;color:#ffd35a;font-variant-numeric:tabular-nums}
+.rk-prize-clock em{font-size:12px;font-style:normal;color:#a99c80}
+.rk-prize-note{margin:0;font-size:13px;color:#d8cdb6;line-height:1.4}
+.rk-prize-last h3{margin:0 0 6px;font-size:13px;color:#c9b48a}
+.rk-prize-last ol{display:grid;gap:4px;margin:0;padding:0;list-style:none}
+.rk-prize-last li{display:flex;align-items:baseline;gap:8px;font-size:13px;color:#e8dcc2}
+.rk-prize-last li span{color:#ffd35a;font-weight:800}
+.rk-prize-last li small{margin-left:auto;color:#a99c80}
+.rk-prize-last li.is-mine b{color:#7cf0a6}

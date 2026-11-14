@@ -13,7 +13,7 @@ import type { ServerRecord } from './inventory-sync';
 import type { NameEffect } from './name-effects';
 import type { LineupBoardId, PublicLineupView } from './public-lineup';
 import type { PenaltyKeep, PenaltyShot, PenaltyStart, ShotKind } from './penalty';
-import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, CheatSuspect, GuardSummary, BilacConfig, BilacResult, BilacReward, VqtgConfig, VqtgResult, VqtgReward, VqtgTop, Plus8Board, Plus8History, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
+import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, CheatSuspect, GuardSummary, BilacConfig, BilacResult, BilacReward, VqtgConfig, VqtgResult, VqtgReward, VqtgTop, Plus8Board, Plus8History, RankRound, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
 import { checkForUpdate, requestReload } from './update-check';
 export * from './wallet-state';
 
@@ -93,6 +93,8 @@ export const adminAnomalyReview = (id: number, all = false) => call<AnomalyRow[]
 export const heartbeat = (views: Record<string, number> | null = null) => call<null>('fco_heartbeat', { p_device: deviceId(), ...(views ? { p_views: views } : {}) });
 // 5 cầu thủ được xem nhiều nhất 7 ngày gần đây (Tâm điểm TTCN).
 export const fetchPlus8Board = () => call<Plus8Board>('fco_plus8_board');
+// Hỏi vòng đua BXH; hết giờ thì máy chủ chốt quà + reset trước khi trả (gọi trước khi tải BXH).
+export const fetchRankRound = () => call<RankRound>('fco_rank_round_state');
 // rank = hạng 1..10 trên bảng, null = của mình.
 export const fetchPlus8History = (rank: number | null) => call<Plus8History | null>('fco_plus8_history', { p_rank: rank });
 export const fetchTopViewed = () => call<{ id: number; views: number }[]>('fco_top_viewed');

@@ -4,7 +4,9 @@ import { getPlayer, players } from './game';
 import { seasonShort } from './badges';
 import { findPack } from './event';
 import PackImage from './PackImage';
-import type { Plus8Board, Plus8History } from './wallet-state';
+import type { Plus8Board, Plus8History, RankRound } from './wallet-state';
+import { marketNow } from './market';
+import { roundLeft } from './rank-round';
 import { nameEffectClass } from './name-effects';
 import { clubLogoUrl } from './club-logo';
 import './ranks.css';
@@ -13,7 +15,8 @@ import './plus8.css';
 // Sự kiện HOT "Đập 8 liền tay – Nhận ngay quà chất" (nút ở trang chủ, người dùng yêu cầu 2026-11-14): BXH số cầu thủ khác nhau
 // HLV đập thành công lên +8, mỗi mùa tối đa 3 (máy chủ: fco_plus8_board, migration 202611140005).
 // loadHistory: lịch sử đập +8 của HLV hạng N (null = của mình), mở khi bấm dòng BXH / ô Thành tích của bạn.
-type Props = { load?: () => Promise<Plus8Board>; loadHistory?: (rank: number | null) => Promise<Plus8History | null>; online: boolean; onUpgrade: () => void };
+// loadRound: vòng đua chung với BXH GLXH / Penalty (202611140017 / 0018): đếm ngược, hết vòng Top 1–5 tự nhận gói, bảng reset 7 ngày.
+type Props = { loadRound?: () => Promise<RankRound>; load?: () => Promise<Plus8Board>; loadHistory?: (rank: number | null) => Promise<Plus8History | null>; online: boolean; onUpgrade: () => void };
 const known = new Set(players.map(p => p.id));
 const when = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 
@@ -22,7 +25,11 @@ const PLACE = ['gold', 'silver', 'bronze'];
 // Riêng thẻ EL trong gói luôn +1 (seasonLevels): ảnh / tên gói không ghi, chỉ nói ở thể lệ.
 export const PLUS8_PRIZES = [1, 2, 3, 4, 5].map(rank => ({ rank, pack: `p8-${rank}` }));
 
-export default function Plus8Page({ load, loadHistory, online, onUpgrade }: Props) {
+export default function Plus8Page({ loadRound, load, loadHistory, online, onUpgrade }: Props) {
+  const [round, setRound] = useState<RankRound | null>(null);
+  const [now, setNow] = useState(() => marketNow());
+  useEffect(() => { if (!loadRound) return; const id = setInterval(() => setNow(marketNow()), 1000); return () => clearInterval(id); }, [loadRound]);
+  const left = round ? roundLeft(round.endsAt, now) : null;
   const [history, setHistory] = useState<{ title: string; data: Plus8History | null; error?: string } | null>(null);
   const openHistory = (rank: number | null, name: string) => {
     if (!loadHistory) return;
@@ -39,9 +46,13 @@ export default function Plus8Page({ load, loadHistory, online, onUpgrade }: Prop
   const refresh = useCallback(() => {
     if (!online || !load) return;
     setLoading(true); setError('');
-    load().then(setData).catch(e => setError((e as Error).message)).finally(() => setLoading(false));
-  }, [load, online]);
+    // Hỏi vòng TRƯỚC (hết giờ thì máy chủ trao quà + reset) rồi mới tải bảng.
+    const roundFirst = loadRound ? loadRound().then(setRound).catch(() => { /* chưa có migration: ẩn đếm ngược */ }) : Promise.resolve();
+    roundFirst.then(() => load()).then(setData).catch(e => setError((e as Error).message)).finally(() => setLoading(false));
+  }, [load, loadRound, online]);
   useEffect(() => { refresh(); }, [refresh]);
+  const ended = !!left?.done;
+  useEffect(() => { if (ended) { const id = setTimeout(refresh, 2500); return () => clearTimeout(id); } }, [ended, refresh]);
 
   const rows = (data?.top ?? []).map((r, i) => <li key={i} className={`rk-row rk-row-squad ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}${loadHistory ? ' is-link' : ''}`} {...clickable(i + 1, r.name)}>
     <span className="rk-rank">{i + 1}</span>
@@ -57,6 +68,7 @@ export default function Plus8Page({ load, loadHistory, online, onUpgrade }: Prop
       <span className="p8-hot"><Flame aria-hidden="true"/>Sự kiện hot</span>
       <h1>Đập 8 liền tay</h1>
       <p className="p8-tag">Nhận ngay quà chất</p>
+      {round && left && <p className="p8-clock" role="timer" aria-live="off"><small>{left.done ? 'Đang chốt kết quả…' : 'Kết thúc sau'}</small>{!left.done && <b>{left.text}</b>}</p>}
     </header>
     <div className="p8-body">
       <aside className="p8-side">
@@ -71,7 +83,7 @@ export default function Plus8Page({ load, loadHistory, online, onUpgrade }: Prop
           <li><Zap aria-hidden="true"/><span>Mỗi cầu thủ chỉ tính <b>1 lần</b>, đập lại cùng cầu thủ không cộng thêm.</span></li>
           <li><Zap aria-hidden="true"/><span>Mỗi mùa thẻ tính <b>tối đa 3 cầu thủ</b>, đập nhiều mùa khác nhau để leo hạng.</span></li>
           <li><Zap aria-hidden="true"/><span>Bằng điểm thì HLV đạt điểm đó trước xếp trên.</span></li>
-          <li><Gift aria-hidden="true"/><span>Top 1–5 nhận gói <b>EL, CU, UT, CC</b> (+8) theo hạng. Riêng cầu thủ <b>EL</b> trong gói luôn là thẻ <b>+1</b> và gồm mọi cầu thủ EL.</span></li>
+          <li><Gift aria-hidden="true"/><span>Hết giờ đếm ngược: Top 1–5 tự nhận gói <b>EL, CU, UT, CC</b> (+8) theo hạng. Riêng cầu thủ <b>EL</b> trong gói luôn là thẻ <b>+1</b> và gồm mọi cầu thủ EL.</span></li>
         </ul>
         <button type="button" className="p8-go" onClick={onUpgrade}><Zap aria-hidden="true"/>Đập thẻ ngay</button>
       </aside>

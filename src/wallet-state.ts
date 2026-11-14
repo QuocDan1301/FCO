@@ -26,6 +26,9 @@ export type LeaderboardSquad = { name: string; value: number; mine: boolean; eff
 export type LeaderboardPenalty = { name: string; goals: number; mine: boolean; effect?: NameEffect | null; club?: string | null };
 // BXH "Đập +8 nhiều nhất" (fco_plus8_board): số cầu thủ khác nhau đập thành công lên +8, mỗi mùa tối đa 3.
 export type Plus8Row = { name: string; count: number; mine: boolean; effect?: NameEffect | null; club?: string | null };
+// Vòng đua BXH GLXH + Penalty (fco_rank_round_state, migration 202611140017): quà Top 1–3 (FC), mốc kết thúc, người thắng vòng trước.
+export type RankRoundWinner = { rank: number; name: string; score: number; fc: number; pack?: string | null; mine: boolean };
+export type RankRound = { round: number; endsAt: number; prizes: number[]; last: Partial<Record<'ranked' | 'penalty' | 'plus8', RankRoundWinner[]>> };
 export type Plus8Board = { top: Plus8Row[]; me: { count: number; rank: number | null } };
 // Lịch sử đập +8 của một HLV (fco_plus8_history, 202611140012): counted = được tính điểm (mỗi mùa 3 cầu thủ đạt sớm nhất).
 export type Plus8History = { name: string; mine: boolean; club?: string | null; items: { pid: number; at: number; counted: boolean }[] };

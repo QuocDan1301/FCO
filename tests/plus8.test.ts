@@ -91,3 +91,12 @@ test('Gói quà BXH +8 tăng tỷ lệ OVR (mức Nhẹ, 2026-11-14): phạt gi�
   for (const { player, chance } of packOdds(p8).pool) avg += chance * ovr({ playerId: player.id, level: fixedLevel(p8, player) ?? 8 });
   assert.ok(avg > 129.5, `OVR TB ${avg}`);
 });
+test('Vòng đua Đập 8 liền tay (202611140018): Top 1–5 nhận gói p8-1…p8-5 qua hàng chờ quà, bảng reset, tự bù chỉ từ đầu vòng', () => {
+  const sql = readFileSync('supabase/migrations/202611140018_fco_plus8_rounds.sql', 'utf8');
+  assert.match(sql, /perform public\.fco_rank_prize_pack\(r\.round, 'plus8', i, t\.user_id, t\.score, 'p8-' \|\| i\);/);
+  assert.match(sql, /limit 5 loop/);
+  assert.match(sql, /insert into public\.fco_admin_gifts\(user_id, rewards, note\)/);
+  assert.match(sql, /delete from public\.fco_plus8 where true;/);
+  assert.match(sql, /extract\(epoch from public\.fco_plus8_since\(\)\) \* 1000/);
+  assert.match(readFileSync('src/Plus8Page.tsx', 'utf8'), /roundFirst\.then\(\(\) => load\(\)\)/);
+});

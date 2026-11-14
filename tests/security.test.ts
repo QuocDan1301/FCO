@@ -71,3 +71,32 @@ test('Mã dữ liệu kho thẻ tính lúc build, mọi trình duyệt dùng chu
   assert.match(v, /^[0-9a-f]{64}$/);
   assert.equal(v, await computeCatalogVersion());
 });
+test('Vòng đua BXH GLXH + Penalty (202611140017): Top 1–3 = 4.000 / 3.000 / 2.000 FC, vòng 1 hết 23:59 15/11/2026, mỗi vòng 7 ngày', async () => {
+  const sql = readFileSync('supabase/migrations/202611140017_fco_rank_rounds.sql', 'utf8');
+  assert.match(sql, /values \(1, 1, timestamptz '2026-11-15 23:59:00\+07'\)/);
+  assert.match(sql, /prizes integer\[\] not null default '\{4000,3000,2000\}'/);
+  assert.match(sql, /period interval not null default interval '7 days'/);
+  assert.match(sql, /coalesce\(u\.banned_until, '-infinity'\) < now\(\)/, 'tài khoản bị khoá không nhận quà');
+  assert.match(sql, /update public\.fco_ranked set points = 1000, wins = 0, draws = 0, losses = 0/);
+  assert.match(sql, /update public\.fco_ranks set penalty_best = 0, penalty_at = null/);
+  const { roundLeft } = await import('../src/rank-round.ts');
+  const end = Date.UTC(2026, 10, 15, 16, 59);
+  assert.deepEqual(roundLeft(end, end - (86400 + 3 * 3600 + 62) * 1000), { done: false, text: '1 ngày 03:01:02' });
+  assert.deepEqual(roundLeft(end, end + 5000), { done: true, text: '00:00:00' });
+});
+test('GLXH (202611140016): máy chủ tự tính OVR từng ô từ bộ dữ liệu (vị trí, CLB, QG, mùa, luật team color); đội máy theo điểm', async () => {
+  const sql = readFileSync('supabase/migrations/202611140016_fco_ranked_server_ovr.sql', 'utf8');
+  assert.match(sql, /finals := public\.fco_ranked_final_ovrs\(items\);/);
+  assert.match(sql, /claimed := coalesce\(finals\[idx\]/);
+  assert.match(sql, /115 \+ \(me\.points - 1000\) \/ 20/);
+  assert.doesNotMatch(sql, /my_ovr \+ floor\(random\(\) \* 9\)::integer - 4/, 'đội máy không còn bám OVR đội mình');
+  const { catalogRules, catalogPlayers } = await import('../src/inventory-catalog.ts');
+  const r = catalogRules().ranked;
+  assert.equal(r.lineupBonus, 5);
+  assert.equal(r.labels.LCB, 'CB');
+  assert.equal(r.penalty.ST.GK, 40);
+  assert.deepEqual(r.identity.season.map(t => t.minPlayers), [3, 6, 8, 11]);
+  const row = catalogPlayers()[0];
+  assert.equal(row.length, 12);
+  assert.ok(Array.isArray(row[8]) && Array.isArray(row[9]));
+});
