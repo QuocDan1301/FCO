@@ -384,7 +384,8 @@ function MatchView({ match, names, info, onClose, onAgain, finish, abandon, auto
         const fresh = events.slice(shown.current); shown.current = events.length;
         setLog(events.filter(e => e.kind !== 'end' && e.kind !== 'foul'));
         setScore([events.filter(e => e.kind === 'goal' && e.side === 'me').length, events.filter(e => e.kind === 'goal' && e.side === 'opp').length]);
-        const goal = [...fresh].reverse().find(e => e.kind === 'goal');
+        // Chỉ bàn vừa ghi (2 giây gần đây): mở lại trận đang dở / quay lại tab thì không hiện lại băng rôn bàn cũ.
+        const goal = [...fresh].reverse().find(e => e.kind === 'goal' && sim.t - e.t < 2);
         if (goal && !sim.done) setBanner(goal);
       }
       let nt = shownTraits.current; const tr = sim.tl.traits;

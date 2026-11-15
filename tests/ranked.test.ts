@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { FORMATIONS } from '../src/squad.ts';
 import { RANKED_TIERS, RANKED_WAGE_CAP, nextTier, tierOf } from '../src/ranked.ts';
-import { MatchSim, TRAITS, ballAt, buildTimeline, minuteAt, statsAt } from '../src/ranked-sim.ts';
+import { GOAL_GAP, MatchSim, TRAITS, ballAt, buildTimeline, minuteAt, spreadGoals, statsAt } from '../src/ranked-sim.ts';
 import type { Teams } from '../src/ranked-sim.ts';
 
 const sql = readFileSync('supabase/migrations/202611120002_fco_ranked.sql', 'utf8');
@@ -32,7 +32,8 @@ test('Diễn trận: bàn thắng đúng phút, đúng đội, đúng người g
   for (let seed = 1; seed <= 40; seed++) {
     const tl = buildTimeline(teams, goals, seed);
     const scored = tl.events.filter(e => e.kind === 'goal');
-    assert.deepEqual(scored.map(e => [e.minute, e.side, e.scorer, e.assist]), goals.map(g => [g.minute, g.side, g.scorer, g.assist]), `seed ${seed}`);
+    // Phút hiển thị = phút máy chủ sau khi giãn các bàn sát nhau (spreadGoals); đội, người ghi bàn, kiến tạo giữ nguyên.
+    assert.deepEqual(scored.map(e => [e.minute, e.side, e.scorer, e.assist]), spreadGoals(goals).map(g => [g.minute, g.side, g.scorer, g.assist]), `seed ${seed}`);
     for (const e of scored) {
       assert.equal(minuteAt(tl, e.t), e.minute, `đồng hồ đúng phút ghi bàn (seed ${seed})`);
       const at = ballAt(tl, e.t).ball;
@@ -349,4 +350,29 @@ test('CSA vàng trong GLXH: 11 hiệu ứng kích hoạt, hồi chiêu 4–6 s m
   assert.ok(maxBall < 4, `bóng nhảy ${maxBall.toFixed(2)}`);
   // Đội không có CSA: không có lần kích hoạt nào.
   assert.equal(buildTimeline(teams, goals, 2).traits.length, 0);
+});
+test('Đồng hồ GLXH không đứng / lặp khi bàn thắng dồn sát nhau (giãn phút ghi bàn, giữ đúng hiệp)', () => {
+  const g = (minute: number, side: 'me' | 'opp' = 'me') => ({ minute, side, scorer: 0, assist: null });
+  // Trùng phút, sát giờ nghỉ, phút 1, phút 90: giãn ≥ GOAL_GAP phút, hiệp 1 trong 4–42, hiệp 2 trong 49–87, giữ thứ tự / đội.
+  const sp = spreadGoals([g(44), g(1, 'opp'), g(44), g(45, 'opp'), g(46), g(90, 'opp'), g(90)]);
+  assert.deepEqual(sp.map(x => x.side), ['opp', 'me', 'me', 'opp', 'me', 'opp', 'me']);
+  assert.ok(sp.slice(0, 4).every(x => x.minute >= 4 && x.minute <= 42) && sp.slice(4).every(x => x.minute >= 49 && x.minute <= 87), sp.map(x => x.minute).join(','));
+  for (let k = 1; k < sp.length; k++) assert.ok(sp[k].minute - sp[k - 1].minute >= (k === 4 ? 1 : GOAL_GAP), sp.map(x => x.minute).join(','));
+  // Hiệp quá đông bàn: khoảng cách nhỏ lại nhưng không trùng phút, vẫn trong hiệp.
+  const crowded = spreadGoals(Array.from({ length: 12 }, () => g(30)));
+  assert.equal(new Set(crowded.map(x => x.minute)).size, 12);
+  assert.ok(crowded.every(x => x.minute >= 4 && x.minute <= 42));
+  assert.deepEqual(spreadGoals([g(20), g(70)]).map(x => x.minute), [20, 70], 'bàn cách xa: giữ nguyên phút máy chủ');
+  // Đồng hồ: không lùi, không đứng một phút quá 7 giây, hết trận đúng 90'.
+  for (const [seed, goals] of [[3, [g(44), g(44), g(44), g(45), g(46)]], [8, [g(1), g(1), g(2)]], [21, [g(89), g(90), g(90), g(90)]]] as const) {
+    const tl = buildTimeline(teams, [...goals], seed);
+    let prev = 0, since = 0, worst = 0;
+    for (let t = 0; t <= tl.duration; t += .1) {
+      const m = minuteAt(tl, t);
+      assert.ok(m >= prev, `đồng hồ lùi ${prev} → ${m}`);
+      since = m === prev ? since + .1 : 0; worst = Math.max(worst, since); prev = m;
+    }
+    assert.ok(worst < 7, `seed ${seed}: đồng hồ đứng ${worst.toFixed(1)} giây`);
+    assert.equal(minuteAt(tl, tl.duration), 90);
+  }
 });

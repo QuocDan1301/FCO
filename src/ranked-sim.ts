@@ -441,7 +441,31 @@ function steer(p: Point, v: Point, f: Point, target: Point, speed: number, gain:
 }
 
 // Dựng diễn biến trận. goals đã sắp theo phút.
-export function buildTimeline(teams: Teams, goals: RankedGoal[], seed: number, duration = MATCH_SECONDS): Timeline {
+// Phút ghi bàn để diễn (2026-11-16): máy chủ chọn phút ngẫu nhiên 1–90 nên hay có bàn trùng phút / sát nhau / sát giờ nghỉ, mà mỗi bàn
+// cần ~10 giây diễn (≈ 4–5 phút trên đồng hồ) → đồng hồ đứng yên tới ~30 giây ("thời gian bị lặp"). Giãn các bàn cách nhau tối thiểu
+// GOAL_GAP phút, giữ bàn ở đúng hiệp (hiệp 1: phút 4–42, hiệp 2: 49–87 — chừa chỗ cho pha tấn công đầu trận / sau giờ nghỉ và lúc ăn mừng
+// trước giờ nghỉ / hết giờ); giữ thứ tự, đội, người ghi, kiến tạo. Hiệp quá nhiều bàn thì khoảng cách nhỏ lại. Chỉ phút hiển thị trong trận đổi.
+export const GOAL_GAP = 5;
+const HALVES: [number, number][] = [[4, 42], [49, 87]];
+export function spreadGoals(goals: readonly RankedGoal[]): RankedGoal[] {
+  const sorted = goals.map((g, i) => ({ g: { ...g, minute: clamp(Math.round(g.minute), 1, 90) }, i })).sort((a, b) => a.g.minute - b.g.minute || a.i - b.i).map(x => x.g);
+  return HALVES.flatMap(([lo, hi], h) => {
+    const out = sorted.filter(g => (g.minute <= 45) === (h === 0));
+    if (!out.length) return out;
+    const gap = out.length > 1 ? Math.min(GOAL_GAP, (hi - lo) / (out.length - 1)) : 0;
+    out.forEach(g => { g.minute = clamp(g.minute, lo, hi); });
+    for (let k = 1; k < out.length; k++) out[k].minute = Math.max(out[k].minute, out[k - 1].minute + gap);
+    if (out[out.length - 1].minute > hi) {
+      out[out.length - 1].minute = hi;
+      for (let k = out.length - 2; k >= 0; k--) out[k].minute = Math.min(out[k].minute, out[k + 1].minute - gap);
+    }
+    out.forEach(g => { g.minute = Math.round(g.minute); });
+    return out;
+  });
+}
+
+export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number, duration = MATCH_SECONDS): Timeline {
+  const goals = spreadGoals(rawGoals);
   const r = rng(seed);
   const keys: Key[] = [], events: SimEvent[] = [], anchors: [number, number][] = [[0, 0]];
   let t = 0, ball: Point = { x: 50, y: 50 }, holder: PlayerRef = { side: 'me', i: 0 };
