@@ -352,8 +352,8 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
           <li>Mỗi lượt quay vòng xúc xắc ra số 1–6, quân đi đúng số ô theo chiều kim đồng hồ (hết ô 16 quay về ô 1) và nhận quà ô dừng.</li>
           <li>Ô quà: nhận ngẫu nhiên 1 trong 4 món của ô; trỏ chuột / chạm vào món quà để xem tên.</li>
           <li>Ô 6 · Chỉ định: nhận 1 lượt Chỉ định. Bấm ô 6 để tự chọn số xúc xắc cho lượt sau, miễn phí (không tốn FC, vẫn được vé); không chọn được số dừng ở ô 10 và ô 14.</li>
-          <li>Ô 10 · Mini Jackpot: {Math.round(VQTG_RULES.bpChance * 100)}% trúng Mini Jackpot BP. Mini Jackpot tăng theo Giải Đặc Biệt: cứ 1.000 FC quỹ Giải Đặc Biệt thì Mini Jackpot được {shortBp(miniJackpotBp(1000))} BP. Chỉ trúng mới được đứng ở ô này; không trúng thì xúc xắc tự lắc lại sang ô khác và nhận quà ô đó.</li>
-          <li>Ô 14 · Giải Đặc Biệt: cơ hội nhận cả quỹ FC chung (tăng dần khi quỹ lớn); quỹ chưa tới 10.000 FC thì quân không dừng ở ô 10 và ô 14 (xúc xắc tự lắc lại). Giải Đặc Biệt nổ thì Mini Jackpot cũng nổ cùng lúc nhưng về tay một HLV khác, cả hai về mức thấp. Chỉ trúng mới được đứng ở ô này; không trúng thì xúc xắc tự lắc lại sang ô khác.</li>
+          <li>Ô 10 · Mini Jackpot: {Math.round(VQTG_RULES.bpChance * 100)}% trúng Mini Jackpot BP (mỗi HLV trúng tối đa 2 lần trong 24 giờ). Mini Jackpot tăng theo Giải Đặc Biệt: cứ 1.000 FC quỹ Giải Đặc Biệt thì Mini Jackpot được {shortBp(miniJackpotBp(1000))} BP. Chỉ trúng mới được đứng ở ô này; không trúng thì xúc xắc tự lắc lại sang ô khác và nhận quà ô đó.</li>
+          <li>Ô 14 · Giải Đặc Biệt: cơ hội nhận cả quỹ FC chung, tỷ lệ như nhau dù quỹ lớn hay nhỏ; mỗi HLV trúng tối đa 2 lần trong 24 giờ; quỹ chưa tới 10.000 FC thì quân không dừng ở ô 10 và ô 14 (xúc xắc tự lắc lại). Giải Đặc Biệt nổ thì Mini Jackpot cũng nổ cùng lúc nhưng về tay một HLV khác, cả hai về mức thấp. Chỉ trúng mới được đứng ở ô này; không trúng thì xúc xắc tự lắc lại sang ô khác.</li>
           <li>Giá: {(config?.prices ?? []).map(p => `${p.count} lần ${money(p.price)} FC`).join(' · ')}. Mỗi ngày có 1 lượt miễn phí.</li>
           <li>Mỗi lượt chơi (kể cả lượt miễn phí) được vé theo số lắc: số 1 được 1 vé, số 2 / 3 / 4 được 2 vé, số 5 được 3 vé, số 6 được 6 vé (vé in cạnh số trên vòng quay). Dùng Chỉ định chọn số nhiều vé để đủ mốc nhanh hơn. Shop Đổi Vé (kéo xuống dưới bàn): đủ vé của mốc là nhận quà, vé không bị trừ; qua mốc cuối thì sang vòng mới, mỗi mốc nhận lại được. Mốc 1 vé chỉ nhận khi đã chơi lượt trả phí.</li>
           <li>Quà BP và gói vào thẳng kho; FC cộng vào ví. Xem lại ở Lịch sử → Sự kiện.</li>
@@ -438,9 +438,9 @@ function VqtgRace({ top }: { top: VqtgTop }) {
     <h2 className="vq-race-title"><img src={asset('/assets/vqtg/title-race.webp')} alt="Đua top nhận quà hot" width={1400} height={411}/></h2>
     <div className={`vq-race-clock ${cd.left ? '' : 'ended'}`} role="timer" aria-live="off">
       {cd.left ? <><small>{cd.started ? 'Kết thúc sau' : 'Bắt đầu 0h 13/11'}</small>{cd.started && <><b>{cd.days}</b><em>ngày</em><b>{cd.clock}</b></>}</>
-        : <small>Đua top đã kết thúc · chờ trao quà</small>}
+        : <small>{top.ended ? 'Đua top đã kết thúc · quà đã gửi vào Quà từ Admin' : 'Đua top đã kết thúc · đang chốt bảng'}</small>}
     </div>
-    <p className="vq-race-sub">5 HLV có nhiều vé nhất khi sự kiện kết thúc nhận quà theo hạng. Bằng vé thì ai đạt số vé đó trước xếp trên.</p>
+    <p className="vq-race-sub">5 HLV có nhiều vé nhất lúc 0h 20/11 nhận quà theo hạng (máy chủ tự chốt và gửi quà; vé nhận sau giờ đó không tính). Bằng vé thì ai đạt số vé đó trước xếp trên.</p>
     <div className="vq-race-table" role="table">
       <div className="vq-race-row head" role="row"><span role="columnheader">Hạng</span><span role="columnheader">HLV</span><span role="columnheader">Số vé</span><span role="columnheader">Phần quà</span></div>
       {rows.map(({ rank, row, rewards, note }) => <div key={rank} role="row" className={`vq-race-row r${rank} ${row?.mine ? 'mine' : ''}`}>

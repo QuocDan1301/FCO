@@ -71,7 +71,7 @@ export type VqtgReward = BilacReward | { voucher: number; count: number };
 export type VqtgMilestone = { idx: number; tickets: number; options: VqtgReward[][]; once: boolean; paidOnly: boolean };
 // Đua top nhận quà hot: top 5 theo vé (fco_vqtg_top).
 export type VqtgTopRow = { rank: number; name: string; tickets: number; mine: boolean; effect?: NameEffect | null; club?: string | null };
-export type VqtgTop = { top: VqtgTopRow[]; me: { tickets: number; rank: number | null }; rewards: { rank: number; rewards: VqtgReward[]; note?: string }[] };
+export type VqtgTop = { ended?: boolean; top: VqtgTopRow[]; me: { tickets: number; rank: number | null }; rewards: { rank: number; rewards: VqtgReward[]; note?: string }[] };
 // Tin người trúng Mini Jackpot (BP) của VQTG, lưu riêng với bảng tin Jackpot FC.
 export type VqtgMiniWin = { name: string; amount: number; time: number; mine: boolean };
 export type VqtgConfig = { tiles: import('./vqtg').VqtgTile[]; prices: { count: number; price: number }[]; bpPool: number; milestones?: VqtgMilestone[]; round?: number; miniFeed?: VqtgMiniWin[] };

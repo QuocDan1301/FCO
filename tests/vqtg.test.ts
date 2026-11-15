@@ -178,3 +178,43 @@ test('Khôi phục VQTG (202611140020): đặt lại bản mới nhất của ru
   assert.match(sql, /price := 0;   -- Lượt dùng Chỉ định miễn phí/);
   assert.match(sql, /where coalesce\(\(e->>'amount'\)::numeric, 0\) > 0/);
 });
+
+test('202611150001: Giải Đặc Biệt tỷ lệ cố định, mỗi HLV trúng Jackpot / Mini Jackpot tối đa 1 lần / 24 giờ', () => {
+  const sql = readFileSync('supabase/migrations/202611150001_fco_vqtg_jackpot_fair.sql', 'utf8');
+  const play = sql.slice(sql.indexOf('create or replace function public.fco_vqtg_play('));
+  assert.doesNotMatch(play, /fco_jackpot_pressure/, 'không nhân theo áp lực quỹ');
+  assert.match(play, /random\(\) < \.0096 then hit := 'special'/);
+  assert.match(play, /jp_at <= now\(\) - interval '24 hours'/);
+  assert.match(play, /mini_at <= now\(\) - interval '24 hours'/);
+  assert.match(play, /vqtg_jp_at = jp_at, vqtg_mini_at = mini_at/);
+  // Kỳ vọng mỗi lượt 18 FC ở quỹ 23.000 FC: ~6,75 % dừng ô 14 × 0,96 % × 23.000 ≈ 15 FC < giá lượt.
+  assert.ok(0.0675 * 0.0096 * 23000 < 18);
+});
+
+test('202611150002: máy chủ chốt Đua top đúng giờ game hiển thị, trao quà một lần, chốt trước khi cộng vé', () => {
+  const sql = readFileSync('supabase/migrations/202611150002_fco_vqtg_race_settle.sql', 'utf8');
+  const end = /values \(1, '([^']+)'\) on conflict/.exec(sql)![1];
+  assert.equal(Date.parse(end.replace(' ', 'T').replace('+07', '+07:00')), VQTG_RACE_END);
+  assert.match(sql, /if not found or r\.settled_at is not null or now\(\) < r\.ends_at then return/);
+  const play = sql.slice(sql.indexOf('create or replace function public.fco_vqtg_play('));
+  assert.ok(play.indexOf('fco_vqtg_race_tick()') < play.indexOf('vqtg_tickets = vqtg_tickets + got_tickets'));
+  assert.match(sql, /function public\.fco_vqtg_top\(\) returns jsonb\nlanguage plpgsql volatile/);
+});
+
+test('202611150003: Giải Đặc Biệt 0,6 % mỗi lần dừng ô 14, vẫn giữ chốt Đua top và giới hạn 24 giờ', () => {
+  const sql = readFileSync('supabase/migrations/202611150003_fco_vqtg_jackpot_rate.sql', 'utf8');
+  assert.match(sql, /random\(\) < \.006 then hit := 'special'/);
+  assert.doesNotMatch(sql, /\.0096|fco_jackpot_pressure/);
+  assert.match(sql, /perform public\.fco_vqtg_race_tick\(\);/);
+  assert.match(sql, /mini_at <= now\(\) - interval '24 hours'/);
+});
+
+test('202611150004: Giải Đặc Biệt 0,8 %, Jackpot / Mini Jackpot tối đa 2 lần mỗi 24 giờ', () => {
+  const sql = readFileSync('supabase/migrations/202611150004_fco_vqtg_jackpot_twice.sql', 'utf8');
+  assert.match(sql, /\(jp_prev is null or jp_prev <= now\(\) - interval '24 hours'\) and random\(\) < \.008 then hit := 'special'; jp_prev := jp_at; jp_at := now\(\)/);
+  assert.match(sql, /\(mini_prev is null or mini_prev <= now\(\) - interval '24 hours'\)/);
+  assert.match(sql, /hit := 'mini'; mini_prev := mini_at; mini_at := now\(\)/);
+  assert.match(sql, /vqtg_jp_prev = jp_prev, vqtg_mini_prev = mini_prev/);
+  assert.match(sql, /perform public\.fco_vqtg_race_tick\(\);/);
+  assert.doesNotMatch(sql, /fco_jackpot_pressure|random\(\) < \.006/);
+});
