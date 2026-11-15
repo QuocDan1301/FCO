@@ -1094,13 +1094,19 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     } catch { /* Lượt kiểm tra sau sẽ thử lại. */ }
     finally { claimingGifts.current = false; }
   };
+  // Lỗi cũ (2026-11-16): hẹn giờ / sự kiện bên dưới gọi bản claimAdminGifts tạo lúc vừa đăng nhập — khi kho máy chủ còn 'loading'
+  // (serverMode = false, inv = 1) nên luôn bỏ qua: quà trong hàng chờ (admin tặng, Top BXH…) không bao giờ tự về. Luôn gọi bản mới nhất qua ref,
+  // và hỏi ngay khi kho máy chủ vừa sẵn sàng.
+  const claimGiftsRef = useRef(claimAdminGifts);
+  claimGiftsRef.current = claimAdminGifts;
+  useEffect(() => { if (serverMode) void claimGiftsRef.current(); }, [serverMode]);
   useEffect(() => {
     if (!online) return;
     void refreshWallet();
-    void claimAdminGifts();
-    const visible = () => { if (document.visibilityState === 'visible') { void refreshWallet(); void claimAdminGifts(); } };
+    void claimGiftsRef.current();
+    const visible = () => { if (document.visibilityState === 'visible') { void refreshWallet(); void claimGiftsRef.current(); } };
     document.addEventListener('visibilitychange', visible);
-    const poll = window.setInterval(() => { if (document.visibilityState === 'visible') void claimAdminGifts(); }, 60_000);
+    const poll = window.setInterval(() => { if (document.visibilityState === 'visible') void claimGiftsRef.current(); }, 60_000);
     return () => { document.removeEventListener('visibilitychange', visible); window.clearInterval(poll); };
   }, [online]);
   // Bi Lắc: máy chủ đá bóng, chọn quà và cộng FC; ở đây cộng BP / gói vào bản lưu và ghi lịch sử.
