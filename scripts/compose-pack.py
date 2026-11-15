@@ -60,7 +60,8 @@ SEASONS = {
     # LD: ảnh gói tạm (scripts/make-ld-art.py); khi có ảnh gói thật của người dùng thì đo lại badge / title.
     'ld': dict(art='ld-back.png', badge=(200, 2090, 410, 2250), title=[(300, 380, 1400, 640)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 215),
     'tsubasa': dict(art='tsubasa-back.png', badge=(206, 2063, 406, 2213), title=[(225, 405, 1450, 610)], ink=lambda r, g, b: (np.maximum(np.maximum(r, g), b) - np.minimum(np.minimum(r, g), b) > 110) & (np.minimum(np.minimum(r, g), b) < 120)),
-    'el': dict(art='el-back.png', badge=(370, 1820, 608, 2065), title=[(330, 300, 1380, 505), (700, 440, 940, 580)], ink=lambda r, g, b: (r - b > 45) & (r > 110)),
+    # EL: viền khung lượn vào ở góc dưới phải nên số ▲OVR lùi vào (2026-11-15, số bị viền đè).
+    'el': dict(art='el-back.png', corner_edge=.885, badge=(370, 1820, 608, 2065), title=[(330, 300, 1380, 505), (700, 440, 940, 580)], ink=lambda r, g, b: (r - b > 45) & (r > 110)),
     'ws': dict(art='ws-back.png', badge=(139, 2123, 367, 2307), title=[(227, 430, 1454, 575)], ink=lambda r, g, b: (r > 190) & (g > 170)),
     'hr26': dict(art='hr26-back.png', badge=(185, 2090, 397, 2253), title=[(410, 470, 1300, 635)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 215),
     'hr24': dict(art='hr24-back.png', badge=(228, 2072, 450, 2248), title=[(410, 445, 1310, 640)], ink=lambda r, g, b: np.minimum(np.minimum(r, g), b) > 195),

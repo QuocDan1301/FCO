@@ -218,3 +218,38 @@ test('202611150004: Giải Đặc Biệt 0,8 %, Jackpot / Mini Jackpot tối đa
   assert.match(sql, /perform public\.fco_vqtg_race_tick\(\);/);
   assert.doesNotMatch(sql, /fco_jackpot_pressure|random\(\) < \.006/);
 });
+
+test('Quỹ Jackpot chạy liên tục: chạy đều từ số đang hiện tới số mới trong 30 giây, giảm / lần đầu thì nhảy ngay', async () => {
+  const { rollTo, rollValue, JACKPOT_ROLL_MS } = await import('../src/vqtg.ts');
+  let r = rollTo({ from: 0, to: 0, start: 0 }, 10_000, 0);
+  assert.equal(rollValue(r, 0), 10_000, 'lần đầu có số: nhảy ngay, không chạy từ 0');
+  r = rollTo(r, 11_200, 1_000);
+  assert.equal(rollValue(r, 1_000), 10_000);
+  assert.equal(rollValue(r, 1_000 + JACKPOT_ROLL_MS / 2), 10_600);
+  assert.equal(rollValue(r, 1_000 + JACKPOT_ROLL_MS), 11_200);
+  assert.equal(rollValue(r, 1_000 + 5 * JACKPOT_ROLL_MS), 11_200, 'không vượt số máy chủ');
+  // Số mới tới giữa chừng: chạy tiếp từ số đang hiện, không giật lùi.
+  const mid = rollValue(r, 1_000 + JACKPOT_ROLL_MS / 2);
+  r = rollTo(r, 12_000, 1_000 + JACKPOT_ROLL_MS / 2);
+  assert.equal(rollValue(r, 1_000 + JACKPOT_ROLL_MS / 2), mid);
+  // Có người trúng: quỹ về 2.000 → nhảy ngay.
+  r = rollTo(r, 2_000, 40_000);
+  assert.equal(rollValue(r, 40_000), 2_000);
+});
+
+test('202611150005: quà Đua top Top 1–5 đúng gói người dùng đặt, gói nào cũng có trong packs.json', async () => {
+  const sql = readFileSync('supabase/migrations/202611150005_fco_vqtg_top_rewards.sql', 'utf8');
+  const { packs } = JSON.parse(readFileSync('src/packs.json', 'utf8').replace(/^\uFEFF/, '')) as { packs: { id: string; seasons: string[]; minOvr: number | null; topPrice: number | null; levels: number[]; choose?: boolean }[] };
+  const byId = new Map(packs.map(p => [p.id, p]));
+  const ranks = [...sql.matchAll(/\((\d), '(\[[^']+\])'/g)].map(m => ({ rank: +m[1], ids: (JSON.parse(m[2]) as { pack: string }[]).map(r => r.pack) }));
+  assert.equal(ranks.length, 5);
+  const label = (id: string) => { const p = byId.get(id); assert.ok(p, `thiếu gói ${id}`);
+    return p.choose ? `${p.seasons[0]} chỉ định ${p.topPrice} (+${p.levels[0]})` : `${p.seasons[0]} ${p.minOvr ?? 'all'}`; };
+  assert.deepEqual(ranks.map(r => r.ids.map(label)), [
+    ['el 135', 'tsubasa 128', 'gru chỉ định 10 (+11)'],
+    ['el 134', 'tsubasa 127', 'gru chỉ định 15 (+11)'],
+    ['el 133', 'tsubasa 126', 'gru chỉ định 20 (+11)'],
+    ['tsubasa all', 'gru chỉ định 25 (+11)'],
+    ['tsubasa all', 'gru chỉ định 30 (+11)'],
+  ]);
+});

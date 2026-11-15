@@ -62,6 +62,9 @@ const VIEWED_TTL = 10 * 60_000, EMPTY_TTL = 30_000; // chưa có dữ liệu th�
 /** Vừa gửi lượt xem lên máy chủ: lần mở TTCN sau hỏi lại. */
 export const forgetTopViewed = () => { viewedCache = null; if (typeof window !== 'undefined') window.dispatchEvent(new Event('fco-views-sent')); };
 
+// Các mức OVR cho bộ lọc OVR: từ OVR +1 thấp nhất tới OVR +13 cao nhất trong danh sách cầu thủ.
+const MARKET_OVRS = (() => { let lo = Infinity, hi = 0; for (const p of players) { lo = Math.min(lo, ovr({ playerId: p.id, level: 1 })); hi = Math.max(hi, ovr({ playerId: p.id, level: MAX_LEVEL })); } return Array.from({ length: hi - lo + 1 }, (_, i) => lo + i); })();
+
 export default function TransferMarket({ save, free, onTrade, onHistory, onOpenPacks, renderCard, levelBadge, onDetail, loadTopViewed }: Props) {
   // Vừa vào TTCN là thấy Tâm điểm.
   const [mode, setMode] = useState<'buy' | 'sell' | 'spotlight'>('spotlight');
@@ -92,6 +95,9 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
   const [season, setSeason] = useState('');
   const [buyLevel, setBuyLevel] = useState('1');
   const [sellLevel, setSellLevel] = useState('');
+  // Lọc OVR (người dùng 2026-11-15): OVR của thẻ ở cấp đang xem (mua: cấp muốn mua; bán: cấp thẻ trong kho); '' = không giới hạn.
+  const [ovrMin, setOvrMin] = useState('');
+  const [ovrMax, setOvrMax] = useState('');
   // Mặc định giá cao → thấp: vừa mở TTCN là thấy các siêu sao đắt giá nhất.
   const [sort, setSort] = useState('price-desc');
   const [page, setPage] = useState(0);
@@ -108,7 +114,8 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
   const needle = normalize(query);
   return cards.filter(c => {
     const p = getPlayer(c);
-    return normalizedName(p.id, p.name).includes(needle) && (!position || p.pos === position) && (!season || p.tier === season) && (buying || !sellLevel || c.level === Number(sellLevel)) && (!unavailableOnly || !marketQuote(c).available);
+    return normalizedName(p.id, p.name).includes(needle) && (!position || p.pos === position) && (!season || p.tier === season) && (buying || !sellLevel || c.level === Number(sellLevel)) && (!unavailableOnly || !marketQuote(c).available)
+      && (!ovrMin || ovr(c) >= Number(ovrMin)) && (!ovrMax || ovr(c) <= Number(ovrMax));
   }).sort((a, b) => {
     const pa = getPlayer(a), pb = getPlayer(b);
     const byName = () => collator.compare(pa.name, pb.name);
@@ -128,7 +135,7 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
       default: return 0;
     }
   });
-  }, [buying, buyLevel, save.cards, query, position, season, sellLevel, unavailableOnly, sort, period]);
+  }, [buying, buyLevel, save.cards, query, position, season, sellLevel, unavailableOnly, ovrMin, ovrMax, sort, period]);
   const visible = filtered.slice(0, (page + 1) * LIST_BATCH);
   const loadMore = (event: UIEvent<HTMLDivElement>) => {
     const list = event.currentTarget;
@@ -140,7 +147,7 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
   const panelCard = selected && buying && panelLevel && panelLevel !== selected.level ? marketCard(selected.playerId, panelLevel) : selected;
   const taxPercent = saleTaxPercent(save);
   const quote = panelCard && marketQuote(panelCard, taxPercent);
-  const reset = () => { setQuery(''); setPosition(''); setSeason(''); setSellLevel(''); setBuyLevel('1'); setSort('price-desc'); setUnavailableOnly(false); setPage(0); setPanelLevel(null); };
+  const reset = () => { setQuery(''); setPosition(''); setSeason(''); setSellLevel(''); setOvrMin(''); setOvrMax(''); setBuyLevel('1'); setSort('price-desc'); setUnavailableOnly(false); setPage(0); setPanelLevel(null); };
   const switchMode = (next: typeof mode) => { setMode(next); setPage(0); setPanelLevel(null); };
   const select = (card: Card) => { setSelectedId(card.uid); setPanelLevel(null); };
   // Từ tâm điểm sang danh sách mua, lọc đúng cầu thủ đó ở +1.
@@ -173,10 +180,11 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
       </article>}</div> : <>
     <div className={`market-filters ${filtersExpanded ? 'filters-open' : ''}`}>
       <div className="search-field"><Search size={17}/><input aria-label="Tìm cầu thủ trên thị trường" placeholder="Tìm tên cầu thủ…" value={query} onChange={e => { setQuery(e.target.value); setPage(0); }}/></div>
-      <button className="market-filter-toggle" aria-expanded={filtersExpanded} aria-controls="market-filter-fields" onClick={() => setFiltersExpanded(value => !value)}>{filtersExpanded ? 'Ẩn bộ lọc' : 'Bộ lọc'}<span>{[position, season, !buying && sellLevel, buying && buyLevel !== '1' ? buyLevel : ''].filter(Boolean).length || ''}</span></button>
+      <button className="market-filter-toggle" aria-expanded={filtersExpanded} aria-controls="market-filter-fields" onClick={() => setFiltersExpanded(value => !value)}>{filtersExpanded ? 'Ẩn bộ lọc' : 'Bộ lọc'}<span>{[position, season, !buying && sellLevel, buying && buyLevel !== '1' ? buyLevel : '', ovrMin || ovrMax].filter(Boolean).length || ''}</span></button>
       <div className="market-filter-fields" id="market-filter-fields"><label>Vị trí<select aria-label="Vị trí trên thị trường" value={position} onChange={e => { setPosition(e.target.value); setPage(0); }}><option value="">Mọi vị trí</option>{[...new Set(players.map(p => p.pos))].sort().map(pos => <option key={pos}>{pos}</option>)}</select></label>
       <label>Mùa thẻ<select aria-label="Mùa thẻ trên thị trường" value={season} onChange={e => { setSeason(e.target.value); setPage(0); }}><option value="">Mọi mùa thẻ</option>{Object.entries(seasons).map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>
       <label>{buying ? 'Cấp thẻ muốn mua' : 'Cấp thẻ'}<select aria-label="Cấp thẻ trên thị trường" value={buying ? buyLevel : sellLevel} onChange={e => { buying ? setBuyLevel(e.target.value) : setSellLevel(e.target.value); setPage(0); setPanelLevel(null); }}>{!buying && <option value="">Mọi cấp thẻ</option>}{Array.from({ length: MAX_LEVEL }, (_, i) => <option key={i} value={i + 1}>+{i + 1}</option>)}</select></label>
+      <label>OVR<span className="market-ovr"><select aria-label="OVR từ" value={ovrMin} onChange={e => { const v = e.target.value; setOvrMin(v); if (v && ovrMax && Number(ovrMax) < Number(v)) setOvrMax(v); setPage(0); }}><option value="">Từ</option>{MARKET_OVRS.map(o => <option key={o} value={o}>{o}</option>)}</select><i aria-hidden="true">–</i><select aria-label="OVR đến" value={ovrMax} onChange={e => { const v = e.target.value; setOvrMax(v); if (v && ovrMin && Number(ovrMin) > Number(v)) setOvrMin(v); setPage(0); }}><option value="">Đến</option>{MARKET_OVRS.map(o => <option key={o} value={o}>{o}</option>)}</select></span></label>
       <label>Sắp xếp theo<select aria-label="Sắp xếp thị trường" value={sort} onChange={e => { setSort(e.target.value); setPage(0); }}><option value="price-desc">Giá: cao → thấp</option><option value="price">Giá: thấp → cao</option><option value="ovr">OVR: cao → thấp</option><option value="ovr-asc">OVR: thấp → cao</option><option value="name">Tên: A → Z</option><option value="name-desc">Tên: Z → A</option><option value="position">Vị trí: tiền đạo → thủ môn</option><option value="position-desc">Vị trí: thủ môn → tiền đạo</option><option value="wage-desc">Lương: cao → thấp</option><option value="wage">Lương: thấp → cao</option><option value="level">Cấp thẻ: cao → thấp</option><option value="level-asc">Cấp thẻ: thấp → cao</option></select></label></div>
     </div>
     <div className="market-count"><label className="market-unavailable-filter"><input type="checkbox" checked={unavailableOnly} onChange={event => { setUnavailableOnly(event.target.checked); setPage(0); }}/>Chỉ thẻ chưa có giá</label><span role="status">{filtered.length ? `${money(filtered.length)} thẻ` : '0 thẻ phù hợp'}</span><button className="text-action" onClick={reset}>Đặt lại bộ lọc</button></div>

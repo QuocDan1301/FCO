@@ -5596,27 +5596,6 @@
       "eventOnly": true
     },
     {
-      "id": "vqt-1",
-      "name": "EL All",
-      "short": "EL",
-      "title": "ETERNAL LEGENDS",
-      "seasons": [
-        "el"
-      ],
-      "minOvr": null,
-      "topPrice": null,
-      "levels": [
-        1,
-        1
-      ],
-      "price": 43300000,
-      "description": "Gói EL, mọi cầu thủ ETERNAL LEGENDS. Quà Top 1 Đua top sự kiện Vòng Quanh Thế Giới.",
-      "range": "127–137",
-      "back": null,
-      "published": true,
-      "eventOnly": true
-    },
-    {
       "id": "vqt-1g",
       "name": "GRU chỉ định 10 (+11)",
       "short": "CHỈ ĐỊNH",
@@ -5639,6 +5618,48 @@
       "choose": true
     },
     {
+      "id": "vqt-1",
+      "name": "EL All 135+",
+      "short": "EL",
+      "title": "ETERNAL LEGENDS",
+      "seasons": [
+        "el"
+      ],
+      "minOvr": 135,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 1030000000,
+      "description": "Gói EL, cầu thủ ETERNAL LEGENDS OVR từ 135. Quà Top 1 Đua top sự kiện Vòng Quanh Thế Giới.",
+      "range": "135–137",
+      "back": "/assets/custom/vqt-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "vqt-1t",
+      "name": "TSUBASA All 128+",
+      "short": "TSUBASA",
+      "title": "CAPTAIN TSUBASA",
+      "seasons": [
+        "tsubasa"
+      ],
+      "minOvr": 128,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 63400000,
+      "description": "Gói TSUBASA, cầu thủ CAPTAIN TSUBASA OVR từ 128. Quà Top 1 Đua top sự kiện Vòng Quanh Thế Giới.",
+      "range": "128–130",
+      "back": "/assets/custom/vqt-1t-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
       "id": "vqt-2",
       "name": "TSUBASA All",
       "short": "TSUBASA",
@@ -5653,7 +5674,7 @@
         1
       ],
       "price": 28300000,
-      "description": "Gói TSUBASA, mọi cầu thủ CAPTAIN TSUBASA. Quà Top 2 Đua top sự kiện Vòng Quanh Thế Giới.",
+      "description": "Gói TSUBASA, mọi cầu thủ CAPTAIN TSUBASA. Quà Top 4 và Top 5 Đua top sự kiện Vòng Quanh Thế Giới.",
       "range": "124–130",
       "back": null,
       "published": true,
@@ -5682,6 +5703,48 @@
       "choose": true
     },
     {
+      "id": "vqt-2e",
+      "name": "EL All 134+",
+      "short": "EL",
+      "title": "ETERNAL LEGENDS",
+      "seasons": [
+        "el"
+      ],
+      "minOvr": 134,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 801000000,
+      "description": "Gói EL, cầu thủ ETERNAL LEGENDS OVR từ 134. Quà Top 2 Đua top sự kiện Vòng Quanh Thế Giới.",
+      "range": "134–137",
+      "back": "/assets/custom/vqt-2e-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "vqt-2t",
+      "name": "TSUBASA All 127+",
+      "short": "TSUBASA",
+      "title": "CAPTAIN TSUBASA",
+      "seasons": [
+        "tsubasa"
+      ],
+      "minOvr": 127,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 47100000,
+      "description": "Gói TSUBASA, cầu thủ CAPTAIN TSUBASA OVR từ 127. Quà Top 2 Đua top sự kiện Vòng Quanh Thế Giới.",
+      "range": "127–130",
+      "back": "/assets/custom/vqt-2t-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
       "id": "vqt-3",
       "name": "GRU chỉ định 20 (+11)",
       "short": "CHỈ ĐỊNH",
@@ -5702,6 +5765,48 @@
       "published": true,
       "eventOnly": true,
       "choose": true
+    },
+    {
+      "id": "vqt-3e",
+      "name": "EL All 133+",
+      "short": "EL",
+      "title": "ETERNAL LEGENDS",
+      "seasons": [
+        "el"
+      ],
+      "minOvr": 133,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 626000000,
+      "description": "Gói EL, cầu thủ ETERNAL LEGENDS OVR từ 133. Quà Top 3 Đua top sự kiện Vòng Quanh Thế Giới.",
+      "range": "133–137",
+      "back": "/assets/custom/vqt-3e-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "vqt-3t",
+      "name": "TSUBASA All 126+",
+      "short": "TSUBASA",
+      "title": "CAPTAIN TSUBASA",
+      "seasons": [
+        "tsubasa"
+      ],
+      "minOvr": 126,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 37300000,
+      "description": "Gói TSUBASA, cầu thủ CAPTAIN TSUBASA OVR từ 126. Quà Top 3 Đua top sự kiện Vòng Quanh Thế Giới.",
+      "range": "126–130",
+      "back": "/assets/custom/vqt-3t-back.webp",
+      "published": true,
+      "eventOnly": true
     },
     {
       "id": "vqt-4",

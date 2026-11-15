@@ -97,3 +97,18 @@ export function wheelAngle(current: number, roll: number, turns = 4) {
   if (next < current + 360 * turns) next += 360;
   return next;
 }
+
+// ===== Quỹ Jackpot chạy liên tục trên màn hình (người dùng 2026-11-15) =====
+// Game chỉ hỏi máy chủ số quỹ 30 giây một lần (đỡ Disk IO); giữa hai lần, số hiển thị chạy đều từ số đang hiện tới số mới
+// trong JACKPOT_ROLL_MS. Quỹ giảm (có người trúng) hoặc lần đầu có số thì nhảy ngay. Số hiện chậm hơn số thật tối đa ~30 giây.
+export const JACKPOT_ROLL_MS = 30_000;
+export type JackpotRoll = { from: number; to: number; start: number };
+export function rollValue(roll: JackpotRoll, now: number, ms = JACKPOT_ROLL_MS) {
+  const k = Math.min(1, Math.max(0, (now - roll.start) / ms));
+  return Math.round(roll.from + (roll.to - roll.from) * k);
+}
+/** Số mới từ máy chủ: chạy tiếp từ số đang hiện; giảm hoặc chưa có số thì nhảy thẳng. */
+export function rollTo(roll: JackpotRoll, target: number, now: number, ms = JACKPOT_ROLL_MS): JackpotRoll {
+  const shown = rollValue(roll, now, ms);
+  return target > shown && shown > 0 ? { from: shown, to: target, start: now } : { from: target, to: target, start: now };
+}
