@@ -15,6 +15,7 @@ import { ACCOUNT_PAUSED_MESSAGE, maintenanceBlocks, maintenanceText } from './ma
 import type { MaintenanceState } from './maintenance-state';
 import ZaloIcon from './ZaloIcon';
 import { ZALO_GROUP } from './config';
+import { TERMS_VERSION, TermsDialog } from './Terms';
 import './account.css';
 
 function AccountFrame({ children }: { children: ReactNode }) {
@@ -45,6 +46,8 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [cooldown, setCooldown] = useState(0);
+  const [agree, setAgree] = useState(false);   // đồng ý Điều khoản dịch vụ (bắt buộc khi đăng ký)
+  const [terms, setTerms] = useState(false);
   const submitting = useRef(false);
   const configured = !!accountClient;
   // Bảo trì: chỉ còn đăng nhập (admin vẫn phải vào được để tắt), không mở đăng ký.
@@ -80,7 +83,9 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
     if (!name.trim()) throw new Error('Hãy nhập tên huấn luyện viên.');
     const email = normalizeGmail(gmail);
     if (password !== confirmation) throw new Error('Mật khẩu nhập lại chưa khớp.');
-    const { data, error } = await client().auth.signUp({ email, password, options: { data: { display_name: name.trim().slice(0, 40) } } });
+    if (!agree) throw new Error('Hãy đọc và đồng ý với Điều khoản dịch vụ để tạo tài khoản.');
+    // Ghi phiên bản điều khoản người chơi đã đồng ý vào hồ sơ tài khoản (user metadata).
+    const { data, error } = await client().auth.signUp({ email, password, options: { data: { display_name: name.trim().slice(0, 40), terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() } } });
     if (error) throw error;
     if (data.session) return; // Máy chủ chưa bật xác nhận email: vào game luôn.
     // Gmail đã có tài khoản (Supabase không báo lỗi để chống dò email): identities rỗng.
@@ -131,6 +136,7 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
   const confirmField = <label htmlFor="account-confirmation">Nhập lại mật khẩu<input id="account-confirmation" name="confirmation" type={visible ? 'text' : 'password'} autoComplete="new-password" required minLength={8} maxLength={72} value={confirmation} onChange={e => setConfirmation(e.target.value)}/></label>;
   const codeField = <label htmlFor="account-code">Mã xác nhận (6 số)<input id="account-code" className="account-code" name="code" inputMode="numeric" autoComplete="one-time-code" required pattern="[0-9]{6,10}" maxLength={10} value={code} onChange={e => setCode(e.target.value.replace(/\D/g, ''))}/></label>;
   const gmailField = <label htmlFor="account-gmail">Gmail<input id="account-gmail" name="email" type="email" autoComplete="email" autoCapitalize="none" spellCheck={false} required maxLength={254} placeholder="tenban@gmail.com" value={gmail} onChange={e => setGmail(e.target.value)}/></label>;
+  const termsLink = <button type="button" className="terms-link" onClick={e => { e.preventDefault(); setTerms(true); }}>Điều khoản dịch vụ</button>;
   const titles: Record<Mode, [string, string]> = {
     login: ['Trở lại sân cỏ', 'Đăng nhập bằng Gmail. Tài khoản cũ vẫn dùng tên đăng nhập như trước.'],
     register: ['Tạo tài khoản mới', 'Đăng ký bằng Gmail. Mã xác nhận 6 số sẽ được gửi về Gmail của bạn.'],
@@ -146,7 +152,7 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
     <form onSubmit={submit} aria-busy={busy}>
       <fieldset disabled={busy || !configured}>
         {mode === 'login' && <><label htmlFor="account-username">Gmail hoặc tên đăng nhập<input id="account-username" name="username" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} required minLength={3} maxLength={254} value={identifier} onChange={e => setIdentifier(e.target.value)}/></label>{passwordField('Mật khẩu', 'current-password')}</>}
-        {mode === 'register' && <><label htmlFor="account-name">Tên huấn luyện viên<input id="account-name" name="name" autoComplete="nickname" required maxLength={40} value={name} onChange={e => setName(e.target.value)}/></label>{gmailField}<small>Chỉ nhận địa chỉ @gmail.com. Mỗi Gmail một tài khoản.</small>{passwordField('Mật khẩu', 'new-password')}<small>Dùng ít nhất 8 ký tự.</small>{confirmField}</>}
+        {mode === 'register' && <><label htmlFor="account-name">Tên huấn luyện viên<input id="account-name" name="name" autoComplete="nickname" required maxLength={40} value={name} onChange={e => setName(e.target.value)}/></label>{gmailField}<small>Chỉ nhận địa chỉ @gmail.com. Mỗi Gmail một tài khoản.</small>{passwordField('Mật khẩu', 'new-password')}<small>Dùng ít nhất 8 ký tự.</small>{confirmField}<label className="account-agree"><input type="checkbox" name="agree" required checked={agree} onChange={e => setAgree(e.target.checked)}/><span>Tôi đã đọc và đồng ý với {termsLink}</span></label></>}
         {mode === 'verify' && <>{gmailField}{codeField}</>}
         {mode === 'forgot' && gmailField}
         {mode === 'reset' && <>{codeField}{passwordField('Mật khẩu mới', 'new-password')}{confirmField}</>}
@@ -159,6 +165,8 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
       </fieldset>
       {error && <p className="account-error" role="alert">{error}</p>}{message && <p className="account-notice" role="status">{message}</p>}
     </form>
+    {mode === 'login' && <p className="account-terms-note">Bằng việc đăng nhập, bạn đồng ý với {termsLink}.</p>}
+    {terms && <TermsDialog onClose={() => setTerms(false)}/>}
     {mode === 'forgot' && <p className="account-footnote">Tài khoản cũ đăng ký bằng tên đăng nhập (chưa liên kết Gmail): liên hệ quản trị game để đặt lại mật khẩu.</p>}
   </AccountFrame>;
 }
