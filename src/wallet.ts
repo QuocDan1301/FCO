@@ -5,6 +5,7 @@ import type { GiftCode } from './gift-code-rules';
 import type { MembershipId } from './membership';
 import type { StpItem, StpPackageId } from './stp';
 import type { StpMissionId, StpMissionState } from './stp-missions';
+import type { GrindState } from './grind-missions';
 import type { RankedFinish, RankedMatch, RankedState } from './ranked';
 import { LOGIN_FOR_FC, walletMessage } from './wallet-state';
 import { MAINTENANCE_CHANGED } from './maintenance-state';
@@ -52,6 +53,9 @@ export const fetchStpToday = () => call<{ day: string; bought: string[] }>('fco_
 // Nhiệm vụ Star Point hằng ngày (202611110012).
 export const fetchStpMissions = () => call<StpMissionState>('fco_stp_missions_state');
 export const claimStpMission = (id: StpMissionId) => call<{ wallet: Wallet; reward: number; state: StpMissionState }>('fco_stp_mission_claim', { p_id: id });
+// Nhiệm vụ cày chay ngày / tuần (migration 202611150006): bảng chỉ đọc + nhận thưởng gói (save = kho máy chủ, null = vào Quà từ Admin).
+export const fetchGrind = () => call<GrindState>('fco_grind_state');
+export const claimGrind = (id: string) => call<{ rewards: BilacReward[]; save: ServerRecord | null; state: GrindState }>('fco_grind_claim', { p_id: id });
 // Xếp hạng giả lập (202611120002).
 // Logo CLB tự chọn (202611120004).
 export const setClubLogo = (club: string | null) => call<Wallet>('fco_set_club_logo', { p_club: club });

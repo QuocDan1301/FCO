@@ -14,7 +14,7 @@
 /* 2–3. Danh sách kiểu bảng Quản lí CT: vị trí (vạch màu tuyến, lớp squad-pos) · ảnh thẻ · mùa + tên · lương (lục giác squad-wage) · OVR ·
    huy hiệu cấp · giá · thao tác; tiêu đề cột bấm để sắp xếp. */
 .market-badges{display:flex;align-items:center;gap:5px;min-width:0;flex-wrap:nowrap}
-.market-columns,.market-workspace .market-row{display:grid;grid-template-columns:62px 44px minmax(0,1fr) 46px 54px 48px minmax(84px,120px) 34px 72px;align-items:center;gap:8px}
+.market-columns,.market-workspace .market-row{display:grid;grid-template-columns:62px 44px minmax(0,1fr) 36px 46px 54px 48px minmax(84px,120px) 34px 72px;align-items:center;gap:8px}
 /* Nút kính lúp mở Thông tin cầu thủ trên từng hàng. */
 .market-row-info{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;color:#aeb6c2;background:#ffffff0d}
 .market-row-info:hover,.market-row-info:focus-visible{color:#fff;background:#ffffff26}
@@ -57,7 +57,7 @@
 .market-workspace .market-row{height:48px}
 }
 @media(max-width:1100px) and (min-width:641px){
-.market-columns,.market-workspace .market-row{grid-template-columns:54px 36px minmax(0,1fr) 38px 46px 40px minmax(70px,96px) 30px 56px;gap:6px}
+.market-columns,.market-workspace .market-row{grid-template-columns:54px 36px minmax(0,1fr) 30px 38px 46px 40px minmax(70px,96px) 30px 56px;gap:6px}
 .market-workspace .market-player b{font-size:14px}
 }
 /* Điện thoại: bỏ cột lương và cấp thẻ; huỷ bố cục 2 dòng cũ của hàng (market.css / fixed-screen.css / phone.css). */
@@ -65,7 +65,7 @@
 .market-columns,.market-workspace .market-row{grid-template-columns:44px 30px minmax(0,1fr) 34px 64px 30px 48px;gap:5px}
 .market-row-info{width:28px;height:28px}
 .market-columns{padding:0 8px}
-.market-columns>.market-col:nth-of-type(3),.market-columns>.market-col:nth-of-type(5),.market-row .squad-wage,.market-row .market-level{display:none}
+.market-columns>.market-col:nth-of-type(3),.market-columns>.market-col:nth-of-type(5),.market-row .squad-wage,.market-row .market-level,.market-row .market-gold-cell,.market-columns>.market-col-gold{display:none}
 .market-workspace .market-list{--page-item-height:52}
 .market-workspace .market-row{height:52px;min-height:0;padding:0 8px}
 .market-workspace .market-row>*{grid-column:auto;grid-row:auto}
@@ -147,3 +147,38 @@
 .spotlight-card{position:relative}
 .spotlight-views{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:#0b0f16e6;box-shadow:0 0 0 1px #d9be7c88,0 4px 12px #000a;color:#ffe08a;font-size:12px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
 .spotlight-views svg{flex:none;color:#d9be7c}
+/* Cột chỉ số ẩn vàng (CSA) bên trái cột lương (TransferMarket.tsx). */
+.market-gold-cell{display:flex;align-items:center;justify-content:center;min-width:0}
+.market-gold-cell>img{width:26px;height:26px;flex:none;filter:drop-shadow(0 1px 2px #000a)}
+.market-columns>.market-col-gold{text-align:center;color:#d9b45a}
+@media(max-width:1100px){.market-gold-cell>img{width:22px;height:22px}}
+
+/* Ô gõ-để-chọn ở bộ lọc TTCN (SearchPicker.tsx): Mùa thẻ (huy hiệu mùa), OVR (gõ số), Team color (logo CLB / cờ). */
+.sp-picker{position:relative;min-width:0;flex:1}
+.sp-field{display:flex;align-items:center;gap:7px;height:44px;padding:0 6px 0 10px;background:#171c23;border:1px solid #354253;border-radius:4px;cursor:text;min-width:0}
+.market-workspace .sp-field{height:36px}
+.sp-field.is-open{border-color:#d4b25d;box-shadow:0 0 0 1px #d4b25d55}
+.sp-field input{flex:1;min-width:0;width:100%;height:100%;border:0;background:transparent;color:#e4e8ed;font-size:12px;outline:none;padding:0}
+.sp-field input::placeholder{color:#8e99a8}
+.sp-field.is-open input::placeholder{color:#c5ccd6}
+.sp-search{flex:none;color:#8e99a8}
+.sp-clear{flex:none;display:grid;place-items:center;width:20px;height:20px;padding:0;border:0;border-radius:50%;background:#2a3340;color:#c5ccd6;cursor:pointer}
+.sp-clear:hover{background:#3a4656;color:#fff}
+.sp-icon{flex:none;width:20px;height:20px;object-fit:contain}
+.sp-icon.is-flag{width:22px;height:16px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 1px #0006}
+.sp-icon.is-none{display:grid;place-items:center;color:#6f7b8b}
+.sp-field .season-badge,.sp-option .season-badge{flex:none}
+.sp-list{position:absolute;z-index:40;top:calc(100% + 4px);left:0;width:max(100%,270px);max-height:min(340px,55vh);overflow-y:auto;overscroll-behavior:contain;padding:4px;background:#121820;border:1px solid #3a4758;border-radius:6px;box-shadow:0 14px 34px #000c}
+.sp-list.is-up{top:auto;bottom:calc(100% + 4px)}
+.sp-group{position:sticky;top:-4px;z-index:1;margin:0 -4px;padding:7px 12px 5px;background:#121820;color:#d4b25d;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.sp-group small{color:#7f8a99;font-weight:500;text-transform:none;letter-spacing:0}
+.sp-option{display:flex;align-items:center;gap:9px;min-height:34px;padding:4px 8px;border-radius:4px;color:#dfe5ec;font-size:13px;cursor:pointer}
+.sp-option.is-active{background:#222c38}
+.sp-option.is-selected{color:#ffd66e;font-weight:700}
+.sp-option .sp-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp-option small{flex:none;color:#7f8a99;font-size:11px;font-variant-numeric:tabular-nums}
+.sp-empty{padding:12px;color:#8e99a8;font-size:12px}
+/* OVR: hai ô số hẹp, danh sách gợi ý vừa cỡ số. */
+.sp-picker.is-compact .sp-field{padding:0 4px 0 9px;gap:4px}
+.sp-picker.is-compact .sp-list{width:max(100%,84px)}
+.sp-picker.is-compact .sp-option{justify-content:center;font-variant-numeric:tabular-nums}

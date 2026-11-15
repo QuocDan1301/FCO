@@ -60,3 +60,13 @@ export function rankedTeam(state: Pick<Save, 'cards' | 'squad' | 'lineups'>) {
   const wage = out.reduce((s, x) => s + (getPlayer(byUid.get(x.uid)!).wage ?? 0), 0);
   return { ready: true as const, filled: XI, formation: set.formation, slots: out, ovr, wage, overWage: wage > RANKED_WAGE_CAP };
 }
+
+// Chế độ tự đá (Auto, người dùng 2026-11-15): hết trận và đã lưu kết quả thì sau RANKED_AUTO_DELAY giây tự tìm trận mới,
+// tới khi người chơi tắt, bỏ trận hoặc đội hình không hợp lệ. Mỗi trận vẫn chạy đủ thời gian thật như đá tay (máy chủ kiểm tra).
+// Lưu bật / tắt trên máy này (tiện ích riêng mỗi máy).
+export const RANKED_AUTO_DELAY = 5;
+const AUTO_KEY = 'fco-ranked-auto';
+export function savedRankedAuto() { try { return localStorage.getItem(AUTO_KEY) === '1'; } catch { return false; } }
+export function saveRankedAuto(on: boolean) { try { localStorage.setItem(AUTO_KEY, on ? '1' : '0'); } catch { /* không lưu được thì chỉ giữ trong phiên */ } }
+/** Số giây còn lại trước khi tự đá trận tiếp (0 = đá ngay). */
+export const autoLeft = (startedAt: number, now: number, delay = RANKED_AUTO_DELAY) => Math.max(0, delay - Math.floor((now - startedAt) / 1000));

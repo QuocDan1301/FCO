@@ -21,7 +21,7 @@
 .pd-meta b{color:#fff}
 .pd-wage{display:inline-grid;place-items:center;min-width:26px;height:22px;padding:0 4px;border:1px solid #ffffff44;border-radius:6px;font-size:12px}
 .pd-plus{color:#5ee08a!important}
-.pd-card{flex:none;width:150px}
+.pd-card{flex:none;width:270px;margin-top:-6px} /* người dùng 2026-11-15: phóng to ảnh thẻ 2 lần (150 → 210 → 270px) */
 .pd-card .player-card{width:100%}
 .pd-tabs{display:flex;gap:2px;padding:2px;border-radius:6px;background:#ffffff0d;align-self:flex-start}
 .pd-tabs button,.pd-tabs span{min-width:120px;height:32px;padding:0 16px;border:0;border-radius:5px;background:none;color:#aab3c0;font:inherit;font-size:14px;font-weight:700;cursor:pointer;display:grid;place-items:center}
@@ -50,7 +50,7 @@
 @media(max-width:900px),(max-height:560px){
   .pd-body{grid-template-columns:minmax(0,1fr) minmax(240px,320px);gap:16px;padding:6px 14px 14px}
   .pd-bar{padding:10px 14px 2px}.pd-bar h2{font-size:17px}
-  .pd-name strong{font-size:18px}.pd-pos b{font-size:22px}.pd-card{width:110px}
+  .pd-name strong{font-size:18px}.pd-pos b{font-size:22px}.pd-card{width:190px}
   .pd-stats li{padding:4px;font-size:13px}.pd-stats b{font-size:17px}
   .pd-tabs button,.pd-tabs span{min-width:90px;height:28px;font-size:13px}
   .pd-price,.pd-career{min-height:0}
@@ -69,3 +69,7 @@
 .market-preview-card.is-link:hover{transform:translateY(-2px)}
 .market-preview-card.is-link:focus-visible{outline:2px solid #7bc9ff;outline-offset:3px;border-radius:8px}
 .market-info{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:36px;margin:2px 0 4px}
+/* Chỉ số ẩn vàng (gold-traits.ts): nhãn vàng ánh kim. */
+.pd-gold{display:flex;align-items:center;gap:8px;margin:2px 0 4px;font-size:12px;color:#c9b27a}
+.pd-gold>b{display:inline-flex;align-items:center;gap:7px;padding:2px 12px 2px 3px;border-radius:999px;background:linear-gradient(180deg,#2a2210,#17130a);border:1px solid #d9b45a;color:#f6d77e;font-weight:800;letter-spacing:.01em;box-shadow:0 0 12px -4px #f0c14f99}
+.pd-gold>b>img{width:26px;height:26px;flex:none;filter:drop-shadow(0 1px 2px #000a)}

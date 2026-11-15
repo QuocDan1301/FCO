@@ -105,7 +105,7 @@
 .rkd-lineups h3 img{width:22px;height:22px;object-fit:contain}
 .rkd-lineups h3 small{margin-left:auto;padding-left:8px;font-size:12px;font-weight:600;color:#8f99ab}
 .rkd-lineups ol{list-style:none;margin:0;padding:0;display:grid;gap:3px}
-.rkd-lineups li{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:8px;padding:3px 6px;border-radius:5px;font-size:13px;background:#ffffff05}
+.rkd-lineups li{display:grid;grid-template-columns:42px minmax(0,1fr) 30px auto;align-items:center;gap:8px;padding:3px 6px;border-radius:5px;font-size:13px;background:#ffffff05}
 .rkd-lineups li b{font-variant-numeric:tabular-nums;color:#e6ebf0}
 .rkd-pname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#e6ebf0}
 .rkd-pname.is-hidden{color:#6f7a8b;font-style:italic}
@@ -141,7 +141,9 @@
 .rkd-match.is-compact .rkd-stat i{height:calc(4px * var(--z))}
 .rkd-match.is-compact .rkd-lineups{display:flex;flex-direction:column;gap:calc(8px * var(--z));overflow-y:auto;min-height:0}
 .rkd-match.is-compact .rkd-lineups h3{font-size:calc(13px * var(--z))}
-.rkd-match.is-compact .rkd-lineups li{font-size:calc(12px * var(--z));grid-template-columns:calc(40px * var(--z)) minmax(0,1fr) auto}
+.rkd-match.is-compact .rkd-lineups li{font-size:calc(12px * var(--z));grid-template-columns:calc(40px * var(--z)) minmax(0,1fr) calc(28px * var(--z)) auto}
+.rkd-match.is-compact .rkd-gold>img{width:calc(22px * var(--z));height:calc(22px * var(--z))}
+.rkd-match.is-compact .rkd-log>li.is-trait>img{width:calc(20px * var(--z));height:calc(20px * var(--z))}
 .rkd-match.is-compact .rkd-role{font-size:calc(10px * var(--z))}
 .rkd-match.is-compact .rkd-sound,.rkd-match.is-compact .rkd-quit{height:calc(30px * var(--z));font-size:calc(12px * var(--z))}
 .rkd-match.is-compact .rkd-quit-ask{font-size:calc(12px * var(--z))}
@@ -176,4 +178,22 @@ svg.rkd-board-club.is-me{color:#38c6ff}svg.rkd-board-club.is-opp{color:#ff7a7a}
 /* Tên cầu thủ đối thủ trong danh sách đội hình GLXH: mùa + tên + cấp. */
 .rkd-lineups .rkd-pname .squad-season{margin-right:5px}
 .rkd-lineups .rkd-lv{margin-left:5px;font-size:11px;font-weight:700;color:#f6dc8e}
+/* CSA vàng: ô biểu tượng ở danh sách đội hình (mờ khi chưa dùng, sáng + số lần khi đã kích hoạt), dòng kích hoạt trong diễn biến. */
+.rkd-gold{position:relative;display:flex;align-items:center;justify-content:center;min-width:0}
+.rkd-gold>img{width:24px;height:24px;filter:drop-shadow(0 1px 2px #000a) saturate(.7) brightness(.85);opacity:.8}
+.rkd-gold.is-used>img{filter:drop-shadow(0 0 4px #ffcf4a99);opacity:1}
+.rkd-gold>i{position:absolute;right:-2px;bottom:-3px;min-width:14px;height:14px;padding:0 3px;border-radius:7px;background:#d9a520;color:#1b1300;font:800 10px/14px 'Roboto Condensed',Arial,sans-serif;font-style:normal;text-align:center}
+.rkd-log>li.is-trait{display:flex;align-items:center;gap:6px;font-size:12px;color:#d8c48a;background:linear-gradient(90deg,#d9a52018,#ffffff05 70%)}
+.rkd-log>li.is-trait>img{width:20px;height:20px;flex:none;filter:drop-shadow(0 1px 2px #000a)}
+.rkd-log>li.is-trait>b{color:#f1f4f7;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.rkd-log>li.is-trait>em{font-style:normal;font-weight:700;color:#ffd95a;white-space:nowrap}
 .rkd-rating{margin:2px 0 0;font-size:13px;color:#c5ccd6}.rkd-rating b{color:#7dff9a}
+/* Chế độ tự đá (Auto): ô bật ở trang GLXH, nút trong trận, đếm ngược ở bảng kết quả. */
+.rkd-auto{display:flex;align-items:flex-start;gap:10px;margin-top:10px;padding:10px 12px;border:1px solid #5fd7ff33;border-radius:10px;background:#5fd7ff0d;cursor:pointer}
+.rkd-auto input{width:18px;height:18px;margin:2px 0 0;flex:none;accent-color:#5fd7ff}
+.rkd-auto>span{display:grid;gap:2px}
+.rkd-auto b{font-size:14px;color:#e8f7ff}
+.rkd-auto small{font-size:11px;line-height:1.45;color:#8fa3b5}
+.rkd-auto-toggle.is-on{color:#5fd7ff;border-color:#5fd7ff66}
+.rkd-auto-next{margin:2px 0 0;font-size:13px;color:#cfeaff}
+.rkd-auto-next b{color:#5fd7ff;font-size:16px}

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { FORMATIONS } from '../src/squad.ts';
 import { RANKED_TIERS, RANKED_WAGE_CAP, nextTier, tierOf } from '../src/ranked.ts';
-import { MatchSim, ballAt, buildTimeline, minuteAt, statsAt } from '../src/ranked-sim.ts';
+import { MatchSim, TRAITS, ballAt, buildTimeline, minuteAt, statsAt } from '../src/ranked-sim.ts';
 import type { Teams } from '../src/ranked-sim.ts';
 
 const sql = readFileSync('supabase/migrations/202611120002_fco_ranked.sql', 'utf8');
@@ -42,10 +42,10 @@ test('Diễn trận: bàn thắng đúng phút, đúng đội, đúng người g
       const before = tl.keys.filter(k => k.t < e.t && k.holder).at(-1)!;
       assert.deepEqual(before.holder, { side: e.side, i: e.scorer });
     }
-    // Thời gian tăng dần, kết thúc ở phút 90, khoảng 2,5 phút diễn.
+    // Thời gian tăng dần, kết thúc ở phút 90, khoảng 3,5 phút diễn (máy chủ nhận kết quả từ 200 giây).
     assert.ok(tl.keys.every((k, i) => i === 0 || k.t >= tl.keys[i - 1].t));
     assert.equal(minuteAt(tl, tl.duration), 90);
-    assert.ok(tl.duration > 140 && tl.duration < 200, `duration ${tl.duration}`);
+    assert.ok(tl.duration > 200 && tl.duration < 270, `duration ${tl.duration}`);
     // Bóng không ra ngoài sân trừ khi vào lưới / sút trượt.
     for (const k of tl.keys) if (!['goal', 'miss'].includes(k.kind)) assert.ok(k.x >= 0 && k.x <= 100 && k.y >= 0 && k.y <= 100, `${k.kind} ${k.x},${k.y}`);
   }
@@ -278,4 +278,75 @@ test('Phạt góc và đá phạt: có trong trận; dàn quân đúng (vòng c�
   assert.ok(freekicks >= 4, `đá phạt trực tiếp ${freekicks} / 8 trận`);
   assert.ok(boxChecks > 0 && boxOk / boxChecks > .8, `dàn quân phạt góc ${boxOk}/${boxChecks}`);
   assert.ok(wallChecks > 0 && wallOk / wallChecks > .8, `hàng rào ${wallOk}/${wallChecks}`);
+});
+
+test('GLXH tự đá (Auto): đếm ngược 5 giây rồi đá trận tiếp', async () => {
+  const { autoLeft, RANKED_AUTO_DELAY } = await import('../src/ranked.ts');
+  assert.equal(RANKED_AUTO_DELAY, 5);
+  assert.equal(autoLeft(1_000, 1_000), 5);
+  assert.equal(autoLeft(1_000, 1_999), 5);
+  assert.equal(autoLeft(1_000, 3_500), 3);
+  assert.equal(autoLeft(1_000, 6_000), 0);
+  assert.equal(autoLeft(1_000, 60_000), 0, 'không âm');
+});
+
+test('GLXH chậm lại: trận diễn lâu hơn mốc máy chủ nhận kết quả (202611150007), nhịp 0,78', async () => {
+  const { MATCH_SECONDS, PACE } = await import('../src/ranked-sim.ts');
+  const sql = readFileSync('supabase/migrations/202611150007_fco_ranked_slower.sql', 'utf8');
+  const min = Number(/interval '(\d+) seconds'/.exec(sql)![1]);
+  assert.equal(min, 200);
+  assert.ok(MATCH_SECONDS >= min + 5, 'game diễn xong sau khi máy chủ đã nhận được kết quả');
+  assert.equal(PACE, .78);
+  assert.doesNotMatch(sql, /140 seconds/);
+});
+test('CSA vàng trong GLXH: 11 hiệu ứng kích hoạt, hồi chiêu 4–6 s mỗi cầu thủ, trận vẫn đúng luật', () => {
+  const T = TRAITS;
+  // Gán CSA theo vị trí: thủ môn bắt sút xa, tiền đạo 1 chạm / chạy chỗ, cánh băng cắt / ảo thuật, tiền vệ nhạc trưởng / chặn đà / không phổi, hậu vệ tắc bóng / đánh chặn / đeo bám.
+  const pick: Record<string, string[]> = {
+    GK: [T.GK_LONG_SHOT_SAVER], ST: [T.FIRST_TIME_SHOT, T.LINE_BREAKER], CF: [T.LINE_BREAKER], LW: [T.CROSS_POACHER], RW: [T.MAGICIAN],
+    LM: [T.CROSS_POACHER], RM: [T.MAGICIAN], CAM: [T.MAESTRO], CM: [T.MAESTRO, T.IRON_LUNGS], CDM: [T.STOP_ATTACK, T.IRON_LUNGS],
+    CB: [T.WILD_TACKLER, T.SUPER_INTERCEPTOR], LB: [T.CHASER], RB: [T.IRON_LUNGS], LWB: [T.CHASER], RWB: [T.IRON_LUNGS],
+  };
+  const gold = (s: ReturnType<typeof side>, off: number) => { const used: Record<string, number> = {}; return s.map(p => { const list = pick[p.role] ?? []; const k = (used[p.role] = (used[p.role] ?? -1) + 1) + off; return { ...p, trait: list[k % Math.max(1, list.length)] }; }); };
+  const tt: Teams = { me: gold(side('4-2-3-1'), 1), opp: gold(side('4-3-3'), 0) };
+  const goals = [{ minute: 12, side: 'me' as const, scorer: 0, assist: 1 }, { minute: 50, side: 'opp' as const, scorer: 1, assist: null }, { minute: 83, side: 'me' as const, scorer: 2, assist: 3 }];
+  const seen = new Set<string>();
+  for (const seed of [2, 5, 13, 21, 34]) {
+    const tl = buildTimeline(tt, goals, seed);
+    assert.deepEqual(tl.events.filter(e => e.kind === 'goal').map(e => [e.minute, e.side, e.scorer]), goals.map(g => [g.minute, g.side, g.scorer]));
+    assert.ok(tl.traits.length > 10, `seed ${seed}: chỉ ${tl.traits.length} lần kích hoạt`);
+    const last: Record<string, number> = {};
+    for (const e of tl.traits) {
+      assert.equal(tt[e.side][e.i].trait, e.trait, 'chỉ cầu thủ có CSA đó mới kích hoạt');
+      const k = e.side + e.i;
+      if (k in last) assert.ok(e.t - last[k] >= 4 - 1e-9, `hồi chiêu ${(e.t - last[k]).toFixed(2)} s`);
+      last[k] = e.t; seen.add(e.trait);
+    }
+    assert.deepEqual(tl.traits.map(e => e.t), [...tl.traits.map(e => e.t)].sort((a, b) => a - b));
+    // Vẫn chỉ sút trong khu vực dứt điểm; người nhận / người giành có mặt khi bóng tới.
+    const per = (tt.me.length + tt.opp.length + 1) * 2;
+    const posAt = (t: number, s: 'me' | 'opp', i: number) => { const o = Math.min(tl.count - 1, Math.round(t / .05)) * per + (s === 'me' ? 0 : tt.me.length * 2) + i * 2; return { x: tl.frames[o], y: tl.frames[o + 1] }; };
+    for (let j = 2; j < tl.keys.length; j++) {
+      const a = tl.keys[j - 1], k = tl.keys[j];
+      if ((k.kind === 'save' || k.kind === 'miss') && !a.holder) {
+        const ev = tl.events.find(e => Math.abs(e.t - k.t) < 1e-9);
+        assert.ok((ev?.side === 'opp' ? 100 - a.y : a.y) < 32, 'sút từ quá xa');
+      }
+      if (!k.holder || (k.kind !== 'win' && k.kind !== 'pass')) continue;
+      const p = posAt(k.t, k.holder.side, k.holder.i);
+      assert.ok(Math.hypot(p.x - k.x, p.y - k.y) < 5, `${k.kind}: người nhận còn xa bóng`);
+    }
+  }
+  assert.deepEqual([...seen].sort(), Object.values(T).sort(), `thiếu: ${Object.values(T).filter(x => !seen.has(x)).join(',')}`);
+  // Mượt: bóng không nhảy cóc, cầu thủ trong sân.
+  const sim = new MatchSim(tt, goals, 8), dt = 1 / 60;
+  let ball = ballAt(sim.tl, 0).ball, maxBall = 0;
+  while (!sim.done) {
+    sim.step(dt);
+    const b = sim.state().ball; maxBall = Math.max(maxBall, Math.hypot(b.x - ball.x, b.y - ball.y)); ball = b;
+    for (const p of [...sim.pos.me, ...sim.pos.opp]) assert.ok(p.x >= -3 && p.x <= 103 && p.y >= -3 && p.y <= 103);
+  }
+  assert.ok(maxBall < 4, `bóng nhảy ${maxBall.toFixed(2)}`);
+  // Đội không có CSA: không có lần kích hoạt nào.
+  assert.equal(buildTimeline(teams, goals, 2).traits.length, 0);
 });

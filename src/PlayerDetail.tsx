@@ -8,6 +8,7 @@ import { NOT_CLUBS, playerClubs, playerPositions, positionGroup, slotOvr } from 
 import { PRICE_EPOCH, PRICE_PERIOD_MS, formatMarketPrice, marketNow, priceAt } from './market';
 import { playerStats } from './player-stats';
 import { flagImageUrl } from './flags';
+import { goldTraitOf } from './gold-traits';
 import './player-detail.css';
 
 type Props = {
@@ -64,6 +65,7 @@ export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, re
   const history = useMemo(() => priceHistory(card), [card]);
   const now = priceAt(card);
   const clubs = playerClubs(p), cardClub = p.club && !NOT_CLUBS.has(p.club) ? p.club : null;
+  const goldTrait = goldTraitOf(p.id);
   const tone = (v: number) => v >= overall + 4 ? 'is-top' : v >= overall - 6 ? 'is-mid' : 'is-low';
   return <div className="pd">
     <header className="pd-bar"><h2>Thông tin cầu thủ</h2><button className="icon-button" aria-label="Đóng chi tiết" onClick={onClose}><X/></button></header>
@@ -74,6 +76,7 @@ export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, re
             <p className="pd-name"><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong><img className="squad-level-img" src={levelBadge(card.level)} alt={`+${card.level}`}/></p>
             <p className="pd-pos">{positions.map(x => <span key={x.pos}><i className={`pos-${positionGroup(x.pos)}`}>{x.pos}</i><b>{x.value}</b></span>)}</p>
             <p className="pd-meta">{(cardClub ?? p.club) !== p.nation && <>{cardClub ?? p.club}<i/></>}{p.flag && <img src={flagImageUrl(p.flag)} alt=""/>}{p.nation}</p>
+            {goldTrait && <p className="pd-gold" title={`${goldTrait.desc} (nguồn: FIFA Addict)`}><span>Chỉ số ẩn vàng</span><b><img src={goldTrait.icon} alt="" width={26} height={26}/>{goldTrait.name}</b></p>}
             <p className="pd-meta">Lương <b className="pd-wage">{p.wage ?? 0}</b><i/>Thẻ <b>+{card.level}</b>/+{maxLevel}{bonus > 0 && <><i/>Team color <b className="pd-plus">+{bonus}</b></>}</p>
           </div>
           <div className="pd-card">{renderCard(card)}</div>
