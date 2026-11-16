@@ -7,6 +7,7 @@ import { playerPenalty, positionGroup, slotOvr } from './squad';
 import { teamColorName } from './teamColor';
 import { PITCH_ART, Face, Wage, depth, project } from './LineupBoard';
 import { publicLineupState } from './public-lineup';
+import { cleanFaces } from './portraits';
 import type { LineupBoardId, PublicLineupView } from './public-lineup';
 import { isNameEffect, nameEffectClass } from './name-effects';
 import { clubLogoUrl } from './club-logo';
@@ -30,6 +31,8 @@ export default function LineupViewer({ board, rank, name, load, levelBadge, onCl
   }, [board, rank, load]);
   useEffect(() => { const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); }; addEventListener('keydown', key); return () => removeEventListener('keydown', key); }, [onClose]);
   const team = useMemo(() => view?.lineup ? publicLineupState(view.lineup) : null, [view]);
+  // Ảnh mặt theo lựa chọn miniface của chủ đội hình (đội của chính mình thì dùng lựa chọn của mình).
+  const faces = useMemo(() => view && !view.mine ? cleanFaces(view.faces) ?? {} : undefined, [view]);
   const buffs = useMemo(() => new Map((team?.summary.colors.players ?? []).map(r => [r.playerId, r] as const)), [team]);
   const title = view?.name ?? name, logo = clubLogoUrl(view?.club ?? null);
   const fx = view && isNameEffect(view.effect) ? nameEffectClass(view.effect).trim() : '';
@@ -55,7 +58,7 @@ export default function LineupViewer({ board, rank, name, load, levelBadge, onCl
             return <div key={i} className={`lu-token lv-token pos-${positionGroup(slot.role)} ${card ? '' : 'is-empty'}`} style={{ left: `${left}%`, top: `${top}%`, '--k': depth(slot.y) } as CSSProperties}
               aria-label={card ? `${slot.label}: ${p!.name}, OVR ${shown(i)}` : `${slot.label}: trống`}>
               {card ? <>
-                <span className="lu-token-top"><Wage card={card}/><Face card={card} className="lu-face"/><strong className={playerPenalty(p!, slot.role) ? 'is-off' : ''}>{shown(i)}</strong></span>
+                <span className="lu-token-top"><Wage card={card}/><Face card={card} className="lu-face" faces={faces}/><strong className={playerPenalty(p!, slot.role) ? 'is-off' : ''}>{shown(i)}</strong></span>
                 <span className="lu-token-name"><b className={`squad-season season-tag-${p!.tier}`}>{seasonShort(p!.tier)}</b>{p!.name}</span>
               </> : <>
                 <span className="lu-token-top"><span className="lu-face lu-face-empty"/></span>

@@ -7,6 +7,7 @@ import { isLocked, positionGroup, squadCards } from './squad';
 import { asset } from './asset';
 import Progressive from './Progressive';
 import './target-picker.css';
+import { faceOf } from './portraits';
 
 type Props = {
   save: Save;
@@ -76,7 +77,7 @@ export default function TargetPicker({ save, targetId, onPick, onClose, view, on
         const p = getPlayer(c), maxed = c.level >= MAX_LEVEL, value = price(c);
         return <button key={c.uid} role="option" className="tp-row" disabled={maxed} title={maxed ? `Đã đạt cấp tối đa +${MAX_LEVEL}` : undefined} onClick={() => onPick(c.uid)}>
           <span className={`tp-pos pos-${positionGroup(p.pos)}`}>{p.pos}</span>
-          <span className="tp-face"><img src={p.cardFace || p.image || asset('/assets/silhouette.svg')} alt="" loading="lazy"/></span>
+          <span className="tp-face"><img src={faceOf(p).src} alt="" loading="lazy"/></span>
           <span className="tp-name"><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong></span>
           <span className="tp-ovr">{ovr(c)}</span>
           <span className="tp-level"><img src={levelBadge(c.level)} alt={`+${c.level}`}/></span>

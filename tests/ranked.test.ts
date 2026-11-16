@@ -116,8 +116,8 @@ test('Nhận bóng không khựng: người cầm bóng hầu như luôn đang c
       for (const side of ['me', 'opp'] as const) sim.pos[side].forEach((p, i) => { prev[side][i] = { ...p }; });
     }
   }
-  // Chỉ còn đứng khi giao bóng / thủ môn bắt bóng.
-  assert.ok(still / total < .12, `người cầm bóng đứng yên ${(still / total * 100).toFixed(0)}% thời gian`);
+  // Chỉ còn đứng khi giao bóng / thủ môn bắt bóng / lấy đà trước cú sút / xoay người khi đích sau lưng (vật lý 2026-11-16).
+  assert.ok(still / total < .14, `người cầm bóng đứng yên ${(still / total * 100).toFixed(0)}% thời gian`);
 });
 test('Mức lương GLXH khớp máy chủ (202611120006) và danh mục gửi kèm lương', () => {
   const wageSql = readFileSync('supabase/migrations/202611120006_fco_ranked_wage_cap.sql', 'utf8');
@@ -267,7 +267,7 @@ test('Phạt góc và đá phạt: có trong trận; dàn quân đúng (vòng c�
       const att = s.sp.side, def = att === 'me' ? 'opp' : 'me', fy = (p: { x: number; y: number }) => att === 'me' ? p.y : 100 - p.y, fx = (p: { x: number; y: number }) => att === 'me' ? p.x : 100 - p.x;
       const inBox = (side: 'me' | 'opp') => sim.pos[side].filter((p, i) => sim.teams[side][i].role !== 'GK' && fy(p) < 17 && fx(p) > 20 && fx(p) < 80).length;
       if (s.sp.type === 'corner') { boxChecks++; if (inBox(att) >= 4 && inBox(def) >= 5) boxOk++; }
-      else {
+      else if (s.sp.type === 'freekick') {
         wallChecks++;
         const b = { x: fx(s.ball), y: fy(s.ball) };
         const wall = sim.pos[def].filter((p, i) => sim.teams[def][i].role !== 'GK' && Math.abs(Math.hypot((fx(p) - b.x) * .68, (fy(p) - b.y) * 1.05) - 9.15) < 1.5).length;
@@ -374,5 +374,40 @@ test('Đồng hồ GLXH không đứng / lặp khi bàn thắng dồn sát nhau 
     }
     assert.ok(worst < 7, `seed ${seed}: đồng hồ đứng ${worst.toFixed(1)} giây`);
     assert.equal(minuteAt(tl, tl.duration), 90);
+  }
+});
+test('GLXH màn chờ vào trận: trận mới xem từ đầu; mở lại trận dở thì trừ thời gian màn chờ (máy chủ tính giờ từ lúc bấm Tìm trận)', async () => {
+  const { RANKED_INTRO_SECONDS, RANKED_INTRO_PREVIEW, rankedPlayed } = await import('../src/ranked.ts');
+  assert.equal(rankedPlayed(0), 0);
+  assert.equal(rankedPlayed(undefined), 0);
+  assert.equal(rankedPlayed(RANKED_INTRO_SECONDS - 1), 0, 'mở lại trong lúc màn chờ: xem từ đầu');
+  assert.ok(Math.abs(rankedPlayed(RANKED_INTRO_SECONDS + 60) - 60) < 1e-9);
+  assert.equal(RANKED_INTRO_PREVIEW, 5, 'sơ đồ hai đội ~5 giây');
+  // Trận diễn xong (sau màn chờ) vẫn muộn hơn mốc máy chủ nhận kết quả (202611150007: 200 giây).
+  const tl = buildTimeline(teams, [], 4);
+  assert.ok(RANKED_INTRO_SECONDS + tl.duration > 200 && tl.duration > 200);
+});
+test('Giao bóng: đầu trận, đầu hiệp 2, sau bàn thắng — hai đội ở phần sân nhà, đối phương ngoài vòng tròn 9,15 m, có còi rồi mới chuyền', () => {
+  const goals = [{ minute: 30, side: 'me' as const, scorer: 0, assist: 1 }, { minute: 70, side: 'opp' as const, scorer: 1, assist: null }];
+  for (const seed of [2, 6, 11]) {
+    const tl = buildTimeline(teams, goals, seed), sim = new MatchSim(teams, goals, seed);
+    // Khung đầu tiên: đã đứng sẵn vị trí giao bóng (không chạy về), bóng ở chấm giữa sân.
+    const ownHalf = (side: 'me' | 'opp', p: { y: number }) => side === 'me' ? p.y >= 49 : p.y <= 51;
+    for (const side of ['me', 'opp'] as const) assert.ok(sim.pos[side].every(p => ownHalf(side, p)), `đầu trận ${side} chưa ở phần sân nhà`);
+    const kicks = tl.keys.map((k, j) => ({ k, j })).filter(({ k, j }) => k.kind === 'setpiece' && tl.keys[j - 1]?.sp?.type === 'kickoff');
+    assert.equal(kicks.length, 2 + goals.length, `seed ${seed}: số lần giao bóng`);
+    for (const { k, j } of kicks) {
+      sim.t = 0; sim.step(k.t - .02);
+      const sp = tl.keys[j - 1].sp!, def = sp.side === 'me' ? 'opp' : 'me';
+      assert.deepEqual([k.x, k.y], [50, 50], 'bóng ở chấm giữa sân');
+      for (const side of ['me', 'opp'] as const) sim.pos[side].forEach((p, i) => assert.ok(ownHalf(side, p) || (side === sp.side && i === sp.taker.i), `${side}${i} chưa về phần sân nhà lúc giao bóng`));
+      const inCircle = sim.pos[def].filter(p => Math.hypot((p.x - 50) * .68, (p.y - 50) * 1.05) < 8.6).length;
+      assert.equal(inCircle, 0, 'đội không giao bóng phải đứng ngoài vòng tròn giữa sân');
+      const taker = sim.pos[sp.side][sp.taker.i];
+      assert.ok(Math.hypot(taker.x - 50, taker.y - 50) < 2.5, 'người giao bóng đứng ở bóng');
+      // Sau còi: chuyền cho đồng đội.
+      const nx = tl.keys.slice(j + 1).find(x => x.holder);
+      assert.equal(nx?.holder?.side, sp.side, 'giao bóng chuyền cho đồng đội');
+    }
   }
 });

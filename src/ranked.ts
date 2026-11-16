@@ -32,7 +32,7 @@ export type RankedMatch = {
   seed: number; score: [number, number]; goals: RankedGoal[];
   // effect: viền Premium của chủ đội (name-effects.ts), migration 202611120007.
   me: { ovr: number; formation: string; slots: RankedSlot[]; club?: string | null; effect?: string | null; attack?: number; defense?: number };
-  opp: { name: string; ovr: number; bot: boolean; formation: string | null; slots: RankedSlot[]; club?: string | null; effect?: string | null; attack?: number; defense?: number };
+  opp: { name: string; ovr: number; bot: boolean; formation: string | null; slots: RankedSlot[]; club?: string | null; effect?: string | null; attack?: number; defense?: number; faces?: Record<string, string> | null };
   // Chưa có điểm lúc bắt đầu: điểm tính khi hết trận (RankedFinish, migration 202611120005). elapsed = số giây trận đã diễn (xem tiếp).
   minSeconds?: number; elapsed?: number;
 };
@@ -65,6 +65,15 @@ export function rankedTeam(state: Pick<Save, 'cards' | 'squad' | 'lineups'>) {
 // tới khi người chơi tắt, bỏ trận hoặc đội hình không hợp lệ. Mỗi trận vẫn chạy đủ thời gian thật như đá tay (máy chủ kiểm tra).
 // Lưu bật / tắt trên máy này (tiện ích riêng mỗi máy).
 export const RANKED_AUTO_DELAY = 5;
+// Màn chờ vào trận (RankedIntro.tsx, 2026-11-16): tìm đối thủ tối thiểu RANKED_INTRO_SEARCH giây (+ ngẫu nhiên tới 1,5 giây), "Đã tìm thấy"
+// RANKED_INTRO_FOUND giây, sơ đồ hai đội RANKED_INTRO_PREVIEW giây. Máy chủ tính giờ trận từ lúc bấm Tìm trận nên mở lại trận đang dở
+// thì trừ RANKED_INTRO_SECONDS (≈ tổng màn chờ) khỏi thời gian máy chủ báo — xem tiếp đúng chỗ đang diễn.
+export const RANKED_INTRO_SEARCH = 2.5;
+export const RANKED_INTRO_FOUND = 1.6;
+export const RANKED_INTRO_PREVIEW = 5;
+export const RANKED_INTRO_SECONDS = RANKED_INTRO_SEARCH + .75 + RANKED_INTRO_FOUND + RANKED_INTRO_PREVIEW;
+// Giây trận đã diễn khi mở lại (0 = trận vừa tìm được, xem từ đầu sau màn chờ).
+export const rankedPlayed = (elapsed: number | undefined) => elapsed && elapsed > 0 ? Math.max(0, elapsed - RANKED_INTRO_SECONDS) : 0;
 const AUTO_KEY = 'fco-ranked-auto';
 export function savedRankedAuto() { try { return localStorage.getItem(AUTO_KEY) === '1'; } catch { return false; } }
 export function saveRankedAuto(on: boolean) { try { localStorage.setItem(AUTO_KEY, on ? '1' : '0'); } catch { /* không lưu được thì chỉ giữ trong phiên */ } }

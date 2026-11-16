@@ -10,6 +10,7 @@ import type { TaxVoucher } from './stp';
 import { usePricePeriod } from './use-price-period';
 import { asset } from './asset';
 import './sell.css';
+import { faceOf } from './portraits';
 
 type Tab = 'single' | 'bulk';
 type Mode = 'fit' | 'min' | 'max';
@@ -156,7 +157,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
       <div className="sd-bulk-rows" role="table" aria-label="Cầu thủ có thể bán">
         {rows.map(({ card: c, range: r, reason }) => { const pl = getPlayer(c), on = checkedSet.has(c.uid); return <div key={c.uid} role="row" className={`sd-bulk-row ${on ? 'is-on' : ''} ${reason ? 'is-off' : ''}`}>
           {reason ? <span className="sd-reason" title={reason}/> : <input type="checkbox" checked={on} onChange={() => toggle(c.uid)} aria-label={`Chọn ${pl.name} +${c.level}`}/>}
-          <span className="sd-name"><span className="squad-face sd-face"><img src={pl.cardFace || pl.image || asset('/assets/silhouette.svg')} alt=""/></span><b className={`squad-season season-tag-${pl.tier}`}>{seasonShort(pl.tier)}</b>{reason ? <strong>{pl.name}</strong> : <button className="sd-name-link" onClick={() => pick(c)} title="Bán lẻ với giá tự đặt">{pl.name}</button>}{reason && <em>{reason}</em>}</span>
+          <span className="sd-name"><span className={`squad-face sd-face${faceOf(pl).portrait ? ' is-portrait' : ''}`}><img src={faceOf(pl).src} alt=""/></span><b className={`squad-season season-tag-${pl.tier}`}>{seasonShort(pl.tier)}</b>{reason ? <strong>{pl.name}</strong> : <button className="sd-name-link" onClick={() => pick(c)} title="Bán lẻ với giá tự đặt">{pl.name}</button>}{reason && <em>{reason}</em>}</span>
           <span className="squad-wage"><b>{pl.wage ?? 0}</b></span>
           <strong className="sd-ovr">{ovr(c)}</strong>
           <span><img className="sd-level" src={levelBadge(c.level)} alt={`+${c.level}`}/></span>

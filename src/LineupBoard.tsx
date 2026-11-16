@@ -12,6 +12,8 @@ import { flagImageUrl } from './flags';
 import { asset } from './asset';
 import './squad.css';
 import './lineup.css';
+import { faceOf } from './portraits';
+import type { Faces } from './portraits';
 
 type Props = {
   save: Save;
@@ -76,7 +78,7 @@ export const PITCH_ART = <svg className="lu-pitch-art" viewBox="0 0 100 100" pre
   {[GOAL_TOP, GOAL_BOTTOM].map((g, i) => <g key={i}><path d={g.net} className="lu-goal-net"/><path d={g.frame} className="lu-goal"/></g>)}
 </svg>;
 
-export const Face = ({ card, className }: { card: Card; className: string }) => { const p = getPlayer(card); return <span className={className}><img src={p.cardFace || p.image || asset('/assets/silhouette.svg')} alt="" loading="lazy" draggable={false}/></span>; };
+export const Face = ({ card, className, faces }: { card: Card; className: string; faces?: Faces }) => { const p = getPlayer(card), f = faceOf(p, faces); return <span className={`${className}${f.portrait ? ' is-portrait' : ''}`}><img src={f.src} alt="" loading="lazy" draggable={false}/></span>; };
 const colorName = (c: AppliedBuff) => colorNameOf(c);
 export const Wage = ({ card }: { card: Card }) => <span className="squad-wage"><b>{getPlayer(card).wage ?? 0}</b></span>;
 

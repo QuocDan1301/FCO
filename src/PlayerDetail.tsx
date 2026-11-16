@@ -9,6 +9,7 @@ import { PRICE_EPOCH, PRICE_PERIOD_MS, formatMarketPrice, marketNow, priceAt } f
 import { playerStats } from './player-stats';
 import { flagImageUrl } from './flags';
 import { goldTraitOf } from './gold-traits';
+import { minifaceOptions, portraitOf } from './portraits';
 import './player-detail.css';
 
 type Props = {
@@ -20,6 +21,8 @@ type Props = {
   renderCard: (card: Card) => ReactNode;
   onUpgrade?: () => void;
   onClose: () => void;
+  // Miniface (ảnh mặt trên sân / dòng): lựa chọn hiện tại của cầu thủ này (null = mặc định) và hàm đổi. Không truyền = không cho đổi.
+  miniface?: { value: string | null; onChoose: (value: string | null) => void };
 };
 
 const DAY = 86_400_000, HISTORY_DAYS = 14;
@@ -57,7 +60,7 @@ function PriceChart({ points }: { points: { at: number; price: number }[] }) {
 }
 
 // Thông tin cầu thủ: phần đầu (mùa, tên, OVR theo vị trí, CLB, quốc tịch, lương), tab Giá / Sự nghiệp CLB, cột Chỉ số chung.
-export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, renderCard, onUpgrade, onClose }: Props) {
+export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, renderCard, onUpgrade, onClose, miniface }: Props) {
   const p = getPlayer(card), overall = ovr(card) + bonus;
   const [tab, setTab] = useState<'price' | 'career'>('price');
   const positions = playerPositions(p).slice(0, 3).map(pos => ({ pos, value: slotOvr(card, pos) + bonus }));
@@ -66,6 +69,7 @@ export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, re
   const now = priceAt(card);
   const clubs = playerClubs(p), cardClub = p.club && !NOT_CLUBS.has(p.club) ? p.club : null;
   const goldTrait = goldTraitOf(p.id);
+  const faces = useMemo(() => miniface ? minifaceOptions(p) : [], [p, miniface]);
   const tone = (v: number) => v >= overall + 4 ? 'is-top' : v >= overall - 6 ? 'is-mid' : 'is-low';
   return <div className="pd">
     <header className="pd-bar"><h2>Thông tin cầu thủ</h2><button className="icon-button" aria-label="Đóng chi tiết" onClick={onClose}><X/></button></header>
@@ -77,7 +81,17 @@ export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, re
             <p className="pd-pos">{positions.map(x => <span key={x.pos}><i className={`pos-${positionGroup(x.pos)}`}>{x.pos}</i><b>{x.value}</b></span>)}</p>
             <p className="pd-meta">{(cardClub ?? p.club) !== p.nation && <>{cardClub ?? p.club}<i/></>}{p.flag && <img src={flagImageUrl(p.flag)} alt=""/>}{p.nation}</p>
             {goldTrait && <p className="pd-gold" title={`${goldTrait.desc} (nguồn: FIFA Addict)`}><span>Chỉ số ẩn vàng</span><b><img src={goldTrait.icon} alt="" width={26} height={26}/>{goldTrait.name}</b></p>}
-            <p className="pd-meta">Lương <b className="pd-wage">{p.wage ?? 0}</b><i/>Thẻ <b>+{card.level}</b>/+{maxLevel}{bonus > 0 && <><i/>Team color <b className="pd-plus">+{bonus}</b></>}</p>
+            {miniface && faces.length > 0 && <div className="pd-faces" role="radiogroup" aria-label="Miniface">
+          <span className="pd-faces-title">Miniface <small>áp cho {p.name} ở mọi mùa</small></span>
+          <div className="pd-faces-list">
+            {[{ value: null, src: portraitOf(p.id) ?? faces[faces.length - 1].src, label: 'Mặc định' }, ...faces].map(o => {
+              const on = (miniface.value ?? null) === o.value, flat = o.value === 'card' || (o.value === null && !portraitOf(p.id));
+              return <button key={o.value ?? 'default'} type="button" role="radio" aria-checked={on} className={`pd-face${on ? ' is-on' : ''}${flat ? ' is-card' : ''}`} title={o.label}
+                onClick={() => miniface.onChoose(o.value)}><img src={o.src} alt="" loading="lazy"/><span>{o.label}</span></button>;
+            })}
+          </div>
+        </div>}
+        <p className="pd-meta">Lương <b className="pd-wage">{p.wage ?? 0}</b><i/>Thẻ <b>+{card.level}</b>/+{maxLevel}{bonus > 0 && <><i/>Team color <b className="pd-plus">+{bonus}</b></>}</p>
           </div>
           <div className="pd-card">{renderCard(card)}</div>
         </div>

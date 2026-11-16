@@ -1,0 +1,57 @@
+{
+ "note": "Miniface tùy chọn do người dùng gửi (2026-11-16, đã tách nền): public/assets/portraits/custom/<id>.webp 160×160; person = tên|quốc tịch, hiện đầu danh sách chọn Miniface.",
+ "items": {
+  "barca-christensen": {
+   "person": "A. Christensen|Đan Mạch",
+   "label": "Barça"
+  },
+  "barca-pedri": {
+   "person": "Pedri|Tây Ban Nha",
+   "label": "Barça"
+  },
+  "barca-zambrotta": {
+   "person": "G. Zambrotta|Ý",
+   "label": "Barça"
+  },
+  "barca-messi": {
+   "person": "L. Messi|Argentina",
+   "label": "Barça"
+  },
+  "barca-semedo": {
+   "person": "Nélson Semedo|Bồ Đào Nha",
+   "label": "Barça"
+  },
+  "barca-cillessen": {
+   "person": "J. Cillessen|Hà Lan",
+   "label": "Barça"
+  },
+  "barca-dembele": {
+   "person": "O. Dembélé|Pháp",
+   "label": "Barça"
+  },
+  "barca-ronaldo": {
+   "person": "Ronaldo|Brazil",
+   "label": "Barça"
+  },
+  "barca-cancelo": {
+   "person": "João Cancelo|Bồ Đào Nha",
+   "label": "Barça"
+  },
+  "barca-thuram": {
+   "person": "L. Thuram|Pháp",
+   "label": "Barça"
+  },
+  "barca-toure": {
+   "person": "Y. Touré|Bờ Biển Ngà",
+   "label": "Barça"
+  },
+  "barca-rodri": {
+   "person": "Rodri|Tây Ban Nha",
+   "label": "Barça"
+  },
+  "ucl-cristiano-ronaldo": {
+   "person": "Cristiano Ronaldo|Bồ Đào Nha",
+   "label": "Cúp C1"
+  }
+ }
+}

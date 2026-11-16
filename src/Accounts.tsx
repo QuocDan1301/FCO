@@ -1,9 +1,9 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, ArrowUpDown, CircleMinus, Coins, Gift, Lock, Pause, Play, RotateCcw, Trash2, Unlock } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, CircleMinus, Coins, Gift, Lock, Pause, Play, RotateCcw, Trash2, Unlock , MailCheck } from 'lucide-react';
 import { money, packs } from './game';
 import { ago, hours, vnd } from './Stats';
 import { giftRewardText } from './gift-codes';
-import { adminAccountDelete, adminAccountLock, adminAccountTier, adminCreditStp, adminResetPassword, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS, adminGiftBulk, adminDeduct } from './wallet';
+import { adminAccountDelete, adminAccountLock, adminConfirmEmail, adminAccountTier, adminCreditStp, adminResetPassword, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS, adminGiftBulk, adminDeduct } from './wallet';
 import type { AdminAccount, AdminAccountList, AdminGift, LedgerRow } from './wallet';
 import { CreditKindField, LedgerKindButton } from './LedgerKind';
 import type { CreditKind } from './LedgerKind';
@@ -14,7 +14,7 @@ const PAGE_SIZE = 50;
 // Sắp xếp (migration 202611100011): bấm tiêu đề cột; lần đầu giảm dần (lớn / mới nhất trước), bấm lại thì tăng dần.
 type Sort = 'new' | 'active' | 'play' | 'fc' | 'bp' | 'cards' | 'packs' | 'topup';
 // Bộ lọc trạng thái (migration 202611090014): đang hoạt động = đang online (2 phút gần nhất), không hoạt động = còn lại.
-const STATUSES: { id: string | null; label: string }[] = [{ id: null, label: 'Tất cả' }, { id: 'active', label: 'Đang hoạt động' }, { id: 'inactive', label: 'Không hoạt động' }, { id: 'paused', label: 'Đang tạm dừng' }];
+const STATUSES: { id: string | null; label: string }[] = [{ id: null, label: 'Tất cả' }, { id: 'active', label: 'Đang hoạt động' }, { id: 'inactive', label: 'Không hoạt động' }, { id: 'paused', label: 'Đang tạm dừng' }, { id: 'unconfirmed', label: 'Chưa xác nhận Gmail' }];
 const SORTS: { id: Sort; column: string; label: string; asc: string }[] = [
   { id: 'new', column: 'Đăng ký', label: 'Mới đăng ký', asc: 'Đăng ký lâu nhất' },
   { id: 'active', column: 'Hoạt động', label: 'Mới vào game', asc: 'Lâu không vào game' },
@@ -235,6 +235,11 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
       </div></>}
       {section === 'tier' && <AccountTierField account={account} busy={busy} run={task => void run(task)}/>}
       {section === 'security' && <><ResetPasswordField account={account} busy={busy} run={task => void run(task)}/>
+      {account.unconfirmed && <div className="pa-account-danger">
+        <h3>Gmail chưa xác nhận</h3>
+        <p className="pa-gift-note">Người chơi đã đăng ký nhưng chưa nhập mã 6 số (không nhận được mail, mail vào Spam…). Chỉ xác nhận hộ khi chắc Gmail là của người đó.</p>
+        <button type="button" className="secondary-button" disabled={busy} onClick={() => { if (confirm(`Xác nhận Gmail cho ${login}? Người chơi đăng nhập được ngay bằng Gmail và mật khẩu đã đặt.`)) void run(async () => { const r = await adminConfirmEmail(account.id); return r.already ? `${login} đã xác nhận Gmail từ trước.` : `Đã xác nhận Gmail cho ${login}. Người chơi đăng nhập được ngay.`; }); }}><MailCheck size={16}/>Xác nhận Gmail thủ công</button>
+      </div>}
       <div className="pa-account-danger">
         <h3>Khoá / tạm dừng</h3>
         {account.admin && <p className="pa-gift-note">Tài khoản admin không khoá hoặc tạm dừng được.</p>}
@@ -454,7 +459,7 @@ export default function Accounts({ initialSearch = '' }: { initialSearch?: strin
         <tbody>{data.accounts.map(a => <Fragment key={a.id}>
           <tr className={a.locked ? 'is-locked' : undefined}>
             <td className="pa-account-pick"><input type="checkbox" aria-label={`Chọn ${a.login}`} title={a.admin ? 'Không tạm dừng hoặc xoá được tài khoản admin' : undefined} disabled={a.admin} checked={!a.admin && (allMatching || selected.has(a.id))} onChange={() => { if (allMatching) { setSelected(new Set(pageIds)); } toggleOne(a.id); }}/></td>
-            <td>{a.online && <i className="pa-dot" aria-label="đang online"/>}{a.login}{a.admin && <span className="pa-badge is-admin">Admin</span>}{a.locked && <span className="pa-badge is-locked">Đã khoá</span>}{a.paused && <span className="pa-badge is-paused">Tạm dừng</span>}</td>
+            <td>{a.online && <i className="pa-dot" aria-label="đang online"/>}{a.login}{a.admin && <span className="pa-badge is-admin">Admin</span>}{a.locked && <span className="pa-badge is-locked">Đã khoá</span>}{a.paused && <span className="pa-badge is-paused">Tạm dừng</span>}{a.unconfirmed && <span className="pa-badge is-paused" title="Đã đăng ký nhưng chưa nhập mã 6 số trong mail">Chưa xác nhận Gmail</span>}</td>
             <td>{new Date(a.registered).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td><td>{ago(a.lastSeen, data.now)}</td><td>{hours(a.playSeconds)}</td>
             <td>{money(a.fc)}</td><td>{a.hasSave ? money(a.bp) : '—'}</td><td>{a.hasSave ? money(a.cards) : '—'}</td><td>{a.hasSave ? money(a.packs) : '—'}</td><td>{a.topupFc ? vnd(a.topupVnd) : '—'}</td>
             <td><button type="button" className="secondary-button pa-account-toggle" aria-expanded={open === a.id} onClick={() => { setNotice(''); setOpen(open === a.id ? '' : a.id); }}>{open === a.id ? 'Đóng' : 'Quản lý'}</button></td>

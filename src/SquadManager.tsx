@@ -12,6 +12,7 @@ import { flagImageUrl } from './flags';
 import { asset } from './asset';
 import './squad.css';
 import Progressive from './Progressive';
+import { faceOf } from './portraits';
 
 type Props = {
   save: Save;
@@ -55,7 +56,7 @@ const focusRow = (event: MouseEvent<HTMLElement>) => event.currentTarget.closest
 type RowActions = { onMove: () => void; onDetail: () => void; onDelete: () => void; onSell: () => void; onUpgrade: () => void; onLock: () => void };
 type RowProps = { card: Card; lineup: boolean; locked: boolean; count?: number; color?: BuffResult } & RowActions & Pick<Props, 'levelBadge' | 'seasonShort'>;
 // Ảnh chân dung: mặt thẻ đầy đủ được phóng to, cắt vào phần đầu – vai (squad.css); bấm để xem cả thẻ.
-const Face = ({ player, onDetail }: { player: Player; onDetail: () => void }) => <button className="squad-face" onClick={onDetail} aria-label={`Xem thẻ ${player.name}`} tabIndex={-1}><img src={player.cardFace || player.image || asset('/assets/silhouette.svg')} alt="" loading="lazy"/></button>;
+const Face = ({ player, onDetail }: { player: Player; onDetail: () => void }) => <button className={`squad-face${faceOf(player).portrait ? ' is-portrait' : ''}`} onClick={onDetail} aria-label={`Xem thẻ ${player.name}`} tabIndex={-1}><img src={faceOf(player).src || asset('/assets/silhouette.svg')} alt="" loading="lazy"/></button>;
 const Wage = ({ player }: { player: Player }) => <span className="squad-wage" aria-label={`Lương ${player.wage ?? 0}`}><b>{player.wage ?? 0}</b></span>;
 function Name({ player, locked, count, seasonShort }: { player: Player; locked: boolean; count?: number; seasonShort: Props['seasonShort'] }) {
   return <span className="squad-name"><b className={`squad-season season-tag-${player.tier}`}>{seasonShort(player.tier)}</b><strong>{player.name}</strong>{count && count > 1 ? <em className="squad-dup" aria-label={`${count} thẻ giống nhau`}>×{count}</em> : null}{locked && <Lock size={13} className="squad-lock-mark" aria-label="Đã khóa"/>}</span>;

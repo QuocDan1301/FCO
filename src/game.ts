@@ -69,7 +69,9 @@ const isEventReward = (r: unknown): r is EventReward => !!r && typeof r === 'obj
 export type LineupSpot = { label: string; x: number; y: number };
 export type Lineup = { formation: string; slots: (string | null)[]; custom?: (LineupSpot | null)[] };
 export type Lineups = { active: number; sets: Lineup[] };
-export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; membership?: Membership; event?: EventState; reset?: string; bpReset?: string; codes?: string[]; inv?: 1; profile?: Profile; stp?: number; taxVouchers?: TaxVouchers; premiumUntil?: number | null; luxuryUntil?: number | null };
+export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; membership?: Membership; event?: EventState; reset?: string; bpReset?: string; codes?: string[]; inv?: 1; profile?: Profile; stp?: number; taxVouchers?: TaxVouchers; premiumUntil?: number | null; luxuryUntil?: number | null;
+  // Miniface người chơi chọn (portraits.ts): 'tên|quốc tịch' → spid chân dung, hoặc 'card' = dùng ảnh thẻ.
+  minifaces?: Record<string, string> };
 // Thông tin HLV người chơi tự chọn (src/ProfileCard.tsx): giới tính, sinh nhật 'DD-MM' (không lưu năm).
 export type Profile = { gender?: 'male' | 'female' | 'other'; birthday?: string };
 const PROFILE_MONTH_DAYS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -892,6 +894,12 @@ export function validateSave(data: unknown): data is Save {
   // FC và tiến trình sự kiện sai kiểu thì bỏ, không làm hỏng cả bản lưu.
   if (s.fc !== undefined && !(Number.isSafeInteger(s.fc) && s.fc >= 0)) delete s.fc;
   if (s.stp !== undefined && !(Number.isSafeInteger(s.stp) && s.stp >= 0)) delete s.stp;
+  // Miniface: chỉ giữ khoá chuỗi ngắn → spid 9 số, mã ảnh riêng (chữ thường / số nối bằng '-') hoặc 'card', tối đa 1.000 mục.
+  if (s.minifaces !== undefined) {
+    const m = s.minifaces;
+    if (m && typeof m === 'object' && !Array.isArray(m)) s.minifaces = Object.fromEntries(Object.entries(m).filter(([k, v]) => typeof k === 'string' && k.length <= 80 && typeof v === 'string' && (v === 'card' || /^\d{9}$/.test(v) || (v.length <= 40 && /^[a-z0-9]+(-[a-z0-9]+)+$/.test(v)))).slice(0, 1000));
+    else delete s.minifaces;
+  }
   // Hạn Premium (ms) chỉ để hiển thị / tính trước thuế; máy chủ tự kiểm tra khi bán.
   if (s.premiumUntil !== undefined && s.premiumUntil !== null && !Number.isSafeInteger(s.premiumUntil)) delete s.premiumUntil;
   if (s.luxuryUntil !== undefined && s.luxuryUntil !== null && !Number.isSafeInteger(s.luxuryUntil)) delete s.luxuryUntil;

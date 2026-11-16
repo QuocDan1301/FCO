@@ -114,6 +114,8 @@ export const adminAccounts = (search: string, sort: string, limit: number, offse
 export const adminAccountsPause = (paused: boolean, target: { users: string[] } | { all: true; search: string; status: string | null }) => call<{ changed: number; skippedAdmins: number }>('fco_admin_accounts_pause', 'all' in target ? { p_paused: paused, p_all: true, p_search: target.search || null, p_status: target.status } : { p_paused: paused, p_users: target.users });
 // Đặt lại mật khẩu người chơi (202611110015): mật khẩu tạm 6–72 ký tự, đăng xuất mọi thiết bị.
 export const adminResetPassword = (user: string, password: string) => call<{ login: string }>('fco_admin_reset_password', { p_user: user, p_password: password });
+// Xác nhận Gmail hộ người chơi không nhận được mail mã (migration 202611160002).
+export const adminConfirmEmail = (id: string) => call<{ login: string; already: boolean }>('fco_admin_confirm_email', { p_user: id });
 export const adminAccountLock = (id: string, locked: boolean) => call<{ locked: boolean }>('fco_admin_account_lock', { p_user: id, p_locked: locked });
 export const adminAccountReset = (id: string, resetFc: boolean) => call<{ reset: boolean; fc: number }>('fco_admin_account_reset', { p_user: id, p_reset_fc: resetFc });
 // Xoá hàng loạt (migration 202611100010): mỗi lần tối đa 200 tài khoản, remaining = số còn lại cần gọi tiếp.

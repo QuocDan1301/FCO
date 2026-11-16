@@ -182,3 +182,5 @@
 .sp-picker.is-compact .sp-field{padding:0 4px 0 9px;gap:4px}
 .sp-picker.is-compact .sp-list{width:max(100%,84px)}
 .sp-picker.is-compact .sp-option{justify-content:center;font-variant-numeric:tabular-nums}
+/* TTCN: miniface không nền (portraits.ts faceOf) thay ảnh thẻ thu nhỏ. */
+.market-face.is-portrait img{width:46px;height:46px;max-height:none;object-fit:contain;object-position:50% 100%;filter:drop-shadow(0 2px 3px #000b)}

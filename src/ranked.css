@@ -197,3 +197,89 @@ svg.rkd-board-club.is-me{color:#38c6ff}svg.rkd-board-club.is-opp{color:#ff7a7a}
 .rkd-auto-toggle.is-on{color:#5fd7ff;border-color:#5fd7ff66}
 .rkd-auto-next{margin:2px 0 0;font-size:13px;color:#cfeaff}
 .rkd-auto-next b{color:#5fd7ff;font-size:16px}
+
+/* Nút Tìm trận khi đang ghép trận (RankedPage): đang tìm = nền tối, vòng xoay + đồng hồ; đã tìm thấy = xanh lá. */
+.rkd-find.is-search:disabled,.rkd-find.is-found:disabled{opacity:1}
+.rkd-find.is-search:disabled{background:linear-gradient(180deg,#1b4a6b,#123450);color:#e6f7ff;box-shadow:inset 0 0 0 1px #38c6ff66,0 0 18px #38c6ff33;cursor:progress}
+.rkd-find.is-found:disabled{background:linear-gradient(180deg,#5ef0a0,#1fb866);color:#04210f;box-shadow:0 0 22px #3ddc7a66;cursor:default;animation:rkd-found .45s ease-out}
+.rkd-find-spin{animation:rkd-spin .9s linear infinite}
+.rkd-find-clock{margin-left:6px;padding:2px 8px;border-radius:6px;background:#38c6ff22;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:.05em}
+.rkd-find-text{display:grid;justify-items:start;line-height:1.05}
+.rkd-find-text small{font-size:12px;font-weight:700;letter-spacing:0;opacity:.8}
+@keyframes rkd-spin{to{transform:rotate(360deg)}}
+@keyframes rkd-found{0%{transform:scale(.96)}60%{transform:scale(1.03)}100%{transform:none}}
+
+/* Sơ đồ hai đội trước trận GLXH (RankedIntro.tsx): trái đội mình, phải đối thủ, ảnh cầu thủ + vị trí + tên + OVR · cấp, thanh tải ~5 giây. */
+.rki{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:14px 18px;background:radial-gradient(ellipse at 50% 40%,#123049 0%,#0a1420 55%,#05090f 100%);color:#e6edf5;overflow:auto}
+.rki-hint{margin:0;color:#8fa3b8;font-size:13px}
+.rki-hint b{color:#ffd66e;font-size:15px}
+.rki-preview{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,210px) minmax(0,1fr);align-items:center;gap:18px;width:min(1180px,100%);height:min(100%,780px);animation:rki-in .4s ease-out}
+@keyframes rki-in{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+.rki-team{display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px;height:100%;min-height:0;min-width:0}
+.rki-team>header{display:flex;align-items:center;gap:8px;min-width:0;padding:8px 10px;border-radius:8px;background:#ffffff0d}
+.rki-team>header img,.rki-shield{width:26px;height:26px;flex:none;object-fit:contain}
+.rki-team.is-me .rki-shield{color:#38c6ff}.rki-team.is-opp .rki-shield{color:#ff7a7a}
+.rki-team>header b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:15px}
+.rki-team.is-me>header b{color:#38c6ff}.rki-team.is-opp>header b{color:#ff7a7a}
+.rki-team>header span{color:#8fa3b8;font-size:12px}
+.rki-team>header em{font-style:normal;font-weight:800;color:#ffd66e;font-size:13px}
+.rki-pitch{position:relative;justify-self:center;height:100%;max-width:100%;aspect-ratio:68/105;border-radius:8px;overflow:hidden;
+  background:repeating-linear-gradient(0deg,#2c8744 0 7.14%,#33964d 7.14% 14.28%);box-shadow:inset 0 0 0 2px #ffffffb0,inset 0 0 40px #0006}
+.rki-half{position:absolute;left:0;right:0;top:50%;height:2px;background:#ffffffb0}
+.rki-circle{position:absolute;left:50%;top:50%;width:26%;aspect-ratio:1;border:2px solid #ffffffb0;border-radius:50%;transform:translate(-50%,-50%)}
+.rki-box{position:absolute;left:22%;right:22%;height:15%;border:2px solid #ffffffb0}
+.rki-box.is-top{top:-2px}.rki-box.is-bottom{bottom:-2px}
+.rki-player{position:absolute;display:grid;justify-items:center;gap:1px;width:31%;transform:translate(-50%,-50%);opacity:0;animation:rki-player .35s ease-out var(--d,0ms) forwards}
+@keyframes rki-player{from{opacity:0;transform:translate(-50%,-30%)}to{opacity:1;transform:translate(-50%,-50%)}}
+/* Ảnh cầu thủ: khung tròn viền màu theo tuyến, nhãn vị trí dưới ảnh. */
+.rki-face{position:relative;display:block;width:clamp(30px,4.6vh,46px);aspect-ratio:1;border-radius:50%;background:#0d1620;box-shadow:0 0 0 2px var(--line),0 3px 8px #000a}
+.rki-face>img{width:100%;height:100%;border-radius:50%;object-fit:cover;object-position:50% 18%}
+.rki-face>img.is-empty{object-fit:contain;padding:12%;opacity:.55}
+.rki-face>i{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);padding:0 4px;border-radius:5px;background:var(--line);color:#0b1118;font:800 9px/12px 'Roboto Condensed',Arial,sans-serif;font-style:normal;white-space:nowrap}
+.rki-face.is-gk{--line:#ffd23f}.rki-face.is-df{--line:#5aa9ff}.rki-face.is-mf{--line:#3ddc7a}.rki-face.is-fw{--line:#ff7a7a}
+/* Chân dung không nền: hiện nguyên người như màn Đội hình (không nền tròn, không viền), nhãn vị trí vẫn ở chân. */
+.rki-face.is-portrait{width:clamp(40px,6.6vh,66px);border-radius:0;background:none;box-shadow:none}
+.rki-face.is-portrait>img{border-radius:0;object-fit:contain;object-position:50% 100%;filter:drop-shadow(0 2px 3px #000b)}
+.rki-face.is-portrait>i{bottom:-4px}
+.rki-name{display:flex;align-items:center;gap:3px;max-width:100%;margin-top:6px;padding:1px 5px;border-radius:4px;background:#04080ec4;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rki-name .squad-season{flex:none;font-size:8px;padding:0 3px}
+.rki-player small{font-size:10px;font-weight:800;color:#ffd66e;text-shadow:0 1px 2px #000}
+.rki-mid{display:grid;justify-items:center;gap:10px;text-align:center}
+.rki-vs-big{font:900 54px/1 'Roboto Condensed',Arial,sans-serif;color:#ffd66e;text-shadow:0 0 18px #ffd66e66}
+.rki-score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;width:100%;font-variant-numeric:tabular-nums}
+.rki-score b{font-size:22px}.rki-score b:first-child{color:#38c6ff;text-align:right}.rki-score b:last-child{color:#ff7a7a;text-align:left}
+.rki-score small{color:#8fa3b8;font-size:11px;text-transform:uppercase}
+.rki-score.is-sub b{font-size:15px}
+.rki-load{width:100%;height:8px;border-radius:4px;background:#ffffff1a;overflow:hidden}
+.rki-load>i{display:block;height:100%;background:linear-gradient(90deg,#38c6ff,#ffd66e);transition:width .1s linear}
+/* Màn thấp (điện thoại cầm ngang): sân mini thấp lại, cột giữa hẹp, bỏ nhãn mùa cho tên dài hơn. */
+@media (max-height:520px){
+  .rki{padding:8px 10px}
+  .rki-preview{gap:10px;grid-template-columns:minmax(0,1fr) minmax(110px,150px) minmax(0,1fr)}
+  .rki-team>header{padding:4px 8px}.rki-team>header b{font-size:13px}
+  .rki-vs-big{font-size:36px}.rki-score b{font-size:17px}.rki-score.is-sub b{font-size:13px}
+  .rki-face>i{font-size:7px;line-height:10px;bottom:-5px}
+  .rki-name{font-size:9px;padding:0 3px;margin-top:4px}.rki-name .squad-season{display:none}.rki-player small{font-size:8px}
+}
+@media (prefers-reduced-motion:reduce){.rki-player,.rki-preview,.rkd-find-spin,.rkd-find.is-found{animation:none;opacity:1}}
+/* Diễn biến: CSA vàng gộp nhóm (mỗi cầu thủ một ô) + nút bật / tắt hiện CSA. */
+.rkd-log-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.rkd-trait-toggle{flex:none;padding:3px 9px;border-radius:999px;border:1px solid #5b4a1e;background:#1a1609;color:#b9a56a;font-size:11px;font-weight:700;cursor:pointer}
+.rkd-trait-toggle.is-on{border-color:#d9a520;background:#2a210a;color:#ffd95a}
+.rkd-trait-toggle:hover{filter:brightness(1.15)}
+.rkd-log>li.is-trait{align-items:flex-start}
+.rkd-log>li span.rkd-trait-chips{display:flex;flex-wrap:wrap;gap:4px;min-width:0}
+.rkd-log>li span.rkd-trait-chip{display:inline-flex;min-width:0;align-items:center;gap:3px;max-width:100%;padding:1px 7px 1px 2px;border-radius:10px;background:#d9a52014;border:1px solid #d9a52040;font-size:11px;font-weight:700;color:#efe3bd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rkd-log>li span.rkd-trait-chip.is-me{box-shadow:inset 2px 0 0 #38c6ff}.rkd-log>li span.rkd-trait-chip.is-opp{box-shadow:inset 2px 0 0 #ff5b5b}
+.rkd-trait-chip>img{width:16px;height:16px;flex:none;filter:drop-shadow(0 1px 1px #000a)}
+.rkd-trait-chip>b{color:#ffd95a;font-weight:800}
+.rkd-match.is-compact .rkd-log-head{margin-bottom:calc(4px * var(--z))}
+.rkd-match.is-compact .rkd-log>li span.rkd-trait-chip{font-size:calc(11px * var(--z))}
+.rkd-match.is-compact .rkd-trait-chip>img{width:calc(16px * var(--z));height:calc(16px * var(--z))}.rkd-log>li.is-trait>span:first-child{min-width:46px;white-space:nowrap}
+
+/* Sơ đồ trước trận dùng sân + cầu thủ của màn Đội hình (2026-11-16). */
+.rki-team .rki-lu-pitch{flex:none;width:100%;height:100%;max-height:none;margin:0;aspect-ratio:auto;align-self:stretch}
+.rki-token{--face:clamp(28px,9.5cqh,64px);cursor:default;opacity:0;animation:rki-token .35s ease-out var(--d,0ms) forwards}
+@keyframes rki-token{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.rki-token{animation:none;opacity:1}}
+.rki-token .lu-token-name{font-size:clamp(9px,2.3cqh,14px);max-width:calc(var(--face) * 2.4)}

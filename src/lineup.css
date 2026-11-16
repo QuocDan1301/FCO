@@ -185,3 +185,17 @@
   .lu-colors-none{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .lu-pitch{margin-top:4px}
 }
+
+/* Chân dung không nền (portraits.ts, 2026-11-16): hiện nguyên ảnh cầu thủ (không phóng / cắt như ảnh thẻ), bỏ hộp nền và viền —
+   cầu thủ "đứng" trên sân / trên dòng; được chọn / rê chuột thì phát sáng theo viền người. */
+.squad-face.is-portrait,.lu-face.is-portrait{background:none;box-shadow:none;border-radius:0;overflow:visible}
+.squad-face.is-portrait img,.lu-face.is-portrait img{left:0;top:auto;bottom:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%;filter:drop-shadow(0 2px 3px #000b)}
+.lu-face.is-portrait img{width:108%;height:108%;left:-4%}
+/* Ô lương / OVR luôn nằm trên ảnh chân dung (ảnh không nền tràn nhẹ khỏi ô). */
+.lu-token-top>.squad-wage,.lu-token-top>strong{z-index:2}
+.lu-token:hover .lu-face.is-portrait,.lu-token:focus-visible .lu-face.is-portrait,.lu-token.is-drop .lu-face.is-portrait,.lu-token.is-picked .lu-face.is-portrait{box-shadow:none}
+.lu-token:hover .lu-face.is-portrait img{filter:drop-shadow(0 0 3px #ffffffcc) drop-shadow(0 2px 3px #000b)}
+.lu-token:focus-visible .lu-face.is-portrait img{filter:drop-shadow(0 0 4px #7bc9ff) drop-shadow(0 2px 3px #000b)}
+.lu-token.is-drop .lu-face.is-portrait img{filter:drop-shadow(0 0 4px #1fe36b99) drop-shadow(0 2px 3px #000b)}
+.lu-token.is-picked .lu-face.is-portrait img{filter:drop-shadow(0 0 5px #1fe36b) drop-shadow(0 0 10px #1fe36b99)}
+.squad-face.is-portrait:hover img{transform:scale(1.06);transform-origin:50% 100%}

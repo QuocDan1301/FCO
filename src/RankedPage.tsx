@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { Medal, RefreshCw, Repeat, Shield, Swords, Trophy, Users, Volume2, VolumeX, X } from 'lucide-react';
+import { CheckCircle2, LoaderCircle, Medal, RefreshCw, Repeat, Shield, Swords, Trophy, Users, Volume2, VolumeX, X } from 'lucide-react';
 import { getPlayer, players } from './game';
 import type { Save, Tier } from './game';
 import { seasonShort } from './badges';
@@ -8,7 +8,7 @@ import LineupViewer from './LineupViewer';
 import { teamRating } from './ranked-ratings';
 import type { LineupBoardId, PublicLineupView } from './public-lineup';
 import { FORMATIONS, DEFAULT_FORMATION } from './squad';
-import { RANKED_AUTO_DELAY, RANKED_START, RANKED_WAGE_CAP, autoLeft, nextTier, rankedTeam, saveRankedAuto, savedRankedAuto, tierById, tierOf } from './ranked';
+import { RANKED_AUTO_DELAY, RANKED_INTRO_FOUND, RANKED_INTRO_SEARCH, RANKED_START, RANKED_WAGE_CAP, autoLeft, rankedPlayed, nextTier, rankedTeam, saveRankedAuto, savedRankedAuto, tierById, tierOf } from './ranked';
 import type { RankedFinish, RankedMatch, RankedSlot, RankedState } from './ranked';
 import { MatchSim, ballAt, minuteAt, statsAt } from './ranked-sim';
 import type { SimEvent, SimSlot, TraitEvent } from './ranked-sim';
@@ -16,6 +16,7 @@ import { isNameEffect, nameEffectClass, isLuxuryEffect } from './name-effects';
 import type { NameEffect } from './name-effects';
 import { clubLogoUrl } from './club-logo';
 import { goldTraitIcon, goldTraitId, goldTraitName } from './gold-traits';
+import RankedIntro, { sheetsOf } from './RankedIntro';
 import { CrowdAudio, saveRankedMute, savedRankedMute } from './penalty-audio';
 import { fitScale } from './device';
 
@@ -139,6 +140,7 @@ const TRAIT_POP = 1.6;
 const traitImgs = new Map<string, HTMLImageElement>();
 const traitImage = (id: string) => { let im = traitImgs.get(id); if (!im) { im = new Image(); im.src = goldTraitIcon(id); traitImgs.set(id, im); } return im; };
 const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
+const TRAIT_FEED_KEY = 'fco-ranked-trait-feed';
 function draw(ctx: Ctx, w: number, h: number, sim: MatchSim, fx: Fx, now: number, ui = 1) {
   const pad = Math.round(w * .045), pw = w - pad * 2, ph = h - pad * 2;
   const X = (x: number) => pad + x / 100 * pw, Y = (y: number) => pad + y / 100 * ph;
@@ -251,7 +253,10 @@ const roleLine = (role: string) => role === 'GK' ? 'gk' : /B$/.test(role) ? 'df'
 
 // info: mùa + cấp thẻ cầu thủ đội mình (theo mã thẻ) để danh sách đội hình hiện giống đội đối thủ.
 type MineInfo = Map<string, { tier: Tier; level: number; pid: number } | null>;
-function MatchView({ match, names, info, onClose, onAgain, finish, abandon, auto, onAuto }: { match: RankedMatch; names: Map<string, string>; info: MineInfo; onClose: () => void; onAgain: () => void; finish: () => Promise<RankedFinish>; abandon: () => Promise<RankedFinish>; auto: boolean; onAuto: (on: boolean) => void }) {
+function MatchView({ match, names: liveNames, info: liveInfo, onClose, onAgain, finish, abandon, auto, onAuto }: { match: RankedMatch; names: Map<string, string>; info: MineInfo; onClose: () => void; onAgain: () => void; finish: () => Promise<RankedFinish>; abandon: () => Promise<RankedFinish>; auto: boolean; onAuto: (on: boolean) => void }) {
+  // Tên / thẻ đội mình chốt lúc mở trận (2026-11-16): bản lưu đổi trong trận (làm mới ví khi quay lại tab, hỏi quà mỗi 60 giây…) làm
+  // names / info thành đối tượng mới → teams → MatchSim dựng lại, thời gian về 0 → trận chiếu lại từ đầu. Trong trận đội hình không đổi.
+  const [{ names, info }] = useState(() => ({ names: liveNames, info: liveInfo }));
   const teams = useMemo(() => {
     const paceOf = (s: { pace?: number; ovr: number }) => s.pace !== undefined ? s.pace - s.ovr : undefined;
     // Chỉ số ô (OVR, tấn công, sáng tạo, phòng ngự) đưa vào engine: tốc độ, chạm bóng, độ chính xác chuyền / sút.
@@ -300,7 +305,6 @@ function MatchView({ match, names, info, onClose, onAgain, finish, abandon, auto
   useEffect(() => {
     const a = new CrowdAudio(savedRankedMute()); audio.current = a;
     a.start();
-    if (Math.max(0, match.elapsed ?? 0) < 1) window.setTimeout(() => a.whistle('kickoff'), 600);
     const unlock = () => a.start();
     const visible = () => { if (document.visibilityState === 'visible') a.start(); else a.pause(); };
     document.addEventListener('pointerdown', unlock, { once: true });
@@ -321,7 +325,8 @@ function MatchView({ match, names, info, onClose, onAgain, finish, abandon, auto
   // Hết trận: khán đài nhỏ dần sau tiếng còi mãn cuộc.
   useEffect(() => { if (!finished) return; const t = window.setTimeout(() => audio.current?.pause(), 4000); return () => clearTimeout(t); }, [finished]);
   // Giao bóng ở giữa sân (đầu trận / sau bàn thắng / đầu hiệp 2) → còi.
-  const kicks = useMemo(() => sim.tl.keys.filter(k => k.kind === 'reset' && k.x === 50 && k.y === 50 && k.t > 0).map(k => k.t), [sim]);
+  // Còi giao bóng: lúc hết dàn quân giao bóng (đầu trận, đầu hiệp 2, sau bàn thắng) — mốc 'setpiece' của đoạn có sp kickoff.
+  const kicks = useMemo(() => sim.tl.keys.filter((k, j) => k.kind === 'setpiece' && sim.tl.keys[j - 1]?.sp?.type === 'kickoff').map(k => k.t), [sim]);
   // Tiếng chạm bóng: sút to, chuyền / cướp bóng vừa, nhận bóng và dắt bóng nhẹ. Bỏ qua lúc bóng được đưa về giữa sân / về thủ môn phát bóng.
   const touches = useMemo(() => {
     const keys = sim.tl.keys, out: { t: number; level: number }[] = [];
@@ -353,7 +358,7 @@ function MatchView({ match, names, info, onClose, onAgain, finish, abandon, auto
   useEffect(() => {
     // Mốc thời gian lấy từ khung hình đầu (đồng hồ rAF có thể lệch performance.now, dt âm làm trận đứng yên).
     let raf = 0, start = -1;
-    const offset = Math.max(0, match.elapsed ?? 0);
+    const offset = rankedPlayed(match.elapsed);
     const frame = (now: number) => {
       if (start < 0) start = now;
       const target = offset + Math.max(0, (now - start) / 1000);
@@ -414,12 +419,32 @@ function MatchView({ match, names, info, onClose, onAgain, finish, abandon, auto
     const name = goldTraitName(id);
     return <span className={`rkd-gold${used ? ' is-used' : ''}`} title={`Chỉ số ẩn vàng: ${name}${used ? ` · đã kích hoạt ${used} lần` : ''}`}><img src={goldTraitIcon(id)} alt={`Chỉ số ẩn vàng: ${name}`}/>{used > 0 && <i>{used}</i>}</span>;
   };
-  const traitLine = (e: TraitEvent) => {
-    const name = e.side === 'me' ? teams.me[e.i]?.name ?? 'Cầu thủ đội bạn' : oppPlayers[e.i]?.name ?? 'Cầu thủ đối phương';
-    return <li key={`tr${e.side}${e.i}${e.t}`} className={`is-trait ${e.side === 'me' ? 'is-me' : 'is-opp'}`}><span>{minuteAt(sim.tl, e.t)}'</span><img src={goldTraitIcon(e.trait)} alt=""/><b>{name}</b> kích hoạt <em>{goldTraitName(e.trait)}</em></li>;
+  // CSA vàng trong Diễn biến (2026-11-16: một dòng mỗi lần kích hoạt làm diễn biến toàn CSA): các lần kích hoạt liền nhau (giữa hai
+  // sự kiện chính) gộp thành MỘT dòng — mỗi cầu thủ một ô (biểu tượng, tên, ×số lần); nút bật / tắt hiện CSA (nhớ theo máy).
+  const [showTraits, setShowTraits] = useState(() => { try { return localStorage.getItem(TRAIT_FEED_KEY) !== '0'; } catch { return true; } });
+  const toggleTraits = () => setShowTraits(on => { try { localStorage.setItem(TRAIT_FEED_KEY, on ? '0' : '1'); } catch { /* chỉ là tuỳ chọn hiển thị */ } return !on; });
+  const traitName = (e: TraitEvent) => e.side === 'me' ? teams.me[e.i]?.name ?? 'Cầu thủ đội bạn' : oppPlayers[e.i]?.name ?? 'Cầu thủ đối phương';
+  const traitGroup = (g: TraitEvent[]) => {
+    const chips = new Map<string, { e: TraitEvent; n: number }>();
+    for (const e of g) { const k = `${e.side}${e.i}${e.trait}`, c = chips.get(k); if (c) c.n++; else chips.set(k, { e, n: 1 }); }
+    const m0 = minuteAt(sim.tl, g[0].t), m1 = minuteAt(sim.tl, g[g.length - 1].t);
+    return <li key={`tr${g[0].t}`} className="is-trait"><span>{m0 === m1 ? m0 : `${m0}–${m1}`}'</span>
+      <span className="rkd-trait-chips">{[...chips.values()].map(({ e, n }) => <span key={`${e.side}${e.i}${e.trait}`} className={`rkd-trait-chip is-${e.side}`} title={`${traitName(e)} kích hoạt ${goldTraitName(e.trait)}${n > 1 ? ` (${n} lần)` : ''}`}>
+        <img src={goldTraitIcon(e.trait)} alt={goldTraitName(e.trait)}/>{traitName(e)}{n > 1 && <b>×{n}</b>}</span>)}</span></li>;
   };
-  // Diễn biến = sự kiện trận + CSA vàng, xếp theo thời điểm.
-  const feed = useMemo(() => [...log.map(e => ({ t: e.t, e })), ...traitLog.map(tr => ({ t: tr.t, tr }))].sort((a, b) => a.t - b.t), [log, traitLog]);
+  // Diễn biến = sự kiện trận + (nếu bật) CSA vàng gộp nhóm, xếp theo thời điểm.
+  type FeedItem = { t: number; e: SimEvent } | { t: number; group: TraitEvent[] };
+  const feed = useMemo(() => {
+    const items = [...log.map(e => ({ t: e.t, e })), ...(showTraits ? traitLog.map(tr => ({ t: tr.t, tr })) : [])].sort((a, b) => a.t - b.t);
+    const out: FeedItem[] = [];
+    for (const it of items) {
+      const last = out[out.length - 1];
+      if ('e' in it) out.push(it);
+      else if (last && 'group' in last) { last.group.push(it.tr); last.t = it.t; }
+      else out.push({ t: it.t, group: [it.tr] });
+    }
+    return out;
+  }, [log, traitLog, showTraits]);
   const line = (e: SimEvent) => {
     const at = <span>{e.minute >= 0 ? e.minute : minuteAt(sim.tl, e.t)}'</span>;
     if (e.kind === 'half') return <li key={`h${e.t}`} className="is-half">Hết hiệp 1</li>;
@@ -443,9 +468,11 @@ function MatchView({ match, names, info, onClose, onAgain, finish, abandon, auto
         <StatRow label="Phạt góc" a={stats.corners[0]} b={stats.corners[1]}/>
         <StatRow label="Việt vị" a={stats.offsides[0]} b={stats.offsides[1]}/>
   </div>;
+  const traitToggle = traitLog.length > 0 && <button type="button" className={`rkd-trait-toggle${showTraits ? ' is-on' : ''}`} aria-pressed={showTraits} onClick={toggleTraits}
+    title={showTraits ? 'Ẩn chỉ số ẩn vàng khỏi diễn biến' : 'Hiện chỉ số ẩn vàng trong diễn biến'}>CSA vàng: {showTraits ? 'hiện' : 'ẩn'}</button>;
   const logBox = <ol className="rkd-log">
         {feed.length === 0 && <li className="is-empty">Trận đấu bắt đầu…</li>}
-        {[...feed].reverse().map(x => 'e' in x ? line(x.e) : traitLine(x.tr))}
+        {[...feed].reverse().map(x => 'e' in x ? line(x.e) : traitGroup(x.group))}
   </ol>;
   const lineupBox = <>
       <section>
@@ -474,10 +501,10 @@ function MatchView({ match, names, info, onClose, onAgain, finish, abandon, auto
         <div className="rkd-tabs" role="tablist" aria-label="Thông tin trận">
           {([['log', 'Diễn biến'], ['stats', 'Thống kê'], ['team', 'Đội hình']] as const).map(([id, label]) => <button key={id} type="button" role="tab" aria-selected={tab === id} className={tab === id ? 'is-active' : undefined} onClick={() => setTab(id)}>{label}</button>)}
         </div>
-        {tab === 'log' ? logBox : tab === 'stats' ? statsBox : <div className="rkd-lineups">{lineupBox}</div>}
+        {tab === 'log' ? <>{traitToggle && <div className="rkd-log-head">{traitToggle}</div>}{logBox}</> : tab === 'stats' ? statsBox : <div className="rkd-lineups">{lineupBox}</div>}
       </> : <>
         {statsBox}
-        <h3 className="rkd-log-title">Diễn biến</h3>
+        <div className="rkd-log-head"><h3 className="rkd-log-title">Diễn biến</h3>{traitToggle}</div>
         {logBox}
       </>}
       <div className="rkd-side-actions">
@@ -520,24 +547,50 @@ export default function RankedPage({ save, online, load, play, finish, abandon, 
   const rating = useMemo(() => { if (!team.ready) return null; const byUid = new Map(save.cards.map(c => [c.uid, c])); return teamRating(team.slots.map(s => { const c = byUid.get(s.uid); return { role: s.role, ovr: s.ovr, pid: c?.playerId ?? null, pos: c ? getPlayer(c).pos : null }; })); }, [save, team]);
   const info = useMemo<MineInfo>(() => { const byUid = new Map(save.cards.map(c => [c.uid, c])); return new Map(team.slots.map(s => { const c = byUid.get(s.uid); return [s.uid, c ? { tier: getPlayer(c).tier, level: c.level, pid: c.playerId } : null]; })); }, [save, team]);
   // Có trận đang diễn (tải lại tab / tắt máy giữa trận) thì mở lại để xem tiếp.
-  const refresh = useCallback(() => { if (!online) return; load().then(s => { setState(s); setError(''); if (s.live) setMatch(m => m ?? s.live!); }).catch(e => setError((e as Error).message)); }, [load, online]);
+  // Vào trận: "Đang tìm đối thủ" (đồng hồ) → "Đã tìm thấy đối thủ" hiện ngay trên nút Tìm trận → sơ đồ hai đội (RankedIntro, có ảnh cầu thủ)
+  // → mở MatchView. foundAt = lúc máy chủ trả trận (sau tối thiểu RANKED_INTRO_SEARCH giây tìm).
+  const [intro, setIntro] = useState<{ startedAt: number; match: RankedMatch | null; foundAt?: number } | null>(null);
+  const introRef = useRef(intro); introRef.current = intro;
+  const [introNow, setIntroNow] = useState(() => Date.now());
+  const introPhase = !intro ? null : !intro.match || !intro.foundAt ? 'search' : introNow - intro.foundAt < RANKED_INTRO_FOUND * 1000 ? 'found' : 'preview';
+  useEffect(() => {
+    if (introPhase !== 'search' && introPhase !== 'found') return;
+    const t = window.setInterval(() => setIntroNow(Date.now()), 200);
+    return () => window.clearInterval(t);
+  }, [introPhase]);
+  const introClock = (() => { if (!intro) return ''; const sec = Math.max(0, Math.floor(((intro.foundAt ?? introNow) - intro.startedAt) / 1000)); return `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`; })();
+  const refresh = useCallback(() => { if (!online) return; load().then(s => { setState(s); setError(''); if (s.live && !introRef.current) setMatch(m => m ?? s.live!); }).catch(e => setError((e as Error).message)); }, [load, online]);
   useEffect(() => { refresh(); }, [refresh]);
   // fromAuto: trận do chế độ tự đá mở — đội hình không hợp lệ hoặc máy chủ báo lỗi thì tắt auto và báo lý do.
   const find = async (fromAuto = false) => {
     if (busy) return;
     if (!team.ready || team.overWage) { if (fromAuto) { setAuto(false); setError('Đã dừng tự đá: đội hình chưa đủ 11 người hoặc vượt mức lương.'); } return; }
     setBusy(true); setError('');
-    try { setMatch(await play({ formation: team.formation, slots: team.slots.map(({ uid, role, x, y, ovr }) => ({ uid, role, x: x ?? 50, y: y ?? 50, ovr })) })); }
-    catch (e) { if (fromAuto) setAuto(false); setError(`${fromAuto ? 'Đã dừng tự đá: ' : ''}${(e as Error).message}`); refresh(); }
+    const startedAt = Date.now();
+    setIntroNow(startedAt);
+    setIntro({ startedAt, match: null });
+    try {
+      // Hiện "Đang tìm đối thủ" tối thiểu vài giây (đồng hồ chạy), máy chủ ghép trận song song.
+      const wait = new Promise(done => window.setTimeout(done, (RANKED_INTRO_SEARCH + Math.random() * 1.5) * 1000));
+      const [found] = await Promise.all([play({ formation: team.formation, slots: team.slots.map(({ uid, role, x, y, ovr }) => ({ uid, role, x: x ?? 50, y: y ?? 50, ovr })) }), wait]);
+      const foundAt = Date.now();
+      setIntroNow(foundAt);
+      setIntro({ startedAt, match: found, foundAt });
+    }
+    catch (e) { setIntro(null); if (fromAuto) setAuto(false); setError(`${fromAuto ? 'Đã dừng tự đá: ' : ''}${(e as Error).message}`); refresh(); }
     finally { setBusy(false); }
   };
+  const introSheets = useMemo(() => intro?.match ? sheetsOf(intro.match, names, info) : null, [intro, names, info]);
+  // Tải sẵn ảnh 22 cầu thủ ngay khi tìm thấy đối thủ (lúc nút hiện "Đã tìm thấy") để sơ đồ hai đội hiện đủ ảnh.
+  useEffect(() => { for (const sheet of introSheets ?? []) for (const p of sheet.players) if (p.face) { const im = new Image(); im.decoding = 'async'; im.src = p.face; } }, [introSheets]);
+  const enterMatch = useCallback(() => { const m = introRef.current?.match; if (!m) return; setIntro(null); setMatch(m); }, []);
   const close = () => { setMatch(null); refresh(); };
   // Hàm ổn định cho MatchView (đếm ngược auto phụ thuộc onAgain); luôn gọi find mới nhất.
   const findRef = useRef(find); findRef.current = find;
   const autoRef = useRef(auto); autoRef.current = auto;
   const againRef = useCallback(() => { setMatch(null); void findRef.current(autoRef.current); }, []);
   // Báo App đang mở trận (tắt nhạc nền); rời trang GLXH thì bật lại.
-  useEffect(() => { onMatchChange?.(!!match); }, [match, onMatchChange]);
+  useEffect(() => { onMatchChange?.(!!match || !!intro); }, [match, intro, onMatchChange]);
   useEffect(() => () => onMatchChange?.(false), [onMatchChange]);
   const me = state?.me ?? { points: RANKED_START, tier: tierOf(RANKED_START).id, wins: 0, draws: 0, losses: 0, rank: null };
   const next = nextTier(me.points);
@@ -559,7 +612,11 @@ export default function RankedPage({ save, online, load, play, finish, abandon, 
             : <p className="rkd-warn">Bộ đội hình đang dùng mới có {team.filled}/11 cầu thủ. Xếp đủ 11 người ở mục Đội hình để thi đấu.</p>}
           {(!team.ready || team.overWage) && <button type="button" className="secondary-button" onClick={onLineup}>Đến Đội hình</button>}
         </div>
-        <button type="button" className="rkd-find" disabled={!online || !team.ready || team.overWage || busy} onClick={() => void find()}><Swords size={20}/>{busy ? 'Đang tìm đối thủ…' : 'Tìm trận'}</button>
+        <button type="button" className={`rkd-find${introPhase ? ` is-${introPhase === 'preview' ? 'found' : introPhase}` : ''}`} disabled={!online || !team.ready || team.overWage || busy || !!intro} onClick={() => void find()} aria-live="polite">
+          {introPhase === 'search' ? <><LoaderCircle size={20} className="rkd-find-spin"/>Đang tìm đối thủ…<span className="rkd-find-clock">{introClock}</span></>
+            : introPhase ? <><CheckCircle2 size={20}/><span className="rkd-find-text">Đã tìm thấy đối thủ!<small>Chuẩn bị vào trận · {introClock}</small></span></>
+            : <><Swords size={20}/>Tìm trận</>}
+        </button>
         <label className="rkd-auto"><input type="checkbox" checked={auto} onChange={e => setAuto(e.target.checked)}/><span><b>Tự đá liên tục (Auto)</b><small>Hết trận tự tìm trận mới sau {RANKED_AUTO_DELAY} giây, tới khi bạn tắt. Mỗi trận vẫn đá đủ thời gian thật; bỏ trận thì dừng.</small></span></label>
       </article>
       <article className="rkd-card">
@@ -580,6 +637,7 @@ export default function RankedPage({ save, online, load, play, finish, abandon, 
       </article>
     </div>
     {viewing && viewLineup && levelBadge && <LineupViewer board="ranked" rank={viewing.rank} name={viewing.name} load={viewLineup} levelBadge={levelBadge} onClose={() => setViewing(null)}/>}
+    {introPhase === 'preview' && intro?.match && introSheets && !match && <RankedIntro key={intro.match.seed} match={intro.match} sheets={introSheets} onDone={enterMatch}/>}
     {match && <MatchView key={`${match.seed}`} match={match} names={names} info={info} finish={finish} abandon={abandon} onClose={close} auto={auto} onAuto={setAuto} onAgain={againRef}/>}
   </section>;
 }

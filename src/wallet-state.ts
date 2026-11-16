@@ -51,7 +51,7 @@ export type StatsPlayer = { login: string; registered: number; lastSeen: number 
 // Thống kê FC của chính người chơi (fco_my_fc_stats): topup = FC admin đã cộng, spent = FC đã chi cho Shop và sự kiện.
 export type FcStats = { topup: number; spent: number };
 // Quản lý tài khoản (fco_admin_accounts): total = mọi tài khoản, matched = số khớp tìm kiếm, accounts = trang hiện tại.
-export type AdminAccount = { id: string; login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; topupVnd: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean; paused: boolean };
+export type AdminAccount = { id: string; login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; topupVnd: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean; paused: boolean; unconfirmed?: boolean };
 // online: số tài khoản đang online (migration 202611090014); chưa chạy migration thì không có.
 export type AdminAccountList = { total: number; matched: number; online?: number; accounts: AdminAccount[]; now: number };
 export const LEDGER_REASONS: Record<string, string> = { admin: 'Admin nạp', admin_old: 'Admin nạp (trước reset)', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', admin_gift: 'Admin tặng quà', admin_deduct: 'Admin trừ FC', reset: 'Admin reset tài khoản' };

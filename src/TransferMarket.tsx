@@ -13,6 +13,7 @@ import { positionGroup } from './squad';
 import TeamColorPicker, { matchesTeamColor } from './TeamColorPicker';
 import SearchPicker, { normalizeSearch } from './SearchPicker';
 import type { PickerOption } from './SearchPicker';
+import { faceOf } from './portraits';
 
 
 type Props = {
@@ -214,7 +215,7 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
         // Hàng kiểu bảng Quản lí CT: vị trí (vạch màu tuyến) · ảnh thẻ · mùa + tên · lương · OVR · cấp thẻ · giá · thao tác; bấm hàng để xem chi tiết.
         return <article className={`market-row ${selected.uid === card.uid ? 'is-selected' : ''}`} key={card.uid} onClick={() => select(card)}>
           <span className={`squad-pos pos-${positionGroup(player.pos)}`}>{player.pos}</span>
-          <span className="market-face"><img src={player.cardFace || asset('/assets/silhouette.svg')} alt="" loading="lazy"/></span>
+          {(() => { const f = faceOf(player); return <span className={`market-face${f.portrait ? ' is-portrait' : ''}`}><img src={f.src} alt="" loading="lazy"/></span>; })()}
           <button className="market-player" aria-label={`Xem ${player.name} +${card.level}`} aria-pressed={selected.uid === card.uid} onClick={event => { event.stopPropagation(); select(card); }}><SeasonBadge tier={player.tier}/><b>{player.name}</b></button>
           {/* Cột riêng chỉ số ẩn vàng (gold-traits.ts), bên trái cột lương; rê chuột xem tên / mô tả. */}
           <span className="market-gold-cell">{(() => { const g = goldTraitOf(player.id); return g && <img src={g.icon} alt={`Chỉ số ẩn vàng: ${g.name}`} title={`Chỉ số ẩn vàng: ${g.name} — ${g.desc}`} width={26} height={26}/>; })()}</span>

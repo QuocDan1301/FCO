@@ -6,6 +6,7 @@ import { marketQuote } from './market';
 import { NOT_CLUBS, positionGroup } from './squad';
 import { asset } from './asset';
 import './draft.css';
+import { faceOf } from './portraits';
 
 type Props = {
   pack: Pack;
@@ -17,7 +18,7 @@ type Props = {
 const RESULT_LIMIT = 200;
 const POSITIONS = ['ST', 'CF', 'LW', 'RW', 'CAM', 'LM', 'RM', 'CM', 'CDM', 'LWB', 'RWB', 'LB', 'RB', 'CB', 'GK'];
 const fold = (text: string) => text.toLocaleLowerCase('vi').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd');
-const Face = ({ player }: { player: Player }) => <span className="squad-face dr-face"><img src={player.cardFace || player.image || asset('/assets/silhouette.svg')} alt="" loading="lazy"/></span>;
+const Face = ({ player }: { player: Player }) => { const f = faceOf(player); return <span className={`squad-face dr-face${f.portrait ? ' is-portrait' : ''}`}><img src={f.src} alt="" loading="lazy"/></span>; };
 const Wage = ({ player }: { player: Player }) => <span className="squad-wage"><b>{player.wage ?? 0}</b></span>;
 const priceOrder = (level: number) => (a: Player, b: Player) => (marketQuote({ playerId: b.id, level }).price ?? -1) - (marketQuote({ playerId: a.id, level }).price ?? -1) || ovr({ playerId: b.id, level }) - ovr({ playerId: a.id, level }) || a.id - b.id;
 

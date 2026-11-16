@@ -19,9 +19,12 @@ export type Point = { x: number; y: number };
 // Gợi ý chạy chỗ: trong đoạn bắt đầu ở khoá này, cầu thủ (side, i) băng tới điểm (x, y).
 type Run = PlayerRef & Point;
 // Tình huống cố định: phạt góc / đá phạt trực tiếp của đội side, người đá taker. Gắn vào khoá bắt đầu đoạn dàn quân và đoạn bóng bay.
-export type SetPiece = { type: 'corner' | 'freekick'; side: Side; taker: PlayerRef };
+export type SetPiece = { type: 'corner' | 'freekick' | 'kickoff'; side: Side; taker: PlayerRef };
 // foul: đoạn dừng bóng sau pha phạm lỗi (trọng tài chạy tới chỗ phạm lỗi); setpiece: đoạn dàn quân trước phạt góc / đá phạt.
-type Key = Point & { t: number; holder: PlayerRef | null; kind: 'hold' | 'run' | 'pass' | 'shot' | 'goal' | 'save' | 'miss' | 'reset' | 'win' | 'foul' | 'setpiece'; run?: Run; sp?: SetPiece };
+// touch: độ dài mỗi lần chạm khi dắt bóng (đoạn 'run'); arrive: tỉ lệ tốc độ lúc tới / lúc rời chân (bóng bay giảm tốc đều — chuyền có lực);
+// curve: độ cong đường bóng (hiệu ứng Magnus, ± phần độ dài đường bay, cong nhất ở giữa, tới đúng điểm đích).
+type Key = Point & { t: number; holder: PlayerRef | null; kind: 'hold' | 'run' | 'pass' | 'shot' | 'goal' | 'save' | 'miss' | 'reset' | 'win' | 'foul' | 'setpiece'; run?: Run; sp?: SetPiece;
+  touch?: number; arrive?: number; curve?: number };
 // foul: trọng tài thổi phạt (side = đội phạm lỗi); offside: việt vị (side = đội tấn công bị bắt việt vị);
 // corner / freekick: phạt góc / đá phạt trực tiếp (side = đội được hưởng).
 export type SimEvent = { t: number; minute: number; kind: 'goal' | 'save' | 'miss' | 'half' | 'end' | 'foul' | 'offside' | 'corner' | 'freekick'; side?: Side; scorer?: number; assist?: number | null };
@@ -118,22 +121,46 @@ class TraitLog {
 // frames / faces: vị trí và hướng của 22 cầu thủ + trọng tài mỗi bước STEP (me trước, opp sau, trọng tài cuối; mỗi người 2 số x, y).
 export type Timeline = { keys: Key[]; events: SimEvent[]; anchors: [number, number][]; duration: number; frames: Float32Array; faces: Float32Array; count: number; traits: TraitEvent[] };
 // lift: độ bổng của bóng 0…1 (chuyền dài / tạt bóng bay cao giữa đường) — chỉ để vẽ bóng to hơn và bóng đổ lệch.
-type BallState = { ball: Point; holder: PlayerRef | null; receiver: PlayerRef | null; dest: Point; kind: Key['kind']; run: Run | null; sp: SetPiece | null; lift: number };
+type BallState = { ball: Point; holder: PlayerRef | null; receiver: PlayerRef | null; dest: Point; kind: Key['kind']; run: Run | null; sp: SetPiece | null; lift: number; t0: number; t1: number; lin: Point };
 
+// Một nhịp chạm khi dắt bóng (u = 0…1 trong nhịp): bóng luôn lăn với phần nền `base` tốc độ trung bình, cộng xung lực của chân —
+// lực tăng nhanh trong 12 % đầu nhịp (~40 ms, không giật) rồi giảm dần tới 0 cuối nhịp → vận tốc liền mạch giữa các nhịp,
+// đỉnh ~1,5× trung bình (base 0,5). Trả về phần quãng đường đã đi.
+const TOUCH_RAMP = .12;
+const touchW = (u: number) => u < TOUCH_RAMP ? (u * u - 2 * u * u * u / 3) / TOUCH_RAMP : (TOUCH_RAMP - 2 * TOUCH_RAMP * TOUCH_RAMP / 3) + 2 * (u - u * u / 2) - 2 * (TOUCH_RAMP - TOUCH_RAMP * TOUCH_RAMP / 2);
+const TOUCH_W1 = touchW(1);
+const touchE = (u: number, base: number) => base * u + (1 - base) * touchW(u) / TOUCH_W1;
 function ballOn(keys: Key[], t: number): BallState {
   let lo = 0, hi = keys.length - 1;
-  if (t <= keys[0].t) return { ball: keys[0], holder: keys[0].holder, receiver: null, dest: keys[0], kind: keys[0].kind, run: null, sp: null, lift: 0 };
-  if (t >= keys[hi].t) return { ball: keys[hi], holder: keys[hi].holder, receiver: null, dest: keys[hi], kind: keys[hi].kind, run: null, sp: null, lift: 0 };
+  if (t <= keys[0].t) return { ball: keys[0], holder: keys[0].holder, receiver: null, dest: keys[0], kind: keys[0].kind, run: null, sp: null, lift: 0, t0: keys[0].t, t1: keys[0].t, lin: keys[0] };
+  if (t >= keys[hi].t) return { ball: keys[hi], holder: keys[hi].holder, receiver: null, dest: keys[hi], kind: keys[hi].kind, run: null, sp: null, lift: 0, t0: keys[hi].t, t1: keys[hi].t, lin: keys[hi] };
   while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (keys[mid].t <= t) lo = mid; else hi = mid; }
   const a = keys[lo], b = keys[hi], p = b.t > a.t ? (t - a.t) / (b.t - a.t) : 1;
-  // Bóng bay: chậm dần theo ma sát cỏ (vận tốc giảm theo hàm mũ e^(−k·t)): sút căng gần như không giảm tốc (k nhỏ),
-  // chuyền dài lăn / bay giảm tốc vừa, chuyền ngắn / phá bóng hãm nhanh. Chưa dừng hẳn khi tới chân người nhận (nối bằng chạm bóng đầu).
-  const flying = !a.holder, len = flying ? Math.hypot(b.x - a.x, b.y - a.y) : 0;
+  // Bóng là vật thể riêng, không dính vào người (2026-11-16):
+  //  · Bóng bay (chuyền, sút): giảm tốc ĐỀU từ v0 xuống tốc độ tới (arrive = v_tới / v0): e(p) = (2p − (1 − q)p²) / (1 + q).
+  //    Sút căng q cao (sức cản không khí nhỏ), chuyền ngắn tới chân người nhận ở tốc độ khống chế được, chuyền dài lăn chậm dần.
+  //  · Độ cong (Magnus): lệch vuông góc curve·L·4e(1−e) — cong nhất giữa đường, vẫn tới đúng điểm đích.
+  //  · Dắt bóng (đoạn 'run' cùng một người): chạm từng nhịp — mỗi nhịp bóng được đẩy lên ~touch đơn vị rồi chậm lại (1 − e^(−4u)),
+  //    người dắt chạy đuổi theo (Engine) → thấy rõ từng bước chạm, bóng rời chân giữa hai lần chạm.
+  const flying = !a.holder, dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
   const shot = b.kind === 'goal' || b.kind === 'save' || b.kind === 'miss';
-  const k = shot ? .5 : len > 32 ? 1.1 : 1.7, e = flying ? (1 - Math.exp(-k * p)) / (1 - Math.exp(-k)) : p;
+  let e = p, ox = 0, oy = 0;
+  if (flying && b.kind === 'reset') {
+    // Bóng được đưa về chấm giao bóng / cờ góc / chỗ phát bóng: lướt êm (tăng rồi giảm tốc dần), không vọt như cú đá.
+    e = p * p * (3 - 2 * p);
+  } else if (flying) {
+    const q = clamp(b.arrive ?? (shot ? .62 : len > 32 ? .32 : .26), 0, 1);
+    e = (2 * p - (1 - q) * p * p) / (1 + q);
+    if (b.curve && len > .5) { const bow = b.curve * len * 4 * e * (1 - e); ox = -dy / len * bow; oy = dx / len * bow; }
+  } else if (b.kind === 'run' && a.holder && b.holder && a.holder.side === b.holder.side && a.holder.i === b.holder.i && len > .3) {
+    // touch ≥ 8: chạm đệm khi đỡ bóng (một nhịp, bóng vọt lên trước người đang chạy rồi chậm lại); còn lại: dắt bóng nhiều nhịp chạm.
+    const cushion = (b.touch ?? 3) >= 8;
+    const n = cushion ? 1 : Math.max(1, Math.round(len / (b.touch ?? 3))), u = Math.min(n - 1e-9, p * n), k = Math.floor(u), fr = u - k;
+    e = (k + touchE(fr, cushion ? .35 : .5)) / n;
+  }
   // Chuyền dài / tạt bóng (từ cờ góc) bay bổng: cao nhất giữa đường bay.
   const lift = flying && !shot && (len > 26 || a.sp) ? 4 * p * (1 - p) * clamp((len - 18) / 30, .35, 1) : 0;
-  return { ball: { x: lerp(a.x, b.x, e), y: lerp(a.y, b.y, e) }, holder: a.holder, receiver: flying ? b.holder : null, dest: b, kind: b.kind, run: a.run ?? null, sp: a.sp ?? null, lift };
+  return { ball: { x: lerp(a.x, b.x, e) + ox, y: lerp(a.y, b.y, e) + oy }, holder: a.holder, receiver: flying ? b.holder : null, dest: b, kind: b.kind, run: a.run ?? null, sp: a.sp ?? null, lift, t0: a.t, t1: b.t, lin: { x: lerp(a.x, b.x, p), y: lerp(a.y, b.y, p) } };
 }
 // Bóng và người đang giữ / người nhận tại thời điểm t.
 export function ballAt(tl: Timeline, t: number) { return ballOn(tl.keys, t); }
@@ -190,6 +217,7 @@ class Engine {
     const jit = (k: number) => Math.sin(t * .8 + ph) * k;
     const F = (p: Point) => fromFrame(sp.side, p);
     const ball = toFrame(sp.side, s.ball);
+    if (sp.type === 'kickoff') return this.kickoffTarget(side, i, slot, sp, t);
     if (isGK(slot.role)) return att ? teamTarget(side, slot, s.ball, side) : F({ x: 50 + clamp((ball.x - 50) * .1, -3, 3), y: 1.5 });
     const order = (att ? this.attOrder : this.defOrder)[side].filter(k => !(sp.taker.side === side && sp.taker.i === k));
     const rank = order.indexOf(i);
@@ -210,6 +238,29 @@ class Engine {
     const spots = [[42, 12], [58, 11], [50, 16], [35, 18]];
     if (rank >= 0 && rank < spots.length) return F({ x: spots[rank][0] + jit(1.5), y: spots[rank][1] + jit(1) });
     return teamTarget(side, slot, s.ball, sp.side);
+  }
+  // Giao bóng (2026-11-16): hai đội đứng ở phần sân nhà theo đội hình (khối dồn về giữa), đội không giao bóng đứng ngoài vòng tròn giữa
+  // sân (9,15 m); đội giao bóng: người giao đứng sau bóng, tiền đạo còn lại đứng cạnh bóng chờ nhận / chạy lên, thủ môn trong khung thành.
+  kickoffTarget(side: Side, i: number, slot: SimSlot, sp: SetPiece, t: number): Point {
+    const att = side === sp.side, jit = Math.sin(t * .7 + this.phase[side][i]) * .4;
+    if (sp.taker.side === side && sp.taker.i === i) return fromFrame(side, { x: 50, y: 51.2 });
+    if (isGK(slot.role)) return fromFrame(side, { x: 50, y: 95 });
+    const order = this.attOrder[side].filter(k => !(sp.taker.side === side && sp.taker.i === k));
+    if (att && order[0] === i) return fromFrame(side, { x: 45.5, y: 50.6 });
+    // Vị trí đội hình khi bóng ở giữa sân, dồn về phần sân nhà (khung của đội: khung thành nhà ở y = 100).
+    const f = toFrame(side, teamTarget(side, slot, { x: 50, y: 50 }, sp.side));
+    let x = f.x + jit, y = clamp(f.y + jit * .5, 53.5, 92);
+    if (!att) {
+      // Ngoài vòng tròn giữa sân: khoảng cách quy ra mét (sân 68 × 105) ≥ 9,6.
+      const mx = (x - 50) * .68, my = (y - 50) * 1.05, m = Math.hypot(mx, my);
+      if (m < 9.6) { const k = 9.6 / (m || 1); x = 50 + (m > .1 ? mx * k / .68 : 0); y = 50 + (m > .1 ? my * k / 1.05 : 9.6 / 1.05); y = Math.max(y, 53.5); }
+    }
+    return fromFrame(side, { x: clamp(x, 4, 96), y });
+  }
+  // Đặt ngay mọi cầu thủ vào vị trí giao bóng (đầu trận: vào sân là đã đứng sẵn, không chạy về).
+  placeKickoff(sp: SetPiece) {
+    for (const side of SIDES) this.teams[side].forEach((slot, i) => { const q = this.kickoffTarget(side, i, slot, sp, 0); this.pos[side][i].x = q.x; this.pos[side][i].y = q.y; });
+    this.ref.x = 67; this.ref.y = 57; // trọng tài đứng ngoài vòng tròn giữa sân
   }
   // Khoảng trống quanh q: khoảng cách tới cầu thủ gần nhất của đội def.
   private openness(def: Side, q: Point) { let m = Infinity; for (const o of this.pos[def]) { const d = dist(o, q); if (d < m) m = d; } return m; }
@@ -289,14 +340,55 @@ class Engine {
         const isRunner = s.run?.side === side && s.run.i === i;
         let target: Point, speed = 22, gain = 3.2, accel = 6, free = false;
         if (isHolder) {
-          // Bóng đã ở chân: bám sát bóng; bóng còn cách xa (vừa nhận / vừa giành) thì chạy nước rút tới bóng.
-          const far = dist(p, s.ball) > 3;
-          target = s.ball; speed = far ? 30 : 70; gain = far ? 5 : 14; accel = far ? 9 : 30;
+          // Bóng không dính vào người: người cầm bóng đứng / chạy ngay SAU bóng theo hướng dắt (bóng đi trước một bước chân),
+          // dắt bóng thì đuổi theo từng nhịp chạm (bóng bật lên trước rồi chậm lại). Bóng còn xa (vừa nhận / giành) thì chạy nước rút tới.
+          const far = dist(p, s.ball) > 3.5;
+          const dx = s.dest.x - s.ball.x, dy = s.dest.y - s.ball.y, dl = Math.hypot(dx, dy);
+          const ux = dl > .3 ? dx / dl : this.face[side][i].x, uy = dl > .3 ? dy / dl : this.face[side][i].y;
+          // Dắt bóng: người chạy đều theo nhịp trung bình của đoạn dắt (lin), bóng lúc vọt lên trước lúc chậm lại quanh chân.
+          // Không bắt người lùi lại: đã chạy vượt nhịp trung bình (vừa đỡ bóng trong lúc chạy) thì giữ đà, chỉ không vượt lên trước bóng.
+          if (far) target = s.ball;
+          else if (s.kind === 'run') {
+            const ahead = (p.x - s.lin.x) * ux + (p.y - s.lin.y) * uy, ballAhead = (s.ball.x - s.lin.x) * ux + (s.ball.y - s.lin.y) * uy;
+            // Dắt bóng: người đi sau bóng ~1,3 (6–9 px), bóng luôn ở trước chân, lúc xa lúc gần theo nhịp chạm.
+            // Nhịp chạm đệm lúc đỡ bóng (touch ≥ 8): người vừa chạy xuyên qua chỗ đỡ → giữ đà, được đi ngang / nhỉnh hơn bóng tối đa 0,6
+            // (bóng vọt lên trước ngay sau đó), không phanh lại để lùi sau bóng.
+            const gap = ((s.dest as Key).touch ?? 0) >= 8 ? -.6 : 1.3;
+            const cushion = ((s.dest as Key).touch ?? 0) >= 8;
+            // Lỡ đi trước bóng lúc đỡ: giữ đà chạy (không quay lại), bóng vọt nhanh hơn người sẽ bắt kịp.
+            const k = cushion ? Math.max(clamp(ahead + .5, -1.6, Math.max(-1.6, ballAhead - gap)), ahead + .2) : clamp(ahead + .5, -1.6, Math.max(-1.6, ballAhead - gap));
+            // Chạy theo nhịp: cộng thêm nhịp trung bình còn lại của đoạn dắt / hệ số lái → giữ đều tốc độ, không chậm dần khi tới gần điểm nhắm.
+            const pace = Math.hypot(s.dest.x - s.lin.x, s.dest.y - s.lin.y) / Math.max(.05, s.t1 - t), ff = pace / 7;
+            target = { x: s.lin.x + ux * (k + ff), y: s.lin.y + uy * (k + ff) };
+          } else target = { x: s.ball.x - ux * .8, y: s.ball.y - uy * .8 };
+          speed = far ? 30 : s.kind === 'run' ? 26 : 18; gain = far ? 5 : 7; accel = far ? 9 : 14;
         }
-        else if (isReceiver) { target = { x: s.dest.x + (s.ball.x - s.dest.x) * .18, y: s.dest.y + (s.ball.y - s.dest.y) * .18 }; speed = (gk || def) ? 20 : 30; gain = 4; accel = 8; }
+        else if (isReceiver && gk && (s.kind === 'save' || s.kind === 'goal')) {
+          // Thủ môn trước cú sút: phản xạ trễ 0,1–0,2 giây (GK Bắt bài Sút xa: không trễ) rồi đổ người ngang ra điểm bóng tới.
+          const react = slot.trait === TRAITS.GK_LONG_SHOT_SAVER ? 0 : .1 + this.phase[side][i] % .1;
+          target = t - s.t0 < react ? p : s.dest; speed = 46; gain = 9; accel = 26;
+        }
+        else if (isReceiver && gk) { target = { x: s.dest.x + (s.ball.x - s.dest.x) * .18, y: s.dest.y + (s.ball.y - s.dest.y) * .18 }; speed = 20; gain = 4; accel = 8; }
+        else if (isReceiver) {
+          // Đỡ bóng trong lúc chạy (2026-11-16): không chạy tới điểm bóng rồi đứng chờ. Canh tốc độ để tới điểm bóng đúng lúc bóng tới
+          // (quãng còn lại / thời gian còn lại) và nhắm xuyên qua điểm đó theo hướng định đi tiếp (đang chạy thì giữ hướng chạy,
+          // không thì hướng về khung thành đối phương) → lúc chạm bóng vẫn đang chạy, chạm đệm đẩy bóng đi tiếp.
+          const left = Math.max(.08, s.t1 - t), need = dist(p, s.dest) / left, v = this.vel[side][i], vl = Math.hypot(v.x, v.y);
+          const fwd = side === 'me' ? -1 : 1, dx = vl > 3 ? v.x / vl * .6 : 0, dy = (vl > 3 ? v.y / vl * .6 : 0) + fwd * .4, dl = Math.hypot(dx, dy) || 1;
+          target = { x: s.dest.x + dx / dl * 1.2, y: s.dest.y + dy / dl * 1.2 };
+          // Tốc độ vừa đủ tới chỗ bóng đúng lúc bóng tới (không cộng dư → không chạy lố qua bóng rồi phải quay lại).
+          speed = clamp(need, 4, def ? 20 : 30); gain = 6; accel = 9;
+        }
         else if (isRunner) { target = side === possession ? onsideTarget(side, s.run!) : s.run!; speed = 30; gain = 4; accel = 8; }
-        else if (s.sp) { target = this.setPieceTarget(side, i, slot, s, t); speed = (gk || def) ? 16 : 20; gain = 3; accel = 6; }
-        else if (i === press) { const d = dist(p, s.ball) || 1; target = d > 2 ? s.ball : p; speed = def ? 16 : 24; gain = 3.2; accel = 7; }
+        else if (s.sp) { target = this.setPieceTarget(side, i, slot, s, t); speed = (gk || def) ? 16 : s.sp.type === 'kickoff' ? 26 : 20; gain = 3; accel = 6; }
+        else if (i === press) {
+          // Áp sát kiểu "jockey": xa thì lao tới; tới gần (≤ 5,5 ≈ 28–38 px) thì không lao qua người mà đứng chắn giữa bóng và khung thành
+          // nhà, cách bóng ~2,4, bám theo bước ngang của người dắt — chờ lúc bóng rời chân mới vào bóng (builder: tackle).
+          const d = dist(p, s.ball) || 1;
+          if (d < 5.5) { const gx = ownGoal.x - s.ball.x, gy = ownGoal.y - s.ball.y, gl = Math.hypot(gx, gy) || 1; target = { x: s.ball.x + gx / gl * 2.4, y: s.ball.y + gy / gl * 2.4 }; }
+          else target = s.ball;
+          speed = def ? 16 : 24; gain = d < 5.5 ? 5 : 3.2; accel = d < 5.5 ? 10 : 7;
+        }
         else if (i === cover && coverDist < 26) {
           // Bọc lót: đứng giữa bóng và khung thành nhà, cách bóng ~7 đơn vị, chặn đường đột phá / chuyền thẳng.
           const gx = ownGoal.x - s.ball.x, gy = ownGoal.y - s.ball.y, gl = Math.hypot(gx, gy) || 1;
@@ -334,7 +426,15 @@ class Engine {
           }
           if (!gk && side === possession && !early) target = onsideTarget(side, target);
           // Hậu vệ di chuyển chậm (dâng lên tối đa 13 đơn vị / giây), thủ môn chậm nữa: cả hàng thủ không ào lên cùng lúc khi đội giành bóng.
-          if (gk) { speed = 13; gain = 2.4; accel = 4.5; }
+          if (gk) {
+            // Thủ môn đứng trên đường nối bóng – giữa khung thành (phân giác góc sút), dâng ra tối đa ~5,5 đơn vị (vùng 5m50) khi bóng ở gần.
+            if (!keeperBall) {
+              const gx = s.ball.x - ownGoal.x, gy = s.ball.y - ownGoal.y, gl = Math.hypot(gx, gy) || 1, out = clamp(gl * .14, 1.5, 5.5);
+              target = { x: ownGoal.x + gx / gl * out, y: ownGoal.y + gy / gl * out };
+              target = { x: clamp(target.x, 40, 60), y: clamp(target.y, 2, 98) };
+            }
+            speed = 13; gain = 2.4; accel = 4.5;
+          }
           else if (def) {
             const ahead = (toFrame(side, p).y - toFrame(side, target).y) > 0;
             speed = ahead ? 13 : 16; gain = 2.4; accel = 4.5;
@@ -393,7 +493,8 @@ class Engine {
         accel *= (.88 + sk * .24) * accMul;
         speed *= PACE * mul;
         const o = plan[i];
-        o.target.x = target.x; o.target.y = target.y; o.speed = speed; o.gain = gain; o.accel = accel; o.free = free; o.turn = 6.5 + sk * 3;
+        o.target.x = target.x; o.target.y = target.y; o.speed = speed; o.gain = gain; o.accel = accel; o.free = free;
+        o.turn = (6.5 + sk * 3) * (isHolder && trait === TRAITS.MAGICIAN ? 1.4 : 1);
       }
       // Không chụm cục: đồng đội (không cầm / nhận bóng) đứng gần nhau hơn 6 đơn vị thì đẩy điểm đến ra hai phía.
       const gks = this.gk[side];
@@ -422,10 +523,18 @@ class Engine {
 // Lái theo vận tốc (arrive): muốn chạy về đích với tốc độ tỉ lệ khoảng cách (chậm dần khi tới nơi, không vượt quá rồi lượn vòng),
 // vận tốc đổi dần theo gia tốc (accel, theo chỉ số) → không giật; đổi hướng gấp thì vận tốc tự giảm qua 0 rồi mới tăng theo hướng mới.
 // turn: tốc độ xoay hướng mặt (rad/giây, theo chỉ số). Hướng mặt theo hướng chạy khi đang chạy, đứng yên thì nhìn về phía bóng.
+// Quán tính (2026-11-16): đang chạy nhanh (> 70 % tốc độ tối đa) mà muốn đổi hướng > 90° thì phải phanh trước (vận tốc mong muốn
+// co về ~20 % hướng cũ), 45–90° thì chậm lại theo góc; lúc chạy nhanh xoay người chậm một nửa.
 function steer(p: Point, v: Point, f: Point, target: Point, speed: number, gain: number, accel: number, dt: number, ball: Point, turn = 8) {
   let wx = (target.x - p.x) * gain, wy = (target.y - p.y) * gain;
   const w = Math.hypot(wx, wy);
   if (w > speed) { wx = wx / w * speed; wy = wy / w * speed; }
+  const cur = Math.hypot(v.x, v.y), fast = cur > .7 * speed;
+  if (fast && w > .1) {
+    const cos = (v.x * wx + v.y * wy) / (cur * Math.min(w, speed));
+    if (cos < 0) { wx = v.x * .2; wy = v.y * .2; }
+    else if (cos < .7) { const sc = .55 + cos * .64; wx *= sc; wy *= sc; }
+  }
   const k = Math.min(1, accel * dt);
   v.x += (wx - v.x) * k; v.y += (wy - v.y) * k;
   p.x += v.x * dt; p.y += v.y * dt;
@@ -434,7 +543,7 @@ function steer(p: Point, v: Point, f: Point, target: Point, speed: number, gain:
   if (sp2 < 2.5) { hx = ball.x - p.x; hy = ball.y - p.y; }
   const hl = Math.hypot(hx, hy);
   if (hl > .01) {
-    const tr = Math.min(1, dt * turn);
+    const tr = Math.min(1, dt * turn * (fast ? .5 : 1));
     f.x += (hx / hl - f.x) * tr; f.y += (hy / hl - f.y) * tr;
     const fl = Math.hypot(f.x, f.y) || 1; f.x /= fl; f.y /= fl;
   }
@@ -494,6 +603,8 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
     frames[o] = eng.ref.x; frames[o + 1] = eng.ref.y; faces[o] = eng.refFace.x; faces[o + 1] = eng.refFace.y;
     count++;
   };
+  // Đầu trận: cầu thủ đứng sẵn ở vị trí giao bóng (đội 'me' giao bóng).
+  eng.placeKickoff({ type: 'kickoff', side: 'me', taker: frontOf('me')[0] ?? { side: 'me', i: 0 } });
   record();
   // Cho cầu thủ chạy tới thời điểm t (diễn biến bóng tới t đã biết).
   // Mỗi khung chia 4 bước nhỏ để tăng / giảm tốc mượt (nhất là thủ môn bay người, người đón bóng).
@@ -501,7 +612,9 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
   const sync = () => { while (count * STEP <= t + 1e-9) { for (let j = SUB - 1; j >= 0; j--) { const at = count * STEP - j * STEP / SUB; eng.advance(at, STEP / SUB, ballOn(keys, at)); } record(); } };
   const P = (p: PlayerRef) => eng.pos[p.side][p.i];
 
-  const push = (kind: Key['kind'], h: PlayerRef | null) => { keys.push({ t, x: ball.x, y: ball.y, holder: h, kind }); sync(); };
+  // extra: nhịp chạm / tốc độ tới / độ cong của đoạn kết thúc ở mốc này — phải có TRƯỚC sync() để cầu thủ chạy theo đúng đường bóng sẽ vẽ.
+  type KeyExtra = Partial<Pick<Key, 'touch' | 'arrive' | 'curve'>>;
+  const push = (kind: Key['kind'], h: PlayerRef | null, extra?: KeyExtra) => { keys.push({ t, x: ball.x, y: ball.y, holder: h, kind, ...extra }); sync(); };
   // Bắt đầu một đoạn: ai cầm bóng trong đoạn từ bây giờ (null = bóng đang bay). Đổi người thì thêm khoá mới cùng thời điểm
   // (không sửa khoá cũ để đoạn trước vẫn đúng người nhận).
   const begin = (h: PlayerRef | null, kind: Key['kind']) => {
@@ -509,7 +622,28 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
     if (last && last.t === t && last.holder?.side === h?.side && last.holder?.i === h?.i) last.kind = kind; else push(kind, h);
   };
   // Bóng di chuyển (chuyền, dắt, sút) theo nhịp trận: thời gian bóng đi chia PACE.
-  const move = (to: Point, dur: number, endHolder: PlayerRef | null, kind: Key['kind']) => { t += dur / PACE; ball = { x: to.x, y: to.y }; if (endHolder) holder = endHolder; push(kind, endHolder); };
+  const move = (to: Point, dur: number, endHolder: PlayerRef | null, kind: Key['kind'], extra?: KeyExtra) => { t += dur / PACE; ball = { x: to.x, y: to.y }; if (endHolder) holder = endHolder; push(kind, endHolder, extra); };
+  // ===== Vật lý bóng / cơ thể (2026-11-16) — đơn vị sân 0…100, giây thật =====
+  // Chuyền có lực: v0 = √(2·a·d) + v_tới (a = ma sát cỏ), bóng giảm tốc đều tới chân người nhận ở tốc độ khống chế được.
+  const PASS_DECEL = 22, PASS_ARRIVE = 7;
+  const passTime = (d: number) => { const v0 = Math.sqrt(2 * PASS_DECEL * d) + PASS_ARRIVE; return { time: 2 * d / (v0 + PASS_ARRIVE), arrive: PASS_ARRIVE / v0 }; };
+  // Bóng bay tới `to` theo thời gian thật `time` (giây), kèm tỉ lệ tốc độ tới và độ cong; ghi lên mốc vừa tạo.
+  const fly = (to: Point, time: number, endHolder: PlayerRef | null, kind: Key['kind'], arrive?: number, curve?: number) => {
+    move(to, time * PACE, endHolder, kind, { ...(arrive !== undefined ? { arrive } : {}), ...(curve ? { curve } : {}) });
+  };
+  // Tốc độ cú sút: gấp ~3,5–4,5 lần tốc độ chạy nước rút (~24 đơn vị/giây) → 85–110 đơn vị/giây, cầu thủ dứt điểm tốt sút căng hơn.
+  const shotTime = (to: Point, power = 1) => dist(ball, to) / ((85 + sk(holder, 'att') * 25) * power);
+  // Người cầm bóng còn cách bóng (bóng vừa được đẩy lên trước) thì bước tới bóng trước khi đá.
+  const reachBall = () => {
+    const gap = dist(P(holder), ball);
+    if (gap > 1.6) { t += Math.min(.35, gap / 22); push('hold', holder); }
+  };
+  // Hướng người: góc (độ) giữa hướng mặt người cầm bóng và hướng tới đích. > 90° (đích sau lưng) thì phải xoay người 0,15–0,25 giây.
+  const facingOff = (to: Point) => {
+    const f = eng.face[holder.side][holder.i], dx = to.x - ball.x, dy = to.y - ball.y, d = Math.hypot(dx, dy) || 1;
+    return Math.acos(clamp((f.x * dx + f.y * dy) / d, -1, 1)) * 180 / Math.PI;
+  };
+  const turnToward = (to: Point) => { const off = facingOff(to); if (off > 90) { t += .15 + r() * .1; push('hold', holder); } return off; };
 
   // Cầu thủ gần điểm `at` nhất (theo vị trí thật) của một đội.
   const nearestTo = (side: Side, at: Point) => {
@@ -547,19 +681,31 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
     const ys = all(other(p.side)).map(o => toFrame(p.side, P(o)).y).sort((a, b) => a - b);
     return toFrame(p.side, P(p)).y >= Math.min(50, toFrame(p.side, ball).y, ys[1] ?? 50) - .3;
   };
-  const kickoff = (side: Side) => {
+  // Giao bóng: bóng đặt ở chấm giữa sân, hai đội về phần sân nhà (đầu trận đã đứng sẵn), trọng tài thổi còi (mốc 'setpiece' có sp
+  // kickoff — RankedPage phát tiếng còi ở mốc này), người giao chuyền về cho tiền vệ trung tâm đội mình rồi mới vào trận.
+  const kickoff = (side: Side, wait = 2.6) => {
     ball = { x: 50, y: 50 }; holder = frontOf(side)[0] ?? { side, i: 0 };
-    push('reset', holder); t += .8; push('hold', holder);
+    push('reset', holder);
+    setup({ type: 'kickoff', side, taker: holder }, wait);
+    const mates = outfield(side).filter(p => p.i !== holder.i && !isDefender(slot(p).role));
+    const back = mates.sort((a, b) => { const fa = toFrame(side, P(a)), fb = toFrame(side, P(b)); return Math.hypot(fa.x - 50, fa.y - 62) - Math.hypot(fb.x - 50, fb.y - 62); })[0];
+    if (back) passTo(back, undefined, true);
   };
   // Chạm bóng đầu sau khi nhận / giành bóng: người nhận còn xa thì bóng nằm chờ anh ta chạy tới, rồi đẩy bóng lên phía trước.
   const touch = (dur: number) => {
     const gap = dist(P(holder), ball);
     if (gap > 2.5) { t += Math.min(1.5, gap / (24 * PACE)); push('hold', holder); }
     if (isGK(slot(holder).role)) { t += .4; push('hold', holder); return; }
-    // Chạm bóng đầu: cầu thủ kỹ thuật tốt khống chế gọn (bóng nảy lệch ít) và xử lý nhanh hơn.
-    const f = toFrame(holder.side, ball), q = sk(holder);
-    const end = fromFrame(holder.side, { x: clamp(f.x + (r() - .5) * 4 * (1.4 - .8 * q), 5, 95), y: clamp(f.y - (1.8 + r() * 2.2), 6, 94) });
-    move(end, dur * (1.2 - .4 * q), holder, 'run');
+    // Chạm bóng đầu (đệm bóng): hấp thụ phần lớn lực bóng tới, đẩy bóng 1,8–2,8 đơn vị (~10–16 px) lên trước theo hướng định chạy
+    // (một nhịp chạm: bóng bật ra rồi chậm dần, người bước theo — không đứng chờ), lệch hướng theo kỹ thuật (giỏi thì gọn).
+    // Thời gian tới lần chạm sau (touchCooldown) theo kỹ thuật như cũ.
+    // Hướng / độ dài chạm theo đà người nhận: đẩy bóng theo hướng đang chạy (pha với hướng lên khung thành đối phương),
+    // xa vừa đủ để người đi tiếp đúng tốc độ đang chạy (không phanh lại sau khi đỡ).
+    const q = sk(holder), span = dur * (1.2 - .4 * q), v = eng.vel[holder.side][holder.i], vl = Math.hypot(v.x, v.y);
+    const fwd = holder.side === 'me' ? -1 : 1, hx = vl > 3 ? v.x / vl * .65 : 0, hy = (vl > 3 ? v.y / vl * .65 : 0) + fwd * .35, hl = Math.hypot(hx, hy) || 1;
+    const len = clamp(vl * span / PACE, 1.8, 5.5), wob = (r() - .5) * 1.3 * (1.4 - .8 * q);
+    const end = { x: clamp(ball.x + hx / hl * len - hy / hl * wob, 5, 95), y: clamp(ball.y + hy / hl * len + hx / hl * wob, 6, 94) };
+    move(end, span, holder, 'run', { touch: 9 });
   };
   // Dắt bóng: lên phía trước, đối phương áp sát thì lách sang bên; run = đồng đội chạy chỗ trong lúc dắt.
   const carry = (len: number, toward?: Point, run?: Run) => {
@@ -578,7 +724,8 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
     if (slow) traits.fire(st.p.side, st.p.i, TRAITS.STOP_ATTACK, t);
     begin(holder, 'run');
     if (run) keys[keys.length - 1].run = run;
-    move(end, Math.max(.5, step / 13) / (slow ? .75 : 1), holder, 'run');
+    // Nhịp chạm khi dắt: mỗi lần đẩy bóng ~2,5–4 đơn vị (18–28 px), Ảo thuật gia giữ bóng sát chân (~2,2).
+    move(end, Math.max(.5, step / 13) / (slow ? .75 : 1), holder, 'run', { touch: tr(holder) === TRAITS.MAGICIAN ? 2.2 : 2.6 + (1 - sk(holder)) * 1.2 });
   };
   // Giành bóng: người áp sát chọc bóng, bóng bật ra giữa hai người rồi về chân người giành.
   const tackle = (by: PlayerRef) => {
@@ -606,9 +753,10 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
     t += 1; const keeper = gkOf(other(side)); ball = teamTarget(keeper.side, slot(keeper), ball, keeper.side); holder = keeper; push('reset', holder); t += .7; push('hold', holder);
   };
   // Bàn thắng: bóng vào lưới, ăn mừng, giao bóng lại.
-  const netGoal = (g: RankedGoal, dur: number, mouth = goalMouth(g.side, true)) => {
+  // dur: thời lượng tối đa (nhịp trận, như cũ — đá phạt cong qua hàng rào bay chậm hơn); cú sút thường bay theo tốc độ sút (shotTime).
+  const netGoal = (g: RankedGoal, dur: number, mouth = goalMouth(g.side, true), curve = (r() - .5) * .1) => {
     begin(null, 'shot');
-    move(mouth, dur, null, 'goal');
+    fly(mouth, clamp(shotTime(mouth, dur < .3 ? 1.3 : 1), .16, dur / PACE), null, 'goal', .78, curve);
     events.push({ t, minute: g.minute, kind: 'goal', side: g.side, scorer: g.scorer, assist: g.assist });
     anchors.push([t, g.minute]);
     t += 2.6; push('goal', null); // bóng nằm trong lưới lúc ăn mừng
@@ -651,7 +799,7 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
     const sp: SetPiece = { type: 'freekick', side, taker };
     setup(sp, 2.4);
     begin(null, 'shot');
-    if (goal) { const left = r() < .5; return netGoal(goal, .55, fromFrame(side, { x: left ? 42 + r() * 2 : 56 + r() * 2, y: -2.5 })); }
+    if (goal) { const left = r() < .5; return netGoal(goal, .55, fromFrame(side, { x: left ? 45.2 + r() * 1.2 : 53.6 + r() * 1.2, y: -2.5 }), (left ? 1 : -1) * (side === 'me' ? 1 : -1) * .14); }
     const x = r();
     if (x < .3) {
       // Trúng hàng rào: bóng bật ra, người trong hàng rào gần nhất giữ bóng.
@@ -688,20 +836,33 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
   // Chuyền: đón đầu theo hướng người nhận đang chạy. Không an toàn (safe = false): đối phương đứng chắn đường chuyền có thể cắt;
   // chuyền dài có thể hỏng, bóng rơi vào người gần điểm rơi nhất (đồng đội hoặc đối phương).
   const passTo = (to: PlayerRef, dest?: Point, safe = false) => {
+    const keeperPass = isGK(slot(holder).role);
+    // Đường chuyền an toàn (pha ghi bàn) đã canh người nhận đúng vạch việt vị — không chen thêm thời gian bước tới bóng / xoay người.
+    if (!keeperPass && !safe) reachBall();
     let end = dest;
     if (!end) {
-      // Đón đầu: người nhận đang băng lên (vận tốc hướng về khung thành đối phương) thì chọc khe vào khoảng trống trước mặt.
-      const q = P(to), v = eng.vel[to.side][to.i], fl = .25 + dist(ball, q) / 52;
+      // Đón đầu: người nhận đang băng lên (vận tốc hướng về khung thành đối phương) thì chọc khe vào khoảng trống trước mặt
+      // (điểm đón = vị trí + vận tốc × thời gian bóng bay theo chuyền có lực) → bóng lăn vào bước chạy, không ra ngoài.
+      // Thời gian bay tính tới chính điểm đón (lặp 3 lần cho khớp), độ đón đầu tối đa 12 đơn vị.
+      const q = P(to), v = eng.vel[to.side][to.i];
       const forward = -(toFrame(to.side, { x: q.x + v.x, y: q.y + v.y }).y - toFrame(to.side, q).y);
       const lead = tr(to) === TRAITS.LINE_BREAKER && forward > 3 ? 1.15 : forward > 6 ? 1 : .6;
-      end = { x: clamp(q.x + v.x * fl * lead, 4, 96), y: clamp(q.y + v.y * fl * lead, 5, 95) };
+      let lx = 0, ly = 0;
+      for (let k = 0; k < 3; k++) {
+        const fl = passTime(Math.hypot(q.x + lx - ball.x, q.y + ly - ball.y)).time;
+        lx = v.x * fl * lead; ly = v.y * fl * lead;
+        const ll = Math.hypot(lx, ly); if (ll > 12) { lx *= 12 / ll; ly *= 12 / ll; }
+      }
+      end = { x: clamp(q.x + lx, 4, 96), y: clamp(q.y + ly, 5, 95) };
     }
     const maestro = !safe && tr(holder) === TRAITS.MAESTRO;
-    if (!safe && !isGK(slot(holder).role)) {
+    // Hướng người: đích sau lưng (> 90°) thì xoay người trước; lệch 45–90° thì chuyền kém chính xác hơn (Nhạc trưởng nhìn cả sân: không bị).
+    const off = keeperPass || safe ? 0 : turnToward(end), bodyErr = off > 45 && !maestro ? 1.45 : 1;
+    if (!safe && !keeperPass) {
       // Độ lệch đường chuyền: tỉ lệ cự ly, người chuyền sáng tạo kém lệch nhiều hơn (người nhận vẫn chạy theo điểm rơi).
       // Nhạc trưởng không sai số; bị người có Chặn đà tấn công áp sát (≤ 3) thì lệch hơn 60 %.
       const near = nearestTo(other(holder.side), ball), stop = tr(near.p) === TRAITS.STOP_ATTACK && near.d < 3;
-      const err = maestro ? 0 : (1 - sk(holder, 'cre')) * dist(ball, end) * .05 * (stop ? 1.6 : 1);
+      const err = maestro ? 0 : (1 - sk(holder, 'cre')) * dist(ball, end) * .05 * (stop ? 1.6 : 1) * bodyErr;
       end = { x: clamp(end.x + (r() - .5) * 2 * err, 4, 96), y: clamp(end.y + (r() - .5) * 2 * err, 5, 95) };
     }
     if (maestro && dist(ball, end) > 26) traits.fire(holder.side, holder.i, TRAITS.MAESTRO, t);
@@ -711,7 +872,8 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
       if (block.p && r() < (block.sup ? .85 : maestro ? .3 : .65)) {
         if (block.sup) traits.fire(block.p.side, block.p.i, TRAITS.SUPER_INTERCEPTOR, t);
         begin(null, 'pass');
-        move(block.at, .2 + dist(ball, block.at) / 52, block.p, 'win');
+        const pt = passTime(dist(ball, block.at));
+        fly(block.at, pt.time, block.p, 'win', Math.min(1, pt.arrive * 2.2));
         return touch(.3);
       }
       if (dist(ball, end) > 36 && !maestro && r() < .2) {
@@ -719,14 +881,17 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
         const a = nearestTo(holder.side, land), b = nearestTo(other(holder.side), land), w = a.d <= b.d ? a.p : b.p;
         if (w.side === holder.side && !onside(w)) return offsidePass(w, land);
         begin(null, 'pass');
-        move(land, .25 + dist(ball, land) / 52, w, w.side === holder.side ? 'pass' : 'win');
+        const pt = passTime(dist(ball, land));
+        fly(land, pt.time, w, w.side === holder.side ? 'pass' : 'win', pt.arrive, (r() - .5) * .1);
         return touch(.3);
       }
     }
     // Chuyền cho người đang việt vị: trọng tài thổi việt vị khi người đó nhận bóng, đội kia đá phạt tại chỗ.
     if (!safe && !onside(to)) return offsidePass(to, end);
     begin(null, 'pass');
-    move(end, .25 + dist(ball, end) / 52, to, 'pass');
+    // Chuyền có lực + bóng xoáy nhẹ (Magnus) với đường chuyền dài / chọc khe; Nhạc trưởng xoáy nhiều hơn.
+    const d = dist(ball, end), pt = passTime(d), through = d > 20 && !keeperPass;
+    fly(end, pt.time, to, 'pass', pt.arrive, through ? (r() - .5) * (maestro ? .16 : .08) : 0);
     // Dứt điểm 1 chạm: nhận bóng trong / rìa vòng cấm thì sút luôn, không đỡ bước một.
     const fe = toFrame(to.side, end);
     if (!safe && tr(to) === TRAITS.FIRST_TIME_SHOT && fe.y < 31 && Math.abs(fe.x - 50) < 28 && r() < .75) {
@@ -735,9 +900,20 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
     }
     touch(.3 + r() * .3);
   };
+  // Ngắm góc (2026-11-16): khung thành rộng 10,8 (cột 44,6–55,4). Không sút vào giữa: ngắm góc phía thủ môn để trống
+  // (50 ± 10,8·0,42 ≈ 50 ± 4,5), thỉnh thoảng góc gần; sút chệch thì bóng đi ra ngoài cột phía đã ngắm.
+  const openSide = (side: Side) => { const kx = toFrame(side, P(gkOf(other(side)))).x; return (kx >= 50 ? -1 : 1) * (r() < .8 ? 1 : -1); };
   const goalMouth = (side: Side, inside: boolean): Point => {
-    const x = inside ? 44 + r() * 12 : (r() < .5 ? 34 + r() * 7 : 59 + r() * 7);
+    const aim = openSide(side);
+    const x = inside ? clamp(50 + aim * (3.2 + r() * 1.6), 45.2, 54.8) : 50 + aim * (6.5 + r() * 7);
     return fromFrame(side, { x, y: inside ? -2.5 : -4 });
+  };
+  // Lấy đà trước cú sút: bước tới bóng, chạm chuẩn bị (đẩy bóng ~0,8 về phía khung thành) rồi vung chân 0,10–0,15 giây.
+  const windUp = () => {
+    reachBall();
+    const f = toFrame(holder.side, ball);
+    move(fromFrame(holder.side, { x: f.x + (50 - f.x) * .03, y: Math.max(4, f.y - .8) }), .12 * PACE, holder, 'run', { touch: 9 });
+    t += .1 + r() * .05; push('hold', holder);
   };
   // Chọn đường chuyền như cầu thủ thật: chấm điểm từng đồng đội theo vị trí thật rồi gần như luôn chọn phương án tốt nhất.
   //   + đường chuyền thoáng (không ai đứng chắn), người nhận trống, tiến lên phía trước, đưa bóng vào khu vực dứt điểm;
@@ -788,6 +964,8 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
   };
   // firstTime: sút một chạm (Dứt điểm 1 chạm) — bóng nhanh hơn 30 %, trúng đích nhiều hơn.
   const shoot = (firstTime = false) => {
+    // Dứt điểm 1 chạm: không đỡ bóng, không lấy đà. Còn lại: xoay người (khung thành sau lưng) rồi lấy đà.
+    if (!firstTime) { turnToward(fromFrame(holder.side, { x: 50, y: 0 })); windUp(); }
     const side = holder.side, keeper = gkOf(other(side)), from = toFrame(side, ball);
     // GK Bắt bài Sút xa: cú sút từ ngoài vòng cấm (> 17 đơn vị ≈ 18 m) bị cản phá nhiều hơn.
     const longSave = from.y >= 17 && tr(keeper) === TRAITS.GK_LONG_SHOT_SAVER;
@@ -795,16 +973,30 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
     begin(null, 'shot');
     // Cầu thủ dứt điểm tốt sút trúng đích nhiều hơn (thủ môn cản phá), kém thì hay chệch; thỉnh thoảng trúng cột dội ra.
     const onTarget = Math.min(.92, .32 + .36 * sk(holder, 'att') + (firstTime ? .15 : 0) + (longSave ? .3 : 0));
+    // Nón sai số: kỹ thuật dứt điểm kém / bị áp sát (≤ 3) thì lệch nhiều hơn khỏi góc đã ngắm.
+    const pressed = nearestTo(other(side), ball).d < 3, spread = (1 - sk(holder, 'att')) * 2.4 + (pressed ? 1.2 : 0);
+    const power = firstTime ? 1.3 : 1, curl = (r() - .5) * .12;
     if (r() < onTarget) {
-      const at = fromFrame(side, { x: 44 + r() * 12, y: 3 });
-      move(at, firstTime ? .27 : .35, keeper, 'save');
+      const at = fromFrame(side, { x: clamp(50 + openSide(side) * 4.5 + (r() - .5) * 2 * spread, 45, 55), y: 3 });
+      const time = shotTime(at, power);
+      fly(at, time, keeper, 'save', .72, curl);
       events.push({ t, minute: -1, kind: 'save', side });
-      // Thủ môn đẩy bóng ra ngoài đường biên ngang → phạt góc.
-      if (r() < .45) return cornerKick(side);
+      // Thủ môn: cú sút căng (bay nhanh, cự ly gần) hay bị đẩy ra — ra ngoài biên ngang (phạt góc) hoặc bật ra phía cánh; còn lại bắt gọn.
+      const hard = clamp(1.2 - time * 2.5, .2, .8);
+      if (r() < .45 + hard * .25) return cornerKick(side);
+      if (r() < hard * .55) {
+        const kf = toFrame(side, at), wing = kf.x < 50 ? -1 : 1;
+        const land = fromFrame(side, { x: clamp(kf.x + wing * (12 + r() * 12), 8, 92), y: 5 + r() * 9 });
+        const a = nearestTo(side, land), b = nearestTo(other(side), land), w = a.d < b.d - 2 ? a.p : b.p;
+        begin(null, 'pass');
+        fly(land, clamp(Math.min(a.d, b.d) / 18, .5, 1.3) / PACE, w, w.side === side ? 'pass' : 'win', .3);
+        return touch(.3);
+      }
       t += .8; push('hold', holder);
     } else {
       if (r() < .2) return postHit(side);
-      move(goalMouth(side, false), .4, null, 'miss');
+      const wide = goalMouth(side, false);
+      fly(wide, shotTime(wide, power), null, 'miss', .7, curl);
       events.push({ t, minute: -1, kind: 'miss', side });
       goalKick(side);
     }
@@ -847,7 +1039,8 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
     if (opp.d < (wild ? 3.2 * 1.35 : 3.2) && r() < pLose) {
       if (wild) traits.fire(opp.p.side, opp.p.i, TRAITS.WILD_TACKLER, t);
       else if (stop) traits.fire(opp.p.side, opp.p.i, TRAITS.STOP_ATTACK, t);
-      if (!wild && r() < .11) return foul(opp.p);
+      // Bị dồn sát vòng cấm (khu vực sút) thì hậu vệ phòng ngự liều hơn → dễ phạm lỗi (đá phạt trực tiếp).
+      if (!wild && r() < (f.y < 32 ? .2 : .11)) return foul(opp.p);
       // Hậu vệ cản phá ra ngoài đường biên ngang (gần khung thành nhà) → phạt góc cho đội tấn công.
       if (f.y < 26 && r() < .35) { begin(null, 'win'); return cornerKick(side); }
       return tackle(opp.p);
@@ -929,10 +1122,11 @@ export function buildTimeline(teams: Teams, rawGoals: RankedGoal[], seed: number
     // Dứt điểm 1 chạm: cú sút ghi bàn nhanh hơn 30 %.
     const ft = tr(scorer) === TRAITS.FIRST_TIME_SHOT;
     if (ft) traits.fire(scorer.side, scorer.i, TRAITS.FIRST_TIME_SHOT, t);
+    else windUp();
     netGoal(g, ft ? .27 : .35);
   };
 
-  kickoff('me');
+  kickoff('me', 1.4);
   const plan: ({ kind: 'goal'; g: RankedGoal } | { kind: 'half' })[] = [...goals.filter(g => g.minute <= 45).map(g => ({ kind: 'goal' as const, g })), { kind: 'half' as const }, ...goals.filter(g => g.minute > 45).map(g => ({ kind: 'goal' as const, g }))];
   for (const step of plan) {
     if (step.kind === 'half') {

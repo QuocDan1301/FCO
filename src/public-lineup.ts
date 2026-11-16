@@ -5,7 +5,8 @@ import { getLineups, lineupSlots, lineupSummary, XI } from './squad';
 // Xem đội hình HLV khác từ BXH (fco_view_lineup, migration 202611120012). Máy chủ chỉ gửi cầu thủ + cấp của 11 ô (không mã thẻ).
 export type LineupBoardId = 'ovr' | 'squad' | 'penalty' | 'ranked';
 export type PublicLineup = { formation: string; custom?: unknown; slots: ({ playerId: number; level: number } | null)[] };
-export type PublicLineupView = { name: string; club?: string | null; effect?: string | null; mine?: boolean; lineup: PublicLineup | null };
+// faces: miniface chủ đội hình đã chọn cho các cầu thủ này (migration 202611160003).
+export type PublicLineupView = { name: string; club?: string | null; effect?: string | null; mine?: boolean; lineup: PublicLineup | null; faces?: Record<string, string> | null };
 
 const known = new Set(players.map(p => p.id));
 
