@@ -70,6 +70,8 @@ test('Chia nhóm tải: chỉ giao diện chặn vào game; ảnh thẻ và nh�
   for (const file of ['levels/lv-1.webp', 'fco-vip-logo.png', 'currency-bp.png', 'view-backdrop.webp', 'login-background.png', 'silhouette.svg']) assert.equal(assetGroup(file), 'critical', file);
   for (const file of ['ut-back.webp', 'ut-tunnel.webp', 'custom/ms-1-1-back.webp', 'clubs/86.webp', 'ut-team.webp', 'event/jar-1.webp', 'rs-turf.webp', 'pf-flame-red-1.webp', 'cinema-cue.wav', 'fonts-inline.css']) assert.equal(assetGroup(file), 'background', file);
   for (const file of ['ut-p-aubameyang-card.webp', 'prime-quang-hai-card.png', 'background-music.mp3']) assert.equal(assetGroup(file), 'demand', file);
+  // Chân dung / mặt nạ / khung trống (hàng nghìn file): không được nằm trong phần tải trước khi vào game (2026-11-16 từng lên 6.821 file).
+  for (const file of ['portraits/866158023.webp', 'portraits/masks/1001.webp', 'portraits/blank/prm.webp', 'portraits/custom/barca-messi.webp']) assert.equal(assetGroup(file), 'demand', file);
   assert.ok(backgroundRank('custom/a-back.webp') < backgroundRank('ut-tunnel.webp') && backgroundRank('ut-tunnel.webp') < backgroundRank('clubs/86.webp'));
   assert.equal(canLoadInBackground(), true);
   assert.equal(canLoadInBackground({ effectiveType: '4g' }), true);
