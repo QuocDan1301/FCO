@@ -54,7 +54,7 @@ export type FcStats = { topup: number; spent: number };
 export type AdminAccount = { id: string; login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; topupVnd: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean; paused: boolean; unconfirmed?: boolean };
 // online: số tài khoản đang online (migration 202611090014); chưa chạy migration thì không có.
 export type AdminAccountList = { total: number; matched: number; online?: number; accounts: AdminAccount[]; now: number };
-export const LEDGER_REASONS: Record<string, string> = { admin: 'Admin nạp', admin_old: 'Admin nạp (trước reset)', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', admin_gift: 'Admin tặng quà', admin_deduct: 'Admin trừ FC', reset: 'Admin reset tài khoản' };
+export const LEDGER_REASONS: Record<string, string> = { rename: 'Đổi tên HLV', admin: 'Admin nạp', admin_old: 'Admin nạp (trước reset)', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', admin_gift: 'Admin tặng quà', admin_deduct: 'Admin trừ FC', reset: 'Admin reset tài khoản' };
 export type AdminStats = { summary: StatsSummary; days: StatsDay[]; players: StatsPlayer[]; now: number };
 // Bi Lắc (supabase/migrations/202611070005_fco_bilac.sql): quà {fc} / {bp} / {pack,count}; quà Giải Đặc Biệt / Phụ trả về {fc, jackpot}.
 export type BilacReward = EventReward | { fc: number; jackpot: 'special' | 'mini' } | { jackpot: 'special' | 'mini' };
@@ -81,6 +81,14 @@ export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 
 const MESSAGES: Record<string, string> = {
   FCO_NOT_ENOUGH_FC: 'Không đủ FC.',
+  FCO_GOLD_INVALID: 'Không chọn được CSA vàng này cho thẻ (chưa đủ cấp, sai mùa, sai nhóm GK hoặc trùng CSA khác).',
+  FCO_GOLD_SLOT: 'Ô CSA vàng không hợp lệ.',
+  FCO_NAME_LENGTH: 'Tên HLV cần từ 3 đến 24 ký tự.',
+  FCO_NAME_CHARS: 'Tên HLV chỉ dùng chữ, số, dấu cách, dấu chấm, gạch ngang và gạch dưới.',
+  FCO_NAME_RESERVED: 'Tên này không được dùng (dễ nhầm với admin / hỗ trợ).',
+  FCO_NAME_SAME: 'Tên mới giống tên hiện tại.',
+  FCO_NAME_TAKEN: 'Tên này đã có HLV khác dùng. Hãy chọn tên khác.',
+  FCO_NAME_COOLDOWN: 'Mỗi 7 ngày chỉ đổi tên được 1 lần.',
   FCO_NOT_ENOUGH_STP: 'Không đủ Star Point.',
   FCO_BAD_CLUB: 'Logo CLB không hợp lệ.',
   FCO_RANKED_TEAM: 'Bộ đội hình đang dùng chưa đủ 11 cầu thủ.',

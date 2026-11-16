@@ -2,7 +2,9 @@ import { useState } from 'react';
 import LinkGmail from './LinkGmail';
 import ClubLogoPicker from './ClubLogoPicker';
 import { clubLogoUrl } from './club-logo';
-import { AlertTriangle, CalendarCheck, CalendarDays, Crown, IdCard, Lock, Mail, Settings2, Sparkles, UserRound, X } from 'lucide-react';
+import { AlertTriangle, CalendarCheck, CalendarDays, Crown, IdCard, Lock, Mail, PencilLine, Settings2, Sparkles, UserRound, X } from 'lucide-react';
+import RenameCoach from './RenameCoach';
+import type { RenameInfo } from './wallet';
 import { isLegacyEmail, maskEmail } from './account-identity';
 import { NAME_EFFECTS, avatarEffectClass, isLuxuryEffect, nameEffectClass } from './name-effects';
 import type { NameEffect } from './name-effects';
@@ -20,7 +22,9 @@ const genderLabel = (id: string | undefined) => GENDERS.find(g => g.id === id)?.
 // effect: hiệu ứng avatar + tên đang dùng (chỉ Premium); onEffect gửi lựa chọn lên máy chủ (null = tắt).
 type Props = { save: Save; accountId?: string; accountEmail?: string | null; club?: string | null; onClub?: (club: string | null) => Promise<boolean> | boolean; joined?: number | null; tier?: AccountTier | null; effect?: NameEffect | null;
   // Con trỏ chuột theo hiệu ứng: đang bật? và hàm bật / tắt (lưu trên máy này).
-  cursorOn?: boolean; onCursor?: (on: boolean) => void; onEffect?: (effect: NameEffect | null) => Promise<boolean> | boolean; onSave: (profile: Profile) => void; onSettings: () => void; onClose: () => void };
+  cursorOn?: boolean; onCursor?: (on: boolean) => void; onEffect?: (effect: NameEffect | null) => Promise<boolean> | boolean;
+  // Đổi tên HLV (chỉ khi online): loadRename lấy phí / thời gian chờ, onRename gửi tên mới (true = đã đổi).
+  loadRename?: () => Promise<RenameInfo>; onRename?: (name: string) => Promise<boolean>; onSave: (profile: Profile) => void; onSettings: () => void; onClose: () => void };
 
 // Lưới chọn hiệu ứng avatar + tên (mở từ nút "Hiệu ứng" trong ô tên / avatar HLV). Classic: khoá hết, gợi ý liên hệ admin.
 // luxury: hạng Luxury (dùng được cả nhóm hiệu ứng Luxury); Premium thấy nhóm Luxury bị khoá.
@@ -46,7 +50,8 @@ export function EffectPicker({ premium, luxury = false, shown, initials, busy, o
   </>;
 }
 
-export default function ProfileCard({ save, accountId, accountEmail = null, club = null, onClub, joined, tier: tierId, effect = null, cursorOn = true, onCursor, onEffect, onSave, onSettings, onClose }: Props) {
+export default function ProfileCard({ save, accountId, accountEmail = null, club = null, onClub, joined, tier: tierId, effect = null, cursorOn = true, onCursor, onEffect, loadRename, onRename, onSave, onSettings, onClose }: Props) {
+  const [renaming, setRenaming] = useState(false);
   const profile = save.profile ?? {};
   const needGender = !profile.gender, needBirthday = !profile.birthday;
   const [gender, setGender] = useState('');
@@ -89,7 +94,8 @@ export default function ProfileCard({ save, accountId, accountEmail = null, club
       </label>}
     </section>}
     <dl className="profile-rows">
-      <div><dt><IdCard size={15}/>ID</dt><dd>{accountId ?? '—'}</dd></div>
+      <div><dt><IdCard size={15}/>Tên HLV</dt><dd>{accountId ?? '—'}{loadRename && onRename && !renaming && <button type="button" className="profile-rename-open" onClick={() => setRenaming(true)}><PencilLine size={13}/>Đổi tên</button>}</dd></div>
+      {renaming && loadRename && onRename && <div className="profile-rename-wrap"><RenameCoach current={accountId ?? ''} load={loadRename} onRename={onRename} onClose={() => setRenaming(false)}/></div>}
       <div><dt><UserRound size={15}/>Giới tính</dt><dd>{needGender
         ? <select aria-label="Giới tính" value={gender} disabled={confirming} onChange={e => setGender(e.target.value)}><option value="">Chọn</option>{GENDERS.map(g => <option key={g.id} value={g.id}>{g.label}</option>)}</select>
         : <>{genderLabel(profile.gender)}{locked}</>}</dd></div>

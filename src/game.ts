@@ -1,3 +1,4 @@
+import { dropClosedGold } from './gold-traits';
 import { asset } from './asset';
 import excelOverrides from './excel-overrides.json';
 import priceData from './player-prices.json';
@@ -54,7 +55,8 @@ export type Tier = 'origin' | 'stellar' | 'eternal' | 'prime' | 'vietnam' | 'prm
 export const TIERS: readonly Tier[] = ['origin', 'stellar', 'eternal', 'prime', 'vietnam', 'prm', 'mdl', 'amb', 'uc', 'wg', 'ut', 'cu', 'gru', 'rtn', 'dc', 'cc', 'bld', 'wb', 'spt', 'bdo', 'hw23', 'ep24', 'ptg', 'le', 'hg', 'spl', 'ln', 'fa', 'lol', 'cap', 'boe21', 'btb', 'ebs', 'juventus', 'jnm', 'hr25', 'up26', 'live', 'hr24', 'chelsea', 'hr26', 'ld', 'ws', 'el', 'tsubasa'];
 export type Player = { id: number; name: string; ovr: number; pos: string; nation: string; flag: string; club: string; tier: Tier; image?: string; value?: number; wage?: number; cardFace?: string; teamLogo?: string };
 // fromMarket: thẻ mua từ chợ (giữ nguyên khi nâng cấp). Hiện chỉ để đánh dấu, không ảnh hưởng thuế bán.
-export type Card = { uid: string; playerId: number; level: number; received: number; fromMarket?: boolean };
+// gold: CSA vàng thêm người chơi chọn (ô "7" / "11" → mã CSA, src/gold-traits.ts); máy chủ giữ khi kho thẻ do máy chủ quản lý.
+export type Card = { uid: string; playerId: number; level: number; received: number; fromMarket?: boolean; gold?: Partial<Record<'7' | '11', string>> };
 export type Entry = { id: string; time: number; type: 'pack' | 'upgrade' | 'gift' | 'market' | 'shop' | 'event'; title: string; detail: string; success?: boolean };
 // Tiến trình sự kiện Nâng Cấp Siêu Sao (src/event.ts): điểm tích lũy, tổng lượt đã chơi, số lần đã nhận từng mốc quà,
 // lượt miễn phí còn lại; day = ngày của missions (nhiệm vụ đã nhận thưởng) và paid (lượt trả FC trong ngày).
@@ -847,7 +849,8 @@ export function upgrade(state: Save, targetId: string, materialIds: string[], rn
   // Engine vẫn ghi mức rớt gốc vào dây cầu; mức giữ không cao hơn mức rớt thì coi như rớt thường.
   const restoreTo = !success && !shielded && restore.chance > 0 && rng() * 100 < restore.chance ? restore.floor : null;
   const restoredLevel = restoreTo !== null && droppedLevel !== null && restoreTo > droppedLevel ? restoreTo : null;
-  const result = { ...target, level: success ? target.level + 1 : shielded ? target.level : restoredLevel ?? droppedLevel! };
+  // Tụt dưới mốc CSA vàng thêm (+7 / +11) thì mất CSA của ô đó (máy chủ làm cùng việc này, migration 202611160006).
+  const result = dropClosedGold({ ...target, level: success ? target.level + 1 : shielded ? target.level : restoredLevel ?? droppedLevel! }, getPlayer(target).tier);
   const transition = shielded ? `+${target.level} → giữ nguyên +${target.level} · Bảo vệ nâng cấp` : restoredLevel !== null ? `+${target.level} → +${droppedLevel} → +${result.level} · Khôi phục cấp thẻ` : `+${target.level} → +${result.level}`;
   const entry: Entry = { id: uid(), time: Date.now(), type: 'upgrade', success, title: `${success ? 'Thành công' : 'Thất bại'} · ${getPlayer(target).name}`, detail: `${transition} · ${materials.length} nguyên liệu${protection ? ` · Bảo vệ ${protection.pct}%` : ''}${free ? ' · Thử nghiệm · Không trừ BP' : protectCost ? ` · −${money(protectCost)} BP` : ''}` };
   return { state: { ...state, balance: free ? state.balance : state.balance - protectCost, cards: state.cards.filter(c => !materialIds.includes(c.uid)).map(c => c.uid === targetId ? result : c), history: [entry, ...state.history].slice(0, 200), upgrades: state.upgrades + 1, bridge: turn.bridge }, result, success, info, droppedLevel, restoredLevel, shielded, protectCost, turn: turn.turn };

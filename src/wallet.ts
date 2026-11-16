@@ -124,6 +124,10 @@ export const adminAccountsDelete = (target: { users: string[] } | { all: true; s
 // tier 'premium' = thêm 7 ngày (cộng dồn khi còn hạn, migration 202611110013); until = hạn Premium (ms).
 export const adminAccountTier = (user: string, tier: 'classic' | 'premium' | 'luxury' | null = null) => call<{ tier: 'classic' | 'premium' | 'luxury'; until?: number | null }>('fco_admin_account_tier', { p_user: user, p_tier: tier });
 // Hiệu ứng avatar + tên (migration 202611110004): chỉ tài khoản Premium đặt được, null = tắt.
+// Đổi tên HLV (migration 202611160004): lần đầu miễn phí, sau đó 100 FC; 7 ngày / lần; không trùng tên.
+export type RenameInfo = { name: string; changes: number; nextAt: number | null; cost: number; now: number };
+export const fetchRenameInfo = () => call<RenameInfo>('fco_rename_info');
+export const renameCoach = (name: string) => call<{ name: string; cost: number; changes: number; nextAt: number }>('fco_rename', { p_name: name });
 export const setNameEffect = (effect: NameEffect | null) => call<Wallet>('fco_set_name_effect', { p_effect: effect });
 export const adminAccountDelete = (id: string) => call<{ deleted: boolean }>('fco_admin_account_delete', { p_user: id });
 export const adminSendGift = (user: string, gift: { fc: number } | { pack: string; count: number }, note: string) => call<{ id: number; fc: number | null }>('fco_admin_send_gift', 'fc' in gift ? { p_user: user, p_fc: gift.fc, p_note: note } : { p_user: user, p_pack: gift.pack, p_count: gift.count, p_note: note });

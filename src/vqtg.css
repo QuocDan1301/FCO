@@ -280,3 +280,12 @@
   .vq-race-row{grid-template-columns:44px minmax(0,1fr) 70px minmax(0,1.4fr);gap:8px;font-size:13px;padding:4px 8px}
   .vq-race-rank b{width:32px;height:32px;font-size:16px}.vq-race-tickets{font-size:15px}
 }
+
+/* Tự dùng Chỉ định (2026-11-16): nút xanh trong cột nút (cột chia 6 hàng khi có nút này), đỏ khi đang chạy để Dừng. */
+.vq-side.has-auto{--room:calc((100cqh - var(--px) * (532 - var(--shift)) - 14px) / 6)}
+@media (max-height:560px){.vq-side.has-auto{--room:calc((100cqh - var(--px) * (532 - var(--shift)) - 14px) / 5)}}
+.vq-gem.auto{background:linear-gradient(180deg,#4fd88a,#1c7c47);border-radius:calc(var(--gem-h) * .3);box-shadow:inset 0 0 0 2px #c9ffdd99,inset 0 -3px 0 #0e4d2b;font-size:max(8.5px,min(calc(var(--px) * 17),calc(var(--room) * .28)))}
+.vq-gem.auto.is-stop{background:linear-gradient(180deg,#f06a5c,#962419);box-shadow:inset 0 0 0 2px #ffd1cb99,inset 0 -3px 0 #5c1610}
+.vq-pick-auto{display:block;width:100%;margin-top:12px;padding:10px 12px;border:2px solid #7cf0a2;border-radius:9px;background:#1c6a3f;color:#fff;font:800 14px/1.2 var(--display)}
+.vq-pick-auto:not(:disabled):hover{background:#238a51}
+.vq-pick-auto:disabled{opacity:.5}

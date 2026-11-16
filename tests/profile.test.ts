@@ -42,7 +42,7 @@ test('Bảng Thông tin HLV hiện đủ số ngày đã chơi, ngày bắt đ�
   assert.match(text, /Đã chơi (12|13) ngày/);
   assert.match(text, /Bắt đầu chơi \d{2}\/\d{2}\/\d{4}/);
   assert.match(text, /Sinh nhật 05\/09/); assert.match(text, /Giới tính Nam/);
-  assert.match(text, /Loại tài khoản Premium/); assert.match(text, /ID hlv_test/);
+  assert.match(text, /Loại tài khoản Premium/); assert.match(text, /Tên HLV hlv_test/);
   // Gói thành viên mua trong Shop không đổi loại tài khoản.
   const shop = renderToStaticMarkup(createElement(ProfileCard, { save: { ...save, membership: { premium: now + day, svip: now + day } }, accountId: 'x', joined: null, tier: 'classic', onSave() {}, onSettings() {}, onClose() {} }));
   assert.match(shop.replace(/<[^>]+>/g, ' '), /Loại tài khoản\s+Classic/);

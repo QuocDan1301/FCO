@@ -8,7 +8,7 @@ import PackImage from './PackImage';
 import { bilacRewardText, isJackpot, shortBp, summarizeBilac } from './bilac';
 import {
   VQTG_BOARD, VQTG_INFO, VQTG_QUADS, VQTG_RULES, VQTG_SPECIAL, VQTG_WHEEL, tokenPoint,
-  miniJackpotBp, raceCountdown, rollTickets, rollTo, rollValue, type JackpotRoll, vqtgAvailable, vqtgPath, vqtgPickAllowed, wheelAngle, type VqtgTile,
+  miniJackpotBp, raceCountdown, rollTickets, rollTo, rollValue, type JackpotRoll, vqtgAvailable, vqtgPath, vqtgPickAllowed, vqtgBestPick, wheelAngle, type VqtgTile,
 } from './vqtg';
 import { voucherName } from './stp';
 import { marketNow } from './market';
@@ -216,6 +216,26 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
     setRolled(last.roll); setAngle(a => wheelAngle(a, last.roll, 2)); setToken(last.to); await sleep(700);
   };
 
+  // Tóm tắt kết quả (một lần bấm hoặc cả chuỗi Tự dùng Chỉ định): quà, vé, lượt Chỉ định, jackpot, FC đã trả.
+  const showResult = (plays: VqtgPlay[], paid: number, title: string) => {
+    const rewards = plays.map(p => p.reward).filter((r): r is BilacReward => !!r);
+    setReceived(list => [...list, ...rewards]);
+    const picks = plays.filter(p => p.pick).length, poolHits = plays.filter(p => p.pool).length;
+    const gainedTickets = plays.reduce((n, p) => n + (p.tickets ?? rollTickets(p.roll)), 0);
+    // Dừng ô 14 / ô 10 mà không trúng: nói rõ lý do (ô này chỉ là cơ hội trúng, không có quà an ủi).
+    const missJp = plays.filter(p => p.kind === 'jackpot' && !p.reward).length, missMini = plays.filter(p => p.kind === 'bp' && !p.pool && !p.reward).length;
+    const notes = [
+      `+${money(gainedTickets)} vé`,
+      ...(missJp ? ['Dừng ô Giải Đặc Biệt nhưng chưa trúng'] : []),
+      ...(missMini ? ['Dừng ô Mini Jackpot nhưng chưa trúng'] : []),
+      ...(picks ? [`+${picks} lượt Chỉ định`] : []),
+      ...(poolHits ? ['Trúng Mini Jackpot (quỹ BP)!'] : []),
+      ...rewards.filter(r => isJackpot(r)).map(r => `Trúng ${bilacRewardText(r)}!`),
+      ...(paid ? [`−${money(paid)} FC`] : []),
+    ];
+    setResult({ title, rewards: summarizeBilac(rewards).sort((a, b) => Number(isJackpot(b)) - Number(isJackpot(a))), notes });
+  };
+
   const play = async (count: number, mode: 'fc' | 'free', pick?: number) => {
     if (busy || !config) return;
     setBusy(true); animating.current = true; setLanded(null); setModal(null); setTip(null);
@@ -224,24 +244,32 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
       if (!out) return;
       await animate(out.plays);
       setLanded(out.plays.at(-1)!.to); setToken(out.pos); setJackpot(out.jackpot); if (out.miniFeed) setMiniFeed(out.miniFeed);
-      const rewards = out.plays.map(p => p.reward).filter((r): r is BilacReward => !!r);
-      setReceived(list => [...list, ...rewards]);
-      const picks = out.plays.filter(p => p.pick).length, poolHits = out.plays.filter(p => p.pool).length;
-      const gainedTickets = out.plays.reduce((n, p) => n + (p.tickets ?? rollTickets(p.roll)), 0);
-      // Dừng ô 14 / ô 10 mà không trúng: nói rõ lý do (ô này chỉ là cơ hội trúng, không có quà an ủi).
-      const missJp = out.plays.filter(p => p.kind === 'jackpot' && !p.reward).length, missMini = out.plays.filter(p => p.kind === 'bp' && !p.pool && !p.reward).length;
-      const notes = [
-        `+${money(gainedTickets)} vé`,
-        ...(missJp ? ['Dừng ô Giải Đặc Biệt nhưng chưa trúng'] : []),
-        ...(missMini ? ['Dừng ô Mini Jackpot nhưng chưa trúng'] : []),
-        ...(picks ? [`+${picks} lượt Chỉ định`] : []),
-        ...(poolHits ? ['Trúng Mini Jackpot (quỹ BP)!'] : []),
-        ...rewards.filter(r => isJackpot(r)).map(r => `Trúng ${bilacRewardText(r)}!`),
-        ...(out.paid ? [`−${money(out.paid)} FC`] : []),
-      ];
-      setResult({ title: count > 1 ? `Kết quả ${count} lượt · dừng ở ô ${out.pos}` : `Lắc được ${out.plays[0].roll} · ô ${out.plays[0].to}`,
-        rewards: summarizeBilac(rewards).sort((a, b) => Number(isJackpot(b)) - Number(isJackpot(a))), notes });
+      showResult(out.plays, out.paid, count > 1 ? `Kết quả ${count} lượt · dừng ở ô ${out.pos}` : `Lắc được ${out.plays[0].roll} · ô ${out.plays[0].to}`);
     } finally { animating.current = false; setBusy(false); }
+  };
+
+  // Tự dùng Chỉ định (người dùng 2026-11-16): dùng lần lượt mọi lượt Chỉ định (kể cả lượt mới nhận khi dừng lại ô 6), mỗi lượt chọn số
+  // được phép cho nhiều vé nhất (vqtgBestPick); bấm Dừng để ngưng sau lượt đang chạy. Lượt Chỉ định miễn phí, máy chủ vẫn kiểm tra từng lượt.
+  const autoStop = useRef(false);
+  const [autoRunning, setAutoRunning] = useState(false);
+  const autoPick = async () => {
+    if (busy || !config || !vqtg || !vqtg.picks) return;
+    setBusy(true); setAutoRunning(true); autoStop.current = false; animating.current = true; setLanded(null); setModal(null); setTip(null);
+    const all: VqtgPlay[] = [];
+    let pos = vqtg.pos, left = vqtg.picks, paid = 0;
+    try {
+      for (let guard = 0; left > 0 && !autoStop.current && guard < 200; guard++) {
+        const n = vqtgBestPick(config.tiles, pos);
+        if (!n) break;
+        const out = await onPlay(1, 'fc', n);
+        if (!out) break;
+        await animate(out.plays);
+        setLanded(out.plays.at(-1)!.to); setToken(out.pos); setJackpot(out.jackpot); if (out.miniFeed) setMiniFeed(out.miniFeed);
+        all.push(...out.plays); paid += out.paid; pos = out.pos; left = out.picks;
+        await sleep(250);
+      }
+      if (all.length) showResult(all, paid, `Tự dùng ${all.length} lượt Chỉ định · dừng ở ô ${pos}`);
+    } finally { animating.current = false; setAutoRunning(false); setBusy(false); }
   };
 
   // Nhận quà mốc Shop Đổi Vé (máy chủ kiểm tra đủ vé / số lần); mốc nhiều lựa chọn mở hộp chọn trước.
@@ -281,7 +309,7 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
   const below = !!tip && tip.top < 200;
   return <TipContext.Provider value={showTip}><section className="workspace vqtg-page" aria-label="Sự kiện Vòng Quanh Thế Giới">
     <i className="vq-bg" aria-hidden="true"/>
-    <aside className="vq-side">
+    <aside className={`vq-side${autoRunning || (vqtg?.picks ?? 0) > 0 ? ' has-auto' : ''}`}>
       {/* Logo sự kiện nằm sẵn trong ảnh nền (.vq-bg); cột này chừa chỗ cho logo. */}
       <nav className="vq-tabs">
         <button type="button" onClick={() => setModal('guide')}>Hướng dẫn</button>
@@ -294,6 +322,9 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
           {p.count} lần - {money(p.price)} FC</button>)}
         <button type="button" className="vq-gem free" disabled={busy || !config || !vqtg?.freeToday} onClick={() => void play(1, 'free')}>
           {!vqtg ? 'Đang tải…' : vqtg.freeToday ? 'Có 1 lượt m.phí - Chơi ngay' : 'Hết lượt miễn phí hôm nay'}</button>
+        {autoRunning
+          ? <button type="button" className="vq-gem auto is-stop" onClick={() => { autoStop.current = true; }}>Dừng tự dùng Chỉ định</button>
+          : (vqtg?.picks ?? 0) > 0 && <button type="button" className="vq-gem auto" disabled={busy || !config} onClick={() => void autoPick()} title="Dùng hết lượt Chỉ định, mỗi lượt tự chọn số được nhiều vé nhất">Tự dùng {vqtg!.picks} lượt Chỉ định</button>}
         <button type="button" className={`vq-effects ${effects ? '' : 'off'}`} onClick={toggleEffects} aria-pressed={!effects}>{effects ? 'Tắt hiệu ứng' : 'Bật hiệu ứng'}</button>
       </div>
     </aside>
@@ -349,6 +380,7 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
         <button type="button" className="icon-button" aria-label="Đóng" onClick={() => setModal(null)}><X/></button>
         <h3>Chỉ định số xúc xắc</h3>
         <p>Còn {picks} lượt Chỉ định · lượt này <b>miễn phí</b>. Không chọn được số dừng ở ô Mini Jackpot (ô 10) và Giải Đặc Biệt (ô 14).</p>
+        <button type="button" className="vq-pick-auto" disabled={busy} onClick={() => void autoPick()}>Tự dùng hết {picks} lượt · chọn số nhiều vé nhất</button>
         <div className="vq-pick-grid">{[1, 2, 3, 4, 5, 6].map(n => {
           const ok = vqtgPickAllowed(tiles, vqtg.pos, n);
           return <button key={n} type="button" disabled={busy || !ok} onClick={() => void play(1, 'fc', n)}><b>{n}</b><small>→ ô {(vqtg.pos + n - 1) % 16 + 1}</small><small className="vq-pick-tk">+{rollTickets(n)} vé</small></button>;

@@ -10,12 +10,14 @@ import type { LineupBoardId, PublicLineupView } from './public-lineup';
 import { FORMATIONS, DEFAULT_FORMATION } from './squad';
 import { RANKED_AUTO_DELAY, RANKED_INTRO_FOUND, RANKED_INTRO_SEARCH, RANKED_START, RANKED_WAGE_CAP, autoLeft, rankedPlayed, nextTier, rankedTeam, saveRankedAuto, savedRankedAuto, tierById, tierOf } from './ranked';
 import type { RankedFinish, RankedMatch, RankedSlot, RankedState } from './ranked';
-import { MatchSim, ballAt, minuteAt, statsAt } from './ranked-sim';
+import { slotTraits, MatchSim, ballAt, minuteAt, statsAt } from './ranked-sim';
 import type { SimEvent, SimSlot, TraitEvent } from './ranked-sim';
 import { isNameEffect, nameEffectClass, isLuxuryEffect } from './name-effects';
 import type { NameEffect } from './name-effects';
 import { clubLogoUrl } from './club-logo';
-import { goldTraitIcon, goldTraitId, goldTraitName } from './gold-traits';
+import { cardGoldTraits, goldTraitIcon, goldTraitId, goldTraitName } from './gold-traits';
+// CSA vàng của cầu thủ đội mình cho bộ mô phỏng: gốc + CSA thêm (danh sách tính sẵn trong info).
+const mineTraits = (m: { pid: number; gold?: string[] } | null | undefined) => m ? { trait: goldTraitId(m.pid), traits: m.gold ?? (goldTraitId(m.pid) ? [goldTraitId(m.pid)!] : []) } : {};
 import RankedIntro, { sheetsOf } from './RankedIntro';
 import { CrowdAudio, saveRankedMute, savedRankedMute } from './penalty-audio';
 import { fitScale } from './device';
@@ -252,7 +254,8 @@ function StatRow({ label, a, b, pct }: { label: string; a: number; b: number; pc
 const roleLine = (role: string) => role === 'GK' ? 'gk' : /B$/.test(role) ? 'df' : /M/.test(role) ? 'mf' : 'fw';
 
 // info: mùa + cấp thẻ cầu thủ đội mình (theo mã thẻ) để danh sách đội hình hiện giống đội đối thủ.
-type MineInfo = Map<string, { tier: Tier; level: number; pid: number } | null>;
+// gold: mọi CSA vàng có hiệu lực của thẻ (gốc + CSA thêm +7 / +11).
+type MineInfo = Map<string, { tier: Tier; level: number; pid: number; gold?: string[] } | null>;
 function MatchView({ match, names: liveNames, info: liveInfo, onClose, onAgain, finish, abandon, auto, onAuto }: { match: RankedMatch; names: Map<string, string>; info: MineInfo; onClose: () => void; onAgain: () => void; finish: () => Promise<RankedFinish>; abandon: () => Promise<RankedFinish>; auto: boolean; onAuto: (on: boolean) => void }) {
   // Tên / thẻ đội mình chốt lúc mở trận (2026-11-16): bản lưu đổi trong trận (làm mới ví khi quay lại tab, hỏi quà mỗi 60 giây…) làm
   // names / info thành đối tượng mới → teams → MatchSim dựng lại, thời gian về 0 → trận chiếu lại từ đầu. Trong trận đội hình không đổi.
@@ -262,9 +265,9 @@ function MatchView({ match, names: liveNames, info: liveInfo, onClose, onAgain, 
     // Chỉ số ô (OVR, tấn công, sáng tạo, phòng ngự) đưa vào engine: tốc độ, chạm bóng, độ chính xác chuyền / sút.
     const stats = (s: RankedSlot) => ({ ovr: s.ovr, att: s.att, cre: s.cre, def: s.def });
     // CSA vàng (chỉ đổi cách diễn trận, tỉ số vẫn do máy chủ): đội mình theo thẻ trong kho, đối thủ theo mã cầu thủ máy chủ gửi.
-    const me: SimSlot[] = match.me.slots.map(s => ({ role: s.role, fx: s.x ?? 50, fy: s.y ?? 50, name: s.uid ? names.get(s.uid) : undefined, pace: paceOf(s), ...stats(s), trait: goldTraitId(s.uid ? info.get(s.uid)?.pid : null) }));
+    const me: SimSlot[] = match.me.slots.map(s => ({ role: s.role, fx: s.x ?? 50, fy: s.y ?? 50, name: s.uid ? names.get(s.uid) : undefined, pace: paceOf(s), ...stats(s), ...mineTraits(s.uid ? info.get(s.uid) : null) }));
     const base = FORMATIONS[match.opp.formation ?? ''] ?? FORMATIONS['4-3-3'] ?? FORMATIONS[DEFAULT_FORMATION];
-    const opp: SimSlot[] = match.opp.slots.map((s, i) => ({ role: s.role, fx: s.x ?? base[i]?.x ?? 50, fy: s.y ?? base[i]?.y ?? 50, pace: paceOf(s), ...stats(s), trait: goldTraitId(s.pid) }));
+    const opp: SimSlot[] = match.opp.slots.map((s, i) => ({ role: s.role, fx: s.x ?? base[i]?.x ?? 50, fy: s.y ?? base[i]?.y ?? 50, pace: paceOf(s), ...stats(s), trait: goldTraitId(s.pid), traits: [...(goldTraitId(s.pid) ? [goldTraitId(s.pid)!] : []), ...(s.gx ?? []).filter(id => id !== goldTraitId(s.pid))] }));
     return { me, opp };
   }, [match, names, info]);
   // Cầu thủ đối thủ (người thật) chỉ hiện ở danh sách đội hình + diễn biến, trên sân vẫn là chấm không tên.
@@ -413,11 +416,13 @@ function MatchView({ match, names: liveNames, info: liveInfo, onClose, onAgain, 
   // Số lần mỗi cầu thủ đã kích hoạt CSA vàng trong trận (theo đội + vị trí ô).
   const traitUses = useMemo(() => { const m = new Map<string, number>(); for (const e of traitLog) m.set(e.side + e.i, (m.get(e.side + e.i) ?? 0) + 1); return m; }, [traitLog]);
   // Ô CSA vàng ở danh sách đội hình: biểu tượng (rê chuột xem tên + mô tả), số nhỏ = số lần đã kích hoạt.
+  // Mọi CSA vàng của cầu thủ (gốc + CSA thêm): mỗi CSA một biểu tượng; số lần kích hoạt tính chung cho cầu thủ.
   const goldCell = (side: 'me' | 'opp', i: number) => {
-    const id = teams[side][i]?.trait, used = traitUses.get(side + i) ?? 0;
-    if (!id) return <span className="rkd-gold"/>;
-    const name = goldTraitName(id);
-    return <span className={`rkd-gold${used ? ' is-used' : ''}`} title={`Chỉ số ẩn vàng: ${name}${used ? ` · đã kích hoạt ${used} lần` : ''}`}><img src={goldTraitIcon(id)} alt={`Chỉ số ẩn vàng: ${name}`}/>{used > 0 && <i>{used}</i>}</span>;
+    const slot = teams[side][i], ids = slot ? slotTraits(slot) : [], used = traitUses.get(side + i) ?? 0;
+    if (!ids.length) return <span className="rkd-gold"/>;
+    const names = ids.map(goldTraitName).filter(Boolean).join(', ');
+    return <span className={`rkd-gold${used ? ' is-used' : ''}${ids.length > 1 ? ' is-multi' : ''}`} title={`Chỉ số ẩn vàng: ${names}${used ? ` · đã kích hoạt ${used} lần` : ''}`}>
+      {ids.map(id => <img key={id} src={goldTraitIcon(id)} alt={`Chỉ số ẩn vàng: ${goldTraitName(id)}`}/>)}{used > 0 && <i>{used}</i>}</span>;
   };
   // CSA vàng trong Diễn biến (2026-11-16: một dòng mỗi lần kích hoạt làm diễn biến toàn CSA): các lần kích hoạt liền nhau (giữa hai
   // sự kiện chính) gộp thành MỘT dòng — mỗi cầu thủ một ô (biểu tượng, tên, ×số lần); nút bật / tắt hiện CSA (nhớ theo máy).
@@ -545,7 +550,7 @@ export default function RankedPage({ save, online, load, play, finish, abandon, 
   const names = useMemo(() => new Map(team.slots.map(s => [s.uid, s.name])), [team]);
   // Sức công / thủ đội hình đang dùng (chỉ số cầu thủ, giống máy chủ tính khi đá).
   const rating = useMemo(() => { if (!team.ready) return null; const byUid = new Map(save.cards.map(c => [c.uid, c])); return teamRating(team.slots.map(s => { const c = byUid.get(s.uid); return { role: s.role, ovr: s.ovr, pid: c?.playerId ?? null, pos: c ? getPlayer(c).pos : null }; })); }, [save, team]);
-  const info = useMemo<MineInfo>(() => { const byUid = new Map(save.cards.map(c => [c.uid, c])); return new Map(team.slots.map(s => { const c = byUid.get(s.uid); return [s.uid, c ? { tier: getPlayer(c).tier, level: c.level, pid: c.playerId } : null]; })); }, [save, team]);
+  const info = useMemo<MineInfo>(() => { const byUid = new Map(save.cards.map(c => [c.uid, c])); return new Map(team.slots.map(s => { const c = byUid.get(s.uid); if (!c) return [s.uid, null]; const pl = getPlayer(c); return [s.uid, { tier: pl.tier, level: c.level, pid: c.playerId, gold: cardGoldTraits(c, pl.tier, pl.pos) }]; })); }, [save, team]);
   // Có trận đang diễn (tải lại tab / tắt máy giữa trận) thì mở lại để xem tiếp.
   // Vào trận: "Đang tìm đối thủ" (đồng hồ) → "Đã tìm thấy đối thủ" hiện ngay trên nút Tìm trận → sơ đồ hai đội (RankedIntro, có ảnh cầu thủ)
   // → mở MatchView. foundAt = lúc máy chủ trả trận (sau tối thiểu RANKED_INTRO_SEARCH giây tìm).

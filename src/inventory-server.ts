@@ -20,6 +20,8 @@ export const serverUpgrade = (targetId: string, materialIds: string[], protect: 
 export const serverSell = (items: SellItem[], voucher: number | null = null) => withVersion<{ sold: number; total: number; fees: number; proceeds: number; tax: number } & WithSave>('fco_inv_sell', { p_items: items, ...(voucher ? { p_voucher: voucher } : {}) });
 export const serverBuy = (playerId: number, level: number, count: number) => withVersion<{ cards: Card[]; price: number } & WithSave>('fco_inv_buy', { p_player: playerId, p_level: level, p_count: count });
 export const serverShop = (packId: string, count: number) => withVersion<{ wallet: Wallet } & WithSave>('fco_inv_shop', { p_pack: packId, p_count: count });
+// CSA vàng thêm của thẻ (migration 202611160006): đặt / đổi / bỏ (trait null) CSA ô "7" / "11".
+export const serverGold = (uid: string, slot: '7' | '11', trait: string | null) => rpcCall<{ card: Card } & WithSave>('fco_inv_gold', { p_uid: uid, p_slot: slot, p_trait: trait });
 export const serverRelease = (uids: string[]) => rpcCall<WithSave>('fco_inv_release', { p_uids: uids });
 export const serverClaimGifts = () => rpcCall<{ texts: string[]; fc: boolean; save: ServerRecord | null }>('fco_inv_claim_gifts');
 

@@ -8,7 +8,9 @@ import { NOT_CLUBS, playerClubs, playerPositions, positionGroup, slotOvr } from 
 import { PRICE_EPOCH, PRICE_PERIOD_MS, formatMarketPrice, marketNow, priceAt } from './market';
 import { playerStats } from './player-stats';
 import { flagImageUrl } from './flags';
-import { goldTraitOf } from './gold-traits';
+import { goldExtras, goldTraitIcon, goldTraitName, goldTraitOf } from './gold-traits';
+import type { GoldSlot } from './gold-traits';
+import GoldExtraPicker from './GoldExtraPicker';
 import { minifaceOptions, portraitOf } from './portraits';
 import './player-detail.css';
 
@@ -23,6 +25,8 @@ type Props = {
   onClose: () => void;
   // Miniface (ảnh mặt trên sân / dòng): lựa chọn hiện tại của cầu thủ này (null = mặc định) và hàm đổi. Không truyền = không cho đổi.
   miniface?: { value: string | null; onChoose: (value: string | null) => void };
+  // CSA vàng thêm (+7 / +11) của thẻ mình; không truyền = chỉ xem.
+  onGold?: (slot: GoldSlot, trait: string | null) => Promise<void> | void;
 };
 
 const DAY = 86_400_000, HISTORY_DAYS = 14;
@@ -60,7 +64,7 @@ function PriceChart({ points }: { points: { at: number; price: number }[] }) {
 }
 
 // Thông tin cầu thủ: phần đầu (mùa, tên, OVR theo vị trí, CLB, quốc tịch, lương), tab Giá / Sự nghiệp CLB, cột Chỉ số chung.
-export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, renderCard, onUpgrade, onClose, miniface }: Props) {
+export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, renderCard, onUpgrade, onClose, miniface, onGold }: Props) {
   const p = getPlayer(card), overall = ovr(card) + bonus;
   const [tab, setTab] = useState<'price' | 'career'>('price');
   const positions = playerPositions(p).slice(0, 3).map(pos => ({ pos, value: slotOvr(card, pos) + bonus }));
@@ -81,6 +85,9 @@ export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, re
             <p className="pd-pos">{positions.map(x => <span key={x.pos}><i className={`pos-${positionGroup(x.pos)}`}>{x.pos}</i><b>{x.value}</b></span>)}</p>
             <p className="pd-meta">{(cardClub ?? p.club) !== p.nation && <>{cardClub ?? p.club}<i/></>}{p.flag && <img src={flagImageUrl(p.flag)} alt=""/>}{p.nation}</p>
             {goldTrait && <p className="pd-gold" title={`${goldTrait.desc} (nguồn: FIFA Addict)`}><span>Chỉ số ẩn vàng</span><b><img src={goldTrait.icon} alt="" width={26} height={26}/>{goldTrait.name}</b></p>}
+        {/* CSA vàng thêm đang có hiệu lực (xem thẻ của người khác cũng thấy); thẻ mình thì có ô chọn bên dưới. */}
+        {!onGold && goldExtras(card, p.tier, p.pos).map(id => <p key={id} className="pd-gold is-extra"><span>CSA vàng thêm</span><b><img src={goldTraitIcon(id)} alt="" width={26} height={26}/>{goldTraitName(id)}</b></p>)}
+        {onGold && <GoldExtraPicker card={card} player={p} onChoose={onGold}/>}
             {miniface && faces.length > 0 && <div className="pd-faces" role="radiogroup" aria-label="Miniface">
           <span className="pd-faces-title">Miniface <small>áp cho {p.name} ở mọi mùa</small></span>
           <div className="pd-faces-list">

@@ -4,6 +4,8 @@ import type { User } from '@supabase/supabase-js';
 import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import App from './App';
 import { accountClient, accountError, saveRemote } from './account-client';
+import { renameProblem } from './RenameCoach';
+import { walletMessage } from './wallet-state';
 import { CloudSaveStore } from './cloud-save';
 import { STORAGE_KEY } from './game';
 import { asset } from './asset';
@@ -81,11 +83,19 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
 
   const register = () => run(async () => {
     if (!name.trim()) throw new Error('Hãy nhập tên huấn luyện viên.');
+    // Tên HLV: cùng luật với đổi tên (3–24 ký tự, ký tự cho phép, không trùng HLV khác — migration 202611160005); máy chủ chặn lại lần nữa.
+    const coach = name.trim().replace(/\s+/g, ' ');
+    const bad = renameProblem(coach, '');
+    if (bad) throw new Error(bad);
     const email = normalizeGmail(gmail);
     if (password !== confirmation) throw new Error('Mật khẩu nhập lại chưa khớp.');
     if (!agree) throw new Error('Hãy đọc và đồng ý với Điều khoản dịch vụ để tạo tài khoản.');
+    const check = await client().rpc('fco_name_available', { p_name: coach, p_email: email });
+    if (!check.error && typeof check.data === 'string' && check.data !== 'ok') throw new Error(walletMessage(new Error(check.data)));
     // Ghi phiên bản điều khoản người chơi đã đồng ý vào hồ sơ tài khoản (user metadata).
-    const { data, error } = await client().auth.signUp({ email, password, options: { data: { display_name: name.trim().slice(0, 40), terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() } } });
+    const { data, error } = await client().auth.signUp({ email, password, options: { data: { display_name: coach, terms_version: TERMS_VERSION, terms_accepted_at: new Date().toISOString() } } });
+    // Trigger chặn tên trùng / không hợp lệ: Supabase chỉ trả lỗi chung "Database error saving new user".
+    if (error && /database error saving new user/i.test(error.message)) throw new Error('Tên huấn luyện viên này đã có người dùng hoặc không hợp lệ. Hãy chọn tên khác.');
     if (error) throw error;
     if (data.session) return; // Máy chủ chưa bật xác nhận email: vào game luôn.
     // Gmail đã có tài khoản (Supabase không báo lỗi để chống dò email): identities rỗng.
@@ -152,7 +162,7 @@ function AccountForm({ maintenance, onHold }: { maintenance: MaintenanceState | 
     <form onSubmit={submit} aria-busy={busy}>
       <fieldset disabled={busy || !configured}>
         {mode === 'login' && <><label htmlFor="account-username">Gmail hoặc tên đăng nhập<input id="account-username" name="username" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} required minLength={3} maxLength={254} value={identifier} onChange={e => setIdentifier(e.target.value)}/></label>{passwordField('Mật khẩu', 'current-password')}</>}
-        {mode === 'register' && <><label htmlFor="account-name">Tên huấn luyện viên<input id="account-name" name="name" autoComplete="nickname" required maxLength={40} value={name} onChange={e => setName(e.target.value)}/></label>{gmailField}<small>Chỉ nhận địa chỉ @gmail.com. Mỗi Gmail một tài khoản.</small>{passwordField('Mật khẩu', 'new-password')}<small>Dùng ít nhất 8 ký tự.</small>{confirmField}<label className="account-agree"><input type="checkbox" name="agree" required checked={agree} onChange={e => setAgree(e.target.checked)}/><span>Tôi đã đọc và đồng ý với {termsLink}</span></label></>}
+        {mode === 'register' && <><label htmlFor="account-name">Tên huấn luyện viên<input id="account-name" name="name" autoComplete="nickname" required minLength={3} maxLength={24} value={name} onChange={e => setName(e.target.value)}/></label>{gmailField}<small>Chỉ nhận địa chỉ @gmail.com. Mỗi Gmail một tài khoản.</small>{passwordField('Mật khẩu', 'new-password')}<small>Dùng ít nhất 8 ký tự.</small>{confirmField}<label className="account-agree"><input type="checkbox" name="agree" required checked={agree} onChange={e => setAgree(e.target.checked)}/><span>Tôi đã đọc và đồng ý với {termsLink}</span></label></>}
         {mode === 'verify' && <>{gmailField}{codeField}</>}
         {mode === 'forgot' && gmailField}
         {mode === 'reset' && <>{codeField}{passwordField('Mật khẩu mới', 'new-password')}{confirmField}</>}

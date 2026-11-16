@@ -283,3 +283,5 @@ svg.rkd-board-club.is-me{color:#38c6ff}svg.rkd-board-club.is-opp{color:#ff7a7a}
 @keyframes rki-token{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.rki-token{animation:none;opacity:1}}
 .rki-token .lu-token-name{font-size:clamp(9px,2.3cqh,14px);max-width:calc(var(--face) * 2.4)}
+.rkd-gold.is-multi{gap:1px}.rkd-gold.is-multi>img{width:19px;height:19px}
+.rkd-match.is-compact .rkd-gold.is-multi>img{width:calc(17px * var(--z));height:calc(17px * var(--z))}

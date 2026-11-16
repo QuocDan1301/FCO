@@ -253,3 +253,16 @@ test('202611150005: quà Đua top Top 1–5 đúng gói người dùng đặt, g
     ['tsubasa all', 'gru chỉ định 30 (+11)'],
   ]);
 });
+
+test('Tự dùng Chỉ định: chọn số được phép cho nhiều vé nhất, tránh ô Mini Jackpot / Giải Đặc Biệt', async () => {
+  const { vqtgBestPick, vqtgPickAllowed, rollTickets } = await import('../src/vqtg.ts');
+  const tiles = Array.from({ length: 16 }, (_, i) => ({ idx: i + 1, kind: i + 1 === 10 ? 'bp' : i + 1 === 14 ? 'jackpot' : i + 1 === 6 ? 'pick' : 'reward' })) as never[];
+  assert.equal(vqtgBestPick(tiles, 1), 6, 'đi 6 → ô 7: được, 6 vé');
+  assert.equal(vqtgBestPick(tiles, 8), 5, '6 → ô 14 bị chặn, 5 → ô 13 (3 vé)');
+  assert.equal(vqtgBestPick(tiles, 4), 5, '6 → ô 10 bị chặn');
+  for (let from = 1; from <= 16; from++) {
+    const n = vqtgBestPick(tiles, from)!;
+    assert.ok(vqtgPickAllowed(tiles, from, n));
+    for (let m = 1; m <= 6; m++) if (vqtgPickAllowed(tiles, from, m)) assert.ok(rollTickets(m) <= rollTickets(n), `ô ${from}: số ${m} nhiều vé hơn ${n}`);
+  }
+});

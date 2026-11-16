@@ -87,6 +87,12 @@ export const vqtgPickAllowed = (tiles: VqtgTile[], from: number, roll: number) =
   const kind = tiles.find(t => t.idx === vqtgNext(from, roll))?.kind;
   return kind !== 'bp' && kind !== 'jackpot';
 };
+/** Tự dùng Chỉ định (người dùng 2026-11-16): số được phép cho nhiều vé nhất (6 → 6 vé, 5 → 3 vé…), bằng vé thì số lớn hơn; null = không số nào được. */
+export const vqtgBestPick = (tiles: VqtgTile[], from: number): number | null => {
+  let best: number | null = null;
+  for (let n = 1; n <= 6; n++) if (vqtgPickAllowed(tiles, from, n) && (best === null || rollTickets(n) >= rollTickets(best))) best = n;
+  return best;
+};
 /** Góc quay (độ, theo chiều kim đồng hồ, luôn tăng) để số `roll` (1..6) dừng dưới kim ở đỉnh; số 1 ở đỉnh khi góc 0,
  *  các số xếp theo chiều kim đồng hồ, mỗi số 60°. Quay thêm ít nhất `turns` vòng cho đẹp. */
 export function wheelAngle(current: number, roll: number, turns = 4) {

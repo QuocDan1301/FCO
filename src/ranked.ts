@@ -25,7 +25,8 @@ export function nextTier(points: number) {
 
 // pid / lv: cầu thủ + cấp thẻ của ô đối thủ người thật (migration 202611120012); đội máy / thẻ đã bán thì không có.
 // att / cre / def / pace / gk: chỉ số ô do máy chủ tính (migration 202611130001); trận cũ không có.
-export type RankedSlot = { uid?: string; role: string; ovr: number; x?: number; y?: number; pid?: number; lv?: number; pos?: string; att?: number; cre?: number; def?: number; pace?: number; gk?: number };
+// gx: CSA vàng thêm của thẻ đối thủ (+7 / +11, migration 202611160006).
+export type RankedSlot = { uid?: string; role: string; ovr: number; x?: number; y?: number; pid?: number; lv?: number; pos?: string; att?: number; cre?: number; def?: number; pace?: number; gk?: number; gx?: string[] };
 export type RankedGoal = { minute: number; side: 'me' | 'opp'; scorer: number; assist: number | null };
 export type RankedMe = { points: number; tier: RankedTierId; wins: number; draws: number; losses: number; rank: number | null };
 export type RankedMatch = {
