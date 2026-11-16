@@ -113,6 +113,8 @@ test('Đổi miniface lên ảnh thẻ bằng mặt nạ người: mọi thẻ c
   }
   const { cardSwapOf, minifaceOptions, personKey, setMinifaces } = await import('../src/portraits.ts');
   let total = 0, swapped = 0; const miss: number[] = [];
+  // Chọn đúng ảnh mặc định của thẻ (chân dung cùng mùa) thì không cần đổi người: giữ thẻ là đúng.
+  const own = (JSON.parse(readFileSync('src/portraits.json', 'utf8')) as { cards: Record<string, string> }).cards;
   try {
     for (const p of players) {
       if (!p.cardFace || p.tier === 'tsubasa') continue; // TSUBASA giữ nguyên ảnh thẻ
@@ -121,7 +123,7 @@ test('Đổi miniface lên ảnh thẻ bằng mặt nạ người: mọi thẻ c
       total++; setMinifaces({ [personKey(p)]: pick });
       const s = cardSwapOf(p);
       // Chọn đúng chân dung cùng mùa đang in trên thẻ thì giữ thẻ gốc (không cần đổi).
-      if (s || (s === null && !masks.cards[String(p.id)])) swapped++; else miss.push(p.id);
+      if (s || (s === null && (!masks.cards[String(p.id)] || own[String(p.id)] === pick))) swapped++; else miss.push(p.id);
       if (s?.mask) assert.ok(masks.cards[String(p.id)] && s.mask.endsWith(`/masks/${p.id}.webp`));
     }
   } finally { setMinifaces(undefined); }

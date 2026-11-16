@@ -1,0 +1,126 @@
+23HW	J. Schlupp	Ghana	106
+23HW	Javi Galán	Tây Ban Nha	108
+23HW	T. Augello	Ý	104
+23HW	T. Krauß	Đức	106
+23HW	T. Ream	Mỹ	106
+23HW	W. Faes	Bỉ	106
+24EP	Areso	Tây Ban Nha	108
+24EP	B. Henrichs	Đức	112
+24EP	C. Führich	Đức	114
+24EP	C. Morris	Anh	109
+24EP	D. O'Shea	Ireland	110
+24EP	Dani Rodríguez	Tây Ban Nha	107
+24EP	Diogo Dalot	Bồ Đào Nha	110
+24EP	Guridi	Tây Ban Nha	107
+24EP	Isi	Tây Ban Nha	108
+24EP	J. Chabot	Đức	108
+24EP	J. Larsen	Na Uy	111
+24EP	L. Höler	Đức	109
+24EP	L. Paredes	Argentina	110
+24EP	L. Samardžić	Serbia	109
+24EP	Luis Rioja	Tây Ban Nha	108
+24EP	M. Kudus	Ghana	114
+24EP	Mika Mármol	Tây Ban Nha	108
+24EP	Mosquera	Tây Ban Nha	108
+24EP	N. Jackson	Senegal	113
+24EP	P. Kadeřábek	Séc	111
+24EP	Palhinha	Bồ Đào Nha	114
+24EP	Pepelu	Tây Ban Nha	112
+24EP	T. Reijnders	Hà Lan	112
+24EP	V. Gendrey	Pháp	108
+24EP	Vinicius Souza	Brazil	109
+24EP	Vivian	Tây Ban Nha	108
+24EP	X. Schlager	Áo	111
+26UP	Victor Nelsson	Đan Mạch	120
+BOE21	A. Yarmolenko	Ukraine	103
+BOE21	Pablo Sarabia	Tây Ban Nha	101
+BOE21	S. Kjær	Đan Mạch	103
+BOE21	S. Zuber	Thụy Sĩ	102
+BTB	Thiago	Tây Ban Nha	104
+CAP	José Fonte	Bồ Đào Nha	102
+CC	A. Musa	Nigeria	104
+CC	D. Ospina	Colombia	107
+CC	D. Vida	Croatia	104
+CC	E. Haji Safi	Iran	101
+CC	K. Glik	Ba Lan	105
+CC	M. Gradel	Bờ Biển Ngà	105
+CC	S. Kjær	Đan Mạch	105
+CU	D. Origi	Bỉ	111
+CU	E. Camavinga	Pháp	112
+CU	L. Jović	Serbia	108
+CU	Sergio Gómez	Tây Ban Nha	109
+DC	J. Ward	Anh	107
+DC	M. Tekdemir	Thổ Nhĩ Kỳ	105
+DC	O. Hawsawi	Ả Rập Xê Út	100
+DC	S. Coleman	Ireland	108
+EBS	José Fonte	Bồ Đào Nha	101
+EBS	K. Sigþórsson	Iceland	101
+GRU	A. Florenzi	Ý	107
+GRU	J. Drommel	Hà Lan	105
+GRU	P. Kimpembe	Pháp	108
+GRU	P. Rosario	Hà Lan	110
+GRU	T. McNamara	Mỹ	106
+HG	A. Ayew	Ghana	104
+HG	A. Florenzi	Ý	106
+HG	J. Schmid	Pháp	104
+JUVENTUS	M. De Sciglio	Ý	108
+LE	R. Funes Mori	Argentina	113
+LIVE	A. Areola	Pháp	68
+LIVE	G. Vicario	Ý	73
+LIVE	I. Provedel	Ý	75
+LIVE	K. Grabara	Ba Lan	73
+LIVE	M. Safonov	Nga	77
+LIVE	Pepe Reina	Tây Ban Nha	67
+LIVE	V. Milinković-Savić	Serbia	74
+LIVE	Y. Sommer	Thụy Sĩ	75
+LOL	Aarón Martín	Tây Ban Nha	101
+LOL	Brahim	Tây Ban Nha	100
+LOL	R. Jiménez	Mexico	104
+MEDALIST	Ji Dong Won	Hàn Quốc	106
+MEDALIST	Park Chu Young	Hàn Quốc	107
+MEDALIST	R. Bauer	Đức	102
+PTG	R. Le Normand	Tây Ban Nha	118
+RTN	A. Maher	Hà Lan	106
+RTN	A. Rosi	Ý	104
+RTN	G. Angella	Ý	102
+RTN	J. Schmid	Pháp	103
+RTN	R. Janssen	Hà Lan	103
+RTN	T. Dingomé	Pháp	102
+SPL	E. Nketiah	Anh	101
+SPL	Y. Bissouma	Mali	102
+SPT	C. Stuani	Uruguay	117
+SPT	Javi Galán	Tây Ban Nha	117
+SPT	Juan Jesus	Brazil	118
+SPT	Omar Mascarell	Guinea Xích Đạo	118
+SPT	Palhinha	Bồ Đào Nha	117
+SPT	Y. Bissouma	Mali	115
+SPT	Ó. Trejo	Argentina	116
+UT	K. Hause	Anh	109
+UT	Lee Chung Yong	Hàn Quốc	110
+UT	M. De Sciglio	Ý	111
+UT	Park Chu Young	Hàn Quốc	106
+VIETNAM	Lê Công Vinh	Việt Nam	117
+VIETNAM	Lê Phước Tứ	Việt Nam	113
+VIETNAM	Lê Viktor	Việt Nam	113
+VIETNAM	Nguyễn Anh Đức	Việt Nam	115
+VIETNAM	Nguyễn Hồng Sơn	Việt Nam	116
+VIETNAM	Nguyễn Minh Phương	Việt Nam	116
+VIETNAM	Nguyễn Quốc Việt	Việt Nam	112
+VIETNAM	Nguyễn Thành Chung	Việt Nam	110
+VIETNAM	Nguyễn Tiến Linh	Việt Nam	115
+VIETNAM	Nguyễn Trọng Hoàng	Việt Nam	111
+VIETNAM	Nguyễn Văn Toản	Việt Nam	107
+VIETNAM	Nguyễn Văn Tùng	Việt Nam	110
+VIETNAM	Phan Tuấn Tài	Việt Nam	109
+VIETNAM	Phan Văn Tài Em	Việt Nam	114
+VIETNAM	Phan Văn Đức	Việt Nam	108
+VIETNAM	Phạm Thành Lương	Việt Nam	115
+VIETNAM	Phạm Xuân Mạnh	Việt Nam	113
+VIETNAM	Vũ Văn Thanh	Việt Nam	111
+VIETNAM	Đặng Văn Lâm	Việt Nam	109
+WB	E. Camavinga	Pháp	108
+WB	Marc Casadó	Tây Ban Nha	107
+WB	N. Jackson	Senegal	107
+WB	Savinho	Brazil	112
+WS	D. Alli	Anh	119
+WS	Leroy Sané	Đức	119

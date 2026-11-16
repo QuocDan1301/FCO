@@ -28,6 +28,9 @@ for s in avail:
 # Mã cầu thủ tra từ fifaaddict (uid giải mã → spid, cùng mùa + cùng OVR): scripts/portraits/fa-pids.json 'pairs' {thẻ: mã cầu thủ}.
 fa_path = os.path.join(repo, 'scripts', 'portraits', 'fa-pids.json')
 fa = json.load(open(fa_path, encoding='utf8'))['pairs'] if os.path.exists(fa_path) else {}
+# Thêm mã tra từ Garena Data Center (scripts/portraits/garena-pids.json, cùng luật) cho thẻ fifaaddict chưa có.
+ga_path = os.path.join(repo, 'scripts', 'portraits', 'garena-pids.json')
+if os.path.exists(ga_path): fa = {**json.load(open(ga_path, encoding='utf8'))['pairs'], **fa}
 out = {}; src = collections.Counter(); how = {}  # how: độ tin của nguồn gán (dùng gỡ xung đột mã cầu thủ)
 for cid, c in cards.items():
     if cid in own: out[cid] = own[cid]['spid']; src['cùng mùa'] += 1; how[cid] = 2.5 if own[cid]['score'] <= .4 else 1.5; continue
@@ -70,6 +73,12 @@ for cid in list(out):
     if cand: out[cid] = cand[0]; fixed += 1
     else: del out[cid]; dropped += 1
 src['sửa nhầm người'] = fixed; src['bỏ nhầm người'] = dropped
+# Thẻ còn trống (kể cả thẻ vừa bỏ vì nhầm người) mà cầu thủ đã có mã của chính mình ở mùa khác: dùng ảnh mùa khác đó (mùa mới nhất).
+for cid, c in cards.items():
+    if cid in out: continue
+    mine = [p for _, p in sorted(person_own.get(key(c), []), reverse=True)] or [p for p, w in weight.items() if any(same_person(key(c), k) and k == owner[p] for k in w)]
+    alt = sorted({s for p in mine for s in avail_by_pid.get(p, ())}, key=lambda s: -int(s[:3]))
+    if alt: out[cid] = alt[0]; src['mùa khác (sau sửa)'] += 1
 
 # Miniface để người chơi chọn (2026-11-16): mọi ảnh trong kho có cùng mã cầu thủ (6 số cuối spid) với ảnh đã gán cho người đó (tên + quốc tịch).
 allsp = [f[1:-4] for f in os.listdir(pa) if f.endswith('.png') and len(f) == 14 and f[1:-4].isdigit()]
