@@ -56,6 +56,50 @@
   "milan-shevchenko": {
    "person": "A. Shevchenko|Ukraine",
    "label": "AC Milan"
+  },
+  "real-carvajal": {
+   "person": "Carvajal|Tây Ban Nha",
+   "label": "Real Madrid"
+  },
+  "real-pepe": {
+   "person": "Pepe|Bồ Đào Nha",
+   "label": "Real Madrid"
+  },
+  "real-benzema": {
+   "person": "K. Benzema|Pháp",
+   "label": "Real Madrid"
+  },
+  "real-kroos": {
+   "person": "T. Kroos|Đức",
+   "label": "Real Madrid"
+  },
+  "real-cristiano-ronaldo": {
+   "person": "Cristiano Ronaldo|Bồ Đào Nha",
+   "label": "Real Madrid"
+  },
+  "real-bale": {
+   "person": "G. Bale|Wales",
+   "label": "Real Madrid"
+  },
+  "real-courtois": {
+   "person": "T. Courtois|Bỉ",
+   "label": "Real Madrid"
+  },
+  "real-ramos": {
+   "person": "Sergio Ramos|Tây Ban Nha",
+   "label": "Real Madrid"
+  },
+  "real-varane": {
+   "person": "R. Varane|Pháp",
+   "label": "Real Madrid"
+  },
+  "real-modric": {
+   "person": "L. Modrić|Croatia",
+   "label": "Real Madrid"
+  },
+  "real-casemiro": {
+   "person": "Casemiro|Brazil",
+   "label": "Real Madrid"
   }
  }
 }
