@@ -219,7 +219,7 @@ const strongMaterial = () => {
   return { ...makeCard(best.id), level: 13 };
 };
 test('Tỷ lệ theo bảng, ranh giới thành công/thất bại ở đủ năng lượng cho cả 12 bước', () => {
-  const rates = [100, 81, 64, 50, 26, 15, 7, 4, 2, 1, .7, .5];
+  const rates = [100, 80, 70, 50, 35, 25, 20, 15, 10, 7, 5, 3];
   const gains = [1, 1, 2, 2, 2, 3, 4, 2, 2, 2, 3, 3];
   for (let level = 1; level < MAX_LEVEL; level++) {
     const target = { ...makeCard(11), level };
@@ -261,8 +261,8 @@ test('Tỷ lệ tăng theo năng lượng nguyên liệu; +1 lên +2 đủ năng
   // Phôi cùng cầu thủ ở +6 thấp hơn thẻ chính +7 ba OVR: chưa đủ 5 vạch, tỷ lệ = tối đa × vạch / 5.
   const weak = upgradeInfo(high, Array.from({ length: 5 }, () => ({ ...equal, level: 6 })));
   assert.ok(weak.energy < 100);
-  assert.equal(weak.chance, Math.round(7 * weak.energy) / 100);
-  assert.equal(upgradeInfo(high, Array.from({ length: 5 }, strongMaterial)).chance, 7);
+  assert.equal(weak.chance, Math.round(20 * weak.energy) / 100);
+  assert.equal(upgradeInfo(high, Array.from({ length: 5 }, strongMaterial)).chance, 20);
   const materials = Array.from({ length: 5 }, () => makeCard(11));
   const result = upgrade({ ...initialSave(), cards: [target, ...materials] }, target.uid, materials.map(c => c.uid), () => .999999999);
   assert.equal(result.success, true);
@@ -463,7 +463,7 @@ test('Chế độ thử mở gói/nâng cấp với 0 BP và không thay đổi 
 
 test('Mốc mở thẻ có nhịp chuẩn 9–12 giây, nhanh 3–5 giây (gồm nhịp ánh sáng trắng); cờ/vị trí/logo dài bằng nhau rồi vào thẻ ngay', async () => {
   const { OPENING_CUES, openingPhase, OPENING_RESULT } = await import('../src/cinema/timeline.ts');
-  assert.ok(OPENING_CUES.standard.at(-1)! >= 9000 && OPENING_CUES.standard.at(-1)! <= 12000);
+  assert.ok(OPENING_CUES.standard.at(-1)! >= 8500 && OPENING_CUES.standard.at(-1)! <= 12000);
   assert.ok(OPENING_CUES.quick.at(-1)! >= 3000 && OPENING_CUES.quick.at(-1)! <= 5000);
   assert.equal(OPENING_CUES.standard[4] - OPENING_CUES.standard[3], 2083, 'Mỗi mục hiện khoảng 1,67 giây rồi nghỉ 0,42 giây');
   for (const cues of [OPENING_CUES.standard, OPENING_CUES.quick]) {

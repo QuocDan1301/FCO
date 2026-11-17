@@ -117,3 +117,19 @@
 .sd-voucher{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:15px;color:#55595f}
 .sd-voucher select{flex:1;min-width:0;height:36px;padding:0 8px;border:1px solid #2bd47d;background:#f3fff8;color:#0f5132;font:inherit;font-weight:600}
 .sd-bulk-sum .sd-voucher{margin-top:0}
+
+/* Mức giá bấm được (giá tối thiểu / tối đa, sổ lệnh): trông như chữ thường, rê chuột thì gạch chân. */
+.sd-pick{padding:0;border:0;background:none;color:inherit;font:inherit;cursor:pointer}.sd-pick:hover,.sd-pick:focus-visible{text-decoration:underline;text-underline-offset:3px}
+
+/* Chọn bán cho người chơi (treo 24 giờ) / bán cho hệ thống (nhận ngay theo giá tham chiếu). */
+.sd-target{display:flex;gap:0;margin-top:18px;background:#dededa;padding:3px;border-radius:22px}
+.sd-target button{flex:1;height:36px;padding:0 14px;border:0;border-radius:19px;background:none;color:#55595f;font:600 16px var(--display);cursor:pointer;white-space:nowrap}
+.sd-target button[aria-checked=true]{background:#1e9bff;color:#fff;box-shadow:0 2px 6px #1e9bff55}
+.sd-field small{font-size:14px;color:#7b7f86}
+.sd-field input:read-only{background:#e6e6e0;color:#3a3d42}
+.sd-bulk-sum .sd-target{grid-column:2;grid-row:1;margin-top:0;min-width:320px}
+.sd-bulk-sum .sd-target~select{grid-column:2;grid-row:2}
+.sd-form{overflow-y:auto;scrollbar-width:thin}
+.sd-form:has(.sd-target) .sd-stats{padding:10px 0}.sd-form:has(.sd-target) .sd-stats>div{padding:2px 0}
+.sd-target+.sd-field{margin-top:12px;gap:8px}
+.sd-form:has(.sd-target) .sd-row{margin-top:10px}.sd-form:has(.sd-target) .sd-actions{padding:14px 0 22px}

@@ -12,9 +12,9 @@ export type VqtgTile = { idx: number; kind: VqtgTileKind; label: string; rewards
 export const VQTG_RULES = { bpPerJackpotFc: 5_000_000, bpChance: 0.06 } as const;
 export const miniJackpotBp = (jackpotFc: number) => jackpotFc * VQTG_RULES.bpPerJackpotFc;
 export const VQTG_TILES = 16;
-/** Đua top: 7 ngày từ 0h 13/11/2026 tới 0h 20/11/2026 giờ Việt Nam (UTC+7). */
+/** Đua top: từ 0h 13/11/2026 tới hết ngày 20/11/2026 (0h 21/11) giờ Việt Nam (UTC+7); 2026-11-17 người dùng lùi thêm 1 ngày (migration 202611170001). */
 export const VQTG_RACE_START = Date.UTC(2026, 10, 12, 17);
-export const VQTG_RACE_END = VQTG_RACE_START + 7 * 24 * 3600 * 1000;
+export const VQTG_RACE_END = VQTG_RACE_START + 8 * 24 * 3600 * 1000;
 /** Thời gian còn lại của Đua top (ms, không âm) và nhãn ngày / giờ:phút:giây. */
 export function raceCountdown(now: number) {
   const left = Math.max(0, VQTG_RACE_END - now), s = Math.floor(left / 1000);

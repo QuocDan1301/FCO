@@ -97,6 +97,6 @@ test('GLXH (202611140016): máy chủ tự tính OVR từng ô từ bộ dữ li
   assert.equal(r.penalty.ST.GK, 40);
   assert.deepEqual(r.identity.season.map(t => t.minPlayers), [3, 6, 8, 11]);
   const row = catalogPlayers()[0];
-  assert.equal(row.length, 12);
+  assert.equal(row.length, 13, 'thêm nhóm giá (phần tử 13) cho hàng phôi hệ thống bán — migration 202611170004');
   assert.ok(Array.isArray(row[8]) && Array.isArray(row[9]));
 });

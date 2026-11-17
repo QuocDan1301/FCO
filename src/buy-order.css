@@ -1,0 +1,15 @@
+/* Cửa sổ Mua cầu thủ (BuyOrderDialog.tsx): dùng bố cục / kiểu chữ của cửa sổ Bán (sell.css, lớp sd-*), thêm phần riêng dưới đây. */
+.bo .sd-tabs button:disabled{color:#c2c4c0;cursor:not-allowed}
+.bo .lvp img{margin:0}
+.bo .sd-book h3{max-width:320px}
+.bo .sd-book-row.is-system{font-weight:700}
+.bo .sd-stats{padding:12px 0}.bo .sd-stats>div{padding:4px 0}
+.bo .sd-field{margin-top:16px;gap:8px}
+.bo .sd-row{margin-top:10px}
+.bo .sd-price-note{min-height:20px}
+.bo-total{display:flex;flex-direction:column;align-items:flex-end;margin-top:12px;padding-top:8px;border-top:1px solid #d9d9d2;font-size:17px;color:#55595f}
+.bo-total b{font-size:34px;font-weight:700;color:#d81b3c;font-variant-numeric:tabular-nums}
+.bo-note{margin:auto 0 0;padding-top:12px;font-size:15px;color:#4a4e55;text-align:right}
+.bo-note.is-error{color:#d81b3c}
+.bo .sd-form{overflow-y:auto;scrollbar-width:thin}
+.bo .sd-actions{margin-top:0;padding:10px 0 22px}

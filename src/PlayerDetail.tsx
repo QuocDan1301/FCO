@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { X, Zap } from 'lucide-react';
+import LevelPicker from './LevelPicker';
 import { getPlayer, money, ovr } from './game';
 import type { Card } from './game';
 import { seasonShort } from './badges';
@@ -64,7 +65,12 @@ function PriceChart({ points }: { points: { at: number; price: number }[] }) {
 }
 
 // Thông tin cầu thủ: phần đầu (mùa, tên, OVR theo vị trí, CLB, quốc tịch, lương), tab Giá / Sự nghiệp CLB, cột Chỉ số chung.
-export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, renderCard, onUpgrade, onClose, miniface, onGold }: Props) {
+export default function PlayerDetail({ card: owned, bonus = 0, maxLevel, levelBadge, renderCard, onUpgrade, onClose, miniface, onGold }: Props) {
+  // Đổi mức cộng để xem (OVR, chỉ số, giá, thẻ theo cấp đó); nâng cấp / CSA vàng thêm vẫn áp cho thẻ thật (cấp gốc).
+  const [level, setLevel] = useState(owned.level);
+  useEffect(() => setLevel(owned.level), [owned.uid, owned.level]);
+  const card = useMemo(() => level === owned.level ? owned : { ...owned, level }, [owned, level]);
+  const viewing = level !== owned.level;
   const p = getPlayer(card), overall = ovr(card) + bonus;
   const [tab, setTab] = useState<'price' | 'career'>('price');
   const positions = playerPositions(p).slice(0, 3).map(pos => ({ pos, value: slotOvr(card, pos) + bonus }));
@@ -81,13 +87,13 @@ export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, re
       <section className="pd-left">
         <div className="pd-id">
           <div className="pd-id-text">
-            <p className="pd-name"><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong><img className="squad-level-img" src={levelBadge(card.level)} alt={`+${card.level}`}/></p>
+            <p className="pd-name"><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong><LevelPicker value={level} levels={Array.from({ length: maxLevel }, (_, i) => i + 1)} levelBadge={levelBadge} onChange={setLevel}/></p>
             <p className="pd-pos">{positions.map(x => <span key={x.pos}><i className={`pos-${positionGroup(x.pos)}`}>{x.pos}</i><b>{x.value}</b></span>)}</p>
             <p className="pd-meta">{(cardClub ?? p.club) !== p.nation && <>{cardClub ?? p.club}<i/></>}{p.flag && <img src={flagImageUrl(p.flag)} alt=""/>}{p.nation}</p>
             {goldTrait && <p className="pd-gold" title={`${goldTrait.desc} (nguồn: FIFA Addict)`}><span>Chỉ số ẩn vàng</span><b><img src={goldTrait.icon} alt="" width={26} height={26}/>{goldTrait.name}</b></p>}
         {/* CSA vàng thêm đang có hiệu lực (xem thẻ của người khác cũng thấy); thẻ mình thì có ô chọn bên dưới. */}
-        {!onGold && goldExtras(card, p.tier, p.pos).map(id => <p key={id} className="pd-gold is-extra"><span>CSA vàng thêm</span><b><img src={goldTraitIcon(id)} alt="" width={26} height={26}/>{goldTraitName(id)}</b></p>)}
-        {onGold && <GoldExtraPicker card={card} player={p} onChoose={onGold}/>}
+        {(!onGold || viewing) && goldExtras(card, p.tier, p.pos).map(id => <p key={id} className="pd-gold is-extra"><span>CSA vàng thêm</span><b><img src={goldTraitIcon(id)} alt="" width={26} height={26}/>{goldTraitName(id)}</b></p>)}
+        {onGold && !viewing && <GoldExtraPicker card={card} player={p} onChoose={onGold}/>}
             {miniface && faces.length > 0 && <div className="pd-faces" role="radiogroup" aria-label="Miniface">
           <span className="pd-faces-title">Miniface <small>áp cho {p.name} ở mọi mùa</small></span>
           <div className="pd-faces-list">
@@ -98,7 +104,7 @@ export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, re
             })}
           </div>
         </div>}
-        <p className="pd-meta">Lương <b className="pd-wage">{p.wage ?? 0}</b><i/>Thẻ <b>+{card.level}</b>/+{maxLevel}{bonus > 0 && <><i/>Team color <b className="pd-plus">+{bonus}</b></>}</p>
+        <p className="pd-meta">Lương <b className="pd-wage">{p.wage ?? 0}</b><i/>Thẻ <b>+{card.level}</b>/+{maxLevel}{viewing && onUpgrade && <> · thẻ của bạn +{owned.level}</>}{bonus > 0 && <><i/>Team color <b className="pd-plus">+{bonus}</b></>}</p>
           </div>
           <div className="pd-card">{renderCard(card)}</div>
         </div>
@@ -114,7 +120,7 @@ export default function PlayerDetail({ card, bonus = 0, maxLevel, levelBadge, re
             : <p className="pd-empty">Chưa có dữ liệu CLB của cầu thủ này.</p>}
           <p className="pd-note">Các CLB từng thi đấu (tính vào team color CLB).</p>
         </div>}
-        {onUpgrade && <button className="primary-button pd-upgrade" disabled={card.level >= maxLevel} onClick={onUpgrade}><Zap size={18}/>Nâng cấp cầu thủ này</button>}
+        {onUpgrade && <button className="primary-button pd-upgrade" disabled={owned.level >= maxLevel} onClick={onUpgrade}><Zap size={18}/>Nâng cấp cầu thủ này</button>}
       </section>
       <section className="pd-right" aria-label="Chỉ số chung">
         <div className="pd-tabs"><span className="is-on">Chỉ số chung</span></div>

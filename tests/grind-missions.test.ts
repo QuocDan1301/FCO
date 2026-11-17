@@ -25,3 +25,26 @@ test('Đếm phần thưởng nhiệm vụ cày đang chờ nhận', () => {
   const s: GrindState = { day: '2026-11-15', week: '2026-11-09', missions: [m('a', 'day', 3, 3), m('b', 'day', 2, 3), m('c', 'week', 20, 20, true), m('d', 'week', 60, 60)] };
   assert.equal(claimableGrind(s), 2); assert.equal(claimableGrind(s, 'day'), 1); assert.equal(claimableGrind(s, 'week'), 1); assert.equal(claimableGrind(null), 0);
 });
+test('Quà nhiệm vụ mới (202611160007): ngày +11, tuần +12, gói có thật, giá trị trung bình trong ngưỡng an toàn', async () => {
+  const sql = readFileSync('supabase/migrations/202611160007_fco_grind_rewards_plus11.sql', 'utf8');
+  const rows = [...sql.matchAll(/\('(\w+)',\s+'\[\{"pack":"([\w-]+)","count":(\d+)\}\]'::jsonb\)/g)].map(m => ({ id: m[1], pack: m[2], count: +m[3] }));
+  assert.equal(rows.length, 8);
+  const { packs: all, customPack, packOdds, fixedLevel } = await import('../src/game.ts');
+  const { priceAt } = await import('../src/market.ts');
+  const DAY_MAX = 150e6, WEEK_MAX = 1.5e9; // trần giá trị trung bình mỗi gói (BP)
+  let day = 0, week = 0;
+  for (const r of rows) {
+    const pack = all.find(p => p.id === r.pack)!;
+    assert.ok(pack && pack.eventOnly, `${r.id}: gói ${r.pack} phải là gói quà (không bán ở Shop)`);
+    const want = r.id.startsWith('d_') ? 11 : 12;
+    assert.deepEqual(pack.levels, [want, want], `${r.id}: gói ${r.pack} phải cố định +${want}`);
+    assert.equal(r.count, 1);
+    const { pool } = packOdds(pack);
+    const ev = pool.reduce((s, { player, chance }) => s + chance * (priceAt({ playerId: player.id, level: fixedLevel(pack, player) ?? want }) ?? 0), 0);
+    assert.ok(ev <= (want === 11 ? DAY_MAX : WEEK_MAX), `${r.pack}: giá trị TB ${Math.round(ev / 1e6)} tr BP vượt trần`);
+    if (want === 11) day += ev; else week += ev;
+  }
+  // Tổng một tuần tối đa (7 ngày đủ 4 nhiệm vụ ngày + 4 nhiệm vụ tuần) không quá 2,6 tỉ BP giá thị trường (quà cũ ~1,6 tỉ).
+  assert.ok(day * 7 + week < 2.6e9, `tổng tuần ${Math.round((day * 7 + week) / 1e6)} tr BP`);
+  void customPack;
+});

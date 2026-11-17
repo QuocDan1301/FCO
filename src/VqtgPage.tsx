@@ -484,7 +484,7 @@ function VqtgRace({ top }: { top: VqtgTop }) {
       {cd.left ? <><small>{cd.started ? 'Kết thúc sau' : 'Bắt đầu 0h 13/11'}</small>{cd.started && <><b>{cd.days}</b><em>ngày</em><b>{cd.clock}</b></>}</>
         : <small>{top.ended ? 'Đua top đã kết thúc · quà đã gửi vào Quà từ Admin' : 'Đua top đã kết thúc · đang chốt bảng'}</small>}
     </div>
-    <p className="vq-race-sub">5 HLV có nhiều vé nhất lúc 0h 20/11 nhận quà theo hạng (máy chủ tự chốt và gửi quà; vé nhận sau giờ đó không tính). Bằng vé thì ai đạt số vé đó trước xếp trên.</p>
+    <p className="vq-race-sub">5 HLV có nhiều vé nhất lúc hết ngày 20/11 (0h 21/11) nhận quà theo hạng (máy chủ tự chốt và gửi quà; vé nhận sau giờ đó không tính). Bằng vé thì ai đạt số vé đó trước xếp trên.</p>
     <div className="vq-race-table" role="table">
       <div className="vq-race-row head" role="row"><span role="columnheader">Hạng</span><span role="columnheader">HLV</span><span role="columnheader">Số vé</span><span role="columnheader">Phần quà</span></div>
       {rows.map(({ rank, row, rewards, note }) => <div key={rank} role="row" className={`vq-race-row r${rank} ${row?.mine ? 'mine' : ''}`}>

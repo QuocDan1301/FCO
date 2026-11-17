@@ -1,0 +1,70 @@
+/* Khung chi tiết cầu thủ TTCN kiểu FC Online (src/MarketDetail.tsx, người dùng 2026-11-17). Độ đặc hiệu .market-workspace .market-preview.md
+   để thắng các luật panel cũ (market.css / market-fco.css / fixed-screen.css, kể cả luật màn rộng-thấp). */
+@media(min-width:1051px){.market-workspace .market-layout{grid-template-columns:minmax(0,1fr) clamp(400px,35vw,560px)}}
+.market-workspace .market-preview.md{display:flex;flex-direction:column;gap:8px;padding:12px 14px;text-align:left;grid-template-columns:none}
+.market-preview.md .md-top{display:grid;grid-template-columns:minmax(110px,36%) minmax(0,1fr);gap:12px;align-items:stretch;flex:none;height:clamp(150px,24vh,210px)}
+.market-preview.md .md-card{display:flex;flex-direction:column;min-height:0;gap:4px}
+.market-preview.md .md-card-art{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:0;border:0;background:none;container-type:size}
+.market-preview.md .md-card-art.is-link{cursor:pointer;transition:transform .15s}.market-preview.md .md-card-art.is-link:hover{transform:translateY(-2px)}
+.market-preview.md .md-card-art>.player-card{width:min(100cqw,calc(100cqh * .918));height:auto;max-width:none}
+.market-preview.md .md-price{display:flex;justify-content:space-between;align-items:baseline;gap:6px;font-size:11px;color:#a5afbc}
+.market-preview.md .md-price b{font-family:var(--display);font-size:15px;color:#f2f4f6}
+.market-preview.md .md-chart{position:relative;min-width:0;border-left:1px solid #ffffff30;border-bottom:1px solid #ffffff30}
+.market-preview.md .md-chart.is-empty{display:grid;place-items:center;color:#7d8794;font-size:12px}
+.market-preview.md .md-chart svg{position:absolute;inset:0 0 20px 0;width:100%;height:calc(100% - 20px)}
+.market-preview.md .md-grid{stroke:#ffffff1f;stroke-width:1;vector-effect:non-scaling-stroke}
+.market-preview.md .md-line{fill:none;stroke:#d9dde3;stroke-width:2;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.market-preview.md .md-dot{fill:#ff6a3d;stroke:#fff;stroke-width:1;vector-effect:non-scaling-stroke}
+.market-preview.md .md-hi,.market-preview.md .md-lo{position:absolute;left:8px;font-size:11px;color:#c9ced6;text-shadow:0 1px 2px #000}
+.market-preview.md .md-hi{top:2px}.market-preview.md .md-lo{bottom:24px}
+.market-preview.md .md-days{position:absolute;left:0;right:0;bottom:0;height:18px;display:flex;justify-content:space-between;padding:0 2px;font-size:10px;color:#8b95a3}
+.market-preview.md .md-table{flex:0 1 auto;min-height:0;display:grid;grid-template-rows:auto repeat(13,minmax(18px,30px));border-radius:4px;overflow:hidden}
+.market-preview.md .md-row{display:grid;grid-template-columns:62px 40px minmax(0,1.3fr) 30px minmax(0,1.3fr) 30px;align-items:center;gap:6px;padding:0 8px;min-height:0;width:100%;border:0;background:transparent;color:#e4e8ed;font:inherit;font-size:13px;text-align:center;cursor:pointer}
+.market-preview.md .md-row:nth-child(odd):not(.md-head){background:#ffffff08}
+.market-preview.md .md-row:hover:not(.md-head){background:#ffffff14}
+.market-preview.md .md-head{background:#2a2f37;color:#a5afbc;font-size:11px;padding-top:5px;padding-bottom:5px;cursor:default}
+.market-preview.md .md-row.is-on{background:#f4f1ea!important;color:#16191d}
+.market-preview.md .md-lv img{height:16px;width:auto;display:block;margin:auto}
+.market-preview.md .md-ovr{font-family:var(--display);font-size:15px;font-weight:700}
+.market-preview.md .md-buy{color:#ff6a3d;font-weight:700;text-align:right}
+.market-preview.md .md-row.is-on .md-buy{color:#e2461b}
+.market-preview.md .md-chg{font-size:11px;color:#8b95a3}.market-preview.md .md-chg.up{color:#3ccf7a}.market-preview.md .md-chg.down{color:#ff5a5a}
+.market-preview.md .md-sell{color:#5aa9ff;text-align:right}.market-preview.md .md-row.is-on .md-sell{color:#1f6fd1}
+.market-preview.md .md-have{color:#a5afbc}.market-preview.md .md-row.is-on .md-have{color:#16191d;font-weight:700}
+.market-preview.md .md-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;flex:none}
+.market-preview.md .md-actions button{height:40px;border:0;border-radius:999px;font-family:var(--display);font-size:15px;font-weight:700;cursor:pointer;transition:filter .15s,opacity .15s}
+.market-preview.md .md-btn-buy{background:linear-gradient(180deg,#ff5a3a,#e2361b);color:#fff;box-shadow:0 2px 10px #e2361b55}
+.market-preview.md .md-btn-sell{background:#4a4f57;color:#f2f4f6}
+.market-preview.md .md-actions button:hover:not(:disabled){filter:brightness(1.1)}
+.market-preview.md .md-actions button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.market-preview.md .md-note{flex:none;font-size:10px;color:#7d8794;text-align:center;margin:0}/* Sổ lệnh thật (chợ giữa người chơi): giá mua cao nhất cam đỏ, giá bán thấp nhất xanh dương, số lệnh cùng màu. */
+.market-preview.md .md-cnt{font-weight:700}.market-preview.md .md-cnt.is-bid{color:#ff6a3d}.market-preview.md .md-cnt.is-ask{color:#5aa9ff}
+.market-preview.md .md-row.is-on .md-cnt.is-bid{color:#e2461b}.market-preview.md .md-row.is-on .md-cnt.is-ask{color:#1f6fd1}
+.market-preview.md .md-head span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Tab "Lệnh của tôi" (src/MarketOrders.tsx). */
+/* Lịch sử chuyển nhượng (MarketOrders.tsx) kiểu FC Online: bảng tối, dòng cao có ảnh mặt, tick chọn, 4 nút dưới. */
+.mo-list{display:flex;flex-direction:column;flex:1;min-height:0;border-radius:5px;background:rgba(14,18,25,.62);overflow:hidden}
+.mo-rows{display:flex;flex-direction:column;flex:1;min-height:0;overflow:auto}
+.mo-row{display:grid;grid-template-columns:28px 54px 56px minmax(150px,1.6fr) 56px 64px 46px minmax(110px,1.3fr) 100px 76px minmax(120px,.9fr);gap:10px;align-items:center;min-height:58px;padding:0 14px;font-size:15px;color:#eef1f4;border-bottom:1px solid #ffffff0d}
+.mo-row:not(.mo-head):hover{background:#ffffff08}.mo-row.is-on{background:#3ccf7a14}
+.mo-row input[type=checkbox]{width:20px;height:20px;margin:0;accent-color:#2fe07d;cursor:pointer}
+.mo-head{min-height:36px;position:sticky;top:0;z-index:1;background:#1d2229;color:#9aa4b1;font-size:12px;border-bottom:0}
+.mo-head .is-center,.mo-ovr,.mo-count,.mo-level,.mo-row>.squad-wage{justify-self:center}.mo-head .is-right,.mo-price{justify-self:end}
+.mo-sort{justify-self:start;border:0;background:none;color:inherit;font:inherit;cursor:pointer;padding:0}
+.mo-row .squad-pos{font-family:var(--display);font-size:18px;font-weight:700}
+.mo-row .market-face{width:54px;height:54px;align-self:end}
+.mo-player{display:flex;align-items:center;gap:7px;min-width:0}.mo-player b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.mo-ovr,.mo-price,.mo-count{font-family:var(--display);font-size:19px;font-weight:700}
+.mo-level img{height:18px;width:auto;display:block}
+.mo-club{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.mo-status{display:flex;flex-direction:column;gap:1px;font-weight:600}.mo-status small{color:#8b95a3;font-size:11px;font-weight:400}
+.mo-row.is-open .mo-status{color:#eef1f4}.mo-row.is-filled .mo-status,.mo-row.is-system .mo-status{color:#3ccf7a}.mo-row.is-cancelled .mo-status,.mo-row.is-expired .mo-status{color:#8b95a3}
+.mo-foot{display:flex;align-items:center;gap:14px;padding:12px 14px;background:linear-gradient(transparent,#0b0f15cc)}
+.mo-foot-gap{flex:1}
+.mo-btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;height:40px;min-width:186px;padding:0 20px;border:0;border-radius:999px;background:#5d646e;color:#f2f4f6;font:600 15px var(--body,inherit);cursor:pointer}
+.mo-btn:hover:not(:disabled){background:#707883}.mo-btn:disabled{opacity:.45;cursor:default}
+.mo-btn.is-go{background:#18e47b;color:#062814}.mo-btn.is-go:hover:not(:disabled){background:#3ff096}
+.mo-bp{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#062814;color:#fff;font:700 11px/1 var(--display);font-style:normal}
+.mo-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;flex:1;padding:40px 16px;text-align:center;color:#a5afbc}.mo-empty small{max-width:520px;color:#7d8794}
+@media(max-width:1100px){.mo-row{grid-template-columns:24px 44px 46px minmax(120px,1.6fr) 44px 52px 40px minmax(80px,1fr) 86px 52px minmax(96px,.9fr);gap:8px;padding:0 10px;font-size:13px}.mo-row .market-face{width:44px;height:44px}.mo-ovr,.mo-price,.mo-count{font-size:16px}.mo-btn{min-width:0;padding:0 14px;font-size:13px}}
+@media(max-width:760px){.mo-row{grid-template-columns:22px 40px minmax(100px,1.6fr) 44px 36px 78px 36px minmax(84px,1fr);gap:6px}.mo-row>:nth-child(3),.mo-row>:nth-child(5),.mo-row>:nth-child(8){display:none}.mo-foot{flex-wrap:wrap;gap:8px}.mo-foot-gap{display:none}.mo-btn{flex:1 1 40%;height:36px}}

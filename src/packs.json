@@ -6008,6 +6008,194 @@
       "published": true,
       "eventOnly": true,
       "choose": true
+    },
+    {
+      "id": "gr-d1",
+      "name": "RTN, DC, CC All (+11)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "rtn",
+        "dc",
+        "cc"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 1380000,
+      "description": "Gói hỗn hợp RTN · DC · CC: mọi cầu thủ, thẻ +11. Quà nhiệm vụ ngày.",
+      "range": "120–135",
+      "back": "/assets/custom/gr-d1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "gr-d2",
+      "name": "LOL, FA, BOE21, EBS All (+11)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "lol",
+        "fa",
+        "boe21",
+        "ebs"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 1700000,
+      "description": "Gói hỗn hợp LOL · FA · BOE21 · EBS: mọi cầu thủ, thẻ +11. Quà nhiệm vụ ngày.",
+      "range": "120–128",
+      "back": "/assets/custom/gr-d2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "gr-d3",
+      "name": "SPL, CAP, CHELSEA, MEDALIST All (+11)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "spl",
+        "cap",
+        "chelsea",
+        "mdl"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 2810000,
+      "description": "Gói hỗn hợp SPL · CAP · CHELSEA · MEDALIST: mọi cầu thủ, thẻ +11. Quà nhiệm vụ ngày.",
+      "range": "121–136",
+      "back": "/assets/custom/gr-d3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "gr-d4",
+      "name": "HG, LN, BLD All (+11)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "hg",
+        "ln",
+        "bld"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 6500000,
+      "description": "Gói hỗn hợp HG · LN · BLD: mọi cầu thủ, thẻ +11. Quà nhiệm vụ ngày.",
+      "range": "123–139",
+      "back": "/assets/custom/gr-d4-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "gr-w1",
+      "name": "HG, LN, BLD, CAP All (+12)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "hg",
+        "ln",
+        "bld",
+        "cap"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 16600000,
+      "description": "Gói hỗn hợp HG · LN · BLD · CAP: mọi cầu thủ, thẻ +12. Quà nhiệm vụ tuần.",
+      "range": "126–142",
+      "back": "/assets/custom/gr-w1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "gr-w2",
+      "name": "BTB, BDO, 23HW All (+12)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "btb",
+        "bdo",
+        "hw23"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 27100000,
+      "description": "Gói hỗn hợp BTB · BDO · 23HW: mọi cầu thủ, thẻ +12. Quà nhiệm vụ tuần.",
+      "range": "126–142",
+      "back": "/assets/custom/gr-w2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "gr-w3",
+      "name": "WB, GRU, FC AMBASSADOR All (+12)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "wb",
+        "gru",
+        "amb"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 44000000,
+      "description": "Gói hỗn hợp WB · GRU · FC AMBASSADOR: mọi cầu thủ, thẻ +12. Quà nhiệm vụ tuần.",
+      "range": "129–143",
+      "back": "/assets/custom/gr-w3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "gr-w4",
+      "name": "EBS, SPL, CHELSEA, LOL All (+12)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "ebs",
+        "spl",
+        "chelsea",
+        "lol"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 5870000,
+      "description": "Gói hỗn hợp EBS · SPL · CHELSEA · LOL: mọi cầu thủ, thẻ +12. Quà nhiệm vụ tuần.",
+      "range": "123–132",
+      "back": "/assets/custom/gr-w4-back.webp",
+      "published": true,
+      "eventOnly": true
     }
   ]
 }

@@ -169,7 +169,13 @@ const MESSAGES: Record<string, string> = {
   FCO_PREMIUM_ONLY: 'Hiệu ứng này chỉ dành cho tài khoản Premium.',
   FCO_LUXURY_ONLY: 'Hiệu ứng này chỉ dành cho tài khoản Luxury.',
   FCO_BAD_EFFECT: 'Hiệu ứng không hợp lệ.',
-  FCO_BAD_PRICE: 'Giá bán phải nằm trong ±10% giá thị trường. Giá có thể vừa đổi kỳ, hãy mở lại cửa sổ bán.',
+  FCO_BAD_PRICE: 'Giá đặt phải nằm trong ±10% giá thị trường. Giá có thể vừa đổi kỳ, hãy mở lại cửa sổ.',
+  FCO_NO_SYSTEM_SALE: 'Hệ thống không bán thẻ mùa này: chỉ mua được từ người chơi khác (đặt mua trên TTCN).',
+  FCO_SYSTEM_PLUS1: 'Hệ thống chỉ bán thẻ +1. Thẻ từ +2 mua từ người chơi khác: đặt lệnh mua trên TTCN.',
+  FCO_SELL_VIA_MARKET: 'Máy chủ chưa cập nhật cách bán cho hệ thống. Hãy chọn Bán cho người chơi hoặc thử lại sau.',
+  FCO_TOO_MANY_ORDERS: 'Bạn đang có quá nhiều lệnh treo (tối đa 100 lệnh bán, 50 lệnh mua). Huỷ bớt hoặc chờ khớp.',
+  FCO_ORDER_CLOSED: 'Lệnh này đã khớp, hết hạn hoặc đã huỷ.',
+  FCO_NO_SELLER: 'Hiện không có ai bán thẻ này trong mức giá tối đa (hệ thống chỉ bán +1 và hàng phôi). Thử nâng giá tối đa, đổi điều kiện hoặc đặt mua ở TTCN.',
   'Authentication required': 'Phiên đăng nhập đã hết. Hãy đăng nhập lại.',
 };
 export function walletMessage(error: unknown) {
@@ -178,7 +184,9 @@ export function walletMessage(error: unknown) {
   if (code) return MESSAGES[code];
   if (/PGRST202|Could not find the function/i.test(text)) return 'Máy chủ chưa cài chức năng này (admin cần chạy migration Supabase mới nhất).';
   if (/fetch|network|timeout|abort/i.test(text)) return 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.';
-  return 'Máy chủ FC đang lỗi, hãy thử lại sau.';
+  // Kèm mã / câu lỗi gốc (rút gọn) để biết lỗi gì khi người chơi chụp màn hình gửi admin.
+  const raw = (text.match(/FCO_[A-Z0-9_]+/)?.[0] ?? text).replace(/\s+/g, ' ').trim().slice(0, 90);
+  return raw ? `Máy chủ FC đang lỗi (${raw}), hãy thử lại sau.` : 'Máy chủ FC đang lỗi, hãy thử lại sau.';
 }
 
 // Áp số FC, quà ngày và tiến trình sự kiện (điểm, lượt miễn phí, lượt trả phí, nhiệm vụ trong ngày) từ máy chủ vào bản lưu.

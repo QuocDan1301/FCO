@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { ChevronDown, ChevronUp, Menu, RefreshCw } from 'lucide-react';
 import { MAX_LEVEL, TIERS, getPlayer, money, ovr, players, seasons, upgradeInfo } from './game';
 import type { Card, Tier } from './game';
-import { marketQuote } from './market';
+import { marketQuote, SYSTEM_BUY_LEVEL } from './market';
 import { asset } from './asset';
 import { posGroup, seasonShort } from './badges';
 import './upgrade-market.css';
@@ -18,7 +18,7 @@ type Props = {
   free: boolean;
   balance: number;
   onBuy: (offer: Offer) => void;
-  onBulkBuy: (offer: Offer, count: number) => void;
+  onBulkBuy: (offer: Offer, count: number, maxPrice: number) => void;
   levelBadge: (level: number) => string;
 };
 
@@ -27,6 +27,8 @@ let catalog: Offer[] | null = null;
 function offers() {
   if (catalog) return catalog;
   const list: Offer[] = [];
+  // Mọi cấp +1 → +13 (người dùng 2026-11-17): Mua cầu thủ mở cửa sổ Đặt mua của chợ; Mua hàng loạt mua qua chợ nguồn rẻ nhất
+  // (hệ thống bán +1 / hàng phôi, người chơi bán các cấp khác) không vượt giá tối đa mỗi thẻ.
   for (const p of players) for (let level = 1; level <= MAX_LEVEL; level++) {
     const price = marketQuote({ playerId: p.id, level }).price;
     if (price) list.push({ playerId: p.id, level, tier: p.tier, ovr: ovr({ playerId: p.id, level }), price });
@@ -59,6 +61,8 @@ export default function UpgradeMarket({ mode, target, free, balance, onBuy, onBu
   const tiers = useMemo(() => TIERS.filter(tier => all.some(o => o.tier === tier)), [all]);
   // Mặc định tìm phôi quanh chỉ số thẻ chính (OVR thẻ chính → +2), mọi cấp, mọi mùa.
   const defaultOvr = (): [number, number] => { const from = Math.min(maxOvrAll, Math.max(minOvrAll, target ? ovr(target) : minOvrAll)); return [from, Math.min(maxOvrAll, from + 2)]; };
+  // Cả hai tab đều +1 → +13 (người dùng 2026-11-17): Mua hàng loạt đi qua chợ (fco_mkt_bulk_buy).
+  const bulkMax = MAX_LEVEL;
   const [levels, setLevels] = useState<[number, number]>([1, MAX_LEVEL]);
   const [ovrs, setOvrs] = useState<[number, number]>(defaultOvr);
   const [classes, setClasses] = useState<Tier[]>([]);
@@ -77,7 +81,7 @@ export default function UpgradeMarket({ mode, target, free, balance, onBuy, onBu
     document.addEventListener('pointerdown', close); document.addEventListener('keydown', close);
     return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', close); };
   }, [classesOpen]);
-  const matches = useMemo(() => all.filter(o => o.level >= levels[0] && o.level <= levels[1] && o.ovr >= ovrs[0] && o.ovr <= ovrs[1] && (!classes.length || classes.includes(o.tier))), [all, levels, ovrs, classes]);
+  const matches = useMemo(() => all.filter(o => o.level >= Math.min(levels[0], bulkMax) && o.level <= Math.min(levels[1], bulkMax) && o.ovr >= ovrs[0] && o.ovr <= ovrs[1] && (!classes.length || classes.includes(o.tier))), [all, levels, ovrs, classes, bulkMax]);
   const floor = matches[0]?.price ?? null;
   // Đổi điều kiện thì giá tối đa mỗi thẻ về lại giá sàn mới.
   useEffect(() => { setMaxPrice(floor ?? 0); }, [floor]);
@@ -86,7 +90,7 @@ export default function UpgradeMarket({ mode, target, free, balance, onBuy, onBu
   const setOvr = (i: 0 | 1, value: number) => setOvrs(([from, to]) => i ? [Math.min(from, value), value] : [value, Math.max(to, value)]);
   const toggleClass = (tier: Tier) => setClasses(list => list.includes(tier) ? list.filter(t => t !== tier) : [...list, tier]);
 
-  const levelDrop = (i: 0 | 1) => <Dropdown className="um-drop-level" label={i ? 'Cấp thẻ đến' : 'Cấp thẻ từ'} value={levels[i]} options={range(1, MAX_LEVEL)} render={level => <img src={levelBadge(level)} alt={`+${level}`}/>} onChange={value => setLevel(i, value)}/>;
+  const levelDrop = (i: 0 | 1) => <Dropdown className="um-drop-level" label={i ? 'Cấp thẻ đến' : 'Cấp thẻ từ'} value={Math.min(levels[i], bulkMax)} options={range(1, bulkMax)} render={level => <img src={levelBadge(level)} alt={`+${level}`}/>} onChange={value => setLevel(i, value)}/>;
   const ovrDrop = (i: 0 | 1) => <Dropdown className="um-drop-ovr" label={i ? 'Chỉ số đến' : 'Chỉ số từ'} value={ovrs[i]} options={range(minOvrAll, maxOvrAll)} render={value => <b>{value}</b>} onChange={value => setOvr(i, value)}/>;
   const classPicker = <div className="um-classes" ref={classBox}>
     <button className={`um-class-btn ${classes.length ? 'on' : ''}`} aria-haspopup="dialog" aria-expanded={classesOpen} onClick={() => setClassesOpen(o => !o)}><span>Lớp cầu thủ{classes.length ? ` (${classes.length})` : ''}</span><Menu size={18}/></button>
@@ -143,6 +147,6 @@ export default function UpgradeMarket({ mode, target, free, balance, onBuy, onBu
       <div className="um-bulk-row um-total"><span>Tổng số tiền tiêu hao dự tính</span><strong>{money(estimate)}</strong></div>
       <p className="um-note">{blocked || `Bạn sẽ mua ${count} cầu thủ với giá sàn từ tổng số tiền tiêu hao dự tính trên.${free ? ' Chế độ thử: không trừ BP.' : ''}`}</p>
     </div>
-    <div className="fco-actions">{researchBtn}<button className="fco-go" disabled={!!blocked} onClick={() => pick && onBulkBuy(pick, count)}>Mua hàng loạt</button></div>
+    <div className="fco-actions">{researchBtn}<button className="fco-go" disabled={!!blocked} onClick={() => pick && onBulkBuy(pick, count, maxPrice)}>Mua hàng loạt</button></div>
   </>;
 }

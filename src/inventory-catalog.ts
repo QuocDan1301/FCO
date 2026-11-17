@@ -1,7 +1,7 @@
 import { GAUGE_ABOVE_STEP, GAUGE_BELOW, MAX_INVENTORY_OPEN, MAX_LEVEL, PACK_LEVELS, PROTECT_MIN_LEVEL, RESTORE_MIN_LEVEL, UPGRADE_LEVELS, draftCandidates, draftSize, fixedLevel, isPackAvailable, ovr, packOdds, packs, players } from './game';
 import type { Pack } from './game';
 import priceData from './player-prices.json';
-import { MARKET_FEE_PERCENT, MAX_BULK_SELL, PRICE_EPOCH, PRICE_PERIOD_MS, PRICE_SWING_PERCENT, SELL_BAND_PERCENT, fixedPricePlayers } from './market';
+import { MARKET_FEE_PERCENT, MAX_BULK_SELL, PRICE_EPOCH, PRICE_PERIOD_MS, PRICE_SWING_PERCENT, SELL_BAND_PERCENT, fixedPricePlayers, marketQuote } from './market';
 import { FLAT_PRICE } from './group-price';
 import { insuranceRate } from './pricing';
 import { MEMBERSHIPS } from './membership';
@@ -32,7 +32,8 @@ export type CatalogRules = {
 // [id, tên, OVR theo cấp, giá theo cấp, giá cố định, tỷ lệ bảo hiểm, lương] — lương dùng cho mức lương GLXH (202611120006).
 // [id, tên, OVR +1…+13, giá, giá cố định, tỷ lệ bảo hiểm, lương, vị trí sở trường (GLXH tính chỉ số, migration 202611130001)]
 // … + [vị trí đá được (mọi mùa), CLB tính team color (cả CLB cũ), quốc tịch, mùa] cho GLXH tự tính team color (202611140016).
-export type CatalogPlayer = [number, string, number[], (number | null)[], boolean, number, number, string, string[], string[], string, string];
+// … + [nhóm giá 1 / 2 / 3] — nhóm 1 (hàng phôi, rẻ nhất) được hệ thống treo bán mọi cấp mỗi phút (migration 202611170006).
+export type CatalogPlayer = [number, string, number[], (number | null)[], boolean, number, number, string, string[], string[], string, string, number];
 // Gói: tỷ lệ từng cầu thủ và từng cấp đúng như packOdds; gói chỉ định giữ danh sách cầu thủ được chọn.
 export type CatalogPack = {
   id: string; name: string; label: string; price: number; shop: boolean; choose: boolean; available: boolean;
@@ -89,7 +90,7 @@ export function catalogPlayers(): CatalogPlayer[] {
     if (!ovrs.every(Number.isInteger)) throw new Error(`OVR của ${player.name} phải là số nguyên.`);
     const prices = levels.map(level => recordedPrices[String(player.id)]?.[level - 1] ?? null);
     return [player.id, player.name, ovrs, prices, fixedPricePlayers.has(player.id), insuranceRate(player.ovr), player.wage ?? 0, player.pos,
-      playerPositions(player), playerClubs(player), player.nation ?? '', seasons[player.tier] ?? ''];
+      playerPositions(player), playerClubs(player), player.nation ?? '', seasons[player.tier] ?? '', marketQuote({ playerId: player.id, level: 1 }).group ?? 0];
   });
 }
 

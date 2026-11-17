@@ -132,9 +132,9 @@ test('Đã bỏ cầu ngầm: 5.000 lượt toàn engine, tỷ lệ thật luôn
 });
 
 test('Công thức: +7 → +8 đủ các mức, +2 → +3 cộng 30 bị chặn ở 100% (cộng điểm %, không nhân 1,3)', () => {
-  assert.equal(baseRate(7), 7);
+  assert.equal(baseRate(7), 20);
   assert.deepEqual([[0, 0], [7.5, 0], [15, 0], [22.5, 0], [30, 0], [0, 30], [22.5, 30], [30, 30]].map(([p, h]) => finalRate(7, p, h)), [7, 14.5, 22, 29.5, 37, 37, 37, 37]);
-  assert.equal(baseRate(2), 81);
+  assert.equal(baseRate(2), 80);
   assert.equal(finalRate(81, 0, 30), 100);
   assert.notEqual(finalRate(15, 0, 30), 15 * 1.3);
   // Đã bỏ cầu công khai: dây khớp 4 số cũ ở +2 → +3 vẫn 81%, roll 0,999999 thất bại.
@@ -194,10 +194,10 @@ test('Bản lưu: reload khôi phục đúng; dữ liệu cũ / hỏng / bị s�
 });
 
 test('Tương thích: OVR, năng lượng nguyên liệu và tỷ lệ gốc không đổi; không nhân đôi thẻ', () => {
-  assert.deepEqual(UPGRADE_LEVELS.map(l => l.chance), [0, 100, 81, 64, 50, 26, 15, 7, 4, 2, 1, .7, .5]);
+  assert.deepEqual(UPGRADE_LEVELS.map(l => l.chance), [0, 100, 80, 70, 50, 35, 25, 20, 15, 10, 7, 5, 3]);
   const target = { ...makeCard(11), level: 6 }, materials = Array.from({ length: 5 }, () => ({ ...makeCard(11), level: 13 }));
   const state = { ...initialSave(), cards: [target, ...materials] };
-  assert.equal(upgradeInfo(target, materials).chance, 15);
+  assert.equal(upgradeInfo(target, materials).chance, 25);
   for (const roll of [0, .99]) {
     const r = upgrade(state, target.uid, materials.map(c => c.uid), script(roll, .5), true, { patternRng: always(.5) });
     assert.equal(r.state.cards.length, 1); assert.equal(new Set(r.state.cards.map(c => c.uid)).size, 1);

@@ -47,7 +47,8 @@ import './profile.css';
 import './name-effects.css';
 import { avatarEffectClass } from './name-effects';
 import type { NameEffect } from './name-effects';
-import { INVENTORY_BLOCKED, INVENTORY_LOADING, adminSyncCatalog, fetchInventoryState, inventoryMode, serverBuy, serverClaimGifts, serverOpen, serverOpenDraft, serverRelease, serverGold, serverSell, serverShop, serverUpgrade } from './inventory-server';
+import { INVENTORY_BLOCKED, INVENTORY_LOADING, adminSyncCatalog, fetchInventoryState, inventoryMode, serverBuy, serverClaimGifts, serverOpen, serverOpenDraft, serverRelease, serverGold, serverShop, serverUpgrade, serverMarketBulkBuy, serverMarketSell, serverSell, serverMarketBuy, serverMarketCancel, serverMarketClaim, serverMarketTake, fetchMarketBook, fetchMarketDepth, fetchMarketQuotes, fetchMyOrders } from './inventory-server';
+import BuyOrderDialog from './BuyOrderDialog';
 import type { InventoryState, ServerRecord } from './inventory-server';
 import { catalogVersion } from './inventory-catalog';
 import type { CloudSaveStore } from './cloud-save';
@@ -87,12 +88,13 @@ import BackgroundMusic from './BackgroundMusic';
 import type { MusicType } from './BackgroundMusic';
 import RollingMoney, { UpgradePriceChange } from './RollingMoney';
 import { Flag } from './flags';
-import { buyPlayer, sellPlayer, sellCards, isTradeLocked, TRADE_LOCKED, marketQuote, formatMarketPrice, compareMarketPrices, setMarketClock, saleTaxPercent } from './market';
+import { buyPlayer, sellPlayer, sellCards, isTradeLocked, TRADE_LOCKED, marketQuote, formatMarketPrice, compareMarketPrices, setMarketClock, saleTaxPercent, SYSTEM_BUY_LEVEL, SELL_ORDER_HOURS } from './market';
 import { MEMBERSHIP_DAYS, MEMBERSHIPS } from './membership';
 import type { MembershipId } from './membership';
 import { usePricePeriod } from './use-price-period';
 import type { MarketTrade, SellItem } from './market';
 import SellDialog from './SellDialog';
+import type { MarketPending } from './inventory-server';
 import { prefetchImages } from './preload';
 import { getTeamLogo } from './teamLogos';
 import { asset } from './asset';
@@ -462,6 +464,9 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const [trade, setTrade] = useState<MarketTrade | null>(null);
   const tradeRef = useRef(trade); tradeRef.current = trade;
   const [tradeError, setTradeError] = useState('');
+  // Đặt mua thẻ từ +2 (chợ giữa người chơi; hệ thống chỉ bán +1).
+  // direct: mở từ màn đập thẻ → thẻ mua được vào thẳng kho (migration 202611170015).
+  const [buyOrder, setBuyOrder] = useState<(Pick<Card, 'playerId' | 'level'> & { direct?: boolean }) | null>(null);
   const [animation, setAnimation] = useState<Animation | null>(null);
   // Không tải lại sang bản mới giữa lúc mở gói / đập thẻ / xem trận GLXH (update-check.ts).
   useEffect(() => { setUpdateHold('app', !!animation || upgradeMusicActive || rankedMatchActive); return () => setUpdateHold('app', false); }, [animation, upgradeMusicActive, rankedMatchActive]);
@@ -581,22 +586,41 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     busy.current = true;
     try {
       const sold = items.map(item => latest.current.cards.find(c => c.uid === item.uid)).filter((c): c is Card => !!c);
-      const result = await serverSell(items, voucher);
+      // Bán cho người chơi: treo bán (khớp ngay với lệnh mua sẵn có, còn lại treo SELL_ORDER_HOURS giờ, hết hạn thì thẻ về kho).
+      const result = await serverMarketSell(items, voucher);
       adoptRecord(result.save);
       const ids = new Set(items.map(item => item.uid));
       setMaterialIds(list => list.filter(id => !ids.has(id)));
       if (ids.has(targetId)) { setTargetId(''); setMaterialIds([]); }
-      const what = sold.length === 1 ? ` +${sold[0].level}` : ` cầu thủ`;
-      notify(`Đã bán ${what}. Nhận ${money(result.proceeds)} BP sau phí.`);
+      const what = sold.length === 1 ? `${getPlayer(sold[0]).name} +${sold[0].level}` : `${result.placed} cầu thủ`;
+      const waiting = result.placed - result.matched;
+      notify(`Đã treo bán ${what}.${result.matched ? ` Khớp ngay ${result.matched} thẻ với lệnh mua của người chơi.` : ''}${waiting ? ` ${waiting} thẻ treo ${SELL_ORDER_HOURS} giờ, hết hạn chưa ai mua thì thẻ về kho.` : ''}`);
       playSound('success', latest.current.sound);
       return true;
     } catch (error) { notify((error as Error).message); return false; }
     finally { busy.current = false; }
   };
-  const sellFromDialog = (items: SellItem[], voucher: TaxVoucher | null = null): boolean | Promise<boolean> => {
+  // Bán cho hệ thống (migration 202611170012): nhận ngay theo giá tham chiếu, trừ thuế, BP vào số dư luôn.
+  const sellToSystem = async (items: SellItem[], voucher: TaxVoucher | null) => {
+    busy.current = true;
+    try {
+      const sold = items.map(item => latest.current.cards.find(c => c.uid === item.uid)).filter((c): c is Card => !!c);
+      const result = await serverSell(items, voucher);
+      adoptRecord(result.save);
+      const ids = new Set(items.map(item => item.uid));
+      setMaterialIds(list => list.filter(id => !ids.has(id)));
+      if (ids.has(targetId)) { setTargetId(''); setMaterialIds([]); }
+      const what = sold.length === 1 ? `${getPlayer(sold[0]).name} +${sold[0].level}` : `${result.sold} cầu thủ`;
+      notify(`Đã bán ${what} cho hệ thống. Nhận ${money(result.proceeds)} BP sau phí.`);
+      playSound('success', latest.current.sound);
+      return true;
+    } catch (error) { notify((error as Error).message); return false; }
+    finally { busy.current = false; }
+  };
+  const sellFromDialog = (items: SellItem[], voucher: TaxVoucher | null = null, target: 'market' | 'system' = 'market'): boolean | Promise<boolean> => {
     if (busy.current) return false;
     const gate = inventoryGate(); if (gate) { notify(gate); return false; }
-    if (serverMode) return sellOnServer(items, voucher);
+    if (serverMode) return target === 'system' ? sellToSystem(items, voucher) : sellOnServer(items, voucher);
     busy.current = true;
     try {
       const result = sellCards(latest.current, items, UNLIMITED_COINS, voucher);
@@ -611,10 +635,13 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     } catch (error) { notify((error as Error).message); return false; }
     finally { busy.current = false; }
   };
-  const requestTrade = (pending: MarketTrade) => {
+  const requestTrade = (pending: MarketTrade, direct = false) => {
     if (busy.current) return;
     if (isTradeLocked(pending.card)) { notify(TRADE_LOCKED); return; }
     if (pending.kind === 'sell') { setSellOpen({ tab: 'single', uid: pending.card.uid }); return; }
+    // Mua trên chợ (cửa sổ Đặt mua): +1 có hệ thống bán không giới hạn trong sổ lệnh (migration 202611170003), từ +2 chỉ người chơi bán.
+    if (serverMode) { setBuyOrder({ playerId: pending.card.playerId, level: pending.card.level, direct }); return; }
+    if (pending.card.level > SYSTEM_BUY_LEVEL) { notify(inventoryGate() || 'Thẻ từ +2 chỉ mua được từ người chơi khác (cần kết nối máy chủ).'); return; }
     const quote = marketQuote(pending.card);
     if (!quote.available) { notify(quote.reason); return; }
     setTradeError(''); setTrade(pending);
@@ -628,11 +655,11 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
         if (!card || card.level !== pending.card.level) throw new Error('Thẻ đã thay đổi hoặc không còn trong kho. Hãy đóng và chọn lại cầu thủ.');
         const quote = marketQuote(card);
         if (!quote.available) throw new Error(quote.reason);
-        const result = await serverSell([{ uid: card.uid, price: quote.price }]);
+        const result = await serverMarketSell([{ uid: card.uid, price: quote.price }]);
         adoptRecord(result.save);
         setMaterialIds(ids => ids.filter(id => id !== card.uid));
         if (targetId === card.uid) { setTargetId(''); setMaterialIds([]); }
-        notify(`Đã bán ${getPlayer(card).name} +${card.level}. Nhận ${money(result.proceeds)} BP.`);
+        notify(result.matched ? `Đã bán ${getPlayer(card).name} +${card.level} cho người chơi khác.` : `Đã treo bán ${getPlayer(card).name} +${card.level} trong ${SELL_ORDER_HOURS} giờ. Hết hạn chưa ai mua thì thẻ về kho.`);
       } else {
         const result = await serverBuy(pending.card.playerId, pending.card.level, 1);
         adoptRecord(result.save);
@@ -662,21 +689,109 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     } catch (error) { setTradeError((error as Error).message); }
     finally { busy.current = false; }
   };
-  // Mua hàng loạt ở màn nâng cấp: mua đủ số lượng hoặc không mua thẻ nào (buyPlayer báo lỗi khi thiếu BP giữa chừng).
-  const bulkBuyOnServer = async (card: Pick<Card, 'playerId' | 'level'>, count: number) => {
-    const gate = inventoryGate(); if (gate) { notify(gate); return; }
+  // Đặt mua (chợ giữa người chơi): mua ngay nếu có lệnh bán giá ≤ giá đặt, không thì giữ BP và treo lệnh tới khi khớp (không hết hạn).
+  const placeBuyOrder = async (card: Pick<Card, 'playerId' | 'level'>, price: number, direct = false) => {
+    if (busy.current) return false;
+    const gate = inventoryGate(); if (gate) { notify(gate); return false; }
     busy.current = true;
     try {
-      const result = await serverBuy(card.playerId, card.level, count);
+      const result = await serverMarketBuy(card.playerId, card.level, price, direct);
       adoptRecord(result.save);
-      notify(`Đã mua ${count} × ${getPlayer(card).name} +${card.level}. Thẻ đã vào kho.`); playSound('success', latest.current.sound); setMatTab('owned');
-    } catch (e) { notify((e as Error).message); }
+      if ((result.system || result.matched) && !direct) setMarketPending(p => ({ ...p, cards: p.cards + 1 }));
+      const where = direct ? 'Thẻ đã vào kho.' : 'Thẻ chờ nhận ở TTCN › Lịch sử chuyển nhượng.';
+      notify(result.system ? `Đã mua ${getPlayer(card).name} +${card.level} của hệ thống giá ${money(result.price)} BP. ${where}` : result.matched ? `Đã mua ${getPlayer(card).name} +${card.level} từ người chơi khác giá ${money(result.price)} BP. ${where}` : `Đã đặt mua ${getPlayer(card).name} +${card.level} giá ${money(price)} BP (đang giữ BP). Lệnh treo tới khi khớp, huỷ ở Lịch sử chuyển nhượng thì trả lại BP.`);
+      playSound('success', latest.current.sound);
+      return true;
+    } catch (e) { notify((e as Error).message); return false; }
     finally { busy.current = false; }
   };
-  const bulkBuy = (card: Pick<Card, 'playerId' | 'level'>, count: number) => {
+  // Cửa sổ Mua › Mua thường với số lượng > 1: gửi lần lượt từng lệnh cùng giá, dừng ở lệnh lỗi, báo gộp một lần.
+  const placeBuyOrders = async (card: Pick<Card, 'playerId' | 'level'>, price: number, count: number, direct = false) => {
+    if (count <= 1) return placeBuyOrder(card, price, direct);
+    if (busy.current) return false;
+    const gate = inventoryGate(); if (gate) { notify(gate); return false; }
+    busy.current = true;
+    let bought = 0, spent = 0, ordered = 0, error = '';
+    try {
+      for (let i = 0; i < count; i++) {
+        try {
+          const result = await serverMarketBuy(card.playerId, card.level, price, direct);
+          adoptRecord(result.save);
+          if (result.system || result.matched) { bought++; spent += result.price; } else ordered++;
+        } catch (e) { error = (e as Error).message; break; }
+      }
+      if (bought && !direct) setMarketPending(p => ({ ...p, cards: p.cards + bought }));
+      const name = `${getPlayer(card).name} +${card.level}`;
+      const parts = [bought && `đã mua ${bought} × ${name} (${money(spent)} BP, ${direct ? 'thẻ đã vào kho' : 'thẻ chờ nhận ở TTCN › Lịch sử chuyển nhượng'})`, ordered && `đã đặt mua ${ordered} lệnh giá ${money(price)} BP (đang giữ BP, treo tới khi khớp; huỷ thì trả lại)`].filter(Boolean);
+      if (parts.length) { notify(`${parts.join('; ')}${error ? `. Dừng ở lệnh ${bought + ordered + 1}: ${error}` : '.'}`.replace(/^./, c => c.toUpperCase())); playSound('success', latest.current.sound); }
+      else if (error) notify(error);
+      return !error;
+    } finally { busy.current = false; }
+  };
+  const cancelMarketOrder = async (orderId: number) => {
+    if (busy.current) return false;
+    busy.current = true;
+    try { const result = await serverMarketCancel(orderId); adoptRecord(result.save); notify('Đã huỷ lệnh. Thẻ / BP đã trả về.'); return true; }
+    catch (e) { notify((e as Error).message); return false; }
+    finally { busy.current = false; }
+  };
+  // Phần chờ nhận ở chợ (thẻ mua được, BP bán được) và phần tự trả (lệnh hết hạn): hỏi định kỳ, không có gì thì máy chủ không ghi.
+  const [marketPending, setMarketPending] = useState<MarketPending>({ cards: 0, bp: 0, sells: 0 });
+  const claimingMarket = useRef(false);
+  const claimMarket = async () => {
+    if (!online || !serverMode || claimingMarket.current || busy.current || pendingSave.current) return;
+    claimingMarket.current = true;
+    try {
+      const claimed = await serverMarketClaim();
+      if (claimed.save && !busy.current) adoptRecord(claimed.save);
+      if (claimed.pending) setMarketPending(claimed.pending);
+      if (claimed.texts.length) { notify(`TTCN: ${claimed.texts.join(' · ')}`); playSound('success', latest.current.sound); }
+    } catch { /* Lượt sau thử lại. */ }
+    finally { claimingMarket.current = false; }
+  };
+  // Nút "Nhận tất cả" ở Lịch sử chuyển nhượng: 'buy' = thẻ mua được, 'sell' = BP bán được (migration 202611170011).
+  const takeMarket = async (kind: 'buy' | 'sell') => {
+    if (busy.current) return false;
+    const gate = inventoryGate(); if (gate) { notify(gate); return false; }
+    busy.current = true;
+    try {
+      const result = await serverMarketTake(kind);
+      if (result.save) adoptRecord(result.save);
+      if (result.pending) setMarketPending(result.pending);
+      if (result.texts.length) { notify(kind === 'buy' ? `Đã nhận ${result.texts.filter(t => t.startsWith('Nhận thẻ')).length} thẻ vào kho.` : `Đã nhận BP: ${result.texts.join(' · ')}`); playSound('success', latest.current.sound); }
+      else notify('Không còn gì để nhận.');
+      return true;
+    } catch (e) { notify((e as Error).message); return false; }
+    finally { busy.current = false; }
+  };
+  const claimMarketRef = useRef(claimMarket);
+  claimMarketRef.current = claimMarket;
+  useEffect(() => {
+    if (!online || !serverMode) return;
+    void claimMarketRef.current();
+    const poll = window.setInterval(() => { if (document.visibilityState === 'visible') void claimMarketRef.current(); }, 30_000);
+    return () => window.clearInterval(poll);
+  }, [online, serverMode]);
+  // Mua hàng loạt ở màn nâng cấp: mua đủ số lượng hoặc không mua thẻ nào (buyPlayer báo lỗi khi thiếu BP giữa chừng).
+  // Mua hàng loạt qua chợ: mỗi thẻ lấy nguồn rẻ nhất (người chơi treo bán / hệ thống bán +1 và hàng phôi) không vượt giá tối đa.
+  const bulkBuyOnServer = async (card: Pick<Card, 'playerId' | 'level'>, count: number, maxPrice: number, direct = false) => {
+    if (busy.current) return false;
+    const gate = inventoryGate(); if (gate) { notify(gate); return false; }
+    busy.current = true;
+    try {
+      const result = await serverMarketBulkBuy(card.playerId, card.level, count, maxPrice, direct);
+      adoptRecord(result.save);
+      notify(`Đã mua ${result.bought}${result.bought < count ? `/${count}` : ''} × ${getPlayer(card).name} +${card.level}, tổng ${money(result.spent)} BP. ${direct ? 'Thẻ đã vào kho.' : 'Thẻ chờ nhận ở TTCN › Lịch sử chuyển nhượng.'}${result.bought < count ? ' Không còn ai bán thêm trong mức giá tối đa.' : ''}`); playSound('success', latest.current.sound);
+      if (direct) setMatTab('owned'); else setMarketPending(p => ({ ...p, cards: p.cards + result.bought }));
+      return true;
+    } catch (e) { notify((e as Error).message); return false; }
+    finally { busy.current = false; }
+  };
+  const bulkBuy = (card: Pick<Card, 'playerId' | 'level'>, count: number, maxPrice: number) => {
     if (busy.current) return;
     if (isTradeLocked(card)) { notify(TRADE_LOCKED); return; }
-    if (serverMode || inventoryGate()) { void bulkBuyOnServer(card, count); return; }
+    if (serverMode || inventoryGate()) { void bulkBuyOnServer(card, count, maxPrice, true); return; }   // màn đập thẻ: vào thẳng kho
+    if (card.level > SYSTEM_BUY_LEVEL) { notify('Hệ thống chỉ bán thẻ +1. Thẻ từ +2 mua từ người chơi khác (cần kết nối máy chủ).'); return; }
     try {
       let next = latest.current;
       for (let i = 0; i < count; i++) next = buyPlayer(next, card.playerId, card.level, UNLIMITED_COINS).state;
@@ -1281,14 +1396,14 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
             </button>; })}/>{save.cards.length <= 1 ? <p className="fine-print">Kho chưa có thẻ nào để làm nguyên liệu.</p> : null}</div>
           </div>
           <div className="fco-actions"><button className="fco-ghost" onClick={() => setMaterialIds([])} disabled={!materials.length}><X size={15}/>Bỏ chọn</button><button className="fco-ghost" onClick={autoPick} disabled={!target || target.level >= MAX_LEVEL} title="Chọn tối đa 5 phôi đủ 5 vạch với tổng giá thấp nhất"><Sparkles size={15}/>Chọn tự động</button><button className="fco-go" onClick={() => { if (!target) return; setTargetOpen(false); setConfirm({ target, materials }); }} disabled={!target || !materials.length || target.level >= MAX_LEVEL}>{target?.level === MAX_LEVEL ? 'Đã đạt cấp tối đa' : 'Tiếp theo'}<ArrowRight size={18}/></button></div></>
-          : <UpgradeMarket mode={matTab} target={target} free={UNLIMITED_COINS} balance={save.balance} onBuy={offer => requestTrade({ kind: 'buy', card: { uid: `market-${offer.playerId}-${offer.level}`, playerId: offer.playerId, level: offer.level, received: 0 } })} onBulkBuy={bulkBuy} levelBadge={levelBadge}/>}
+          : <UpgradeMarket mode={matTab} target={target} free={UNLIMITED_COINS} balance={save.balance} onBuy={offer => requestTrade({ kind: 'buy', card: { uid: `market-${offer.playerId}-${offer.level}`, playerId: offer.playerId, level: offer.level, received: 0 } }, true)} onBulkBuy={bulkBuy} levelBadge={levelBadge}/>}
         </div>
       </section>}
       {view === 'collection' && <SquadManager save={save} onAdd={addSquad} onRemove={removeSquad} onDetail={setDetail} onDelete={deleteCard} onSell={card => requestTrade({ kind: 'sell', card })} onUpgrade={upgradeCard} onLock={lockCard} onLineup={() => switchView('lineup')} onBulkSell={() => setSellOpen({ tab: 'bulk' })} levelBadge={levelBadge} seasonShort={seasonShort}/>}
           {view === 'lineup' && <LineupBoard save={save} onUpdate={updateLineup} onDetail={setDetail} onManage={() => switchView('collection')} levelBadge={levelBadge} seasonShort={seasonShort} renderCard={card => <PlayerCard card={card} compact bonus={colorBonuses.get(card.uid)}/>}/>}
       {view === 'shop' && <PackShop save={save} packs={shopPacks} free={UNLIMITED_COINS} onBuy={(pack, count) => purchasePacks(pack, count)} onBuyMembership={purchaseMembership} onBuyStp={purchaseStp} stpBought={stpBought} online={online} onOpenNow={buyAndOpen} onPreview={(pack, count) => setPackPreview({ pack, count })} onInventory={() => switchView('inventory')} renderArt={pack => <PackArt pack={pack}/>}/>}
       {view === 'inventory' && <Inventory save={save} packs={packs} onUse={pack => prepareOpening(pack)} onShop={() => switchView('shop')} onUseSelected={selection => selection[0] && prepareOpening(selection[0], selection)} onClose={() => switchView('packs')} renderArt={pack => <PackArt pack={pack}/>} testMode={UNLIMITED_COINS} onReceiveTest={receiveTestPacks}/>}
-      {view === 'market' && <TransferMarket loadTopViewed={online ? fetchTopViewed : undefined} save={save} free={UNLIMITED_COINS} onTrade={requestTrade} onHistory={() => { setHistoryType('market'); switchView('history'); }} onOpenPacks={() => switchView('inventory')} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge} onDetail={card => save.cards.some(c => c.uid === card.uid) ? setDetail(card) : setPreviewCard(card)}/>}
+      {view === 'market' && <TransferMarket loadBook={serverMode ? fetchMarketBook : undefined} loadMine={serverMode ? fetchMyOrders : undefined} onCancelOrder={cancelMarketOrder} onRefreshClaims={() => claimMarketRef.current()} pending={serverMode ? marketPending : undefined} onTake={takeMarket} onRelist={() => setSellOpen({ tab: 'bulk' })} loadTopViewed={online ? fetchTopViewed : undefined} save={save} free={UNLIMITED_COINS} onTrade={requestTrade} onHistory={() => { setHistoryType('market'); switchView('history'); }} onOpenPacks={() => switchView('inventory')} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge} onDetail={card => save.cards.some(c => c.uid === card.uid) ? setDetail(card) : setPreviewCard(card)}/>}
       {view === 'plus8' && <Plus8Page loadRound={online ? fetchRankRound : undefined} load={online ? fetchPlus8Board : undefined} loadHistory={online ? fetchPlus8History : undefined} online={online} onUpgrade={() => switchView('upgrade')}/>}
       {view === 'ranks' && <RanksPage load={fetchLeaderboard} loadRanked={fetchRanked} loadRound={online ? fetchRankRound : undefined} online={online} levelBadge={levelBadge} viewLineup={viewLineup}/>}
       {view === 'ranked' && <RankedPage save={save} online={online} load={fetchRanked} play={playRanked} finish={finishRanked} abandon={abandonRanked} onLineup={() => switchView('lineup')} onMatchChange={setRankedMatchActive} viewLineup={viewLineup} levelBadge={levelBadge}/>}
@@ -1324,7 +1439,8 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       })()}
     <AnimatePresence>{toast && <motion.div className="toast" role="status" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}><Info size={18}/><span>{toast}</span><button className="icon-button" aria-label="Đóng thông báo" onClick={() => setToast('')}><X size={15}/></button></motion.div>}</AnimatePresence>
     <AnimatePresence>
-      {sellOpen && <SellDialog key={`${sellOpen.tab}-${sellOpen.uid ?? ''}`} save={save} initial={sellOpen} free={UNLIMITED_COINS} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge} seasonShort={seasonShort} onSell={sellFromDialog} onClose={() => setSellOpen(null)}/>}
+      {buyOrder && <BuyOrderDialog key={`${buyOrder.playerId}-${buyOrder.level}`} card={buyOrder} balance={save.balance} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge} seasonShort={seasonShort} loadDepth={fetchMarketDepth} onPlace={(c, price, count) => placeBuyOrders(c, price, count, !!buyOrder.direct)} onBuyNow={(c, count, max) => bulkBuyOnServer(c, count, max, !!buyOrder.direct)} onClose={() => setBuyOrder(null)}/>}
+      {sellOpen && <SellDialog key={`${sellOpen.tab}-${sellOpen.uid ?? ''}`} loadDepth={serverMode ? fetchMarketDepth : undefined} loadQuotes={serverMode ? fetchMarketQuotes : undefined} save={save} initial={sellOpen} free={UNLIMITED_COINS} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge} seasonShort={seasonShort} onSell={sellFromDialog} onClose={() => setSellOpen(null)}/>}
       {trade && <Modal className="market-confirm" label={trade.kind === 'buy' ? 'Xác nhận mua cầu thủ' : 'Xác nhận bán cầu thủ'} onClose={() => setTrade(null)}>
         <div className="modal-heading"><h2>{trade.kind === 'buy' ? 'Xác nhận mua cầu thủ' : 'Xác nhận bán cầu thủ'}</h2><button className="icon-button" aria-label="Đóng xác nhận giao dịch" onClick={() => setTrade(null)}><X/></button></div>
         <div className="trade-player"><div className="trade-player-card"><PlayerCard card={trade.card} compact/></div><div><h3>{getPlayer(trade.card).name}</h3><p>{getPlayer(trade.card).pos} · {seasons[getPlayer(trade.card).tier]} · +{trade.card.level} · OVR {ovr(trade.card)}</p></div></div>
@@ -1362,7 +1478,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
         </form>
       </Modal>}
       {terms && <Modal label="Điều khoản dịch vụ" onClose={() => setTerms(false)}><div className="modal-heading"><h2>Điều khoản dịch vụ</h2><button className="icon-button" aria-label="Đóng điều khoản" onClick={() => setTerms(false)}><X/></button></div><TermsContent/></Modal>}
-      {help && <Modal label="Hướng dẫn và thông tin" onClose={() => setHelp(false)}><div className="modal-heading"><h2>Chơi theo cách của bạn</h2><button className="icon-button" aria-label="Đóng hướng dẫn" onClick={() => setHelp(false)}><X/></button></div><div className="help-content"><h3>Mở gói cầu thủ</h3><p>Bắt đầu với 15.000.000 BP và 2 thẻ tặng sẵn; Kho vật phẩm trống. Mua gói trong Shop (hoặc nhận gói từ sự kiện), rồi vào Kho vật phẩm, nhấn Dùng trên gói muốn mở, nhấn Mở 1 vật phẩm hoặc mở tất cả số còn lại, tối đa 10 thẻ mỗi lượt. Mở bao nhiêu trừ bấy nhiêu gói. Mỗi gói (ALL) ra 1 thẻ +1: cầu thủ OVR càng cao so với mức thấp nhất của gói và giá +1 càng đắt thì càng hiếm (xem tỷ lệ khi bấm vào ảnh gói ở Shop). Gói có ghi khoảng cấp (ví dụ +1~+5) mới ra cấp cao hơn, mỗi cấp hiếm hơn cấp trước khoảng 5 lần (gói mốc khoảng 3,2 lần). Kết quả được tính theo tỷ lệ công bố và lưu trước khi hoạt cảnh bắt đầu. Bỏ qua không thay đổi kết quả.</p><h3>Nâng cấp thẻ</h3><p>Chọn thẻ chính và 1–5 nguyên liệu từ kho. Một vạch tương ứng 20% năng lượng, tổng tối đa 5 vạch (100%). Mỗi cấp có một mức OVR chuẩn so với thẻ chính: +1 thấp hơn 2, +2 thấp hơn 0,5, +3 bằng OVR, +4 cao hơn 0,3, +5 cao hơn 1, +6 cao hơn 1,8, +7 cao hơn 2,5, +8 cao hơn 3,3, +9 cao hơn 4,1, +10 cao hơn 5, +11 cao hơn 6, +12 cao hơn 7. Phôi đúng mức chuẩn nạp 1 vạch; mỗi OVR cao hơn chuẩn nhân 1,28 (tối đa 2,5 vạch mỗi phôi), mỗi OVR thấp hơn chuẩn nhân 0,72; thấp hơn thẻ chính từ 6 OVR trở lên chỉ còn 0,02 vạch. Năng lượng từng phôi làm tròn đến 0,1%.</p><p>Tỷ lệ thành công = tỷ lệ tối đa của cấp × số vạch / 5. Nâng cấp không tốn phí BP.</p><div className="upgrade-rate-table">{UPGRADE_LEVELS.slice(1).map((rule, i) => <span key={i}><b>+{i + 1} → +{i + 2}</b>OVR +{rule.ovrGain} · {String(rule.chance).replace('.', ',')}%</span>)}</div><p>Thành công: tăng 1 cấp cộng; OVR tăng thêm theo bảng trên và cộng dồn từ cấp +1. Thất bại: thẻ rớt về một cấp thấp hơn theo bảng xác suất của từng cấp (đập cấp càng cao càng dễ rớt sâu, không rớt quá +8), tối thiểu +1. Thẻ từ +5 có cơ hội khôi phục khi dùng phôi bản sao (cùng cầu thủ, cùng mùa), cộng dồn tối đa 100%; khôi phục thì thẻ không rớt dưới mức giữ. Bản sao bằng hoặc cao hơn cấp thẻ chính: 100%, thấp hơn 1 cấp: 85% (đều giữ nguyên cấp); bản sao +3 trở lên: 50%, +1/+2: 20% (giữ tối thiểu +5). Phôi khác cầu thủ hoặc khác mùa (kể cả cùng cầu thủ ở mùa khác) không có khôi phục. Mọi kết quả đều tiêu hao nguyên liệu và phí, trừ phí BP trong chế độ thử. Cấp tối đa +{MAX_LEVEL}.</p><h3>Thị trường chuyển nhượng</h3><p>Mua cầu thủ từ danh sách hoặc bán từng thẻ trong kho. Chọn đúng cấp thẻ trước khi xác nhận. Giá mô phỏng cố định theo OVR gốc và cấp thẻ; phí bán 40% (gói SVIP Class còn 28%, Premium còn 20%), số BP thực nhận hiển thị trước khi bán. Thẻ và lịch sử được lưu ngay trên trình duyệt. Khi bật BP vô hạn, mua/bán không thay đổi số dư. Đây là thị trường với hệ thống trong game, không kết nối người chơi khác.</p><h3>Quà mỗi ngày</h3><p>Bấm hộp quà trên thanh trên cùng để xem quà rồi bấm Nhận: {money(DAILY_FC)} FC mỗi ngày theo giờ Việt Nam (UTC+7), dùng để chơi sự kiện Nâng Cấp Siêu Sao. Ngày mới bắt đầu lúc 00:00. Không có mua BP bằng tiền thật.</p><h3>Dữ liệu và nguồn ảnh</h3><p>{players.length} cầu thủ mẫu, mùa giải và chỉ số do dự án đặt cho trải nghiệm giả lập. Tên CLB minh họa giai đoạn sự nghiệp, không đại diện đội hình hiện tại. Khung thẻ, huy hiệu, hình đại diện và sân vận động được thiết kế riêng.</p><p>Ảnh <a href="https://commons.wikimedia.org/wiki/File:Lionel_Messi_WC2022.jpg" target="_blank" rel="noreferrer">Lionel Messi WC2022</a> — Hossein Zohrevand / Tasnim News Agency, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>. Ảnh được cắt và áp dụng mặt nạ hiển thị; phần ảnh biến đổi theo giấy phép gốc. Cầu thủ chưa có ảnh dùng hình đại diện do dự án vẽ.</p><p>Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.</p></div></Modal>}
+      {help && <Modal label="Hướng dẫn và thông tin" onClose={() => setHelp(false)}><div className="modal-heading"><h2>Chơi theo cách của bạn</h2><button className="icon-button" aria-label="Đóng hướng dẫn" onClick={() => setHelp(false)}><X/></button></div><div className="help-content"><h3>Mở gói cầu thủ</h3><p>Bắt đầu với 15.000.000 BP và 2 thẻ tặng sẵn; Kho vật phẩm trống. Mua gói trong Shop (hoặc nhận gói từ sự kiện), rồi vào Kho vật phẩm, nhấn Dùng trên gói muốn mở, nhấn Mở 1 vật phẩm hoặc mở tất cả số còn lại, tối đa 10 thẻ mỗi lượt. Mở bao nhiêu trừ bấy nhiêu gói. Mỗi gói (ALL) ra 1 thẻ +1: cầu thủ OVR càng cao so với mức thấp nhất của gói và giá +1 càng đắt thì càng hiếm (xem tỷ lệ khi bấm vào ảnh gói ở Shop). Gói có ghi khoảng cấp (ví dụ +1~+5) mới ra cấp cao hơn, mỗi cấp hiếm hơn cấp trước khoảng 5 lần (gói mốc khoảng 3,2 lần). Kết quả được tính theo tỷ lệ công bố và lưu trước khi hoạt cảnh bắt đầu. Bỏ qua không thay đổi kết quả.</p><h3>Nâng cấp thẻ</h3><p>Chọn thẻ chính và 1–5 nguyên liệu từ kho. Một vạch tương ứng 20% năng lượng, tổng tối đa 5 vạch (100%). Mỗi cấp có một mức OVR chuẩn so với thẻ chính: +1 thấp hơn 2, +2 thấp hơn 0,5, +3 bằng OVR, +4 cao hơn 0,3, +5 cao hơn 1, +6 cao hơn 1,8, +7 cao hơn 2,5, +8 cao hơn 3,3, +9 cao hơn 4,1, +10 cao hơn 5, +11 cao hơn 6, +12 cao hơn 7. Phôi đúng mức chuẩn nạp 1 vạch; mỗi OVR cao hơn chuẩn nhân 1,28 (tối đa 2,5 vạch mỗi phôi), mỗi OVR thấp hơn chuẩn nhân 0,72; thấp hơn thẻ chính từ 6 OVR trở lên chỉ còn 0,02 vạch. Năng lượng từng phôi làm tròn đến 0,1%.</p><p>Tỷ lệ thành công = tỷ lệ tối đa của cấp × số vạch / 5. Nâng cấp không tốn phí BP.</p><div className="upgrade-rate-table">{UPGRADE_LEVELS.slice(1).map((rule, i) => <span key={i}><b>+{i + 1} → +{i + 2}</b>OVR +{rule.ovrGain} · {String(rule.chance).replace('.', ',')}%</span>)}</div><p>Thành công: tăng 1 cấp cộng; OVR tăng thêm theo bảng trên và cộng dồn từ cấp +1. Thất bại: thẻ rớt về một cấp thấp hơn theo bảng xác suất của từng cấp (đập cấp càng cao càng dễ rớt sâu, không rớt quá +8), tối thiểu +1. Thẻ từ +5 có cơ hội khôi phục khi dùng phôi bản sao (cùng cầu thủ, cùng mùa), cộng dồn tối đa 100%; khôi phục thì thẻ không rớt dưới mức giữ. Bản sao bằng hoặc cao hơn cấp thẻ chính: 100%, thấp hơn 1 cấp: 85% (đều giữ nguyên cấp); bản sao +3 trở lên: 50%, +1/+2: 20% (giữ tối thiểu +5). Phôi khác cầu thủ hoặc khác mùa (kể cả cùng cầu thủ ở mùa khác) không có khôi phục. Mọi kết quả đều tiêu hao nguyên liệu và phí, trừ phí BP trong chế độ thử. Cấp tối đa +{MAX_LEVEL}.</p><h3>Thị trường chuyển nhượng</h3><p>Hệ thống chỉ bán thẻ +1 theo giá tham chiếu. Thẻ từ +2 mua bán giữa người chơi: đặt mua hoặc treo bán với giá trong ±10% giá tham chiếu; lệnh mua giá ≥ lệnh bán thì tự khớp theo giá của lệnh đang chờ sẵn. Treo bán thì thẻ rời kho ngay; 3 phút chưa ai mua thì hệ thống nhận đúng giá treo. Đặt mua thì giữ BP ngay; 24 giờ chưa khớp thì trả lại BP. Huỷ lệnh đang treo ở tab Lịch sử chuyển nhượng. Thuế bán 40% (gói SVIP Class còn 28%, Premium còn 20%; tài khoản Premium / Luxury giảm riêng). Phần nhận từ lệnh khớp tự về kho sau ít giây.</p><h3>Quà mỗi ngày</h3><p>Bấm hộp quà trên thanh trên cùng để xem quà rồi bấm Nhận: {money(DAILY_FC)} FC mỗi ngày theo giờ Việt Nam (UTC+7), dùng để chơi sự kiện Nâng Cấp Siêu Sao. Ngày mới bắt đầu lúc 00:00. Không có mua BP bằng tiền thật.</p><h3>Dữ liệu và nguồn ảnh</h3><p>{players.length} cầu thủ mẫu, mùa giải và chỉ số do dự án đặt cho trải nghiệm giả lập. Tên CLB minh họa giai đoạn sự nghiệp, không đại diện đội hình hiện tại. Khung thẻ, huy hiệu, hình đại diện và sân vận động được thiết kế riêng.</p><p>Ảnh <a href="https://commons.wikimedia.org/wiki/File:Lionel_Messi_WC2022.jpg" target="_blank" rel="noreferrer">Lionel Messi WC2022</a> — Hossein Zohrevand / Tasnim News Agency, <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer">CC BY 4.0</a>. Ảnh được cắt và áp dụng mặt nạ hiển thị; phần ảnh biến đổi theo giấy phép gốc. Cầu thủ chưa có ảnh dùng hình đại diện do dự án vẽ.</p><p>Dự án giả lập do người hâm mộ thực hiện, không liên kết với EA Sports hoặc FC Online.</p></div></Modal>}
       {detail && <Modal className="pd-modal" label="Thông tin cầu thủ" onClose={() => setDetail(null)}><PlayerDetail card={detail} bonus={colorBonuses.get(detail.uid)} maxLevel={MAX_LEVEL} levelBadge={levelBadge} renderCard={card => <PlayerCard card={card} compact bonus={colorBonuses.get(card.uid)}/>} onUpgrade={() => { setDetail(null); upgradeCard(detail.uid); }} onGold={(slot, trait) => chooseGold(detail.uid, slot, trait)} onClose={() => setDetail(null)}
           miniface={{ value: save.minifaces?.[personKey(getPlayer(detail))] ?? null, onChoose: value => chooseMiniface(personKey(getPlayer(detail)), value) }}/></Modal>}
       {picker && <Modal className="picker-modal" label={picker === 'target' ? 'Chọn thẻ chính' : 'Chọn nguyên liệu'} onClose={() => setPicker(null)}><div className="modal-heading"><h2>{picker === 'target' ? 'Chọn thẻ chính' : `Chọn nguyên liệu (${materialIds.length}/5)`}</h2><button className="icon-button" aria-label="Đóng chọn cầu thủ" onClick={() => setPicker(null)}><X/></button></div><p className="modal-description">{picker === 'target' ? `Chọn thẻ dưới +${MAX_LEVEL} để bắt đầu nâng cấp.` : 'Thẻ đã chọn sẽ bị tiêu hao. Năng lượng tính theo OVR hiện tại, kể cả khi trùng cầu thủ.'}</p><CardSortSelect id="picker-sort" value={sort} onChange={setSort}/><ViewportPages className="picker-list" itemHeight={58} resetKey={`${picker}-${sort}`}>{sortedCards.filter(c => picker === 'target' ? c.level < MAX_LEVEL : c.uid !== targetId).map(c => <button className={`picker-row ${materialIds.includes(c.uid) && picker === 'material' ? 'selected' : ''}`} key={c.uid} disabled={picker === 'material' && ((materialIds.length >= 5 || info.energy >= 100) && !materialIds.includes(c.uid) || isLocked(save, c.uid))} onClick={() => { if (picker === 'target') { setTargetId(c.uid); setMaterialIds([]); setPicker(null); } else toggleMaterial(c.uid); }}><span className={`picker-ovr ${getPlayer(c).tier}`}>{ovr(c)}</span><span className="picker-name"><b>{getPlayer(c).name}</b><small>{getPlayer(c).pos} · {seasons[getPlayer(c).tier]} · +{c.level}</small></span>{picker === 'material' ? <span className="picker-check">{materialIds.includes(c.uid) && <Check size={16}/>}</span> : <ChevronRight size={17}/>}</button>)}{!save.cards.filter(c => picker === 'target' ? c.level < MAX_LEVEL : c.uid !== targetId).length && <p className="fine-print">Chưa có thẻ phù hợp. Hãy mở thêm gói cầu thủ.</p>}</ViewportPages>{picker === 'material' && <button className="primary-button modal-bottom-button" onClick={() => setPicker(null)}>Xác nhận {materialIds.length} nguyên liệu<Check size={18}/></button>}</Modal>}

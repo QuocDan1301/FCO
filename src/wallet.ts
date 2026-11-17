@@ -39,7 +39,8 @@ async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<
 export const rpcCall = <T>(fn: string, args: Record<string, unknown> = {}) => call<T>(fn, args);
 export const fetchServerNow = () => call<number>('fco_server_now');
 export const fetchWallet = (seedPoints: number) => call<Wallet>('fco_wallet', { p_seed_points: Math.max(0, Math.floor(seedPoints)) });
-export const claimDailyFc = () => call<Wallet>('fco_claim_daily');
+// Gửi mã thiết bị đang dùng: giới hạn chống clone chỉ xét máy này (migration 202611170016).
+export const claimDailyFc = () => call<Wallet>('fco_claim_daily', { p_device: deviceId() });
 // Bảng xếp hạng HLV (supabase/migrations/202611080001_fco_ranks.sql).
 export const fetchLeaderboard = () => call<Leaderboard>('fco_leaderboard');
 export const reportUpgradeRank = (ovr: number, playerId: number, level: number) => call<null>('fco_rank_upgrade', { p_ovr: ovr, p_player: playerId, p_level: level });

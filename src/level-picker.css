@@ -1,0 +1,15 @@
+/* Ô chọn mức cộng (LevelPicker.tsx): huy hiệu cấp đang chọn + danh sách huy hiệu thả xuống. */
+.lvp{position:relative;display:inline-flex;margin-left:auto}
+.lvp-current{display:inline-flex;align-items:center;gap:5px;padding:3px 6px;border:0;border-radius:4px;cursor:pointer;font:inherit}
+.lvp-current img{display:block;height:22px;width:auto}
+.lvp-list{position:absolute;top:calc(100% + 4px);right:0;z-index:30;display:flex;flex-direction:column;gap:2px;max-height:min(360px,60vh);overflow-y:auto;padding:4px;border-radius:6px;box-shadow:0 10px 28px #0008;scrollbar-width:thin}
+.lvp-list button{display:flex;align-items:center;justify-content:center;padding:5px 10px;border:0;border-radius:4px;background:none;cursor:pointer;font:600 14px var(--display,inherit)}
+.lvp-list img{display:block;height:22px;width:auto}
+.lvp.is-dark .lvp-current{background:#ffffff14;color:#c9d1db}.lvp.is-dark .lvp-current:hover{background:#ffffff24}
+.lvp.is-dark .lvp-list{background:#1b222c;border:1px solid #ffffff1c}
+.lvp.is-dark .lvp-list button{color:#c9d1db}.lvp.is-dark .lvp-list button:hover{background:#ffffff12}
+.lvp.is-dark .lvp-list button[aria-selected=true]{background:#3a8dde33;color:#fff}
+.lvp.is-light .lvp-current{background:#dededa;color:#4a4e55}.lvp.is-light .lvp-current:hover{background:#d2d2cc}
+.lvp.is-light .lvp-list{background:#f8f8f3;border:1px solid #d0d0c8}
+.lvp.is-light .lvp-list button{color:#33363b}.lvp.is-light .lvp-list button:hover{background:#e8e8e2}
+.lvp.is-light .lvp-list button[aria-selected=true]{background:#d7e8f8;color:#111}

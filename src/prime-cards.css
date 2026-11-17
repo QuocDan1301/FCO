@@ -1,10 +1,11 @@
+/* 2026-11-17: số OVR in sẵn đã xoá khỏi ảnh (scripts/erase-ovr-seasons.py, gốc ở D:/FCOvv-tmp/ovr-orig, ảnh đổi tên -v2): OVR luôn vẽ HTML, không nền che. */
 /* Ảnh INFINITE PRIME giữ nguyên từ người dùng. Lớp HTML chỉ đổi OVR và cấp cộng khi nâng cấp. */
 .rarity-dot.prime{background:#e0473f}
 .player-card.face-art.season-prime{aspect-ratio:666/725}
 /* Quầng sáng vàng và đỏ rõ hơn, bám theo viền ảnh và giữ rõ các chỉ số. */
 .player-card.face-art.season-prime>.face-art-img{filter:drop-shadow(0 0 5px #ffe0a88c) drop-shadow(0 0 16px #f3b45b66) drop-shadow(0 0 26px #e0473f40)}
-.season-prime[data-level="1"] .face-art-ovr,.season-prime[data-level="1"] .face-art-level{visibility:hidden}
-.season-prime .face-art-ovr{left:var(--prime-ovr-x);top:var(--prime-ovr-y);width:var(--prime-ovr-width);height:var(--prime-ovr-height);font-size:var(--prime-ovr-size);background:var(--prime-ovr-background);color:#a70c04;transform:none;display:flex;align-items:center;justify-content:center;letter-spacing:-.03em;line-height:1}
+.season-prime[data-level="1"] .face-art-level{visibility:hidden}
+.season-prime .face-art-ovr{left:var(--prime-ovr-x);top:var(--prime-ovr-y);width:var(--prime-ovr-width);height:var(--prime-ovr-height);font-size:var(--prime-ovr-size);background:none;text-shadow:0 1px 2px #fff8;color:#a70c04;transform:none;display:flex;align-items:center;justify-content:center;letter-spacing:-.03em;line-height:1}
 .season-prime .face-art-level{left:var(--prime-level-x);top:var(--prime-level-y);width:var(--prime-level-width);height:var(--prime-level-height);transform:none;object-fit:fill}
 .face-323{--prime-ovr-x:22.013%;--prime-ovr-y:19.957%;--prime-ovr-width:13.963%;--prime-ovr-height:7.864%;--prime-ovr-size:10.976cqw;--prime-ovr-background:#e4cbb6;--prime-level-x:20.709%;--prime-level-y:58.592%;--prime-level-width:16.941%;--prime-level-height:10.257%}
 .face-324{--prime-ovr-x:22.473%;--prime-ovr-y:22.436%;--prime-ovr-width:13.547%;--prime-ovr-height:7.603%;--prime-ovr-size:10.589cqw;--prime-ovr-background:#ecd7c5;--prime-level-x:20.779%;--prime-level-y:60.967%;--prime-level-width:16.934%;--prime-level-height:9.503%}

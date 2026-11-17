@@ -59,6 +59,8 @@ export function compareMarketPrices(a: Pick<Card, 'playerId' | 'level'>, b: Pick
 export type MarketTrade = { kind: 'buy' | 'sell'; card: Card };
 // Thuế bán chung cho mọi thẻ. Mua lúc −10% rồi bán ở +10% và tự đặt thêm +10% được 1,21 / 0,9 lần, thấp hơn nhiều so với mức thuế này nên không có lãi.
 export const MARKET_FEE_PERCENT = 40;
+// Bán cho hệ thống (nhận ngay, migration 202611170013): thuế gốc 50% trước khi giảm (hạng tài khoản / gói thành viên / phiếu giảm thuế).
+export const SYSTEM_SALE_FEE_PERCENT = 50;
 // Tài khoản Premium (admin đặt, có hạn 7 ngày; migration 202611110013): giảm 65% thuế bán, KHÔNG cộng dồn với giảm giá khác.
 export const PREMIUM_TAX_DISCOUNT = 65;
 // Tài khoản Luxury (admin đặt, có hạn 30 ngày; migration 202611120011): giảm 75% thuế bán, cũng KHÔNG cộng dồn.
@@ -69,16 +71,17 @@ export const luxuryActive = (state: Pick<Save, 'luxuryUntil'>, at = marketNow())
 // Phần giảm thuế của hạng tài khoản đang có hiệu lực (Luxury 75 / Premium 65), không có thì null.
 const tierDiscount = (state: TaxState, at: number) => luxuryActive(state, at) ? LUXURY_TAX_DISCOUNT : premiumActive(state, at) ? PREMIUM_TAX_DISCOUNT : null;
 // Thuế người chơi này phải trả: Luxury 10%, Premium 14% (bỏ qua gói thành viên); ngược lại trừ phần giảm của gói thành viên còn hạn (SVIP Class 28%, Premium 20%).
-export const saleTaxPercent = (state: TaxState, at = marketNow()) => {
+// base: thuế gốc (MARKET_FEE_PERCENT bán cho người chơi, SYSTEM_SALE_FEE_PERCENT bán cho hệ thống).
+export const saleTaxPercent = (state: TaxState, at = marketNow(), base = MARKET_FEE_PERCENT) => {
   const tier = tierDiscount(state, at);
-  return tier !== null ? MARKET_FEE_PERCENT * (100 - tier) / 100 : MARKET_FEE_PERCENT * (100 - (bestMembership(state.membership, at)?.discount ?? 0)) / 100;
+  return tier !== null ? base * (100 - tier) / 100 : base * (100 - (bestMembership(state.membership, at)?.discount ?? 0)) / 100;
 };
 // Thuế khi dùng phiếu giảm thuế. Premium / Luxury không cộng dồn: lấy mức thấp hơn giữa thuế của hạng và thuế chung trừ phiếu.
-export const taxFor = (state: TaxState, voucher: TaxVoucher | null | undefined, at = marketNow()) => !voucher
-  ? saleTaxPercent(state, at)
-  : tierDiscount(state, at) !== null ? Math.min(saleTaxPercent(state, at), Math.max(0, MARKET_FEE_PERCENT - voucher)) : taxWithVoucher(saleTaxPercent(state, at), voucher);
+export const taxFor = (state: TaxState, voucher: TaxVoucher | null | undefined, at = marketNow(), base = MARKET_FEE_PERCENT) => !voucher
+  ? saleTaxPercent(state, at, base)
+  : tierDiscount(state, at) !== null ? Math.min(saleTaxPercent(state, at, base), Math.max(0, base - voucher)) : taxWithVoucher(saleTaxPercent(state, at, base), voucher);
 // Phiếu có giảm thêm thuế không (Premium chỉ phiếu 30% mới thấp hơn 14%; Luxury 10% thì không phiếu nào thấp hơn).
-export const voucherHelps = (state: TaxState, voucher: TaxVoucher, at = marketNow()) => taxFor(state, voucher, at) < saleTaxPercent(state, at);
+export const voucherHelps = (state: TaxState, voucher: TaxVoucher, at = marketNow(), base = MARKET_FEE_PERCENT) => taxFor(state, voucher, at, base) < saleTaxPercent(state, at, base);
 const USELESS_VOUCHER = 'Phiếu này không giảm thêm thuế cho tài khoản Premium / Luxury (không cộng dồn).';
 export const saleFee = (price: number, taxPercent = MARKET_FEE_PERCENT) => Math.floor(price * taxPercent / 100);
 
@@ -109,14 +112,19 @@ export function marketQuote(card: Pick<Card, 'playerId' | 'level'>, taxPercent =
   return { ...metadata, available: true as const, price, fee, proceeds: price - fee, reason: null };
 }
 
-// Mùa khóa giao dịch (2026-11-13: EL, TSUBASA): không mua / bán trên TTCN; vẫn nhận từ gói / sự kiện, đá, đập thẻ bình thường.
-// Giá vẫn giữ (giá trị đội hình, BXH, tỷ lệ gói). Máy chủ chặn cùng mùa (fco_trade_locks, migration 202611130016).
-export const TRADE_LOCKED_TIERS: ReadonlySet<string> = new Set(['el', 'tsubasa']);
+// Mùa khóa giao dịch: không mua / bán trên TTCN; vẫn nhận từ gói / sự kiện, đá, đập thẻ bình thường. Máy chủ chặn cùng mùa (fco_trade_locks).
+// 2026-11-17: EL và TSUBASA đã mở giao dịch (migration 202611170010) — hiện không mùa nào bị khóa.
+export const TRADE_LOCKED_TIERS: ReadonlySet<string> = new Set<string>();
 export const TRADE_LOCKED = 'Thẻ mùa này bị khóa giao dịch: không mua / bán được trên TTCN.';
 export const isTradeLocked = (card: Pick<Card, 'playerId'>) => TRADE_LOCKED_TIERS.has(getPlayer(card).tier);
+// Mùa hệ thống không bán ở cấp nào (không +1, không hàng phôi): chỉ mua được từ người chơi khác. Máy chủ: fco_mkt_no_system (202611170010).
+export const NO_SYSTEM_SALE_TIERS: ReadonlySet<string> = new Set(['el', 'tsubasa']);
+export const NO_SYSTEM_SALE = 'Hệ thống không bán thẻ mùa này: chỉ mua được từ người chơi khác (đặt mua trên TTCN).';
+export const hasSystemSale = (card: Pick<Card, 'playerId'>) => !isTradeLocked(card) && !NO_SYSTEM_SALE_TIERS.has(getPlayer(card).tier);
 
 export function buyPlayer(state: Save, playerId: number, level: number, free = false) {
   if (isTradeLocked({ playerId })) throw new Error(TRADE_LOCKED);
+  if (!hasSystemSale({ playerId })) throw new Error(NO_SYSTEM_SALE);
   const quote = marketQuote({ playerId, level });
   if (!quote.available) throw new Error(quote.reason);
   if (!free && state.balance < quote.price) throw new Error('Không đủ BP để mua thẻ này. Hãy bán thẻ khác hoặc nhận quà điểm danh.');
@@ -143,6 +151,12 @@ export function sellPlayer(state: Save, cardId: string, free = false, voucher: T
 // Bán theo giá tự đặt (cửa sổ Bán): giá phải nằm trong ±SELL_BAND_PERCENT% quanh giá thị trường, bán ngay theo giá đã đặt, trừ phí của từng thẻ.
 // Bán hàng loạt tối đa MAX_BULK_SELL thẻ mỗi lần, mỗi thẻ một giá riêng.
 export const SELL_BAND_PERCENT = 10;
+// Chợ giữa người chơi (2026-11-17, migration 202611170002_fco_player_market.sql): hệ thống chỉ bán thẻ +1 (SYSTEM_BUY_LEVEL);
+// bán cho người chơi = treo lệnh SELL_ORDER_HOURS giờ; lệnh mua giữ BP, không hết hạn (migration 202611170014), huỷ thì trả BP.
+export const SYSTEM_BUY_LEVEL = 1;
+// Bán cho người chơi = treo lệnh SELL_ORDER_HOURS giờ, hết hạn chưa ai mua thì thẻ về kho; bán cho hệ thống = nhận ngay theo giá tham chiếu
+// (migration 202611170012 — fco_mkt_rules.sellTtlHours, fco_inv_sell).
+export const SELL_ORDER_HOURS = 24;
 export const MAX_BULK_SELL = 99;
 export function sellRange(card: Pick<Card, 'playerId' | 'level'>) {
   const quote = marketQuote(card);

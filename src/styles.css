@@ -525,8 +525,12 @@ img.card-level{background:none;border:0;padding:0;border-radius:0;height:20px;wi
 /* Mặt ngoài đường hầm: tường bê tông xám tối (ảnh vân lát gương liền mép); SVG vẽ trần / sàn / màn LED / neon phía trên. */
 .ready-tunnel{position:absolute;inset:0;z-index:0;background:#2a2d31 url(/assets/rt-concrete.webp) repeat;background-size:512px;transition:opacity .26s ease var(--tunnel-delay,1.64s)}
 /* Thẻ bắt đầu tan (25% cuối card-burst): ánh sáng hiện trong khung cửa phòng chờ, camera tiến đều ngay từ ngoài vào cổng (phóng về tâm cửa 50% 51%) tới khi trắng kín màn hình rồi mới sang hầm 3D. */
-.is-flipping .ready-tunnel{transform-origin:50% 51%;animation:gate-dive var(--dive-duration,2s) linear var(--dive-at,2.7s) both}
-@keyframes gate-dive{to{transform:scale(10)}}
+/* Lao vào không chờ, tốc độ vừa (người dùng 2026-11-17): --dive-duration tính từ GATE_CROSS (~1,5 s / 0,75 s), bắt đầu ngay ở --dive-at. */
+.is-flipping .ready-tunnel{transform-origin:50% 51%;animation:gate-dive var(--dive-duration,1.1s) cubic-bezier(.55,0,1,.45) var(--dive-at,2.7s) both}
+/* Camera xuyên qua cổng ngay khi khung cổng vừa che hết màn hình (người dùng 2026-11-17): trước đây phóng tới 10× đều đặn, cổng che kín màn
+   ở ~4,8× (42% quãng) rồi còn trôi ~1,1 s trong vùng sáng mới sang hầm 3D. Nay phóng tới 5,6× nhanh dần (lao vào cổng), cổng che kín
+   ở ~93% thời gian → sang hầm 3D (cùng mốc GATE_CROSS) gần như ngay khi màn vừa bị che hết. */
+@keyframes gate-dive{to{transform:scale(5.6)}}
 .rt-gate-light{position:absolute;left:39.5%;top:36.5%;width:21%;height:31.5%;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,#dce7f1 0 35%,#c9dfef99 62%,#aecfe700 100%);filter:blur(12px);opacity:0;animation:gate-light-in .3s ease-out var(--dive-at,2.7s) both}
 /* Độ sáng tối đa phải bằng GATE_FLASH_PEAK trong StadiumScene để chỗ nối sang hầm 3D không chớp. */
 @keyframes gate-light-in{to{opacity:.45}}

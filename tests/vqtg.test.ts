@@ -148,12 +148,12 @@ test('Người trúng Jackpot chỉ nhận FC; Mini Jackpot nổ cùng lúc cho 
   assert.match(special, /fco_bot_name\(\)/);
 });
 
-test('Đua top đếm ngược 7 ngày từ 0h 13/11/2026 tới 0h 20/11/2026 giờ Việt Nam', () => {
+test('Đua top đếm ngược từ 0h 13/11/2026 tới hết ngày 20/11/2026 (0h 21/11) giờ Việt Nam', () => {
   assert.equal(new Date(VQTG_RACE_START).toISOString(), '2026-11-12T17:00:00.000Z');
-  assert.equal(new Date(VQTG_RACE_END).toISOString(), '2026-11-19T17:00:00.000Z');
-  assert.deepEqual(raceCountdown(VQTG_RACE_START), { left: 7 * 86400000, started: true, days: 7, clock: '00:00:00' });
+  assert.equal(new Date(VQTG_RACE_END).toISOString(), '2026-11-20T17:00:00.000Z');
+  assert.deepEqual(raceCountdown(VQTG_RACE_START), { left: 8 * 86400000, started: true, days: 8, clock: '00:00:00' });
   const mid = raceCountdown(Date.UTC(2026, 10, 13, 15, 30, 5)); // 22:30:05 ngày 13/11 giờ VN
-  assert.deepEqual([mid.days, mid.clock], [6, '01:29:55']);
+  assert.deepEqual([mid.days, mid.clock], [7, '01:29:55']);
   assert.equal(raceCountdown(VQTG_RACE_END + 1).left, 0);
   assert.equal(raceCountdown(VQTG_RACE_START - 1).started, false);
 });
@@ -193,7 +193,7 @@ test('202611150001: Giải Đặc Biệt tỷ lệ cố định, mỗi HLV trún
 
 test('202611150002: máy chủ chốt Đua top đúng giờ game hiển thị, trao quà một lần, chốt trước khi cộng vé', () => {
   const sql = readFileSync('supabase/migrations/202611150002_fco_vqtg_race_settle.sql', 'utf8');
-  const end = /values \(1, '([^']+)'\) on conflict/.exec(sql)![1];
+  const end = /set ends_at = '([^']+)'/.exec(readFileSync('supabase/migrations/202611170001_fco_vqtg_race_extend.sql', 'utf8'))![1]; // giờ mới nhất (lùi sang hết 20/11)
   assert.equal(Date.parse(end.replace(' ', 'T').replace('+07', '+07:00')), VQTG_RACE_END);
   assert.match(sql, /if not found or r\.settled_at is not null or now\(\) < r\.ends_at then return/);
   const play = sql.slice(sql.indexOf('create or replace function public.fco_vqtg_play('));

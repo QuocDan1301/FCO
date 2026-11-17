@@ -6,19 +6,22 @@ export const OPENING_ENTRY = { standard: { wait: 2000, flip: 1900, glitch: 1200,
 // Hết logo là vào thẻ ngay, các mốc 6–8 chỉ còn là nhịp chuyển rất ngắn.
 export const OPENING_CUES = {
   // Mốc 1 (khung LED bắt đầu sáng) = lúc camera xuyên qua vùng sáng ở cửa hầm (GATE_CROSS).
-  standard: [2740, 2990, 3242, 5325, 7408, 9491, 9516, 9541, 9575],
-  quick: [1590, 1674, 1758, 2591, 3424, 4257, 4274, 4291, 4316],
+  standard: [2276, 2526, 2778, 4861, 6944, 9027, 9052, 9077, 9111],
+  quick: [1366, 1450, 1534, 2367, 3200, 4033, 4050, 4067, 4092],
 } as const;
 // Vùng sáng đứng yên ở cửa hầm (z ≈ 2,5, ngay trước cặp màn LED có ảnh nền ở z = -3), đã thấy từ lúc thẻ còn nhiễu.
 // Camera xuyên qua nó ngay sau khi hết nhiễu rồi khung LED mới sáng; mốc chọn sao cho camera tới z ≈ 2,5 đúng lúc này.
 // Camera 3D đứng yên suốt lúc thẻ nhiễu và thêm phần chờ để cảnh đi vào cổng phòng chờ chậm hơn (dài GATE_CROSS - glitch);
 // GATE_CROSS = CAMERA_HOLD + thời gian camera 3D đi tới cửa hầm, nên đổi phần thêm thì GATE_CROSS và OPENING_CUES cộng theo.
-export const CAMERA_HOLD = { standard: OPENING_ENTRY.standard.glitch + 400, quick: OPENING_ENTRY.quick.glitch + 200 } as const;
+// Người dùng 2026-11-17: camera lao vào cổng phòng chờ nhanh, không chờ — cú lao 2D chỉ còn 55% (≈1,08 s / 0,53 s) và sang hầm 3D ngay khi
+// cổng che kín màn → toàn bộ dòng 3D (CAMERA_HOLD, GATE_CROSS, OPENING_CUES) dời sớm 884 ms (thường) / 439 ms (nhanh); cự li camera giữ nguyên.
+// Người dùng 2026-11-17 (sau đó): lao vào hầm chậm lại — cú lao 2D ≈1,5 s / 0,75 s (+420 ms / +215 ms), cả dòng 3D dời muộn tương ứng.
+export const CAMERA_HOLD = { standard: OPENING_ENTRY.standard.glitch - 64, quick: OPENING_ENTRY.quick.glitch - 24 } as const;
 // Hết chờ, camera tăng tốc êm từ 0 trong CAMERA_RAMP theo đường cong chữ S (đến chậm hơn ramp/2 so với xuất phát đột ngột).
 // Tốc độ camera: các mốc sau CAMERA_HOLD (OPENING_CUES, GATE_CROSS, INFO_GAP, CAMERA_EXIT, STRIP_RISE) đã rút còn 1/1,2 để camera nhanh hơn 20% mà đường đi giữ nguyên.
 // CAMERA_RAMP cố ý dài hơn để vào hầm không giật (2026-11-09); đổi ramp thì chỉnh GATE_CROSS và hai mốc đầu để camera vẫn tới cửa hầm ở z ≈ 2,5.
 export const CAMERA_RAMP = { standard: 700, quick: 350 } as const;
-export const GATE_CROSS = { standard: 2740, quick: 1590 } as const;
+export const GATE_CROSS = { standard: 2276, quick: 1366 } as const;
 export const INFO_GAP = { standard: 417, quick: 167 } as const;
 export const OPENING_RESULT = 9;
 export function openingPhase(elapsed: number, quick: boolean) {

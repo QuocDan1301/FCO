@@ -64,24 +64,27 @@ test('Gói TSUBASA ra đủ 18 cầu thủ, mở và lưu được', () => {
   assert.ok(validateSave(JSON.parse(JSON.stringify(opened.state))));
 });
 
-test('Khóa giao dịch mùa EL và TSUBASA: không mua / bán ở TTCN, khoảng id máy chủ khớp đúng 2 mùa', async () => {
-  const { buyPlayer, sellCards, sellPlayer, isTradeLocked, sellRange } = await import('../src/market.ts');
-  const sql = readFileSync('supabase/migrations/202611130016_fco_trade_lock.sql', 'utf8');
+test('EL và TSUBASA mở giao dịch giữa người chơi nhưng hệ thống không bán (cả +1), khoảng id máy chủ khớp đúng 2 mùa', async () => {
+  const { buyPlayer, sellCards, isTradeLocked, hasSystemSale, sellRange } = await import('../src/market.ts');
+  const sql = readFileSync('supabase/migrations/202611170010_fco_market_unlock_el_tsubasa.sql', 'utf8');
+  assert.match(sql, /delete from public\.fco_trade_locks where label in \('EL', 'TSUBASA'\)/);
+  assert.match(sql, /fco_trade_locked\(p_player\) or public\.fco_mkt_no_system\(p_player\) then return null/);
+  assert.match(sql, /fco_mkt_no_system\(p_player\) then raise exception 'FCO_NO_SYSTEM_SALE'/);
   const ranges = [...sql.matchAll(/\('(\w+)', (\d+), (\d+)\)/g)].map(m => [m[1], +m[2], +m[3]] as const);
   assert.deepEqual(ranges.map(r => r[0]), ['EL', 'TSUBASA']);
   for (const p of players) {
     const inRange = ranges.some(([, a, b]) => p.id >= a && p.id <= b);
     assert.equal(inRange, p.tier === 'el' || p.tier === 'tsubasa', `${p.name} (${p.tier}, id ${p.id})`);
-    assert.equal(isTradeLocked({ playerId: p.id }), inRange, p.name);
+    assert.equal(isTradeLocked({ playerId: p.id }), false, p.name);
+    assert.equal(hasSystemSale({ playerId: p.id }), !inRange, p.name);
   }
   const rich = { ...initialSave(), balance: 9e15 };
   const el = players.find(p => p.tier === 'el')!, ts = roster[0], other = players.find(p => p.tier === 'gru')!;
-  assert.throws(() => buyPlayer(rich, el.id, 1), /khóa giao dịch/);
-  assert.throws(() => buyPlayer(rich, ts.id, 1), /khóa giao dịch/);
+  assert.throws(() => buyPlayer(rich, el.id, 1), /Hệ thống không bán/);
+  assert.throws(() => buyPlayer(rich, ts.id, 1), /Hệ thống không bán/);
   assert.ok(buyPlayer(rich, other.id, 1).card);
+  // Bán được (giữa người chơi / hệ thống nhận sau 3 phút trên máy chủ), giá vẫn còn.
   const withCard = { ...rich, cards: [{ uid: 'ts1', playerId: ts.id, level: 1, received: 1 }, ...rich.cards] };
-  assert.throws(() => sellPlayer(withCard, 'ts1'), /khóa giao dịch/);
-  assert.throws(() => sellCards(withCard, [{ uid: 'ts1', price: sellRange({ playerId: ts.id, level: 1 })!.price }]), /khóa giao dịch/);
-  // Giá vẫn còn (giá trị đội hình / BXH / tỷ lệ gói).
+  assert.ok(sellCards(withCard, [{ uid: 'ts1', price: sellRange({ playerId: ts.id, level: 1 })!.price }]));
   assert.ok(sellRange({ playerId: ts.id, level: 1 })!.price > 0);
 });

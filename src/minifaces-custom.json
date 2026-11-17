@@ -100,6 +100,126 @@
   "real-casemiro": {
    "person": "Casemiro|Brazil",
    "label": "Real Madrid"
+  },
+  "mu-bailly": {
+   "person": "E. Bailly|Bờ Biển Ngà",
+   "label": "Man Utd"
+  },
+  "mu-beckham": {
+   "person": "D. Beckham|Anh",
+   "label": "Man Utd"
+  },
+  "mu-cantona": {
+   "person": "E. Cantona|Pháp",
+   "label": "Man Utd"
+  },
+  "mu-cavani": {
+   "person": "E. Cavani|Uruguay",
+   "label": "Man Utd"
+  },
+  "mu-dalot": {
+   "person": "Diogo Dalot|Bồ Đào Nha",
+   "label": "Man Utd"
+  },
+  "mu-de-gea": {
+   "person": "De Gea|Tây Ban Nha",
+   "label": "Man Utd"
+  },
+  "mu-elanga": {
+   "person": "A. Elanga|Thụy Điển",
+   "label": "Man Utd"
+  },
+  "mu-ferdinand": {
+   "person": "R. Ferdinand|Anh",
+   "label": "Man Utd"
+  },
+  "mu-fred": {
+   "person": "Fred|Brazil",
+   "label": "Man Utd"
+  },
+  "mu-garnacho": {
+   "person": "A. Garnacho|Argentina",
+   "label": "Man Utd"
+  },
+  "mu-henderson": {
+   "person": "D. Henderson|Anh",
+   "label": "Man Utd"
+  },
+  "mu-james": {
+   "person": "D. James|Wales",
+   "label": "Man Utd"
+  },
+  "mu-lindelof": {
+   "person": "V. Lindelöf|Thụy Điển",
+   "label": "Man Utd"
+  },
+  "mu-lingard": {
+   "person": "J. Lingard|Anh",
+   "label": "Man Utd"
+  },
+  "mu-maguire": {
+   "person": "H. Maguire|Anh",
+   "label": "Man Utd"
+  },
+  "mu-matic": {
+   "person": "N. Matić|Serbia",
+   "label": "Man Utd"
+  },
+  "mu-mctominay": {
+   "person": "S. McTominay|Scotland",
+   "label": "Man Utd"
+  },
+  "mu-nani": {
+   "person": "Nani|Bồ Đào Nha",
+   "label": "Man Utd"
+  },
+  "mu-pogba": {
+   "person": "P. Pogba|Pháp",
+   "label": "Man Utd"
+  },
+  "mu-pogba-2": {
+   "person": "P. Pogba|Pháp",
+   "label": "Man Utd"
+  },
+  "mu-rashford": {
+   "person": "M. Rashford|Anh",
+   "label": "Man Utd"
+  },
+  "mu-cristiano-ronaldo": {
+   "person": "Cristiano Ronaldo|Bồ Đào Nha",
+   "label": "Man Utd"
+  },
+  "mu-sancho": {
+   "person": "J. Sancho|Anh",
+   "label": "Man Utd"
+  },
+  "mu-shaw": {
+   "person": "L. Shaw|Anh",
+   "label": "Man Utd"
+  },
+  "mu-varane": {
+   "person": "R. Varane|Pháp",
+   "label": "Man Utd"
+  },
+  "mu-wan-bissaka": {
+   "person": "A. Wan-Bissaka|Anh",
+   "label": "Man Utd"
+  },
+  "mu-antony": {
+   "person": "Antony|Brazil",
+   "label": "Man Utd"
+  },
+  "mu-bruno-fernandes": {
+   "person": "Bruno Fernandes|Bồ Đào Nha",
+   "label": "Man Utd"
+  },
+  "mu-cristiano-ronaldo-2": {
+   "person": "Cristiano Ronaldo|Bồ Đào Nha",
+   "label": "Man Utd"
+  },
+  "mu-telles": {
+   "person": "Alex Telles|Brazil",
+   "label": "Man Utd"
   }
  }
 }
