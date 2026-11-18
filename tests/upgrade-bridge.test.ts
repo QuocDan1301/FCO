@@ -209,18 +209,18 @@ test('Xem trước = tỷ lệ gốc: không cộng cầu công khai, cầu ng�
 });
 
 test('Tích hợp game.upgrade: dây khớp cầu cũ không đổi kết quả roll, trạng thái dây lưu/khôi phục cùng bản lưu', () => {
-  // Phôi cùng thẻ ở +13 đủ 5 vạch nên tỷ lệ gốc đúng 15% (+7 → +8, từ 2026-11-18; trước 20%).
+  // Phôi cùng thẻ ở +13 đủ 5 vạch nên tỷ lệ gốc đúng 20% (+7 → +8; 2026-11-18 từng giảm 15% rồi trả lại 20%).
   const target = { ...makeCard(11), level: 7 }, materials = Array.from({ length: 5 }, () => ({ ...makeCard(11), level: 13 }));
   const ids = materials.map(c => c.uid);
   const plain = { ...initialSave(), cards: [target, ...materials] };
   const bridged = { ...plain, bridge: bridgeWith(8, { chain: [2, 1, 4, 5], publicSource: [2, 1, 4, 5], patterns: { historical: null, sum3: null, quad: null } }) };
-  // Roll 0,36: gốc 15% thất bại; dây khớp cầu công khai 4 số cũ cũng không còn được cộng nên vẫn thất bại.
+  // Roll 0,36: gốc 20% thất bại; dây khớp cầu công khai 4 số cũ cũng không còn được cộng nên vẫn thất bại.
   assert.equal(upgrade(plain, target.uid, ids, script(.36, .5), true, { patternRng: always(.5) }).success, false);
   const lost = upgrade(bridged, target.uid, ids, script(.36, .5), true, { patternRng: always(.5) });
-  assert.equal(lost.success, false); assert.equal(lost.turn.rate, 15);
-  // Roll 0,05 < 15%: thành công, dây được chốt.
+  assert.equal(lost.success, false); assert.equal(lost.turn.rate, 20);
+  // Roll 0,05 < 20%: thành công, dây được chốt.
   const won = upgrade(bridged, target.uid, ids, always(.05), true, { patternRng: always(.5) });
-  assert.equal(won.success, true); assert.equal(won.result.level, 8); assert.equal(won.turn.rate, 15);
+  assert.equal(won.success, true); assert.equal(won.result.level, 8); assert.equal(won.turn.rate, 20);
   assert.deepEqual(won.state.bridge!.levels['8'].chain, []);
   const restored = JSON.parse(JSON.stringify(won.state));
   assert.ok(validateSave(restored)); assert.deepEqual(restored.bridge, won.state.bridge);

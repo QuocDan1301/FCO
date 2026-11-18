@@ -220,7 +220,7 @@ const strongMaterial = () => {
   return { ...makeCard(best.id), level: 13 };
 };
 test('Tỷ lệ theo bảng, ranh giới thành công/thất bại ở đủ năng lượng cho cả 12 bước', () => {
-  const rates = [100, 80, 70, 50, 35, 25, 15, 15, 10, 7, 5, 3];
+  const rates = [100, 80, 70, 50, 35, 25, 20, 15, 10, 7, 5, 3];
   const gains = [1, 1, 2, 2, 2, 3, 4, 2, 2, 2, 3, 3];
   for (let level = 1; level < MAX_LEVEL; level++) {
     const target = { ...makeCard(11), level };
@@ -262,8 +262,8 @@ test('Tỷ lệ tăng theo năng lượng nguyên liệu; +1 lên +2 đủ năng
   // Phôi cùng cầu thủ ở +6 thấp hơn thẻ chính +7 ba OVR: chưa đủ 5 vạch, tỷ lệ = tối đa × vạch / 5.
   const weak = upgradeInfo(high, Array.from({ length: 5 }, () => ({ ...equal, level: 6 })));
   assert.ok(weak.energy < 100);
-  assert.equal(weak.chance, Math.round(15 * weak.energy) / 100);
-  assert.equal(upgradeInfo(high, Array.from({ length: 5 }, strongMaterial)).chance, 15);
+  assert.equal(weak.chance, Math.round(20 * weak.energy) / 100);
+  assert.equal(upgradeInfo(high, Array.from({ length: 5 }, strongMaterial)).chance, 20);
   const materials = Array.from({ length: 5 }, () => makeCard(11));
   const result = upgrade({ ...initialSave(), cards: [target, ...materials] }, target.uid, materials.map(c => c.uid), () => .999999999);
   assert.equal(result.success, true);

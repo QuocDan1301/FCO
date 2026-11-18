@@ -3,7 +3,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, CircleMinus, Coins, Gift, Lock, Pause,
 import { money, packs } from './game';
 import { ago, hours, vnd } from './Stats';
 import { giftRewardText } from './gift-codes';
-import { adminAccountDelete, adminAccountLock, adminConfirmEmail, adminAccountTier, adminCreditStp, adminResetPassword, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS, adminGiftBulk, adminDeduct, adminTopupBp, adminBpTopups, BP_PER_VND, BP_TOPUP_MIN_VND, BP_TOPUP_MAX_VND } from './wallet';
+import { adminAccountDelete, adminAccountLock, adminConfirmEmail, adminAccountTier, adminCreditStp, adminResetPassword, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS, adminGiftBulk, adminDeduct, adminTopupBp, adminBpTopups, BP_PER_VND, BP_TOPUP_MIN_VND, BP_TOPUP_MAX_VND, adminUpgradeBoost, adminUpgradeBoosts } from './wallet';
 import type { AdminAccount, AdminAccountList, AdminGift, LedgerRow } from './wallet';
 import { CreditKindField, LedgerKindButton } from './LedgerKind';
 import type { CreditKind } from './LedgerKind';
@@ -27,10 +27,23 @@ const SORTS: { id: Sort; column: string; label: string; asc: string }[] = [
 ];
 const time = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false });
 
-// Quà admin tặng (supabase/migrations/202611090002_fco_admin_gifts.sql): FC hoặc gói cầu thủ, không tính vào Đã nạp và doanh thu.
+// Quà admin tặng (supabase/migrations/202611090002_fco_admin_gifts.sql): FC, gói cầu thủ hoặc BP (202611180017), không tính vào Đã nạp và doanh thu.
+type GiftKind = 'fc' | 'pack' | 'bp';
+const GIFT_BP_MAX = 1_000_000_000_000_000;
+const giftUnit = (kind: GiftKind) => kind === 'fc' ? 'FC' : kind === 'bp' ? 'BP' : 'gói';
+// Số FC / BP nhập được có dấu chấm ngăn cách (vd. 10.000.000.000); số gói chỉ chữ số.
+const giftInput = (kind: GiftKind, text: string) => kind === 'pack' ? text.replace(/\D/g, '') : text.replace(/[^\d.\s]/g, '').slice(0, 24);
+const giftValue = (text: string) => Number(text.replace(/[.\s]/g, '')) || 0;
+const giftCheck = (kind: GiftKind, value: number, pack: string, perAccount = '') =>
+  !Number.isSafeInteger(value) || value <= 0 ? `Nhập số ${giftUnit(kind)} muốn tặng.`
+  : kind === 'pack' && !pack ? 'Chọn gói muốn tặng.'
+  : kind === 'pack' && value > 1000 ? `${perAccount || 'Mỗi lần tặng'} tối đa 1.000 gói.`
+  : kind === 'bp' && value > GIFT_BP_MAX ? `${perAccount || 'Mỗi lần tặng'} tối đa ${money(GIFT_BP_MAX)} BP.` : '';
+const giftOf = (kind: GiftKind, value: number, pack: string) => kind === 'fc' ? { fc: value } : kind === 'bp' ? { bp: value } : { pack, count: value };
+const GIFT_KINDS = <><option value="pack">Gói cầu thủ</option><option value="bp">BP</option><option value="fc">FC</option></>;
 function SendGift({ account, busy, run, onSent }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void; onSent: () => void }) {
   const { id, login } = account;
-  const [kind, setKind] = useState<'fc' | 'pack'>('pack');
+  const [kind, setKind] = useState<GiftKind>('pack');
   const [amount, setAmount] = useState('1');
   const [pack, setPack] = useState('');
   const [note, setNote] = useState('');
@@ -39,30 +52,30 @@ function SendGift({ account, busy, run, onSent }: { account: AdminAccount; busy:
   const list = () => adminGiftList(id).then(rows => { setGifts(rows.slice(0, 5)); setError(''); }).catch(e => setError((e as Error).message));
   useEffect(() => { void list(); }, [id]);
   const options = packs.filter(p => !p.draft);
-  const value = Number(amount);
+  const value = giftValue(amount);
   const send = () => {
-    if (!Number.isSafeInteger(value) || value <= 0) return setError(kind === 'fc' ? 'Nhập số FC muốn tặng.' : 'Nhập số gói muốn tặng.');
-    if (kind === 'pack' && !pack) return setError('Chọn gói muốn tặng.');
-    if (kind === 'pack' && value > 1000) return setError('Mỗi lần tặng tối đa 1.000 gói.');
-    const gift = kind === 'fc' ? { fc: value } : { pack, count: value };
+    const problem = giftCheck(kind, value, pack);
+    if (problem) return setError(problem);
+    const gift = giftOf(kind, value, pack);
     const text = giftRewardText(gift);
     if (!confirm(`Tặng ${text} cho ${login}?`)) return;
     setError('');
     run(async () => {
       await adminSendGift(id, gift, note);
-      setNote(''); setAmount(kind === 'fc' ? '' : '1'); void list(); onSent();
+      setNote(''); setAmount(kind === 'pack' ? '1' : ''); void list(); onSent();
       return `Đã tặng ${text} cho ${login}.`;
     });
   };
   return <form onSubmit={e => { e.preventDefault(); send(); }}>
     <h3>Tặng quà</h3>
     {error && <p className="pa-message is-error" role="alert">{error}</p>}
-    <label className="pa-field"><span>Loại quà</span><select value={kind} onChange={e => { setKind(e.target.value as 'fc' | 'pack'); setAmount(e.target.value === 'pack' ? '1' : ''); }}><option value="pack">Gói cầu thủ</option><option value="fc">FC</option></select></label>
+    <label className="pa-field"><span>Loại quà</span><select value={kind} onChange={e => { setKind(e.target.value as GiftKind); setAmount(e.target.value === 'pack' ? '1' : ''); }}>{GIFT_KINDS}</select></label>
     {kind === 'pack' && <label className="pa-field"><span>Gói</span><select value={pack} onChange={e => setPack(e.target.value)}><option value="">Chọn gói…</option>{options.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}
-    <label className="pa-field"><span>{kind === 'fc' ? 'Số FC' : 'Số gói'}</span><input value={amount} onChange={e => setAmount(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder={kind === 'fc' ? 'vd. 5000' : '1'} autoComplete="off"/></label>
+    <label className="pa-field"><span>Số {giftUnit(kind)}</span><input value={amount} onChange={e => setAmount(giftInput(kind, e.target.value))} inputMode="numeric" placeholder={kind === 'fc' ? 'vd. 5000' : kind === 'bp' ? 'vd. 10.000.000.000' : '1'} autoComplete="off"/></label>
+    {kind === 'bp' && value > 0 && <p className="pa-gift-note">= <b>{money(value)} BP</b></p>}
     <label className="pa-field"><span>Lời nhắn <small>người chơi thấy trong lịch sử</small></span><input value={note} onChange={e => setNote(e.target.value)} maxLength={200}/></label>
     <button type="submit" className="primary-button" disabled={busy}><Gift size={16}/>Tặng quà</button>
-    <p className="pa-gift-note">Không tính vào Đã nạp và doanh thu. FC vào ví ngay; gói vào kho khi người chơi mở game.</p>
+    <p className="pa-gift-note">Không tính vào Đã nạp, doanh thu và Top Đặc Huấn. FC vào ví ngay; gói và BP vào kho khi người chơi mở game (đang online thì trong vòng 1 phút).</p>
     {gifts?.map(g => <p key={g.id} className="pa-account-gift"><b>{g.rewards.map(giftRewardText).join(', ')}</b> <small>{g.claimed ? 'Đã nhận' : 'Chờ nhận'}{g.note ? ` · ${g.note}` : ''} · {time(g.time)}</small></p>)}
   </form>;
 }
@@ -83,6 +96,30 @@ function AccountTierField({ account, busy, run }: { account: AdminAccount; busy:
     <div className="pa-row pa-tier-actions"><button type="button" className="primary-button" disabled={busy || !tier} onClick={() => set('premium')}>{tier === 'premium' ? 'Gia hạn Premium 7 ngày' : 'Đặt Premium 7 ngày'}</button>
     <button type="button" className="primary-button" disabled={busy || !tier} onClick={() => set('luxury')}>{tier === 'luxury' ? 'Gia hạn Luxury 30 ngày' : 'Đặt Luxury 30 ngày'}</button>
     {(tier === 'premium' || tier === 'luxury') && <button type="button" className="secondary-button" disabled={busy} onClick={() => set('classic')}>Huỷ {name(tier)}</button>}</div>
+  </form>;
+}
+// Hệ số tỷ lệ đập thẻ riêng (202611180018): nhân vào tỷ lệ thật của mọi cấp, tối đa 100%. ẨN — màn đập của người chơi vẫn hiện tỷ lệ gốc.
+const factorText = (f: number) => `×${f.toLocaleString('vi-VN', { maximumFractionDigits: 3 })}`;
+function UpgradeBoostField({ account, busy, run }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void }) {
+  const [current, setCurrent] = useState<number | null>(null);
+  const [input, setInput] = useState('');
+  const [note, setNote] = useState('');
+  const [all, setAll] = useState<Awaited<ReturnType<typeof adminUpgradeBoosts>>>([]);
+  const loadAll = () => { void adminUpgradeBoosts().then(setAll).catch(() => setAll([])); };
+  useEffect(() => { setInput(''); void adminUpgradeBoost(account.id).then(r => { setCurrent(r.factor); setNote(r.note); }).catch(() => setCurrent(null)); loadAll(); }, [account.id]);
+  const value = Number(input.trim().replace(',', '.'));
+  const valid = input.trim() !== '' && Number.isFinite(value) && value >= 0 && value <= 10;
+  const save = (factor: number) => run(async () => { const r = await adminUpgradeBoost(account.id, factor, note.trim()); setCurrent(r.factor); setInput(''); loadAll();
+    return r.factor === 1 ? `Đã tắt hệ số đập thẻ riêng của ${account.login} (về tỷ lệ gốc).` : `Tỷ lệ đập thẻ của ${account.login}: ${factorText(r.factor)} (ẩn với người chơi).`; });
+  const example = (f: number) => `+7→+8 15% → ${Math.min(100, Math.round(15 * f * 100) / 100).toLocaleString('vi-VN')}%`;
+  return <form onSubmit={e => { e.preventDefault(); if (valid) save(value); }}>
+    <h3>Tỷ lệ đập thẻ riêng</h3>
+    <p className="pa-gift-note">Hiện tại: <b>{current === null ? '…' : current === 1 ? 'Tỷ lệ gốc' : `${factorText(current)} · ${example(current)}`}</b>. Hệ số nhân vào tỷ lệ thật mọi cấp (tối đa 100%), giữ tới khi tắt. <b>Ẩn</b>: màn đập của người chơi vẫn hiện tỷ lệ gốc.</p>
+    <div className="pa-row"><label className="pa-field"><span>Hệ số (0 – 10) <small>{valid ? example(value) : 'vd. 1,5 tăng · 0,5 giảm'}</small></span><input value={input} inputMode="decimal" placeholder="vd. 1,5" onChange={e => setInput(e.target.value.replace(/[^\d.,]/g, '').slice(0, 6))}/></label>
+    <label className="pa-field"><span>Ghi chú <small>chỉ admin thấy</small></span><input value={note} maxLength={200} onChange={e => setNote(e.target.value)}/></label></div>
+    <div className="pa-row pa-tier-actions"><button type="submit" className="primary-button" disabled={busy || !valid}>Đặt hệ số</button>
+    {current !== null && current !== 1 && <button type="button" className="secondary-button" disabled={busy} onClick={() => save(1)}>Tắt (về tỷ lệ gốc)</button>}</div>
+    {all.length > 0 && <p className="pa-gift-note">Đang chỉnh: {all.map(b => `${b.login} ${factorText(b.factor)}`).join(' · ')}</p>}
   </form>;
 }
 // Đặt lại mật khẩu (202611110015): không xem được mật khẩu cũ (chỉ lưu mã băm). Admin nhập hoặc tạo mật khẩu tạm, gửi cho người chơi;
@@ -264,7 +301,7 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
         {ledger && !ledger.length && <p className="pa-empty">Chưa có giao dịch.</p>}
         {ledger?.map((row, i) => <p key={`${row.time}-${i}`}><b className={row.delta > 0 ? 'pa-plus' : 'pa-minus'}>{row.delta > 0 ? '+' : '−'}{money(Math.abs(row.delta))} FC</b> <small>{LEDGER_REASONS[row.reason] ?? row.reason}{row.note ? ` · ${row.note}` : ''} · còn {money(row.balance)} · {time(row.time)}</small> <LedgerKindButton row={row} onChanged={() => { void loadLedger(); onChanged(); }} onError={text => setStatus({ kind: 'error', text })}/></p>)}
       </div></>}
-      {section === 'tier' && <AccountTierField account={account} busy={busy} run={task => void run(task)}/>}
+      {section === 'tier' && <><AccountTierField account={account} busy={busy} run={task => void run(task)}/><UpgradeBoostField account={account} busy={busy} run={task => void run(task)}/></>}
       {section === 'security' && <><ResetPasswordField account={account} busy={busy} run={task => void run(task)}/>
       {account.unconfirmed && <div className="pa-account-danger">
         <h3>Gmail chưa xác nhận</h3>
@@ -313,7 +350,7 @@ export default function Accounts({ initialSearch = '' }: { initialSearch?: strin
   const [bulkDelete, setBulkDelete] = useState(false);
   // Tặng quà hàng loạt: form trên thanh thao tác; tiến độ hiện ở dòng trạng thái.
   const [bulkGift, setBulkGift] = useState(false);
-  const [giftKind, setGiftKind] = useState<'fc' | 'pack'>('pack');
+  const [giftKind, setGiftKind] = useState<GiftKind>('pack');
   const [giftAmount, setGiftAmount] = useState('1');
   const [giftPack, setGiftPack] = useState('');
   const [giftNote, setGiftNote] = useState('');
@@ -370,11 +407,10 @@ export default function Accounts({ initialSearch = '' }: { initialSearch?: strin
   };
   // Máy chủ xoá tối đa 200 tài khoản mỗi lần: danh sách id chia lô 200, "tất cả khớp bộ lọc" thì gọi lại tới khi remaining = 0.
   const bulkSendGift = async () => {
-    const value = Number(giftAmount);
-    if (!Number.isSafeInteger(value) || value <= 0) { setError(giftKind === 'fc' ? 'Nhập số FC muốn tặng.' : 'Nhập số gói muốn tặng.'); return; }
-    if (giftKind === 'pack' && !giftPack) { setError('Chọn gói muốn tặng.'); return; }
-    if (giftKind === 'pack' && value > 1000) { setError('Mỗi tài khoản tối đa 1.000 gói một lần tặng.'); return; }
-    const gift = giftKind === 'fc' ? { fc: value } : { pack: giftPack, count: value };
+    const value = giftValue(giftAmount);
+    const problem = giftCheck(giftKind, value, giftPack, 'Mỗi tài khoản');
+    if (problem) { setError(problem); return; }
+    const gift = giftOf(giftKind, value, giftPack);
     const text = giftRewardText(gift);
     if (!confirm(`Tặng ${text} cho ${allMatching ? 'tất cả ' : ''}${money(selectedCount)} tài khoản?${giftNote.trim() ? `\nLời nhắn: ${giftNote.trim()}` : ''}`)) return;
     const batch = giftBatch.current ??= crypto.randomUUID();
@@ -388,7 +424,7 @@ export default function Accounts({ initialSearch = '' }: { initialSearch?: strin
         setNotice(`Đang tặng ${text}… ${money(total)} tài khoản xong${result.remaining ? `, còn ${money(result.remaining)}` : ''}.`);
         if (!result.remaining) break;
       }
-      setNotice(`Đã tặng ${text} cho ${money(total)} tài khoản. ${giftKind === 'fc' ? 'FC đã vào ví.' : 'Gói vào kho khi người chơi mở game.'}`);
+      setNotice(`Đã tặng ${text} cho ${money(total)} tài khoản. ${giftKind === 'fc' ? 'FC đã vào ví.' : `${giftKind === 'bp' ? 'BP' : 'Gói'} vào kho khi người chơi mở game.`}`);
       giftBatch.current = null;
       setBulkGift(false); setGiftNote(''); clearSelection(); void load();
     } catch (e) { setError(`${(e as Error).message} Bấm Tặng quà lại để tặng nốt (giữ nguyên quà và danh sách chọn thì người đã nhận không nhận trùng).`); }
@@ -466,12 +502,13 @@ export default function Accounts({ initialSearch = '' }: { initialSearch?: strin
       <button type="button" className="pa-account-link" disabled={busy} onClick={clearSelection}>Bỏ chọn</button>
       {!allMatching && pageAllSelected && data && data.matched > data.accounts.length && <button type="button" className="pa-account-link" disabled={busy} onClick={() => setAllMatching(true)}>Chọn tất cả {money(data.matched)} tài khoản{search || status ? ' đang lọc' : ''}</button>}
       {bulkGift && <form className="pa-account-bulk-confirm pa-account-bulk-gift" onSubmit={e => { e.preventDefault(); void bulkSendGift(); }}>
-          <label className="pa-field"><span>Loại quà</span><select value={giftKind} onChange={e => { const k = e.target.value as 'fc' | 'pack'; setGiftKind(k); setGiftAmount(k === 'pack' ? '1' : ''); }}><option value="pack">Gói cầu thủ</option><option value="fc">FC</option></select></label>
+          <label className="pa-field"><span>Loại quà</span><select value={giftKind} onChange={e => { const k = e.target.value as GiftKind; setGiftKind(k); setGiftAmount(k === 'pack' ? '1' : ''); }}>{GIFT_KINDS}</select></label>
           {giftKind === 'pack' && <label className="pa-field"><span>Gói</span><select value={giftPack} onChange={e => setGiftPack(e.target.value)}><option value="">Chọn gói…</option>{packs.filter(p => !p.draft).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label>}
-          <label className="pa-field"><span>{giftKind === 'fc' ? 'Số FC mỗi tài khoản' : 'Số gói mỗi tài khoản'}</span><input value={giftAmount} onChange={e => setGiftAmount(e.target.value.replace(/\D/g, ''))} inputMode="numeric" placeholder={giftKind === 'fc' ? 'vd. 5000' : '1'} autoComplete="off"/></label>
+          <label className="pa-field"><span>Số {giftUnit(giftKind)} mỗi tài khoản</span><input value={giftAmount} onChange={e => setGiftAmount(giftInput(giftKind, e.target.value))} inputMode="numeric" placeholder={giftKind === 'fc' ? 'vd. 5000' : giftKind === 'bp' ? 'vd. 10.000.000.000' : '1'} autoComplete="off"/></label>
+          {giftKind === 'bp' && giftValue(giftAmount) > 0 && <p className="pa-gift-note">= <b>{money(giftValue(giftAmount))} BP</b> mỗi tài khoản</p>}
           <label className="pa-field"><span>Lời nhắn <small>người chơi thấy trong lịch sử</small></span><input value={giftNote} onChange={e => setGiftNote(e.target.value)} maxLength={200}/></label>
           <button type="submit" className="primary-button" disabled={busy}><Gift size={16}/>{busy ? 'Đang tặng…' : `Tặng cho ${allMatching ? 'tất cả ' : ''}${money(selectedCount)} tài khoản`}</button>
-          <p className="pa-gift-note">Không tính vào Đã nạp và doanh thu. FC vào ví ngay; gói vào kho khi người chơi mở game. Mỗi tài khoản nhận đúng một lần trong đợt tặng.</p>
+          <p className="pa-gift-note">Không tính vào Đã nạp, doanh thu và Top Đặc Huấn. FC vào ví ngay; gói và BP vào kho khi người chơi mở game. Mỗi tài khoản nhận đúng một lần trong đợt tặng.</p>
         </form>}
       {bulkDeduct && <form className="pa-account-bulk-confirm pa-account-bulk-gift" onSubmit={e => { e.preventDefault(); void bulkDeductFc(); }}>
           <label className="pa-field"><span>Số FC trừ mỗi tài khoản</span><input value={deductAmount} onChange={e => setDeductAmount(e.target.value.replace(/[^\d.\s]/g, '').slice(0, 16))} inputMode="numeric" placeholder="vd. 5000" autoComplete="off"/></label>

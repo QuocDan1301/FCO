@@ -80,6 +80,10 @@ export type BpTopupResult = { repeat: boolean; vnd: number; bp: number; delivere
 export const adminTopupBp = (request: string, user: string, vnd: number, note: string) => call<BpTopupResult>('fco_admin_topup_bp', { p_request: request, p_user: user, p_vnd: vnd, p_note: note });
 export type BpTopupLog = { totalVnd: number; totalBp: number; items: { vnd: number; bp: number; note: string; delivered: boolean; at: number }[] };
 export const adminBpTopups = (user: string) => call<BpTopupLog>('fco_admin_bp_topups', { p_user: user });
+// Hệ số tỷ lệ đập thẻ riêng một tài khoản (migration 202611180018_fco_upgrade_boost.sql): ẩn với người chơi; factor null = chỉ đọc, 1 = tắt.
+export type UpgradeBoost = { factor: number; note: string; at: number | null };
+export const adminUpgradeBoost = (user: string, factor: number | null = null, note = '') => call<UpgradeBoost>('fco_admin_upgrade_boost', { p_user: user, p_factor: factor, p_note: note });
+export const adminUpgradeBoosts = () => call<{ user: string; login: string; factor: number; note: string; at: number }[]>('fco_admin_upgrade_boosts');
 // Code sai: máy chủ trả {error} thay vì báo lỗi để còn ghi lại lần thử (chống dò code, migration 202611140010).
 export const redeemGiftHash = async (hash: string) => {
   const result = await call<{ rewards: EventReward[]; wallet: Wallet; save?: ServerRecord | null } | { error: string }>('fco_redeem_gift', { p_hash: hash });
@@ -140,10 +144,13 @@ export const fetchRenameInfo = () => call<RenameInfo>('fco_rename_info');
 export const renameCoach = (name: string) => call<{ name: string; cost: number; changes: number; nextAt: number }>('fco_rename', { p_name: name });
 export const setNameEffect = (effect: NameEffect | null) => call<Wallet>('fco_set_name_effect', { p_effect: effect });
 export const adminAccountDelete = (id: string) => call<{ deleted: boolean }>('fco_admin_account_delete', { p_user: id });
-export const adminSendGift = (user: string, gift: { fc: number } | { pack: string; count: number }, note: string) => call<{ id: number; fc: number | null }>('fco_admin_send_gift', 'fc' in gift ? { p_user: user, p_fc: gift.fc, p_note: note } : { p_user: user, p_pack: gift.pack, p_count: gift.count, p_note: note });
+// Quà admin: FC (vào ví ngay), gói hoặc BP (BP từ migration 202611180017_fco_admin_gift_bp.sql; chờ trong hàng Quà từ Admin, game tự nhận).
+export type AdminGiftInput = { fc: number } | { pack: string; count: number } | { bp: number };
+const giftArgs = (gift: AdminGiftInput) => 'fc' in gift ? { p_fc: gift.fc } : 'bp' in gift ? { p_bp: gift.bp } : { p_pack: gift.pack, p_count: gift.count };
+export const adminSendGift = (user: string, gift: AdminGiftInput, note: string) => call<{ id: number; fc: number | null }>('fco_admin_send_gift', { p_user: user, ...giftArgs(gift), p_note: note });
 // Tặng quà hàng loạt (migration 202611130002): mỗi lần tối đa 200 tài khoản, remaining = số còn lại; cùng batch không tặng trùng.
-export const adminGiftBulk = (batch: string, target: { users: string[] } | { all: true; search: string; status: string | null }, gift: { fc: number } | { pack: string; count: number }, note: string) =>
-  call<{ sent: number; remaining: number; total: number }>('fco_admin_gift_bulk', { p_batch: batch, ...('all' in target ? { p_all: true, p_search: target.search, p_status: target.status } : { p_users: target.users }), ...('fc' in gift ? { p_fc: gift.fc } : { p_pack: gift.pack, p_count: gift.count }), p_note: note });
+export const adminGiftBulk = (batch: string, target: { users: string[] } | { all: true; search: string; status: string | null }, gift: AdminGiftInput, note: string) =>
+  call<{ sent: number; remaining: number; total: number }>('fco_admin_gift_bulk', { p_batch: batch, ...('all' in target ? { p_all: true, p_search: target.search, p_status: target.status } : { p_users: target.users }), ...giftArgs(gift), p_note: note });
 // Admin trừ FC (migration 202611130003): lý do 'admin_deduct', không tính Đã nạp / doanh thu. clamp: không đủ thì trừ hết số còn lại,
 // không thì bỏ qua (skipped). Mỗi lần tối đa 200 tài khoản; cùng batch không trừ hai lần; done / doneFc = cả đợt tới giờ.
 export const adminDeduct = (batch: string, target: { users: string[] } | { all: true; search: string; status: string | null }, amount: number, clamp: boolean, note: string) =>
