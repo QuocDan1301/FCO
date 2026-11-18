@@ -22,6 +22,7 @@ type Props = {
   renderCard: (card: Card, compact?: boolean) => ReactNode; renderFlag: (code: string, large?: boolean) => ReactNode;
 };
 // Giá gọn trên màn kết quả: từ 1 tỷ ghi B (tối đa 2 số lẻ), dưới đó theo money().
+const SECONDARY_STEP = 40;
 const compactPrice = (value: number) => value >= 1e9 ? `${new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value / 1e9)}B` : money(value);
 export default function PackOpening(props: Props) {
   const { cards, pack, phase, quick, reduced, light, sound } = props;
@@ -58,9 +59,16 @@ export default function PackOpening(props: Props) {
   const drag = useRef<{ pointerId: number; x: number; scrollLeft: number } | null>(null);
   const [dragging, setDragging] = useState(false);
   const [scrollEdges, setScrollEdges] = useState({ start: true, end: true });
+  // Mở tới 500 gói một lượt (2026-11-18): chỉ dựng SECONDARY_STEP thẻ phụ đầu, cuộn gần cuối mới dựng thêm — 499 thẻ đầy đủ ảnh
+  // cùng lúc làm điện thoại yếu lag / sập trang.
+  const [shown, setShown] = useState(SECONDARY_STEP);
+  const visibleSecondary = shown >= secondaryCards.length ? secondaryCards : secondaryCards.slice(0, shown);
   const updateScrollEdges = () => {
     const rail = secondaryRef.current;
-    if (rail) setScrollEdges({ start: rail.scrollLeft <= 1, end: rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 1 });
+    if (!rail) return;
+    const atEnd = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 1;
+    if (shown < secondaryCards.length && rail.scrollLeft + rail.clientWidth * 3 >= rail.scrollWidth) setShown(n => n + SECONDARY_STEP);
+    setScrollEdges({ start: rail.scrollLeft <= 1, end: atEnd && shown >= secondaryCards.length });
   };
   const scrollSecondary = (direction: number) => {
     const rail = secondaryRef.current;
@@ -152,6 +160,7 @@ export default function PackOpening(props: Props) {
         {listExpanded && <div id="secondary-player-list" className={`secondary-player-list ${dragging ? 'is-dragging' : ''}`} ref={secondaryRef} role="list" aria-label="Cầu thủ phụ, sắp xếp OVR từ cao đến thấp" tabIndex={0} onScroll={updateScrollEdges}
           onKeyDown={event => {
             if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') { event.preventDefault(); scrollSecondary(event.key === 'ArrowLeft' ? -1 : 1); }
+            if (event.key === 'End') setShown(secondaryCards.length);
             if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); event.currentTarget.scrollTo({ left: event.key === 'Home' ? 0 : event.currentTarget.scrollWidth, behavior: reduced ? 'instant' : 'smooth' }); }
           }}
           onDragStart={event => event.preventDefault()}
@@ -170,7 +179,7 @@ export default function PackOpening(props: Props) {
           }}
           onLostPointerCapture={() => { drag.current = null; setDragging(false); }}
           onPointerCancel={() => { drag.current = null; setDragging(false); }}>
-          {secondaryCards.map(card => <div key={card.uid} className="secondary-player" role="listitem" data-ovr={ovr(card)} aria-label={`${getPlayer(card).name}, OVR ${ovr(card)}`}>{props.renderCard(card, true)}<span>{getPlayer(card).name}</span><b>{ovr(card)} · {getPlayer(card).pos} · +{card.level}</b></div>)}
+          {visibleSecondary.map(card => <div key={card.uid} className="secondary-player" role="listitem" data-ovr={ovr(card)} aria-label={`${getPlayer(card).name}, OVR ${ovr(card)}`}>{props.renderCard(card, true)}<span>{getPlayer(card).name}</span><b>{ovr(card)} · {getPlayer(card).pos} · +{card.level}</b></div>)}
         </div>}
       </section>}
       <div className="reveal-actions">

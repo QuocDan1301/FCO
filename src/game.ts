@@ -710,7 +710,8 @@ export function draw(pack: Pack, rng = random): Card {
 }
 export const getPackStock = (state: Save, pack: Pack): number => state.unopened?.[pack.id] ?? 0;
 
-export const MAX_INVENTORY_OPEN = 150;
+// Mở / mua tối đa mỗi lượt (2026-11-18: 150 → 500 theo người dùng). Máy chủ đọc từ bộ dữ liệu (rules.maxOpen) → admin phải Đồng bộ dữ liệu.
+export const MAX_INVENTORY_OPEN = 500;
 
 // Gói trong Shop mua bằng FC (giá gói = số FC). Mở gói luôn miễn phí, dù gói mua ở Shop hay nhận làm quà. catalog = danh sách gói được bán (test truyền gói mẫu).
 export function buyPacks(state: Save, requested: Pack, count: number, free = false, catalog: Pack[] = shopPacks): Save {

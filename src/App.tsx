@@ -394,7 +394,8 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   // Mở lại từ màn kết quả: số gói tự mở ngay khi sân khấu chuẩn bị xong (không bấm lại ở màn chuẩn bị), và lượt đó rút ngắn chờ trước khi lật gói.
   const againCount = useRef(0), fastEntry = useRef(false), fastEntryId = useRef<string | null>(null);
   // Ảnh thẻ không tải trước khi vào game: tải sẵn ảnh thẻ vừa rút lúc bắt đầu mở gói, hầm chạy vài giây là đủ để về kịp màn lật thẻ.
-  const prefetchCards = (cards: Card[]) => prefetchImages(cards.flatMap(card => { const p = getPlayer(card); return [p.cardFace, getTeamLogo(p)]; }));
+  // Mở tới 500 gói một lượt: chỉ tải trước ảnh ~60 thẻ (đủ thẻ chính + dải thẻ phụ đầu), phần còn lại tải khi cuộn tới.
+  const prefetchCards = (cards: Card[]) => prefetchImages([...new Set(cards.flatMap(card => { const p = getPlayer(card); return [p.cardFace, getTeamLogo(p)]; }))].slice(0, 120));
   const prepareOpening = (pack: Pack, selection?: Pack[]) => {
     if (busy.current || !isPackAvailable(pack)) return;
     inventoryBatch.current = selection ?? null;
@@ -1496,7 +1497,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
               </>}
               <button className="ready-leave" onClick={closePackSession}>Rời<X size={18} strokeWidth={2.6}/></button>
             </div>
-            <p className="ready-note" aria-live="polite"><Shield size={13}/>{packAnimation && !flipStarted ? 'Đang chuẩn bị mở…' : readyPack.choose && draftIds && packPrepared && readyAvailable > 0 ? `Mỗi gói nhận ngẫu nhiên 1 trong ${draftIds.length} cầu thủ đã chọn${readyAvailable > 1 ? ` · mở tối đa ${draftBatch} gói cùng loại một lượt` : ''}.` : !packPrepared ? 'Đang chuẩn bị sân khấu…' : readyAvailable === 0 ? 'Đã hết gói. Quay lại để nhận thêm gói thử.' : readyAvailable === 1 ? 'Còn 1 gói. Nhấn Mở 1 vật phẩm để mở gói cuối cùng.' : inventoryBatch.current ? 'Mỗi lượt tối đa 150 thẻ · Mở bao nhiêu, trừ bấy nhiêu.' : 'Mỗi lượt tối đa 10 thẻ · Mở bao nhiêu, trừ bấy nhiêu.'}</p>
+            <p className="ready-note" aria-live="polite"><Shield size={13}/>{packAnimation && !flipStarted ? 'Đang chuẩn bị mở…' : readyPack.choose && draftIds && packPrepared && readyAvailable > 0 ? `Mỗi gói nhận ngẫu nhiên 1 trong ${draftIds.length} cầu thủ đã chọn${readyAvailable > 1 ? ` · mở tối đa ${draftBatch} gói cùng loại một lượt` : ''}.` : !packPrepared ? 'Đang chuẩn bị sân khấu…' : readyAvailable === 0 ? 'Đã hết gói. Quay lại để nhận thêm gói thử.' : readyAvailable === 1 ? 'Còn 1 gói. Nhấn Mở 1 vật phẩm để mở gói cuối cùng.' : inventoryBatch.current ? `Mỗi lượt tối đa ${MAX_INVENTORY_OPEN} thẻ · Mở bao nhiêu, trừ bấy nhiêu.` : 'Mỗi lượt tối đa 10 thẻ · Mở bao nhiêu, trừ bấy nhiêu.'}</p>
             <p className="ready-cost">Mở gói miễn phí</p>
           </div>
           </>}

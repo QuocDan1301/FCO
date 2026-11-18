@@ -57,7 +57,7 @@ test('Mua và mở hết 150 gói khi FC còn 0, kể cả chọn nhiều loại
 test('Shop chặn số lượng sai, thiếu FC, gói không bán và tràn kho; lỗi giữ nguyên bản lưu', () => {
   const before = { ...initialSave(), fc: packs[0].price * 149 };
   const snapshot = JSON.stringify(before);
-  for (const count of [0, -1, 151, 1.5, NaN, Infinity]) assert.throws(() => buy(before, packs[0], count, true));
+  for (const count of [0, -1, 501, 1.5, NaN, Infinity]) assert.throws(() => buy(before, packs[0], count, true));
   assert.throws(() => buy(before, packs[0], 150), /Không đủ FC/);
   assert.throws(() => buy({ ...before, fc: undefined }, packs[0], 1), /Không đủ FC/);
   assert.throws(() => buy(before, { ...packs[0], id: 'unknown' }, 1), /chưa có/);

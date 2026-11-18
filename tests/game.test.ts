@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { getTeamLogo } from '../src/teamLogos.ts';
 import assert from 'node:assert/strict';
-import { baseOvr, defaultPacks, ovr, MAX_LEVEL, PACK_LEVELS, PACK_ODDS, UPGRADE_LEVELS, isBilacPrizePack, levelDecayOf, priceAlphaOf, priceGroupOf, buyPacks, claimDaily, dayKey, draw, getPackStock, getPlayer, isPackAvailable, makeCard, materialGauge, openPacks, openSelectedPacks, packLevel, packOdds, packs, players, upgrade, upgradeInfo, validateSave, isRankPrizePack, fixedLevel } from '../src/game.ts';
+import { baseOvr, defaultPacks, ovr, MAX_INVENTORY_OPEN, MAX_LEVEL, PACK_LEVELS, PACK_ODDS, UPGRADE_LEVELS, isBilacPrizePack, levelDecayOf, priceAlphaOf, priceGroupOf, buyPacks, claimDaily, dayKey, draw, getPackStock, getPlayer, isPackAvailable, makeCard, materialGauge, openPacks, openSelectedPacks, packLevel, packOdds, packs, players, upgrade, upgradeInfo, validateSave, isRankPrizePack, fixedLevel } from '../src/game.ts';
 import { initialSave } from './stocked-save.ts';
 import priceData from '../src/player-prices.json';
 import { rngFor, seeded } from './pack-rng.ts';
@@ -496,9 +496,11 @@ test('Mở mọi số lượng 1–10 nhận đúng số thẻ và không trừ 
 });
 
 
-test('Mở lựa chọn trong kho gộp mọi loại gói và giới hạn tổng 150 thẻ', () => {
+test('Mở lựa chọn trong kho gộp mọi loại gói và giới hạn tổng MAX_INVENTORY_OPEN (500) thẻ', () => {
+  const MAX = MAX_INVENTORY_OPEN;
+  assert.equal(MAX, 500);
   const before = initialSave();
-  // Mở hết tối đa 10 loại gói đầu (10 × 15 = 150 thẻ, đúng trần); danh sách gói đổi theo trang quản trị nên không ghim gói cụ thể.
+  // Mở hết 10 loại gói đầu (10 × 15 = 150 thẻ, dưới trần); danh sách gói đổi theo trang quản trị nên không ghim gói cụ thể.
   const openable = packs.filter(p => isPackAvailable(p) && !p.choose), builtIn = openable.slice(0, 10);
   const all = openSelectedPacks(before, builtIn, () => .99);
   assert.equal(all.cards.length, 15 * builtIn.length);
@@ -510,16 +512,18 @@ test('Mở lựa chọn trong kho gộp mọi loại gói và giới hạn tổn
 
   const stocked = { ...before, balance: 1_000_000_000_000_000, unopened: Object.fromEntries(packs.map(pack => [pack.id, 80])) };
   const capped = openSelectedPacks(stocked, packs);
-  assert.equal(capped.cards.length, 150);
-  assert.equal(new Set(capped.cards.map(card => card.uid)).size, 150);
-  assert.deepEqual(openable.map(pack => capped.state.unopened?.[pack.id]), [0, 10, ...Array(openable.length - 2).fill(80)]);
+  assert.equal(capped.cards.length, MAX);
+  assert.equal(new Set(capped.cards.map(card => card.uid)).size, MAX);
+  // Lấy lần lượt từng loại gói (80 gói / loại) tới khi đủ trần.
+  const full = Math.floor(MAX / 80), rest = MAX % 80;
+  assert.deepEqual(openable.map(pack => capped.state.unopened?.[pack.id]), [...Array(full).fill(0), 80 - rest, ...Array(openable.length - full - 1).fill(80)]);
   assert.equal(capped.state.balance, stocked.balance);
-  assert.equal(capped.state.opened, 150);
+  assert.equal(capped.state.opened, MAX);
   assert.ok(validateSave(capped.state));
   assert.deepEqual(openable.map(pack => stocked.unopened[pack.id]), Array(openable.length).fill(80));
 
-  const single = openSelectedPacks({ ...stocked, unopened: { [packs[0].id]: 151 } }, [packs[0], packs[0]], () => 0);
-  assert.equal(single.cards.length, 150);
+  const single = openSelectedPacks({ ...stocked, unopened: { [packs[0].id]: MAX + 1 } }, [packs[0], packs[0]], () => 0);
+  assert.equal(single.cards.length, MAX);
   assert.equal(single.state.unopened?.[packs[0].id], 1);
   const duplicate = openSelectedPacks(before, [packs[0], packs[0]], () => 0);
   assert.equal(duplicate.cards.length, 15);
@@ -528,7 +532,7 @@ test('Mở lựa chọn trong kho gộp mọi loại gói và giới hạn tổn
   // Mở gói miễn phí: không có BP vẫn mở được, BP không đổi và bản lưu gốc không bị sửa.
   const noBp = { ...stocked, balance: 0 };
   const openedFree = openSelectedPacks(noBp, packs);
-  assert.equal(openedFree.cards.length, 150);
+  assert.equal(openedFree.cards.length, MAX);
   assert.equal(openedFree.state.balance, 0);
   assert.equal(noBp.opened, 0);
   assert.deepEqual(openable.map(pack => noBp.unopened[pack.id]), Array(openable.length).fill(80));
