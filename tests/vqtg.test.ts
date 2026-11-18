@@ -8,9 +8,9 @@ import { PACK_ODDS, packs, priceAlphaOf } from '../src/game.ts';
 const sql = readFileSync('supabase/migrations/202611130004_fco_vqtg.sql', 'utf8');
 
 test('Luật VQTG trong game khớp fco_vqtg_rules và cách đi quân của máy chủ', () => {
-  const mini = readFileSync('supabase/migrations/202611130011_fco_vqtg_mini_from_jp.sql', 'utf8');
+  const mini = readFileSync('supabase/migrations/202611180012_fco_vqtg_bp_plus20.sql', 'utf8');
   assert.match(mini, new RegExp(`'bpPerJackpotFc', ${VQTG_RULES.bpPerJackpotFc}[,)]`));
-  assert.equal(VQTG_RULES.bpPerJackpotFc * 1000, 5_000_000_000, '1.000 FC Jackpot → 5B BP Mini Jackpot');
+  assert.equal(VQTG_RULES.bpPerJackpotFc * 1000, 6_000_000_000, '1.000 FC Jackpot → 6B BP Mini Jackpot (+20%)');
   assert.match(sql, new RegExp(`'bpChance', ${VQTG_RULES.bpChance}[,)]`));
   assert.match(sql, /\(pos \+ roll - 1\) % 16 \+ 1/);
   assert.equal(vqtgNext(0, 3), 3);
@@ -280,4 +280,15 @@ test('Mốc 1.250 → 1.900 vé: mọi gói +1 cấp, 4 gói dùng chung Bi Lắ
   const levels: Record<string, [number, number]> = { 'vqm-1250-1': [10, 10], 'vqm-1250-3': [9, 9], 'vqm-1400-1': [9, 9], 'vqm-1400-2': [6, 7], 'vqm-1400-3': [12, 12], 'vqm-1500-1': [10, 10], 'vqm-1500-3': [12, 12],
     'vqm-1600-1': [12, 12], 'vqm-1600-2': [10, 10], 'vqm-1750-1': [12, 12], 'vqm-1750-2': [12, 12], 'vqm-1750-3': [10, 10], 'vqm-1900-2': [12, 12], 'vqm-1900-3': [9, 9], 'vqm-1900-4': [12, 12] };
   for (const [id, lv] of Object.entries(levels)) assert.deepEqual(packs.find(p => p.id === id)?.levels, lv, id);
+});
+
+test('BP tươi khi chơi VQTG +20% (202611180012): quà BP ở ô × 1,2, Mini Jackpot 6.000.000 BP / FC quỹ, không nhân chồng khi chạy lại', () => {
+  const sql = readFileSync('supabase/migrations/202611180012_fco_vqtg_bp_plus20.sql', 'utf8');
+  assert.match(sql, /round\(\(r->>'bp'\)::numeric \* 1\.2\)::bigint/);
+  assert.match(sql, /if exists \(select 1 from public\.fco_vqtg_tiles where idx = 1 and rewards @> '\[\{"bp": 22000000\}\]'::jsonb\) then/);
+  // Giữ nguyên các luật khác của fco_vqtg_rules (giá lượt, tỷ lệ Mini, vé theo số lắc) như bản đang chạy (202611140020).
+  const prev = readFileSync('supabase/migrations/202611140020_fco_vqtg_restore.sql', 'utf8');
+  for (const key of [/'prices', '\[\{"count":1,"price":18\},\{"count":10,"price":190\},\{"count":50,"price":900\}\]'::jsonb/, /'bpChance', 0\.06/, /'rollTickets', '\[1,2,2,2,3,6\]'::jsonb/]) {
+    assert.match(sql, key); assert.match(prev, key);
+  }
 });

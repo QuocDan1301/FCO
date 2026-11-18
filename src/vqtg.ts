@@ -7,9 +7,9 @@ export type VqtgTileKind = 'reward' | 'pick' | 'bp' | 'jackpot';
 export type VqtgTile = { idx: number; kind: VqtgTileKind; label: string; rewards: BilacReward[] };
 
 // Cùng số với fco_vqtg_rules() trên máy chủ (tests/vqtg.test.ts so khớp) — dùng cho Hướng dẫn.
-// Ô 10 = Mini Jackpot BP = quỹ Jackpot FC × bpPerJackpotFc (1.000 FC → 5B BP), Jackpot nổ thì Mini Jackpot nổ theo (migration 202611130011);
+// Ô 10 = Mini Jackpot BP = quỹ Jackpot FC × bpPerJackpotFc (1.000 FC → 6B BP; +20% từ migration 202611180012_fco_vqtg_bp_plus20.sql, trước 5B), Jackpot nổ thì Mini Jackpot nổ theo (migration 202611130011);
 // ô 14 chỉ Giải Đặc Biệt, không Giải Phụ (202611130010).
-export const VQTG_RULES = { bpPerJackpotFc: 5_000_000, bpChance: 0.06 } as const;
+export const VQTG_RULES = { bpPerJackpotFc: 6_000_000, bpChance: 0.06 } as const;
 export const miniJackpotBp = (jackpotFc: number) => jackpotFc * VQTG_RULES.bpPerJackpotFc;
 export const VQTG_TILES = 16;
 /** Đua top: từ 0h 13/11/2026 tới hết ngày 20/11/2026 (0h 21/11) giờ Việt Nam (UTC+7); 2026-11-17 người dùng lùi thêm 1 ngày (migration 202611170001). */
