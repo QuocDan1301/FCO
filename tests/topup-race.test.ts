@@ -83,3 +83,11 @@ test('BP admin nạp cũng tính điểm Top Đặc Huấn (202611180015): 10B B
   const ui = readFileSync('src/TopupRaceBoard.tsx', 'utf8');
   assert.doesNotMatch(ui.replace(/^\s*\/\/.*$/gm, ''), /\bBP nạp|nạp BP|Nạp BP/i, 'thể lệ không nhắc nạp BP');
 });
+test('BP admin nạp: 1.000đ = 1.500 điểm Top Đặc Huấn, tính lại cả lần nạp cũ (202611180019)', () => {
+  const sql = readFileSync('supabase/migrations/202611180019_fco_topup_race_bp_1500.sql', 'utf8');
+  // 1.000đ = 10B BP (fco_bp_per_vnd 10.000.000 BP / đ); bp_per_fc 10.000.000 → 1.000 FC tương đương × 1,5 = 1.500 điểm.
+  const bpPerFc = Number(/update public\.fco_topup_race set bp_per_fc = (\d+) where id = 1;/.exec(sql)![1]);
+  assert.equal(1000 * 10_000_000 / bpPerFc * 1.5, 1500);
+  assert.match(sql, /alter column bp_per_fc set default 10000000;/);
+  assert.match(sql, /Chưa chạy 202611180015_fco_topup_race_bp\.sql/);
+});

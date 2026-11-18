@@ -751,7 +751,12 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       const result = await serverMarketTake(kind);
       if (result.save) adoptRecord(result.save);
       if (result.pending) setMarketPending(result.pending);
-      if (result.texts.length) { notify(kind === 'buy' ? `Đã nhận ${result.texts.filter(t => t.startsWith('Nhận thẻ')).length} thẻ vào kho.` : `Đã nhận BP: ${result.texts.join(' · ')}`); playSound('success', latest.current.sound); }
+      // Nhận cả nghìn dòng một lần: thông báo gọn bằng tổng máy chủ trả về (gotBp / gotCards), không nối hết từng dòng.
+      if (result.texts.length) {
+        const cards = result.gotCards ?? result.texts.filter(t => t.startsWith('Nhận thẻ')).length;
+        notify(kind === 'buy' ? `Đã nhận ${money(cards)} thẻ vào kho.` : result.gotBp !== undefined ? `Đã nhận ${money(result.gotBp)} BP từ ${money(result.count ?? result.texts.length)} lần bán.` : `Đã nhận BP: ${result.texts.slice(0, 5).join(' · ')}${result.texts.length > 5 ? ` · … (${result.texts.length} lần)` : ''}`);
+        playSound('success', latest.current.sound);
+      }
       else notify('Không còn gì để nhận.');
       return true;
     } catch (e) { notify((e as Error).message); return false; }

@@ -172,3 +172,14 @@ test('Mỗi lần bán tối đa 500 cầu thủ (202611180011): bộ dữ liệ
   assert.match(sql, /'systemAfterSec', 0, 'maxOpenSell', (\d+)/, 'giữ bán ngay');
   assert.ok(+/'maxOpenSell', (\d+)/.exec(sql)![1] >= MAX_BULK_SELL);
 });
+
+test('Nhận tất cả ở TTCN gom cả loạt một lần (202611180020): không lặp chép bản lưu theo từng dòng chờ', () => {
+  const sql = readFileSync('supabase/migrations/202611180020_fco_market_take_batch.sql', 'utf8');
+  const body = sql.slice(sql.indexOf('create or replace function public.fco_mkt_apply_kinds'), sql.indexOf('create or replace function public.fco_mkt_take'));
+  assert.doesNotMatch(body, /for r in select/, 'không còn vòng lặp từng dòng');
+  assert.doesNotMatch(body, /fco_inv_history\(/, 'không dựng lại lịch sử theo từng dòng');
+  assert.match(body, /update public\.fco_mkt_deliveries set claimed_at = now\(\) where id = any\(ids\);/);
+  assert.match(body, /if n <= 30 then/);
+  assert.match(sql, /'gotBp', applied->'bp', 'gotCards', applied->'cards', 'count', applied->'count'/);
+  assert.match(sql, /revoke all on function public\.fco_mkt_apply_kinds\(uuid, jsonb, text\[\]\) from public, anon, authenticated;/);
+});

@@ -40,7 +40,8 @@ export const serverMarketBuy = (playerId: number, level: number, price: number, 
 export const serverMarketBulkBuy = (playerId: number, level: number, count: number, maxPrice: number, direct = false) => withVersion<{ bought: number; spent: number; texts: string[] } & WithSave>('fco_mkt_bulk_buy', { p_player: playerId, p_level: level, p_count: count, p_max: maxPrice, ...(direct ? { p_direct: true } : {}) });
 export const serverMarketCancel = (orderId: number) => rpcCall<WithSave>('fco_mkt_cancel', { p_order: orderId });
 export const serverMarketClaim = () => rpcCall<{ texts: string[]; save: ServerRecord | null; pending?: MarketPending }>('fco_mkt_claim');
-export const serverMarketTake = (kind: 'buy' | 'sell') => rpcCall<{ texts: string[]; save: ServerRecord | null; pending?: MarketPending }>('fco_mkt_take', { p_kind: kind });
+// gotBp / gotCards / count: từ migration 202611180020_fco_market_take_batch.sql (máy chủ cũ không có).
+export const serverMarketTake = (kind: 'buy' | 'sell') => rpcCall<{ texts: string[]; save: ServerRecord | null; pending?: MarketPending; gotBp?: number; gotCards?: number; count?: number }>('fco_mkt_take', { p_kind: kind });
 export const fetchMarketBook = (playerId: number) => rpcCall<BookLevel[]>('fco_mkt_book', { p_player: playerId });
 export const fetchMarketDepth = (playerId: number, level: number) => rpcCall<MarketDepth>('fco_mkt_depth', { p_player: playerId, p_level: level });
 // Giá chợ của nhiều thẻ một lượt (Bán hàng loạt): bid = đặt mua cao nhất, ask = bán thấp nhất (gồm hệ thống), migration 202611170009.
