@@ -39,6 +39,10 @@
             content = "width=" + width + ", initial-scale=" + s + ", minimum-scale=" + s + ", maximum-scale=" + s + ", user-scalable=no, viewport-fit=cover";
           }
           window.__FCO_FIT_SCALE = scale;
+          // Trang bị thu nhỏ còn `scale` lần nên env(safe-area-inset-*) (tính theo px của trang) chỉ còn scale × độ cao thật của vạch Home /
+          // tai thỏ trên màn → CSS nhân thêm --fit-inv để chừa đủ (người dùng 2026-11-17: kiểm tra giao diện mọi iPhone, dock đè vạch Home).
+          var rootEl = document.documentElement;
+          if (rootEl && rootEl.style) rootEl.style.setProperty("--fit-inv", (1 / (scale || 1)).toFixed(4));
           if (content !== last) { last = content; meta.setAttribute("content", content); }
         }
         fit();

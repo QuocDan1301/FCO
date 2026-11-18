@@ -10,11 +10,12 @@ function run({ coarse, screenW, screenH, innerW, innerH, landscape, focused = fa
   const classes = new Set<string>();
   const listeners: Record<string, () => void> = {};
   const win: Record<string, unknown> = { innerWidth: innerW, innerHeight: innerH, addEventListener: (type: string, fn: () => void) => { listeners[type] = fn; } };
-  const documentElement = { classList: { toggle: (name: string, on: boolean) => { if (on) classes.add(name); else classes.delete(name); } } };
+  const vars: Record<string, string> = {};
+  const documentElement = { classList: { toggle: (name: string, on: boolean) => { if (on) classes.add(name); else classes.delete(name); } }, style: { setProperty: (k: string, v: string) => { vars[k] = v; } } };
   const doc = { documentElement, querySelector: () => ({ setAttribute: (_: string, value: string) => { content = value; } }), activeElement: focused ? { tagName: 'INPUT' } : { tagName: 'BODY' } };
   const matchMedia = (query: string) => ({ matches: query.includes('orientation') ? landscape : coarse });
   new Function('window', 'document', 'screen', 'matchMedia', script)(win, doc, { width: screenW, height: screenH }, matchMedia);
-  return { get content() { return content; }, scale: win.__FCO_FIT_SCALE as number | undefined, listeners, win, classes };
+  return { get content() { return content; }, scale: win.__FCO_FIT_SCALE as number | undefined, listeners, win, classes, vars };
 }
 
 test('Máy tính giữ nguyên khung hiển thị', () => {
@@ -24,12 +25,14 @@ test('Máy tính giữ nguyên khung hiển thị', () => {
 });
 
 test('Điện thoại cầm ngang dùng đúng khung PC: cao 826, thu nhỏ vừa màn', () => {
-  const { content, scale } = run({ coarse: true, screenW: 390, screenH: 844, innerW: 844, innerH: 340, landscape: true });
+  const { content, scale, vars } = run({ coarse: true, screenW: 390, screenH: 844, innerW: 844, innerH: 340, landscape: true });
   const width = Number(/width=(\d+)/.exec(content)?.[1]);
   assert.ok(width >= 1536 && Math.abs(width - 826 * 844 / 340) <= 10, `width = ${width}`);
   assert.ok(Math.abs(scale! - 844 / width) < .001);
   assert.match(content, new RegExp(`initial-scale=${scale!.toFixed(4)}, minimum-scale=${scale!.toFixed(4)}, maximum-scale=${scale!.toFixed(4)}`));
   assert.match(content, /viewport-fit=cover/);
+  // Trang thu nhỏ → CSS nhân env(safe-area-inset-*) với --fit-inv = 1 / scale để chừa đủ vạch Home / tai thỏ thật.
+  assert.equal(vars['--fit-inv'], (1 / scale!).toFixed(4));
 });
 
 test('Không còn lớp fit-phone riêng cho điện thoại', () => {

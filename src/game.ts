@@ -622,15 +622,18 @@ export function initialSave(): Save {
 // Đổi quà trong bảng (migration Bi Lắc) thì cập nhật BILAC_PRIZE_PACKS; tests/game.test.ts đối chiếu với migration.
 // Gói quà BXH "Đập 8 liền tay" (p8-*) ngày 2026-11-14: người dùng tăng tỷ lệ ra cầu thủ OVR cao → luật riêng rankPrize (phạt giá nhẹ như
 // Shop, gần như không phạt OVR) thay cho eventPriceAlpha 2,0 + ovrDecay 0,82 của gói sự kiện.
-export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: 2, levelDecay: .2, milestonePriceAlpha: 1.3, milestoneLevelDecay: .31, prizePriceAlpha: 2.5, prizeLevelDecay: .15, prizeGroupWeights: [1, .5, .25], rankPrizePriceAlpha: .5, rankPrizeOvrDecay: 1 } as const;
+export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: 2, levelDecay: .2, milestonePriceAlpha: 1.3, milestoneLevelDecay: .31, prizePriceAlpha: 2.5, prizeLevelDecay: .15, prizeGroupWeights: [1, .5, .25], rankPrizePriceAlpha: .5, rankPrizeOvrDecay: 1, vqtgMilestoneOvrDecay: .9, vqtgMilestonePriceAlpha: .9 } as const;
 export const BILAC_PRIZE_PACKS: ReadonlySet<string> = new Set(['eternal', 'event-4-top150', 'event-6-wb', 'event-7-109']);
 // vqm-* = quà mốc Shop Đổi Vé của Vòng Quanh Thế Giới, cùng luật gói mốc.
 export const isMilestonePack = (pack: Pick<Pack, 'id'>) => /^(blm|ms|vqm)-/.test(pack.id);
 // Gói quà ô của Vòng Quanh Thế Giới (vq-*) cũng là danh sách quà sự kiện → cùng luật với bl-*.
 export const isBilacPrizePack = (pack: Pick<Pack, 'id'>) => !isMilestonePack(pack) && (/^(bl|vq)-/.test(pack.id) || BILAC_PRIZE_PACKS.has(pack.id));
 export const isRankPrizePack = (pack: Pick<Pack, 'id'>) => /^p8-/.test(pack.id);
-export const ovrDecayOf = (pack: Pick<Pack, 'id'>) => isRankPrizePack(pack) ? PACK_ODDS.rankPrizeOvrDecay : PACK_ODDS.ovrDecay;
-export const priceAlphaOf = (pack: Pack) => !pack.eventOnly ? PACK_ODDS.priceAlpha : isRankPrizePack(pack) ? PACK_ODDS.rankPrizePriceAlpha : isMilestonePack(pack) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha;
+// Gói mốc Shop Đổi Vé VQTG (vqm-*), 2026-11-18 người dùng "tăng tỉ lệ mở cầu thủ OVR cao các gói mốc trong sự kiện VQTG": phạt OVR nhẹ hơn
+// (vqtgMilestoneOvrDecay) và phạt giá nhẹ hơn (vqtgMilestonePriceAlpha) so với gói mốc chung (0,82 / 1,3); cấp vẫn milestoneLevelDecay.
+export const isVqtgMilestonePack = (pack: Pick<Pack, 'id'>) => /^vqm-/.test(pack.id);
+export const ovrDecayOf = (pack: Pick<Pack, 'id'>) => isRankPrizePack(pack) ? PACK_ODDS.rankPrizeOvrDecay : isVqtgMilestonePack(pack) ? PACK_ODDS.vqtgMilestoneOvrDecay : PACK_ODDS.ovrDecay;
+export const priceAlphaOf = (pack: Pack) => !pack.eventOnly ? PACK_ODDS.priceAlpha : isRankPrizePack(pack) ? PACK_ODDS.rankPrizePriceAlpha : isVqtgMilestonePack(pack) ? PACK_ODDS.vqtgMilestonePriceAlpha : isMilestonePack(pack) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha;
 // Nhóm giá của cầu thủ (1 / 2 / 3, theo tên như bảng giá); thiếu thì coi là nhóm 2.
 // Gói trong Danh sách quà Bi Lắc nhân thêm prizeGroupWeights theo nhóm (2026-11-11: giảm tỷ lệ ra cầu thủ nhóm 2 và 3).
 const priceGroups = priceGroupData.groups as Record<string, number>;

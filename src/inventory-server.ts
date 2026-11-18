@@ -31,7 +31,7 @@ export const serverShop = (packId: string, count: number) => withVersion<{ walle
 export const serverGold = (uid: string, slot: '7' | '11', trait: string | null) => rpcCall<{ card: Card } & WithSave>('fco_inv_gold', { p_uid: uid, p_slot: slot, p_trait: trait });
 export const serverRelease = (uids: string[]) => rpcCall<WithSave>('fco_inv_release', { p_uids: uids });
 // ===== Chợ giữa người chơi (migration 202611170002_fco_player_market.sql) =====
-// Bán cho người chơi: khớp ngay với lệnh mua giá ≥ giá treo; còn lại treo 24 giờ, hết hạn thì thẻ về kho. Bán cho hệ thống: serverSell (giá tham chiếu, nhận ngay).
+// Treo bán: khớp ngay với lệnh mua giá ≥ giá treo; còn lại chưa ai mua sau 3 phút thì hệ thống mua đúng giá treo (202611180004).
 export const serverMarketSell = (items: SellItem[], voucher: number | null = null) => withVersion<{ placed: number; matched: number; tax: number; texts: string[] } & WithSave>('fco_mkt_sell', { p_items: items, ...(voucher ? { p_voucher: voucher } : {}) });
 // Đặt mua 1 thẻ giá tối đa price: có lệnh bán rẻ hơn thì mua ngay theo giá đó, không thì giữ BP và treo lệnh tới khi khớp (không hết hạn).
 // direct = true (mua ở màn đập thẻ, migration 202611170015): thẻ mua được ngay vào thẳng kho, không chờ nhận ở TTCN.

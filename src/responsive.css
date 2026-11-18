@@ -5,8 +5,9 @@ html,body{overscroll-behavior:none}
 button,a,label,select,input,[role=button],[role=option],[role=tab],[role=row],.player-card,.inv-item,.fco-line,.lu-token{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .main-content,.modal-panel,.inv-grid,.tp-list,.dr-rows,.lu-rows,.sd-bulk-rows,.sd-single,.squad-list,.fco-body{-webkit-overflow-scrolling:touch}
 .modal-panel,.inv-grid,.tp-list,.dr-rows,.sd-bulk-rows,.sd-single{overscroll-behavior:contain}
-.app>.app-dock{height:calc(var(--dock-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom)}
-.sd{padding-bottom:env(safe-area-inset-bottom)}
+/* --fit-inv (script screen-fit trong index.html): bù phần trang bị thu nhỏ trên điện thoại để chừa đủ vạch Home thật (~21 pt). */
+.app>.app-dock{height:calc(var(--dock-h) + env(safe-area-inset-bottom) * var(--fit-inv,1));padding-bottom:calc(env(safe-area-inset-bottom) * var(--fit-inv,1))}
+.sd{padding-bottom:calc(env(safe-area-inset-bottom) * var(--fit-inv,1))}
 /* Máy cảm ứng: :hover bị "dính" sau khi chạm nên bỏ các hiệu ứng rê chuột của ô gói và ô phôi. */
 @media(hover:none){
   .inv-workspace .inv-item:hover:not(.is-selected){background:#161b22;color:#f0f1f3}

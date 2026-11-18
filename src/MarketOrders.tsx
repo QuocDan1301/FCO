@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Shirt } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
-import { SELL_ORDER_HOURS, marketNow } from './market';
+import { SYSTEM_TAKEOVER_MIN, marketNow } from './market';
 import type { MarketPending, MyOrder } from './inventory-server';
 import { SeasonBadge } from './badges';
 import { positionGroup } from './squad';
@@ -77,12 +77,12 @@ export default function MarketOrders({ load, onCancel, onRefreshClaims, onRelist
 
   const body = error ? <div className="mo-empty"><p>Không tải được lịch sử chuyển nhượng.</p><button className="secondary-button" onClick={() => setTick(t => t + 1)}>Thử lại</button></div>
     : !orders ? <div className="mo-empty"><p>Đang tải…</p></div>
-    : !groups.length ? <div className="mo-empty"><p>Chưa có giao dịch nào.</p><small>Bán cho người chơi = treo lên chợ {SELL_ORDER_HOURS} giờ (hết hạn chưa ai mua thì thẻ về kho); bán cho hệ thống thì nhận BP ngay. Lệnh đặt mua treo tới khi khớp, không hết hạn.</small></div>
+    : !groups.length ? <div className="mo-empty"><p>Chưa có giao dịch nào.</p><small>Bán = treo lên chợ cho người chơi; chưa ai mua sau {SYSTEM_TAKEOVER_MIN} phút thì hệ thống mua đúng giá treo. Lệnh đặt mua treo tới khi khớp, không hết hạn.</small></div>
     : <div className="mo-rows" role="table" aria-label="Lịch sử chuyển nhượng">
       {groups.map(g => {
         const o = g.order, p = getPlayer(o), f = faceOf(p), on = checkedSet.has(g.key);
-        const due = o.createdAt + SELL_ORDER_HOURS * 3_600_000;
-        const sub = g.open ? (o.side === 'sell' ? `Hết hạn sau ${left(due - now)}` : 'Chờ người bán')
+        const due = o.createdAt + SYSTEM_TAKEOVER_MIN * 60_000;
+        const sub = g.open ? (o.side === 'sell' ? `Hệ thống mua sau ${left(due - now)}` : 'Chờ người bán')
           : o.side === 'sell' ? `Chờ nhận ${money(g.claimBp)} BP` : 'Chờ nhận thẻ';
         return <div className={`mo-row is-${o.side} is-${o.status}${on ? ' is-on' : ''}`} role="row" key={g.key}>
           {g.open ? <input type="checkbox" checked={on} onChange={() => toggle(g.key)} aria-label={`Chọn ${p.name} +${o.level}`}/> : <span/>}

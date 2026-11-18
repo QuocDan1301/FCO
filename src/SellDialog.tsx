@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
 import type { Card, Save, Tier } from './game';
-import { MAX_BULK_SELL, MARKET_FEE_PERCENT, SYSTEM_SALE_FEE_PERCENT, SELL_BAND_PERCENT, marketNow, premiumActive, priceAt, saleFee, saleTaxPercent, sellRange, taxFor, voucherHelps, isTradeLocked, TRADE_LOCKED } from './market';
+import { MAX_BULK_SELL, MARKET_FEE_PERCENT, SELL_BAND_PERCENT, marketNow, premiumActive, priceAt, saleFee, saleTaxPercent, sellRange, taxFor, voucherHelps, isTradeLocked, TRADE_LOCKED } from './market';
 import type { SellItem } from './market';
 import { TAX_VOUCHERS, voucherCount } from './stp';
 import type { TaxVoucher } from './stp';
@@ -15,10 +15,8 @@ import { faceOf } from './portraits';
 
 type Tab = 'single' | 'bulk';
 export type SellTarget = 'market' | 'system';
-const TARGETS: { id: SellTarget; label: string; hint: string }[] = [
-  { id: 'market', label: 'Bán cho người chơi', hint: 'Treo lên chợ 24 giờ với giá tự đặt; có người đặt mua giá ≥ giá bán thì khớp ngay, hết hạn chưa ai mua thì thẻ về kho. BP chờ nhận ở TTCN › Lịch sử chuyển nhượng.' },
-  { id: 'system', label: 'Bán cho hệ thống', hint: 'Hệ thống mua ngay theo giá tham chiếu, thuế gốc 50% (trước khi giảm), BP vào số dư luôn.' },
-];
+// Bán luôn là treo lệnh cho người chơi (202611180004: bỏ "Bán cho hệ thống"); quá 3 phút chưa ai mua thì hệ thống mua đúng giá treo.
+const SELL_HINT = 'Treo lên chợ với giá tự đặt: có người đặt mua giá ≥ giá bán thì khớp ngay; chưa ai mua sau 3 phút thì hệ thống mua đúng giá treo (trừ thuế). BP chờ nhận ở TTCN › Lịch sử chuyển nhượng.';
 type Mode = 'fit' | 'min' | 'max';
 type Props = {
   save: Save;
@@ -28,10 +26,9 @@ type Props = {
   levelBadge: (level: number) => string;
   seasonShort: (tier: Tier) => string;
   // Promise khi máy chủ bán (src/inventory-server.ts); true = đã bán xong. voucher: phiếu giảm thuế dùng cho lượt bán này.
-  // target: 'market' = bán cho người chơi (treo 24 giờ), 'system' = bán cho hệ thống (giá tham chiếu, nhận ngay).
-  onSell: (items: SellItem[], voucher: TaxVoucher | null, target: SellTarget) => boolean | Promise<boolean>;
+  onSell: (items: SellItem[], voucher: TaxVoucher | null) => boolean | Promise<boolean>;
   onClose: () => void;
-  // Chợ giữa người chơi (migration 202611170002): sổ lệnh thật; có thì được chọn bán cho người chơi (treo 24 giờ) hoặc cho hệ thống (202611170012).
+  // Chợ giữa người chơi (migration 202611170002): sổ lệnh thật; có thì bán = treo lệnh cho người chơi, quá 3 phút chưa ai mua thì hệ thống mua (202611180004).
   loadDepth?: (playerId: number, level: number) => Promise<MarketDepth>;
   // Bán hàng loạt: giá chợ của cả danh sách (migration 202611170009); có thì 'giá phù hợp' theo chợ thật.
   loadQuotes?: (keys: [number, number][]) => Promise<MarketQuote[]>;
@@ -72,16 +69,12 @@ export function PriceChart({ history }: { history: number[] }) {
 }
 
 // Cửa sổ Bán kiểu FC Online: "Bán từng cá nhân" (tự đặt giá trong khoảng ±10%, bán nhiều thẻ giống nhau một lúc) và
-// "Bán hàng loạt" (tick tối đa 99 thẻ, bán cùng một mức: giá phù hợp / thấp nhất / cao nhất). Bán là bán ngay, trừ phí của từng thẻ.
+// "Bán hàng loạt" (tick tối đa MAX_BULK_SELL thẻ, bán cùng một mức: giá phù hợp / thấp nhất / cao nhất). Bán là bán ngay, trừ phí của từng thẻ.
 export default function SellDialog({ save, initial, free, renderCard, levelBadge, seasonShort, onSell, onClose, loadDepth, loadQuotes }: Props) {
   const listing = !!loadDepth;
   const period = usePricePeriod();
-  // Không có chợ (chơi thử không máy chủ) thì chỉ có bán cho hệ thống như cũ.
-  const [targetChoice, setTarget] = useState<SellTarget>('market');
-  const target: SellTarget = listing ? targetChoice : 'system';
-  const toSystem = listing && target === 'system';
-  // Thuế gốc: bán cho hệ thống 50%, bán cho người chơi 40% (chơi thử không máy chủ giữ 40% như cũ).
-  const feeBase = toSystem ? SYSTEM_SALE_FEE_PERCENT : MARKET_FEE_PERCENT;
+  const toSystem = false;
+  const feeBase = MARKET_FEE_PERCENT;
   // Phiếu giảm thuế (gói Star Point): trừ thẳng điểm % thuế của lượt bán này; hết phiếu đang chọn thì bỏ chọn.
   const [chosenVoucher, setVoucher] = useState<TaxVoucher | null>(null);
   // Premium (giảm 65%, không cộng dồn) chỉ dùng được phiếu cho thuế thấp hơn 14%.
@@ -91,7 +84,6 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const taxPercent = taxFor(save, voucher, undefined, feeBase);
   const voucherPicker = usable.length > 0 && <label className="sd-voucher"><span>Phiếu giảm thuế</span><select value={voucher ?? ''} onChange={e => setVoucher(e.target.value ? Number(e.target.value) as TaxVoucher : null)} aria-label="Dùng phiếu giảm thuế cho lượt bán này"><option value="">Không dùng · thuế {baseTax}%{premiumActive(save) ? ' (Premium)' : ''}</option>{usable.map(pct => <option key={pct} value={pct}>Giảm {pct}% · thuế còn {taxFor(save, pct, undefined, feeBase)}% (còn {voucherCount(save, pct)} phiếu)</option>)}</select></label>;
   const [tab, setTab] = useState<Tab>(initial.tab);
-  const targetPicker = listing && <div className="sd-target" role="radiogroup" aria-label="Bán cho ai">{TARGETS.map(t => <button key={t.id} type="button" role="radio" aria-checked={target === t.id} title={t.hint} onClick={() => setTarget(t.id)}>{t.label}</button>)}</div>;
   const [uid, setUid] = useState(initial.uid ?? '');
   const locked = useMemo(() => new Set(save.locked ?? []), [save.locked]);
   const squad = useMemo(() => new Set(save.squad ?? []), [save.squad]);
@@ -137,7 +129,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const pickPrice = (value: number) => { if (range) setPriceText(full(Math.min(range.max, Math.max(range.min, value)))); };
   const clampPrice = () => { if (!range) return; setPriceText(full(Math.min(range.max, Math.max(range.min, price || range.price)))); };
   const step = (dir: 1 | -1) => { if (!range) return; const unit = Math.max(1, Math.round(range.price / 100)); setPriceText(full(Math.min(range.max, Math.max(range.min, (price || range.price) + dir * unit)))); };
-  const sellSingle = () => { if (card && priceOk && count >= 1 && count <= sellable) void Promise.resolve(onSell(selling.map(c => ({ uid: c.uid, price })), voucher, target)).then(ok => { if (ok) onClose(); }); };
+  const sellSingle = () => { if (card && priceOk && count >= 1 && count <= sellable) void Promise.resolve(onSell(selling.map(c => ({ uid: c.uid, price })), voucher)).then(ok => { if (ok) onClose(); }); };
 
   // ---- Bán hàng loạt ----
   const [mode, setMode] = useState<Mode>('fit');
@@ -179,7 +171,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const eligible = rows.filter(row => !row.reason);
   const allChecked = eligible.length > 0 && eligible.slice(0, MAX_BULK_SELL).every(row => checkedSet.has(row.card.uid));
   const toggle = (id: string) => setChecked(list => list.includes(id) ? list.filter(x => x !== id) : list.length >= MAX_BULK_SELL ? list : [...list, id]);
-  const sellBulk = () => { if (chosen.length) void Promise.resolve(onSell(chosen.map(row => ({ uid: row.card.uid, price: priceFor({ card: row.card, range: row.range! }) })), voucher, target)).then(ok => { if (ok) { setChecked([]); onClose(); } }); };
+  const sellBulk = () => { if (chosen.length) void Promise.resolve(onSell(chosen.map(row => ({ uid: row.card.uid, price: priceFor({ card: row.card, range: row.range! }) })), voucher)).then(ok => { if (ok) { setChecked([]); onClose(); } }); };
 
   const p = card && getPlayer(card);
   return <div className="sd-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onKeyDown={e => { if (e.key === 'Escape') onClose(); }}><div className="sd" role="dialog" aria-modal="true" aria-labelledby="sd-title">
@@ -208,7 +200,6 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
           <div><dt>Giá tối thiểu</dt><dd>{range ? <button className="sd-pick" onClick={() => pickPrice(range.min)} title="Đặt giá tối thiểu">{money(range.min)}</button> : '—'}</dd></div>
           <div><dt>Giá tối đa</dt><dd>{range ? <button className="sd-pick" onClick={() => pickPrice(range.max)} title="Đặt giá tối đa">{money(range.max)}</button> : '—'}</dd></div>
         </dl>
-        {targetPicker}
         <label className="sd-field"><span>Giá{toSystem && <small> (giá tham chiếu)</small>}</span>
           <input inputMode="numeric" value={toSystem && range ? full(range.price) : priceText} readOnly={toSystem} disabled={!range} aria-invalid={!!range && !priceOk} onChange={e => setPriceText(e.target.value.replace(/\D/g, '') ? full(Number(e.target.value.replace(/\D/g, ''))) : '')} onBlur={clampPrice} onKeyDown={e => { if (e.key === 'ArrowUp') { e.preventDefault(); step(1); } if (e.key === 'ArrowDown') { e.preventDefault(); step(-1); } }}/>
         </label>
@@ -217,13 +208,13 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
         <div className="sd-row"><span>Số lượng có thể bán</span><b className="sd-big">{sellable}</b></div>
         {isTradeLocked(card) ? <p className="sd-price-note is-error">{TRADE_LOCKED}</p> : locked.has(card.uid) && <p className="sd-price-note is-error">Thẻ đang bị khóa. Mở khóa trước khi bán.</p>}
         {voucherPicker}
-        <div className="sd-actions"><button className="sd-sell" disabled={!priceOk || !sellable} onClick={sellSingle} title={listing ? TARGETS.find(t => t.id === target)!.hint : undefined}>Bán cầu thủ</button><button className="sd-cancel" onClick={onClose}>Hủy</button></div>
+        <div className="sd-actions"><button className="sd-sell" disabled={!priceOk || !sellable} onClick={sellSingle} title={listing ? SELL_HINT : undefined}>Bán cầu thủ</button><button className="sd-cancel" onClick={onClose}>Hủy</button></div>
       </section>
     </div> : <div className="sd-empty"><p>Chọn một cầu thủ ở tab Bán hàng loạt (bấm vào tên) để bán lẻ với giá tự đặt.</p><button className="sd-cancel" onClick={() => setTab('bulk')}>Đến Bán hàng loạt</button></div>)
 
     : <div className="sd-bulk">
       <div className="sd-bulk-head" role="row">
-        <input type="checkbox" aria-label="Chọn tất cả (tối đa 99)" checked={allChecked} disabled={!eligible.length} onChange={() => setChecked(allChecked ? [] : eligible.slice(0, MAX_BULK_SELL).map(row => row.card.uid))}/>
+        <input type="checkbox" aria-label={`Chọn tất cả (tối đa ${MAX_BULK_SELL})`} checked={allChecked} disabled={!eligible.length} onChange={() => setChecked(allChecked ? [] : eligible.slice(0, MAX_BULK_SELL).map(row => row.card.uid))}/>
         <span>Tên cầu thủ</span><span>Lương</span><button className="sd-sort" onClick={() => setSortDesc(d => !d)} aria-label={`Sắp xếp OVR ${sortDesc ? 'tăng dần' : 'giảm dần'}`}>OVR{sortDesc ? <ChevronDown size={14}/> : <ChevronUp size={14}/>}</button><span>Thẻ</span><span>Giá bán</span>
       </div>
       <div className="sd-bulk-rows" role="table" aria-label="Cầu thủ có thể bán">
@@ -241,13 +232,12 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
         <div className="sd-bulk-sum">
           <span className="sd-fee">Chi phí bán<i title={`Phí ${taxPercent}% giá bán của mỗi thẻ`}>?</i><b>{money(totalFee)}</b></span>
           {voucherPicker}
-          {targetPicker}
-          {!toSystem && <select value={mode} onChange={e => setMode(e.target.value as Mode)} aria-label="Mức giá bán hàng loạt">{MODES.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}</select>}
+            {!toSystem && <select value={mode} onChange={e => setMode(e.target.value as Mode)} aria-label="Mức giá bán hàng loạt">{MODES.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}</select>}
           <span className="sd-total">Tổng giá trị<b>{money(total)}</b></span>
         </div>
         <div className="sd-actions">
           <span className="sd-count">{chosen.length} / {MAX_BULK_SELL}<i title={`Mỗi lần bán tối đa ${MAX_BULK_SELL} cầu thủ; thẻ khóa và thẻ chưa có giá không bán được; thẻ trong đội hình không hiện ở đây`}>?</i></span>
-          <button className="sd-sell" disabled={!chosen.length} onClick={sellBulk} title={listing ? TARGETS.find(t => t.id === target)!.hint : undefined}>Bán SL lớn cầu thủ</button><button className="sd-cancel" onClick={onClose}>Hủy</button>
+          <button className="sd-sell" disabled={!chosen.length} onClick={sellBulk} title={listing ? SELL_HINT : undefined}>Bán SL lớn cầu thủ</button><button className="sd-cancel" onClick={onClose}>Hủy</button>
         </div>
         {free && <p className="sd-muted">Chế độ thử nghiệm: bán không cộng BP.</p>}
       </footer>

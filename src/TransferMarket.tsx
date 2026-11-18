@@ -37,6 +37,8 @@ type Props = {
   onRefreshClaims?: () => void | Promise<void>;
   // Lịch sử chuyển nhượng › Bán lại: mở cửa sổ Bán hàng loạt sau khi huỷ lệnh bán đã chọn.
   onRelist?: () => void;
+  // Đã đăng nhập nhưng kho chưa chạy trên máy chủ (bản game khác dữ liệu đã đồng bộ): vẫn hiện tab Lịch sử chuyển nhượng kèm lời nhắc này.
+  ordersNotice?: string;
   // Phần chờ nhận (thẻ mua được / BP bán được) và nút nhận (migration 202611170011).
   pending?: MarketPending;
   onTake?: (kind: 'buy' | 'sell') => Promise<boolean>;
@@ -93,7 +95,7 @@ const seasonOptions = () => seasonOptionsCache ??= (() => {
 })();
 const OVR_OPTIONS: PickerOption[] = MARKET_OVRS.map(o => ({ value: String(o), label: String(o), key: String(o) }));
 
-export default function TransferMarket({ save, free, onTrade, onHistory, onOpenPacks, renderCard, levelBadge, onDetail, loadTopViewed, loadBook, loadMine, onCancelOrder, onRefreshClaims, onRelist, pending, onTake }: Props) {
+export default function TransferMarket({ save, free, onTrade, onHistory, onOpenPacks, renderCard, levelBadge, onDetail, loadTopViewed, loadBook, loadMine, onCancelOrder, onRefreshClaims, onRelist, pending, onTake, ordersNotice }: Props) {
   // Vừa vào TTCN là thấy Tâm điểm.
   const [mode, setMode] = useState<'buy' | 'sell' | 'spotlight' | 'orders'>('spotlight');
   const [viewedRows, setViewedRows] = useState<{ id: number; views: number }[]>(() => viewedCache?.rows ?? []);
@@ -194,8 +196,8 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
         <button className="text-action" onClick={onHistory}><History size={16}/>Lịch sử giao dịch<ArrowRight size={15}/></button>
       </div>
     </div>
-    <div className="market-tabs" role="group" aria-label="Loại giao dịch"><button className="market-tab-spotlight" aria-pressed={mode === 'spotlight'} onClick={() => switchMode('spotlight')}><Sparkles size={14}/>Tâm điểm</button><button aria-pressed={mode === 'buy'} onClick={() => switchMode('buy')}>Mua cầu thủ<span>{players.length}</span></button><button aria-pressed={mode === 'sell'} onClick={() => switchMode('sell')}>Bán cầu thủ<span>{save.cards.length}</span></button>{loadMine && onCancelOrder && <button aria-pressed={mode === 'orders'} onClick={() => switchMode('orders')}>Lịch sử chuyển nhượng</button>}</div>
-    {mode === 'orders' && loadMine && onCancelOrder ? <MarketOrders load={loadMine} onCancel={onCancelOrder} onRefreshClaims={onRefreshClaims} onRelist={onRelist} pending={pending} onTake={onTake} levelBadge={levelBadge}/> : mode === 'spotlight' ? <div className="market-spotlight">{spots.map((spot, i) => {
+    <div className="market-tabs" role="group" aria-label="Loại giao dịch"><button className="market-tab-spotlight" aria-pressed={mode === 'spotlight'} onClick={() => switchMode('spotlight')}><Sparkles size={14}/>Tâm điểm</button><button aria-pressed={mode === 'buy'} onClick={() => switchMode('buy')}>Mua cầu thủ<span>{players.length}</span></button><button aria-pressed={mode === 'sell'} onClick={() => switchMode('sell')}>Bán cầu thủ<span>{save.cards.length}</span></button>{((loadMine && onCancelOrder) || ordersNotice) && <button aria-pressed={mode === 'orders'} onClick={() => switchMode('orders')}>Lịch sử chuyển nhượng</button>}</div>
+    {mode === 'orders' && !(loadMine && onCancelOrder) && ordersNotice ? <div className="mo-empty"><p>Chưa xem được lịch sử chuyển nhượng.</p><small>{ordersNotice}</small></div> : mode === 'orders' && loadMine && onCancelOrder ? <MarketOrders load={loadMine} onCancel={onCancelOrder} onRefreshClaims={onRefreshClaims} onRelist={onRelist} pending={pending} onTake={onTake} levelBadge={levelBadge}/> : mode === 'spotlight' ? <div className="market-spotlight">{spots.map((spot, i) => {
       const player = getPlayer(spot.card), spotQuote = marketQuote(spot.card);
       return <article className={`spotlight-item spotlight-${i}`} key={spot.label}>
         <header><span className="spotlight-rank">{i + 1}</span><div><h3>{spot.label}</h3><small>{spot.hint}</small></div></header>

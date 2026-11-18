@@ -152,12 +152,13 @@ export function sellPlayer(state: Save, cardId: string, free = false, voucher: T
 // Bán hàng loạt tối đa MAX_BULK_SELL thẻ mỗi lần, mỗi thẻ một giá riêng.
 export const SELL_BAND_PERCENT = 10;
 // Chợ giữa người chơi (2026-11-17, migration 202611170002_fco_player_market.sql): hệ thống chỉ bán thẻ +1 (SYSTEM_BUY_LEVEL);
-// bán cho người chơi = treo lệnh SELL_ORDER_HOURS giờ; lệnh mua giữ BP, không hết hạn (migration 202611170014), huỷ thì trả BP.
+// bán = treo lệnh, chưa ai mua sau SYSTEM_TAKEOVER_MIN phút thì hệ thống mua; lệnh mua giữ BP, không hết hạn (migration 202611170014), huỷ thì trả BP.
 export const SYSTEM_BUY_LEVEL = 1;
-// Bán cho người chơi = treo lệnh SELL_ORDER_HOURS giờ, hết hạn chưa ai mua thì thẻ về kho; bán cho hệ thống = nhận ngay theo giá tham chiếu
-// (migration 202611170012 — fco_mkt_rules.sellTtlHours, fco_inv_sell).
-export const SELL_ORDER_HOURS = 24;
-export const MAX_BULK_SELL = 99;
+// Bán = treo lệnh cho người chơi; chưa ai mua sau SYSTEM_TAKEOVER_MIN phút thì hệ thống mua đúng giá treo (migration 202611180004,
+// fco_mkt_rules.systemAfterSec). Không còn bán thẳng cho hệ thống.
+export const SYSTEM_TAKEOVER_MIN = 3;
+// 2026-11-18 người dùng: mỗi lần bán tối đa 150 cầu thủ (bộ dữ liệu maxBulkSell → admin Đồng bộ dữ liệu).
+export const MAX_BULK_SELL = 150;
 export function sellRange(card: Pick<Card, 'playerId' | 'level'>) {
   const quote = marketQuote(card);
   if (!quote.available) return null;

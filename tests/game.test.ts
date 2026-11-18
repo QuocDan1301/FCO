@@ -123,10 +123,10 @@ test('Tỷ lệ gói: OVR cao hơn sàn và giá +1 đắt hơn thì hiếm hơn
     const floor = Math.min(...rows.map(r => r.value)), cheapest = Math.min(...rows.map(r => r.price).filter(p => p > 0));
     // Gói sự kiện / quà (eventOnly) phạt giá nặng hơn gói Shop; gói mốc (blm-*, ms-*) nhẹ hơn, gói trong Danh sách quà Bi Lắc nặng nhất.
     const alpha = priceAlphaOf(pack);
-    assert.equal(alpha, !pack.eventOnly ? PACK_ODDS.priceAlpha : rank ? PACK_ODDS.rankPrizePriceAlpha : /^(blm|ms|vqm)-/.test(pack.id) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha, pack.id);
+    assert.equal(alpha, !pack.eventOnly ? PACK_ODDS.priceAlpha : rank ? PACK_ODDS.rankPrizePriceAlpha : /^vqm-/.test(pack.id) ? PACK_ODDS.vqtgMilestonePriceAlpha : /^(blm|ms)-/.test(pack.id) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha, pack.id);
     // Gói trong Danh sách quà Bi Lắc nhân thêm trọng số theo nhóm giá (nhóm 1 ×1, nhóm 2 ×0,5, nhóm 3 ×0,25).
     const group = (i: number) => isBilacPrizePack(pack) ? PACK_ODDS.prizeGroupWeights[priceGroupOf(pool[i].player) - 1] : 1;
-    const weights = rows.map((r, i) => (rank ? PACK_ODDS.rankPrizeOvrDecay : PACK_ODDS.ovrDecay) ** (r.value - floor) / Math.max(1, r.price > 0 ? r.price / cheapest : 1) ** alpha * group(i));
+    const weights = rows.map((r, i) => (rank ? PACK_ODDS.rankPrizeOvrDecay : /^vqm-/.test(pack.id) ? PACK_ODDS.vqtgMilestoneOvrDecay : PACK_ODDS.ovrDecay) ** (r.value - floor) / Math.max(1, r.price > 0 ? r.price / cheapest : 1) ** alpha * group(i));
     const total = weights.reduce((sum, w) => sum + w, 0);
     pool.forEach((row, i) => assert.ok(Math.abs(row.chance - weights[i] / total) < 1e-12, `${pack.name} · ${row.player.name}`));
     if (!pack.levels) assert.deepEqual(levels, [{ level: 1, chance: 1 }], `${pack.name}: gói (ALL) chỉ ra +1`);

@@ -677,35 +677,30 @@ const RAY_RATE = [16, 420],
 const RAY_COLORS = ["#ff3df2", "#3df5ff", "#ffe03d", "#5dff7a", "#ff6b3d", "#8f6bff", "#ff3d6e"];
 // Tính kết quả + dựng sẵn hiệu ứng kết quả (ẩn, hoạt cảnh tạm dừng) trước lúc lộ một khoảng, khi thẻ đã gần trắng hẳn:
 // khung hình lộ kết quả chỉ còn bật hiện, không phải chạy logic/lưu dữ liệu/dựng DOM/vẽ lớp mới cùng lúc (gây khựng).
-const PREPARE_LEAD = 600;
+// 2026-11-17 (còn khựng): dựng sớm, 1,2 s sau khi bấm (cảnh còn tĩnh) thay vì 0,6 s trước khi lộ (đúng cao trào) — phần GPU vẽ lớp mới không rơi vào lúc thẻ rung sáng nhất.
+const PREPARE_LEAD = 5600 - 1200;
 // Lộ kết quả gây giật mình (người dùng 2026-11-17): cú chớp sáng + giật khung hình (.uc-flash, uc-punch-*); tia năng lượng dồn tới tận lúc lộ.
-// Hoạt cảnh CSS có keyframe dùng biến (var(--a), var(--h)…) không chạy được trên GPU: Chrome tính lại style của từng phần tử mỗi
-// khung hình (đo 2026-11-17: tia pháo sáng 144 phần tử ≈ 4/5 thời gian tính style lúc hiện kết quả). Chuyển sang Web Animations với
-// keyframe đã thay giá trị (getKeyframes trả giá trị cụ thể) → chạy trên GPU, hình ảnh như cũ.
-const VAR_ANIMATIONS = new Set(["uc-spark", "uc-ray", "uc-machine-smoke", "uc-fail-ash", "uc-smoke", "uc-smoke-rise"]);
-// Phần tử còn trong .is-pre (kết quả dựng sẵn, chưa lộ) → bản Web Animations tạo sẵn ở trạng thái dừng, trả về để lộ ra thì play().
+// Hoạt cảnh CSS có keyframe dùng biến (var(--a), var(--h)…) không chạy được trên GPU: Chrome tính lại style từng phần tử mỗi khung hình
+// (đo 2026-11-17: 144 tia pháo sáng chiếm phần lớn thời gian tính style lúc hiện kết quả). Đổi sang Web Animations với giá trị cụ thể.
+// Tia pháo sáng dựng thẳng từ biến inline — KHÔNG dùng getAnimations({ subtree }) / getKeyframes cho cả màn (đo: 94 ms một lần, gây khựng
+// ngay trước khi hiện kết quả). Phần tử còn trong .is-pre (kết quả dựng sẵn) để dừng, trả về để lúc lộ ra thì play().
 function compositeVarAnimations(root: HTMLElement): Animation[] {
   const held: Animation[] = [];
-  const byEl = new Map<HTMLElement, CSSAnimation[]>();
-  for (const anim of root.getAnimations({ subtree: true })) {
-    if (!(anim instanceof CSSAnimation)) continue;
-    const effect = anim.effect as KeyframeEffect | null, el = effect?.target;
-    if (!effect || effect.pseudoElement || !(el instanceof HTMLElement)) continue;
-    const list = byEl.get(el) ?? [];
-    list.push(anim);
-    byEl.set(el, list);
-  }
-  for (const [el, anims] of byEl) {
-    if (!anims.some((a) => VAR_ANIMATIONS.has(a.animationName))) continue;
-    const copies = anims.map((a) => {
-      const effect = a.effect as KeyframeEffect, timing = effect.getTiming();
+  const vh = window.innerHeight / 100, ms = (v: string) => (parseFloat(v) || 0) * 1000;
+  // Khói máy / tro lặp vô hạn lúc rớt (ít phần tử): lấy keyframe Chrome đã thay giá trị biến.
+  for (const el of root.querySelectorAll<HTMLElement>(".uc-machine-smoke:not([data-wa]), .uc-fail-ash:not([data-wa])")) {
+    const anims = el.getAnimations().filter((x): x is CSSAnimation => x instanceof CSSAnimation);
+    if (!anims.length) continue;
+    const copies = anims.map((x) => {
+      const effect = x.effect as KeyframeEffect, timing = effect.getTiming();
       return {
         frames: effect.getKeyframes().map(({ computedOffset: _c, ...k }) => k as Keyframe),
         timing: { ...timing, iterations: timing.iterations ?? Infinity } as KeyframeEffectOptions,
-        at: a.currentTime,
+        at: x.currentTime,
       };
     });
     const pre = !!el.closest(".is-pre");
+    el.dataset.wa = "";
     el.style.animation = "none";
     for (const c of copies) {
       const wa = el.animate(c.frames, c.timing);
@@ -717,6 +712,89 @@ function compositeVarAnimations(root: HTMLElement): Animation[] {
     }
   }
   return held;
+}
+
+// Tia pháo sáng hai bên (thành công: 72 tia/bên, rớt: 14 tia/bên tắt dần sau 3 lượt) vẽ trên canvas — trước đây mỗi tia là một <i>
+// có hoạt cảnh dùng biến CSS, Chrome tính lại style từng tia mỗi khung hình (người dùng 2026-11-17: màn đập thẻ còn khựng).
+// Thông số (góc a°, độ cao h vh, trễ d s, chu kỳ t s, dài s px) như bản CSS cũ.
+type Spark = { a: number; h: number; d: number; t: number; s: number };
+const SPARKS_WIN: Spark[] = Array.from({ length: 72 }, (_, i) => ({
+  a: -5 + ((i * 29) % 11), h: 34 + ((i * 41) % 40), d: +((i * 0.037) % 1.3).toFixed(2), t: +(0.8 + ((i * 17) % 7) / 10).toFixed(1), s: 14 + ((i * 23) % 22),
+}));
+const SPARKS_BROKEN: Spark[] = Array.from({ length: 14 }, (_, i) => ({
+  a: -14 + ((i * 23) % 28), h: 5 + ((i * 7) % 11), d: +((i * 0.29) % 1.6).toFixed(2), t: +(0.4 + ((i * 13) % 4) / 10).toFixed(1), s: 6 + ((i * 5) % 8),
+}));
+// cubic-bezier(.2,.6,.5,1) của hoạt cảnh cũ.
+const sparkEase = (x: number) => {
+  const ax = 1 - 3 * 0.5 + 3 * 0.2, bx = 3 * 0.5 - 6 * 0.2, cx = 3 * 0.2, ay = 1 - 3 * 1 + 3 * 0.6, by = 3 * 1 - 6 * 0.6, cy = 3 * 0.6;
+  let u = x;
+  for (let k = 0; k < 6; k++) {
+    const fx = ((ax * u + bx) * u + cx) * u - x, dx = (3 * ax * u + 2 * bx) * u + cx;
+    if (Math.abs(fx) < 1e-4 || !dx) break;
+    u = Math.min(1, Math.max(0, u - fx / dx));
+  }
+  return ((ay * u + by) * u + cy) * u;
+};
+function SparkCanvas({ broken, running }: { broken: boolean; running: boolean }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const cv = ref.current, ctx = cv?.getContext("2d");
+    if (!cv || !ctx) return;
+    if (!running) {
+      // Chưa lộ: chỉ cấp sẵn kích thước canvas (GPU tạo sẵn vùng vẽ), không chạy vòng vẽ.
+      const sc = Math.min(1.5, window.devicePixelRatio || 1);
+      cv.width = Math.max(1, Math.round(cv.clientWidth * sc));
+      cv.height = Math.max(1, Math.round(cv.clientHeight * sc));
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      return;
+    }
+    const css = getComputedStyle(cv);
+    const hi = css.getPropertyValue("--sheen-hi").trim() || "#ffd2a8", mid = css.getPropertyValue("--sheen-mid").trim() || "#d9824a";
+    // Ảnh một tia (dải dọc sáng → trong suốt, có quầng), vẽ sẵn một lần rồi drawImage co giãn.
+    const sprite = document.createElement("canvas"), SW = 16, SH = 128, lw = broken ? 2 : 3;
+    sprite.width = SW; sprite.height = SH;
+    const g = sprite.getContext("2d")!, grad = g.createLinearGradient(0, 0, 0, SH);
+    if (broken) { grad.addColorStop(0, "#e2ddd4"); grad.addColorStop(0.45, "#a9a49b"); grad.addColorStop(1, "rgba(0,0,0,0)"); }
+    else { grad.addColorStop(0, "#fff"); grad.addColorStop(0.25, hi); grad.addColorStop(0.6, mid); grad.addColorStop(1, "rgba(0,0,0,0)"); g.shadowColor = mid; g.shadowBlur = 7; }
+    g.fillStyle = grad;
+    g.fillRect((SW - lw) / 2, 0, lw, SH);
+    const sparks = broken ? SPARKS_BROKEN : SPARKS_WIN;
+    let w = 0, h = 0, scale = 1;
+    const size = () => {
+      w = cv.clientWidth; h = cv.clientHeight; scale = Math.min(1.5, window.devicePixelRatio || 1);
+      cv.width = Math.max(1, Math.round(w * scale)); cv.height = Math.max(1, Math.round(h * scale));
+    };
+    size();
+    const ro = new ResizeObserver(size);
+    ro.observe(cv);
+    const start = performance.now();
+    let frame = 0;
+    const tick = (now: number) => {
+      const vh = window.innerHeight / 100, sec = (now - start) / 1000;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      for (const sp of sparks) {
+        let local = sec - sp.d;
+        if (local < 0) { if (!broken) continue; local = 0; }
+        if (broken && local >= sp.t * 3) continue;
+        const k = (local % sp.t) / sp.t, te = sparkEase(k);
+        const alpha = k < 0.7 ? 1 - 0.1 * sparkEase(k / 0.7) : 0.9 * (1 - sparkEase((k - 0.7) / 0.3));
+        if (alpha <= 0.01) continue;
+        const len = sp.s * (0.6 + 0.4 * te);
+        ctx.setTransform(scale, 0, 0, scale, 0, 0);
+        ctx.translate(w / 2, h);
+        ctx.rotate((sp.a * Math.PI) / 180);
+        ctx.translate(0, -sp.h * vh * te);
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(sprite, -SW / 2, -len, SW, len);
+      }
+      ctx.globalAlpha = 1;
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => { cancelAnimationFrame(frame); ro.disconnect(); };
+  }, [broken, running]);
+  return <canvas ref={ref} className={`uc-spark-cv${broken ? " is-broken" : ""}`} aria-hidden="true" />;
 }
 
 export default function UpgradeConfirm({
@@ -1051,20 +1129,7 @@ export default function UpgradeConfirm({
             (["left", "right"] as const).map((side) => (
               <div key={side} className={`uc-sparkler broken ${side}${pre}`}>
                 <b className="uc-sparkler-core" />
-                {Array.from({ length: 14 }, (_, i) => (
-                  <i
-                    key={i}
-                    style={
-                      {
-                        "--a": `${(-14 + ((i * 23) % 28)).toFixed(1)}deg`,
-                        "--h": `${5 + ((i * 7) % 11)}vh`,
-                        "--d": `${((i * 0.29) % 1.6).toFixed(2)}s`,
-                        "--t": `${(0.4 + ((i * 13) % 4) / 10).toFixed(1)}s`,
-                        "--s": `${6 + ((i * 5) % 8)}px`,
-                      } as CSSProperties
-                    }
-                  />
-                ))}
+                <SparkCanvas broken running={!!revealed && !reduced} />
                 {Array.from({ length: 6 }, (_, i) => (
                   <s
                     key={i}
@@ -1085,20 +1150,7 @@ export default function UpgradeConfirm({
               {(["left", "right"] as const).map((side) => (
                 <div key={side} className={`uc-sparkler ${side}${pre}`}>
                   <b className="uc-sparkler-core" />
-                  {Array.from({ length: 72 }, (_, i) => (
-                    <i
-                      key={i}
-                      style={
-                        {
-                          "--a": `${(-5 + ((i * 29) % 11)).toFixed(1)}deg`,
-                          "--h": `${34 + ((i * 41) % 40)}vh`,
-                          "--d": `${((i * 0.037) % 1.3).toFixed(2)}s`,
-                          "--t": `${(0.8 + ((i * 17) % 7) / 10).toFixed(1)}s`,
-                          "--s": `${14 + ((i * 23) % 22)}px`,
-                        } as CSSProperties
-                      }
-                    />
-                  ))}
+                  <SparkCanvas broken={false} running={!!revealed && !reduced} />
                 </div>
               ))}
               {(["left", "right"] as const).map((side) => (
@@ -1107,6 +1159,7 @@ export default function UpgradeConfirm({
                   className={`uc-flame ${side}${pre}`}
                   preset={levelTier(pWon.card.level)}
                   reduced={reduced}
+                  paused={!revealed}
                 />
               ))}
               {Array.from({ length: 14 }, (_, i) => (

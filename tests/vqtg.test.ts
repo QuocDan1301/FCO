@@ -74,7 +74,8 @@ test('Quà ô theo quaracvqtg.xlsx: 13 ô quà đủ 4 món, ô 10 / 14 không q
   assert.match(prizes, /set rewards = '\[\]', weights = null where idx in \(10, 14\)/);
 });
 
-test('Shop Đổi Vé (quamocvqtg.xlsx): 23 mốc 1 → 1.900 vé, gói có thật, gói vqm-* theo luật gói mốc', () => {
+test('Shop Đổi Vé (quamocvqtg.xlsx): 23 mốc 1 → 1.900 vé, gói có thật, gói vqm-* theo luật gói mốc VQTG (OVR cao dễ ra hơn gói mốc chung)', () => {
+  assert.ok(PACK_ODDS.vqtgMilestoneOvrDecay > PACK_ODDS.ovrDecay && PACK_ODDS.vqtgMilestonePriceAlpha < PACK_ODDS.milestonePriceAlpha);
   const sql = readFileSync('supabase/migrations/202611130006_fco_vqtg_milestones.sql', 'utf8');
   const rows = [...sql.matchAll(/\((\d+), (\d+), '(\[\[.*?\]\])', (true|false), (true|false)\)/g)];
   assert.equal(rows.length, 23);
@@ -91,7 +92,7 @@ test('Shop Đổi Vé (quamocvqtg.xlsx): 23 mốc 1 → 1.900 vé, gói có th�
       for (const r of opt) if (r.pack) {
         const pack = packs.find(p => p.id === r.pack);
         assert.ok(pack?.eventOnly, `mốc ${tickets}: ${r.pack}`);
-        if (r.pack.startsWith('vqm-')) assert.equal(priceAlphaOf(pack), PACK_ODDS.milestonePriceAlpha, r.pack);
+        if (r.pack.startsWith('vqm-')) assert.equal(priceAlphaOf(pack!), PACK_ODDS.vqtgMilestonePriceAlpha, r.pack);
       }
     }
   }
@@ -265,4 +266,18 @@ test('Tự dùng Chỉ định: chọn số được phép cho nhiều vé nhấ
     assert.ok(vqtgPickAllowed(tiles, from, n));
     for (let m = 1; m <= 6; m++) if (vqtgPickAllowed(tiles, from, m)) assert.ok(rollTickets(m) <= rollTickets(n), `ô ${from}: số ${m} nhiều vé hơn ${n}`);
   }
+});
+test('Mốc 1.250 → 1.900 vé: mọi gói +1 cấp, 4 gói dùng chung Bi Lắc đổi sang bản vqm riêng (202611180001)', () => {
+  const sql = readFileSync('supabase/migrations/202611180001_fco_vqtg_milestones_plus1.sql', 'utf8');
+  const swaps: [string, string, number][] = [['blm-1150-3', 'vqm-1250-2', 1250], ['bl-up26-50', 'vqm-1500-2', 1500], ['blm-1250-2', 'vqm-1600-3', 1600], ['blm-1250-1', 'vqm-1900-1', 1900]];
+  for (const [from, to, tickets] of swaps) {
+    assert.match(sql, new RegExp(`replace\\(options::text, '"${from}"', '"${to}"'\\)::jsonb where tickets = ${tickets}`));
+    const a = packs.find(p => p.id === from)!, b = packs.find(p => p.id === to)!;
+    assert.ok(b && b.eventOnly, to);
+    assert.deepEqual(b.levels, [a.levels![0] + 1, a.levels![1] + 1], `${to} = ${from} +1 cấp`);
+    assert.equal(b.topPrice, a.topPrice); assert.deepEqual(b.seasons, a.seasons);
+  }
+  const levels: Record<string, [number, number]> = { 'vqm-1250-1': [10, 10], 'vqm-1250-3': [9, 9], 'vqm-1400-1': [9, 9], 'vqm-1400-2': [6, 7], 'vqm-1400-3': [12, 12], 'vqm-1500-1': [10, 10], 'vqm-1500-3': [12, 12],
+    'vqm-1600-1': [12, 12], 'vqm-1600-2': [10, 10], 'vqm-1750-1': [12, 12], 'vqm-1750-2': [12, 12], 'vqm-1750-3': [10, 10], 'vqm-1900-2': [12, 12], 'vqm-1900-3': [9, 9], 'vqm-1900-4': [12, 12] };
+  for (const [id, lv] of Object.entries(levels)) assert.deepEqual(packs.find(p => p.id === id)?.levels, lv, id);
 });

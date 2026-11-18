@@ -5268,7 +5268,7 @@
     },
     {
       "id": "vqm-1250-1",
-      "name": "BLD, GRU, CU, 24EP Top Price 150 (+9)",
+      "name": "BLD, GRU, CU, 24EP Top Price 150 (+10)",
       "short": "TOP",
       "title": "TOP PRICE",
       "seasons": [
@@ -5280,19 +5280,19 @@
       "minOvr": null,
       "topPrice": 150,
       "levels": [
-        9,
-        9
+        10,
+        10
       ],
-      "price": 215000000,
-      "description": "Gói hỗn hợp BLD · GRU · CU · 24EP, 150 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "130–135",
+      "price": 479700000,
+      "description": "Gói hỗn hợp BLD · GRU · CU · 24EP, 150 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "132–137",
       "back": "/assets/custom/vqm-1250-1-back.webp",
       "published": true,
       "eventOnly": true
     },
     {
       "id": "vqm-1250-3",
-      "name": "WB chỉ định 100 (+8)",
+      "name": "WB chỉ định 100 (+9)",
       "short": "CHỈ ĐỊNH",
       "title": "WONDERBOYS",
       "seasons": [
@@ -5301,12 +5301,12 @@
       "minOvr": null,
       "topPrice": 100,
       "levels": [
-        8,
-        8
+        9,
+        9
       ],
-      "price": 47000000,
-      "description": "Gói chỉ định WB: tự chọn 1 trong 100 cầu thủ giá cao nhất, thẻ +8. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "126–134",
+      "price": 104100000,
+      "description": "Gói chỉ định WB: tự chọn 1 trong 100 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "128–136",
       "back": "/assets/custom/vqm-1250-3-back.webp",
       "published": true,
       "eventOnly": true,
@@ -5314,7 +5314,7 @@
     },
     {
       "id": "vqm-1400-1",
-      "name": "25HR 116+ (+8)",
+      "name": "25HR 116+ (+9)",
       "short": "25HR",
       "title": "25 HEROES",
       "seasons": [
@@ -5323,19 +5323,19 @@
       "minOvr": 116,
       "topPrice": null,
       "levels": [
-        8,
-        8
+        9,
+        9
       ],
-      "price": 245000000,
-      "description": "Gói 25HR, cầu thủ OVR từ 116, thẻ +8. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "131–133",
+      "price": 542500000,
+      "description": "Gói 25HR, cầu thủ OVR từ 116, thẻ +9. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "133–135",
       "back": "/assets/custom/vqm-1400-1-back.webp",
       "published": true,
       "eventOnly": true
     },
     {
       "id": "vqm-1400-2",
-      "name": "UC 122+ (+5~+6)",
+      "name": "UC 122+ (+6~+7)",
       "short": "UC",
       "title": "UC",
       "seasons": [
@@ -5344,19 +5344,19 @@
       "minOvr": 122,
       "topPrice": null,
       "levels": [
-        5,
-        6
+        6,
+        7
       ],
-      "price": 107000000,
-      "description": "Gói UC, cầu thủ OVR từ 122, thẻ +5 đến +6. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "128–134",
+      "price": 286600000,
+      "description": "Gói UC, cầu thủ OVR từ 122, thẻ +6 đến +7. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "130–137",
       "back": "/assets/custom/vqm-1400-2-back.webp",
       "published": true,
       "eventOnly": true
     },
     {
       "id": "vqm-1400-3",
-      "name": "CC 100+ (+11)",
+      "name": "CC 100+ (+12)",
       "short": "CC",
       "title": "CC",
       "seasons": [
@@ -5365,19 +5365,19 @@
       "minOvr": 100,
       "topPrice": null,
       "levels": [
-        11,
-        11
+        12,
+        12
       ],
-      "price": 3050000,
-      "description": "Gói CC, cầu thủ OVR từ 100, thẻ +11. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "121–134",
+      "price": 9800000,
+      "description": "Gói CC, cầu thủ OVR từ 100, thẻ +12. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "124–137",
       "back": "/assets/custom/vqm-1400-3-back.webp",
       "published": true,
       "eventOnly": true
     },
     {
       "id": "vqm-1500-1",
-      "name": "CU chỉ định 80 (+9)",
+      "name": "CU chỉ định 80 (+10)",
       "short": "CHỈ ĐỊNH",
       "title": "CU",
       "seasons": [
@@ -5386,12 +5386,12 @@
       "minOvr": null,
       "topPrice": 80,
       "levels": [
-        9,
-        9
+        10,
+        10
       ],
-      "price": 226000000,
-      "description": "Gói chỉ định CU: tự chọn 1 trong 80 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "130–134",
+      "price": 505300000,
+      "description": "Gói chỉ định CU: tự chọn 1 trong 80 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "132–136",
       "back": "/assets/custom/vqm-1500-1-back.webp",
       "published": true,
       "eventOnly": true,
@@ -5399,7 +5399,7 @@
     },
     {
       "id": "vqm-1500-3",
-      "name": "23HW, CC 106+ (+11)",
+      "name": "23HW, CC 106+ (+12)",
       "short": "MULTI",
       "title": "MULTI CLASS",
       "seasons": [
@@ -5409,19 +5409,19 @@
       "minOvr": 106,
       "topPrice": null,
       "levels": [
-        11,
-        11
+        12,
+        12
       ],
-      "price": 25500000,
-      "description": "Gói hỗn hợp 23HW · CC, cầu thủ OVR từ 106, thẻ +11. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "127–134",
+      "price": 80800000,
+      "description": "Gói hỗn hợp 23HW · CC, cầu thủ OVR từ 106, thẻ +12. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "130–137",
       "back": "/assets/custom/vqm-1500-3-back.webp",
       "published": true,
       "eventOnly": true
     },
     {
       "id": "vqm-1600-1",
-      "name": "CC, HG, RTN, SPL Top Price 200 (+11)",
+      "name": "CC, HG, RTN, SPL Top Price 200 (+12)",
       "short": "TOP",
       "title": "TOP PRICE",
       "seasons": [
@@ -5433,19 +5433,19 @@
       "minOvr": null,
       "topPrice": 200,
       "levels": [
-        11,
-        11
+        12,
+        12
       ],
-      "price": 44000000,
-      "description": "Gói hỗn hợp CC · HG · RTN · SPL, 200 cầu thủ giá cao nhất, thẻ +11. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "126–134",
+      "price": 145300000,
+      "description": "Gói hỗn hợp CC · HG · RTN · SPL, 200 cầu thủ giá cao nhất, thẻ +12. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "129–137",
       "back": "/assets/custom/vqm-1600-1-back.webp",
       "published": true,
       "eventOnly": true
     },
     {
       "id": "vqm-1600-2",
-      "name": "GRU, CU 114+ (+9)",
+      "name": "GRU, CU 114+ (+10)",
       "short": "MULTI",
       "title": "MULTI CLASS",
       "seasons": [
@@ -5455,19 +5455,19 @@
       "minOvr": 114,
       "topPrice": null,
       "levels": [
-        9,
-        9
+        10,
+        10
       ],
-      "price": 234000000,
-      "description": "Gói hỗn hợp GRU · CU, cầu thủ OVR từ 114, thẻ +9. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "131–134",
+      "price": 522300000,
+      "description": "Gói hỗn hợp GRU · CU, cầu thủ OVR từ 114, thẻ +10. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "133–136",
       "back": "/assets/custom/vqm-1600-2-back.webp",
       "published": true,
       "eventOnly": true
     },
     {
       "id": "vqm-1750-1",
-      "name": "FCA, 23HW, CC 106+ (+11)",
+      "name": "FCA, 23HW, CC 106+ (+12)",
       "short": "MULTI",
       "title": "MULTI CLASS",
       "seasons": [
@@ -5478,19 +5478,19 @@
       "minOvr": 106,
       "topPrice": null,
       "levels": [
-        11,
-        11
+        12,
+        12
       ],
-      "price": 25600000,
-      "description": "Gói hỗn hợp FCA · 23HW · CC, cầu thủ OVR từ 106, thẻ +11. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "127–134",
+      "price": 81200000,
+      "description": "Gói hỗn hợp FCA · 23HW · CC, cầu thủ OVR từ 106, thẻ +12. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "130–137",
       "back": "/assets/custom/vqm-1750-1-back.webp",
       "published": true,
       "eventOnly": true
     },
     {
       "id": "vqm-1750-2",
-      "name": "23HW 107+ (+11)",
+      "name": "23HW 107+ (+12)",
       "short": "23HW",
       "title": "23 HARD WORKER",
       "seasons": [
@@ -5499,19 +5499,19 @@
       "minOvr": 107,
       "topPrice": null,
       "levels": [
-        11,
-        11
+        12,
+        12
       ],
-      "price": 34800000,
-      "description": "Gói 23HW, cầu thủ OVR từ 107, thẻ +11. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "128–133",
+      "price": 110600000,
+      "description": "Gói 23HW, cầu thủ OVR từ 107, thẻ +12. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "131–136",
       "back": "/assets/custom/vqm-1750-2-back.webp",
       "published": true,
       "eventOnly": true
     },
     {
       "id": "vqm-1750-3",
-      "name": "GRU chỉ định 40 (+9)",
+      "name": "GRU chỉ định 40 (+10)",
       "short": "CHỈ ĐỊNH",
       "title": "GRU",
       "seasons": [
@@ -5520,12 +5520,12 @@
       "minOvr": null,
       "topPrice": 40,
       "levels": [
-        9,
-        9
+        10,
+        10
       ],
-      "price": 211000000,
-      "description": "Gói chỉ định GRU: tự chọn 1 trong 40 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "130–134",
+      "price": 469500000,
+      "description": "Gói chỉ định GRU: tự chọn 1 trong 40 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "132–136",
       "back": "/assets/custom/vqm-1750-3-back.webp",
       "published": true,
       "eventOnly": true,
@@ -5533,7 +5533,7 @@
     },
     {
       "id": "vqm-1900-2",
-      "name": "CC 105+ (+11)",
+      "name": "CC 105+ (+12)",
       "short": "CC",
       "title": "CC",
       "seasons": [
@@ -5542,19 +5542,19 @@
       "minOvr": 105,
       "topPrice": null,
       "levels": [
-        11,
-        11
+        12,
+        12
       ],
-      "price": 25000000,
-      "description": "Gói CC, cầu thủ OVR từ 105, thẻ +11. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "126–134",
+      "price": 80600000,
+      "description": "Gói CC, cầu thủ OVR từ 105, thẻ +12. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "129–137",
       "back": "/assets/custom/vqm-1900-2-back.webp",
       "published": true,
       "eventOnly": true
     },
     {
       "id": "vqm-1900-3",
-      "name": "WB chỉ định 60 (+8)",
+      "name": "WB chỉ định 60 (+9)",
       "short": "CHỈ ĐỊNH",
       "title": "WONDERBOYS",
       "seasons": [
@@ -5563,12 +5563,12 @@
       "minOvr": null,
       "topPrice": 60,
       "levels": [
-        8,
-        8
+        9,
+        9
       ],
-      "price": 96000000,
-      "description": "Gói chỉ định WB: tự chọn 1 trong 60 cầu thủ giá cao nhất, thẻ +8. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "128–134",
+      "price": 212100000,
+      "description": "Gói chỉ định WB: tự chọn 1 trong 60 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "130–136",
       "back": "/assets/custom/vqm-1900-3-back.webp",
       "published": true,
       "eventOnly": true,
@@ -5576,7 +5576,7 @@
     },
     {
       "id": "vqm-1900-4",
-      "name": "FCA 107+ (+11)",
+      "name": "FCA 107+ (+12)",
       "short": "FCA",
       "title": "FC AMBASSADOR",
       "seasons": [
@@ -5585,15 +5585,103 @@
       "minOvr": 107,
       "topPrice": null,
       "levels": [
-        11,
-        11
+        12,
+        12
       ],
-      "price": 127000000,
-      "description": "Gói FCA, cầu thủ OVR từ 107, thẻ +11. Quà mốc sự kiện Vòng Quanh Thế Giới.",
-      "range": "129–133",
+      "price": 410200000,
+      "description": "Gói FCA, cầu thủ OVR từ 107, thẻ +12. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "132–136",
       "back": "/assets/custom/vqm-1900-4-back.webp",
       "published": true,
       "eventOnly": true
+    },
+    {
+      "id": "vqm-1250-2",
+      "name": "GRU chỉ định 50 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 205000000,
+      "description": "Gói chỉ định GRU: tự chọn 1 trong 50 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "132–136",
+      "back": "/assets/custom/vqm-1250-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "vqm-1500-2",
+      "name": "26UP chỉ định 50 (+6)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 UP",
+      "seasons": [
+        "up26"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 58100000,
+      "description": "Gói chỉ định 26UP: tự chọn 1 trong 50 cầu thủ giá cao nhất, thẻ +6. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "129–133",
+      "back": "/assets/custom/vqm-1500-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "vqm-1600-3",
+      "name": "WB chỉ định 70 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WONDERBOYS",
+      "seasons": [
+        "wb"
+      ],
+      "minOvr": null,
+      "topPrice": 70,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 216600000,
+      "description": "Gói chỉ định WB: tự chọn 1 trong 70 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "130–136",
+      "back": "/assets/custom/vqm-1600-3-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "vqm-1900-1",
+      "name": "LE chỉ định 70 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "LEGEND OF EUROPA",
+      "seasons": [
+        "le"
+      ],
+      "minOvr": null,
+      "topPrice": 70,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 447700000,
+      "description": "Gói chỉ định LE: tự chọn 1 trong 70 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Vòng Quanh Thế Giới.",
+      "range": "133–136",
+      "back": "/assets/custom/vqm-1900-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
     },
     {
       "id": "vqt-1g",

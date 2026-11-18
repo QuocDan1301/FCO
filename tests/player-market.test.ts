@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { SELL_BAND_PERCENT, SELL_ORDER_HOURS, SYSTEM_BUY_LEVEL, SYSTEM_SALE_FEE_PERCENT, saleTaxPercent, taxFor } from '../src/market.ts';
+import { MAX_BULK_SELL, SELL_BAND_PERCENT, SYSTEM_BUY_LEVEL, SYSTEM_SALE_FEE_PERCENT, SYSTEM_TAKEOVER_MIN, saleTaxPercent, taxFor } from '../src/market.ts';
 
 // Chợ giữa người chơi (2026-11-17): luật trên máy chủ (migration) phải khớp hằng số game hiển thị cho người chơi.
 const sql = readFileSync(new URL('../supabase/migrations/202611170002_fco_player_market.sql', import.meta.url), 'utf8');
@@ -72,7 +72,7 @@ test('Nhận hàng chợ bằng tay: thẻ mua được / BP bán được chờ
 
 test('Hai cách bán: hệ thống mua ngay theo giá tham chiếu, bán cho người chơi treo 24 giờ rồi thẻ về kho (202611170012)', () => {
   const sql = readFileSync('supabase/migrations/202611170012_fco_market_sell_choice.sql', 'utf8');
-  assert.match(sql, new RegExp(`'sellTtlHours', ${SELL_ORDER_HOURS}\\b`));
+  assert.match(sql, /'sellTtlHours', 24\b/);
   assert.match(sql, /'buyTtlHours', 24\b/);
   assert.doesNotMatch(sql, /'systemAfterSec'/);
   // Hết hạn treo bán: thẻ trả về (refund, tự cộng), không còn hệ thống nhận.
@@ -98,7 +98,7 @@ test('Bán cho hệ thống: thuế gốc 50% trước khi giảm, khớp máy c
 test('Lệnh đặt mua không hết hạn, lệnh bán cho người chơi vẫn 24 giờ (202611170014)', () => {
   const sql = readFileSync('supabase/migrations/202611170014_fco_market_buy_no_expiry.sql', 'utf8');
   assert.doesNotMatch(sql, /buyTtlHours/);
-  assert.match(sql, new RegExp(`'sellTtlHours', ${SELL_ORDER_HOURS}\\b`));
+  assert.match(sql, /'sellTtlHours', 24\b/);
   const settle = sql.slice(sql.indexOf('function public.fco_mkt_settle()'), sql.indexOf('function public.fco_mkt_buy('));
   assert.doesNotMatch(settle, /side = 'buy'/, 'không còn vòng hết hạn lệnh mua');
   assert.match(sql, /Không hết hạn, huỷ ở TTCN thì trả lại BP/);
@@ -126,4 +126,31 @@ test('Giá khớp luôn kẹp vào khung ±10% hiện tại, lệnh cũ không v
   assert.match(fill, /at bigint := public\.fco_mkt_clamp\(p_sell\.player_id, p_sell\.level, p_at\)/);
   assert.doesNotMatch(fill.slice(fill.indexOf('begin')), /\bp_at\b/, 'sau khi kẹp không dùng lại giá chưa kẹp');
   assert.match(sql, /price <= least\(p_max, hi\)/, 'Mua hàng loạt bỏ qua lệnh bán cao hơn khung');
+});
+
+test('Hệ thống treo bán nhóm 3 từ +2 như nhóm 2 nhưng 2/3 lượng (4/9 nhóm 1); EL / TSUBASA không bán (202611180002)', () => {
+  const sql = readFileSync('supabase/migrations/202611180002_fco_market_supply_group3.sql', 'utf8');
+  assert.match(sql, /when 2 then 2\.0 \/ 3 when 3 then 4\.0 \/ 9 else 1 end/);
+  assert.match(sql, /coalesce\(g, 0\) in \(1, 2, 3\)/);
+  assert.match(sql, /fco_trade_locked\(p_player\) or public\.fco_mkt_no_system\(p_player\) then return null/);
+  assert.match(sql, /if p_level = 1 then return jsonb_build_object\('price', price, 'left', null\)/);
+});
+
+test('Lượng hệ thống treo bán: nhóm 1 ×2, nhóm 2 ×4/3 (gấp đôi), nhóm 3 giữ ×4/9 (202611180003)', () => {
+  const sql = readFileSync('supabase/migrations/202611180003_fco_market_supply_double.sql', 'utf8');
+  assert.match(sql, /when 1 then 2 when 2 then 4\.0 \/ 3 when 3 then 4\.0 \/ 9 else 1 end/);
+});
+
+test('Bỏ bán cho hệ thống; treo bán quá 3 phút hệ thống tự mua; mỗi lần bán tối đa 150 thẻ (202611180004)', () => {
+  const sql = readFileSync('supabase/migrations/202611180004_fco_market_takeover_3min.sql', 'utf8');
+  assert.equal(SYSTEM_TAKEOVER_MIN, 3);
+  assert.equal(MAX_BULK_SELL, 150);
+  assert.match(sql, new RegExp(`'systemAfterSec', ${SYSTEM_TAKEOVER_MIN * 60}, 'maxOpenSell', (\\d+)`));
+  assert.ok(+/'maxOpenSell', (\d+)/.exec(sql)![1] >= MAX_BULK_SELL, 'đủ chỗ treo 150 thẻ một lần');
+  const settle = sql.slice(sql.indexOf('function public.fco_mkt_settle()'), sql.indexOf('function public.fco_mkt_sell('));
+  assert.match(settle, /status = 'system', closed_at = now\(\), fill_price = r\.price/);
+  assert.match(settle, /r\.price - fee, 'sell', r\.id/, 'BP chờ nhận ở Lịch sử chuyển nhượng');
+  assert.doesNotMatch(settle, /side = 'buy'/, 'lệnh mua vẫn không hết hạn');
+  assert.doesNotMatch(sql, /sellTtlHours/);
+  assert.match(sql.slice(sql.indexOf('function public.fco_inv_sell(')), /raise exception 'FCO_SELL_VIA_MARKET'/);
 });

@@ -63,7 +63,8 @@ type Spine = { on: boolean; age: number; life: number; seed: number; size: numbe
 type Ember = { on: boolean; age: number; life: number; x: number; y: number; vx: number; vy: number; r: number };
 const smooth = (a: number, b: number, x: number) => { const k = Math.min(1, Math.max(0, (x - a) / (b - a))); return k * k * (3 - 2 * k); };
 
-export default function FlameJet({ className = '', preset = 'blue_plasma', reduced = false }: { className?: string; preset?: FlamePreset; reduced?: boolean }) {
+// paused: canvas đã dựng (cấp sẵn kích thước) nhưng chưa chạy — kết quả đập thẻ dựng sẵn khi còn ẩn (người dùng 2026-11-17: khựng).
+export default function FlameJet({ className = '', preset = 'blue_plasma', reduced = false, paused = false }: { className?: string; preset?: FlamePreset; reduced?: boolean; paused?: boolean }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const cv = canvas.current, ctx = cv?.getContext('2d');
@@ -145,12 +146,13 @@ export default function FlameJet({ className = '', preset = 'blue_plasma', reduc
       }
       ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
     };
+    if (paused) return () => { ro.disconnect(); };
     if (reduced) { for (let i = 0; i < 90; i++) step(1 / 60); draw(); }
     else {
       const tick = (now: number) => { const dt = Math.min(.05, (now - last) / 1000); last = now; step(dt); draw(); frame = requestAnimationFrame(tick); };
       frame = requestAnimationFrame(tick);
     }
     return () => { cancelAnimationFrame(frame); ro.disconnect(); };
-  }, [preset, reduced]);
+  }, [preset, reduced, paused]);
   return <div className={className} aria-hidden="true"><canvas ref={canvas} className="uc-flame-canvas"/><i className="uc-flame-nozzle"/></div>;
 }

@@ -88,7 +88,7 @@ import BackgroundMusic from './BackgroundMusic';
 import type { MusicType } from './BackgroundMusic';
 import RollingMoney, { UpgradePriceChange } from './RollingMoney';
 import { Flag } from './flags';
-import { buyPlayer, sellPlayer, sellCards, isTradeLocked, TRADE_LOCKED, marketQuote, formatMarketPrice, compareMarketPrices, setMarketClock, saleTaxPercent, SYSTEM_BUY_LEVEL, SELL_ORDER_HOURS } from './market';
+import { buyPlayer, sellPlayer, sellCards, isTradeLocked, TRADE_LOCKED, marketQuote, formatMarketPrice, compareMarketPrices, setMarketClock, saleTaxPercent, SYSTEM_BUY_LEVEL, SYSTEM_TAKEOVER_MIN } from './market';
 import { MEMBERSHIP_DAYS, MEMBERSHIPS } from './membership';
 import type { MembershipId } from './membership';
 import { usePricePeriod } from './use-price-period';
@@ -331,6 +331,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const [catalogId, setCatalogId] = useState<string | null>(null);
   const invMode = inventoryMode(online, inventory, catalogId, inventoryMissing);
   const serverMode = invMode === 'server';
+  const reloadInventory = useRef<() => void>(() => {});
   const inventoryGate = () => invMode === 'blocked' ? INVENTORY_BLOCKED : invMode === 'loading' ? INVENTORY_LOADING : null;
   useEffect(() => {
     if (!online) return;
@@ -338,9 +339,13 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     // Máy chủ chưa chạy migration kho thẻ thì chạy như trước; lỗi mạng thì để lần sau hỏi lại.
     const load = () => fetchInventoryState().then(state => { setInventory(state); setInventoryMissing(false); }).catch(e => { if (/chưa cài chức năng/.test((e as Error).message)) setInventoryMissing(true); });
     void load();
+    reloadInventory.current = () => void load();
     const visible = () => { if (document.visibilityState === 'visible') void load(); };
     document.addEventListener('visibilitychange', visible);
-    return () => document.removeEventListener('visibilitychange', visible);
+    // Hỏi lại định kỳ (chỉ đọc, nhẹ): admin vừa đồng bộ dữ liệu thì máy người chơi tự về chế độ kho máy chủ, chợ người chơi bật lại
+    // mà không cần tải lại trang (người dùng 2026-11-18: "đồng bộ rồi mà" tab Lịch sử chuyển nhượng vẫn mất).
+    const poll = window.setInterval(() => { if (document.visibilityState === 'visible') void load(); }, 120_000);
+    return () => { document.removeEventListener('visibilitychange', visible); window.clearInterval(poll); };
   }, [online]);
   // Đánh dấu bản lưu inv = 1 khi máy chủ giữ kho (máy chủ gộp bản lưu và tự cộng quà), bỏ dấu khi quay về chạy như trước.
   useEffect(() => {
@@ -586,7 +591,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     busy.current = true;
     try {
       const sold = items.map(item => latest.current.cards.find(c => c.uid === item.uid)).filter((c): c is Card => !!c);
-      // Bán cho người chơi: treo bán (khớp ngay với lệnh mua sẵn có, còn lại treo SELL_ORDER_HOURS giờ, hết hạn thì thẻ về kho).
+      // Treo bán cho người chơi: khớp ngay với lệnh mua sẵn có; còn lại chưa ai mua sau SYSTEM_TAKEOVER_MIN phút thì hệ thống mua đúng giá treo.
       const result = await serverMarketSell(items, voucher);
       adoptRecord(result.save);
       const ids = new Set(items.map(item => item.uid));
@@ -594,33 +599,16 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       if (ids.has(targetId)) { setTargetId(''); setMaterialIds([]); }
       const what = sold.length === 1 ? `${getPlayer(sold[0]).name} +${sold[0].level}` : `${result.placed} cầu thủ`;
       const waiting = result.placed - result.matched;
-      notify(`Đã treo bán ${what}.${result.matched ? ` Khớp ngay ${result.matched} thẻ với lệnh mua của người chơi.` : ''}${waiting ? ` ${waiting} thẻ treo ${SELL_ORDER_HOURS} giờ, hết hạn chưa ai mua thì thẻ về kho.` : ''}`);
+      notify(`Đã treo bán ${what}.${result.matched ? ` Khớp ngay ${result.matched} thẻ với lệnh mua của người chơi.` : ''}${waiting ? ` ${waiting} thẻ còn lại: chưa ai mua sau ${SYSTEM_TAKEOVER_MIN} phút thì hệ thống mua đúng giá treo, BP chờ nhận ở Lịch sử chuyển nhượng.` : ''}`);
       playSound('success', latest.current.sound);
       return true;
     } catch (error) { notify((error as Error).message); return false; }
     finally { busy.current = false; }
   };
-  // Bán cho hệ thống (migration 202611170012): nhận ngay theo giá tham chiếu, trừ thuế, BP vào số dư luôn.
-  const sellToSystem = async (items: SellItem[], voucher: TaxVoucher | null) => {
-    busy.current = true;
-    try {
-      const sold = items.map(item => latest.current.cards.find(c => c.uid === item.uid)).filter((c): c is Card => !!c);
-      const result = await serverSell(items, voucher);
-      adoptRecord(result.save);
-      const ids = new Set(items.map(item => item.uid));
-      setMaterialIds(list => list.filter(id => !ids.has(id)));
-      if (ids.has(targetId)) { setTargetId(''); setMaterialIds([]); }
-      const what = sold.length === 1 ? `${getPlayer(sold[0]).name} +${sold[0].level}` : `${result.sold} cầu thủ`;
-      notify(`Đã bán ${what} cho hệ thống. Nhận ${money(result.proceeds)} BP sau phí.`);
-      playSound('success', latest.current.sound);
-      return true;
-    } catch (error) { notify((error as Error).message); return false; }
-    finally { busy.current = false; }
-  };
-  const sellFromDialog = (items: SellItem[], voucher: TaxVoucher | null = null, target: 'market' | 'system' = 'market'): boolean | Promise<boolean> => {
+  const sellFromDialog = (items: SellItem[], voucher: TaxVoucher | null = null): boolean | Promise<boolean> => {
     if (busy.current) return false;
     const gate = inventoryGate(); if (gate) { notify(gate); return false; }
-    if (serverMode) return target === 'system' ? sellToSystem(items, voucher) : sellOnServer(items, voucher);
+    if (serverMode) return sellOnServer(items, voucher);
     busy.current = true;
     try {
       const result = sellCards(latest.current, items, UNLIMITED_COINS, voucher);
@@ -659,7 +647,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
         adoptRecord(result.save);
         setMaterialIds(ids => ids.filter(id => id !== card.uid));
         if (targetId === card.uid) { setTargetId(''); setMaterialIds([]); }
-        notify(result.matched ? `Đã bán ${getPlayer(card).name} +${card.level} cho người chơi khác.` : `Đã treo bán ${getPlayer(card).name} +${card.level} trong ${SELL_ORDER_HOURS} giờ. Hết hạn chưa ai mua thì thẻ về kho.`);
+        notify(result.matched ? `Đã bán ${getPlayer(card).name} +${card.level} cho người chơi khác.` : `Đã treo bán ${getPlayer(card).name} +${card.level}. Chưa ai mua sau ${SYSTEM_TAKEOVER_MIN} phút thì hệ thống mua đúng giá treo.`);
       } else {
         const result = await serverBuy(pending.card.playerId, pending.card.level, 1);
         adoptRecord(result.save);
@@ -1403,7 +1391,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
           {view === 'lineup' && <LineupBoard save={save} onUpdate={updateLineup} onDetail={setDetail} onManage={() => switchView('collection')} levelBadge={levelBadge} seasonShort={seasonShort} renderCard={card => <PlayerCard card={card} compact bonus={colorBonuses.get(card.uid)}/>}/>}
       {view === 'shop' && <PackShop save={save} packs={shopPacks} free={UNLIMITED_COINS} onBuy={(pack, count) => purchasePacks(pack, count)} onBuyMembership={purchaseMembership} onBuyStp={purchaseStp} stpBought={stpBought} online={online} onOpenNow={buyAndOpen} onPreview={(pack, count) => setPackPreview({ pack, count })} onInventory={() => switchView('inventory')} renderArt={pack => <PackArt pack={pack}/>}/>}
       {view === 'inventory' && <Inventory save={save} packs={packs} onUse={pack => prepareOpening(pack)} onShop={() => switchView('shop')} onUseSelected={selection => selection[0] && prepareOpening(selection[0], selection)} onClose={() => switchView('packs')} renderArt={pack => <PackArt pack={pack}/>} testMode={UNLIMITED_COINS} onReceiveTest={receiveTestPacks}/>}
-      {view === 'market' && <TransferMarket loadBook={serverMode ? fetchMarketBook : undefined} loadMine={serverMode ? fetchMyOrders : undefined} onCancelOrder={cancelMarketOrder} onRefreshClaims={() => claimMarketRef.current()} pending={serverMode ? marketPending : undefined} onTake={takeMarket} onRelist={() => setSellOpen({ tab: 'bulk' })} loadTopViewed={online ? fetchTopViewed : undefined} save={save} free={UNLIMITED_COINS} onTrade={requestTrade} onHistory={() => { setHistoryType('market'); switchView('history'); }} onOpenPacks={() => switchView('inventory')} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge} onDetail={card => save.cards.some(c => c.uid === card.uid) ? setDetail(card) : setPreviewCard(card)}/>}
+      {view === 'market' && <TransferMarket loadBook={serverMode ? fetchMarketBook : undefined} loadMine={serverMode ? fetchMyOrders : undefined} ordersNotice={online && !serverMode ? (invMode === 'loading' ? INVENTORY_LOADING : 'Kho thẻ đang chạy trên máy bạn vì bản game khác dữ liệu trên máy chủ, nên chợ giữa người chơi tạm dừng. Hãy tải lại trang; nếu vẫn vậy, chờ admin đồng bộ dữ liệu.') : undefined} onCancelOrder={cancelMarketOrder} onRefreshClaims={() => claimMarketRef.current()} pending={serverMode ? marketPending : undefined} onTake={takeMarket} onRelist={() => setSellOpen({ tab: 'bulk' })} loadTopViewed={online ? fetchTopViewed : undefined} save={save} free={UNLIMITED_COINS} onTrade={requestTrade} onHistory={() => { setHistoryType('market'); switchView('history'); }} onOpenPacks={() => switchView('inventory')} renderCard={card => <PlayerCard card={card}/>} levelBadge={levelBadge} onDetail={card => save.cards.some(c => c.uid === card.uid) ? setDetail(card) : setPreviewCard(card)}/>}
       {view === 'plus8' && <Plus8Page loadRound={online ? fetchRankRound : undefined} load={online ? fetchPlus8Board : undefined} loadHistory={online ? fetchPlus8History : undefined} online={online} onUpgrade={() => switchView('upgrade')}/>}
       {view === 'ranks' && <RanksPage load={fetchLeaderboard} loadRanked={fetchRanked} loadRound={online ? fetchRankRound : undefined} online={online} levelBadge={levelBadge} viewLineup={viewLineup}/>}
       {view === 'ranked' && <RankedPage save={save} online={online} load={fetchRanked} play={playRanked} finish={finishRanked} abandon={abandonRanked} onLineup={() => switchView('lineup')} onMatchChange={setRankedMatchActive} viewLineup={viewLineup} levelBadge={levelBadge}/>}
@@ -1454,7 +1442,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       {profileOpen && <Modal label="Thông tin HLV" onClose={() => setProfileOpen(false)}><ProfileCard save={save} accountId={coachName} accountEmail={accountEmail} club={clubLogo} onClub={online ? chooseClub : undefined} joined={joined} tier={accountTier} effect={nameEffect} onEffect={chooseEffect} loadRename={online ? fetchRenameInfo : undefined} onRename={online ? renameCoachName : undefined} cursorOn={fxCursor} onCursor={toggleFxCursor} onClose={() => setProfileOpen(false)} onSettings={() => { setProfileOpen(false); setSettings(true); }} onSave={profile => { if (commit({ ...latest.current, profile: { ...profile, ...latest.current.profile } })) notify('Đã lưu thông tin HLV.'); }}/></Modal>}
       {missionsOpen && <Modal label="Nhiệm vụ" onClose={() => setMissionsOpen(false)}><StpMissions initialTab={missionsOpen} localUpgrade={online && invMode === 'local'} state={missions} grind={grind} onClaimGrind={claimGrindMission} error={missionsError} stp={save.stp ?? 0} onClaim={claimMission} onClose={() => setMissionsOpen(false)}/></Modal>}
       {settings && <Modal label="Cài đặt trò chơi" onClose={() => setSettings(false)}><div className="modal-heading"><h2>Cài đặt trò chơi</h2><button className="icon-button" aria-label="Đóng cài đặt" onClick={() => setSettings(false)}><X/></button></div>{([{ key: 'sound' as const, title: 'Âm thanh', description: AUDIO_ENABLED ? 'Âm thanh điện tử khi mở gói và nâng cấp.' : 'Âm thanh đã tắt trong phiên bản này.' }, { key: 'reduced' as const, title: 'Giảm chuyển động', description: 'Bỏ hoạt cảnh dài, khói và hạt sáng chuyển động.' }, { key: 'quick' as const, title: 'Mở thẻ nhanh', description: 'Rút hoạt cảnh từ khoảng 10 giây xuống 3,5 giây.' }, { key: 'light' as const, title: 'Hiệu ứng nhẹ', description: 'Dùng đường hầm 2D nhẹ, phù hợp khi máy nóng hoặc hình chuyển động chậm.' }]).map(s => <label className="setting-row" key={s.key}><span><b>{s.title}</b><small>{s.description}</small></span><input type="checkbox" disabled={s.key === 'sound' && !AUDIO_ENABLED} checked={s.key === 'sound' ? AUDIO_ENABLED && !!save.sound : !!save[s.key]} onChange={e => updateSetting(s.key, e.target.checked)}/></label>)}<label className="setting-row"><span><b>Nhạc nền</b><small>Chọn loại nhạc phát trong trò chơi.</small></span><select aria-label="Loại nhạc nền" value={musicType} onChange={e => changeMusicType(e.target.value as MusicType)}><option value="instrumental">1. Nhạc không lời</option><option value="vocals">2. Nhạc có lời</option></select></label>{coachName && <div className="account-settings"><div><strong>{coachName}</strong><small role="status">{syncStatus}</small></div>{onLogout && <button disabled={signingOut} onClick={onLogout}>{signingOut ? 'Đang đăng xuất…' : 'Đăng xuất'}</button>}</div>}<div className="storage-notice"><Shield size={20}/><p>Tiến trình được đồng bộ cùng tài khoản. Hãy chờ trạng thái Đã đồng bộ trước khi đóng trang hoặc chuyển thiết bị.</p></div>{isAdmin && <button className="settings-help" onClick={() => { setSettings(false); setFcAdminOpen(true); }}><Coins size={17}/>Quản trị FC · nạp FC, gift code<ChevronRight size={16}/></button>}<button className="settings-help" onClick={() => { setSettings(false); setHelp(true); }}><CircleHelp size={17}/>Thông tin & nguồn ảnh<ChevronRight size={16}/></button><button className="settings-help" onClick={() => { setSettings(false); setTerms(true); }}><FileText size={17}/>Điều khoản dịch vụ<ChevronRight size={16}/></button>{import.meta.env.DEV && <button className="settings-help" onClick={() => { setSettings(false); setAdminOpen(true); }}><PackagePlus size={17}/>Quản trị gói · chỉ máy dev<ChevronRight size={16}/></button>}{onDeleteAccount && <div className="account-danger-zone"><h3>Xóa tài khoản</h3><p>Xóa vĩnh viễn tài khoản cùng toàn bộ kho thẻ và tiến trình.</p><button disabled={signingOut} onClick={() => { setSettings(false); onDeleteAccount(); }}>Xóa tài khoản</button></div>}</Modal>}
-      {isAdmin && fcAdminOpen && <AdminPanel initialTab={adminTab} onClose={() => { setFcAdminOpen(false); setAdminTab(undefined); void refreshWallet(); }}/>}
+      {isAdmin && fcAdminOpen && <AdminPanel initialTab={adminTab} onClose={() => { setFcAdminOpen(false); setAdminTab(undefined); void refreshWallet(); reloadInventory.current(); }}/>}
       {import.meta.env.DEV && PackAdmin && adminOpen && <Suspense fallback={null}><PackAdmin renderArt={pack => <PackArt pack={pack}/>} onClose={() => { setAdminOpen(false); history.replaceState(null, '', location.pathname + location.search); }}/></Suspense>}
       {confirm && <UpgradeConfirm onMusicActiveChange={setUpgradeMusicActive} target={confirm.target} materials={confirm.materials} energy={upgradeInfo(confirm.target, confirm.materials).energy} restore={restoreApplies(confirm.target) ? evaluateRestore(confirm.target, confirm.materials) : null} protection={protectionApplies(confirm.target) ? { pct: activeProtection(save, confirm.target), cost: protectionCost(confirm.target, activeProtection(save, confirm.target)) } : null} reduced={save.reduced} renderCard={(card, compact) => <PlayerCard card={card} compact={compact}/>} seasonShort={seasonShort} onBack={closeConfirm} onReveal={success => playSound(success ? 'success' : 'fail', latest.current.sound)} levelBadge={levelBadge} onConfirm={async () => { const result = await enhance(true); if (!result) { setConfirm(null); return null; } return { success: result.success, card: result.result, before: confirm.target.level, restored: result.restoredLevel !== null }; }}/>}
       {protectOpen && target && protectionApplies(target) && <Modal label="Bảo vệ nâng cấp" onClose={() => setProtectOpen(false)}><UpgradeProtection card={target} pct={save.protection?.pct ?? 0} fixed={save.protection?.fixed ?? false} balance={save.balance} free={UNLIMITED_COINS} onChange={(pct, fixed) => { try { commit(setProtection(latest.current, pct, fixed)); } catch (e) { notify((e as Error).message); } }} onClose={() => setProtectOpen(false)}/></Modal>}

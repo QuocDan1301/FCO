@@ -511,3 +511,8 @@
 .uc-reduced .uc-chevrons i::after{animation:none}
 /* Tia năng lượng vẽ trên canvas (UpgradeConfirm: mỗi bên một canvas thay cho hàng trăm <span>). */
 .uc-flow-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* Tia pháo sáng vẽ trên canvas (SparkCanvas): gốc ở đáy giữa canvas = điểm phun của .uc-sparkler. */
+.uc-spark-cv{position:absolute;left:0;bottom:0;width:44vh;height:82vh;transform:translateX(-50%);pointer-events:none;display:block}
+.uc-spark-cv.is-broken{width:16vh;height:20vh}
+/* Giữ lớp đồ hoạ cố định cho các khối có chuyển động lúc bấm / lộ kết quả (tấm LED nghiêng, khối thẻ): không tạo / huỷ lớp rồi vẽ lại cả khối sau mỗi chuyển động (gây khựng). */
+.uc-backdrop,.uc-rig,.uc-stage{will-change:transform}
