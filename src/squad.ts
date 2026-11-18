@@ -5,9 +5,9 @@ import { marketQuote } from './market';
 import { analyzeTeamColors, DEFAULT_TEAM_COLOR_CONFIG, upgradeColorName } from './teamColor';
 import type { BuffResult, TeamColorReport } from './teamColor';
 
-// Đội hình riêng: tối đa 50 thẻ, mỗi cầu thủ (playerId) chỉ một thẻ. 310 là mốc lương tham khảo: được phép vượt, chỉ đổi màu cảnh báo.
+// Đội hình riêng: tối đa 50 thẻ, mỗi cầu thủ (playerId) chỉ một thẻ. 350 là mốc lương tham khảo (2026-11-18: 310 → 330 → 350): được phép vượt, chỉ đổi màu cảnh báo.
 export const SQUAD_LIMIT = 50;
-export const SQUAD_WAGE_CAP = 310;
+export const SQUAD_WAGE_CAP = 350;
 
 export const positionGroup = (pos: string) => pos === 'GK' ? 'gk' : ['CB', 'LB', 'RB', 'LWB', 'RWB', 'SW'].includes(pos) ? 'df' : ['ST', 'CF', 'LW', 'RW', 'LF', 'RF'].includes(pos) ? 'fw' : 'mf';
 const wage = (card: Card) => getPlayer(card).wage ?? 0;

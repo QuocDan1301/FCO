@@ -3,7 +3,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown, CircleMinus, Coins, Gift, Lock, Pause,
 import { money, packs } from './game';
 import { ago, hours, vnd } from './Stats';
 import { giftRewardText } from './gift-codes';
-import { adminAccountDelete, adminAccountLock, adminConfirmEmail, adminAccountTier, adminCreditStp, adminResetPassword, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS, adminGiftBulk, adminDeduct } from './wallet';
+import { adminAccountDelete, adminAccountLock, adminConfirmEmail, adminAccountTier, adminCreditStp, adminResetPassword, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS, adminGiftBulk, adminDeduct, adminTopupBp, adminBpTopups, BP_PER_VND, BP_TOPUP_MIN_VND, BP_TOPUP_MAX_VND } from './wallet';
 import type { AdminAccount, AdminAccountList, AdminGift, LedgerRow } from './wallet';
 import { CreditKindField, LedgerKindButton } from './LedgerKind';
 import type { CreditKind } from './LedgerKind';
@@ -114,6 +114,36 @@ function StarPointField({ account, busy, run }: { account: AdminAccount; busy: b
     <label className="pa-field"><span>Số STP</span><input inputMode="numeric" value={amount} placeholder="vd. 100 hoặc -15" onChange={e => setAmount(e.target.value.replace(/[^\d.\s-]/g, '').slice(0, 14))}/></label>
     <label className="pa-field"><span>Ghi chú</span><input value={note} maxLength={200} onChange={e => setNote(e.target.value)}/></label>
     <button type="submit" className="primary-button" disabled={busy || !valid}>Cập nhật Star Point</button>
+  </form>;
+}
+// Nạp BP theo tiền VND (202611180013): 1.000đ = 10B BP, cộng thẳng vào kho (chưa có kho thì vào Quà từ Admin); sổ nạp BP riêng, không tính Top Đặc Huấn.
+function BpTopupField({ account, busy, run }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void }) {
+  const [amount, setAmount] = useState('');
+  const [note, setNote] = useState('');
+  const [log, setLog] = useState<Awaited<ReturnType<typeof adminBpTopups>> | null>(null);
+  // Mã đợt: bấm lại sau lỗi mạng thì máy chủ không cộng lần hai; đổi số / tài khoản thì đợt mới.
+  const batch = useRef<string | null>(null);
+  useEffect(() => { batch.current = null; }, [amount, account.id]);
+  const load = () => { void adminBpTopups(account.id).then(setLog).catch(() => setLog(null)); };
+  useEffect(load, [account.id]);
+  const value = Number(amount.replace(/[.\s]/g, ''));
+  const valid = Number.isSafeInteger(value) && value >= BP_TOPUP_MIN_VND && value <= BP_TOPUP_MAX_VND;
+  const bp = valid ? value * BP_PER_VND : 0;
+  return <form onSubmit={e => { e.preventDefault(); if (!valid) return;
+    if (!confirm(`Nạp ${money(bp)} BP (${vnd(value)}) cho ${account.login}?`)) return;
+    run(async () => {
+      const id = batch.current ??= crypto.randomUUID();
+      const r = await adminTopupBp(id, account.id, value, note.trim());
+      batch.current = null; setAmount(''); setNote(''); load();
+      return `${r.repeat ? 'Lần nạp này đã ghi trước đó: ' : 'Đã nạp '}${money(r.bp)} BP (${vnd(r.vnd)}) cho ${account.login}${r.delivered ? (r.balance !== null ? ` · BP hiện có ${money(r.balance)}` : '') : ' · tài khoản chưa vào game: BP chờ ở Quà từ Admin'}.`;
+    }); }}>
+    <h3>Nạp BP</h3>
+    <p className="pa-gift-note">Tỉ giá 1.000đ = {money(1000 * BP_PER_VND)} BP. Cộng thẳng vào kho người chơi; ghi sổ nạp BP riêng (không tính Top Đặc Huấn).</p>
+    <label className="pa-field"><span>Số tiền (VND)</span><input inputMode="numeric" value={amount} placeholder="vd. 10.000" onChange={e => setAmount(e.target.value.replace(/[^\d.\s]/g, '').slice(0, 14))}/></label>
+    {amount.trim() && <p className="pa-gift-note">{valid ? <>= <b>{money(bp)} BP</b></> : `Từ ${vnd(BP_TOPUP_MIN_VND)} đến ${vnd(BP_TOPUP_MAX_VND)} mỗi lần.`}</p>}
+    <label className="pa-field"><span>Ghi chú</span><input value={note} maxLength={200} placeholder="vd. mã giao dịch ngân hàng" onChange={e => setNote(e.target.value)}/></label>
+    <button type="submit" className="primary-button" disabled={busy || !valid}>Nạp BP</button>
+    {log && log.items.length > 0 && <p className="pa-gift-note">Đã nạp BP: <b>{vnd(log.totalVnd)}</b> · {money(log.totalBp)} BP · lần gần nhất {ago(log.items[0].at, Date.now())}</p>}
   </form>;
 }
 // Trừ FC (migration 202611130003): thu hồi / phạt, lý do 'admin_deduct', không làm giảm Đã nạp và doanh thu như ô Cộng / trừ FC nhập số âm.
@@ -228,6 +258,7 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
       <DeductFc account={account} busy={busy} run={task => void run(task)} onDone={() => void loadLedger()}/>
       <SendGift account={account} busy={busy} run={task => void run(task)} onSent={() => void loadLedger()}/>
       <StarPointField account={account} busy={busy} run={task => void run(task)}/>
+      <BpTopupField account={account} busy={busy} run={task => void run(task)}/>
       <div className="pa-account-ledger">
         <h3>Sổ cái FC gần đây</h3>
         {ledger && !ledger.length && <p className="pa-empty">Chưa có giao dịch.</p>}

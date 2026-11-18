@@ -183,7 +183,7 @@ test('Thêm / bỏ cầu thủ vào đội hình riêng; thứ tự giữ nguyê
   assert.ok(validateSave(JSON.parse(JSON.stringify(state))));
 });
 
-test('Chặn thêm trùng thẻ, trùng cầu thủ, thẻ không có; cho phép vượt mốc lương 310', () => {
+test('Chặn thêm trùng thẻ, trùng cầu thủ, thẻ không có; cho phép vượt mốc lương 350', () => {
   const [a, b] = [makeCard(lowWage[0].id), makeCard(lowWage[0].id)];
   let state = addToSquad({ ...initialSave(), cards: [a, b] }, a.uid);
   assert.throws(() => addToSquad(state, a.uid), /đã có trong đội hình/);

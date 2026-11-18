@@ -119,11 +119,13 @@ test('Nhận bóng không khựng: người cầm bóng hầu như luôn đang c
   // Chỉ còn đứng khi giao bóng / thủ môn bắt bóng / lấy đà trước cú sút / xoay người khi đích sau lưng (vật lý 2026-11-16).
   assert.ok(still / total < .14, `người cầm bóng đứng yên ${(still / total * 100).toFixed(0)}% thời gian`);
 });
-test('Mức lương GLXH khớp máy chủ (202611120006) và danh mục gửi kèm lương', () => {
+test('Mức lương GLXH khớp máy chủ (350 từ 202611180016; danh mục gửi kèm lương từ 202611120006)', () => {
   const wageSql = readFileSync('supabase/migrations/202611120006_fco_ranked_wage_cap.sql', 'utf8');
-  assert.match(wageSql, new RegExp(`wage_total > ${RANKED_WAGE_CAP} then raise exception 'FCO_RANKED_WAGE'`));
   assert.match(wageSql, /insert into public\.fco_cat_players_next\(id, name, ovrs, prices, fixed, insurance, wage\)/);
-  assert.equal(RANKED_WAGE_CAP, 310);
+  const cap = readFileSync('supabase/migrations/202611180016_fco_ranked_wage_350.sql', 'utf8');
+  assert.match(cap, new RegExp(`wage_total > ${RANKED_WAGE_CAP} then raise exception 'FCO_RANKED_WAGE'`));
+  assert.match(cap, /'gx'/); assert.match(cap, /'faces'/);
+  assert.equal(RANKED_WAGE_CAP, 350);
 });
 
 test('Thống kê trận: kiểm soát bóng cộng 100%, số cú sút không ít hơn bàn thắng, có chuyền bóng', () => {

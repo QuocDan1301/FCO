@@ -72,3 +72,14 @@ test('Top Đặc Huấn tính toàn bộ FC đã nạp (202611180009): mốc b�
   assert.ok(!isAllTime(Date.parse('2026-11-18T00:00:00+07:00')));
   assert.equal(raceSpan(Date.parse('2026-11-18T00:00:00+07:00'), end), '18.11 – 20.11');
 });
+
+test('BP admin nạp cũng tính điểm Top Đặc Huấn (202611180015): 10B BP = 1 FC tương đương = 1,5 điểm; thể lệ trong game không nhắc BP', () => {
+  const sql = readFileSync('supabase/migrations/202611180015_fco_topup_race_bp.sql', 'utf8');
+  assert.match(sql, /add column if not exists bp_per_fc numeric not null default 10000000000;/);
+  assert.match(sql, /b\.bp::numeric \/ \(select bp_per_fc from public\.fco_topup_race where id = 1\)/);
+  assert.match(sql, /from public\.fco_bp_topups b/);
+  assert.match(sql, /revoke all on function public\.fco_topup_race_rows\(\) from public, anon, authenticated;/);
+  assert.match(sql, /alter column amount type numeric/);
+  const ui = readFileSync('src/TopupRaceBoard.tsx', 'utf8');
+  assert.doesNotMatch(ui.replace(/^\s*\/\/.*$/gm, ''), /\bBP nạp|nạp BP|Nạp BP/i, 'thể lệ không nhắc nạp BP');
+});

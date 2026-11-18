@@ -93,7 +93,7 @@ const MESSAGES: Record<string, string> = {
   FCO_BAD_CLUB: 'Logo CLB không hợp lệ.',
   FCO_RANKED_TEAM: 'Bộ đội hình đang dùng chưa đủ 11 cầu thủ.',
   FCO_RANKED_CARD: 'Đội hình có thẻ không còn trong kho. Hãy kiểm tra lại Đội hình.',
-  FCO_RANKED_WAGE: 'Đội hình vượt mức lương 310. Hãy giảm lương đội hình ở mục Đội hình rồi đá GLXH.',
+  FCO_RANKED_WAGE: 'Đội hình vượt mức lương 350. Hãy giảm lương đội hình ở mục Đội hình rồi đá GLXH.',
   FCO_RANKED_TOO_FAST: 'Đợi vài giây rồi đá trận tiếp theo.',
   FCO_RANKED_EARLY: 'Trận đấu chưa kết thúc.',
   FCO_RANKED_IN_PROGRESS: 'Bạn đang có một trận chưa kết thúc.',

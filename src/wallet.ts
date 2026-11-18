@@ -73,6 +73,13 @@ export const finishRanked = () => call<RankedFinish>('fco_ranked_finish');
 export const abandonRanked = () => call<RankedFinish>('fco_ranked_abandon');
 export const playRanked = (team: { formation: string; slots: { uid: string; role: string; x: number; y: number; ovr: number }[] }) => call<RankedMatch>('fco_ranked_play', { p_team: team });
 export const adminCreditStp = (login: string, amount: number, note: string) => call<{ login: string; stp: number }>('fco_admin_credit_stp', { p_login: login, p_amount: amount, p_note: note });
+// Nạp BP theo tiền VND (migration 202611180013_fco_admin_topup_bp.sql): 1.000đ = 10B BP; request = mã đợt chống cộng hai lần.
+export const BP_PER_VND = 10_000_000;
+export const BP_TOPUP_MIN_VND = 1_000, BP_TOPUP_MAX_VND = 50_000_000;
+export type BpTopupResult = { repeat: boolean; vnd: number; bp: number; delivered: boolean; balance: number | null };
+export const adminTopupBp = (request: string, user: string, vnd: number, note: string) => call<BpTopupResult>('fco_admin_topup_bp', { p_request: request, p_user: user, p_vnd: vnd, p_note: note });
+export type BpTopupLog = { totalVnd: number; totalBp: number; items: { vnd: number; bp: number; note: string; delivered: boolean; at: number }[] };
+export const adminBpTopups = (user: string) => call<BpTopupLog>('fco_admin_bp_topups', { p_user: user });
 // Code sai: máy chủ trả {error} thay vì báo lỗi để còn ghi lại lần thử (chống dò code, migration 202611140010).
 export const redeemGiftHash = async (hash: string) => {
   const result = await call<{ rewards: EventReward[]; wallet: Wallet; save?: ServerRecord | null } | { error: string }>('fco_redeem_gift', { p_hash: hash });
