@@ -553,7 +553,7 @@ export function isPackAvailable(pack: Pack): boolean {
 }
 // Cấp cộng tối đa của thẻ; mỗi cấp có một huy hiệu riêng (+1 → +13).
 // Mỗi dòng là cấp thẻ sau khi nâng cấp; tỷ lệ (%) áp dụng khi đủ 5 vạch năng lượng.
-// Tỷ lệ đập thẻ (2026-11-17, người dùng): +1→+2 100%, +2→+3 80%, +3→+4 70%, +4→+5 50%, +5→+6 35%, +6→+7 25%, +7→+8 20%,
+// Tỷ lệ đập thẻ (2026-11-17, người dùng; 2026-11-18 +7→+8 giảm 20% → 15%): +1→+2 100%, +2→+3 80%, +3→+4 70%, +4→+5 50%, +5→+6 35%, +6→+7 25%, +7→+8 15%,
 // +8→+9 15%, +9→+10 10%, +10→+11 7%, +11→+12 5%, +12→+13 3%. Máy chủ đọc từ bộ dữ liệu (chances) → admin Đồng bộ dữ liệu sau khi đưa bản mới lên.
 export const UPGRADE_LEVELS = [
   { ovrGain: 0, chance: 0 },   // +1
@@ -563,7 +563,7 @@ export const UPGRADE_LEVELS = [
   { ovrGain: 2, chance: 50 },  // +5
   { ovrGain: 2, chance: 35 },  // +6
   { ovrGain: 3, chance: 25 },  // +7
-  { ovrGain: 4, chance: 20 },  // +8
+  { ovrGain: 4, chance: 15 },  // +8
   { ovrGain: 2, chance: 15 },  // +9
   { ovrGain: 2, chance: 10 },  // +10
   { ovrGain: 2, chance: 7 },   // +11

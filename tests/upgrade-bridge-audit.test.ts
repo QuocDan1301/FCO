@@ -132,7 +132,7 @@ test('Đã bỏ cầu ngầm: 5.000 lượt toàn engine, tỷ lệ thật luôn
 });
 
 test('Công thức: +7 → +8 đủ các mức, +2 → +3 cộng 30 bị chặn ở 100% (cộng điểm %, không nhân 1,3)', () => {
-  assert.equal(baseRate(7), 20);
+  assert.equal(baseRate(7), 15);
   assert.deepEqual([[0, 0], [7.5, 0], [15, 0], [22.5, 0], [30, 0], [0, 30], [22.5, 30], [30, 30]].map(([p, h]) => finalRate(7, p, h)), [7, 14.5, 22, 29.5, 37, 37, 37, 37]);
   assert.equal(baseRate(2), 80);
   assert.equal(finalRate(81, 0, 30), 100);
@@ -194,7 +194,7 @@ test('Bản lưu: reload khôi phục đúng; dữ liệu cũ / hỏng / bị s�
 });
 
 test('Tương thích: OVR, năng lượng nguyên liệu và tỷ lệ gốc không đổi; không nhân đôi thẻ', () => {
-  assert.deepEqual(UPGRADE_LEVELS.map(l => l.chance), [0, 100, 80, 70, 50, 35, 25, 20, 15, 10, 7, 5, 3]);
+  assert.deepEqual(UPGRADE_LEVELS.map(l => l.chance), [0, 100, 80, 70, 50, 35, 25, 15, 15, 10, 7, 5, 3]);
   const target = { ...makeCard(11), level: 6 }, materials = Array.from({ length: 5 }, () => ({ ...makeCard(11), level: 13 }));
   const state = { ...initialSave(), cards: [target, ...materials] };
   assert.equal(upgradeInfo(target, materials).chance, 25);
