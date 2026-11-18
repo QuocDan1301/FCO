@@ -6284,6 +6284,600 @@
       "back": "/assets/custom/gr-w4-back.webp",
       "published": true,
       "eventOnly": true
+    },
+    {
+      "id": "tdh-ts1-10",
+      "name": "26TOTS chỉ định 1 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": 1,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 55500000000,
+      "description": "Gói chỉ định 26TS: tự chọn 1 trong 1 cầu thủ giá cao nhất, thẻ +10. Quà Top Đặc Huấn.",
+      "range": "145–145",
+      "back": "/assets/custom/tdh-ts1-10-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ts1-9",
+      "name": "26TOTS chỉ định 1 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": 1,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 25200000000,
+      "description": "Gói chỉ định 26TS: tự chọn 1 trong 1 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "143–143",
+      "back": "/assets/custom/tdh-ts1-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ts3-9",
+      "name": "26TOTS chỉ định 3 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": 3,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 23500000000,
+      "description": "Gói chỉ định 26TS: tự chọn 1 trong 3 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "143–143",
+      "back": "/assets/custom/tdh-ts3-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ts5-9",
+      "name": "26TOTS chỉ định 5 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": 5,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 20600000000,
+      "description": "Gói chỉ định 26TS: tự chọn 1 trong 5 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "142–143",
+      "back": "/assets/custom/tdh-ts5-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ts7-9",
+      "name": "26TOTS chỉ định 7 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": 7,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 18200000000,
+      "description": "Gói chỉ định 26TS: tự chọn 1 trong 7 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "142–143",
+      "back": "/assets/custom/tdh-ts7-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ts10-8",
+      "name": "26TOTS chỉ định 10 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": 10,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 7570000000,
+      "description": "Gói chỉ định 26TS: tự chọn 1 trong 10 cầu thủ giá cao nhất, thẻ +8. Quà Top Đặc Huấn.",
+      "range": "140–141",
+      "back": "/assets/custom/tdh-ts10-8-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ts20-8",
+      "name": "26TOTS chỉ định 20 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": 20,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 4270000000,
+      "description": "Gói chỉ định 26TS: tự chọn 1 trong 20 cầu thủ giá cao nhất, thẻ +8. Quà Top Đặc Huấn.",
+      "range": "138–141",
+      "back": "/assets/custom/tdh-ts20-8-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ts30-8",
+      "name": "26TOTS chỉ định 30 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": 30,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 3600000000,
+      "description": "Gói chỉ định 26TS: tự chọn 1 trong 30 cầu thủ giá cao nhất, thẻ +8. Quà Top Đặc Huấn.",
+      "range": "138–141",
+      "back": "/assets/custom/tdh-ts30-8-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ts40-8",
+      "name": "26TOTS chỉ định 40 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 TOTS",
+      "seasons": [
+        "stellar"
+      ],
+      "minOvr": null,
+      "topPrice": 40,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 3350000000,
+      "description": "Gói chỉ định 26TS: tự chọn 1 trong 40 cầu thủ giá cao nhất, thẻ +8. Quà Top Đặc Huấn.",
+      "range": "137–141",
+      "back": "/assets/custom/tdh-ts40-8-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ws1-9",
+      "name": "WS chỉ định 1 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WINNING STREAK",
+      "seasons": [
+        "ws"
+      ],
+      "minOvr": null,
+      "topPrice": 1,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 5050000000,
+      "description": "Gói chỉ định WS: tự chọn 1 trong 1 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "139–139",
+      "back": "/assets/custom/tdh-ws1-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ws3-9",
+      "name": "WS chỉ định 3 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WINNING STREAK",
+      "seasons": [
+        "ws"
+      ],
+      "minOvr": null,
+      "topPrice": 3,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 4740000000,
+      "description": "Gói chỉ định WS: tự chọn 1 trong 3 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "139–139",
+      "back": "/assets/custom/tdh-ws3-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ws5-9",
+      "name": "WS chỉ định 5 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WINNING STREAK",
+      "seasons": [
+        "ws"
+      ],
+      "minOvr": null,
+      "topPrice": 5,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 3580000000,
+      "description": "Gói chỉ định WS: tự chọn 1 trong 5 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "138–139",
+      "back": "/assets/custom/tdh-ws5-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ws7-9",
+      "name": "WS chỉ định 7 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WINNING STREAK",
+      "seasons": [
+        "ws"
+      ],
+      "minOvr": null,
+      "topPrice": 7,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 3400000000,
+      "description": "Gói chỉ định WS: tự chọn 1 trong 7 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "138–139",
+      "back": "/assets/custom/tdh-ws7-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ws10-9",
+      "name": "WS chỉ định 10 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WINNING STREAK",
+      "seasons": [
+        "ws"
+      ],
+      "minOvr": null,
+      "topPrice": 10,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 3310000000,
+      "description": "Gói chỉ định WS: tự chọn 1 trong 10 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "138–139",
+      "back": "/assets/custom/tdh-ws10-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ws15-8",
+      "name": "WS chỉ định 15 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WINNING STREAK",
+      "seasons": [
+        "ws"
+      ],
+      "minOvr": null,
+      "topPrice": 15,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 1220000000,
+      "description": "Gói chỉ định WS: tự chọn 1 trong 15 cầu thủ giá cao nhất, thẻ +8. Quà Top Đặc Huấn.",
+      "range": "135–137",
+      "back": "/assets/custom/tdh-ws15-8-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ws20-8",
+      "name": "WS chỉ định 20 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WINNING STREAK",
+      "seasons": [
+        "ws"
+      ],
+      "minOvr": null,
+      "topPrice": 20,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 1120000000,
+      "description": "Gói chỉ định WS: tự chọn 1 trong 20 cầu thủ giá cao nhất, thẻ +8. Quà Top Đặc Huấn.",
+      "range": "135–137",
+      "back": "/assets/custom/tdh-ws20-8-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ws30-8",
+      "name": "WS chỉ định 30 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WINNING STREAK",
+      "seasons": [
+        "ws"
+      ],
+      "minOvr": null,
+      "topPrice": 30,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 1010000000,
+      "description": "Gói chỉ định WS: tự chọn 1 trong 30 cầu thủ giá cao nhất, thẻ +8. Quà Top Đặc Huấn.",
+      "range": "135–137",
+      "back": "/assets/custom/tdh-ws30-8-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ws40-8",
+      "name": "WS chỉ định 40 (+8)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WINNING STREAK",
+      "seasons": [
+        "ws"
+      ],
+      "minOvr": null,
+      "topPrice": 40,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 793000000,
+      "description": "Gói chỉ định WS: tự chọn 1 trong 40 cầu thủ giá cao nhất, thẻ +8. Quà Top Đặc Huấn.",
+      "range": "134–137",
+      "back": "/assets/custom/tdh-ws40-8-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ch1-9",
+      "name": "CH chỉ định 1 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CONTINENTAL HEROES",
+      "seasons": [
+        "ch"
+      ],
+      "minOvr": null,
+      "topPrice": 1,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 3350000000,
+      "description": "Gói chỉ định CH: tự chọn 1 trong 1 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "138–138",
+      "back": "/assets/custom/tdh-ch1-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ch3-9",
+      "name": "CH chỉ định 3 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CONTINENTAL HEROES",
+      "seasons": [
+        "ch"
+      ],
+      "minOvr": null,
+      "topPrice": 3,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 3290000000,
+      "description": "Gói chỉ định CH: tự chọn 1 trong 3 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "138–138",
+      "back": "/assets/custom/tdh-ch3-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ch5-9",
+      "name": "CH chỉ định 5 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CONTINENTAL HEROES",
+      "seasons": [
+        "ch"
+      ],
+      "minOvr": null,
+      "topPrice": 5,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 3290000000,
+      "description": "Gói chỉ định CH: tự chọn 1 trong 5 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "138–138",
+      "back": "/assets/custom/tdh-ch5-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ch7-9",
+      "name": "CH chỉ định 7 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CONTINENTAL HEROES",
+      "seasons": [
+        "ch"
+      ],
+      "minOvr": null,
+      "topPrice": 7,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 2660000000,
+      "description": "Gói chỉ định CH: tự chọn 1 trong 7 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "137–138",
+      "back": "/assets/custom/tdh-ch7-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ch10-9",
+      "name": "CH chỉ định 10 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CONTINENTAL HEROES",
+      "seasons": [
+        "ch"
+      ],
+      "minOvr": null,
+      "topPrice": 10,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 2420000000,
+      "description": "Gói chỉ định CH: tự chọn 1 trong 10 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "137–138",
+      "back": "/assets/custom/tdh-ch10-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ch15-9",
+      "name": "CH chỉ định 15 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CONTINENTAL HEROES",
+      "seasons": [
+        "ch"
+      ],
+      "minOvr": null,
+      "topPrice": 15,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 2170000000,
+      "description": "Gói chỉ định CH: tự chọn 1 trong 15 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "137–138",
+      "back": "/assets/custom/tdh-ch15-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ch20-9",
+      "name": "CH chỉ định 20 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CONTINENTAL HEROES",
+      "seasons": [
+        "ch"
+      ],
+      "minOvr": null,
+      "topPrice": 20,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 1810000000,
+      "description": "Gói chỉ định CH: tự chọn 1 trong 20 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "136–138",
+      "back": "/assets/custom/tdh-ch20-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ch30-9",
+      "name": "CH chỉ định 30 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CONTINENTAL HEROES",
+      "seasons": [
+        "ch"
+      ],
+      "minOvr": null,
+      "topPrice": 30,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 1330000000,
+      "description": "Gói chỉ định CH: tự chọn 1 trong 30 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "135–138",
+      "back": "/assets/custom/tdh-ch30-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "tdh-ch40-9",
+      "name": "CH chỉ định 40 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CONTINENTAL HEROES",
+      "seasons": [
+        "ch"
+      ],
+      "minOvr": null,
+      "topPrice": 40,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 1140000000,
+      "description": "Gói chỉ định CH: tự chọn 1 trong 40 cầu thủ giá cao nhất, thẻ +9. Quà Top Đặc Huấn.",
+      "range": "135–138",
+      "back": "/assets/custom/tdh-ch40-9-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
     }
   ]
 }

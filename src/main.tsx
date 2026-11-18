@@ -49,6 +49,7 @@ import './ws-cards.css';
 import './el-cards.css';
 import './tsubasa-cards.css';
 import './tsubasa-fx.css';
+import './ch-cards.css';
 import './card-names.css';
 import './market.css';
 import './inventory.css';

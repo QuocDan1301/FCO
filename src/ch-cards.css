@@ -1,0 +1,16 @@
+/* CH (CONTINENTAL HEROES): tạo bởi scripts/import-ch.py. Thẻ dựng từ khung trống + chân dung; OVR / tên / cấp vẽ bằng HTML. */
+.rarity-dot.ch{background:#ff3d7f}
+.player-card.face-art.season-ch{aspect-ratio:298/373}
+.player-card.face-art.season-ch>.face-art-img{filter:drop-shadow(0 0 5px #ff3d7f33)}
+.season-ch .face-art-ovr{left:25.84%;top:17.16%;font-size:10.9cqw;color:#ffffff;letter-spacing:-.02em;text-shadow:0 .03em .12em #1a0630}
+.season-ch .face-art-level{left:18.12%;top:50.94%;width:15.44%;height:7.51%;transform:none;object-fit:fill}
+.season-ch{--name-size:6.4cqw;--name-color:#ffffff;--nx:14.77%;--nw:70.47%;--ny:78.82%}
+.season-ch .face-art-name{text-align:center;text-shadow:0 .05em .14em #000c}
+.season-ch .face-art-name.is-long{text-align:left}
+.season-ch .face-art-name>b::before{content:"";display:inline-block;width:1.103em;height:.84em;margin-right:.28em;vertical-align:-.08em;background:url(/assets/ch-label.webp) center/100% 100% no-repeat}
+[data-tone=ch]{--shop-tone:#ff3d7f;--shop-tone2:#1b2a7a}
+.season-tag-ch{color:#ff6b9a}
+.reveal-ch .reveal-panel{--led:#5fd4ff;--led2:#1a0b3a;border-color:#ff3d7f66}
+.reveal-ch .reveal-stats dt{color:#ffffff}
+.reveal-ch .reveal-podium{background:linear-gradient(180deg,#2a1466,#120a33);border-top-color:#ff3d7f}
+.reveal-ch .reveal-podium span{color:#ffffff}

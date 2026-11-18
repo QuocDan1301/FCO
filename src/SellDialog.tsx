@@ -15,8 +15,8 @@ import { faceOf } from './portraits';
 
 type Tab = 'single' | 'bulk';
 export type SellTarget = 'market' | 'system';
-// Bán luôn là treo lệnh cho người chơi (202611180004: bỏ "Bán cho hệ thống"); quá 3 phút chưa ai mua thì hệ thống mua đúng giá treo.
-const SELL_HINT = 'Treo lên chợ với giá tự đặt: có người đặt mua giá ≥ giá bán thì khớp ngay; chưa ai mua sau 3 phút thì hệ thống mua đúng giá treo (trừ thuế). BP chờ nhận ở TTCN › Lịch sử chuyển nhượng.';
+// Bán là xong ngay (202611180010): có lệnh đặt mua của người chơi thì khớp, không thì hệ thống mua ngay đúng giá bán.
+const SELL_HINT = 'Bán ngay với giá tự đặt: có người đặt mua giá ≥ giá bán thì khớp với người đó, không thì hệ thống mua ngay đúng giá bán (trừ thuế). BP chờ nhận ở TTCN › Lịch sử chuyển nhượng.';
 type Mode = 'fit' | 'min' | 'max';
 type Props = {
   save: Save;
@@ -28,7 +28,7 @@ type Props = {
   // Promise khi máy chủ bán (src/inventory-server.ts); true = đã bán xong. voucher: phiếu giảm thuế dùng cho lượt bán này.
   onSell: (items: SellItem[], voucher: TaxVoucher | null) => boolean | Promise<boolean>;
   onClose: () => void;
-  // Chợ giữa người chơi (migration 202611170002): sổ lệnh thật; có thì bán = treo lệnh cho người chơi, quá 3 phút chưa ai mua thì hệ thống mua (202611180004).
+  // Chợ giữa người chơi (migration 202611170002): sổ lệnh thật; bán = khớp lệnh mua của người chơi hoặc hệ thống mua ngay (202611180010).
   loadDepth?: (playerId: number, level: number) => Promise<MarketDepth>;
   // Bán hàng loạt: giá chợ của cả danh sách (migration 202611170009); có thì 'giá phù hợp' theo chợ thật.
   loadQuotes?: (keys: [number, number][]) => Promise<MarketQuote[]>;

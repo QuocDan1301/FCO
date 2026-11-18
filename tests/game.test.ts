@@ -16,8 +16,9 @@ const cardWith = (rating: number, level = 1, skip: number[] = []) => {
   if (!player) throw new Error(`Không có cầu thủ OVR ${rating} ở +${level}`);
   return { ...makeCard(player.id), level };
 };
-test('4182 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 166 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS, 34 JNM, 20 25HR, 98 26UP, 33 LIVE, 14 24HR, 17 CA, 9 26HR, 16 LD, 98 WS, 92 EL và 18 TSUBASA; mọi gói đủ 100%', () => {
-  assert.equal(players.length, 4182);
+test('4333 cầu thủ: 126 ICON, 160 thẻ 26TS, 24 thẻ NO.7, 60 INFINITE PRIME, 40 VIETNAM, 20 PRIME, 40 MEDALIST, 9 FC AMBASSADOR, 112 UC, 155 WG, 134 UT, 167 CU, 176 GRU, 135 RTN, 135 DC, 111 CC, 88 BLD, 198 WB 118 SPT, 108 BDO, 195 23HW, 208 24EP, 166 PTG, 165 LE, 116 HG, 90 SPL, 95 LN, 90 FA, 90 LOL, 90 CAP, 90 BOE21, 100 BTB 100 EBS 14 JUVENTUS, 34 JNM, 20 25HR, 98 26UP, 33 LIVE, 14 24HR, 17 CA, 9 26HR, 16 LD, 98 WS, 92 EL, 18 TSUBASA và 151 CH; mọi gói đủ 100%', () => {
+  assert.equal(players.length, 4333);
+  assert.equal(players.filter(p => p.tier === 'ch').length, 151);
   assert.equal(players.filter(p => p.tier === 'live').length, 33);
   assert.equal(players.filter(p => p.tier === 'hw23').length, 195);
   assert.equal(players.filter(p => p.tier === 'ep24').length, 208);

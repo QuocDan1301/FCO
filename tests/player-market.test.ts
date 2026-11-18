@@ -143,14 +143,32 @@ test('Lượng hệ thống treo bán: nhóm 1 ×2, nhóm 2 ×4/3 (gấp đôi),
 
 test('Bỏ bán cho hệ thống; treo bán quá 3 phút hệ thống tự mua; mỗi lần bán tối đa 150 thẻ (202611180004)', () => {
   const sql = readFileSync('supabase/migrations/202611180004_fco_market_takeover_3min.sql', 'utf8');
-  assert.equal(SYSTEM_TAKEOVER_MIN, 3);
-  assert.equal(MAX_BULK_SELL, 150);
-  assert.match(sql, new RegExp(`'systemAfterSec', ${SYSTEM_TAKEOVER_MIN * 60}, 'maxOpenSell', (\\d+)`));
-  assert.ok(+/'maxOpenSell', (\d+)/.exec(sql)![1] >= MAX_BULK_SELL, 'đủ chỗ treo 150 thẻ một lần');
+  assert.match(sql, /'systemAfterSec', 180, 'maxOpenSell', (\d+)/);
+  assert.ok(+/'maxOpenSell', (\d+)/.exec(sql)![1] >= 150, 'đủ chỗ treo 150 thẻ một lần (luật lúc đó)');
   const settle = sql.slice(sql.indexOf('function public.fco_mkt_settle()'), sql.indexOf('function public.fco_mkt_sell('));
   assert.match(settle, /status = 'system', closed_at = now\(\), fill_price = r\.price/);
   assert.match(settle, /r\.price - fee, 'sell', r\.id/, 'BP chờ nhận ở Lịch sử chuyển nhượng');
   assert.doesNotMatch(settle, /side = 'buy'/, 'lệnh mua vẫn không hết hạn');
   assert.doesNotMatch(sql, /sellTtlHours/);
   assert.match(sql.slice(sql.indexOf('function public.fco_inv_sell(')), /raise exception 'FCO_SELL_VIA_MARKET'/);
+});
+
+test('Bán cầu thủ là xong ngay, không treo (202611180010): khớp lệnh mua của người chơi, không thì hệ thống mua ngay; BP chờ nhận', () => {
+  const sql = readFileSync('supabase/migrations/202611180010_fco_market_sell_instant.sql', 'utf8');
+  assert.equal(SYSTEM_TAKEOVER_MIN, 0);
+  assert.match(sql, /'systemAfterSec', 0, 'maxOpenSell', 300/);
+  const sell = sql.slice(sql.indexOf('function public.fco_mkt_sell('));
+  assert.match(sell, /if found then perform public\.fco_mkt_fill\(o, b, b\.price\); matched := matched \+ 1;\s+else perform public\.fco_mkt_system_take\(o\); took := took \+ 1; end if;/);
+  assert.match(sell, /perform public\.fco_mkt_check_price/, 'giá bán vẫn trong biên');
+  const take = sql.slice(sql.indexOf('function public.fco_mkt_system_take('), sql.indexOf('function public.fco_mkt_settle('));
+  assert.match(take, /status = 'system'.*where id = r\.id and status = 'open'/s, 'không mua hai lần');
+  assert.match(take, /r\.price - fee, 'sell', r\.id/, 'BP chờ nhận ở Lịch sử chuyển nhượng');
+  assert.doesNotMatch(sql.slice(sql.indexOf('function public.fco_mkt_settle('), sql.indexOf('function public.fco_mkt_sell(')), /side = 'buy'/, 'lệnh mua vẫn không hết hạn');
+});
+
+test('Mỗi lần bán tối đa 500 cầu thủ (202611180011): bộ dữ liệu maxBulkSell 500, máy chủ đủ chỗ (maxOpenSell ≥ 500)', () => {
+  const sql = readFileSync('supabase/migrations/202611180011_fco_market_sell_500.sql', 'utf8');
+  assert.equal(MAX_BULK_SELL, 500);
+  assert.match(sql, /'systemAfterSec', 0, 'maxOpenSell', (\d+)/, 'giữ bán ngay');
+  assert.ok(+/'maxOpenSell', (\d+)/.exec(sql)![1] >= MAX_BULK_SELL);
 });

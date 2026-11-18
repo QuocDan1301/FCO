@@ -24,7 +24,7 @@ TIER_CELLS = {
     'lol': '3.10', 'cap': '3.1', 'boe21': '1.21', 'btb': '2.4', 'ebs': '2.13', 'juventus': '4.7', 'jnm': '3.19', 'hr25': '5.9', 'hr24': '4.6', 'chelsea': '4.3', 'hr26': '5.21', 'ld': '4.4', 'ws': '5.15',
 }
 # Mùa bảng chưa có: cắt từ ảnh gói (ảnh, hộp x0 y0 x1 y1). EL: ô vuông chữ EL ở góc dưới trái ảnh gói. Ô 2.17 "UP" khác huy hiệu 26UP in trên thẻ nên không dùng.
-PACK_CROPS = {'el': ('el-back', (370, 1820, 608, 2065)), 'tsubasa': ('tsubasa-back', (206, 2063, 406, 2213)), 'up26': ('up26-back', (136, 2094, 358, 2278)), 'live': ('live-back', (259, 2032, 461, 2202))}
+PACK_CROPS = {'el': ('el-back', (370, 1820, 608, 2065)), 'tsubasa': ('tsubasa-back', (206, 2063, 406, 2213)), 'ch': ('ch-back', (205, 2068, 420, 2240)), 'up26': ('up26-back', (136, 2094, 358, 2278)), 'live': ('live-back', (259, 2032, 461, 2202))}
 
 
 def from_sheet(sheet, cell):

@@ -152,13 +152,15 @@ export function sellPlayer(state: Save, cardId: string, free = false, voucher: T
 // Bán hàng loạt tối đa MAX_BULK_SELL thẻ mỗi lần, mỗi thẻ một giá riêng.
 export const SELL_BAND_PERCENT = 10;
 // Chợ giữa người chơi (2026-11-17, migration 202611170002_fco_player_market.sql): hệ thống chỉ bán thẻ +1 (SYSTEM_BUY_LEVEL);
-// bán = treo lệnh, chưa ai mua sau SYSTEM_TAKEOVER_MIN phút thì hệ thống mua; lệnh mua giữ BP, không hết hạn (migration 202611170014), huỷ thì trả BP.
+// bán = khớp lệnh mua của người chơi hoặc hệ thống mua ngay (202611180010); lệnh mua giữ BP, không hết hạn (migration 202611170014), huỷ thì trả BP.
 export const SYSTEM_BUY_LEVEL = 1;
-// Bán = treo lệnh cho người chơi; chưa ai mua sau SYSTEM_TAKEOVER_MIN phút thì hệ thống mua đúng giá treo (migration 202611180004,
-// fco_mkt_rules.systemAfterSec). Không còn bán thẳng cho hệ thống.
-export const SYSTEM_TAKEOVER_MIN = 3;
-// 2026-11-18 người dùng: mỗi lần bán tối đa 150 cầu thủ (bộ dữ liệu maxBulkSell → admin Đồng bộ dữ liệu).
-export const MAX_BULK_SELL = 150;
+// Bán là xong ngay (migration 202611180010_fco_market_sell_instant.sql, người dùng 2026-11-18 "bán cầu thủ liền, không cần phải treo"):
+// có lệnh đặt mua của người chơi giá ≥ giá bán thì khớp với người đó, không thì hệ thống mua ngay đúng giá bán; BP chờ nhận ở Lịch sử chuyển nhượng.
+// SYSTEM_TAKEOVER_MIN = fco_mkt_rules.systemAfterSec / 60 (trước đây 3 phút, 202611180004).
+export const SYSTEM_TAKEOVER_MIN = 0;
+// 2026-11-18 người dùng: mỗi lần bán tối đa 500 cầu thủ (trước 150; bộ dữ liệu maxBulkSell → admin Đồng bộ dữ liệu;
+// máy chủ maxOpenSell 600, migration 202611180011_fco_market_sell_500.sql).
+export const MAX_BULK_SELL = 500;
 export function sellRange(card: Pick<Card, 'playerId' | 'level'>) {
   const quote = marketQuote(card);
   if (!quote.available) return null;

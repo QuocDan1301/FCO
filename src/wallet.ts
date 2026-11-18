@@ -6,6 +6,8 @@ import type { MembershipId } from './membership';
 import type { StpItem, StpPackageId } from './stp';
 import type { StpMissionId, StpMissionState } from './stp-missions';
 import type { GrindState } from './grind-missions';
+import type { TopupRace } from './topup-race';
+import { normalizeTopupRace } from './topup-race';
 import type { RankedFinish, RankedMatch, RankedState } from './ranked';
 import { LOGIN_FOR_FC, walletMessage } from './wallet-state';
 import { MAINTENANCE_CHANGED } from './maintenance-state';
@@ -155,6 +157,8 @@ export const claimBilac = (index: number, choice: number | null) => call<{ rewar
 export const fetchVqtgConfig = () => call<VqtgConfig>('fco_vqtg_config');
 export const playVqtg = (count: number, mode: 'fc' | 'free', pick?: number) => call<VqtgResult>('fco_vqtg_play', { p_count: count, p_mode: mode, ...(pick ? { p_pick: pick } : {}) });
 export const fetchVqtgTop = () => call<VqtgTop>('fco_vqtg_top');
+// Top Đặc Huấn ở trang chủ (migration 202611180005_fco_topup_race.sql).
+export const fetchTopupRace = () => call<Parameters<typeof normalizeTopupRace>[0]>('fco_topup_top').then(normalizeTopupRace);
 export const claimVqtg = (index: number, choice: number | null) => call<{ rewards: VqtgReward[]; wallet: Wallet; save?: ServerRecord | null }>('fco_vqtg_claim', { p_index: index, p_choice: choice });
 // Chọn nhanh Shop Đổi Vé (202611140008): nhiều lượt một mốc trong một lần, choices = lựa chọn từng lượt; quà cùng loại máy chủ gộp sẵn.
 export const claimVqtgMany = (index: number, choices: number[]) => call<{ rewards: VqtgReward[]; count: number; wallet: Wallet; save?: ServerRecord | null }>('fco_vqtg_claim_many', { p_index: index, p_choices: choices });

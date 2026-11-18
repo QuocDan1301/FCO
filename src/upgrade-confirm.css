@@ -375,7 +375,7 @@
 @keyframes uc-crack{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
 .uc-fail-fx{position:absolute;inset:0;z-index:4;pointer-events:none;overflow:hidden}
 .uc-fail-vignette{position:absolute;inset:-10%;background:radial-gradient(ellipse 55% 50% at 50% 48%,transparent 40%,#3a0a0a66 72%,#120406cc 100%);opacity:.75;animation:uc-fail-vig 1.6s ease-out both}
-@keyframes uc-fail-vig{0%{opacity:0}12%{opacity:1;filter:saturate(2) brightness(1.5)}40%{opacity:.55}100%{opacity:.75;filter:none}}
+@keyframes uc-fail-vig{0%{opacity:0}12%{opacity:.9}40%{opacity:.55}100%{opacity:.75}}
 .uc-fail-spark{position:absolute;left:var(--x);top:66%;width:4px;height:4px;border-radius:50%;background:#fff;box-shadow:0 0 4px 1px var(--c),0 0 10px 2px var(--c);opacity:0;
   animation:uc-fail-spark var(--t) cubic-bezier(.25,.5,.5,1) var(--d) both}
 @keyframes uc-fail-spark{
@@ -409,7 +409,9 @@
       (lên: phóng vụt rồi bật về; rớt: lắc ngang dữ dội), thẻ lên bung to hơn. */
 .uc-flash{position:absolute;inset:0;z-index:6;pointer-events:none;animation:uc-flash .75s cubic-bezier(.1,.6,.3,1) both}
 .uc-flash.up{background:radial-gradient(circle at 50% 42%,#fff 0,var(--sheen-hi) 28%,var(--sheen-mid) 62%,transparent 100%)}
-.uc-flash.down{background:radial-gradient(circle at 50% 42%,#ff9a86 0,#e0301c 40%,#5a050500 100%);animation-duration:.6s}
+/* Rớt (người dùng 2026-11-18: 'vài màn hình bị lóa đỏ'): không phủ đỏ sáng lên thẻ / cả màn — chỉ một nhịp tối viền, giữa trong suốt, ngắn. */
+.uc-flash.down{background:radial-gradient(ellipse 60% 55% at 50% 45%,#0000 0,#0000 42%,#2a060699 74%,#0d0203d9 100%);animation:uc-flash-down .45s ease-out both}
+@keyframes uc-flash-down{0%{opacity:.7}100%{opacity:0}}
 @keyframes uc-flash{0%{opacity:.6}10%{opacity:.55}100%{opacity:0}}
 .is-success .uc-stage{animation:uc-punch-up .6s cubic-bezier(.2,1.5,.35,1) both}
 @keyframes uc-punch-up{0%{scale:1.07}100%{scale:1}}
