@@ -56,7 +56,7 @@ test('151 thẻ CH khớp danh sách (spid 845, OVR = Garena + 3, vị trí, lư
   assert.deepEqual(lm.map(p => p.pos).sort(), ['CB', 'ST']);
 });
 
-test('Gói CH ra đủ 151 cầu thủ, mở được; 9 gói quà Top Đặc Huấn CH chỉ định (+9)', () => {
+test('Gói CH ra đủ 151 cầu thủ, mở được; 9 gói quà Top Đặc Huấn CH chỉ định (+11 từ 2026-11-19, mã gói vẫn -9)', () => {
   assert.ok(isPackAvailable(base));
   assert.equal(packOdds(base).pool.length, 151);
   for (const p of roster.slice(0, 20)) assert.equal(draw(base, rngFor(base, p.id)).playerId, p.id, p.name);
@@ -64,6 +64,7 @@ test('Gói CH ra đủ 151 cầu thủ, mở được; 9 gói quà Top Đặc Hu
     const pack = packs.find(p => p.id === `tdh-ch${n}-9`)!;
     assert.ok(pack?.eventOnly && pack.choose, `tdh-ch${n}-9`);
     assert.equal(packOdds(pack).pool.length, n);
+    assert.deepEqual(pack.levels, [11, 11]);
     assert.ok(packOdds(pack).pool.every(r => r.player.tier === 'ch'));
   }
 });

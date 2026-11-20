@@ -40,9 +40,10 @@ test('Quà Top Đặc Huấn (202611180007) theo Dachuan.xlsx: gói tdh-* có tr
   const rows = [...rw.matchAll(/\((\d+), (\d+),\s+'(\[.*?\])'/g)].map(m => ({ from: +m[1], to: +m[2], rewards: JSON.parse(m[3]) as { pack: string; count: number }[] }));
   assert.deepEqual(rows.map(r => [r.from, r.to]), [[1, 1], [2, 2], [3, 3], [4, 5], [6, 10], [11, 20], [21, 29], [30, 40], [41, 50]]);
   const want: Record<number, [string, number, number][]> = {
-    1: [['stellar', 1, 10], ['ch', 1, 9], ['ws', 1, 9]], 2: [['stellar', 1, 9], ['ch', 3, 9], ['ws', 3, 9]], 3: [['stellar', 3, 9], ['ch', 5, 9], ['ws', 5, 9]],
-    4: [['stellar', 5, 9], ['ch', 7, 9], ['ws', 7, 9]], 6: [['stellar', 7, 9], ['ch', 10, 9], ['ws', 10, 9]], 11: [['stellar', 10, 8], ['ch', 15, 9], ['ws', 15, 8]],
-    21: [['stellar', 20, 8], ['ch', 20, 9], ['ws', 20, 8]], 30: [['stellar', 30, 8], ['ch', 30, 9], ['ws', 30, 8]], 41: [['stellar', 40, 8], ['ch', 40, 9], ['ws', 40, 8]],
+    // 2026-11-19 người dùng "tăng các gói đặc huấn lên 2 mức thẻ cộng": mọi gói +2 cấp so với Dachuan.xlsx (mã gói giữ nguyên).
+    1: [['stellar', 1, 12], ['ch', 1, 11], ['ws', 1, 11]], 2: [['stellar', 1, 11], ['ch', 3, 11], ['ws', 3, 11]], 3: [['stellar', 3, 11], ['ch', 5, 11], ['ws', 5, 11]],
+    4: [['stellar', 5, 11], ['ch', 7, 11], ['ws', 7, 11]], 6: [['stellar', 7, 11], ['ch', 10, 11], ['ws', 10, 11]], 11: [['stellar', 10, 10], ['ch', 15, 11], ['ws', 15, 10]],
+    21: [['stellar', 20, 10], ['ch', 20, 11], ['ws', 20, 10]], 30: [['stellar', 30, 10], ['ch', 30, 11], ['ws', 30, 10]], 41: [['stellar', 40, 10], ['ch', 40, 11], ['ws', 40, 10]],
   };
   for (const r of rows) {
     const got = r.rewards.map(w => { const p = byId.get(w.pack); assert.ok(p?.eventOnly && p.choose && p.back, `gói ${w.pack} là gói chỉ định quà, có ảnh`); assert.match(rw, new RegExp(`'${w.pack}'`)); return [p!.seasons[0], p!.topPrice, p!.levels[0]]; });

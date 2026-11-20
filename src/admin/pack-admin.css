@@ -157,6 +157,9 @@
 .pa-accounts .pa-sort:hover,.pa-accounts .pa-sort.is-on{color:var(--gold,#d9ba76)}
 .pa-accounts .pa-sort.is-on svg{opacity:1}
 .pa-accounts table tr.is-locked td{color:#8d99a8}
+/* Tên HLV + Gmail trong danh sách tài khoản (202611190001). */
+.pa-account-name{font-weight:700}
+.pa-account-mail{display:block;font-size:12px;opacity:.65;overflow-wrap:anywhere}
 .pa-badge{display:inline-block;margin-left:6px;padding:1px 6px;border-radius:4px;font-size:11px;font-weight:600;vertical-align:1px}
 .pa-badge.is-admin{background:#d9b25a22;color:#f1cf7f}
 .pa-badge.is-locked{background:#e6394622;color:#ff9aa2}
@@ -263,3 +266,21 @@
 /* Tặng quà hàng loạt (Accounts.tsx): form xếp lưới trên thanh thao tác. */
 .pa-account-bulk-gift{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;align-items:end}
 .pa-account-bulk-gift .pa-gift-note{grid-column:1/-1;margin:0}
+
+/* Quản trị FC → Đơn nạp (src/admin/TopupOrdersAdmin.tsx). */
+.tpa-counts .tpa-hot { color: #f6c85f; }
+.tpa-list { display: flex; flex-direction: column; gap: 8px; margin: 10px 0 18px; }
+.tpa-order { display: grid; grid-template-columns: minmax(150px, 1.1fr) minmax(140px, 1fr) minmax(120px, .8fr) auto; grid-template-areas: "main who fc actions" "time time time actions"; gap: 4px 14px; align-items: center; padding: 10px 12px; border: 1px solid #2c3644; border-radius: 8px; background: #0f141c; }
+.tpa-order.is-paid { border-color: #6b5a2a; background: #17150d; }
+.tpa-main { grid-area: main; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.tpa-money { font-size: 17px; color: #f0f1f3; }
+.tpa-code { font-family: ui-monospace, Consolas, monospace; font-size: 13px; color: #9fd3ff; }
+.tpa-who { grid-area: who; display: flex; flex-direction: column; min-width: 0; } .tpa-who small { opacity: .65; overflow-wrap: anywhere; }
+.tpa-fc { grid-area: fc; color: #3ddc7a; font-weight: 700; } .tpa-fc em { font-style: normal; color: #f6c85f; }
+.tpa-time { grid-area: time; opacity: .7; font-size: 12px; }
+.tpa-actions { grid-area: actions; display: flex; gap: 6px; }
+.tpa-tiers { margin-top: 8px; padding-top: 12px; border-top: 1px solid #2c3644; }
+.tpa-tier-rows { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+.tpa-tier-row { display: grid; grid-template-columns: minmax(120px, 160px) minmax(120px, 160px) 1fr auto; gap: 10px; align-items: end; }
+.tpa-tier-row small { padding-bottom: 10px; opacity: .75; }
+@media (max-width: 760px) { .tpa-order { grid-template-columns: 1fr auto; grid-template-areas: "main actions" "who who" "fc fc" "time time"; } .tpa-tier-row { grid-template-columns: 1fr 1fr auto; } .tpa-tier-row small { grid-column: 1 / -1; padding: 0; } }

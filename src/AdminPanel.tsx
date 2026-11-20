@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { BarChart3, Boxes, Coins, Copy, Gift, RotateCcw, Search, ShieldAlert, ShieldCheck, Users, Wrench, X } from 'lucide-react';
+import { BarChart3, Boxes, Coins, Copy, Gift, Receipt, RotateCcw, Search, ShieldAlert, ShieldCheck, Users, Wrench, X } from 'lucide-react';
+import TopupOrdersAdmin from './admin/TopupOrdersAdmin';
 import { money, packs } from './game';
 import GiftCodeAdmin from './admin/GiftCodeAdmin';
 import Accounts from './Accounts';
@@ -10,7 +11,7 @@ import CloneSuspects from './CloneSuspects';
 import MaintenancePanel from './MaintenancePanel';
 import InventoryAdmin from './InventoryAdmin';
 import Stats from './Stats';
-import { adminAnomalies, adminCloneGroups, adminCredit, adminLedger, fetchMaintenanceState, LEDGER_REASONS, adminGuardSummary } from './wallet';
+import { adminTopupOrders, adminAnomalies, adminCloneGroups, adminCredit, adminLedger, fetchMaintenanceState, LEDGER_REASONS, adminGuardSummary } from './wallet';
 import { fetchInventoryState } from './inventory-server';
 import { catalogVersion } from './inventory-catalog';
 import type { LedgerRow } from './wallet';
@@ -78,13 +79,14 @@ function CreditFc() {
 }
 
 // Mục quản trị, chia nhóm. Huy hiệu: việc đang cần xử lý (bất thường chưa xem, nhóm nghi clone, bảo trì đang bật, kho thẻ cần đồng bộ).
-export type AdminTab = 'stats' | 'accounts' | 'fc' | 'gift' | 'guard' | 'audit' | 'clones' | 'maintenance' | 'inventory';
+export type AdminTab = 'stats' | 'accounts' | 'topup' | 'fc' | 'gift' | 'guard' | 'audit' | 'clones' | 'maintenance' | 'inventory';
 type Tab = AdminTab;
-type Badges = { audit?: number; clones?: number; maintenance?: boolean; inventory?: 'sync' | 'off' | null; guard?: number | 'off' };
+type Badges = { topup?: number; audit?: number; clones?: number; maintenance?: boolean; inventory?: 'sync' | 'off' | null; guard?: number | 'off' };
 const GROUPS: { title: string; items: { id: Tab; label: string; hint: string; icon: typeof Users }[] }[] = [
   { title: 'Tổng quan', items: [{ id: 'stats', label: 'Thống kê', hint: 'Người chơi, giờ chơi, doanh thu', icon: BarChart3 }] },
   { title: 'Người chơi', items: [
     { id: 'accounts', label: 'Tài khoản', hint: 'Tìm, nạp FC, tặng quà, hạng, khoá', icon: Users },
+    { id: 'topup', label: 'Đơn nạp', hint: 'Duyệt đơn nạp FC, mốc khuyến mãi', icon: Receipt },
     { id: 'fc', label: 'Nạp FC & sổ cái', hint: 'Cộng FC theo bill, xem giao dịch', icon: Coins },
     { id: 'gift', label: 'Gift code', hint: 'Tạo và quản lý mã quà', icon: Gift },
   ] },
@@ -103,10 +105,11 @@ const savedTab = (): Tab => { try { const v = localStorage.getItem(TAB_KEY) as T
 
 // Đếm việc cần xử lý cho huy hiệu thanh bên (mỗi phút một lần; lỗi thì bỏ qua huy hiệu đó).
 async function loadBadges(): Promise<Badges> {
-  const [audit, clones, maintenance, inventory, local, guard] = await Promise.allSettled([adminAnomalies(), adminCloneGroups(), fetchMaintenanceState(), fetchInventoryState(), catalogVersion(), adminGuardSummary()]);
+  const [audit, clones, maintenance, inventory, local, guard, topup] = await Promise.allSettled([adminAnomalies(), adminCloneGroups(), fetchMaintenanceState(), fetchInventoryState(), catalogVersion(), adminGuardSummary(), adminTopupOrders('open')]);
   const ok = <T,>(r: PromiseSettledResult<T>) => r.status === 'fulfilled' ? r.value : undefined;
   const inv = ok(inventory), ver = ok(local);
   return {
+    topup: ok(topup) ? ok(topup)!.counts.paid + ok(topup)!.counts.pending : undefined,
     audit: ok(audit)?.length,
     clones: ok(clones)?.filter(g => !g.allowed).length,
     maintenance: ok(maintenance)?.enabled,
@@ -135,6 +138,7 @@ export default function AdminPanel({ onClose, initialTab }: { onClose: () => voi
   const badgeOf = (id: Tab) => {
     if (id === 'guard' && badges.guard === 'off') return <b className="pa-nav-badge is-danger">Chưa bảo vệ</b>;
     if (id === 'guard' && typeof badges.guard === 'number' && badges.guard > 0) return <b className="pa-nav-badge is-danger">{badges.guard > 99 ? '99+' : badges.guard}</b>;
+    if (id === 'topup' && badges.topup) return <b className="pa-nav-badge is-warn">{badges.topup > 99 ? '99+' : badges.topup}</b>;
     if (id === 'audit' && badges.audit) return <b className="pa-nav-badge is-warn">{badges.audit > 99 ? '99+' : badges.audit}</b>;
     if (id === 'clones' && badges.clones) return <b className="pa-nav-badge is-warn">{badges.clones > 99 ? '99+' : badges.clones}</b>;
     if (id === 'maintenance' && badges.maintenance) return <b className="pa-nav-badge is-danger">Đang bật</b>;
@@ -167,7 +171,7 @@ export default function AdminPanel({ onClose, initialTab }: { onClose: () => voi
       </nav>
       <main className="pa-admin-main" aria-label={current.label}>
         <div className="pa-admin-crumb"><current.icon size={16} aria-hidden="true"/><span>{GROUPS.find(g => g.items.includes(current))!.title}</span><b>{current.label}</b></div>
-        {tab === 'stats' ? <Stats/> : tab === 'accounts' ? <Accounts key={find.n} initialSearch={find.text}/> : tab === 'fc' ? <CreditFc/> : tab === 'guard' ? <GuardPanel onOpenTab={setTab} onFind={text => { setFind(f => ({ text, n: f.n + 1 })); setTab('accounts'); }}/> : tab === 'audit' ? <Anomalies/> : tab === 'clones' ? <CloneSuspects/> : tab === 'maintenance' ? <MaintenancePanel/> : tab === 'inventory' ? <InventoryAdmin/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
+        {tab === 'stats' ? <Stats/> : tab === 'accounts' ? <Accounts key={find.n} initialSearch={find.text}/> : tab === 'topup' ? <TopupOrdersAdmin onChanged={() => void loadBadges().then(setBadges).catch(() => {})}/> : tab === 'fc' ? <CreditFc/> : tab === 'guard' ? <GuardPanel onOpenTab={setTab} onFind={text => { setFind(f => ({ text, n: f.n + 1 })); setTab('accounts'); }}/> : tab === 'audit' ? <Anomalies/> : tab === 'clones' ? <CloneSuspects/> : tab === 'maintenance' ? <MaintenancePanel/> : tab === 'inventory' ? <InventoryAdmin/> : <GiftCodeAdmin packs={packs.filter(pack => !pack.draft).map(pack => ({ id: pack.id, name: pack.name }))}/>}
       </main>
     </div>
   </div>;

@@ -1,4 +1,5 @@
 import { accountClient } from './account-client';
+import type { AdminTopupList, AdminTopupOrder, TopupConfig, TopupOrder, TopupTier } from './topup-orders';
 import { deviceId } from './device-id';
 import type { EventReward } from './game';
 import type { GiftCode } from './gift-code-rules';
@@ -84,6 +85,15 @@ export const adminBpTopups = (user: string) => call<BpTopupLog>('fco_admin_bp_to
 export type UpgradeBoost = { factor: number; note: string; at: number | null };
 export const adminUpgradeBoost = (user: string, factor: number | null = null, note = '') => call<UpgradeBoost>('fco_admin_upgrade_boost', { p_user: user, p_factor: factor, p_note: note });
 export const adminUpgradeBoosts = () => call<{ user: string; login: string; factor: number; note: string; at: number }[]>('fco_admin_upgrade_boosts');
+// Trang nạp FC: đơn nạp + mốc khuyến mãi (migration 202611200002_fco_topup_orders.sql).
+export const fetchTopupConfig = () => call<TopupConfig>('fco_topup_config');
+export const createTopupOrder = (vnd: number) => call<TopupOrder>('fco_topup_order_create', { p_vnd: vnd });
+export const markTopupPaid = (id: number) => call<TopupOrder>('fco_topup_order_paid', { p_id: id });
+export const cancelTopupOrder = (id: number) => call<TopupOrder>('fco_topup_order_cancel', { p_id: id });
+export const fetchMyTopupOrders = () => call<TopupOrder[]>('fco_topup_my_orders');
+export const adminTopupOrders = (status: 'open' | 'approved' | 'rejected' | 'all', search = '') => call<AdminTopupList>('fco_admin_topup_orders', { p_status: status, p_search: search || null, p_limit: 200 });
+export const adminTopupDecide = (id: number, approve: boolean, note = '') => call<AdminTopupOrder & { fc?: number }>('fco_admin_topup_decide', { p_id: id, p_approve: approve, p_note: note });
+export const adminTopupTiersSave = (tiers: TopupTier[]) => call<TopupTier[]>('fco_admin_topup_tiers_save', { p_tiers: tiers });
 // Code sai: máy chủ trả {error} thay vì báo lỗi để còn ghi lại lần thử (chống dò code, migration 202611140010).
 export const redeemGiftHash = async (hash: string) => {
   const result = await call<{ rewards: EventReward[]; wallet: Wallet; save?: ServerRecord | null } | { error: string }>('fco_redeem_gift', { p_hash: hash });

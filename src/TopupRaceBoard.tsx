@@ -82,7 +82,7 @@ export default function TopupRaceBoard({ race, onClose }: { race: TopupRace; onC
   return <div className="tr-board">
     <header className="tr-head">
       <span className="tr-icon" aria-hidden="true"><Dumbbell size={20}/></span>
-      <div><h2>TOP ĐẶC HUẤN</h2><small>1 FC nạp = {formatPoints(race.pointsPerFc ?? 1.5)} điểm · Top {race.topN} có quà · {isAllTime(race.startsAt) ? 'Tính toàn bộ FC đã nạp' : raceSpan(race.startsAt, race.endsAt)}</small></div>
+      <div><h2>TOP ĐẶC HUẤN</h2><small>1 FC nạp = {formatPoints(race.pointsPerFc ?? 1.5)} điểm ·{race.minPoints > 0 ? ` Từ ${formatPoints(race.minPoints)} điểm ·` : ''} Top {race.topN} có quà · {isAllTime(race.startsAt) ? 'Tính toàn bộ FC đã nạp' : raceSpan(race.startsAt, race.endsAt)}</small></div>
       <button type="button" className="icon-button" aria-label="Đóng Top Đặc Huấn" onClick={onClose}><X/></button>
     </header>
     <div className="tr-body">
@@ -95,7 +95,9 @@ export default function TopupRaceBoard({ race, onClose }: { race: TopupRace; onC
         <span className="tr-amount">{formatPoints(r.points)}<small> điểm</small></span>
       </li>) : <li className="tr-empty">Chưa có ai nạp. Nạp FC để có tên trên bảng!</li>}
     </ol>
-    {!mineIn && <p className="tr-me">{race.me.rank ? <>Hạng của bạn: <b>{race.me.rank}</b> · {formatPoints(race.me.points)} điểm</> : 'Bạn chưa nạp trong đợt này.'}</p>}
+    {!mineIn && <p className="tr-me">{race.me.rank ? <>Hạng của bạn: <b>{race.me.rank}</b> · {formatPoints(race.me.points)} điểm</>
+      : race.me.points > 0 ? <>Bạn có <b>{formatPoints(race.me.points)}</b> điểm · cần thêm <b>{formatPoints(Math.max(0, race.minPoints - race.me.points))}</b> điểm để vào bảng xếp hạng</>
+      : 'Bạn chưa nạp trong đợt này.'}</p>}
     </section>
     <aside className="tr-rewards" aria-label="Quà đặc huấn">
       <b>Quà đặc huấn</b>
@@ -104,7 +106,7 @@ export default function TopupRaceBoard({ race, onClose }: { race: TopupRace; onC
         <span className="tr-rw-items">{w.rewards.length ? w.rewards.map((r, i) => <RewardTile key={i} reward={r}/>) : <span className="tr-rw-note">{w.note}</span>}</span>
       </li>)}</ul>
         : <p>Quà theo hạng sẽ được công bố sớm.</p>}
-      <small>Mỗi 1 FC nạp (admin cộng sau khi kiểm bill) {isAllTime(race.startsAt) ? 'từ trước tới nay' : `từ 0h ${formatDayMonth(race.startsAt).replace('.', '/')}`} tới khi sự kiện Vòng Quanh Thế Giới kết thúc = {formatPoints(race.pointsPerFc ?? 1.5)} điểm đặc huấn. Bằng điểm thì ai đạt trước xếp trên. Quà gửi vào Quà từ Admin sau khi kết thúc.</small>
+      <small>Mỗi 1 FC nạp (admin cộng sau khi kiểm bill) {isAllTime(race.startsAt) ? 'từ trước tới nay' : `từ 0h ${formatDayMonth(race.startsAt).replace('.', '/')}`} tới khi sự kiện Vòng Quanh Thế Giới kết thúc = {formatPoints(race.pointsPerFc ?? 1.5)} điểm đặc huấn.{race.minPoints > 0 && <> Cần từ <b>{formatPoints(race.minPoints)}</b> điểm trở lên mới vào bảng xếp hạng và nhận quà.</>} Bằng điểm thì ai đạt trước xếp trên. Quà gửi vào Quà từ Admin sau khi kết thúc.</small>
     </aside>
     </div>
   </div>;

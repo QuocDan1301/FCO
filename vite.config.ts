@@ -91,6 +91,9 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: "index.html",
+        // Trang riêng (không có trong menu game): nạp FC cho người chơi và quản lý đơn nạp cho admin.
+        nap: "nap.html",
+        quanLyNap: "quan-ly-nap.html",
       },
     },
   },

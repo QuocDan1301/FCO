@@ -51,10 +51,11 @@ export type StatsPlayer = { login: string; registered: number; lastSeen: number 
 // Thống kê FC của chính người chơi (fco_my_fc_stats): topup = FC admin đã cộng, spent = FC đã chi cho Shop và sự kiện.
 export type FcStats = { topup: number; spent: number };
 // Quản lý tài khoản (fco_admin_accounts): total = mọi tài khoản, matched = số khớp tìm kiếm, accounts = trang hiện tại.
-export type AdminAccount = { id: string; login: string; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; topupVnd: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean; paused: boolean; unconfirmed?: boolean };
+// name: tên HLV (migration 202611190001_fco_admin_accounts_name.sql), null = chưa có tên.
+export type AdminAccount = { id: string; login: string; name?: string | null; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; topupVnd: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean; paused: boolean; unconfirmed?: boolean };
 // online: số tài khoản đang online (migration 202611090014); chưa chạy migration thì không có.
 export type AdminAccountList = { total: number; matched: number; online?: number; accounts: AdminAccount[]; now: number };
-export const LEDGER_REASONS: Record<string, string> = { rename: 'Đổi tên HLV', admin: 'Admin nạp', admin_old: 'Admin nạp (trước reset)', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', admin_gift: 'Admin tặng quà', admin_deduct: 'Admin trừ FC', reset: 'Admin reset tài khoản' };
+export const LEDGER_REASONS: Record<string, string> = { rename: 'Đổi tên HLV', admin: 'Admin nạp', admin_old: 'Admin nạp (trước reset)', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', admin_gift: 'Admin tặng quà', admin_deduct: 'Admin trừ FC', reset: 'Admin reset tài khoản', topup_bonus: 'Khuyến mãi nạp' };
 export type AdminStats = { summary: StatsSummary; days: StatsDay[]; players: StatsPlayer[]; now: number };
 // Bi Lắc (supabase/migrations/202611070005_fco_bilac.sql): quà {fc} / {bp} / {pack,count}; quà Giải Đặc Biệt / Phụ trả về {fc, jackpot}.
 export type BilacReward = EventReward | { fc: number; jackpot: 'special' | 'mini' } | { jackpot: 'special' | 'mini' };
@@ -80,6 +81,10 @@ export type VqtgResult = { plays: VqtgPlay[]; paid: number; picks: number; pos: 
 export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 
 const MESSAGES: Record<string, string> = {
+  FCO_TOPUP_BAD_AMOUNT: 'Số tiền nạp phải từ 5.000đ tới 50.000.000đ và chẵn nghìn.',
+  FCO_TOPUP_TOO_MANY: 'Bạn đang có 5 đơn nạp chưa xử lý. Huỷ bớt đơn cũ hoặc chờ admin duyệt.',
+  FCO_TOPUP_NOT_FOUND: 'Không tìm thấy đơn nạp.',
+  FCO_TOPUP_BAD_TIERS: 'Mốc khuyến mãi không hợp lệ (số tiền chẵn nghìn, không trùng, tối đa 20 mốc).',
   FCO_NOT_ENOUGH_FC: 'Không đủ FC.',
   FCO_GOLD_INVALID: 'Không chọn được CSA vàng này cho thẻ (chưa đủ cấp, sai mùa, sai nhóm GK hoặc trùng CSA khác).',
   FCO_GOLD_SLOT: 'Ô CSA vàng không hợp lệ.',

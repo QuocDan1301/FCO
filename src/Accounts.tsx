@@ -272,6 +272,7 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
   return <div className="pa-account-manage">
     {/* Tóm tắt nhanh tài khoản. */}
     <div className="pa-account-summary">
+      {account.name && <span><small>Tên HLV</small><b>{account.name}</b></span>}
       <span><small>FC</small><b>{money(account.fc)}</b></span>
       <span><small>BP</small><b>{account.hasSave ? money(account.bp) : '—'}</b></span>
       <span><small>Thẻ</small><b>{account.hasSave ? money(account.cards) : '—'}</b></span>
@@ -527,7 +528,7 @@ export default function Accounts({ initialSearch = '' }: { initialSearch?: strin
         <tbody>{data.accounts.map(a => <Fragment key={a.id}>
           <tr className={a.locked ? 'is-locked' : undefined}>
             <td className="pa-account-pick"><input type="checkbox" aria-label={`Chọn ${a.login}`} title={a.admin ? 'Không tạm dừng hoặc xoá được tài khoản admin' : undefined} disabled={a.admin} checked={!a.admin && (allMatching || selected.has(a.id))} onChange={() => { if (allMatching) { setSelected(new Set(pageIds)); } toggleOne(a.id); }}/></td>
-            <td>{a.online && <i className="pa-dot" aria-label="đang online"/>}{a.login}{a.admin && <span className="pa-badge is-admin">Admin</span>}{a.locked && <span className="pa-badge is-locked">Đã khoá</span>}{a.paused && <span className="pa-badge is-paused">Tạm dừng</span>}{a.unconfirmed && <span className="pa-badge is-paused" title="Đã đăng ký nhưng chưa nhập mã 6 số trong mail">Chưa xác nhận Gmail</span>}</td>
+            <td>{a.online && <i className="pa-dot" aria-label="đang online"/>}{a.name ? <><b className="pa-account-name">{a.name}</b><span className="pa-account-mail">{a.login}</span></> : a.login}{a.admin && <span className="pa-badge is-admin">Admin</span>}{a.locked && <span className="pa-badge is-locked">Đã khoá</span>}{a.paused && <span className="pa-badge is-paused">Tạm dừng</span>}{a.unconfirmed && <span className="pa-badge is-paused" title="Đã đăng ký nhưng chưa nhập mã 6 số trong mail">Chưa xác nhận Gmail</span>}</td>
             <td>{new Date(a.registered).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td><td>{ago(a.lastSeen, data.now)}</td><td>{hours(a.playSeconds)}</td>
             <td>{money(a.fc)}</td><td>{a.hasSave ? money(a.bp) : '—'}</td><td>{a.hasSave ? money(a.cards) : '—'}</td><td>{a.hasSave ? money(a.packs) : '—'}</td><td>{a.topupFc ? vnd(a.topupVnd) : '—'}</td>
             <td><button type="button" className="secondary-button pa-account-toggle" aria-expanded={open === a.id} onClick={() => { setNotice(''); setOpen(open === a.id ? '' : a.id); }}>{open === a.id ? 'Đóng' : 'Quản lý'}</button></td>
