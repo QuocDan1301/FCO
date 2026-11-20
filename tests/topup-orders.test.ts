@@ -105,3 +105,15 @@ test('KM tích luỹ tự cộng (202611200006): trigger sau mỗi lần ghi FC 
   assert.match(sql, /revoke all on function public\.fco_topup_auto_award\(uuid\), public\.fco_topup_ledger_award\(\) from public, anon, authenticated;/);
 });
 
+
+test('Hết sự kiện không bấm Nhận KM được (202611200007), trang nạp ẩn thanh ngay khi hết giờ', () => {
+  const sql = readFileSync('supabase/migrations/202611200007_fco_topup_claim_running.sql', 'utf8');
+  assert.match(sql, /if e\.id is null or now\(\) >= e\.ends_at then raise exception 'FCO_TOPUP_NO_EVENT'/);
+  const ui = readFileSync('src/TopUp.tsx', 'utf8');
+  assert.match(ui, /tiers\?\.event && tiers\.tiers\.length > 0 && Date\.now\(\) < tiers\.event\.endsAt && <TierTrack/);
+});
+
+test('Sự kiện nạp tích luỹ hết giờ là tắt hẳn (202611200008): không còn hạn nhận', () => {
+  const sql = readFileSync('supabase/migrations/202611200008_fco_topup_event_no_grace.sql', 'utf8');
+  assert.match(sql, /fco_topup_claim_days\(\) returns integer language sql immutable set search_path = '' as \$\$ select 0 \$\$;/);
+});

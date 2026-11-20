@@ -121,8 +121,8 @@ export default function TopUp({ online, onCredited, api = LIVE }: { online: bool
   </div>;
 
   return <div className="topup">
-    {/* Hết sự kiện thì ẩn thanh (KM đã tự cộng, 202611200006); chỉ hiện lại nếu còn mốc đã đạt mà chưa được cộng (dự phòng). */}
-    {tiers?.event && tiers.tiers.length > 0 && (Date.now() < tiers.event.endsAt || tiers.tiers.some(t => !t.claimed && tiers.totalVnd >= t.vnd)) && <TierTrack data={tiers} busy={busy} onClaim={v => void run(async () => {
+    {/* Hết sự kiện là ẩn thanh hẳn (máy chủ cũng không cho bấm Nhận sau giờ kết thúc, 202611200007). */}
+    {tiers?.event && tiers.tiers.length > 0 && Date.now() < tiers.event.endsAt && <TierTrack data={tiers} busy={busy} onClaim={v => void run(async () => {
       const t = tiers.tiers.find(x => x.vnd === v); await api.claim(v); onCredited?.();
       setTiers(await api.tiers());
       setClaimed(`Đã nhận ${money(t?.bonus ?? 0)} FC khuyến mãi mốc ${vnd(v)}.`);

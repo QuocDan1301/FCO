@@ -28,16 +28,16 @@ function EventEditor({ api }: { api: TopupAdminApi }) {
   useEffect(() => { void load(); }, []);
   if (!data) return msg ? <p className="pa-message is-error">{msg.text}</p> : null;
   const now = Date.now(), graceMs = data.claimDays * 86_400_000;
-  const status = (e: AdminTopupEvent) => now < e.startsAt ? ['Sắp diễn ra', 'is-soon'] : now < e.endsAt ? ['Đang diễn ra', 'is-live'] : now < e.endsAt + graceMs ? [`Đã kết thúc · nhận quà tới ${dt(e.endsAt + graceMs)}`, 'is-grace'] : ['Đã đóng', 'is-closed'];
+  const status = (e: AdminTopupEvent) => now < e.startsAt ? ['Sắp diễn ra', 'is-soon'] : now < e.endsAt ? ['Đang diễn ra', 'is-live'] : graceMs > 0 && now < e.endsAt + graceMs ? [`Đã kết thúc · nhận quà tới ${dt(e.endsAt + graceMs)}`, 'is-grace'] : ['Đã kết thúc', 'is-closed'];
   const startNew = () => { const s = Date.now(); setForm({ id: null, title: 'Nạp tích luỹ', start: localInput(s), end: localInput(s + 3 * 86_400_000) }); setMsg(null); };
   const save = () => { if (!form) return; const s = new Date(form.start), e = new Date(form.end);
     if (!(e > s)) return setMsg({ ok: false, text: 'Giờ kết thúc phải sau giờ bắt đầu.' });
     void api.saveEvent(form.id, form.title, s, e).then(d => { setData(d); setForm(null); setMsg({ ok: true, text: 'Đã lưu sự kiện. Người chơi thấy thanh tích luỹ khi tới giờ bắt đầu.' }); }).catch(err => setMsg({ ok: false, text: (err as Error).message })); };
-  const end = (e: AdminTopupEvent) => { if (!confirm(now < e.startsAt ? `Xoá sự kiện "${e.title}" (chưa bắt đầu)?` : `Kết thúc ngay "${e.title}"? Người chơi còn ${data.claimDays} ngày để nhận KM đã đạt.`)) return;
+  const end = (e: AdminTopupEvent) => { if (!confirm(now < e.startsAt ? `Xoá sự kiện "${e.title}" (chưa bắt đầu)?` : `Kết thúc ngay "${e.title}"? Sự kiện tắt hẳn: không còn khuyến mãi tích luỹ, đơn chưa duyệt sẽ không được tính.`)) return;
     void api.endEvent(e.id).then(d => { setData(d); setMsg({ ok: true, text: 'Đã cập nhật sự kiện.' }); }).catch(err => setMsg({ ok: false, text: (err as Error).message })); };
   return <section className="tpa-tiers tpa-events" aria-label="Sự kiện nạp tích luỹ">
     <div className="pa-row"><h3>Sự kiện nạp tích luỹ</h3>{!form && <button type="button" className="primary-button" onClick={startNew}><Plus size={15}/>Tạo sự kiện</button>}</div>
-    <p className="pa-gift-note">Chỉ trong thời gian sự kiện người chơi mới thấy thanh và được tự cộng FC khuyến mãi theo tổng tiền nạp (mốc ở phần dưới). Đơn tạo trong sự kiện vẫn được tính dù duyệt muộn. Hết sự kiện còn {data.claimDays} ngày để bấm nhận. Mỗi sự kiện tính lại từ đầu.</p>
+    <p className="pa-gift-note">Chỉ trong thời gian sự kiện người chơi mới thấy thanh và được tự cộng FC khuyến mãi theo tổng tiền nạp (mốc ở phần dưới). Hết giờ là sự kiện tắt hẳn: nhớ duyệt các đơn của người chơi TRƯỚC giờ kết thúc để họ được tính khuyến mãi. Mỗi sự kiện tính lại từ đầu.</p>
     {form && <div className="tpa-event-form">
       <label className="pa-field"><span>Tên sự kiện</span><input value={form.title} maxLength={60} onChange={e => setForm({ ...form, title: e.target.value })}/></label>
       <label className="pa-field"><span>Bắt đầu</span><input type="datetime-local" value={form.start} onChange={e => setForm({ ...form, start: e.target.value })}/></label>
