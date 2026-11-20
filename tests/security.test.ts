@@ -100,3 +100,9 @@ test('GLXH (202611140016): máy chủ tự tính OVR từng ô từ bộ dữ li
   assert.equal(row.length, 13, 'thêm nhóm giá (phần tử 13) cho hàng phôi hệ thống bán — migration 202611170004');
   assert.ok(Array.isArray(row[8]) && Array.isArray(row[9]));
 });
+
+test('Deploy GitHub Pages không đăng bản offline mothe.html (build:web, 2026-11-20)', () => {
+  const wf = readFileSync('.github/workflows/deploy.yml', 'utf8');
+  assert.match(wf, /- run: npm run build:web/);
+  assert.doesNotMatch(wf, /- run: npm run build\s*\n/);
+});

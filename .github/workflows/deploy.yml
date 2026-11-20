@@ -24,7 +24,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run build
+      # build:web = game online, KHÔNG tạo mothe.html (bản offline ~370 MB không đăng công khai nữa, người dùng 2026-11-20).
+      # Cần bản offline thì tự chạy `npm run build` trên máy.
+      - run: npm run build:web
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
