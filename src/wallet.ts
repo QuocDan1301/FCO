@@ -1,5 +1,5 @@
 import { accountClient } from './account-client';
-import type { AdminTopupList, AdminTopupOrder, TopupConfig, TopupOrder, TopupTier } from './topup-orders';
+import type { AdminTopupList, AdminTopupOrder, TopupConfig, TopupMilestone, TopupMilestones, TopupOrder, TopupTier } from './topup-orders';
 import { deviceId } from './device-id';
 import type { EventReward } from './game';
 import type { GiftCode } from './gift-code-rules';
@@ -94,6 +94,11 @@ export const fetchMyTopupOrders = () => call<TopupOrder[]>('fco_topup_my_orders'
 export const adminTopupOrders = (status: 'open' | 'approved' | 'rejected' | 'all', search = '') => call<AdminTopupList>('fco_admin_topup_orders', { p_status: status, p_search: search || null, p_limit: 200 });
 export const adminTopupDecide = (id: number, approve: boolean, note = '') => call<AdminTopupOrder & { fc?: number }>('fco_admin_topup_decide', { p_id: id, p_approve: approve, p_note: note });
 export const adminTopupTiersSave = (tiers: TopupTier[]) => call<TopupTier[]>('fco_admin_topup_tiers_save', { p_tiers: tiers });
+// Mốc nạp tích luỹ (migration 202611200003_fco_topup_milestones.sql).
+export const fetchTopupMilestones = () => call<TopupMilestones>('fco_topup_milestones_me');
+export const claimTopupMilestone = (fc: number) => call<{ fc: number; rewards: EventReward[]; wallet: Wallet }>('fco_topup_milestone_claim', { p_fc: fc });
+export const adminTopupMilestones = () => call<TopupMilestone[]>('fco_admin_topup_milestones');
+export const adminTopupMilestonesSave = (list: { fc: number; rewards: EventReward[] }[]) => call<TopupMilestone[]>('fco_admin_topup_milestones_save', { p_list: list });
 // Code sai: máy chủ trả {error} thay vì báo lỗi để còn ghi lại lần thử (chống dò code, migration 202611140010).
 export const redeemGiftHash = async (hash: string) => {
   const result = await call<{ rewards: EventReward[]; wallet: Wallet; save?: ServerRecord | null } | { error: string }>('fco_redeem_gift', { p_hash: hash });

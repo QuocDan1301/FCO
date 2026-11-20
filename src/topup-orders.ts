@@ -34,3 +34,20 @@ export function parseVnd(text: string) {
   const num = unit === 1 ? Number(m[1].replace(/[.,]/g, '')) : Number(m[1].replace(',', '.'));
   return Number.isFinite(num) ? Math.round(num * unit) : NaN;
 }
+
+// Mốc nạp tích luỹ (migration 202611200003_fco_topup_milestones.sql): tổng FC đã nạp (lý do 'admin') → quà mỗi mốc, nhận 1 lần.
+import type { EventReward } from './game';
+export type TopupMilestone = { fc: number; rewards: EventReward[]; claimed?: boolean; claims?: number };
+export type TopupMilestones = { total: number; milestones: TopupMilestone[] };
+/** Thanh mốc như ảnh mẫu: các mốc (kể cả 0) cách đều nhau, phần tô chạy tuyến tính trong từng đoạn; need = số FC còn thiếu tới mốc kế tiếp. */
+export function milestoneTrack(total: number, fcs: number[]) {
+  const nodes = [0, ...[...new Set(fcs)].filter(v => v > 0).sort((a, b) => a - b)];
+  const n = nodes.length - 1;
+  if (n <= 0) return { nodes: nodes.map(v => ({ fc: v, pos: 0, reached: true })), fill: 0, next: null as number | null, need: 0 };
+  const pos = (i: number) => i / n * 100;
+  let fill = 100, next: number | null = null;
+  for (let k = 0; k < n; k++) {
+    if (total < nodes[k + 1]) { fill = (k + Math.max(0, total - nodes[k]) / (nodes[k + 1] - nodes[k])) / n * 100; next = nodes[k + 1]; break; }
+  }
+  return { nodes: nodes.map((v, i) => ({ fc: v, pos: pos(i), reached: total >= v })), fill, next, need: next === null ? 0 : next - total };
+}

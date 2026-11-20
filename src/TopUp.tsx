@@ -3,10 +3,11 @@ import { Check, Copy, RotateCcw } from 'lucide-react';
 import { asset } from './asset';
 import { money } from './game';
 import { TOPUP_QR, TOPUP_ZALO } from './config';
-import { cancelTopupOrder, createTopupOrder, fetchFcStats, fetchMyTopupOrders, fetchTopupConfig, markTopupPaid } from './wallet';
+import { cancelTopupOrder, claimTopupMilestone, createTopupOrder, fetchFcStats, fetchMyTopupOrders, fetchTopupConfig, fetchTopupMilestones, markTopupPaid } from './wallet';
+import { giftRewardText } from './gift-codes';
 import type { FcStats } from './wallet';
-import { isOpenOrder, parseVnd, topupQuote, TOPUP_STATUS } from './topup-orders';
-import type { TopupConfig, TopupOrder } from './topup-orders';
+import { isOpenOrder, milestoneTrack, parseVnd, topupQuote, TOPUP_STATUS } from './topup-orders';
+import type { TopupConfig, TopupMilestones, TopupOrder } from './topup-orders';
 
 // Trang nạp FC (nút "+" cạnh ô FC; migration 202611200002_fco_topup_orders.sql):
 // chọn mốc / nhập số tiền → xem FC gốc + FC khuyến mãi của mốc đạt được → tạo đơn (mã riêng ghi vào nội dung chuyển khoản)
@@ -14,8 +15,33 @@ import type { TopupConfig, TopupOrder } from './topup-orders';
 const vnd = (n: number) => `${n.toLocaleString('vi-VN')}đ`;
 const time = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 export type TopUpApi = { config: () => Promise<TopupConfig>; orders: () => Promise<TopupOrder[]>; create: (vnd: number) => Promise<TopupOrder>;
-  paid: (id: number) => Promise<TopupOrder>; cancel: (id: number) => Promise<TopupOrder>; stats: () => Promise<FcStats> };
-const LIVE: TopUpApi = { config: fetchTopupConfig, orders: fetchMyTopupOrders, create: createTopupOrder, paid: markTopupPaid, cancel: cancelTopupOrder, stats: fetchFcStats };
+  paid: (id: number) => Promise<TopupOrder>; cancel: (id: number) => Promise<TopupOrder>; stats: () => Promise<FcStats>;
+  milestones: () => Promise<TopupMilestones>; claim: (fc: number) => Promise<unknown> };
+const LIVE: TopUpApi = { config: fetchTopupConfig, orders: fetchMyTopupOrders, create: createTopupOrder, paid: markTopupPaid, cancel: cancelTopupOrder, stats: fetchFcStats,
+  milestones: fetchTopupMilestones, claim: claimTopupMilestone };
+
+// Thanh mốc nạp tích luỹ (migration 202611200003): FC đã nạp, các mốc cách đều, "Cần X FC" tới mốc kế, quà từng mốc + nút Nhận.
+function MilestoneTrack({ data, onClaim, busy }: { data: TopupMilestones; onClaim: (fc: number) => void; busy: boolean }) {
+  const track = milestoneTrack(data.total, data.milestones.map(m => m.fc));
+  const ready = data.milestones.filter(m => !m.claimed && data.total >= m.fc).length;
+  const [open, setOpen] = useState(ready > 0);
+  useEffect(() => { if (ready > 0) setOpen(true); }, [ready]);
+  return <section className="tp-ms" aria-label="Mốc nạp tích luỹ">
+    <div className="tp-ms-head"><div><b>Mốc nạp tích luỹ</b><small>FC đã nạp: <b>{money(data.total)}</b></small></div>
+      <button type="button" className="tp-ms-link" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Thu gọn' : 'Chi tiết quyền lợi'}{ready > 0 && <i>{ready}</i>}</button></div>
+    <div className="tp-ms-bar" role="progressbar" aria-valuemin={0} aria-valuemax={track.nodes[track.nodes.length - 1].fc} aria-valuenow={data.total}>
+      <div className="tp-ms-rail"><span style={{ width: `${track.fill}%` }}/></div>
+      {track.next !== null && <span className="tp-ms-tip" style={{ left: `${track.fill}%` }}>Cần {money(track.need)} FC</span>}
+      {track.nodes.map(n => { const m = data.milestones.find(x => x.fc === n.fc);
+        return <span key={n.fc} className={`tp-ms-node ${n.reached ? 'is-on' : ''} ${m && n.reached && !m.claimed ? 'is-ready' : ''}`} style={{ left: `${n.pos}%` }}><i/><small>{money(n.fc)}</small></span>; })}
+    </div>
+    {open && <ul className="tp-ms-list">{data.milestones.map(m => { const reached = data.total >= m.fc;
+      return <li key={m.fc} className={m.claimed ? 'is-claimed' : reached ? 'is-ready' : undefined}>
+        <span><b>Mốc {money(m.fc)} FC</b><small>{m.rewards.map(giftRewardText).join(' · ')}</small></span>
+        {m.claimed ? <em>Đã nhận</em> : reached ? <button type="button" className="primary-button" disabled={busy} onClick={() => onClaim(m.fc)}>Nhận</button> : <em>Còn {money(m.fc - data.total)} FC</em>}
+      </li>; })}</ul>}
+  </section>;
+}
 
 function CopyField({ label, value }: { label: string; value: string }) {
   const [done, setDone] = useState(false);
@@ -27,6 +53,8 @@ export default function TopUp({ online, onCredited, api = LIVE }: { online: bool
   const [cfg, setCfg] = useState<TopupConfig | null>(null);
   const [orders, setOrders] = useState<TopupOrder[] | null>(null);
   const [stats, setStats] = useState<FcStats | null>(null);
+  const [milestones, setMilestones] = useState<TopupMilestones | null>(null);
+  const [claimed, setClaimed] = useState('');
   const [amount, setAmount] = useState('');
   const [active, setActive] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
@@ -35,13 +63,14 @@ export default function TopUp({ online, onCredited, api = LIVE }: { online: bool
   const loadOrders = () => api.orders().then(list => {
     // Đơn vừa được duyệt từ lần tải trước: báo game tải lại ví FC.
     const done = new Set(list.filter(o => o.status === 'approved').map(o => o.id));
-    if (approved.current && [...done].some(id => !approved.current!.has(id))) { onCredited?.(); void api.stats().then(setStats).catch(() => {}); }
+    if (approved.current && [...done].some(id => !approved.current!.has(id))) { onCredited?.(); void api.stats().then(setStats).catch(() => {}); void api.milestones().then(setMilestones).catch(() => {}); }
     approved.current = done; setOrders(list);
   });
   useEffect(() => {
     if (!online) return;
     void api.config().then(setCfg).catch(e => setError((e as Error).message));
     void api.stats().then(setStats).catch(() => {});
+    void api.milestones().then(setMilestones).catch(() => {});
     void loadOrders().catch(e => setError((e as Error).message));
     const timer = setInterval(() => { if (document.visibilityState === 'visible') void loadOrders().catch(() => {}); }, 15_000);
     return () => clearInterval(timer);
@@ -73,6 +102,12 @@ export default function TopUp({ online, onCredited, api = LIVE }: { online: bool
   </div>;
 
   return <div className="topup">
+    {milestones && milestones.milestones.length > 0 && <MilestoneTrack data={milestones} busy={busy} onClaim={fc => void run(async () => {
+      const m = milestones.milestones.find(x => x.fc === fc); await api.claim(fc); onCredited?.();
+      setMilestones(await api.milestones());
+      setClaimed(`Đã nhận quà mốc ${money(fc)} FC: ${m?.rewards.map(giftRewardText).join(' · ') ?? ''}.${m?.rewards.some(r => !('fc' in r)) ? ' Gói / BP vào Quà từ Admin, game tự nhận khi bạn mở game.' : ''}`);
+    })}/>}
+    {claimed && <p className="tp-claimed" role="status">{claimed}</p>}
     {stats && <dl className="topup-summary"><div><dt>Đã nạp</dt><dd>{money(stats.topup)} <span>FC</span></dd></div><div><dt>Đã dùng</dt><dd>{money(stats.spent)} <span>FC</span></dd></div></dl>}
     {cfg && <>
       <p className="topup-rate">Tỷ lệ: <b>{vnd(cfg.vndPer1000)} = 1.000 FC</b>{cfg.tiers.length > 0 && ' · nạp đạt mốc nào nhận FC khuyến mãi của mốc đó'}</p>

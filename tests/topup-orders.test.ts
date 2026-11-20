@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseVnd, topupQuote, validTopupVnd } from '../src/topup-orders.ts';
+import { milestoneTrack, parseVnd, topupQuote, validTopupVnd } from '../src/topup-orders.ts';
 
 const cfg = { vndPer1000: 5000, minVnd: 5000, maxVnd: 50_000_000, tiers: [{ vnd: 100000, bonus: 3000 }, { vnd: 50000, bonus: 1000 }, { vnd: 500000, bonus: 25000 }] };
 
@@ -37,4 +37,23 @@ test('Đơn nạp trên máy chủ (202611200002): FC tính ở máy chủ, gố
   assert.match(app, /className="wallet-plus" href=\{`\$\{import\.meta\.env\.BASE_URL\}nap\.html`\}/);
   const vite = readFileSync('vite.config.ts', 'utf8');
   assert.match(vite, /nap: "nap\.html"/); assert.match(vite, /quanLyNap: "quan-ly-nap\.html"/);
+});
+
+test('Thanh mốc nạp tích luỹ: mốc cách đều, tô trong đoạn, "Cần X FC" như ảnh mẫu (1.224 / 0-500-1.000-2.000 → cần 776)', () => {
+  const t = milestoneTrack(1224, [2000, 500, 1000]);
+  assert.deepEqual(t.nodes.map(n => [n.fc, Math.round(n.pos), n.reached]), [[0, 0, true], [500, 33, true], [1000, 67, true], [2000, 100, false]]);
+  assert.equal(t.next, 2000); assert.equal(t.need, 776);
+  assert.ok(Math.abs(t.fill - (2 + 224 / 1000) / 3 * 100) < 1e-9);
+  assert.equal(milestoneTrack(0, [500]).fill, 0);
+  const done = milestoneTrack(5000, [500, 1000]);
+  assert.equal(done.fill, 100); assert.equal(done.next, null); assert.equal(done.need, 0);
+});
+
+test('Mốc nạp tích luỹ trên máy chủ (202611200003): chỉ tính lý do "admin", nhận 1 lần, gói / BP qua Quà từ Admin', () => {
+  const sql = readFileSync('supabase/migrations/202611200003_fco_topup_milestones.sql', 'utf8');
+  assert.match(sql, /where user_id = p_uid and reason = 'admin'/);
+  assert.match(sql, /insert into public\.fco_topup_milestone_claims \(user_id, fc, rewards\) values \(uid, m\.fc, m\.rewards\) on conflict do nothing;\s+if not found then raise exception 'FCO_MILESTONE_CLAIMED'/);
+  assert.match(sql, /'topup_milestone'/);
+  assert.match(sql, /insert into public\.fco_admin_gifts \(user_id, rewards, note\)/);
+  assert.match(sql, /not public\.fco_valid_rewards\(e->'rewards'\)/);
 });

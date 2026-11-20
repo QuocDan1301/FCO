@@ -284,3 +284,11 @@
 .tpa-tier-row { display: grid; grid-template-columns: minmax(120px, 160px) minmax(120px, 160px) 1fr auto; gap: 10px; align-items: end; }
 .tpa-tier-row small { padding-bottom: 10px; opacity: .75; }
 @media (max-width: 760px) { .tpa-order { grid-template-columns: 1fr auto; grid-template-areas: "main actions" "who who" "fc fc" "time time"; } .tpa-tier-row { grid-template-columns: 1fr 1fr auto; } .tpa-tier-row small { grid-column: 1 / -1; padding: 0; } }
+
+/* Mốc nạp tích luỹ (admin). */
+.tpa-ms-row { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; padding: 10px; border: 1px solid #2c3644; border-radius: 8px; }
+.tpa-ms-top { display: flex; align-items: flex-end; gap: 10px; } .tpa-ms-top .pa-field { max-width: 220px; } .tpa-ms-top small { padding-bottom: 10px; opacity: .7; } .tpa-ms-top .icon-button { margin-left: auto; }
+.tpa-ms-reward { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tpa-ms-reward select, .tpa-ms-reward input { padding: 7px 8px; border: 1px solid #2c3644; border-radius: 6px; background: #0b1017; color: #f0f1f3; font: inherit; }
+.tpa-ms-reward select:nth-child(2) { min-width: 220px; max-width: 100%; } .tpa-ms-reward input { width: 130px; }
+.tpa-ms-add { align-self: flex-start; } .tpa-ms-preview { opacity: .75; }
