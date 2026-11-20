@@ -1,67 +1,19 @@
 import { useEffect, useState } from 'react';
 import { Check, Plus, RotateCcw, Trash2, X } from 'lucide-react';
-import { money, packs } from '../game';
-import type { EventReward } from '../game';
-import { giftRewardText } from '../gift-codes';
-import { adminTopupDecide, adminTopupMilestones, adminTopupMilestonesSave, adminTopupOrders, adminTopupTiersSave, fetchTopupConfig } from '../wallet';
+import { money } from '../game';
+import { adminTopupDecide, adminTopupOrders, adminTopupTiersSave, fetchTopupConfig } from '../wallet';
 import { TOPUP_STATUS } from '../topup-orders';
-import type { AdminTopupList, AdminTopupOrder, TopupConfig, TopupMilestone, TopupTier } from '../topup-orders';
+import type { AdminTopupList, AdminTopupOrder, TopupConfig, TopupTier } from '../topup-orders';
 
 // Quản trị FC → Đơn nạp (migration 202611200002_fco_topup_orders.sql): duyệt / từ chối đơn nạp một chạm, sửa mốc khuyến mãi.
-// Duyệt = máy chủ cộng FC gốc (tính doanh thu + Top Đặc Huấn) + FC khuyến mãi (không tính) theo số đã lưu trong đơn.
+// Duyệt = máy chủ cộng FC gốc của đơn (tính doanh thu + Top Đặc Huấn). KM tính theo tổng nạp cộng dồn, người chơi tự nhận (202611200004).
 type Filter = 'open' | 'approved' | 'rejected' | 'all';
 const FILTERS: { id: Filter; label: string }[] = [{ id: 'open', label: 'Chờ duyệt' }, { id: 'approved', label: 'Đã duyệt' }, { id: 'rejected', label: 'Từ chối / huỷ' }, { id: 'all', label: 'Tất cả' }];
 const vnd = (n: number) => `${n.toLocaleString('vi-VN')}đ`;
 const time = (ms: number | null) => ms ? new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false }) : '';
 export type TopupAdminApi = { list: (f: Filter, q: string) => Promise<AdminTopupList>; decide: (id: number, ok: boolean, note: string) => Promise<AdminTopupOrder>;
-  config: () => Promise<TopupConfig>; saveTiers: (t: TopupTier[]) => Promise<TopupTier[]>;
-  milestones: () => Promise<TopupMilestone[]>; saveMilestones: (l: { fc: number; rewards: EventReward[] }[]) => Promise<TopupMilestone[]> };
-const LIVE: TopupAdminApi = { list: adminTopupOrders, decide: adminTopupDecide, config: fetchTopupConfig, saveTiers: adminTopupTiersSave,
-  milestones: adminTopupMilestones, saveMilestones: adminTopupMilestonesSave };
-
-// Mốc nạp tích luỹ (202611200003): mỗi mốc = tổng FC đã nạp + 1–10 phần quà (gói / BP / FC). Người đã nhận mốc giữ nguyên khi sửa.
-type RewardRow = { kind: 'pack' | 'bp' | 'fc'; amount: string; pack: string };
-type MsRow = { fc: string; rewards: RewardRow[]; claims?: number };
-const toRow = (r: EventReward): RewardRow => 'pack' in r ? { kind: 'pack', amount: String(r.count), pack: r.pack } : 'bp' in r ? { kind: 'bp', amount: String(r.bp), pack: '' } : { kind: 'fc', amount: String(r.fc), pack: '' };
-const digits = (s: string) => Number(s.replace(/[.\s]/g, ''));
-function MilestoneEditor({ api }: { api: TopupAdminApi }) {
-  const [rows, setRows] = useState<MsRow[] | null>(null);
-  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
-  const options = packs.filter(p => !p.draft);
-  const fill = (list: TopupMilestone[]) => setRows(list.map(m => ({ fc: String(m.fc), rewards: m.rewards.map(toRow), claims: m.claims })));
-  useEffect(() => { void api.milestones().then(fill).catch(e => setMsg({ ok: false, text: (e as Error).message })); }, []);
-  if (!rows) return null;
-  const edit = (i: number, next: Partial<MsRow>) => setRows(rows.map((r, j) => j === i ? { ...r, ...next } : r));
-  const editReward = (i: number, k: number, next: Partial<RewardRow>) => edit(i, { rewards: rows[i].rewards.map((r, j) => j === k ? { ...r, ...next } : r) });
-  const save = () => {
-    setMsg(null);
-    const list = rows.filter(r => r.fc.trim()).map(r => ({ fc: digits(r.fc), rewards: r.rewards.map(w => { const n = digits(w.amount); return w.kind === 'pack' ? { pack: w.pack, count: n } : w.kind === 'bp' ? { bp: n } : { fc: n }; }) as EventReward[] }));
-    if (list.some(m => !Number.isSafeInteger(m.fc) || m.fc <= 0 || !m.rewards.length || m.rewards.some(r => ('pack' in r && !r.pack) || !Object.values(r).every(v => typeof v === 'string' || (Number.isSafeInteger(v) && (v as number) > 0)))))
-      return setMsg({ ok: false, text: 'Mỗi mốc cần số FC nguyên dương và ít nhất 1 phần quà có số lượng (chọn gói nếu là quà gói).' });
-    void api.saveMilestones(list).then(saved => { fill(saved.map(s => ({ ...s, claims: rows.find(r => digits(r.fc) === s.fc)?.claims }))); setMsg({ ok: true, text: `Đã lưu ${saved.length} mốc. Người chơi thấy ngay ở trang nạp.` }); })
-      .catch(e => setMsg({ ok: false, text: (e as Error).message }));
-  };
-  return <section className="tpa-tiers tpa-ms" aria-label="Mốc nạp tích luỹ">
-    <h3>Mốc nạp tích luỹ</h3>
-    <p className="pa-gift-note">Tính theo tổng FC đã nạp của người chơi (nạp theo bill + FC gốc của đơn nạp; không tính khuyến mãi, quà). Đạt mốc thì người chơi bấm Nhận ở trang nạp, mỗi mốc một lần. FC cộng ngay; gói / BP vào Quà từ Admin.</p>
-    {rows.map((r, i) => <div key={i} className="tpa-ms-row">
-      <div className="tpa-ms-top"><label className="pa-field"><span>Mốc (FC đã nạp)</span><input value={r.fc} inputMode="numeric" onChange={e => edit(i, { fc: e.target.value.replace(/[^\d.]/g, '').slice(0, 16) })}/></label>
-        {r.claims ? <small>{money(r.claims)} người đã nhận</small> : null}
-        <button type="button" className="icon-button" aria-label="Xoá mốc" onClick={() => setRows(rows.filter((_, j) => j !== i))}><Trash2 size={15}/></button></div>
-      {r.rewards.map((w, k) => <div key={k} className="tpa-ms-reward">
-        <select value={w.kind} onChange={e => editReward(i, k, { kind: e.target.value as RewardRow['kind'] })}><option value="pack">Gói</option><option value="bp">BP</option><option value="fc">FC</option></select>
-        {w.kind === 'pack' && <select value={w.pack} onChange={e => editReward(i, k, { pack: e.target.value })}><option value="">Chọn gói…</option>{options.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select>}
-        <input value={w.amount} inputMode="numeric" placeholder={w.kind === 'pack' ? 'số gói' : w.kind === 'bp' ? 'số BP' : 'số FC'} onChange={e => editReward(i, k, { amount: e.target.value.replace(/[^\d.]/g, '').slice(0, 20) })}/>
-        <button type="button" className="icon-button" aria-label="Bỏ phần quà" onClick={() => edit(i, { rewards: r.rewards.filter((_, j) => j !== k) })}><X size={14}/></button>
-      </div>)}
-      <button type="button" className="secondary-button tpa-ms-add" disabled={r.rewards.length >= 10} onClick={() => edit(i, { rewards: [...r.rewards, { kind: 'pack', amount: '1', pack: '' }] })}><Plus size={14}/>Thêm quà</button>
-      {r.rewards.length > 0 && <small className="tpa-ms-preview">{r.rewards.map(w => { const n = digits(w.amount); return n > 0 ? giftRewardText(w.kind === 'pack' ? { pack: w.pack, count: n } : w.kind === 'bp' ? { bp: n } : { fc: n }) : ''; }).filter(Boolean).join(' · ')}</small>}
-    </div>)}
-    <div className="pa-row"><button type="button" className="secondary-button" onClick={() => setRows([...rows, { fc: '', rewards: [{ kind: 'pack', amount: '1', pack: '' }] }])}><Plus size={15}/>Thêm mốc</button>
-      <button type="button" className="primary-button" onClick={save}>Lưu mốc tích luỹ</button></div>
-    {msg && <p className={`pa-message ${msg.ok ? 'is-ok' : 'is-error'}`} role="status">{msg.text}</p>}
-  </section>;
-}
+  config: () => Promise<TopupConfig>; saveTiers: (t: TopupTier[]) => Promise<TopupTier[]> };
+const LIVE: TopupAdminApi = { list: adminTopupOrders, decide: adminTopupDecide, config: fetchTopupConfig, saveTiers: adminTopupTiersSave };
 
 function TierEditor({ api }: { api: TopupAdminApi }) {
   const [rows, setRows] = useState<{ vnd: string; bonus: string }[] | null>(null);
@@ -76,8 +28,8 @@ function TierEditor({ api }: { api: TopupAdminApi }) {
     void api.saveTiers(tiers).then(saved => { setRows(saved.map(t => ({ vnd: String(t.vnd), bonus: String(t.bonus) }))); setMsg({ ok: true, text: `Đã lưu ${saved.length} mốc. Người chơi thấy ngay ở trang nạp.` }); })
       .catch(e => setMsg({ ok: false, text: (e as Error).message })); };
   return <section className="tpa-tiers" aria-label="Mốc khuyến mãi">
-    <h3>Mốc khuyến mãi</h3>
-    <p className="pa-gift-note">Đơn nạp đạt mốc nào nhận FC khuyến mãi của mốc đó (mốc cao nhất không vượt số tiền). Tỉ giá: {vnd(rate)} = 1.000 FC. Sửa mốc chỉ áp cho đơn tạo sau đó.</p>
+    <h3>Mốc khuyến mãi (tích luỹ)</h3>
+    <p className="pa-gift-note">Tính theo TỔNG tiền người chơi đã nạp (cộng dồn mọi lần nạp). Qua mốc nào thì người chơi bấm Nhận FC khuyến mãi của mốc đó trên thanh ở trang nạp, mỗi mốc một lần. Đơn nạp chỉ cộng FC gốc. Tỉ giá: {vnd(rate)} = 1.000 FC.</p>
     <div className="tpa-tier-rows">
       {rows.map((r, i) => { const v = num(r.vnd), b = num(r.bonus) || 0, base = v ? Math.floor(v * 1000 / rate) : 0;
         return <div key={i} className="tpa-tier-row">
@@ -146,6 +98,5 @@ export default function TopupOrdersAdmin({ api = LIVE, onChanged }: { api?: Topu
       </article>)}
     </div>
     <TierEditor api={api}/>
-    <MilestoneEditor api={api}/>
   </section>;
 }

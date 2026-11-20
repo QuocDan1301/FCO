@@ -35,10 +35,13 @@ export function parseVnd(text: string) {
   return Number.isFinite(num) ? Math.round(num * unit) : NaN;
 }
 
-// Mốc nạp tích luỹ (migration 202611200003_fco_topup_milestones.sql): tổng FC đã nạp (lý do 'admin') → quà mỗi mốc, nhận 1 lần.
-import type { EventReward } from './game';
-export type TopupMilestone = { fc: number; rewards: EventReward[]; claimed?: boolean; claims?: number };
-export type TopupMilestones = { total: number; milestones: TopupMilestone[] };
+// Khuyến mãi theo tổng tiền nạp cộng dồn (migration 202611200004_fco_topup_cumulative.sql): qua mốc nào nhận KM mốc đó, mỗi mốc 1 lần.
+export type TopupTierState = { totalVnd: number; tiers: (TopupTier & { claimed: boolean })[] };
+/** Nhãn gọn cho mốc trên thanh: 20k, 150k, 1tr, 1,5tr. */
+export const shortVnd = (v: number) => v >= 1_000_000 ? `${(v / 1_000_000).toLocaleString('vi-VN', { maximumFractionDigits: 2 })}tr` : v >= 1000 ? `${(v / 1000).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}k` : `${v}`;
+/** Các mốc KM mà một đơn `vnd` sẽ giúp vượt qua (chưa nhận, tổng hiện tại chưa tới, tổng sau đơn đã tới). */
+export const tiersUnlockedBy = (state: TopupTierState, vnd: number) =>
+  state.tiers.filter(t => !t.claimed && t.vnd > state.totalVnd && t.vnd <= state.totalVnd + (Number.isFinite(vnd) && vnd > 0 ? vnd : 0));
 /** Thanh mốc như ảnh mẫu: các mốc (kể cả 0) cách đều nhau, phần tô chạy tuyến tính trong từng đoạn; need = số FC còn thiếu tới mốc kế tiếp. */
 export function milestoneTrack(total: number, fcs: number[]) {
   const nodes = [0, ...[...new Set(fcs)].filter(v => v > 0).sort((a, b) => a - b)];

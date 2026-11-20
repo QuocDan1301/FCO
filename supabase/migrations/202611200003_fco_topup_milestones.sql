@@ -1,3 +1,4 @@
+-- KHÔNG CẦN CHẠY: đã thay bằng 202611200004_fco_topup_cumulative.sql (KM theo tổng nạp cộng dồn). Lỡ chạy rồi thì 0004 tự gỡ phần này.
 begin;
 
 -- Mốc nạp tích luỹ (người dùng 2026-11-20, ảnh "Gói nạp đặc biệt · FC đã nạp · thanh 0 / 500 / 1.000 / 2.000 · Cần 776 FC").

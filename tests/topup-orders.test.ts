@@ -49,11 +49,20 @@ test('Thanh mốc nạp tích luỹ: mốc cách đều, tô trong đoạn, "C�
   assert.equal(done.fill, 100); assert.equal(done.next, null); assert.equal(done.need, 0);
 });
 
-test('Mốc nạp tích luỹ trên máy chủ (202611200003): chỉ tính lý do "admin", nhận 1 lần, gói / BP qua Quà từ Admin', () => {
-  const sql = readFileSync('supabase/migrations/202611200003_fco_topup_milestones.sql', 'utf8');
-  assert.match(sql, /where user_id = p_uid and reason = 'admin'/);
-  assert.match(sql, /insert into public\.fco_topup_milestone_claims \(user_id, fc, rewards\) values \(uid, m\.fc, m\.rewards\) on conflict do nothing;\s+if not found then raise exception 'FCO_MILESTONE_CLAIMED'/);
-  assert.match(sql, /'topup_milestone'/);
-  assert.match(sql, /insert into public\.fco_admin_gifts \(user_id, rewards, note\)/);
-  assert.match(sql, /not public\.fco_valid_rewards\(e->'rewards'\)/);
+test('KM theo tổng nạp cộng dồn (202611200004): tổng theo lý do "admin" quy VND, nhận 1 lần mỗi mốc, đơn mới không KM riêng', () => {
+  const sql = readFileSync('supabase/migrations/202611200004_fco_topup_cumulative.sql', 'utf8');
+  assert.match(sql, /sum\(public\.fco_topup_vnd\(l\.delta, l\.created_at\)\)/);
+  assert.match(sql, /l\.reason = 'admin'/);
+  assert.match(sql, /values \(new_code, uid, p_vnd, floor\(p_vnd \* 1000\.0 \/ rate\)::bigint, 0, null\)/);
+  assert.match(sql, /insert into public\.fco_topup_tier_claims \(user_id, min_vnd, bonus_fc\) values \(uid, t\.min_vnd, t\.bonus_fc\) on conflict do nothing;\s+if not found then raise exception 'FCO_MILESTONE_CLAIMED'/);
+  assert.match(sql, /'topup_bonus'/);
+  assert.match(sql, /where o\.status = 'approved' and o\.bonus_fc > 0/, 'mốc đã được KM theo đơn coi như đã nhận');
+});
+
+test('Thanh KM tích luỹ: nhãn mốc gọn, mốc mà một đơn mở khoá', async () => {
+  const { shortVnd, tiersUnlockedBy } = await import('../src/topup-orders.ts');
+  assert.deepEqual([20000, 150000, 1000000, 1500000].map(shortVnd), ['20k', '150k', '1tr', '1,5tr']);
+  const state = { totalVnd: 25000, tiers: [{ vnd: 20000, bonus: 4000, claimed: false }, { vnd: 30000, bonus: 6000, claimed: false }, { vnd: 40000, bonus: 8000, claimed: true }, { vnd: 100000, bonus: 15000, claimed: false }] };
+  assert.deepEqual(tiersUnlockedBy(state, 20000).map(t => t.vnd), [30000], 'mốc 20k đã qua, 40k đã nhận');
+  assert.deepEqual(tiersUnlockedBy(state, 80000).map(t => t.vnd), [30000, 100000]);
 });
