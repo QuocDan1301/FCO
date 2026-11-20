@@ -34,9 +34,14 @@ test('Đơn nạp trên máy chủ (202611200002): FC tính ở máy chủ, gố
   assert.match(sql, /revoke all on public\.fco_topup_orders from public, anon, authenticated;/);
   assert.match(sql, /revoke all on function public\.fco_topup_rate_now\(\), public\.fco_topup_tiers_json\(\), public\.fco_topup_order_json\(public\.fco_topup_orders\) from public, anon, authenticated;/);
   const app = readFileSync('src/App.tsx', 'utf8');
-  assert.match(app, /className="wallet-plus" href=\{`\$\{import\.meta\.env\.BASE_URL\}nap\.html`\}/);
+  // Trang nạp tách khỏi game (2026-11-20): nút + cạnh ô FC chỉ báo liên hệ admin, game không liên kết sang nap.html.
+  assert.match(app, /className="wallet-plus" onClick=\{\(\) => notify\('Vui lòng liên hệ admin'\)\}/);
+  assert.doesNotMatch(app, /nap\.html/);
   const vite = readFileSync('vite.config.ts', 'utf8');
-  assert.match(vite, /nap: "nap\.html"/); assert.match(vite, /quanLyNap: "quan-ly-nap\.html"/);
+  // Trang nạp build riêng cho Cloudflare Pages (mode nap), không nằm trong bản GitHub Pages của game.
+  assert.match(vite, /input: \{ nap: 'nap\.html', quanLyNap: 'quan-ly-nap\.html' \}/);
+  assert.doesNotMatch(vite.slice(vite.indexOf("} : {")), /nap\.html/);
+  assert.match(readFileSync('package.json', 'utf8'), /"build:nap": "vite build --mode nap"/);
 });
 
 test('Thanh mốc nạp tích luỹ: mốc cách đều, tô trong đoạn, "Cần X FC" như ảnh mẫu (1.224 / 0-500-1.000-2.000 → cần 776)', () => {
@@ -62,7 +67,41 @@ test('KM theo tổng nạp cộng dồn (202611200004): tổng theo lý do "admi
 test('Thanh KM tích luỹ: nhãn mốc gọn, mốc mà một đơn mở khoá', async () => {
   const { shortVnd, tiersUnlockedBy } = await import('../src/topup-orders.ts');
   assert.deepEqual([20000, 150000, 1000000, 1500000].map(shortVnd), ['20k', '150k', '1tr', '1,5tr']);
-  const state = { totalVnd: 25000, tiers: [{ vnd: 20000, bonus: 4000, claimed: false }, { vnd: 30000, bonus: 6000, claimed: false }, { vnd: 40000, bonus: 8000, claimed: true }, { vnd: 100000, bonus: 15000, claimed: false }] };
+  const state = { event: null, totalVnd: 25000, tiers: [{ vnd: 20000, bonus: 4000, claimed: false }, { vnd: 30000, bonus: 6000, claimed: false }, { vnd: 40000, bonus: 8000, claimed: true }, { vnd: 100000, bonus: 15000, claimed: false }] };
   assert.deepEqual(tiersUnlockedBy(state, 20000).map(t => t.vnd), [30000], 'mốc 20k đã qua, 40k đã nhận');
   assert.deepEqual(tiersUnlockedBy(state, 80000).map(t => t.vnd), [30000, 100000]);
 });
+
+test('VietQR động: giữ ngân hàng / tài khoản của mã tĩnh, thêm số tiền + mã đơn, CRC đúng', async () => {
+  const { crc16, dynamicVietQr, parseTlv, cleanInfo } = await import('../src/vietqr-payload.ts');
+  const { TOPUP_VIETQR } = await import('../src/config.ts');
+  assert.equal(crc16(TOPUP_VIETQR.slice(0, -4)), TOPUP_VIETQR.slice(-4), 'mã tĩnh trong config đúng CRC');
+  const dyn = dynamicVietQr(TOPUP_VIETQR, 150000, 'FCOM3XH8T');
+  const f = new Map(parseTlv(dyn).map(x => [x.tag, x.value]));
+  assert.equal(f.get('01'), '12'); assert.equal(f.get('54'), '150000');
+  assert.equal(f.get('38'), new Map(parseTlv(TOPUP_VIETQR).map(x => [x.tag, x.value])).get('38'));
+  assert.ok(parseTlv(f.get('62')!).some(x => x.tag === '08' && x.value === 'FCOM3XH8T'));
+  assert.equal(crc16(dyn.slice(0, -4)), dyn.slice(-4));
+  assert.equal(cleanInfo('Nạp đơn fco-12'), 'NAP DON FCO12');
+  assert.throws(() => dynamicVietQr(TOPUP_VIETQR, 0, 'x'));
+});
+
+test('Sự kiện nạp tích luỹ có thời gian (202611200005): ngoài đợt không có KM, đơn tạo trong đợt vẫn tính, 3 ngày nhận quà, mỗi đợt tính lại', async () => {
+  const sql = readFileSync('supabase/migrations/202611200005_fco_topup_event.sql', 'utf8');
+  assert.match(sql, /if e\.id is null then return jsonb_build_object\('event', null/);
+  assert.match(sql, /coalesce\(o\.created_at, l\.created_at\) >= p_event\.starts_at and coalesce\(o\.created_at, l\.created_at\) < p_event\.ends_at/);
+  assert.match(sql, /select 3 \$\$/);
+  assert.match(sql, /primary key \(user_id, event_id, min_vnd\)/);
+  assert.match(sql, /raise exception 'FCO_TOPUP_EVENT_OVERLAP'/);
+  const { leftText } = await import('../src/topup-orders.ts');
+  assert.equal(leftText((2 * 86400 + 5 * 3600 + 12 * 60 + 33) * 1000), '2 ngày 05:12:33');
+  assert.equal(leftText(-5), '00:00:00');
+});
+
+test('KM tích luỹ tự cộng (202611200006): trigger sau mỗi lần ghi FC nạp, chỉ lý do "admin" dương, khoá với người chơi', () => {
+  const sql = readFileSync('supabase/migrations/202611200006_fco_topup_auto_award.sql', 'utf8');
+  assert.match(sql, /create trigger fco_topup_ledger_award after insert on public\.fco_fc_ledger\s+for each row when \(new\.reason = 'admin' and new\.delta > 0\)/);
+  assert.match(sql, /on conflict do nothing;\s+if found then/);
+  assert.match(sql, /revoke all on function public\.fco_topup_auto_award\(uuid\), public\.fco_topup_ledger_award\(\) from public, anon, authenticated;/);
+});
+

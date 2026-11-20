@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import type { Plugin } from "vite";
+import type { Plugin, UserConfig } from "vite";
 import { execFile, execFileSync } from "node:child_process";
 import path from "node:path";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
@@ -75,7 +75,29 @@ function catalogVersionAtBuild() {
 }
 const CATALOG_VERSION = catalogVersionAtBuild();
 
-export default defineConfig({
+// Trang nạp FC tách khỏi game, đưa lên Cloudflare Pages (người dùng 2026-11-20): `npm run build:nap` (vite build --mode nap) chỉ build
+// nap.html + quan-ly-nap.html ở gốc tên miền vào dist-nap/, không chép thư mục public (ảnh game hàng trăm MB, vượt giới hạn Cloudflare),
+// chỉ mang theo vài ảnh trang nạp dùng + _redirects (/ → trang nạp, /quan-ly → trang quản lý).
+const NAP_ASSETS = ['currency-fc.png', 'topup-qr.webp', 'icon-tm-back.webp', 'rt-concrete.webp'];
+function napSite(): Plugin {
+  return {
+    name: 'nap-site',
+    apply: 'build',
+    generateBundle() {
+      for (const file of NAP_ASSETS) this.emitFile({ type: 'asset', fileName: `assets/${file}`, source: readFileSync(path.resolve('public/assets', file)) });
+      this.emitFile({ type: 'asset', fileName: '_redirects', source: '/  /nap.html  302\n/quan-ly  /quan-ly-nap.html  302\n' });
+      this.emitFile({ type: 'asset', fileName: '_headers', source: '/*\n  X-Robots-Tag: noindex\n  Referrer-Policy: same-origin\n' });
+    },
+  };
+}
+
+export default defineConfig(({ mode }): UserConfig => mode === 'nap' ? {
+  define: { __BUILD_ID__: JSON.stringify(BUILD_ID), __CATALOG_VERSION__: JSON.stringify(CATALOG_VERSION) },
+  base: '/',
+  publicDir: false,
+  plugins: [react(), tailwindcss(), publishedPacksOnly(), napSite()],
+  build: { outDir: 'dist-nap', emptyOutDir: true, rollupOptions: { input: { nap: 'nap.html', quanLyNap: 'quan-ly-nap.html' } } },
+} : {
   define: { __BUILD_ID__: JSON.stringify(BUILD_ID), __CATALOG_VERSION__: JSON.stringify(CATALOG_VERSION) },
   // GitHub Pages phục vụ game ở /FCO/; Render (render.yaml) đặt BASE_PATH=/ để chạy ở gốc tên miền.
   base: process.env.BASE_PATH || "/FCO/",
@@ -91,9 +113,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: "index.html",
-        // Trang riêng (không có trong menu game): nạp FC cho người chơi và quản lý đơn nạp cho admin.
-        nap: "nap.html",
-        quanLyNap: "quan-ly-nap.html",
+        // Trang nạp KHÔNG còn trong bản GitHub Pages: build riêng bằng `npm run build:nap` lên Cloudflare Pages (xem napSite ở trên).
       },
     },
   },

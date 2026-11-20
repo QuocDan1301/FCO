@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Check, Plus, RotateCcw, Trash2, X } from 'lucide-react';
 import { money } from '../game';
-import { adminTopupDecide, adminTopupOrders, adminTopupTiersSave, fetchTopupConfig } from '../wallet';
+import { adminTopupDecide, adminTopupEventEnd, adminTopupEvents, adminTopupEventSave, adminTopupOrders, adminTopupTiersSave, fetchTopupConfig } from '../wallet';
 import { TOPUP_STATUS } from '../topup-orders';
-import type { AdminTopupList, AdminTopupOrder, TopupConfig, TopupTier } from '../topup-orders';
+import type { AdminTopupEvent, AdminTopupEvents, AdminTopupList, AdminTopupOrder, TopupConfig, TopupTier } from '../topup-orders';
 
 // Quản trị FC → Đơn nạp (migration 202611200002_fco_topup_orders.sql): duyệt / từ chối đơn nạp một chạm, sửa mốc khuyến mãi.
 // Duyệt = máy chủ cộng FC gốc của đơn (tính doanh thu + Top Đặc Huấn). KM tính theo tổng nạp cộng dồn, người chơi tự nhận (202611200004).
@@ -12,8 +12,50 @@ const FILTERS: { id: Filter; label: string }[] = [{ id: 'open', label: 'Chờ du
 const vnd = (n: number) => `${n.toLocaleString('vi-VN')}đ`;
 const time = (ms: number | null) => ms ? new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false }) : '';
 export type TopupAdminApi = { list: (f: Filter, q: string) => Promise<AdminTopupList>; decide: (id: number, ok: boolean, note: string) => Promise<AdminTopupOrder>;
-  config: () => Promise<TopupConfig>; saveTiers: (t: TopupTier[]) => Promise<TopupTier[]> };
-const LIVE: TopupAdminApi = { list: adminTopupOrders, decide: adminTopupDecide, config: fetchTopupConfig, saveTiers: adminTopupTiersSave };
+  config: () => Promise<TopupConfig>; saveTiers: (t: TopupTier[]) => Promise<TopupTier[]>;
+  events: () => Promise<AdminTopupEvents>; saveEvent: (id: number | null, title: string, s: Date, e: Date) => Promise<AdminTopupEvents>; endEvent: (id: number) => Promise<AdminTopupEvents> };
+const LIVE: TopupAdminApi = { list: adminTopupOrders, decide: adminTopupDecide, config: fetchTopupConfig, saveTiers: adminTopupTiersSave,
+  events: adminTopupEvents, saveEvent: adminTopupEventSave, endEvent: adminTopupEventEnd };
+
+// Sự kiện nạp tích luỹ (202611200005): ngoài thời gian sự kiện không có KM tích luỹ. Giờ nhập theo giờ máy admin (giờ Việt Nam).
+const localInput = (ms: number) => { const d = new Date(ms); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); };
+const dt = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+function EventEditor({ api }: { api: TopupAdminApi }) {
+  const [data, setData] = useState<AdminTopupEvents | null>(null);
+  const [form, setForm] = useState<{ id: number | null; title: string; start: string; end: string } | null>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const load = () => api.events().then(setData).catch(e => setMsg({ ok: false, text: (e as Error).message }));
+  useEffect(() => { void load(); }, []);
+  if (!data) return msg ? <p className="pa-message is-error">{msg.text}</p> : null;
+  const now = Date.now(), graceMs = data.claimDays * 86_400_000;
+  const status = (e: AdminTopupEvent) => now < e.startsAt ? ['Sắp diễn ra', 'is-soon'] : now < e.endsAt ? ['Đang diễn ra', 'is-live'] : now < e.endsAt + graceMs ? [`Đã kết thúc · nhận quà tới ${dt(e.endsAt + graceMs)}`, 'is-grace'] : ['Đã đóng', 'is-closed'];
+  const startNew = () => { const s = Date.now(); setForm({ id: null, title: 'Nạp tích luỹ', start: localInput(s), end: localInput(s + 3 * 86_400_000) }); setMsg(null); };
+  const save = () => { if (!form) return; const s = new Date(form.start), e = new Date(form.end);
+    if (!(e > s)) return setMsg({ ok: false, text: 'Giờ kết thúc phải sau giờ bắt đầu.' });
+    void api.saveEvent(form.id, form.title, s, e).then(d => { setData(d); setForm(null); setMsg({ ok: true, text: 'Đã lưu sự kiện. Người chơi thấy thanh tích luỹ khi tới giờ bắt đầu.' }); }).catch(err => setMsg({ ok: false, text: (err as Error).message })); };
+  const end = (e: AdminTopupEvent) => { if (!confirm(now < e.startsAt ? `Xoá sự kiện "${e.title}" (chưa bắt đầu)?` : `Kết thúc ngay "${e.title}"? Người chơi còn ${data.claimDays} ngày để nhận KM đã đạt.`)) return;
+    void api.endEvent(e.id).then(d => { setData(d); setMsg({ ok: true, text: 'Đã cập nhật sự kiện.' }); }).catch(err => setMsg({ ok: false, text: (err as Error).message })); };
+  return <section className="tpa-tiers tpa-events" aria-label="Sự kiện nạp tích luỹ">
+    <div className="pa-row"><h3>Sự kiện nạp tích luỹ</h3>{!form && <button type="button" className="primary-button" onClick={startNew}><Plus size={15}/>Tạo sự kiện</button>}</div>
+    <p className="pa-gift-note">Chỉ trong thời gian sự kiện người chơi mới thấy thanh và được tự cộng FC khuyến mãi theo tổng tiền nạp (mốc ở phần dưới). Đơn tạo trong sự kiện vẫn được tính dù duyệt muộn. Hết sự kiện còn {data.claimDays} ngày để bấm nhận. Mỗi sự kiện tính lại từ đầu.</p>
+    {form && <div className="tpa-event-form">
+      <label className="pa-field"><span>Tên sự kiện</span><input value={form.title} maxLength={60} onChange={e => setForm({ ...form, title: e.target.value })}/></label>
+      <label className="pa-field"><span>Bắt đầu</span><input type="datetime-local" value={form.start} onChange={e => setForm({ ...form, start: e.target.value })}/></label>
+      <label className="pa-field"><span>Kết thúc</span><input type="datetime-local" value={form.end} onChange={e => setForm({ ...form, end: e.target.value })}/></label>
+      <div className="pa-row"><button type="button" className="primary-button" onClick={save}>{form.id ? 'Lưu thay đổi' : 'Tạo sự kiện'}</button><button type="button" className="secondary-button" onClick={() => setForm(null)}>Huỷ</button></div>
+    </div>}
+    {!data.events.length && !form && <p className="pa-empty">Chưa có sự kiện nào. Hiện người chơi không thấy khuyến mãi tích luỹ.</p>}
+    {data.events.map(e => { const [label, cls] = status(e);
+      return <div key={e.id} className="tpa-event">
+        <div><b>{e.title}</b><small>{dt(e.startsAt)} → {dt(e.endsAt)}</small></div>
+        <span className={`tpa-event-status ${cls}`}>{label}</span>
+        <small>{money(e.players)} người nhận · {money(e.claims)} lượt · {money(e.bonusFc)} FC KM</small>
+        {now < e.endsAt && <div className="tpa-actions"><button type="button" className="secondary-button" onClick={() => setForm({ id: e.id, title: e.title, start: localInput(e.startsAt), end: localInput(e.endsAt) })}>Sửa</button>
+          <button type="button" className="secondary-button" onClick={() => end(e)}>{now < e.startsAt ? 'Xoá' : 'Kết thúc ngay'}</button></div>}
+      </div>; })}
+    {msg && <p className={`pa-message ${msg.ok ? 'is-ok' : 'is-error'}`} role="status">{msg.text}</p>}
+  </section>;
+}
 
 function TierEditor({ api }: { api: TopupAdminApi }) {
   const [rows, setRows] = useState<{ vnd: string; bonus: string }[] | null>(null);
@@ -29,7 +71,7 @@ function TierEditor({ api }: { api: TopupAdminApi }) {
       .catch(e => setMsg({ ok: false, text: (e as Error).message })); };
   return <section className="tpa-tiers" aria-label="Mốc khuyến mãi">
     <h3>Mốc khuyến mãi (tích luỹ)</h3>
-    <p className="pa-gift-note">Tính theo TỔNG tiền người chơi đã nạp (cộng dồn mọi lần nạp). Qua mốc nào thì người chơi bấm Nhận FC khuyến mãi của mốc đó trên thanh ở trang nạp, mỗi mốc một lần. Đơn nạp chỉ cộng FC gốc. Tỉ giá: {vnd(rate)} = 1.000 FC.</p>
+    <p className="pa-gift-note">Dùng trong sự kiện nạp tích luỹ: tổng tiền người chơi nạp trong thời gian sự kiện qua mốc nào thì máy chủ TỰ CỘNG FC khuyến mãi của mốc đó ngay lúc duyệt đơn / nạp bill, mỗi mốc một lần mỗi sự kiện. Ngoài sự kiện đơn nạp chỉ cộng FC gốc. Tỉ giá: {vnd(rate)} = 1.000 FC. Các ô bên dưới cũng là nút chọn nhanh số tiền ở trang nạp.</p>
     <div className="tpa-tier-rows">
       {rows.map((r, i) => { const v = num(r.vnd), b = num(r.bonus) || 0, base = v ? Math.floor(v * 1000 / rate) : 0;
         return <div key={i} className="tpa-tier-row">
@@ -97,6 +139,7 @@ export default function TopupOrdersAdmin({ api = LIVE, onChanged }: { api?: Topu
         </div>}
       </article>)}
     </div>
+    <EventEditor api={api}/>
     <TierEditor api={api}/>
   </section>;
 }

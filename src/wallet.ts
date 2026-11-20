@@ -1,5 +1,5 @@
 import { accountClient } from './account-client';
-import type { AdminTopupList, AdminTopupOrder, TopupConfig, TopupOrder, TopupTier, TopupTierState } from './topup-orders';
+import type { AdminTopupEvents, AdminTopupList, AdminTopupOrder, TopupConfig, TopupOrder, TopupTier, TopupTierState } from './topup-orders';
 import { deviceId } from './device-id';
 import type { EventReward } from './game';
 import type { GiftCode } from './gift-code-rules';
@@ -97,6 +97,10 @@ export const adminTopupTiersSave = (tiers: TopupTier[]) => call<TopupTier[]>('fc
 // KM theo tổng nạp cộng dồn (migration 202611200004_fco_topup_cumulative.sql).
 export const fetchTopupTiersMe = () => call<TopupTierState>('fco_topup_tiers_me');
 export const claimTopupTier = (vnd: number) => call<{ vnd: number; bonus: number; wallet: Wallet }>('fco_topup_tier_claim', { p_vnd: vnd });
+// Sự kiện nạp tích luỹ có thời gian (migration 202611200005_fco_topup_event.sql).
+export const adminTopupEvents = () => call<AdminTopupEvents>('fco_admin_topup_events');
+export const adminTopupEventSave = (id: number | null, title: string, startsAt: Date, endsAt: Date) => call<AdminTopupEvents>('fco_admin_topup_event_save', { p_id: id, p_title: title, p_starts: startsAt.toISOString(), p_ends: endsAt.toISOString() });
+export const adminTopupEventEnd = (id: number) => call<AdminTopupEvents>('fco_admin_topup_event_end', { p_id: id });
 // Code sai: máy chủ trả {error} thay vì báo lỗi để còn ghi lại lần thử (chống dò code, migration 202611140010).
 export const redeemGiftHash = async (hash: string) => {
   const result = await call<{ rewards: EventReward[]; wallet: Wallet; save?: ServerRecord | null } | { error: string }>('fco_redeem_gift', { p_hash: hash });

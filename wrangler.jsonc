@@ -1,0 +1,10 @@
+// Cloudflare Worker phục vụ trang nạp FC tĩnh (tách khỏi game; người dùng 2026-11-20).
+// Cloudflare build: `npm run build:nap` → dist-nap/, rồi `npx wrangler deploy` đọc file này.
+// Tên Worker phải trùng Project name đặt trên Cloudflare (fco-nap). _redirects / _headers trong dist-nap được Cloudflare áp dụng.
+{
+  "name": "fco-nap",
+  "compatibility_date": "2025-06-01",
+  "assets": {
+    "directory": "./dist-nap"
+  }
+}

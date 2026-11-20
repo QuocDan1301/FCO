@@ -81,6 +81,9 @@ export type VqtgResult = { plays: VqtgPlay[]; paid: number; picks: number; pos: 
 export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 
 const MESSAGES: Record<string, string> = {
+  FCO_TOPUP_NO_EVENT: 'Hiện không có sự kiện nạp tích luỹ.',
+  FCO_TOPUP_EVENT_BAD: 'Thời gian sự kiện không hợp lệ (giờ kết thúc phải sau giờ bắt đầu).',
+  FCO_TOPUP_EVENT_OVERLAP: 'Trùng thời gian với một sự kiện nạp tích luỹ khác.',
   FCO_MILESTONE_NOT_REACHED: 'Bạn chưa nạp đủ để nhận mốc này.',
   FCO_MILESTONE_NOT_FOUND: 'Mốc nạp này không còn.',
   FCO_MILESTONE_BAD: 'Mốc nạp không hợp lệ (số FC nguyên dương, không trùng, mỗi mốc 1–10 phần quà, tối đa 20 mốc).',

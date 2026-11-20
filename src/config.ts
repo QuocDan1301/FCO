@@ -12,6 +12,9 @@ export const AUDIO_ENABLED = false;
 // Đổi tỉ giá: sửa số dưới đây và thêm một dòng vào bảng fco_topup_rates trên máy chủ, để doanh thu cũ vẫn tính theo giá cũ.
 export const TOPUP_VND_PER_1000_FC = 5000;
 export const TOPUP_QR = '/assets/topup-qr.webp';
+// Mã VietQR tĩnh đọc từ ảnh TOPUP_QR (MB Bank, tài khoản nhận tiền). Trang nạp dựng QR động từ mã này: tự điền số tiền + mã đơn (src/vietqr-payload.ts).
+// Đổi tài khoản nhận tiền: thay ảnh TOPUP_QR (đổi tên file) và chuỗi dưới bằng nội dung QR mới; để trống thì trang nạp dùng ảnh tĩnh.
+export const TOPUP_VIETQR = '00020101021138570010A000000727012700069704220113VQRQACYWB41880208QRIBFTTA53037045802VN62150107NPS686908006304B8BF';
 export const TOPUP_ZALO = 'https://zalo.me/0336856477';
 export const TOPUP_MIN_FC = 1_000; // nạp tối thiểu (FC)
 

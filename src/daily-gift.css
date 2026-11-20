@@ -143,3 +143,14 @@
 .tp-ms-list em { flex: none; font-style: normal; font-size: 12px; color: #8e9bab; }
 .tp-ms-list .primary-button { flex: none; padding: 6px 14px; }
 .tp-claimed { margin: 0; padding: 8px 10px; border-radius: 8px; background: #12301d; color: #8ff0b3; font-size: 13px; }
+
+/* QR động VietQR (src/VietQr.tsx). */
+.topup-qr .vietqr { display: block; width: min(260px, 100%); height: auto; }
+.tp-qr-note { margin: 0; padding: 8px 10px; border-radius: 8px; background: #102a1b; color: #b9f3cf; font-size: 13px; line-height: 1.5; text-align: center; }
+.tp-qr-note b { color: #fff; }
+
+.tp-ms-time { color: #f6c85f !important; } .tp-ms-time b { color: #ffd76a !important; font-variant-numeric: tabular-nums; }
+.tp-ms-time.is-ended { color: #ff9aa2 !important; } .tp-ms-time.is-ended b { color: #ffb3b9 !important; }
+
+.tp-ms-auto { color: #8ff0b3 !important; }
+.tp-ms-list em.tp-ms-done { color: #3ddc7a; font-weight: 700; }

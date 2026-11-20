@@ -36,7 +36,16 @@ export function parseVnd(text: string) {
 }
 
 // Khuyến mãi theo tổng tiền nạp cộng dồn (migration 202611200004_fco_topup_cumulative.sql): qua mốc nào nhận KM mốc đó, mỗi mốc 1 lần.
-export type TopupTierState = { totalVnd: number; tiers: (TopupTier & { claimed: boolean })[] };
+// Sự kiện nạp tích luỹ có thời gian (migration 202611200005_fco_topup_event.sql): event = null khi không có đợt nào (thanh ẩn).
+export type TopupEvent = { id: number; title: string; startsAt: number; endsAt: number; claimUntil: number };
+export type TopupTierState = { event: TopupEvent | null; totalVnd: number; tiers: (TopupTier & { claimed: boolean })[] };
+export type AdminTopupEvent = { id: number; title: string; startsAt: number; endsAt: number; claims: number; players: number; bonusFc: number };
+export type AdminTopupEvents = { claimDays: number; now: number; events: AdminTopupEvent[] };
+/** Thời gian còn lại dạng "2 ngày 05:12:33". */
+export function leftText(ms: number) {
+  const s = Math.max(0, Math.floor(ms / 1000)), d = Math.floor(s / 86400), pad = (n: number) => String(n).padStart(2, '0');
+  return `${d ? `${d} ngày ` : ''}${pad(Math.floor(s / 3600) % 24)}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`;
+}
 /** Nhãn gọn cho mốc trên thanh: 20k, 150k, 1tr, 1,5tr. */
 export const shortVnd = (v: number) => v >= 1_000_000 ? `${(v / 1_000_000).toLocaleString('vi-VN', { maximumFractionDigits: 2 })}tr` : v >= 1000 ? `${(v / 1000).toLocaleString('vi-VN', { maximumFractionDigits: 1 })}k` : `${v}`;
 /** Các mốc KM mà một đơn `vnd` sẽ giúp vượt qua (chưa nhận, tổng hiện tại chưa tới, tổng sau đơn đã tới). */
@@ -54,3 +63,4 @@ export function milestoneTrack(total: number, fcs: number[]) {
   }
   return { nodes: nodes.map((v, i) => ({ fc: v, pos: pos(i), reached: total >= v })), fill, next, need: next === null ? 0 : next - total };
 }
+

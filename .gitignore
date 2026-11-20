@@ -9,3 +9,4 @@ dist/
 /mothe.html
 .env.local
 .env.*.local
+dist-nap

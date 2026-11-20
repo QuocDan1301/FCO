@@ -2,10 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Copy, RotateCcw } from 'lucide-react';
 import { asset } from './asset';
 import { money } from './game';
-import { TOPUP_QR, TOPUP_ZALO } from './config';
+import { TOPUP_QR, TOPUP_VIETQR, TOPUP_ZALO } from './config';
+import VietQr from './VietQr';
+import { dynamicVietQr } from './vietqr-payload';
 import { cancelTopupOrder, claimTopupTier, createTopupOrder, fetchFcStats, fetchMyTopupOrders, fetchTopupConfig, fetchTopupTiersMe, markTopupPaid } from './wallet';
 import type { FcStats } from './wallet';
-import { isOpenOrder, milestoneTrack, parseVnd, shortVnd, tiersUnlockedBy, topupQuote, TOPUP_STATUS } from './topup-orders';
+import { isOpenOrder, leftText, milestoneTrack, parseVnd, shortVnd, tiersUnlockedBy, topupQuote, TOPUP_STATUS } from './topup-orders';
 import type { TopupConfig, TopupOrder, TopupTierState } from './topup-orders';
 
 // Trang nạp FC (nap.html; migration 202611200002_fco_topup_orders.sql + 202611200004_fco_topup_cumulative.sql):
@@ -24,9 +26,15 @@ function TierTrack({ data, onClaim, busy }: { data: TopupTierState; onClaim: (vn
   const track = milestoneTrack(data.totalVnd, data.tiers.map(t => t.vnd));
   const ready = data.tiers.filter(t => !t.claimed && data.totalVnd >= t.vnd).length;
   const [open, setOpen] = useState(ready > 0);
+  const [now, setNow] = useState(Date.now());
   useEffect(() => { if (ready > 0) setOpen(true); }, [ready]);
-  return <section className="tp-ms" aria-label="Khuyến mãi nạp tích luỹ">
-    <div className="tp-ms-head"><div><b>Khuyến mãi nạp tích luỹ</b><small>Đã nạp: <b>{vnd(data.totalVnd)}</b></small></div>
+  useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  const ev = data.event!, running = now < ev.endsAt;
+  return <section className="tp-ms" aria-label={ev.title}>
+    <div className="tp-ms-head"><div><b>{ev.title}</b>
+      <small className={running ? 'tp-ms-time' : 'tp-ms-time is-ended'}>{running ? <>Kết thúc sau <b>{leftText(ev.endsAt - now)}</b></> : <>Đã kết thúc · nhận quà trong <b>{leftText(ev.claimUntil - now)}</b></>}</small>
+      <small>Đã nạp trong sự kiện: <b>{vnd(data.totalVnd)}</b></small>
+      <small className="tp-ms-auto">Qua mốc nào, FC khuyến mãi tự cộng vào ví ngay khi đơn được duyệt.</small></div>
       <button type="button" className="tp-ms-link" aria-expanded={open} onClick={() => setOpen(!open)}>{open ? 'Thu gọn' : 'Chi tiết quyền lợi'}{ready > 0 && <i>{ready}</i>}</button></div>
     <div className="tp-ms-bar" role="progressbar" aria-valuemin={0} aria-valuemax={track.nodes[track.nodes.length - 1].fc} aria-valuenow={data.totalVnd}>
       <div className="tp-ms-rail"><span style={{ width: `${track.fill}%` }}/></div>
@@ -37,7 +45,7 @@ function TierTrack({ data, onClaim, busy }: { data: TopupTierState; onClaim: (vn
     {open && <ul className="tp-ms-list">{data.tiers.map(t => { const reached = data.totalVnd >= t.vnd;
       return <li key={t.vnd} className={t.claimed ? 'is-claimed' : reached ? 'is-ready' : undefined}>
         <span><b>Mốc {vnd(t.vnd)}</b><small>+{money(t.bonus)} FC khuyến mãi</small></span>
-        {t.claimed ? <em>Đã nhận</em> : reached ? <button type="button" className="primary-button" disabled={busy} onClick={() => onClaim(t.vnd)}>Nhận</button> : <em>Còn {vnd(t.vnd - data.totalVnd)}</em>}
+        {t.claimed ? <em className="tp-ms-done">Đã cộng ✓</em> : reached ? <button type="button" className="primary-button" disabled={busy} onClick={() => onClaim(t.vnd)}>Nhận</button> : <em>Còn {vnd(t.vnd - data.totalVnd)}</em>}
       </li>; })}</ul>}
   </section>;
 }
@@ -53,6 +61,8 @@ export default function TopUp({ online, onCredited, api = LIVE }: { online: bool
   const [orders, setOrders] = useState<TopupOrder[] | null>(null);
   const [stats, setStats] = useState<FcStats | null>(null);
   const [tiers, setTiers] = useState<TopupTierState | null>(null);
+  const tiersRef = useRef<TopupTierState | null>(null);
+  tiersRef.current = tiers;
   const [claimed, setClaimed] = useState('');
   const [amount, setAmount] = useState('');
   const [active, setActive] = useState<number | null>(null);
@@ -62,7 +72,14 @@ export default function TopUp({ online, onCredited, api = LIVE }: { online: bool
   const loadOrders = () => api.orders().then(list => {
     // Đơn vừa được duyệt từ lần tải trước: báo game tải lại ví FC.
     const done = new Set(list.filter(o => o.status === 'approved').map(o => o.id));
-    if (approved.current && [...done].some(id => !approved.current!.has(id))) { onCredited?.(); void api.stats().then(setStats).catch(() => {}); void api.tiers().then(setTiers).catch(() => {}); }
+    if (approved.current && [...done].some(id => !approved.current!.has(id))) {
+      onCredited?.(); void api.stats().then(setStats).catch(() => {});
+      void api.tiers().then(next => {
+        const fresh = next.tiers.filter(t => t.claimed && !tiersRef.current?.tiers.find(o => o.vnd === t.vnd)?.claimed);
+        if (fresh.length) setClaimed(`Đơn đã được duyệt · tự cộng ${money(fresh.reduce((n, t) => n + t.bonus, 0))} FC khuyến mãi (mốc ${fresh.map(t => shortVnd(t.vnd)).join(', ')}).`);
+        setTiers(next);
+      }).catch(() => {});
+    }
     approved.current = done; setOrders(list);
   });
   useEffect(() => {
@@ -86,12 +103,15 @@ export default function TopUp({ online, onCredited, api = LIVE }: { online: bool
     <div className={`tp-status is-${order.status}`}>{TOPUP_STATUS[order.status]}{order.status === 'rejected' && order.adminNote ? ` · ${order.adminNote}` : ''}</div>
     <p className="tp-order-fc"><b>{money(order.baseFc)} FC</b>{order.bonusFc > 0 && <span> + {money(order.bonusFc)} FC khuyến mãi</span>}</p>
     {isOpenOrder(order) && <>
-      <div className="topup-qr">{TOPUP_QR ? <img src={asset(TOPUP_QR)} alt="Mã QR chuyển khoản"/> : <span>Chưa có mã QR chuyển khoản. Hãy liên hệ admin.</span>}</div>
+      {/* QR động (VietQR): quét bằng app ngân hàng là tự điền đúng số tiền + mã đơn; chưa cấu hình TOPUP_VIETQR thì dùng ảnh QR tĩnh. */}
+      <div className="topup-qr">{TOPUP_VIETQR ? <VietQr payload={dynamicVietQr(TOPUP_VIETQR, order.vnd, order.code)} label={`Mã QR chuyển ${vnd(order.vnd)}, nội dung ${order.code}`}/>
+        : TOPUP_QR ? <img src={asset(TOPUP_QR)} alt="Mã QR chuyển khoản"/> : <span>Chưa có mã QR chuyển khoản. Hãy liên hệ admin.</span>}</div>
+      {TOPUP_VIETQR && <p className="tp-qr-note">Mở app ngân hàng → <b>Quét QR</b>: số tiền <b>{vnd(order.vnd)}</b> và nội dung <b>{order.code}</b> đã điền sẵn, chỉ cần xác nhận.</p>}
       <dl className="topup-info">
         <CopyField label="Số tiền" value={order.vnd.toLocaleString('vi-VN')}/>
         <CopyField label="Nội dung chuyển khoản" value={order.code}/>
       </dl>
-      <p className="topup-steps">Chuyển <b>đúng số tiền</b> và ghi <b>đúng mã {order.code}</b> vào nội dung để admin nhận ra đơn của bạn.</p>
+      <p className="topup-steps">{TOPUP_VIETQR ? 'Không quét được thì chuyển tay: ' : ''}Chuyển <b>đúng số tiền</b> và ghi <b>đúng mã {order.code}</b> vào nội dung để admin nhận ra đơn của bạn.</p>
       {order.status === 'pending'
         ? <button type="button" className="primary-button tp-main" disabled={busy} onClick={() => void run(async () => { await api.paid(order.id); await loadOrders(); })}>Tôi đã chuyển khoản</button>
         : <p className="tp-wait">Đã báo chuyển khoản lúc {time(order.paidAt ?? order.createdAt)}. FC sẽ tự vào ví khi admin duyệt.{TOPUP_ZALO && <> Cần gấp thì gửi bill qua <a href={TOPUP_ZALO} target="_blank" rel="noopener noreferrer">Zalo admin</a>.</>}</p>}
@@ -101,7 +121,8 @@ export default function TopUp({ online, onCredited, api = LIVE }: { online: bool
   </div>;
 
   return <div className="topup">
-    {tiers && tiers.tiers.length > 0 && <TierTrack data={tiers} busy={busy} onClaim={v => void run(async () => {
+    {/* Hết sự kiện thì ẩn thanh (KM đã tự cộng, 202611200006); chỉ hiện lại nếu còn mốc đã đạt mà chưa được cộng (dự phòng). */}
+    {tiers?.event && tiers.tiers.length > 0 && (Date.now() < tiers.event.endsAt || tiers.tiers.some(t => !t.claimed && tiers.totalVnd >= t.vnd)) && <TierTrack data={tiers} busy={busy} onClaim={v => void run(async () => {
       const t = tiers.tiers.find(x => x.vnd === v); await api.claim(v); onCredited?.();
       setTiers(await api.tiers());
       setClaimed(`Đã nhận ${money(t?.bonus ?? 0)} FC khuyến mãi mốc ${vnd(v)}.`);
@@ -109,7 +130,7 @@ export default function TopUp({ online, onCredited, api = LIVE }: { online: bool
     {claimed && <p className="tp-claimed" role="status">{claimed}</p>}
     {stats && <dl className="topup-summary"><div><dt>Đã nạp</dt><dd>{money(stats.topup)} <span>FC</span></dd></div><div><dt>Đã dùng</dt><dd>{money(stats.spent)} <span>FC</span></dd></div></dl>}
     {cfg && <>
-      <p className="topup-rate">Tỷ lệ: <b>{vnd(cfg.vndPer1000)} = 1.000 FC</b>{cfg.tiers.length > 0 && ' · tổng nạp qua mốc nào nhận FC khuyến mãi mốc đó'}</p>
+      <p className="topup-rate">Tỷ lệ: <b>{vnd(cfg.vndPer1000)} = 1.000 FC</b>{tiers?.event && Date.now() < tiers.event.endsAt && cfg.tiers.length > 0 && ' · đang có sự kiện nạp tích luỹ'}</p>
       {cfg.tiers.length > 0 && <div className="tp-tiers" role="group" aria-label="Mốc nạp">
         {[...cfg.tiers].sort((a, b) => a.vnd - b.vnd).map(t => {
           const q = topupQuote(t.vnd, cfg), on = value === t.vnd;
@@ -121,8 +142,8 @@ export default function TopUp({ online, onCredited, api = LIVE }: { online: bool
       <label className="tp-amount"><span>Số tiền muốn nạp</span><input value={amount} inputMode="numeric" placeholder={`từ ${vnd(cfg.minVnd)}`} onChange={e => setAmount(e.target.value.slice(0, 20))}/></label>
       {quote && amount.trim() && (quote.valid
         ? <p className="tp-quote"><span>Nhận <b>{money(quote.base)} FC</b></span>
-            {tiers && (() => { const opened = tiersUnlockedBy(tiers, value), bonus = opened.reduce((n, t) => n + t.bonus, 0);
-              return opened.length ? <small>Đơn này giúp bạn qua mốc {opened.map(t => shortVnd(t.vnd)).join(', ')}: nhận thêm <b className="tp-bonus">{money(bonus)} FC khuyến mãi</b> trên thanh tích luỹ sau khi admin duyệt.</small> : null; })()}</p>
+            {tiers?.event && Date.now() < tiers.event.endsAt && (() => { const opened = tiersUnlockedBy(tiers, value), bonus = opened.reduce((n, t) => n + t.bonus, 0);
+              return opened.length ? <small>Đơn này giúp bạn qua mốc {opened.map(t => shortVnd(t.vnd)).join(', ')}: nhận thêm <b className="tp-bonus">{money(bonus)} FC khuyến mãi</b>, tự cộng khi admin duyệt.</small> : null; })()}</p>
         : <p className="topup-summary-error">Số tiền từ {vnd(cfg.minVnd)} tới {vnd(cfg.maxVnd)}, chẵn nghìn.</p>)}
       <button type="button" className="primary-button tp-main" disabled={busy || !quote?.valid} onClick={() => void run(async () => { const o = await api.create(value); setAmount(''); await loadOrders(); setActive(o.id); })}>Tạo đơn nạp</button>
     </>}
