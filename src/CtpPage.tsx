@@ -24,7 +24,7 @@ import { CTP_LAYOUT } from './ctp-layout';
 import './ctp.css';
 
 // Sự kiện Cờ tỷ phú (2026-11-22, đang dựng). Màn đầu = bàn cờ, VỪA MỘT MÀN như ảnh mẫu người dùng gửi (mẫu hiện hàng 79–944 của nền
-// loop 1920 × 1080): --u = min(rộng / 1920, cao / 865); mỗi tầng là .ctp-canvas giữ đúng hệ toạ độ ảnh nền (1920 × u) căn giữa, phần dư hai
+// loop 1920 × 1080): --u = min(rộng / 1760, cao / 865) (bỏ 80 px đá mỗi mép); mỗi tầng là .ctp-canvas giữ đúng hệ toạ độ ảnh nền (1920 × u) căn giữa, phần dư hai
 // bên phủ bằng chính nền tầng đó làm mờ. Toạ độ / cỡ đo từ ảnh mẫu (src/ctp-layout.ts + ctp.css). Cuộn xuống: 3 tầng nền còn lại nối liền.
 // Cách chơi do máy chủ quyết (fco_ctp_play, 202611220001_fco_ctp.sql); trang chỉ diễn: xúc xắc, quân đi từng ô, sáng thẻ quà trúng.
 // Khi EVENT_CTP_ENABLED = false chỉ admin vào được (máy chủ cũng chỉ cho admin chơi khi fco_ctp_state.open = false).
@@ -301,7 +301,7 @@ function Board({ fc, effects, jackpot, ctp, token, rolled, spin, hit, kick, busy
           <i key={`${x}-${y}`} className="ctp-logo-star" aria-hidden="true" style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${d}s` }}/>)}</>}
     </span>
     {/* Tin trúng mới nhất từ bảng tin Jackpot chung: 1 Giải Đặc Biệt (Ultimate) + 1 Giải Phụ (Mini). */}
-    <div className="ctp-feed" style={px(78, 154)} aria-label="Người trúng giải mới nhất" aria-live="polite">
+    <div className="ctp-feed" style={px(110, 154)} aria-label="Người trúng giải mới nhất" aria-live="polite">
       {latest ? <p><GiftBox/><span>Chúc mừng HLV <b>{latest.mine ? 'Bạn' : latest.name}</b> đã trúng Ultimate Prize {money(latest.amount)} FC</span></p>
         : <p><GiftBox/><span>Ultimate Prize: chưa có HLV trúng.</span></p>}
       {mini ? <p><GiftBox/><span>Chúc mừng HLV <b>{mini.mine ? 'Bạn' : mini.name}</b> đã trúng Mini Prize {money(mini.amount)} FC</span></p>
@@ -322,7 +322,7 @@ function Board({ fc, effects, jackpot, ctp, token, rolled, spin, hit, kick, busy
           {kind === 'luck' && use.luck && <span className="ctp-ex">Bỏ: {use.luck.map(r => RAIL_NAMES[r]).join(', ')}</span>}
         </div>; })}</div>
     </section>
-    <section className="ctp-panel ctp-play" style={px(1255, 727)} aria-label="Chơi Cờ tỷ phú">
+    <section className="ctp-panel ctp-play" style={px(1235, 727)} aria-label="Chơi Cờ tỷ phú">
       <div className="ctp-balances"><span>FC có: {money(fc)} FC</span>
         <button type="button" className={`ctp-refresh ${refreshing ? 'is-spin' : ''}`} aria-label="Tải lại số FC" title="Tải lại số FC" onClick={onRefresh} disabled={refreshing || busy}><RefreshCw/></button></div>
       <div className="ctp-play-row">
@@ -595,7 +595,7 @@ export default function CtpPage({ preview = false, fc = 0, ctp = null, loadJackp
         <li><b>Ô bóng:</b> cầu thủ sút trúng ngẫu nhiên 1 phần quà trên kệ (quà càng giá trị càng khó trúng).</li>
         <li><b>Ô Special:</b> được đi tiếp ngay 1 bước, quà và điểm của bước đó nhân đôi.</li>
         <li><b>Ô Lucky:</b> 1 phần quà + lượt miễn phí: số lắc lớn hơn số may mắn đang hiện → {CTP_RULES.luckyMore} lượt, không thì {CTP_RULES.luckyLess} lượt; sau đó đổi số may mắn mới.</li>
-        <li><b>Ô Ultimate Prize:</b> cơ hội nhận cả quỹ FC đang hiện; <b>ô Mini Prize:</b> cơ hội nhận 10% quỹ (trừ vào quỹ). Quỹ từ {money(CTP_RULES.jackpotMin)} FC mới nổ được; mỗi HLV trúng mỗi giải tối đa {CTP_RULES.winsPerDay} lần / 24 giờ. Không trúng thì nhận 1 quà sút như ô bóng.</li>
+        <li><b>Ô Ultimate Prize:</b> cơ hội nhận cả quỹ FC đang hiện; <b>ô Mini Prize:</b> cơ hội nhận 10% quỹ (trừ vào quỹ). Quỹ từ {money(CTP_RULES.jackpotMin)} FC mới nổ được; mỗi HLV trúng mỗi giải tối đa {CTP_RULES.winsPerDay} lần / 24 giờ. Quân cờ chỉ dừng ở 2 ô này khi trúng giải.</li>
         <li>Mỗi lượt chơi góp {CTP_RULES.potPerPlay} FC vào quỹ Ultimate Prize.</li>
         <li>Lượt miễn phí: ô Lucky, và nhiệm vụ ngày (thắng 1 trận GLXH sau khi bấm Nhận nhiệm vụ).</li>
       </ul>

@@ -2,7 +2,9 @@
 .main-content>.workspace.ctp-page{position:relative;display:block;width:100%;max-width:none;height:100%;min-height:0;margin:0;padding:0;
   overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-width:thin;container-type:size;background:#2b2118}
 /* --u = 1 px ảnh nền, dùng CHUNG cho mọi tầng: bàn cờ vừa một màn (rộng 1920, cao 865 = hàng 79–944 như ảnh mẫu). */
-.ctp-page{--u:min(calc(100cqw / 1920),calc(100cqh / 865))}
+/* Bề ngang co theo 1760 (bỏ 80 px đá trang trí mỗi mép ảnh nền 1920, không có nội dung) → mọi thứ to hơn ~9 % (người dùng 2026-11-22: "giao diện hơi nhỏ").
+   Các cột nền vẫn rộng 1920 × u căn giữa, phần thừa hai mép bị cắt; bảng quà / khung trong các tầng dưới co theo bề ngang màn nên không bị cắt. */
+.ctp-page{--u:min(calc(100cqw / 1760),calc(100cqh / 865))}
 .ctp-preview{position:sticky;top:0;z-index:30;width:max-content;margin:0 auto -24px;padding:4px 12px;border-radius:0 0 8px 8px;background:#1d1610e6;color:#ffd76a;font-size:12px;font-weight:700;pointer-events:none}
 /* Mỗi tầng: cao = số hàng hiện × u; ảnh nền đặt trong .ctp-canvas rộng 1920 × u căn giữa, bỏ --skip hàng trên (bàn cờ bỏ 79). */
 .ctp-row{position:relative;height:calc(var(--u) * var(--rows));overflow:hidden}
@@ -12,7 +14,7 @@
   -webkit-mask-image:linear-gradient(90deg,#0000,#000 2.5%,#000 97.5%,#0000);mask-image:linear-gradient(90deg,#0000,#000 2.5%,#000 97.5%,#0000)}
 .ctp-canvas>*:not(.ctp-bg){position:absolute}
 /* Khi màn đủ rộng (không dư hai bên) thì bỏ viền mờ để nền liền mép. */
-@container (max-aspect-ratio: 1920 / 865){.ctp-canvas>img.ctp-bg{-webkit-mask-image:none;mask-image:none}}
+@container (max-aspect-ratio: 1760 / 865){.ctp-canvas>img.ctp-bg{-webkit-mask-image:none;mask-image:none}}
 
 /* ===== Bàn cờ: toạ độ = % trên nền 1920 × 1080, cỡ đo từ ảnh mẫu (px nền × --u). ===== */
 .ctp-frame{height:auto;user-select:none;pointer-events:none}
@@ -205,12 +207,12 @@
 .ctp-players>.ctp-fill{-webkit-mask-image:linear-gradient(180deg,#0000,#000 calc(var(--u) * 160));mask-image:linear-gradient(180deg,#0000,#000 calc(var(--u) * 160))}
 .ctp-players .ctp-canvas>img.ctp-bg:not(.ctp-bg-ext){-webkit-mask-image:linear-gradient(90deg,#0000,#000 2.5%,#000 97.5%,#0000),linear-gradient(180deg,#0000,#000 calc(var(--u) * 160));
   -webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,#0000,#000 2.5%,#000 97.5%,#0000),linear-gradient(180deg,#0000,#000 calc(var(--u) * 160));mask-composite:intersect}
-@container (max-aspect-ratio: 1920 / 865){.ctp-players .ctp-canvas>img.ctp-bg:not(.ctp-bg-ext){-webkit-mask-image:linear-gradient(180deg,#0000,#000 calc(var(--u) * 160));
+@container (max-aspect-ratio: 1760 / 865){.ctp-players .ctp-canvas>img.ctp-bg:not(.ctp-bg-ext){-webkit-mask-image:linear-gradient(180deg,#0000,#000 calc(var(--u) * 160));
   mask-image:linear-gradient(180deg,#0000,#000 calc(var(--u) * 160))}}
 .ctp-flow-col{position:absolute;top:0;bottom:0;left:50%;width:calc(var(--u) * 1920);margin-left:calc(var(--u) * -960);overflow:hidden;
   -webkit-mask-image:linear-gradient(90deg,#0000,#000 2.5%,#000 97.5%,#0000);mask-image:linear-gradient(90deg,#0000,#000 2.5%,#000 97.5%,#0000)}
 .ctp-flow-col>img{display:block;width:100%;height:auto;user-select:none;pointer-events:none}
-@container (max-aspect-ratio: 1920 / 865){.ctp-flow-col{-webkit-mask-image:none;mask-image:none}}
+@container (max-aspect-ratio: 1760 / 865){.ctp-flow-col{-webkit-mask-image:none;mask-image:none}}
 .ctp-flow>.vq-shop,.ctp-flow>.ctp-shop-empty{position:relative;z-index:1}
 /* Khung Shop Đổi Vé của VQTG (.vq-shop) mang sẵn 2 ảnh nền VQTG → bỏ, để lộ nền Cờ tỷ phú phía sau. */
 .ctp-flow .vq-shop{padding-top:calc(var(--u) * 340);padding-bottom:calc(var(--u) * 200);background:none}
