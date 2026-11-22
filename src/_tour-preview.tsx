@@ -1,0 +1,84 @@
+// TRANG XEM THỬ TẠM (không commit, xoá sau khi chụp): App thật với bản lưu giả, không đăng nhập. ?ctp=1 → trang Cờ tỷ phú với dữ liệu giả.
+import './styles.css';
+import './prime-cards.css';
+import './vietnam-cards.css';
+import './prm-cards.css';
+import './mdl-cards.css';
+import './amb-cards.css';
+import './uc-cards.css';
+import './wg-cards.css';
+import './ut-cards.css';
+import './cu-cards.css';
+import './gru-cards.css';
+import './rtn-cards.css';
+import './dc-cards.css';
+import './cc-cards.css';
+import './bld-cards.css';
+import './wb-cards.css';
+import './spt-cards.css';
+import './bdo-cards.css';
+import './hw23-cards.css';
+import './ep24-cards.css';
+import './ptg-cards.css';
+import './le-cards.css';
+import './hg-cards.css';
+import './spl-cards.css';
+import './ln-cards.css';
+import './fa-cards.css';
+import './lol-cards.css';
+import './cap-cards.css';
+import './boe21-cards.css';
+import './btb-cards.css';
+import './ebs-cards.css';
+import './juventus-cards.css';
+import './jnm-cards.css';
+import './hr25-cards.css';
+import './up26-cards.css';
+import './live-cards.css';
+import './hr24-cards.css';
+import './chelsea-cards.css';
+import './hr26-cards.css';
+import './ld-cards.css';
+import './ws-cards.css';
+import './el-cards.css';
+import './tsubasa-cards.css';
+import './tsubasa-fx.css';
+import './ch-cards.css';
+import './card-names.css';
+import './market.css';
+import './inventory.css';
+import './itm-sheen.css';
+import './mobile.css';
+import './fixed-screen.css';
+import './phone.css';
+import './home.css';
+import './badges.css';
+import './market-fco.css';
+import './tickbox.css';
+import './responsive.css';
+import './landscape.css';
+import './screen-lock.css';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import CtpPage from './CtpPage';
+import { defaultPacks, initialSave, makeCard, packs, players } from './game';
+
+const KEY = 'fco-ui-preview';
+const ids = [...players].sort((a, b) => b.ovr - a.ovr).filter((_, i) => i % 7 === 0).slice(0, 60).map(p => p.id);
+const el = players.filter(p => p.tier === 'el').slice(0, 4).map((p, i) => ({ ...makeCard(p.id), level: 3 + i, serial: [1, 7, 23, 104][i] }));
+const save = { ...initialSave(), balance: 1_250_000_000, fc: 12_500, stp: 45, cards: [...el, ...ids.map((id, i) => ({ ...makeCard(id), level: 1 + (i % 9) }))],
+  unopened: Object.fromEntries([...defaultPacks, ...packs].slice(0, 12).map(p => [p.id, 3])), taxVouchers: { 30: 1, 10: 2 } };
+const store: Record<string, string> = { [KEY]: JSON.stringify(save) };
+const storage = { getItem: (k: string) => store[k] ?? null, setItem: (k: string, v: string) => { store[k] = v; } };
+const milestones = [{"idx": 0, "points": 1, "options": [[{"pack": "ctpm-1-1", "count": 1}, {"voucher": 30, "count": 1}]], "once": true, "paidOnly": true, "special": false}, {"idx": 1, "points": 15, "options": [[{"pack": "ctpm-15-1", "count": 1}, {"bp": 1000000}], [{"pack": "ctpm-15-2", "count": 1}, {"bp": 1000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 2, "points": 25, "options": [[{"pack": "ctpm-25-1", "count": 1}, {"bp": 2000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 3, "points": 50, "options": [[{"pack": "ctpm-50-1", "count": 1}, {"bp": 3000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 4, "points": 70, "options": [[{"pack": "ctpm-70-1", "count": 1}, {"bp": 4000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 5, "points": 100, "options": [[{"pack": "ctpm-100-1", "count": 1}, {"bp": 5000000}], [{"pack": "ctpm-100-2", "count": 1}, {"bp": 5000000}], [{"pack": "ctpm-100-3", "count": 1}, {"bp": 5000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 6, "points": 150, "options": [[{"pack": "ctpm-150-1", "count": 1}, {"bp": 7000000}], [{"pack": "ctpm-150-2", "count": 1}, {"bp": 7000000}], [{"pack": "ctpm-150-3", "count": 1}, {"bp": 7000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 7, "points": 200, "options": [[{"pack": "ctpm-200-1", "count": 1}, {"ctpCard": "chance", "count": 1}, {"voucher": 30, "count": 1}, {"bp": 10000000}], [{"pack": "ctpm-200-2", "count": 1}, {"ctpCard": "chance", "count": 1}, {"voucher": 30, "count": 1}, {"bp": 10000000}], [{"pack": "ctpm-200-3", "count": 1}, {"ctpCard": "chance", "count": 1}, {"voucher": 30, "count": 1}, {"bp": 10000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 8, "points": 250, "options": [[{"pack": "ctpm-250-1", "count": 1}, {"bp": 12000000}], [{"pack": "ctpm-250-2", "count": 1}, {"bp": 12000000}], [{"pack": "ctpm-250-3", "count": 1}, {"bp": 12000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 9, "points": 350, "options": [[{"pack": "ctpm-350-1", "count": 1}, {"bp": 15000000}], [{"pack": "ctpm-350-2", "count": 1}, {"bp": 15000000}], [{"pack": "ctpm-350-3", "count": 1}, {"bp": 15000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 10, "points": 450, "options": [[{"pack": "ctpm-450-1", "count": 1}, {"ctpCard": "luck", "count": 1}, {"voucher": 30, "count": 1}, {"bp": 20000000}], [{"pack": "ctpm-450-2", "count": 1}, {"ctpCard": "luck", "count": 1}, {"voucher": 30, "count": 1}, {"bp": 20000000}], [{"pack": "ctpm-450-3", "count": 1}, {"ctpCard": "luck", "count": 1}, {"voucher": 30, "count": 1}, {"bp": 20000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 11, "points": 550, "options": [[{"pack": "ctpm-550-1", "count": 1}, {"bp": 25000000}], [{"pack": "ctpm-550-2", "count": 1}, {"bp": 25000000}], [{"pack": "ctpm-550-3", "count": 1}, {"bp": 25000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 12, "points": 650, "options": [[{"pack": "ctpm-650-1", "count": 1}, {"bp": 30000000}], [{"pack": "ctpm-650-2", "count": 1}, {"bp": 30000000}], [{"pack": "ctpm-650-3", "count": 1}, {"bp": 30000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 13, "points": 800, "options": [[{"pack": "ctpm-800-1", "count": 1}, {"bp": 40000000}], [{"pack": "ctpm-800-2", "count": 1}, {"bp": 40000000}], [{"pack": "ctpm-800-3", "count": 1}, {"bp": 40000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 14, "points": 900, "options": [[{"pack": "ctpm-900-1", "count": 1}, {"bp": 50000000}], [{"pack": "ctpm-900-2", "count": 1}, {"bp": 50000000}], [{"pack": "ctpm-900-3", "count": 1}, {"bp": 50000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 15, "points": 1000, "options": [[{"pack": "ctpm-1000-1", "count": 1}, {"bp": 60000000}], [{"pack": "ctpm-1000-2", "count": 1}, {"bp": 60000000}], [{"pack": "ctpm-1000-3", "count": 1}, {"bp": 60000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 16, "points": 1100, "options": [[{"pack": "ctpm-1100-1", "count": 1}, {"bp": 70000000}], [{"pack": "ctpm-1100-2", "count": 1}, {"bp": 70000000}], [{"pack": "ctpm-1100-3", "count": 1}, {"bp": 70000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 17, "points": 1200, "options": [[{"pack": "ctpm-1200-1", "count": 1}, {"bp": 80000000}], [{"pack": "ctpm-1200-2", "count": 1}, {"bp": 80000000}], [{"pack": "ctpm-1200-3", "count": 1}, {"bp": 80000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 18, "points": 1300, "options": [[{"pack": "ctpm-1300-1", "count": 1}, {"bp": 90000000}], [{"pack": "ctpm-1300-2", "count": 1}, {"bp": 90000000}], [{"pack": "ctpm-1300-3", "count": 1}, {"bp": 90000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 19, "points": 1400, "options": [[{"pack": "ctpm-1400-1", "count": 1}, {"bp": 110000000}], [{"pack": "ctpm-1400-2", "count": 1}, {"bp": 110000000}], [{"pack": "ctpm-1400-3", "count": 1}, {"bp": 110000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 20, "points": 1500, "options": [[{"pack": "ctpm-1500-1", "count": 1}, {"bp": 130000000}], [{"pack": "ctpm-1500-2", "count": 1}, {"bp": 130000000}], [{"pack": "ctpm-1500-3", "count": 1}, {"bp": 130000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 21, "points": 1600, "options": [[{"pack": "ctpm-1600-1", "count": 1}, {"bp": 140000000}], [{"pack": "ctpm-1600-2", "count": 1}, {"bp": 140000000}], [{"pack": "ctpm-1600-3", "count": 1}, {"bp": 140000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 22, "points": 1700, "options": [[{"pack": "ctpm-1700-1", "count": 1}, {"bp": 160000000}], [{"pack": "ctpm-1700-2", "count": 1}, {"bp": 160000000}], [{"pack": "ctpm-1700-3", "count": 1}, {"bp": 160000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 23, "points": 1800, "options": [[{"pack": "ctpm-1800-1", "count": 1}, {"voucher": 30, "count": 1}, {"bp": 180000000}], [{"pack": "ctpm-1800-2", "count": 1}, {"voucher": 30, "count": 1}, {"bp": 180000000}], [{"pack": "ctpm-1800-3", "count": 1}, {"voucher": 30, "count": 1}, {"bp": 180000000}]], "once": false, "paidOnly": false, "special": false}, {"idx": 24, "points": 9000, "options": [[{"pack": "ctpm-9000", "count": 1}, {"voucher": 35, "count": 1}, {"bp": 200000000}]], "once": true, "paidOnly": false, "special": true}, {"idx": 25, "points": 12600, "options": [[{"pack": "ctpm-12600-1", "count": 1}, {"voucher": 35, "count": 1}, {"bp": 220000000}]], "once": true, "paidOnly": false, "special": true}, {"idx": 26, "points": 12600, "options": [[{"ctpBadge": 1}, {"voucher": 40, "count": 1}, {"bp": 230000000}]], "once": true, "paidOnly": false, "special": true}, {"idx": 27, "points": 18000, "options": [[{"pack": "ctpm-18000", "count": 1}, {"voucher": 40, "count": 1}, {"bp": 250000000}]], "once": true, "paidOnly": false, "special": true}, {"idx": 28, "points": 27000, "options": [[{"pack": "ctpm-27000", "count": 1}, {"voucher": 40, "count": 1}, {"bp": 260000000}]], "once": true, "paidOnly": false, "special": true}, {"idx": 29, "points": 32400, "options": [[{"pack": "ctpm-32400-1", "count": 1}, {"voucher": 40, "count": 1}, {"bp": 280000000}]], "once": true, "paidOnly": false, "special": true}, {"idx": 30, "points": 32400, "options": [[{"pack": "ctpm-32400-2", "count": 1}, {"voucher": 40, "count": 1}, {"bp": 280000000}]], "once": true, "paidOnly": false, "special": true}, {"idx": 31, "points": 36000, "options": [[{"pack": "ctpm-36000", "count": 1}, {"voucher": 40, "count": 1}, {"bp": 300000000}]], "once": true, "paidOnly": false, "special": true}, {"idx": 32, "points": 45000, "options": [[{"pack": "ctpm-45000", "count": 1}, {"voucher": 40, "count": 1}, {"bp": 310000000}]], "once": true, "paidOnly": false, "special": true}, {"idx": 33, "points": 54000, "options": [[{"pack": "ctpm-54000-1", "count": 1}, {"voucher": 40, "count": 1}, {"bp": 320000000}]], "once": true, "paidOnly": false, "special": true}, {"idx": 34, "points": 54000, "options": [[{"pack": "ctpm-54000-2", "count": 1}, {"voucher": 40, "count": 1}, {"bp": 320000000}]], "once": true, "paidOnly": false, "special": true}, {"idx": 35, "points": 63000, "options": [[{"pack": "ctpm-63000", "count": 1}, {"voucher": 40, "count": 1}, {"bp": 350000000}]], "once": true, "paidOnly": false, "special": true}];
+const now = Date.now(), H = 3600_000;
+const names = ['QuocDan', 'Bé Na', 'HLV Tèo', 'Siêu Sao 99', 'Ronaldo Fan', 'Tí Đẹp Trai', 'Messi VN', 'Kaka', 'Chí Phèo', 'Gà Con'];
+const top = (pts: number) => names.map((name, i) => ({ rank: i + 1, name, points: Math.round(pts / (1 + i * .35)), mine: i === 3 }));
+const ctp = { pos: 5, points: 1240, free: 3, lucky: 2, firstDone: true, mission: 'accepted' as const, claimed: [0, 1, 2], paid: true, cards: { chance: 2, luck: 1 }, badges: 1, pending: false, draftOpened: 0 };
+const jackpot = { pot: 1_830_000, feed: [{ name: 'Bé Na', amount: 520_000, kind: 'mini' as const, time: now - 4e5, mine: false }, { name: 'HLV Tèo', amount: 2_400_000, kind: 'special' as const, time: now - 9e6, mine: false }] };
+const Ctp = () => <div className="app min-h-screen antialiased" style={{ position: 'fixed', inset: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}><main className="main-content view-ctp" style={{ flex: 1, minHeight: 0 }}><CtpPage fc={12_500} ctp={ctp} loadJackpot={async () => jackpot} loadConfig={async () => ({ open: true, round: 1800, milestones })}
+  loadTop={async () => ({ rounds: [{ round: 1, startsAt: now - 30 * H, endsAt: now + 90 * H, ended: false, top: top(18400), me: { points: 7300, rank: 4 }, rewards: null },
+    { round: 2, startsAt: now + 100 * H, endsAt: now + 170 * H, ended: false, top: [], me: { points: 0, rank: null }, rewards: null }] })}
+  onPlay={async () => null} onMission={async () => {}} onRefresh={async () => {}} onClaim={async () => {}} loadPending={async () => null} onPick={async () => {}} onDraft={async () => { throw new Error('xem thử'); }}
+  renderCard={() => null}/></main></div>;
+createRoot(document.getElementById('root')!).render(new URLSearchParams(location.search).has('ctp') ? <Ctp/> : <App storage={storage} storageKey={KEY} accountName="Admin"/>);

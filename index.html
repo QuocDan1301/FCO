@@ -17,7 +17,7 @@
         var touch = matchMedia("(pointer: coarse)").matches || matchMedia("(any-pointer: coarse)").matches || (navigator.maxTouchPoints || 0) > 0;
         if (!touch) return;
         var meta = document.querySelector('meta[name="viewport"]'), last = "";
-        function fit() {
+        function fit(recheck) {
           // Bàn phím mở làm màn thấp đi: giữ nguyên, nếu không giao diện sẽ thu nhỏ thêm lúc đang gõ.
           var active = document.activeElement && document.activeElement.tagName;
           if (last && (active === "INPUT" || active === "TEXTAREA")) return;
@@ -43,7 +43,17 @@
           // tai thỏ trên màn → CSS nhân thêm --fit-inv để chừa đủ (người dùng 2026-11-17: kiểm tra giao diện mọi iPhone, dock đè vạch Home).
           var rootEl = document.documentElement;
           if (rootEl && rootEl.style) rootEl.style.setProperty("--fit-inv", (1 / (scale || 1)).toFixed(4));
-          if (content !== last) { last = content; meta.setAttribute("content", content); }
+          if (content !== last) {
+            last = content; meta.setAttribute("content", content);
+            // Ngay sau khi đổi thẻ viewport, trình duyệt có lúc đã đổi visualViewport.scale nhưng chưa đổi width → lần đo đó ra tỉ lệ
+            // quá nhỏ (vd 0,18 thay vì 0,43: cả trang thu còn nửa màn) và kẹt luôn vì không còn sự kiện resize nào
+            // (kiểm tra giao diện Android 2026-11-22). Đo lại khi số đã ổn định; khung đúng rồi thì lần đo lại không đổi gì.
+            // Lần đo lại không hẹn thêm lần nào (tránh vòng lặp ở trình duyệt bỏ qua thẻ viewport).
+            if (recheck !== 1) {
+              clearTimeout(fit.t1); clearTimeout(fit.t2);
+              fit.t1 = setTimeout(function () { fit(1); }, 250); fit.t2 = setTimeout(function () { fit(1); }, 1000);
+            }
+          }
         }
         fit();
         window.addEventListener("resize", fit);

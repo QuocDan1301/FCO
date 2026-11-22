@@ -64,3 +64,25 @@ test('Bàn phím mở khi đang gõ không làm giao diện thu nhỏ thêm', ()
   page.listeners.resize();
   assert.equal(page.content, before);
 });
+
+test('Đo nhầm lúc trình duyệt vừa đổi tỉ lệ nhưng chưa đổi bề ngang: tự đo lại và về đúng khung', async () => {
+  // Android 915×356 pt (kiểm tra giao diện 2026-11-22): sự kiện resize ngay sau khi đổi thẻ viewport thấy scale mới nhưng width cũ.
+  let content = initial;
+  const listeners: Record<string, () => void> = {};
+  const vv = { width: 915, height: 356, scale: 1, addEventListener: (type: string, fn: () => void) => { listeners['vv-' + type] = fn; } };
+  const win: Record<string, unknown> = { innerWidth: 915, innerHeight: 356, visualViewport: vv, addEventListener: (type: string, fn: () => void) => { listeners[type] = fn; } };
+  const doc = { documentElement: { style: { setProperty: () => {} } }, activeElement: { tagName: 'BODY' }, querySelector: () => ({ setAttribute: (_: string, value: string) => { content = value; } }) };
+  new Function('window', 'document', 'screen', 'matchMedia', script)(win, doc, { width: 915, height: 412 }, () => ({ matches: true }));
+  const good = content;
+  assert.match(good, /width=2130, initial-scale=0\.4295/);
+  // Trình duyệt mới đổi scale, width chưa đổi → lần đo này ra tỉ lệ quá nhỏ.
+  vv.scale = 0.4295;
+  listeners['vv-resize']();
+  const bad = Number(/initial-scale=([\d.]+)/.exec(content)?.[1]);
+  assert.ok(bad < 0.3, `tình huống lỗi phải tái hiện được (scale ${bad})`);
+  // Trình duyệt áp khung sai đó: bề ngang trang = 915 / scale.
+  vv.scale = bad; vv.width = 915 / bad; vv.height = 356 / bad;
+  await new Promise(r => setTimeout(r, 1300));
+  assert.equal(content, good, 'đo lại sau 250 ms / 1 s phải về khung đúng');
+});
+
