@@ -57,7 +57,8 @@ export const TIERS: readonly Tier[] = ['origin', 'stellar', 'eternal', 'prime', 
 export type Player = { id: number; name: string; ovr: number; pos: string; nation: string; flag: string; club: string; tier: Tier; image?: string; value?: number; wage?: number; cardFace?: string; teamLogo?: string };
 // fromMarket: thẻ mua từ chợ (giữ nguyên khi nâng cấp). Hiện chỉ để đánh dấu, không ảnh hưởng thuế bán.
 // gold: CSA vàng thêm người chơi chọn (ô "7" / "11" → mã CSA, src/gold-traits.ts); máy chủ giữ khi kho thẻ do máy chủ quản lý.
-export type Card = { uid: string; playerId: number; level: number; received: number; fromMarket?: boolean; gold?: Partial<Record<'7' | '11', string>> };
+// serial: số thứ tự sở hữu thẻ mùa EL (riêng từng cầu thủ, máy chủ cấp — 202611220010_fco_el_serial.sql), hiện "#n" giữa mép trên thẻ.
+export type Card = { uid: string; playerId: number; level: number; received: number; fromMarket?: boolean; gold?: Partial<Record<'7' | '11', string>>; serial?: number };
 export type Entry = { id: string; time: number; type: 'pack' | 'upgrade' | 'gift' | 'market' | 'shop' | 'event'; title: string; detail: string; success?: boolean };
 // Tiến trình sự kiện Nâng Cấp Siêu Sao (src/event.ts): điểm tích lũy, tổng lượt đã chơi, số lần đã nhận từng mốc quà,
 // lượt miễn phí còn lại; day = ngày của missions (nhiệm vụ đã nhận thưởng) và paid (lượt trả FC trong ngày).

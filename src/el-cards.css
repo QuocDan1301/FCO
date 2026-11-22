@@ -25,3 +25,10 @@
 .reveal-el .reveal-podium{background:linear-gradient(180deg,#3a2f1e,#16110a);border-top-color:#e8cf8a}
 .reveal-el .reveal-podium span{color:#ffffff}
 .face-4086 .face-art-name>b::before{background-image:url(/assets/el-label-dark.webp)}
+
+/* Số thứ tự sở hữu (card.serial): nhãn "#n" giữa mép trên thẻ EL; cỡ theo bề ngang thẻ (container query) nên đúng ở mọi kích thước thẻ. */
+.player-card.face-art.season-el{container-type:inline-size}
+.player-card.season-el .card-serial{position:absolute;left:50%;top:2.2%;z-index:4;transform:translateX(-50%);padding:.15em .55em;border-radius:999px;
+  background:linear-gradient(180deg,#2a2112,#120d06);box-shadow:0 0 0 1px #e9c98d,0 1px 3px #000a;color:#ffe9b0;font-weight:900;font-size:6.2cqi;line-height:1.1;
+  letter-spacing:.02em;white-space:nowrap;pointer-events:auto}
+
