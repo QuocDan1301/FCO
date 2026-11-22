@@ -164,6 +164,10 @@
 .pa-badge.is-admin{background:#d9b25a22;color:#f1cf7f}
 .pa-badge.is-locked{background:#e6394622;color:#ff9aa2}
 .pa-badge.is-paused{background:#ffb35c22;color:#ffcf94}
+/* Acc phụ (migration 202611220017). */
+.pa-badge.is-sub{background:#8f7bff2b;color:#c9bfff}
+.pa-sub-create{display:grid;gap:8px;margin:4px 0 10px;justify-items:start}
+.pa-sub-create>form{width:100%}
 .pa-accounts .pa-account-pick{width:30px;padding-right:0}
 .pa-account-bulk{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 12px;border:1px solid #d9b25a55;border-radius:8px;background:#d9b25a12;font-size:13px}
 .pa-account-bulk .secondary-button{display:inline-flex;align-items:center;gap:6px;min-height:0;padding:5px 10px;font-size:12px}

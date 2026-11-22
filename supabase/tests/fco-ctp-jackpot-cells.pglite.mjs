@@ -52,4 +52,13 @@ console.log('loại ô:', JSON.stringify(kinds));
 // Quỹ nhỏ (< 10.000): không bao giờ dừng ô Jackpot.
 const small = (await db.query(`select public.fco_ctp_sim(3000, 1, 3, 100::bigint, null::timestamptz, null::timestamptz, null::timestamptz, null::timestamptz, null::text[]) as r`)).rows[0].r.plays;
 ok(small.every(p => p.to !== 7 && p.to !== 21), 'quỹ chưa đủ 10.000 thì không dừng ô Jackpot');
+// Ô Lucky (202611220016_fco_ctp_lucky_rule.sql): số đổ ≥ Số may mắn → 2 lượt, nhỏ hơn → 1; Số may mắn lần sau = số vừa đổ; bắt đầu là 1.
+{
+  const r = (await db.query(`select public.fco_ctp_sim(3000, 1, 1, 100::bigint, null::timestamptz, null::timestamptz, null::timestamptz, null::timestamptz, null::text[]) as r`)).rows[0].r;
+  const lp = r.plays.filter(p => p.kind === 'lucky');
+  let expect = 1, okAll = lp.length > 50;
+  for (const p of lp) { if (p.lucky !== expect || p.free !== (p.roll >= p.lucky ? 2 : 1)) okAll = false; expect = p.roll; }
+  ok(okAll && r.lucky === lp.at(-1).roll, `ô Lucky đúng luật ở ${lp.length} lần (lần đầu Số may mắn = 1, ≥ → 2 lượt, Số may mắn = số vừa đổ)`);
+  ok(lp.some(p => p.free === 2 && p.roll === p.lucky), 'số đổ BẰNG Số may mắn được 2 lượt');
+}
 console.log(fails ? `${fails} lỗi` : 'TẤT CẢ ĐẠT'); process.exit(fails ? 1 : 0);

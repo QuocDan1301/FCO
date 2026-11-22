@@ -40,6 +40,8 @@ export const CTP_LAYERS = [
   { id: 'players', file: 'bg-4.webp', h: 1242, skip: 0, extra: 460 },
 ] as const;
 const A = (file: string) => `${import.meta.env.BASE_URL}assets/ctp/${file}`;
+// Số lượt miễn phí tối đa mỗi lần bấm "Chơi hết" (máy chủ fco_ctp_play nhận 1–100 lượt miễn phí).
+const CTP_FREE_BATCH = 100;
 const TILE = { normal: 'block.webp', mini: 'tile-mini.webp', special: 'tile-special.webp', ultimate: 'tile-ultimate.webp', lucky: 'tile-lucky.webp' } as const;
 const NAME = { normal: '', mini: 'Mini Prize', special: 'Special', ultimate: 'Ultimate Prize', lucky: 'Lucky' } as const;
 // Toạ độ px của ảnh nền 1920 × 1080 → % trong khung.
@@ -282,7 +284,19 @@ function Board({ fc, effects, jackpot, ctp, token, rolled, spin, hit, kick, busy
     {/* Như Bi Lắc: Ultimate Prize = Giải Đặc Biệt (cả quỹ Jackpot FC chung), Mini Prize = Giải Phụ (1/10 quỹ, FC). */}
     <span className="ctp-jackpot is-mini" style={px(590, 509)} title="Mini Prize · 1/10 quỹ Jackpot FC"><RollingNumber value={miniPrize({ pot })}/> FC</span>
     <span className="ctp-jackpot" style={px(1320, 506)} title="Ultimate Prize · Giải Đặc Biệt (quỹ FC chung)"><RollingNumber value={pot}/> FC</span>
-    <span className="ctp-lucky" style={px(955, 729)} title="Dừng ô Lucky với số lắc lớn hơn số này: +2 lượt miễn phí, không thì +1">Số may mắn: {ctp?.lucky ?? '—'}</span>
+    {/* Luật ô Lucky (202611220016_fco_ctp_lucky_rule.sql): rê chuột / chạm / Tab vào "Số may mắn" hiện khung giải thích. */}
+    <span className="ctp-lucky" style={px(955, 729)} tabIndex={0} aria-describedby="ctp-lucky-tip">Số may mắn: {ctp?.lucky ?? '—'}
+      <span className="ctp-lucky-tip" role="tooltip" id="ctp-lucky-tip">
+        <b>Ô Lucky</b>
+        <span>Vào ô này bạn nhận 1 phần quà ngẫu nhiên như các ô khác, kèm thêm lượt chơi miễn phí:</span>
+        <ul>
+          <li>Số vừa đổ vào ô <b>≥</b> Số may mắn → <b>+{CTP_RULES.luckyMore}</b> lượt miễn phí.</li>
+          <li>Số vừa đổ vào ô <b>&lt;</b> Số may mắn → <b>+{CTP_RULES.luckyLess}</b> lượt miễn phí.</li>
+          <li>Lần đầu tiên trong sự kiện, Số may mắn luôn là 1.</li>
+          <li>Từ lần sau, Số may mắn là số bạn đã đổ vào ô Lucky lần trước.</li>
+        </ul>
+      </span>
+    </span>
     {/* Xúc xắc trống (ảnh người dùng gửi) + số vẽ trên mặt trước như xúc xắc cũ; lắc: quay nhiều vòng rồi số mới hiện lên. */}
     <span className={`ctp-dice ${effects && spin === 'idle' ? 'is-float' : ''} ${spin === 'wait' ? 'is-spin' : spin === 'settle' ? 'is-settle' : ''}`} style={px(962, 520)}
       role="img" aria-label={spin === 'idle' ? `Xúc xắc: ${rolled ?? 6}` : 'Xúc xắc đang quay'}>
@@ -329,7 +343,11 @@ function Board({ fc, effects, jackpot, ctp, token, rolled, spin, hit, kick, busy
         <button type="button" className="ctp-mission" onClick={onMission} disabled={!ctp}>Nhiệm vụ{missionDot && <i className="ctp-dot" aria-label="Có lượt miễn phí chờ nhận"/>}</button>
         <button type="button" className="ctp-rules" onClick={onRules}><BookOpen aria-hidden="true"/>Luật chơi</button>
       </div>
-      <p className="ctp-free">Số lượt chơi miễn phí: {free}{ctp?.pending ? ' · có bộ quà chờ chọn' : ''}</p>
+      {/* Nhiều lượt miễn phí (người dùng 2026-11-22): 1 lần bấm dùng hết (tối đa CTP_FREE_BATCH lượt), máy chủ fco_ctp_play(n, 'free') nhận 1–100. */}
+      <p className="ctp-free">Số lượt chơi miễn phí: {free}{ctp?.pending ? ' · có bộ quà chờ chọn' : ''}
+        {free > 1 && <button type="button" className="ctp-free-all" disabled={busy || !ctp} onClick={() => onBuy(Math.min(free, CTP_FREE_BATCH), 'free')}
+          title={`Dùng ${Math.min(free, CTP_FREE_BATCH)} lượt miễn phí trong 1 lần chơi${free > CTP_FREE_BATCH ? ` (còn lại ${free - CTP_FREE_BATCH})` : ''}`}>
+          Chơi hết {Math.min(free, CTP_FREE_BATCH)} lượt</button>}</p>
       <div className="ctp-buy">{CTP_RULES.prices.map((p, i) => {
         const useFree = p.count === 1 && free > 0;
         const price = ctpPrice(p.count, firstDone);
@@ -594,10 +612,10 @@ export default function CtpPage({ preview = false, fc = 0, ctp = null, loadJackp
         <li>Giá: lượt đầu tiên {CTP_RULES.firstPrice} FC; sau đó {CTP_RULES.prices.map(p => `${p.count} lượt ${money(p.price)} FC`).join(' · ')}.</li>
         <li><b>Ô bóng:</b> cầu thủ sút trúng ngẫu nhiên 1 phần quà trên kệ (quà càng giá trị càng khó trúng).</li>
         <li><b>Ô Special:</b> được đi tiếp ngay 1 bước, quà và điểm của bước đó nhân đôi.</li>
-        <li><b>Ô Lucky:</b> 1 phần quà + lượt miễn phí: số lắc lớn hơn số may mắn đang hiện → {CTP_RULES.luckyMore} lượt, không thì {CTP_RULES.luckyLess} lượt; sau đó đổi số may mắn mới.</li>
+        <li><b>Ô Lucky:</b> 1 phần quà + lượt miễn phí: số đổ vào ô lớn hơn hoặc bằng Số may mắn → {CTP_RULES.luckyMore} lượt, nhỏ hơn → {CTP_RULES.luckyLess} lượt. Lần đầu Số may mắn là 1; từ lần sau là số bạn đã đổ vào ô Lucky lần trước.</li>
         <li><b>Ô Ultimate Prize:</b> cơ hội nhận cả quỹ FC đang hiện; <b>ô Mini Prize:</b> cơ hội nhận 10% quỹ (trừ vào quỹ). Quỹ từ {money(CTP_RULES.jackpotMin)} FC mới nổ được; mỗi HLV trúng mỗi giải tối đa {CTP_RULES.winsPerDay} lần / 24 giờ. Quân cờ chỉ dừng ở 2 ô này khi trúng giải.</li>
         <li>Mỗi lượt chơi góp {CTP_RULES.potPerPlay} FC vào quỹ Ultimate Prize.</li>
-        <li>Lượt miễn phí: ô Lucky, và nhiệm vụ ngày (thắng 1 trận GLXH sau khi bấm Nhận nhiệm vụ).</li>
+        <li>Lượt miễn phí: ô Lucky, và nhiệm vụ ngày (thắng 1 trận GLXH sau khi bấm Nhận nhiệm vụ). Có từ 2 lượt: bấm <b>Chơi hết</b> để dùng tất cả (tối đa {CTP_FREE_BATCH} lượt) trong 1 lần.</li>
       </ul>
     </Modal>}
   </section>;

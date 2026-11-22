@@ -68,7 +68,7 @@ export type StatsPlayer = { login: string; registered: number; lastSeen: number 
 export type FcStats = { topup: number; spent: number };
 // Quản lý tài khoản (fco_admin_accounts): total = mọi tài khoản, matched = số khớp tìm kiếm, accounts = trang hiện tại.
 // name: tên HLV (migration 202611190001_fco_admin_accounts_name.sql), null = chưa có tên.
-export type AdminAccount = { id: string; login: string; name?: string | null; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; topupVnd: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean; paused: boolean; unconfirmed?: boolean };
+export type AdminAccount = { id: string; login: string; name?: string | null; registered: number; lastSeen: number | null; online: boolean; playSeconds: number; topupFc: number; topupVnd: number; fc: number; bp: number; cards: number; packs: number; hasSave: boolean; locked: boolean; admin: boolean; paused: boolean; unconfirmed?: boolean; sub?: boolean };
 // online: số tài khoản đang online (migration 202611090014); chưa chạy migration thì không có.
 export type AdminAccountList = { total: number; matched: number; online?: number; accounts: AdminAccount[]; now: number };
 export const LEDGER_REASONS: Record<string, string> = { rename: 'Đổi tên HLV', admin: 'Admin nạp', admin_old: 'Admin nạp (trước reset)', daily: 'Quà ngày', shop: 'Mua gói', event: 'Chơi sự kiện', event_jar: 'Hũ sự kiện', jackpot: 'Jackpot', gift: 'Gift code', admin_gift: 'Admin tặng quà', admin_deduct: 'Admin trừ FC', reset: 'Admin reset tài khoản', topup_bonus: 'Khuyến mãi nạp', topup_milestone: 'Quà mốc nạp' };
@@ -134,6 +134,13 @@ const MESSAGES: Record<string, string> = {
   FCO_RANKED_NO_MATCH: 'Trận này đã kết thúc.',
   FCO_BAD_PASSWORD: 'Mật khẩu phải từ 6 đến 72 ký tự.',
   FCO_DEVICE_LIMIT: 'Thiết bị này đã nhận phần quà này cho một tài khoản khác. Mỗi thiết bị chỉ một tài khoản được nhận.',
+  // Acc phụ (migration 202611220017): chỉ để mở gói / đập thẻ, không dùng chợ, GLXH, sự kiện jackpot, gift code, nạp.
+  FCO_SUB_ACCOUNT: 'Acc phụ chỉ dùng để mở gói và đập thẻ, không dùng được chức năng này.',
+  FCO_SUB_TOPUP: 'Acc phụ không nhận FC kiểu Nạp (sẽ tính vào doanh thu). Hãy chọn Tặng quà.',
+  FCO_SUB_LOGIN: 'Tên đăng nhập acc phụ cần 3–24 ký tự, chỉ gồm chữ a–z, số và dấu gạch dưới.',
+  FCO_SUB_TAKEN: 'Tên đăng nhập này đã có tài khoản dùng.',
+  FCO_SUB_ADMIN: 'Không đánh dấu tài khoản admin là acc phụ.',
+  FCO_SUB_OPEN_ORDERS: 'Tài khoản còn lệnh chợ đang mở. Huỷ hết lệnh ở TTCN rồi đánh dấu acc phụ.',
   FCO_STP_MISSION_INCOMPLETE: 'Bạn chưa hoàn thành nhiệm vụ này hôm nay.',
   FCO_STP_MISSION_CLAIMED: 'Bạn đã nhận thưởng nhiệm vụ này hôm nay.',
   FCO_STP_MISSION_UNKNOWN: 'Nhiệm vụ không tồn tại.',

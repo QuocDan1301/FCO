@@ -1,9 +1,9 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
-import { ArrowDown, ArrowUp, ArrowUpDown, CircleMinus, Coins, Gift, Lock, Pause, Play, RotateCcw, Trash2, Unlock , MailCheck } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, CircleMinus, Coins, Gift, Lock, Pause, Play, RotateCcw, Trash2, Unlock , MailCheck, UserPlus, Users } from 'lucide-react';
 import { money, packs } from './game';
 import { ago, hours, vnd } from './Stats';
 import { giftRewardText } from './gift-codes';
-import { adminAccountDelete, adminAccountLock, adminConfirmEmail, adminAccountTier, adminCreditStp, adminResetPassword, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS, adminGiftBulk, adminDeduct, adminTopupBp, adminBpTopups, BP_PER_VND, BP_TOPUP_MIN_VND, BP_TOPUP_MAX_VND, adminUpgradeBoost, adminUpgradeBoosts } from './wallet';
+import { adminSubCreate, adminSubSet, adminAccountDelete, adminAccountLock, adminConfirmEmail, adminAccountTier, adminCreditStp, adminResetPassword, adminAccountReset, adminAccounts, adminAccountsDelete, adminAccountsPause, adminCredit, adminGiftList, adminLedger, adminSendGift, LEDGER_REASONS, adminGiftBulk, adminDeduct, adminTopupBp, adminBpTopups, BP_PER_VND, BP_TOPUP_MIN_VND, BP_TOPUP_MAX_VND, adminUpgradeBoost, adminUpgradeBoosts } from './wallet';
 import type { AdminAccount, AdminAccountList, AdminGift, LedgerRow } from './wallet';
 import { CreditKindField, LedgerKindButton } from './LedgerKind';
 import type { CreditKind } from './LedgerKind';
@@ -14,7 +14,7 @@ const PAGE_SIZE = 50;
 // Sắp xếp (migration 202611100011): bấm tiêu đề cột; lần đầu giảm dần (lớn / mới nhất trước), bấm lại thì tăng dần.
 type Sort = 'new' | 'active' | 'play' | 'fc' | 'bp' | 'cards' | 'packs' | 'topup';
 // Bộ lọc trạng thái (migration 202611090014): đang hoạt động = đang online (2 phút gần nhất), không hoạt động = còn lại.
-const STATUSES: { id: string | null; label: string }[] = [{ id: null, label: 'Tất cả' }, { id: 'active', label: 'Đang hoạt động' }, { id: 'inactive', label: 'Không hoạt động' }, { id: 'paused', label: 'Đang tạm dừng' }, { id: 'unconfirmed', label: 'Chưa xác nhận Gmail' }];
+const STATUSES: { id: string | null; label: string }[] = [{ id: null, label: 'Tất cả' }, { id: 'active', label: 'Đang hoạt động' }, { id: 'inactive', label: 'Không hoạt động' }, { id: 'paused', label: 'Đang tạm dừng' }, { id: 'unconfirmed', label: 'Chưa xác nhận Gmail' }, { id: 'sub', label: 'Acc phụ' }];
 const SORTS: { id: Sort; column: string; label: string; asc: string }[] = [
   { id: 'new', column: 'Đăng ký', label: 'Mới đăng ký', asc: 'Đăng ký lâu nhất' },
   { id: 'active', column: 'Hoạt động', label: 'Mới vào game', asc: 'Lâu không vào game' },
@@ -138,6 +138,57 @@ function ResetPasswordField({ account, busy, run }: { account: AdminAccount; bus
     <button type="submit" className="primary-button" disabled={busy || !valid}>Đặt lại mật khẩu</button>
     {done && <p className="pa-gift-note">Gửi cho người chơi: tài khoản <b>{account.login}</b> · mật khẩu <b className="pa-password">{done}</b></p>}
   </form>;
+}
+// Acc phụ (supabase/migrations/202611220017_fco_sub_accounts.sql): đăng nhập bằng tên đăng nhập + mật khẩu admin đặt.
+const SUB_RULES = 'Acc phụ vẫn mở gói, đập thẻ, xếp đội hình và nhận quà admin tặng. Không tính vào BXH (đập OVR, giá trị ĐH, Penalty, Đập +8), tin LIVE, đua top, giờ chơi, thiết bị. Không dùng được chợ TTCN, GLXH, Cờ tỷ phú / VQTG (jackpot chung), gift code, nạp FC.';
+function CreateSubAccount({ busy, onCreated }: { busy: boolean; onCreated: (text: string, login: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const [login, setLogin] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [note, setNote] = useState('');
+  const [working, setWorking] = useState(false);
+  const [error, setError] = useState('');
+  const [made, setMade] = useState<{ login: string; password: string } | null>(null);
+  const validLogin = /^[a-z0-9_]{3,24}$/.test(login);
+  const validPassword = password.length >= 6 && new TextEncoder().encode(password).length <= 72;
+  const submit = async () => {
+    if (!validLogin || !validPassword) return;
+    setWorking(true); setError('');
+    try {
+      const r = await adminSubCreate(login, password, name.trim(), note.trim());
+      setMade({ login: r.login, password }); setLogin(''); setPassword(''); setName(''); setNote('');
+      onCreated(`Đã tạo acc phụ ${r.login} (tên HLV ${r.name}).`, r.login);
+    } catch (e) { setError((e as Error).message); }
+    finally { setWorking(false); }
+  };
+  return <div className="pa-sub-create">
+    <button type="button" className="secondary-button" aria-expanded={open} onClick={() => setOpen(!open)}><UserPlus size={15}/>Tạo acc phụ</button>
+    {open && <form className="pa-account-bulk-confirm pa-account-bulk-gift" onSubmit={e => { e.preventDefault(); void submit(); }}>
+      <p className="pa-gift-note">{SUB_RULES}</p>
+      <label className="pa-field"><span>Tên đăng nhập <small>3–24 ký tự a–z, số, _</small></span><input value={login} onChange={e => { setLogin(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24)); setMade(null); }} placeholder="vd. sukien01" autoComplete="off" spellCheck={false}/></label>
+      <div className="pa-row"><label className="pa-field"><span>Mật khẩu</span><input value={password} onChange={e => { setPassword(e.target.value); setMade(null); }} autoComplete="new-password" spellCheck={false} maxLength={72} placeholder="Ít nhất 6 ký tự"/></label>
+      <button type="button" className="secondary-button" disabled={working} onClick={() => { setPassword(randomPassword()); setMade(null); }}>Tạo ngẫu nhiên</button></div>
+      <label className="pa-field"><span>Tên HLV <small>bỏ trống = tên đăng nhập</small></span><input value={name} onChange={e => setName(e.target.value)} maxLength={24}/></label>
+      <label className="pa-field"><span>Ghi chú <small>chỉ admin thấy</small></span><input value={note} onChange={e => setNote(e.target.value)} maxLength={200} placeholder="vd. livestream đập thẻ 23/11"/></label>
+      <button type="submit" className="primary-button" disabled={busy || working || !validLogin || !validPassword}><UserPlus size={16}/>{working ? 'Đang tạo…' : 'Tạo acc phụ'}</button>
+      {error && <p className="pa-message is-error" role="alert">{error}</p>}
+      {made && <p className="pa-gift-note">Đăng nhập game: tên <b>{made.login}</b> · mật khẩu <b className="pa-password">{made.password}</b> (ô đăng nhập gõ tên, không cần Gmail). Tặng BP / gói ở nút Quản lý của tài khoản này.</p>}
+    </form>}
+  </div>;
+}
+function SubAccountField({ account, busy, run }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void }) {
+  if (account.admin) return null;
+  const toggle = () => {
+    const on = !account.sub;
+    if (!confirm(on ? `Đánh dấu ${account.login} là acc phụ? Kỷ lục BXH, Đập +8, tin LIVE, GLXH, điểm đua Cờ tỷ phú, thiết bị và giờ chơi của tài khoản này bị xoá và từ nay không được tính. Thẻ, BP, FC giữ nguyên.` : `Bỏ acc phụ cho ${account.login}? Từ nay tài khoản được tính như người chơi thường (dữ liệu đã xoá không quay lại).`)) return;
+    run(async () => { await adminSubSet(account.id, on); return on ? `${account.login} giờ là acc phụ.` : `${account.login} không còn là acc phụ.`; });
+  };
+  return <div className="pa-account-danger">
+    <h3>Acc phụ</h3>
+    <p className="pa-gift-note">{account.sub ? 'Tài khoản này đang là acc phụ. ' : ''}{SUB_RULES}</p>
+    <button type="button" className="secondary-button" disabled={busy} onClick={toggle}><Users size={16}/>{account.sub ? 'Bỏ acc phụ' : 'Đánh dấu là acc phụ'}</button>
+  </div>;
 }
 // Star Point (202611110007): admin cộng / trừ STP cho tài khoản (số âm để trừ). Nguồn nhận STP cho người chơi (nhiệm vụ) sẽ thêm sau.
 function StarPointField({ account, busy, run }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void }) {
@@ -273,6 +324,7 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
     {/* Tóm tắt nhanh tài khoản. */}
     <div className="pa-account-summary">
       {account.name && <span><small>Tên HLV</small><b>{account.name}</b></span>}
+      {account.sub && <span><small>Loại</small><b>Acc phụ</b></span>}
       <span><small>FC</small><b>{money(account.fc)}</b></span>
       <span><small>BP</small><b>{account.hasSave ? money(account.bp) : '—'}</b></span>
       <span><small>Thẻ</small><b>{account.hasSave ? money(account.cards) : '—'}</b></span>
@@ -304,6 +356,7 @@ function ManageAccount({ account, onChanged, onDeleted }: { account: AdminAccoun
       </div></>}
       {section === 'tier' && <><AccountTierField account={account} busy={busy} run={task => void run(task)}/><UpgradeBoostField account={account} busy={busy} run={task => void run(task)}/></>}
       {section === 'security' && <><ResetPasswordField account={account} busy={busy} run={task => void run(task)}/>
+      <SubAccountField account={account} busy={busy} run={task => void run(task)}/>
       {account.unconfirmed && <div className="pa-account-danger">
         <h3>Gmail chưa xác nhận</h3>
         <p className="pa-gift-note">Người chơi đã đăng ký nhưng chưa nhập mã 6 số (không nhận được mail, mail vào Spam…). Chỉ xác nhận hộ khi chắc Gmail là của người đó.</p>
@@ -480,6 +533,7 @@ export default function Accounts({ initialSearch = '' }: { initialSearch?: strin
   return <section className="pa-form pa-accounts" aria-label="Quản lý tài khoản">
     <div className="pa-row"><h2 className="pa-gift-title">Tài khoản</h2><button type="button" className="secondary-button pa-gift-random" disabled={busy} onClick={() => void load()}><RotateCcw size={15}/>Tải lại</button></div>
     <p className="pa-gift-note">Mọi tài khoản đã đăng ký, kể cả tài khoản chưa từng vào game. BP, thẻ và gói lấy từ lần đồng bộ gần nhất của người chơi.</p>
+    <CreateSubAccount busy={busy} onCreated={(text, login) => { setNotice(text); setInput(login); setPage(0); setOpen(''); clearSelection(); setSearch(login); }}/>
     {error && <p className="pa-message is-error" role="alert">{error}</p>}
     {notice && <p className="pa-message is-ok" role="status">{notice}</p>}
     <form className="pa-row" onSubmit={e => { e.preventDefault(); setPage(0); setOpen(''); clearSelection(); setSearch(input.trim()); }}>
@@ -528,7 +582,7 @@ export default function Accounts({ initialSearch = '' }: { initialSearch?: strin
         <tbody>{data.accounts.map(a => <Fragment key={a.id}>
           <tr className={a.locked ? 'is-locked' : undefined}>
             <td className="pa-account-pick"><input type="checkbox" aria-label={`Chọn ${a.login}`} title={a.admin ? 'Không tạm dừng hoặc xoá được tài khoản admin' : undefined} disabled={a.admin} checked={!a.admin && (allMatching || selected.has(a.id))} onChange={() => { if (allMatching) { setSelected(new Set(pageIds)); } toggleOne(a.id); }}/></td>
-            <td>{a.online && <i className="pa-dot" aria-label="đang online"/>}{a.name ? <><b className="pa-account-name">{a.name}</b><span className="pa-account-mail">{a.login}</span></> : a.login}{a.admin && <span className="pa-badge is-admin">Admin</span>}{a.locked && <span className="pa-badge is-locked">Đã khoá</span>}{a.paused && <span className="pa-badge is-paused">Tạm dừng</span>}{a.unconfirmed && <span className="pa-badge is-paused" title="Đã đăng ký nhưng chưa nhập mã 6 số trong mail">Chưa xác nhận Gmail</span>}</td>
+            <td>{a.online && <i className="pa-dot" aria-label="đang online"/>}{a.name ? <><b className="pa-account-name">{a.name}</b><span className="pa-account-mail">{a.login}</span></> : a.login}{a.admin && <span className="pa-badge is-admin">Admin</span>}{a.locked && <span className="pa-badge is-locked">Đã khoá</span>}{a.paused && <span className="pa-badge is-paused">Tạm dừng</span>}{a.sub && <span className="pa-badge is-sub" title="Không tính BXH, tin LIVE, đua top, doanh thu">Acc phụ</span>}{a.unconfirmed && <span className="pa-badge is-paused" title="Đã đăng ký nhưng chưa nhập mã 6 số trong mail">Chưa xác nhận Gmail</span>}</td>
             <td>{new Date(a.registered).toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}</td><td>{ago(a.lastSeen, data.now)}</td><td>{hours(a.playSeconds)}</td>
             <td>{money(a.fc)}</td><td>{a.hasSave ? money(a.bp) : '—'}</td><td>{a.hasSave ? money(a.cards) : '—'}</td><td>{a.hasSave ? money(a.packs) : '—'}</td><td>{a.topupFc ? vnd(a.topupVnd) : '—'}</td>
             <td><button type="button" className="secondary-button pa-account-toggle" aria-expanded={open === a.id} onClick={() => { setNotice(''); setOpen(open === a.id ? '' : a.id); }}>{open === a.id ? 'Đóng' : 'Quản lý'}</button></td>

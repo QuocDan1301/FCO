@@ -415,3 +415,27 @@
   background:#1f1408d9;box-shadow:0 0 0 1px #e9c98d66,0 4px 12px #0006;color:#fff4dc;text-shadow:none}
 .ctp-page .vq-race-me b{color:#ffe27a}
 
+/* Nút "Chơi hết N lượt" miễn phí cạnh dòng số lượt (CtpPage Board). */
+.ctp-free{display:flex;align-items:center;justify-content:center;gap:calc(var(--u) * 10)}
+.ctp-free-all{padding:calc(var(--u) * 4) calc(var(--u) * 12);border:calc(var(--u) * 2) solid #063d13;border-radius:999px;
+  background:linear-gradient(180deg,#5fe878,#1b9a3a);box-shadow:0 0 calc(var(--u) * 8) #3fd25c99,inset 0 calc(var(--u) * 1) 0 #ffffff80;
+  color:#fff;font-weight:900;font-size:calc(var(--u) * 12);line-height:1;text-transform:uppercase;text-shadow:0 calc(var(--u) * 1) 0 #063d13;
+  cursor:pointer;animation:ctp-free-pulse 1.4s ease-in-out infinite}
+.ctp-free-all:hover:not(:disabled){filter:brightness(1.12)}
+.ctp-free-all:disabled{opacity:.5;cursor:default;animation:none}
+@keyframes ctp-free-pulse{0%,100%{box-shadow:0 0 calc(var(--u) * 6) #3fd25c80,inset 0 calc(var(--u) * 1) 0 #ffffff80}50%{box-shadow:0 0 calc(var(--u) * 16) #3fd25ccc,inset 0 calc(var(--u) * 1) 0 #ffffff80}}
+.ctp-page.no-fx .ctp-free-all{animation:none}
+@media (prefers-reduced-motion:reduce){.ctp-free-all{animation:none}}
+
+/* Khung luật ô Lucky khi rê / chạm "Số may mắn" (như ảnh luật gốc người dùng gửi 2026-11-22). */
+.ctp-lucky{z-index:6;pointer-events:auto;cursor:help;outline:none}
+.ctp-lucky-tip{position:absolute;left:50%;bottom:calc(100% + var(--u) * 14);display:none;flex-direction:column;gap:calc(var(--u) * 8);box-sizing:border-box;
+  width:calc(var(--u) * 360);padding:calc(var(--u) * 14) calc(var(--u) * 18);transform:translateX(-50%);border-radius:calc(var(--u) * 8);background:#2a2a2af2;
+  box-shadow:0 calc(var(--u) * 8) calc(var(--u) * 22) #000b;color:#fff;-webkit-text-stroke:0;paint-order:normal;text-shadow:none;
+  font-weight:700;font-size:calc(var(--u) * 15);line-height:1.45;text-align:left;text-transform:none;white-space:normal;letter-spacing:0;pointer-events:none}
+.ctp-lucky-tip::after{content:"";position:absolute;left:50%;top:100%;border:calc(var(--u) * 9) solid transparent;border-top-color:#2a2a2af2;transform:translateX(-50%)}
+.ctp-lucky-tip>b{font-weight:900;font-size:calc(var(--u) * 19);text-align:center;text-transform:uppercase}
+.ctp-lucky-tip ul{display:flex;flex-direction:column;gap:calc(var(--u) * 6);margin:0;padding-left:calc(var(--u) * 20)}
+.ctp-lucky-tip li b{color:#ffe27a}
+.ctp-lucky:hover .ctp-lucky-tip,.ctp-lucky:focus-visible .ctp-lucky-tip,.ctp-lucky:focus .ctp-lucky-tip{display:flex}
+

@@ -73,7 +73,7 @@ const specials = plays.map((p, i) => [p, plays[i + 1]]).filter(([p]) => p.kind =
 ok(specials.every(([p, n]) => p.reward === null && n && n.bonus && n.double), 'Special: không quà, bước kế tiếp là bước thưởng ×2 (' + specials.length + ' lần)');
 ok(plays.filter(p => p.kind === 'ball').every(p => p.reward && p.rail && p.slot >= 0 && p.slot <= 4), 'Ô bóng luôn có quà sút kèm dải / vị trí');
 const lucky = plays.filter(p => p.kind === 'lucky');
-ok(lucky.every(p => p.reward && (p.free === (p.roll > p.lucky ? 2 : 1))), 'Lucky: quà + 2 lượt nếu số lắc > số may mắn, không thì 1 (' + lucky.length + ' lần)');
+ok(lucky.every(p => p.reward && (p.free === (p.roll >= p.lucky ? 2 : 1))), 'Lucky: quà + 2 lượt nếu số lắc ≥ số may mắn, không thì 1 (' + lucky.length + ' lần)');
 const freeWon = lucky.reduce((s, p) => s + p.free, 0);
 ok(big.free === freeWon, 'Lượt miễn phí cộng đúng: ' + big.free);
 const dbl = plays.filter(p => p.double && p.reward && !p.reward.jackpot);
@@ -89,6 +89,15 @@ ok((await call(P, `public.fco_ctp_play($1, 'free')`, [wf.ctp_free + 1])).e?.incl
 if (wf.ctp_free > 0) {
   const fr = (await call(P, `public.fco_ctp_play(1, 'free')`)).r;
   ok(fr.paid === 0 && (await wallet(P)).ctp_free === wf.ctp_free - 1 + fr.plays.filter(p => p.free).reduce((s, p) => s + p.free, 0), 'Chơi 1 lượt miễn phí: không trừ FC, trừ 1 lượt');
+}
+// Nút "Chơi hết N lượt" miễn phí (2026-11-22): 1 lần gọi dùng nhiều lượt.
+{
+  await db.query(`update public.fco_wallets set ctp_free = 7 where user_id = $1`, [P]);
+  const fc0 = Number((await wallet(P)).fc);
+  const many = (await call(P, `public.fco_ctp_play(7, 'free')`)).r;
+  const won = many.plays.filter(p => p.free).reduce((s, p) => s + p.free, 0);
+  ok(many.paid === 0 && many.plays.filter(p => !p.bonus).length === 7 && (await wallet(P)).ctp_free === won && Number((await wallet(P)).fc) >= fc0,
+    'Chơi hết 7 lượt miễn phí trong 1 lần: đủ 7 lượt, không trừ FC, dùng hết lượt (chỉ còn lượt mới trúng)');
 }
 // Jackpot: ép tỷ lệ bằng quỹ lớn + đứng ngay trước ô 21 nhiều lần
 await db.query(`update public.fco_jackpot set pot = 50000 where id = 1`);

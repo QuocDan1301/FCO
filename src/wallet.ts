@@ -146,6 +146,9 @@ export const adminAccountsPause = (paused: boolean, target: { users: string[] } 
 // Đặt lại mật khẩu người chơi (202611110015): mật khẩu tạm 6–72 ký tự, đăng xuất mọi thiết bị.
 export const adminResetPassword = (user: string, password: string) => call<{ login: string }>('fco_admin_reset_password', { p_user: user, p_password: password });
 // Xác nhận Gmail hộ người chơi không nhận được mail mã (migration 202611160002).
+// Acc phụ (migration 202611220017): admin tạo tài khoản đăng nhập bằng tên, hoặc đánh dấu tài khoản có sẵn; dữ liệu không tính vào BXH / thống kê.
+export const adminSubCreate = (login: string, password: string, name: string, note: string) => call<{ id: string; login: string; name: string }>('fco_admin_sub_create', { p_login: login, p_password: password, p_name: name || null, p_note: note || null });
+export const adminSubSet = (id: string, sub: boolean) => call<{ login: string; sub: boolean; purged: Record<string, number> }>('fco_admin_sub_set', { p_user: id, p_sub: sub });
 export const adminConfirmEmail = (id: string) => call<{ login: string; already: boolean }>('fco_admin_confirm_email', { p_user: id });
 export const adminAccountLock = (id: string, locked: boolean) => call<{ locked: boolean }>('fco_admin_account_lock', { p_user: id, p_locked: locked });
 export const adminAccountReset = (id: string, resetFc: boolean) => call<{ reset: boolean; fc: number }>('fco_admin_account_reset', { p_user: id, p_reset_fc: resetFc });
