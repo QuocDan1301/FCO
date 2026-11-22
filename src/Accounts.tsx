@@ -140,7 +140,7 @@ function ResetPasswordField({ account, busy, run }: { account: AdminAccount; bus
   </form>;
 }
 // Acc phụ (supabase/migrations/202611220017_fco_sub_accounts.sql): đăng nhập bằng tên đăng nhập + mật khẩu admin đặt.
-const SUB_RULES = 'Acc phụ vẫn mở gói, đập thẻ, xếp đội hình và nhận quà admin tặng. Không tính vào BXH (đập OVR, giá trị ĐH, Penalty, Đập +8), tin LIVE, đua top, giờ chơi, thiết bị. Không dùng được chợ TTCN, GLXH, Cờ tỷ phú / VQTG (jackpot chung), gift code, nạp FC.';
+const SUB_RULES = 'Acc phụ vẫn mở gói, mua thẻ hệ thống bán ở TTCN, đập thẻ, xếp đội hình và nhận quà admin tặng. Không tính vào BXH (đập OVR, giá trị ĐH, Penalty, Đập +8), tin LIVE, đua top, giờ chơi, thiết bị. Không bán / đặt mua / mua thẻ của người chơi ở TTCN, không dùng GLXH, Cờ tỷ phú / VQTG (jackpot chung), gift code, nạp FC.';
 function CreateSubAccount({ busy, onCreated }: { busy: boolean; onCreated: (text: string, login: string) => void }) {
   const [open, setOpen] = useState(false);
   const [login, setLogin] = useState('');

@@ -76,7 +76,7 @@ ok(await cnt('fco_ranks', S) === 0 && await cnt('fco_live_feed', S) === 0 && awa
   'acc phụ: BXH, tin LIVE, Đập +8, giờ chơi, thiết bị đều không ghi');
 ok((await db.query(`select public.fco_leaderboard() r`)).rows[0].r.ovr.length === 0, 'BXH đập thẻ không có acc phụ');
 // Chặn
-ok((await err(`insert into public.fco_mkt_orders(user_id, side, player_id, level, price) values ($1, 'buy', 4100, 1, 1000)`, [S]))?.includes('FCO_SUB_ACCOUNT'), 'chợ: đặt lệnh bị chặn');
+ok((await err(`insert into public.fco_mkt_orders(user_id, side, player_id, level, price) values ($1, 'buy', 4100, 1, 1000)`, [S]))?.match(/FCO_SUB_(ACCOUNT|MARKET)/), 'chợ: đặt lệnh chờ bị chặn');
 ok((await err(`insert into public.fco_mkt_sys_sold(player_id, level, minute, sold) values (4100, 1, 1, 1)`))?.includes('FCO_SUB_ACCOUNT'), 'chợ: mua từ hệ thống bị chặn');
 ok((await err(`insert into public.fco_ranked(user_id) values ($1)`, [S]))?.includes('FCO_SUB_ACCOUNT'), 'GLXH bị chặn');
 ok((await err(`update public.fco_wallets set ctp_pos = 3, ctp_first_done = true where user_id = $1`, [S]))?.includes('FCO_SUB_ACCOUNT'), 'Cờ tỷ phú bị chặn');

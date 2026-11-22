@@ -135,7 +135,8 @@ const MESSAGES: Record<string, string> = {
   FCO_BAD_PASSWORD: 'Mật khẩu phải từ 6 đến 72 ký tự.',
   FCO_DEVICE_LIMIT: 'Thiết bị này đã nhận phần quà này cho một tài khoản khác. Mỗi thiết bị chỉ một tài khoản được nhận.',
   // Acc phụ (migration 202611220017): chỉ để mở gói / đập thẻ, không dùng chợ, GLXH, sự kiện jackpot, gift code, nạp.
-  FCO_SUB_ACCOUNT: 'Acc phụ chỉ dùng để mở gói và đập thẻ, không dùng được chức năng này.',
+  FCO_SUB_ACCOUNT: 'Acc phụ chỉ dùng để mở gói, mua thẻ hệ thống bán và đập thẻ, không dùng được chức năng này.',
+  FCO_SUB_MARKET: 'Acc phụ chỉ mua được thẻ hệ thống bán ở TTCN (giá hệ thống). Không bán, không đặt mua và không mua thẻ của người chơi khác.',
   FCO_SUB_TOPUP: 'Acc phụ không nhận FC kiểu Nạp (sẽ tính vào doanh thu). Hãy chọn Tặng quà.',
   FCO_SUB_LOGIN: 'Tên đăng nhập acc phụ cần 3–24 ký tự, chỉ gồm chữ a–z, số và dấu gạch dưới.',
   FCO_SUB_TAKEN: 'Tên đăng nhập này đã có tài khoản dùng.',
