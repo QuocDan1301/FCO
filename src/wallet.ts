@@ -17,7 +17,7 @@ import type { ServerRecord } from './inventory-sync';
 import type { NameEffect } from './name-effects';
 import type { LineupBoardId, PublicLineupView } from './public-lineup';
 import type { PenaltyKeep, PenaltyShot, PenaltyStart, ShotKind } from './penalty';
-import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, CheatSuspect, GuardSummary, BilacConfig, BilacResult, BilacReward, VqtgConfig, VqtgResult, VqtgReward, VqtgTop, Plus8Board, Plus8History, RankRound, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
+import type { AdminAccountList, AdminGift, AdminStats, AnomalyRow, CheatSuspect, GuardSummary, BilacConfig, BilacResult, BilacReward, CtpConfig, CtpDraftResult, CtpTop, CtpPending, CtpPendingResult, CtpResult, CtpReward, VqtgConfig, VqtgResult, VqtgReward, VqtgTop, Plus8Board, Plus8History, RankRound, EventPlayResult, FcStats, GiftCodeRow, Leaderboard, LedgerRow, ServerJackpot, Wallet } from './wallet-state';
 import { checkForUpdate, requestReload } from './update-check';
 export * from './wallet-state';
 
@@ -186,6 +186,17 @@ export const fetchBilacConfig = () => call<BilacConfig>('fco_bilac_config');
 export const playBilac = (count: number, mode: 'fc' | 'free') => call<BilacResult>('fco_bilac_play', { p_count: count, p_mode: mode });
 export const claimBilac = (index: number, choice: number | null) => call<{ rewards: BilacReward[]; wallet: Wallet; save?: ServerRecord | null }>('fco_bilac_claim', { p_index: index, p_choice: choice });
 export const fetchVqtgConfig = () => call<VqtgConfig>('fco_vqtg_config');
+// Cờ tỷ phú (202611220001_fco_ctp.sql).
+export const playCtp = (count: number, mode: 'fc' | 'free', chance = false, exclude: string[] | null = null) =>
+  call<CtpResult | CtpPendingResult>('fco_ctp_play', { p_count: count, p_mode: mode, p_chance: chance, p_exclude: exclude });
+export const fetchCtpPending = () => call<CtpPending | null>('fco_ctp_pending');
+export const pickCtp = (choice: number) => call<CtpResult>('fco_ctp_pick', { p_choice: choice });
+export const ctpDraft = (players: number[]) => call<CtpDraftResult>('fco_ctp_draft', { p_players: players });
+export const fetchCtpTop = () => call<CtpTop>('fco_ctp_top');
+export const ctpMissionAccept = () => call<{ wallet: Wallet }>('fco_ctp_mission_accept');
+export const ctpMissionClaim = () => call<{ wallet: Wallet }>('fco_ctp_mission_claim');
+export const fetchCtpConfig = () => call<CtpConfig>('fco_ctp_config');
+export const claimCtp = (index: number, choices: number[]) => call<{ rewards: CtpReward[]; count: number; wallet: Wallet; save?: ServerRecord | null }>('fco_ctp_claim', { p_index: index, p_choices: choices });
 export const playVqtg = (count: number, mode: 'fc' | 'free', pick?: number) => call<VqtgResult>('fco_vqtg_play', { p_count: count, p_mode: mode, ...(pick ? { p_pick: pick } : {}) });
 export const fetchVqtgTop = () => call<VqtgTop>('fco_vqtg_top');
 // Top Đặc Huấn ở trang chủ (migration 202611180005_fco_topup_race.sql).

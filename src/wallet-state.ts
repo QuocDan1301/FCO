@@ -14,9 +14,25 @@ export type BilacState = { points: number; claimed: (number | null)[]; freeToday
 // Vòng Quanh Thế Giới: ô quân đang đứng (0 = Bắt đầu), số lượt Chỉ định, còn lượt miễn phí hôm nay (fco_wallet_json 'vqtg').
 // claimed[i] = số lần đã nhận quà mốc i của Shop Đổi Vé; paid = đã từng chơi trả FC (mốc 1 vé chỉ nhận bằng lượt trả phí).
 export type VqtgState = { pos: number; picks: number; tickets: number; freeToday: boolean; claimed?: number[]; paid?: boolean };
+// Cờ tỷ phú (202611220001_fco_ctp.sql): ô đang đứng (1..28, 28 = LUCKY / xuất phát), điểm, lượt miễn phí, số may mắn, đã chơi lượt đầu,
+// nhiệm vụ ngày (none → accepted → ready → done).
+export type CtpMission = 'none' | 'accepted' | 'ready' | 'done';
+export type CtpState = { pos: number; points: number; free: number; lucky: number; firstDone: boolean; mission: CtpMission;
+  claimed?: number[]; paid?: boolean; cards?: { chance: number; luck: number }; badges?: number; pending?: boolean; draftOpened?: number };
+// Tuyển chọn cầu thủ (202611220004_fco_ctp_draft.sql): cầu thủ nhận được + tỷ lệ từng người trong nhóm đã chọn.
+// Đua top Cờ tỷ phú (202611220005_fco_ctp_race.sql): 2 đợt, Top 5 theo điểm kiếm được trong đợt.
+export type CtpRaceRow = { rank: number; name: string; points: number; mine: boolean; effect?: NameEffect | null; club?: string | null };
+export type CtpRaceRound = { round: number; startsAt: number; endsAt: number; ended: boolean; top: CtpRaceRow[]; me: { points: number; rank: number | null };
+  rewards: { rank: number; rewards: CtpReward[]; note: string }[] | null };
+export type CtpTop = { rounds: CtpRaceRound[] };
+export type CtpDraftResult = { playerId: number; level: number; total: number; chances: { playerId: number; level: number; price: number; chance: number }[]; wallet: Wallet; save?: ServerRecord | null };
+// Quà mốc Cờ tỷ phú (202611220002_fco_ctp_milestones.sql): ngoài gói / BP / phiếu thuế còn Thẻ Cơ Hội / Khí Vận và Huy Hiệu Tuyển Chọn.
+export type CtpReward = BilacReward | { voucher: number; count: number } | { ctpCard: 'chance' | 'luck'; count: number } | { ctpBadge: number };
+export type CtpMilestone = { idx: number; points: number; options: CtpReward[][]; once: boolean; paidOnly: boolean; special: boolean };
+export type CtpConfig = { open: boolean; round: number; milestones: CtpMilestone[] };
 // save: bản lưu mới khi máy chủ vừa cộng quà vào kho (điểm danh ngày 7), xem src/inventory-sync.ts.
 // stp: Star Point (migration 202611110007_fco_star_point.sql), máy chủ chưa chạy migration thì không có.
-export type Wallet = { fc: number; stp?: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; vqtg?: VqtgState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null; tier?: 'classic' | 'premium' | 'luxury'; tierUntil?: number | null; effect?: NameEffect | null; club?: string | null };
+export type Wallet = { fc: number; stp?: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; vqtg?: VqtgState; ctp?: CtpState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null; tier?: 'classic' | 'premium' | 'luxury'; tierUntil?: number | null; effect?: NameEffect | null; club?: string | null };
 export type ServerJackpotWin = { name: string; amount: number; kind: 'special' | 'mini'; time: number; mine: boolean };
 export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
 // Bảng xếp hạng HLV (fco_leaderboard): top 10 kỷ lục đập thẻ OVR, top 10 giá trị đội hình, hạng của người xem.
@@ -77,10 +93,17 @@ export type VqtgTop = { ended?: boolean; top: VqtgTopRow[]; me: { tickets: numbe
 export type VqtgMiniWin = { name: string; amount: number; time: number; mine: boolean };
 export type VqtgConfig = { tiles: import('./vqtg').VqtgTile[]; prices: { count: number; price: number }[]; bpPool: number; milestones?: VqtgMilestone[]; round?: number; miniFeed?: VqtgMiniWin[] };
 export type VqtgPlay = { roll: number; from: number; to: number; kind: import('./vqtg').VqtgTileKind; reward: BilacReward | null; pick?: number; pool?: boolean; tickets?: number };
+export type CtpPlay = { roll: number; steps: number; from: number; to: number; kind: import('./ctp').CtpCellKind; reward: BilacReward | null; points: number; double: boolean; bonus: boolean; rail?: string; slot?: number; free?: number; lucky?: number };
+// Thẻ Cơ Hội (202611220003_fco_ctp_cards.sql): lần bấm chơi tạo 2 bộ quà A / B chờ chọn (fco_ctp_pick).
+export type CtpOutcome = { plays: CtpPlay[]; pos: number; ptsWon: number; freeWon: number };
+export type CtpPending = { count: number; mode: 'fc' | 'free'; paid: number; exclude: string[] | null; outcomes: CtpOutcome[] };
+export type CtpPendingResult = { pending: CtpPending; paid: number; wallet: Wallet };
+export type CtpResult = { plays: CtpPlay[]; paid: number; pos: number; points: number; free: number; lucky: number; jackpot: ServerJackpot; wallet: Wallet; save?: ServerRecord | null };
 export type VqtgResult = { plays: VqtgPlay[]; paid: number; picks: number; pos: number; tickets: number; bpPool: number; jackpot: ServerJackpot; wallet: Wallet; save?: ServerRecord | null; miniFeed?: VqtgMiniWin[] };
 export const LOGIN_FOR_FC = 'Hãy đăng nhập tài khoản để dùng FC.';
 
 const MESSAGES: Record<string, string> = {
+  FCO_CLIENT_BLOCKED: 'Bản game này không phải bản chính thức nên không kết nối được máy chủ. Hãy chơi tại https://quocdan1301.github.io/FCO/',
   FCO_TOPUP_NO_EVENT: 'Hiện không có sự kiện nạp tích luỹ.',
   FCO_TOPUP_EVENT_BAD: 'Thời gian sự kiện không hợp lệ (giờ kết thúc phải sau giờ bắt đầu).',
   FCO_TOPUP_EVENT_OVERLAP: 'Trùng thời gian với một sự kiện nạp tích luỹ khác.',
@@ -130,6 +153,17 @@ const MESSAGES: Record<string, string> = {
   FCO_GIFT_EXISTS: 'Code này đã có.',
   FCO_GIFT_BAD_REWARDS: 'Phần quà không hợp lệ.',
   FCO_NO_FREE_PLAYS: 'Bạn không có lượt chơi miễn phí. Hãy làm nhiệm vụ để nhận thêm.',
+  FCO_EVENT_CLOSED: 'Sự kiện chưa mở hoặc đã kết thúc.',
+  FCO_CTP_PENDING: 'Bạn còn một lượt dùng Thẻ Cơ Hội chưa chọn bộ quà. Hãy chọn bộ quà trước.',
+  FCO_CTP_NO_PENDING: 'Không còn lượt nào chờ chọn bộ quà.',
+  FCO_CTP_NO_CARD: 'Bạn không còn thẻ này.',
+  FCO_CTP_BAD_EXCLUDE: 'Hãy chọn đúng 3 màu muốn bỏ.',
+  FCO_CTP_NO_BADGE: 'Bạn chưa có Huy Hiệu Tuyển Chọn.',
+  FCO_CTP_DRAFT_SIZE: 'Số cầu thủ chọn chưa đúng yêu cầu của lượt này. Hãy tải lại trang.',
+  FCO_CTP_DRAFT_PLAYER: 'Có cầu thủ không thuộc danh sách tuyển chọn.',
+  FCO_CTP_DRAFT_PRICE: 'Có cầu thủ chưa có giá thị trường, hãy chọn người khác.',
+  FCO_CTP_DRAFT_CAP: 'Tổng giá trị nhóm cầu thủ vượt 6 tỷ BP (giá vừa thay đổi?). Hãy bớt cầu thủ đắt.',
+  FCO_MISSION_NOT_READY: 'Bạn chưa thắng trận GLXH nào sau khi nhận nhiệm vụ.',
   FCO_MISSION_DONE: 'Bạn đã nhận thưởng nhiệm vụ này hôm nay.',
   FCO_MISSION_INCOMPLETE: 'Chưa hoàn thành nhiệm vụ.',
   FCO_MILESTONE_CLAIMED: 'Bạn đã nhận quà mốc này rồi.',

@@ -35,12 +35,12 @@ import { claimableGrind } from './grind-missions';
 import type { GrindPeriod, GrindState } from './grind-missions';
 import { applyAdminGifts, applyGiftRewards, giftRewardText, prepareGiftCode } from './gift-codes';
 import { viewLineup, adminGuardSummary } from './wallet';
-import { LOGIN_FOR_FC, setClubLogo, fetchLiveFeed, fetchTopupRace, fetchRanked, finishRanked, abandonRanked, playRanked, buyStpPackage, claimStpMission, fetchStpMissions, fetchGrind, claimGrind, fetchStpToday, penaltyShoot, penaltyStart, penaltyKeep, setNameEffect as setNameEffectOnServer, fetchRenameInfo, renameCoach, ackMyGifts, applyWallet, claimBilac, claimDailyFc, claimMissionFc, fetchBilacConfig, fetchVqtgConfig, fetchVqtgTop, fetchTopViewed, fetchPlus8Board, fetchPlus8History, fetchRankRound, playVqtg, claimVqtg, claimVqtgMany, fetchJackpot, fetchLeaderboard, fetchMyGifts, fetchServerNow, fetchWallet, heartbeat, playBilac, playEventFc, redeemGiftHash, reportSquadRank, reportUpgradeRank, spendFc, buyMembership } from './wallet';
+import { LOGIN_FOR_FC, setClubLogo, fetchLiveFeed, fetchTopupRace, fetchRanked, finishRanked, abandonRanked, playRanked, buyStpPackage, claimStpMission, fetchStpMissions, fetchGrind, claimGrind, fetchStpToday, penaltyShoot, penaltyStart, penaltyKeep, setNameEffect as setNameEffectOnServer, fetchRenameInfo, renameCoach, ackMyGifts, applyWallet, claimBilac, claimDailyFc, claimMissionFc, fetchBilacConfig, fetchVqtgConfig, playCtp, ctpMissionAccept, ctpMissionClaim, fetchCtpConfig, claimCtp, fetchCtpPending, pickCtp, ctpDraft, fetchCtpTop, fetchVqtgTop, fetchTopViewed, fetchPlus8Board, fetchPlus8History, fetchRankRound, playVqtg, claimVqtg, claimVqtgMany, fetchJackpot, fetchLeaderboard, fetchMyGifts, fetchServerNow, fetchWallet, heartbeat, playBilac, playEventFc, redeemGiftHash, reportSquadRank, reportUpgradeRank, spendFc, buyMembership } from './wallet';
 import AdminPanel from './AdminPanel';
 import type { GuardSummary } from './wallet-state';
 import type { AdminTab } from './AdminPanel';
 import { CHECKIN_REWARDS, checkinReward } from './checkin';
-import type { BilacReward, BilacState, Checkin, VqtgState, Wallet } from './wallet-state';
+import type { BilacReward, BilacState, Checkin, VqtgState, CtpState, CtpResult, Wallet } from './wallet-state';
 import UpgradeConfirm from './UpgradeConfirm';
 import ProfileCard from './ProfileCard';
 import './profile.css';
@@ -67,9 +67,10 @@ import Progressive from './Progressive';
 import PackStage from './cinema/PackStage';
 import { GATE_CROSS, OPENING_CUES, OPENING_ENTRY, OPENING_RESULT, openingPhase } from './cinema/timeline';
 import { unlockCinemaAudio } from './cinema/audio';
-import { AUDIO_ENABLED, EVENT_BILAC_ENABLED, EVENT_NCSS_ENABLED, EVENT_VQTG_ENABLED, UNLIMITED_COINS, ZALO_GROUP } from './config';
+import { AUDIO_ENABLED, EVENT_BILAC_ENABLED, EVENT_CTP_ENABLED, EVENT_NCSS_ENABLED, EVENT_VQTG_ENABLED, UNLIMITED_COINS, ZALO_GROUP } from './config';
 import BilacPage from './BilacPage';
 import VqtgPage from './VqtgPage';
+import CtpPage from './CtpPage';
 import { grantBilac, summarizeBilac, bilacRewardText } from './bilac';
 import { noteView, restoreViews, takeViews } from './player-views';
 import TransferMarket, { forgetTopViewed } from './TransferMarket';
@@ -150,7 +151,7 @@ function CardSortSelect({ id, value, onChange }: { id: string; value: CardSort; 
 // Lịch sử lưu từ trước khi bỏ tiền xu vẫn ghi "xu": hiển thị theo đơn vị duy nhất BP.
 const historyDetail = (entry: Entry) => (entry.type === 'upgrade' ? entry.detail.replace(/ · Tỷ lệ [0-9.,]+%/g, '') : entry.detail).replace(/(^|[\s(])xu(?=$|[\s·.,)])/g, '$1BP').replace(/(\d{1,3}(?:[.,]\d{3})+|\d{7,})(?=\s*BP)/g, value => money(Number(value.replace(/[.,]/g, ''))));
 
-type View = 'packs' | 'upgrade' | 'collection' | 'lineup' | 'inventory' | 'history' | 'market' | 'shop' | 'event' | 'bilac' | 'vqtg' | 'ranks' | 'penalty' | 'ranked' | 'plus8';
+type View = 'packs' | 'upgrade' | 'collection' | 'lineup' | 'inventory' | 'history' | 'market' | 'shop' | 'event' | 'bilac' | 'vqtg' | 'ctp' | 'ranks' | 'penalty' | 'ranked' | 'plus8';
 type Animation = { id: string; kind: 'pack'; cards: Card[]; pack: Pack; quick: boolean } | { id: string; kind: 'upgrade'; card: Card; success: boolean; before: number; droppedLevel: number | null; restoredLevel: number | null; shielded?: boolean };
 const preview = (id: number): Card => ({ uid: `preview-${id}`, playerId: id, level: 1, received: 0 });
 let audioContext: AudioContext | undefined;
@@ -376,7 +377,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   };
   // Vừa tải lại để lấy bản mới khi đang chuyển trang: mở thẳng trang người chơi muốn tới (update-check.ts).
   // Trang sự kiện đang ẩn (EVENT_*_ENABLED = false) thì mở về trang chủ, kể cả khi tải lại sau cập nhật đúng lúc đang ở trang đó.
-  const [view, setView] = useState<View>(() => { const next = takeNextView() as View | null; return (next === 'bilac' && !EVENT_BILAC_ENABLED) || (next === 'vqtg' && !EVENT_VQTG_ENABLED) || (next === 'event' && !EVENT_NCSS_ENABLED) ? 'packs' : next ?? 'packs'; });
+  const [view, setView] = useState<View>(() => { const next = takeNextView() as View | null; return (next === 'bilac' && !EVENT_BILAC_ENABLED) || (next === 'vqtg' && !EVENT_VQTG_ENABLED) || next === 'ctp' || (next === 'event' && !EVENT_NCSS_ENABLED) ? 'packs' : next ?? 'packs'; });
   const mainRef = useRef<HTMLElement>(null);
   const [selectedPack, setSelectedPack] = useState(packs[0]);
   const [readyPack, setReadyPack] = useState<Pack | null>(null);
@@ -1173,6 +1174,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   }, [isAdmin, fcAdminOpen]);
   const [bilac, setBilac] = useState<BilacState | null>(null);
   const [vqtg, setVqtg] = useState<VqtgState | null>(null);
+  const [ctp, setCtp] = useState<CtpState | null>(null);
   // BXH giá trị đội hình: gửi "Giá trị ĐH" của đội hình đang dùng mỗi khi đổi (chờ 3 giây để gộp các thao tác liên tiếp).
   const pricePeriodNow = usePricePeriod();
   // Lấy giờ máy chủ khi mở game và khi quay lại tab. Lỗi thì giữ đồng hồ đang có, giá vẫn hiển thị bình thường.
@@ -1195,7 +1197,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     const id = window.setTimeout(() => { reportSquadRank(squadValue).then(() => { reportedSquad.current = squadValue; }).catch(() => { /* thử lại lần đổi sau */ }); }, 3000);
     return () => window.clearTimeout(id);
   }, [online, squadValue]);
-  const noteWallet = (wallet: Wallet) => { if ('club' in wallet) setClubLogoState(wallet.club ?? null); if (wallet.tier) setAccountTier(wallet.tier); if ('effect' in wallet) setNameEffect(wallet.effect ?? null); if (wallet.checkin) setCheckin(wallet.checkin); if (wallet.bilac) setBilac(wallet.bilac); if (wallet.vqtg) setVqtg(wallet.vqtg); };
+  const noteWallet = (wallet: Wallet) => { if ('club' in wallet) setClubLogoState(wallet.club ?? null); if (wallet.tier) setAccountTier(wallet.tier); if ('effect' in wallet) setNameEffect(wallet.effect ?? null); if (wallet.checkin) setCheckin(wallet.checkin); if (wallet.bilac) setBilac(wallet.bilac); if (wallet.vqtg) setVqtg(wallet.vqtg); if (wallet.ctp) setCtp(wallet.ctp); };
   const refreshWallet = async () => {
     if (!online) return;
     try { const wallet = await fetchWallet(eventState(latest.current).points); setIsAdmin(wallet.admin); noteWallet(wallet); commit(applyWallet(latest.current, wallet)); }
@@ -1291,6 +1293,62 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       noteWallet(result.wallet);
       if (granted.missing.length) notify(`Gói ${granted.missing.join(', ')} không còn trong game nên chưa được thêm.`);
       return commit(applyWallet(granted.state, result.wallet)) ? result : null;
+    } catch (e) { notify((e as Error).message); return null; }
+  };
+  // Cờ tỷ phú: máy chủ quyết số lắc / ô / quà (fco_ctp_play) và cộng quà vào kho máy chủ; chưa giữ kho thì cộng trên máy như VQTG.
+  // chance = dùng Thẻ Cơ Hội (máy chủ trả 2 bộ quà chờ chọn), exclude = 3 dải màu bỏ ra (Thẻ Khí Vận).
+  const playCtpTurns = async (count: number, mode: 'fc' | 'free', chance = false, exclude: string[] | null = null) => {
+    if (!online) { notify(LOGIN_FOR_FC); return null; }
+    try {
+      const out = await playCtp(count, mode, chance, exclude);
+      if ('pending' in out) { noteWallet(out.wallet); return commit(applyWallet(latest.current, out.wallet)) ? out : null; }
+      return applyCtpResult(out, count, mode);
+    } catch (e) { notify((e as Error).message); return null; }
+  };
+  // Tuyển chọn cầu thủ: máy chủ trao thẻ vào kho máy chủ và trả bản lưu mới.
+  const draftCtp = async (ids: number[]) => {
+    if (!online) { notify(LOGIN_FOR_FC); return null; }
+    try {
+      const out = await ctpDraft(ids);
+      noteWallet(out.wallet);
+      if (out.save) adoptRecord(out.save);
+      return commit(applyWallet(latest.current, out.wallet)) ? out : null;
+    } catch (e) { notify((e as Error).message); return null; }
+  };
+  const pickCtpTurn = async (choice: number) => {
+    if (!online) { notify(LOGIN_FOR_FC); return null; }
+    try { return applyCtpResult(await pickCtp(choice), 0, 'fc'); }
+    catch (e) { notify((e as Error).message); return null; }
+  };
+  const applyCtpResult = (result: CtpResult, count: number, mode: 'fc' | 'free') => {
+    {
+      if (result.save) { noteWallet(result.wallet); adoptRecord(result.save); return commit(applyWallet(latest.current, result.wallet)) ? result : null; }
+      const rewards = result.plays.flatMap(p => p.reward ? [p.reward] : []);
+      const granted = grantBilac(latest.current, rewards, `Cờ tỷ phú · ${count || result.plays.filter(p => !p.bonus).length} lượt${mode === 'free' ? ' miễn phí' : ''}`,
+        `${summarizeBilac(rewards).map(bilacRewardText).join(', ') || 'Không có quà'}${result.paid ? ` · −${money(result.paid)} FC` : ''}`);
+      noteWallet(result.wallet);
+      if (granted.missing.length) notify(`Gói ${granted.missing.join(', ')} không còn trong game nên chưa được thêm.`);
+      return commit(applyWallet(granted.state, result.wallet)) ? result : null;
+    }
+  };
+  const ctpMission = async (action: 'accept' | 'claim') => {
+    if (!online) { notify(LOGIN_FOR_FC); return; }
+    try { const { wallet } = action === 'accept' ? await ctpMissionAccept() : await ctpMissionClaim(); noteWallet(wallet); commit(applyWallet(latest.current, wallet)); }
+    catch (e) { notify((e as Error).message); }
+  };
+  // Quà mốc Cờ tỷ phú: máy chủ giữ kho thì nhận bản lưu mới (thẻ / huy hiệu nằm ở ví máy chủ); không thì cộng gói / BP / phiếu trên máy.
+  const claimCtpMilestone = async (index: number, choices: number[]) => {
+    if (!online) { notify(LOGIN_FOR_FC); return null; }
+    try {
+      const result = await claimCtp(index, choices);
+      if (result.save) { noteWallet(result.wallet); adoptRecord(result.save); return commit(applyWallet(latest.current, result.wallet)) ? result.rewards : null; }
+      const vouchers = result.rewards.filter((r): r is { voucher: number; count: number } => 'voucher' in r);
+      const others = result.rewards.filter((r): r is BilacReward => 'bp' in r || 'fc' in r || 'pack' in r);
+      const granted = grantBilac(latest.current, others, 'Cờ tỷ phú · Quà mốc', [...others.map(bilacRewardText), ...vouchers.map(v => voucherName(v.voucher))].join(' + '));
+      const taxVouchers = { ...granted.state.taxVouchers };
+      for (const v of vouchers) { const key = `${v.voucher}` as `${TaxVoucher}`; taxVouchers[key] = (taxVouchers[key] ?? 0) + v.count; }
+      noteWallet(result.wallet);
+      return commit(applyWallet({ ...granted.state, taxVouchers }, result.wallet)) ? result.rewards : null;
     } catch (e) { notify((e as Error).message); return null; }
   };
   // Shop Đổi Vé (VQTG): máy chủ giữ kho thì nhận bản lưu mới; không thì cộng gói / BP / phiếu thuế trên máy như Bi Lắc.
@@ -1408,6 +1466,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       {view === 'penalty' && <PenaltyPage online={online} reduced={!!save.reduced} onStart={penaltyStart} onShoot={penaltyShoot} onKeep={penaltyKeep}/>}
       {EVENT_BILAC_ENABLED && view === 'bilac' && <BilacPage fc={save.fc ?? 0} bilac={bilac} loadConfig={fetchBilacConfig} loadJackpot={fetchJackpot} onPlay={playBilacTurns} onClaim={claimBilacMilestone} onRefresh={refreshWallet}/>}
       {EVENT_VQTG_ENABLED && view === 'vqtg' && <VqtgPage fc={save.fc ?? 0} vqtg={vqtg} loadConfig={fetchVqtgConfig} loadTop={fetchVqtgTop} loadJackpot={fetchJackpot} onPlay={playVqtgTurns} onClaim={claimVqtgMilestone} onRefresh={refreshWallet} onHistory={() => { setHistoryType('event'); switchView('history'); }}/>}
+      {(EVENT_CTP_ENABLED || isAdmin) && view === 'ctp' && <CtpPage preview={!EVENT_CTP_ENABLED} fc={save.fc ?? 0} ctp={ctp} loadJackpot={fetchJackpot} onPlay={playCtpTurns} onMission={ctpMission} onRefresh={refreshWallet} loadConfig={fetchCtpConfig} onClaim={claimCtpMilestone} loadPending={fetchCtpPending} onPick={pickCtpTurn} onDraft={draftCtp} renderCard={card => <PlayerCard card={card} compact/>} loadTop={fetchCtpTop}/>}
       {EVENT_NCSS_ENABLED && view === 'event' && <EventPage save={save} free={UNLIMITED_COINS} onPlay={playEventTurns} onClaim={claimEventGift} onMission={claimEventMission} serverJackpot={online ? fetchJackpot : undefined}/>}
       {view === 'history' && <section className="workspace history-workspace"><div className="page-heading"><div><h1>Dấu ấn hành trình</h1><p>Lưu tối đa 200 hoạt động gần nhất trên trình duyệt này.</p></div><select aria-label="Lọc loại lịch sử" value={historyType} onChange={e => setHistoryType(e.target.value)}><option value="">Tất cả hoạt động</option><option value="pack">Mở gói</option><option value="upgrade">Nâng cấp</option><option value="gift">Điểm danh</option><option value="market">Chuyển nhượng</option><option value="shop">Mua gói</option><option value="event">Sự kiện</option></select></div>{save.history.filter(e => !historyType || e.type === historyType).length ? <ViewportPages className="history-list" itemHeight={92} resetKey={historyType}>{save.history.filter(e => !historyType || e.type === historyType).map(e => <article className="history-item" key={e.id}><div className={`history-icon ${e.success === false ? 'failure' : ''}`}>{e.type === 'pack' ? <PackageOpen size={21}/> : e.type === 'gift' ? <Gift size={21}/> : e.type === 'market' ? <ArrowLeftRight size={21}/> : e.type === 'shop' ? <ShoppingBag size={21}/> : e.type === 'event' ? <Sparkles size={21}/> : <Zap size={21}/>}</div><div><h2>{e.title}</h2><p>{historyDetail(e)}</p></div><time>{historyTime.format(e.time)}</time></article>)}</ViewportPages> : <div className="empty-state"><History size={38}/><h2>Trang sử đang chờ bạn</h2><p>Mở gói, nâng cấp hoặc nhận quà điểm danh để bắt đầu.</p><button className="primary-button" onClick={() => switchView('inventory')}>Kho vật phẩm<ArrowRight size={16}/></button></div>}</section>}
     </main>
@@ -1424,6 +1483,8 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
           ...(EVENT_NCSS_ENABLED ? [{ label: 'Sự kiện', view: 'event' as View, hint: 'Nâng Cấp Siêu Sao', onClick: () => switchView('event') }] : []),
           ...(EVENT_BILAC_ENABLED ? [{ label: 'Sự kiện', view: 'bilac' as View, hint: 'Sự kiện Bi Lắc', onClick: () => switchView('bilac') }] : []),
           ...(EVENT_VQTG_ENABLED ? [{ label: 'Sự kiện', view: 'vqtg' as View, hint: 'Vòng Quanh Thế Giới', onClick: () => switchView('vqtg') }] : []),
+          // Cờ tỷ phú: người chơi thấy khi EVENT_CTP_ENABLED; trước đó chỉ admin có nút xem trước.
+          ...(EVENT_CTP_ENABLED || isAdmin ? [{ label: EVENT_CTP_ENABLED ? 'Sự kiện' : 'Cờ tỷ phú', view: 'ctp' as View, hint: EVENT_CTP_ENABLED ? 'Cờ tỷ phú' : 'Cờ tỷ phú · xem trước (chỉ admin)', onClick: () => switchView('ctp') }] : []),
         ];
         return <nav className="app-dock" aria-label="Menu nhanh">
           <div className="app-dock-items">{items.map(item => <button key={item.label} className={item.view === view ? 'active' : undefined} aria-current={item.view === view ? 'page' : undefined} onClick={item.onClick} title={item.hint} aria-label={item.hint ? `${item.label} · ${item.hint}` : undefined}>{item.dot && <i className="app-dock-dot" aria-hidden="true"/>}{item.label}</button>)}</div>

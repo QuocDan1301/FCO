@@ -5,10 +5,11 @@ import { asset } from './asset';
 import { money } from './game';
 import { findPack } from './event';
 import PackImage from './PackImage';
+import RollingNumber from './RollingNumber';
 import { bilacRewardText, isJackpot, shortBp, summarizeBilac } from './bilac';
 import {
   VQTG_BOARD, VQTG_INFO, VQTG_QUADS, VQTG_RULES, VQTG_SPECIAL, VQTG_WHEEL, tokenPoint,
-  miniJackpotBp, raceCountdown, rollTickets, rollTo, rollValue, type JackpotRoll, vqtgAvailable, vqtgPath, vqtgPickAllowed, vqtgBestPick, wheelAngle, type VqtgTile,
+  miniJackpotBp, raceCountdown, rollTickets, vqtgAvailable, vqtgPath, vqtgPickAllowed, vqtgBestPick, wheelAngle, type VqtgTile,
 } from './vqtg';
 import { voucherName } from './stp';
 import { marketNow } from './market';
@@ -85,18 +86,6 @@ function TileBody({ tile, pot, pool, picks, canPick, onPick }: {
   </>;
   return <span className="vq-sp-text" style={boxStyle(sp.text)}>
     <small>{tile.kind === 'bp' ? 'BP có thể nhận:' : 'FC có thể nhận:'}</small><b><RollingNumber value={tile.kind === 'bp' ? pool : pot}/></b></span>;
-}
-
-// Số quỹ chạy đều giữa hai lần hỏi máy chủ (rollTo / rollValue trong vqtg.ts). Chỉ ô số này vẽ lại, không vẽ lại cả bàn cờ.
-function RollingNumber({ value }: { value: number }) {
-  const roll = useRef<JackpotRoll>({ from: value, to: value, start: 0 });
-  const [shown, setShown] = useState(value);
-  useEffect(() => { roll.current = rollTo(roll.current, value, Date.now()); setShown(rollValue(roll.current, Date.now())); }, [value]);
-  useEffect(() => {
-    const id = setInterval(() => { const r = roll.current; if (r.from !== r.to) setShown(rollValue(r, Date.now())); }, 250);
-    return () => clearInterval(id);
-  }, []);
-  return <>{shown.toLocaleString('vi-VN')}</>;
 }
 
 // Vòng quay 6 số, kim cố định chỉ lên trên. Số k nằm ở góc (k − 1) × 60° theo chiều kim đồng hồ.

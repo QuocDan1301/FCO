@@ -629,13 +629,14 @@ export function initialSave(): Save {
 export const PACK_ODDS = { ovrDecay: .82, priceAlpha: .5, eventPriceAlpha: 2, levelDecay: .2, milestonePriceAlpha: 1.3, milestoneLevelDecay: .31, prizePriceAlpha: 2.5, prizeLevelDecay: .15, prizeGroupWeights: [1, .5, .25], rankPrizePriceAlpha: .5, rankPrizeOvrDecay: 1, vqtgMilestoneOvrDecay: .9, vqtgMilestonePriceAlpha: .9 } as const;
 export const BILAC_PRIZE_PACKS: ReadonlySet<string> = new Set(['eternal', 'event-4-top150', 'event-6-wb', 'event-7-109']);
 // vqm-* = quà mốc Shop Đổi Vé của Vòng Quanh Thế Giới, cùng luật gói mốc.
-export const isMilestonePack = (pack: Pick<Pack, 'id'>) => /^(blm|ms|vqm)-/.test(pack.id);
-// Gói quà ô của Vòng Quanh Thế Giới (vq-*) cũng là danh sách quà sự kiện → cùng luật với bl-*.
-export const isBilacPrizePack = (pack: Pick<Pack, 'id'>) => !isMilestonePack(pack) && (/^(bl|vq)-/.test(pack.id) || BILAC_PRIZE_PACKS.has(pack.id));
+export const isMilestonePack = (pack: Pick<Pack, 'id'>) => /^(blm|ms|vqm|ctpm)-/.test(pack.id);
+// Gói quà ô của Vòng Quanh Thế Giới (vq-*) và quà trên kệ Cờ tỷ phú (ctp-*) cũng là danh sách quà sự kiện → cùng luật với bl-*.
+export const isBilacPrizePack = (pack: Pick<Pack, 'id'>) => !isMilestonePack(pack) && (/^(bl|vq|ctp)-/.test(pack.id) || BILAC_PRIZE_PACKS.has(pack.id));
 export const isRankPrizePack = (pack: Pick<Pack, 'id'>) => /^p8-/.test(pack.id);
 // Gói mốc Shop Đổi Vé VQTG (vqm-*), 2026-11-18 người dùng "tăng tỉ lệ mở cầu thủ OVR cao các gói mốc trong sự kiện VQTG": phạt OVR nhẹ hơn
 // (vqtgMilestoneOvrDecay) và phạt giá nhẹ hơn (vqtgMilestonePriceAlpha) so với gói mốc chung (0,82 / 1,3); cấp vẫn milestoneLevelDecay.
-export const isVqtgMilestonePack = (pack: Pick<Pack, 'id'>) => /^vqm-/.test(pack.id);
+// ctpm-* = quà mốc Cờ tỷ phú, cùng luật quà mốc VQTG.
+export const isVqtgMilestonePack = (pack: Pick<Pack, 'id'>) => /^(vqm|ctpm)-/.test(pack.id);
 export const ovrDecayOf = (pack: Pick<Pack, 'id'>) => isRankPrizePack(pack) ? PACK_ODDS.rankPrizeOvrDecay : isVqtgMilestonePack(pack) ? PACK_ODDS.vqtgMilestoneOvrDecay : PACK_ODDS.ovrDecay;
 export const priceAlphaOf = (pack: Pack) => !pack.eventOnly ? PACK_ODDS.priceAlpha : isRankPrizePack(pack) ? PACK_ODDS.rankPrizePriceAlpha : isVqtgMilestonePack(pack) ? PACK_ODDS.vqtgMilestonePriceAlpha : isMilestonePack(pack) ? PACK_ODDS.milestonePriceAlpha : isBilacPrizePack(pack) ? PACK_ODDS.prizePriceAlpha : PACK_ODDS.eventPriceAlpha;
 // Nhóm giá của cầu thủ (1 / 2 / 3, theo tên như bảng giá); thiếu thì coi là nhóm 2.

@@ -12,7 +12,8 @@ import { findPack, grantRewards } from './event';
 // Có mùa LD (LAST DANCE, tier ld): thêm GRU, CU, 24EP, MDL, LD, UT 106+ (+8) vào Tinh anh và CU, LD, MDL All (+7~+8) vào Tân binh (202611110011).
 
 // Phiếu giảm giá thuế các mùa: trừ thẳng số điểm % vào thuế bán của MỘT lần bán (1 thẻ hoặc 1 lượt bán hàng loạt), thuế không âm.
-export const TAX_VOUCHERS = [30, 20, 10] as const;
+// 35 / 40 %: quà mốc đặc biệt Cờ tỷ phú (202611220002_fco_ctp_milestones.sql, máy chủ nhận ở fco_mkt_sell).
+export const TAX_VOUCHERS = [40, 35, 30, 20, 10] as const;
 export type TaxVoucher = typeof TAX_VOUCHERS[number];
 export type TaxVouchers = Partial<Record<`${TaxVoucher}`, number>>;
 export const isTaxVoucher = (value: unknown): value is TaxVoucher => TAX_VOUCHERS.includes(value as TaxVoucher);

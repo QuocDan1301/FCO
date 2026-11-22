@@ -17,7 +17,8 @@ test('Luật VQTG trong game khớp fco_vqtg_rules và cách đi quân của má
   assert.equal(vqtgNext(15, 4), 3);
   assert.equal(vqtgNext(16, 1), 1);
   assert.deepEqual(vqtgPath(14, 4), [15, 16, 1, 2]);
-  assert.ok(EVENT_VQTG_ENABLED && !EVENT_BILAC_ENABLED, 'VQTG thay chỗ Bi Lắc');
+  // 2026-11-21: VQTG tạm ẩn chờ sự kiện tuần mới (202611210001_fco_vqtg_hide.sql); Bi Lắc vẫn tắt.
+  assert.ok(!EVENT_VQTG_ENABLED && !EVENT_BILAC_ENABLED, 'VQTG đang ẩn, Bi Lắc tắt');
 });
 
 test('Bàn cờ (ảnh): 13 ô quà đủ 4 ô màu trong ảnh, ô đặc biệt 6 / 10 / 14, quân đi qua đủ 16 ô', () => {

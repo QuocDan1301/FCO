@@ -106,3 +106,11 @@ test('Deploy GitHub Pages không đăng bản offline mothe.html (build:web, 202
   assert.match(wf, /- run: npm run build:web/);
   assert.doesNotMatch(wf, /- run: npm run build\s*\n/);
 });
+
+test('Chặn bản game mở từ file tải về (202611200009): pre-request từ chối Origin "null", không chặn yêu cầu không có Origin', () => {
+  const sql = readFileSync('supabase/migrations/202611200009_fco_block_file_clients.sql', 'utf8');
+  assert.match(sql, /lower\(coalesce\(h->>'origin', ''\)\) = 'null'/);
+  assert.match(sql, /alter role authenticator set pgrst\.db_pre_request = ''public\.fco_pre_request''/);
+  assert.match(sql, /notify pgrst, 'reload config';/);
+});
+

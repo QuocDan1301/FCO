@@ -6878,6 +6878,2200 @@
       "published": true,
       "eventOnly": true,
       "choose": true
+    },
+    {
+      "id": "ctp-120-ucs-24",
+      "name": "26UP, UC, SPT 120+ (+2~+4)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "up26",
+        "uc",
+        "spt"
+      ],
+      "minOvr": 120,
+      "topPrice": null,
+      "levels": [
+        2,
+        4
+      ],
+      "price": 5690000,
+      "description": "Gói hỗn hợp 26UP · UC · SPT, cầu thủ OVR từ 120, thẻ +2 đến +4. Quà sự kiện Cờ tỷ phú.",
+      "range": "121–130",
+      "back": "/assets/custom/ctp-120-ucs-24-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-121-ucs-24",
+      "name": "26UP, UC, SPT 121+ (+2~+4)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "up26",
+        "uc",
+        "spt"
+      ],
+      "minOvr": 121,
+      "topPrice": null,
+      "levels": [
+        2,
+        4
+      ],
+      "price": 7460000,
+      "description": "Gói hỗn hợp 26UP · UC · SPT, cầu thủ OVR từ 121, thẻ +2 đến +4. Quà sự kiện Cờ tỷ phú.",
+      "range": "122–130",
+      "back": "/assets/custom/ctp-121-ucs-24-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-122-ucs-13",
+      "name": "26UP, UC, SPT 122+ (+1~+3)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "up26",
+        "uc",
+        "spt"
+      ],
+      "minOvr": 122,
+      "topPrice": null,
+      "levels": [
+        1,
+        3
+      ],
+      "price": 7070000,
+      "description": "Gói hỗn hợp 26UP · UC · SPT, cầu thủ OVR từ 122, thẻ +1 đến +3. Quà sự kiện Cờ tỷ phú.",
+      "range": "122–128",
+      "back": "/assets/custom/ctp-122-ucs-13-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-111-gcum-89",
+      "name": "GRU, CU, UT, MDL 111+ (+8~+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu",
+        "ut",
+        "mdl"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        8,
+        9
+      ],
+      "price": 31700000,
+      "description": "Gói hỗn hợp GRU · CU · UT · MEDALIST, cầu thủ OVR từ 111, thẻ +8 đến +9. Quà sự kiện Cờ tỷ phú.",
+      "range": "126–134",
+      "back": "/assets/custom/ctp-111-gcum-89-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-110-bgc-89",
+      "name": "BLD, GRU, CU 110+ (+8~+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        8,
+        9
+      ],
+      "price": 22200000,
+      "description": "Gói hỗn hợp BLD · GRU · CU, cầu thủ OVR từ 110, thẻ +8 đến +9. Quà sự kiện Cờ tỷ phú.",
+      "range": "125–135",
+      "back": "/assets/custom/ctp-110-bgc-89-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-114-cu-9",
+      "name": "CU 114+ (+9)",
+      "short": "CU",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": 114,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 208000000,
+      "description": "Gói CU, cầu thủ OVR từ 114, thẻ +9. Quà sự kiện Cờ tỷ phú.",
+      "range": "131–134",
+      "back": "/assets/custom/ctp-114-cu-9-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-119-uspw-35",
+      "name": "UC, SPT, PTG, WG 119+ (+3~+5)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "uc",
+        "spt",
+        "ptg",
+        "wg"
+      ],
+      "minOvr": 119,
+      "topPrice": null,
+      "levels": [
+        3,
+        5
+      ],
+      "price": 6230000,
+      "description": "Gói hỗn hợp UC · SPT · PTG · WG, cầu thủ OVR từ 119, thẻ +3 đến +5. Quà sự kiện Cờ tỷ phú.",
+      "range": "121–132",
+      "back": "/assets/custom/ctp-119-uspw-35-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-112-lwb-78",
+      "name": "LE, WB, BDO 112+ (+7~+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        7,
+        8
+      ],
+      "price": 14200000,
+      "description": "Gói hỗn hợp LE · WB · BDO, cầu thủ OVR từ 112, thẻ +7 đến +8. Quà sự kiện Cờ tỷ phú.",
+      "range": "123–134",
+      "back": "/assets/custom/ctp-112-lwb-78-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-111-lwb-8",
+      "name": "LE, WB, BDO 111+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 31800000,
+      "description": "Gói hỗn hợp LE · WB · BDO, cầu thủ OVR từ 111, thẻ +8. Quà sự kiện Cờ tỷ phú.",
+      "range": "126–134",
+      "back": "/assets/custom/ctp-111-lwb-8-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-113-lwb-8",
+      "name": "LE, WB, BDO 113+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 61100000,
+      "description": "Gói hỗn hợp LE · WB · BDO, cầu thủ OVR từ 113, thẻ +8. Quà sự kiện Cờ tỷ phú.",
+      "range": "128–134",
+      "back": "/assets/custom/ctp-113-lwb-8-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-114-lwbbg-8",
+      "name": "LE, WB, BDO, BLD, GRU 114+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld",
+        "gru"
+      ],
+      "minOvr": 114,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 90600000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD · GRU, cầu thủ OVR từ 114, thẻ +8. Quà sự kiện Cờ tỷ phú.",
+      "range": "129–134",
+      "back": "/assets/custom/ctp-114-lwbbg-8-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-114-bbgc-8",
+      "name": "BDO, BLD, GRU, CU 114+ (+8)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bdo",
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 114,
+      "topPrice": null,
+      "levels": [
+        8,
+        8
+      ],
+      "price": 94300000,
+      "description": "Gói hỗn hợp BDO · BLD · GRU · CU, cầu thủ OVR từ 114, thẻ +8. Quà sự kiện Cờ tỷ phú.",
+      "range": "129–133",
+      "back": "/assets/custom/ctp-114-bbgc-8-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-107-hg-11",
+      "name": "HG 107+ (+11)",
+      "short": "HG",
+      "title": "HOME GROWN",
+      "seasons": [
+        "hg"
+      ],
+      "minOvr": 107,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 37000000,
+      "description": "Gói HG, cầu thủ OVR từ 107, thẻ +11. Quà sự kiện Cờ tỷ phú.",
+      "range": "128–132",
+      "back": "/assets/custom/ctp-107-hg-11-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctp-107-fca-11",
+      "name": "FCA 107+ (+11)",
+      "short": "FCA",
+      "title": "FC AMBASSADOR",
+      "seasons": [
+        "amb"
+      ],
+      "minOvr": 107,
+      "topPrice": null,
+      "levels": [
+        11,
+        11
+      ],
+      "price": 96600000,
+      "description": "Gói FCA, cầu thủ OVR từ 107, thẻ +11. Quà sự kiện Cờ tỷ phú.",
+      "range": "129–133",
+      "back": "/assets/custom/ctp-107-fca-11-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1-1",
+      "name": "26UP, UC, SPT, PTG, WG 120+ (+5~+6)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "up26",
+        "uc",
+        "spt",
+        "ptg",
+        "wg"
+      ],
+      "minOvr": 120,
+      "topPrice": null,
+      "levels": [
+        5,
+        6
+      ],
+      "price": 58600000,
+      "description": "Gói hỗn hợp 26UP · UC · SPT · PTG · WG, cầu thủ OVR từ 120, thẻ +5 đến +6. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "126–134",
+      "back": "/assets/custom/ctpm-1-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-15-1",
+      "name": "GRU 109+ (+10)",
+      "short": "GRU",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": 109,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 77800000,
+      "description": "Gói GRU, cầu thủ OVR từ 109, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "128–136",
+      "back": "/assets/custom/ctpm-15-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-25-1",
+      "name": "LE, WB 110+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 102000000,
+      "description": "Gói hỗn hợp LE · WB, cầu thủ OVR từ 110, thẻ +9. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "127–136",
+      "back": "/assets/custom/ctpm-25-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-50-1",
+      "name": "26UP, UC, SPT, PTG, WG 120+ (+6)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "up26",
+        "uc",
+        "spt",
+        "ptg",
+        "wg"
+      ],
+      "minOvr": 120,
+      "topPrice": null,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 101000000,
+      "description": "Gói hỗn hợp 26UP · UC · SPT · PTG · WG, cầu thủ OVR từ 120, thẻ +6. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "128–134",
+      "back": "/assets/custom/ctpm-50-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-100-1",
+      "name": "GRU, CU 110+ (+10)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 160000000,
+      "description": "Gói hỗn hợp GRU · CU, cầu thủ OVR từ 110, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "129–136",
+      "back": "/assets/custom/ctpm-100-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-100-2",
+      "name": "LE, WB 111+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 123000000,
+      "description": "Gói hỗn hợp LE · WB, cầu thủ OVR từ 111, thẻ +9. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "128–136",
+      "back": "/assets/custom/ctpm-100-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-100-3",
+      "name": "HG, RTN, SPL Top Price 275 (+12)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "hg",
+        "rtn",
+        "spl"
+      ],
+      "minOvr": null,
+      "topPrice": 275,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 34500000,
+      "description": "Gói hỗn hợp HG · RTN · SPL, 275 cầu thủ giá cao nhất, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "125–135",
+      "back": "/assets/custom/ctpm-100-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-150-1",
+      "name": "26UP, UC 120+ (+6)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "up26",
+        "uc"
+      ],
+      "minOvr": 120,
+      "topPrice": null,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 110000000,
+      "description": "Gói hỗn hợp 26UP · UC, cầu thủ OVR từ 120, thẻ +6. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "128–134",
+      "back": "/assets/custom/ctpm-150-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-150-2",
+      "name": "BLD, GRU, CU 108+ (+10)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 80000000,
+      "description": "Gói hỗn hợp BLD · GRU · CU, cầu thủ OVR từ 108, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "127–137",
+      "back": "/assets/custom/ctpm-150-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-150-3",
+      "name": "HG, RTN 103+ (+12)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "hg",
+        "rtn"
+      ],
+      "minOvr": 103,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 33900000,
+      "description": "Gói hỗn hợp HG · RTN, cầu thủ OVR từ 103, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "127–135",
+      "back": "/assets/custom/ctpm-150-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-200-1",
+      "name": "GRU, CU 111+ (+10)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 209000000,
+      "description": "Gói hỗn hợp GRU · CU, cầu thủ OVR từ 111, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "130–136",
+      "back": "/assets/custom/ctpm-200-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-200-2",
+      "name": "LE, WB 112+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 150000000,
+      "description": "Gói hỗn hợp LE · WB, cầu thủ OVR từ 112, thẻ +9. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "129–136",
+      "back": "/assets/custom/ctpm-200-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-250-1",
+      "name": "LE 113+ (+9)",
+      "short": "LE",
+      "title": "LEGEND OF EUROPA",
+      "seasons": [
+        "le"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 205000000,
+      "description": "Gói LE, cầu thủ OVR từ 113, thẻ +9. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "130–136",
+      "back": "/assets/custom/ctpm-250-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-250-2",
+      "name": "BLD, GRU, CU Top Price 325 (+10)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 325,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 134000000,
+      "description": "Gói hỗn hợp BLD · GRU · CU, 325 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "127–137",
+      "back": "/assets/custom/ctpm-250-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-350-1",
+      "name": "BLD, GRU, CU Top Price 300 (+10)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 300,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 168000000,
+      "description": "Gói hỗn hợp BLD · GRU · CU, 300 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "129–137",
+      "back": "/assets/custom/ctpm-350-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-350-2",
+      "name": "UC, SPT, PTG 119+ (+7)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "uc",
+        "spt",
+        "ptg"
+      ],
+      "minOvr": 119,
+      "topPrice": null,
+      "levels": [
+        7,
+        7
+      ],
+      "price": 268000000,
+      "description": "Gói hỗn hợp UC · SPT · PTG, cầu thủ OVR từ 119, thẻ +7. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "130–137",
+      "back": "/assets/custom/ctpm-350-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-450-2",
+      "name": "GRU 113+ (+9~+10)",
+      "short": "GRU",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        9,
+        10
+      ],
+      "price": 211000000,
+      "description": "Gói GRU, cầu thủ OVR từ 113, thẻ +9 đến +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "130–136",
+      "back": "/assets/custom/ctpm-450-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-550-1",
+      "name": "LE, WB, BDO, BLD Top Price 200 (+9)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "le",
+        "wb",
+        "bdo",
+        "bld"
+      ],
+      "minOvr": null,
+      "topPrice": 200,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 314000000,
+      "description": "Gói hỗn hợp LE · WB · BDO · BLD, 200 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "131–136",
+      "back": "/assets/custom/ctpm-550-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-550-3",
+      "name": "FA 102+ (+13)",
+      "short": "FA",
+      "title": "FREE AGENT",
+      "seasons": [
+        "fa"
+      ],
+      "minOvr": 102,
+      "topPrice": null,
+      "levels": [
+        13,
+        13
+      ],
+      "price": 61600000,
+      "description": "Gói FA, cầu thủ OVR từ 102, thẻ +13. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "129–134",
+      "back": "/assets/custom/ctpm-550-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-800-1",
+      "name": "CU 112+ (+10)",
+      "short": "CU",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 283000000,
+      "description": "Gói CU, cầu thủ OVR từ 112, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "131–136",
+      "back": "/assets/custom/ctpm-800-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-800-2",
+      "name": "BLD chỉ định 25 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "BEST LEGENDS",
+      "seasons": [
+        "bld"
+      ],
+      "minOvr": null,
+      "topPrice": 25,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 127000000,
+      "description": "Gói chỉ định BLD: tự chọn 1 trong 25 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "128–137",
+      "back": "/assets/custom/ctpm-800-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-800-3",
+      "name": "23HW, CC 104+ (+12)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "hw23",
+        "cc"
+      ],
+      "minOvr": 104,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 74700000,
+      "description": "Gói hỗn hợp 23HW · CC, cầu thủ OVR từ 104, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "128–137",
+      "back": "/assets/custom/ctpm-800-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-900-1",
+      "name": "26UP 122+ (+6)",
+      "short": "26UP",
+      "title": "26 UP",
+      "seasons": [
+        "up26"
+      ],
+      "minOvr": 122,
+      "topPrice": null,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 161000000,
+      "description": "Gói 26UP, cầu thủ OVR từ 122, thẻ +6. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "130–133",
+      "back": "/assets/custom/ctpm-900-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-900-2",
+      "name": "CC, HG, RTN, SPL Top Price 275 (+12)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "cc",
+        "hg",
+        "rtn",
+        "spl"
+      ],
+      "minOvr": null,
+      "topPrice": 275,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 96100000,
+      "description": "Gói hỗn hợp CC · HG · RTN · SPL, 275 cầu thủ giá cao nhất, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "127–137",
+      "back": "/assets/custom/ctpm-900-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-900-3",
+      "name": "WB 115+ (+9)",
+      "short": "WB",
+      "title": "WONDERBOYS",
+      "seasons": [
+        "wb"
+      ],
+      "minOvr": 115,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 381000000,
+      "description": "Gói WB, cầu thủ OVR từ 115, thẻ +9. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–136",
+      "back": "/assets/custom/ctpm-900-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1000-1",
+      "name": "WB chỉ định 50 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WONDERBOYS",
+      "seasons": [
+        "wb"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 327000000,
+      "description": "Gói chỉ định WB: tự chọn 1 trong 50 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "131–136",
+      "back": "/assets/custom/ctpm-1000-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-1000-2",
+      "name": "BLD, GRU, CU, 24EP Top Price 200 (+10)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu",
+        "ep24"
+      ],
+      "minOvr": null,
+      "topPrice": 200,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 404000000,
+      "description": "Gói hỗn hợp BLD · GRU · CU · 24EP, 200 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–137",
+      "back": "/assets/custom/ctpm-1000-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1000-3",
+      "name": "CC, HG, RTN Top Price 250 (+12)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "cc",
+        "hg",
+        "rtn"
+      ],
+      "minOvr": null,
+      "topPrice": 250,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 92300000,
+      "description": "Gói hỗn hợp CC · HG · RTN, 250 cầu thủ giá cao nhất, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "127–137",
+      "back": "/assets/custom/ctpm-1000-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1100-1",
+      "name": "CU chỉ định 120 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 120,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 311000000,
+      "description": "Gói chỉ định CU: tự chọn 1 trong 120 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "131–136",
+      "back": "/assets/custom/ctpm-1100-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-1100-2",
+      "name": "SPL 101+ (+13)",
+      "short": "SPL",
+      "title": "SPOTLIGHT",
+      "seasons": [
+        "spl"
+      ],
+      "minOvr": 101,
+      "topPrice": null,
+      "levels": [
+        13,
+        13
+      ],
+      "price": 49900000,
+      "description": "Gói SPL, cầu thủ OVR từ 101, thẻ +13. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "128–135",
+      "back": "/assets/custom/ctpm-1100-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1100-3",
+      "name": "FCA, 23HW, CC 105+ (+12)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "amb",
+        "hw23",
+        "cc"
+      ],
+      "minOvr": 105,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 88100000,
+      "description": "Gói hỗn hợp FC AMBASSADOR · 23HW · CC, cầu thủ OVR từ 105, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "129–137",
+      "back": "/assets/custom/ctpm-1100-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1200-1",
+      "name": "LE, WB 115+ (+9)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "le",
+        "wb"
+      ],
+      "minOvr": 115,
+      "topPrice": null,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 364000000,
+      "description": "Gói hỗn hợp LE · WB, cầu thủ OVR từ 115, thẻ +9. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–136",
+      "back": "/assets/custom/ctpm-1200-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1200-2",
+      "name": "BLD, GRU, CU Top Price 150 (+10)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 150,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 448000000,
+      "description": "Gói hỗn hợp BLD · GRU · CU, 150 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–137",
+      "back": "/assets/custom/ctpm-1200-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1200-3",
+      "name": "CC, HG, RTN Top Price 225 (+12)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "cc",
+        "hg",
+        "rtn"
+      ],
+      "minOvr": null,
+      "topPrice": 225,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 124000000,
+      "description": "Gói hỗn hợp CC · HG · RTN, 225 cầu thủ giá cao nhất, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "128–137",
+      "back": "/assets/custom/ctpm-1200-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1300-1",
+      "name": "GRU 114+ (+10)",
+      "short": "GRU",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": 114,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 518000000,
+      "description": "Gói GRU, cầu thủ OVR từ 114, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "133–136",
+      "back": "/assets/custom/ctpm-1300-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1300-2",
+      "name": "UC 120+ (+7)",
+      "short": "UC",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": 120,
+      "topPrice": null,
+      "levels": [
+        7,
+        7
+      ],
+      "price": 388000000,
+      "description": "Gói UC, cầu thủ OVR từ 120, thẻ +7. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "131–137",
+      "back": "/assets/custom/ctpm-1300-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1300-3",
+      "name": "23HW, FCA, CC Top Price 275 (+12)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "hw23",
+        "amb",
+        "cc"
+      ],
+      "minOvr": null,
+      "topPrice": 275,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 103000000,
+      "description": "Gói hỗn hợp 23HW · FC AMBASSADOR · CC, 275 cầu thủ giá cao nhất, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "128–137",
+      "back": "/assets/custom/ctpm-1300-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1400-2",
+      "name": "CU chỉ định 100 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 100,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 402000000,
+      "description": "Gói chỉ định CU: tự chọn 1 trong 100 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–136",
+      "back": "/assets/custom/ctpm-1400-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-1400-3",
+      "name": "CC, HG, RTN Top Price 200 (+12)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "cc",
+        "hg",
+        "rtn"
+      ],
+      "minOvr": null,
+      "topPrice": 200,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 165000000,
+      "description": "Gói hỗn hợp CC · HG · RTN, 200 cầu thủ giá cao nhất, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "129–137",
+      "back": "/assets/custom/ctpm-1400-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1500-2",
+      "name": "WB chỉ định 40 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WONDERBOYS",
+      "seasons": [
+        "wb"
+      ],
+      "minOvr": null,
+      "topPrice": 40,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 418000000,
+      "description": "Gói chỉ định WB: tự chọn 1 trong 40 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–136",
+      "back": "/assets/custom/ctpm-1500-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-1500-3",
+      "name": "CC, HG, RTN, SPL Top Price 225 (+12)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "cc",
+        "hg",
+        "rtn",
+        "spl"
+      ],
+      "minOvr": null,
+      "topPrice": 225,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 147000000,
+      "description": "Gói hỗn hợp CC · HG · RTN · SPL, 225 cầu thủ giá cao nhất, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "129–137",
+      "back": "/assets/custom/ctpm-1500-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1600-1",
+      "name": "GRU chỉ định 40 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": null,
+      "topPrice": 40,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 486000000,
+      "description": "Gói chỉ định GRU: tự chọn 1 trong 40 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–136",
+      "back": "/assets/custom/ctpm-1600-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-1600-2",
+      "name": "SPT 122+ (+7)",
+      "short": "SPT",
+      "title": "SPARTAN",
+      "seasons": [
+        "spt"
+      ],
+      "minOvr": 122,
+      "topPrice": null,
+      "levels": [
+        7,
+        7
+      ],
+      "price": 616000000,
+      "description": "Gói SPT, cầu thủ OVR từ 122, thẻ +7. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "133–136",
+      "back": "/assets/custom/ctpm-1600-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1700-1",
+      "name": "23HW 107+ (+12)",
+      "short": "23HW",
+      "title": "23 HARD WORKER",
+      "seasons": [
+        "hw23"
+      ],
+      "minOvr": 107,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 122000000,
+      "description": "Gói 23HW, cầu thủ OVR từ 107, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "131–136",
+      "back": "/assets/custom/ctpm-1700-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1700-2",
+      "name": "23HW, CC, HG 106+ (+12)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "hw23",
+        "cc",
+        "hg"
+      ],
+      "minOvr": 106,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 110000000,
+      "description": "Gói hỗn hợp 23HW · CC · HG, cầu thủ OVR từ 106, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "130–137",
+      "back": "/assets/custom/ctpm-1700-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1700-3",
+      "name": "23HW, FCA, CC Top Price 225 (+12)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "hw23",
+        "amb",
+        "cc"
+      ],
+      "minOvr": null,
+      "topPrice": 225,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 162000000,
+      "description": "Gói hỗn hợp 23HW · FC AMBASSADOR · CC, 225 cầu thủ giá cao nhất, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "129–137",
+      "back": "/assets/custom/ctpm-1700-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1800-1",
+      "name": "CC 105+ (+12)",
+      "short": "CC",
+      "title": "CC",
+      "seasons": [
+        "cc"
+      ],
+      "minOvr": 105,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 135000000,
+      "description": "Gói CC, cầu thủ OVR từ 105, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "129–137",
+      "back": "/assets/custom/ctpm-1800-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1800-2",
+      "name": "WB chỉ định 30 (+9)",
+      "short": "CHỈ ĐỊNH",
+      "title": "WONDERBOYS",
+      "seasons": [
+        "wb"
+      ],
+      "minOvr": null,
+      "topPrice": 30,
+      "levels": [
+        9,
+        9
+      ],
+      "price": 505000000,
+      "description": "Gói chỉ định WB: tự chọn 1 trong 30 cầu thủ giá cao nhất, thẻ +9. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–136",
+      "back": "/assets/custom/ctpm-1800-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-1800-3",
+      "name": "BLD, GRU, CU Top Price 90 (+10)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "bld",
+        "gru",
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 90,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 608000000,
+      "description": "Gói hỗn hợp BLD · GRU · CU, 90 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "133–137",
+      "back": "/assets/custom/ctpm-1800-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-12600-1",
+      "name": "GRU chỉ định 30 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": null,
+      "topPrice": 30,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 561000000,
+      "description": "Gói chỉ định GRU: tự chọn 1 trong 30 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "133–136",
+      "back": "/assets/custom/ctpm-12600-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-18000",
+      "name": "SPL chỉ định 40 (+13)",
+      "short": "CHỈ ĐỊNH",
+      "title": "SPOTLIGHT",
+      "seasons": [
+        "spl"
+      ],
+      "minOvr": null,
+      "topPrice": 40,
+      "levels": [
+        13,
+        13
+      ],
+      "price": 193000000,
+      "description": "Gói chỉ định SPL: tự chọn 1 trong 40 cầu thủ giá cao nhất, thẻ +13. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "130–135",
+      "back": "/assets/custom/ctpm-18000-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-27000",
+      "name": "HG 108+ (+12)",
+      "short": "HG",
+      "title": "HOME GROWN",
+      "seasons": [
+        "hg"
+      ],
+      "minOvr": 108,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 316000000,
+      "description": "Gói HG, cầu thủ OVR từ 108, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–135",
+      "back": "/assets/custom/ctpm-27000-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-32400-1",
+      "name": "GRU chỉ định 20 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": null,
+      "topPrice": 20,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 665000000,
+      "description": "Gói chỉ định GRU: tự chọn 1 trong 20 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "133–136",
+      "back": "/assets/custom/ctpm-32400-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-32400-2",
+      "name": "CU chỉ định 25 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": null,
+      "topPrice": 25,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 834000000,
+      "description": "Gói chỉ định CU: tự chọn 1 trong 25 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "134–136",
+      "back": "/assets/custom/ctpm-32400-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-36000",
+      "name": "CC chỉ định 60 (+12)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CC",
+      "seasons": [
+        "cc"
+      ],
+      "minOvr": null,
+      "topPrice": 60,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 517000000,
+      "description": "Gói chỉ định CC: tự chọn 1 trong 60 cầu thủ giá cao nhất, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–137",
+      "back": "/assets/custom/ctpm-36000-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-45000",
+      "name": "FCA 109+ (+12)",
+      "short": "FCA",
+      "title": "FC AMBASSADOR",
+      "seasons": [
+        "amb"
+      ],
+      "minOvr": 109,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 594000000,
+      "description": "Gói FCA, cầu thủ OVR từ 109, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "133–136",
+      "back": "/assets/custom/ctpm-45000-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-54000-1",
+      "name": "JNM 109+ (+12)",
+      "short": "JNM",
+      "title": "JOURNEYMAN",
+      "seasons": [
+        "jnm"
+      ],
+      "minOvr": 109,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 784000000,
+      "description": "Gói JNM, cầu thủ OVR từ 109, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "133–138",
+      "back": "/assets/custom/ctpm-54000-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-54000-2",
+      "name": "BLD chỉ định 10 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "BEST LEGENDS",
+      "seasons": [
+        "bld"
+      ],
+      "minOvr": null,
+      "topPrice": 10,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 421000000,
+      "description": "Gói chỉ định BLD: tự chọn 1 trong 10 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–137",
+      "back": "/assets/custom/ctpm-54000-2-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-63000",
+      "name": "CC 110+ (+12)",
+      "short": "CC",
+      "title": "CC",
+      "seasons": [
+        "cc"
+      ],
+      "minOvr": 110,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 905000000,
+      "description": "Gói CC, cầu thủ OVR từ 110, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "134–137",
+      "back": "/assets/custom/ctpm-63000-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-15-2",
+      "name": "UC 119+ (+6)",
+      "short": "UC",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": 119,
+      "topPrice": null,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 108000000,
+      "description": "Gói UC, cầu thủ OVR từ 119, thẻ +6. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "127–134",
+      "back": "/assets/custom/ctpm-15-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-70-1",
+      "name": "SPL 102+ (+12)",
+      "short": "SPL",
+      "title": "SPOTLIGHT",
+      "seasons": [
+        "spl"
+      ],
+      "minOvr": 102,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 23300000,
+      "description": "Gói SPL, cầu thủ OVR từ 102, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "126–132",
+      "back": "/assets/custom/ctpm-70-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-200-3",
+      "name": "HG, RTN, SPL Top Price 225 (+12)",
+      "short": "TOP",
+      "title": "TOP PRICE",
+      "seasons": [
+        "hg",
+        "rtn",
+        "spl"
+      ],
+      "minOvr": null,
+      "topPrice": 225,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 52900000,
+      "description": "Gói hỗn hợp HG · RTN · SPL, 225 cầu thủ giá cao nhất, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "126–135",
+      "back": "/assets/custom/ctpm-200-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-250-3",
+      "name": "HG 103+ (+12)",
+      "short": "HG",
+      "title": "HOME GROWN",
+      "seasons": [
+        "hg"
+      ],
+      "minOvr": 103,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 42800000,
+      "description": "Gói HG, cầu thủ OVR từ 103, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "127–135",
+      "back": "/assets/custom/ctpm-250-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-350-3",
+      "name": "23HW All (+12)",
+      "short": "23HW",
+      "title": "23 HARD WORKER",
+      "seasons": [
+        "hw23"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 56900000,
+      "description": "Gói 23HW: mọi cầu thủ, thẻ +12. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "127–136",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-450-1",
+      "name": "GRU chỉ định 100 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": null,
+      "topPrice": 100,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 207000000,
+      "description": "Gói chỉ định GRU: tự chọn 1 trong 100 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "130–136",
+      "back": "/assets/custom/ctpm-450-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-450-3",
+      "name": "BLD chỉ định 30 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "BEST LEGENDS",
+      "seasons": [
+        "bld"
+      ],
+      "minOvr": null,
+      "topPrice": 30,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 78000000,
+      "description": "Gói chỉ định BLD: tự chọn 1 trong 30 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "126–137",
+      "back": "/assets/custom/ctpm-450-3-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-550-2",
+      "name": "GRU, CU 112+ (+10)",
+      "short": "MULTI",
+      "title": "MULTI CLASS",
+      "seasons": [
+        "gru",
+        "cu"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 276000000,
+      "description": "Gói hỗn hợp GRU · CU, cầu thủ OVR từ 112, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "131–136",
+      "back": "/assets/custom/ctpm-550-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-650-1",
+      "name": "CU 111+ (+10)",
+      "short": "CU",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": 111,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 215000000,
+      "description": "Gói CU, cầu thủ OVR từ 111, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "130–136",
+      "back": "/assets/custom/ctpm-650-1-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-650-2",
+      "name": "GRU 112+ (+10)",
+      "short": "GRU",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": 112,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 267000000,
+      "description": "Gói GRU, cầu thủ OVR từ 112, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "131–136",
+      "back": "/assets/custom/ctpm-650-2-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-650-3",
+      "name": "SPL All (+13)",
+      "short": "SPL",
+      "title": "SPOTLIGHT",
+      "seasons": [
+        "spl"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        13,
+        13
+      ],
+      "price": 49900000,
+      "description": "Gói SPL: mọi cầu thủ, thẻ +13. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "128–135",
+      "back": null,
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-1400-1",
+      "name": "GRU chỉ định 50 (+10)",
+      "short": "CHỈ ĐỊNH",
+      "title": "GRU",
+      "seasons": [
+        "gru"
+      ],
+      "minOvr": null,
+      "topPrice": 50,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 423000000,
+      "description": "Gói chỉ định GRU: tự chọn 1 trong 50 cầu thủ giá cao nhất, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–136",
+      "back": "/assets/custom/ctpm-1400-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-1500-1",
+      "name": "26UP chỉ định 30 (+6)",
+      "short": "CHỈ ĐỊNH",
+      "title": "26 UP",
+      "seasons": [
+        "up26"
+      ],
+      "minOvr": null,
+      "topPrice": 30,
+      "levels": [
+        6,
+        6
+      ],
+      "price": 187000000,
+      "description": "Gói chỉ định 26UP: tự chọn 1 trong 30 cầu thủ giá cao nhất, thẻ +6. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "130–133",
+      "back": "/assets/custom/ctpm-1500-1-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpm-1600-3",
+      "name": "CU 113+ (+10)",
+      "short": "CU",
+      "title": "CU",
+      "seasons": [
+        "cu"
+      ],
+      "minOvr": 113,
+      "topPrice": null,
+      "levels": [
+        10,
+        10
+      ],
+      "price": 389000000,
+      "description": "Gói CU, cầu thủ OVR từ 113, thẻ +10. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "132–136",
+      "back": "/assets/custom/ctpm-1600-3-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpm-9000",
+      "name": "ICON TM 122+ (+2)",
+      "short": "ITM",
+      "title": "THE MOMENT",
+      "seasons": [
+        "eternal"
+      ],
+      "minOvr": 122,
+      "topPrice": null,
+      "levels": [
+        2,
+        2
+      ],
+      "price": 25700000,
+      "description": "Gói ICON TM, cầu thủ OVR từ 122, thẻ +2. Quà mốc sự kiện Cờ tỷ phú.",
+      "range": "123–128",
+      "back": "/assets/custom/ctpm-9000-back.webp",
+      "published": true,
+      "eventOnly": true
+    },
+    {
+      "id": "ctpt-el1-5",
+      "name": "EL chỉ định 5",
+      "short": "CHỈ ĐỊNH",
+      "title": "ETERNAL LEGENDS",
+      "seasons": [
+        "el"
+      ],
+      "minOvr": null,
+      "topPrice": 5,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 1530000000,
+      "description": "Gói chỉ định EL: tự chọn 1 trong 5 cầu thủ giá cao nhất. Quà Đua top sự kiện Cờ tỷ phú.",
+      "range": "136–137",
+      "back": "/assets/custom/ctpt-el1-5-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpt-el1-7",
+      "name": "EL chỉ định 7",
+      "short": "CHỈ ĐỊNH",
+      "title": "ETERNAL LEGENDS",
+      "seasons": [
+        "el"
+      ],
+      "minOvr": null,
+      "topPrice": 7,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 1470000000,
+      "description": "Gói chỉ định EL: tự chọn 1 trong 7 cầu thủ giá cao nhất. Quà Đua top sự kiện Cờ tỷ phú.",
+      "range": "136–137",
+      "back": "/assets/custom/ctpt-el1-7-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpt-el1-10",
+      "name": "EL chỉ định 10",
+      "short": "CHỈ ĐỊNH",
+      "title": "ETERNAL LEGENDS",
+      "seasons": [
+        "el"
+      ],
+      "minOvr": null,
+      "topPrice": 10,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 1490000000,
+      "description": "Gói chỉ định EL: tự chọn 1 trong 10 cầu thủ giá cao nhất. Quà Đua top sự kiện Cờ tỷ phú.",
+      "range": "136–137",
+      "back": "/assets/custom/ctpt-el1-10-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpt-tsu5-5",
+      "name": "TSUBASA chỉ định 5 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CAPTAIN TSUBASA",
+      "seasons": [
+        "tsubasa"
+      ],
+      "minOvr": null,
+      "topPrice": 5,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 711000000,
+      "description": "Gói chỉ định TSUBASA: tự chọn 1 trong 5 cầu thủ giá cao nhất, thẻ +5. Quà Đua top sự kiện Cờ tỷ phú.",
+      "range": "134–136",
+      "back": "/assets/custom/ctpt-tsu5-5-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpt-tsu5-7",
+      "name": "TSUBASA chỉ định 7 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CAPTAIN TSUBASA",
+      "seasons": [
+        "tsubasa"
+      ],
+      "minOvr": null,
+      "topPrice": 7,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 679000000,
+      "description": "Gói chỉ định TSUBASA: tự chọn 1 trong 7 cầu thủ giá cao nhất, thẻ +5. Quà Đua top sự kiện Cờ tỷ phú.",
+      "range": "134–136",
+      "back": "/assets/custom/ctpt-tsu5-7-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpt-tsu5-10",
+      "name": "TSUBASA chỉ định 10 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CAPTAIN TSUBASA",
+      "seasons": [
+        "tsubasa"
+      ],
+      "minOvr": null,
+      "topPrice": 10,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 554000000,
+      "description": "Gói chỉ định TSUBASA: tự chọn 1 trong 10 cầu thủ giá cao nhất, thẻ +5. Quà Đua top sự kiện Cờ tỷ phú.",
+      "range": "133–136",
+      "back": "/assets/custom/ctpt-tsu5-10-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpt-tsu5-15",
+      "name": "TSUBASA chỉ định 15 (+5)",
+      "short": "CHỈ ĐỊNH",
+      "title": "CAPTAIN TSUBASA",
+      "seasons": [
+        "tsubasa"
+      ],
+      "minOvr": null,
+      "topPrice": 15,
+      "levels": [
+        5,
+        5
+      ],
+      "price": 323000000,
+      "description": "Gói chỉ định TSUBASA: tự chọn 1 trong 15 cầu thủ giá cao nhất, thẻ +5. Quà Đua top sự kiện Cờ tỷ phú.",
+      "range": "131–136",
+      "back": "/assets/custom/ctpt-tsu5-15-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpt-uc12-5",
+      "name": "UC chỉ định 5 (+12)",
+      "short": "CHỈ ĐỊNH",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": null,
+      "topPrice": 5,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 321000000000,
+      "description": "Gói chỉ định UC: tự chọn 1 trong 5 cầu thủ giá cao nhất, thẻ +12. Quà Đua top sự kiện Cờ tỷ phú.",
+      "range": "149–150",
+      "back": "/assets/custom/ctpt-uc12-5-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpt-uc12-7",
+      "name": "UC chỉ định 7 (+12)",
+      "short": "CHỈ ĐỊNH",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": null,
+      "topPrice": 7,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 293000000000,
+      "description": "Gói chỉ định UC: tự chọn 1 trong 7 cầu thủ giá cao nhất, thẻ +12. Quà Đua top sự kiện Cờ tỷ phú.",
+      "range": "149–150",
+      "back": "/assets/custom/ctpt-uc12-7-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpt-uc12-10",
+      "name": "UC chỉ định 10 (+12)",
+      "short": "CHỈ ĐỊNH",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": null,
+      "topPrice": 10,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 278000000000,
+      "description": "Gói chỉ định UC: tự chọn 1 trong 10 cầu thủ giá cao nhất, thẻ +12. Quà Đua top sự kiện Cờ tỷ phú.",
+      "range": "149–150",
+      "back": "/assets/custom/ctpt-uc12-10-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
+    },
+    {
+      "id": "ctpt-uc12-15",
+      "name": "UC chỉ định 15 (+12)",
+      "short": "CHỈ ĐỊNH",
+      "title": "UC",
+      "seasons": [
+        "uc"
+      ],
+      "minOvr": null,
+      "topPrice": 15,
+      "levels": [
+        12,
+        12
+      ],
+      "price": 232000000000,
+      "description": "Gói chỉ định UC: tự chọn 1 trong 15 cầu thủ giá cao nhất, thẻ +12. Quà Đua top sự kiện Cờ tỷ phú.",
+      "range": "148–150",
+      "back": "/assets/custom/ctpt-uc12-15-back.webp",
+      "published": true,
+      "eventOnly": true,
+      "choose": true
     }
   ]
 }

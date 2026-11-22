@@ -30,4 +30,9 @@ export const EVENT_NCSS_ENABLED = false;
 export const EVENT_BILAC_ENABLED = false;
 // Sự kiện Vòng Quanh Thế Giới (src/VqtgPage.tsx, supabase/migrations/202611130004_fco_vqtg.sql): nút "Sự kiện" trên thanh dưới,
 // thay chỗ Bi Lắc từ 2026-11-13. Cần chạy migration trước khi build bật cờ này.
-export const EVENT_VQTG_ENABLED = true;
+// 2026-11-21 ẨN để chuẩn bị sự kiện tuần mới; máy chủ cũng khoá chơi / nhận quà (202611210001_fco_vqtg_hide.sql).
+// Mở lại: đặt true + chạy câu "Mở lại" ghi trong migration đó.
+export const EVENT_VQTG_ENABLED = false;
+
+// Sự kiện Cờ tỷ phú (src/CtpPage.tsx, 2026-11-22 đang dựng): false = người chơi chưa thấy; admin vẫn có nút xem trước ở thanh dưới.
+export const EVENT_CTP_ENABLED = false;
