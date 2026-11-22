@@ -35,4 +35,5 @@ export const EVENT_BILAC_ENABLED = false;
 export const EVENT_VQTG_ENABLED = false;
 
 // Sự kiện Cờ tỷ phú (src/CtpPage.tsx, 2026-11-22 đang dựng): false = người chơi chưa thấy; admin vẫn có nút xem trước ở thanh dưới.
-export const EVENT_CTP_ENABLED = false;
+// Cờ tỷ phú: mở cho người chơi từ 2026-11-22 (máy chủ mở riêng: update public.fco_ctp_state set open = true where id = 1).
+export const EVENT_CTP_ENABLED = true;
