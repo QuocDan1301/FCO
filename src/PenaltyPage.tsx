@@ -627,7 +627,8 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
       catch (e) { setError((e as Error).message); setKicking(false); setCamera('idle'); setPhase('aiming'); return; }
     }
     const aim = aimToStage(x, y), miss = shot.miss ?? null;
-    const target = miss ? missTargets(miss, aim).hit : aim, path = flightPath(shotKind, target);
+    // Đối kháng: bị cản thì bóng tới tay thủ môn (gần điểm bay người của đối thủ), giống vai thủ môn.
+    const target = miss ? missTargets(miss, aim).hit : live && shot.saved ? aimToStage(shot.keeper.x * .8 + x * .2, shot.keeper.y * .8 + y * .2) : aim, path = flightPath(shotKind, target);
     setFlying(shotKind);
     if (shotKind === 'power') setShake(n => n + 1);
     const flight = fly(BALL_SPOT, path.control, target, path.duration, [1, .42], [SHADOW_SPOT.top, 56.6], shotKind === 'power' ? t => t : undefined);

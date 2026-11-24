@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { PVP_RULES, fromSvg, kickDeadline, kickLabel, kicksOf, roundLabel, secondsLeft, shooterOf, toSvg } from '../src/pvp.ts';
+import { PVP_RULES, fromSvg, kickDeadline, pvpSaveChance, kickLabel, kicksOf, roundLabel, secondsLeft, shooterOf, toSvg } from '../src/pvp.ts';
 
 // Penalty đối kháng (202611240006_fco_penalty_pvp.sql); máy chủ chạy thật ở supabase/tests/fco-pvp.pglite.mjs.
 const sql = readFileSync('supabase/migrations/202611240006_fco_penalty_pvp.sql', 'utf8');
@@ -73,4 +73,17 @@ test('Mỗi quả 10 giây từ lúc quả hiện trên sân, không quá hạn 
   assert.match(page, /if \(!diveTouched\.current\) \{ const z = KEEPER_ZONES\[Math\.floor\(Math\.random\(\) \* KEEPER_ZONES\.length\)\]/);
   assert.match(page, /diveTouched\.current = false; resetScene\(\)/);
   assert.match(pvp, /deadline: match\.picked \? null : pickBy,/);
+});
+
+test('Thủ môn chỉ cản được khi bay người với tới bóng (202611240012): sai hướng / đứng giữa khi bóng vào góc là chắc chắn vào', () => {
+  const near = (a: number, b: number) => assert.ok(Math.abs(a - b) < 1e-9, `${a} ≠ ${b}`);
+  near(pvpSaveChance({ x: .75, y: .75 }, { x: .75, y: .75 }), .9);
+  near(pvpSaveChance({ x: .75, y: .5 }, { x: -.75, y: .5 }), 0);
+  near(pvpSaveChance({ x: .75, y: .2 }, { x: 0, y: .2 }), 0);
+  near(pvpSaveChance({ x: -.75, y: .75 }, { x: -.75, y: .2 }), .9 * (.55 - .33) / .35);
+  near(pvpSaveChance({ x: 0, y: .5, kind: 'power' }, { x: 0, y: .5 }), .9 * .85);
+  const sql = readFileSync('supabase/migrations/202611240012_fco_pvp_reach_save.sql', 'utf8');
+  assert.match(sql, /least\(\.9, \.9 \* least\(1, greatest\(0, \(\.55 - sqrt\(power\(1\.2 \*/);
+  assert.match(sql, /random\(\) < public\.fco_pvp_save_chance\(p_shot, p_dive\)/);
+  assert.match(readFileSync('src/PenaltyPage.tsx', 'utf8'), /live && shot\.saved \? aimToStage\(shot\.keeper\.x \* \.8 \+ x \* \.2/);
 });

@@ -76,14 +76,15 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const period = usePricePeriod();
   const toSystem = false;
   const feeBase = MARKET_FEE_PERCENT;
-  // Phiếu giảm thuế (gói Star Point): trừ thẳng điểm % thuế của lượt bán này; hết phiếu đang chọn thì bỏ chọn.
+  // Phiếu giảm thuế (gói Star Point): giảm theo % của thuế lượt bán này (thuế × (100 − phiếu)%); hết phiếu đang chọn thì bỏ chọn.
   const [chosenVoucher, setVoucher] = useState<TaxVoucher | null>(null);
   // Premium (giảm 65%, không cộng dồn) chỉ dùng được phiếu cho thuế thấp hơn 14%.
   const usable = TAX_VOUCHERS.filter(pct => voucherCount(save, pct) > 0 && voucherHelps(save, pct, undefined, feeBase));
   const voucher = chosenVoucher && usable.includes(chosenVoucher) ? chosenVoucher : null;
   const baseTax = saleTaxPercent(save, undefined, feeBase);
+  const pctText = (n: number) => (Math.round(n * 100) / 100).toLocaleString('vi-VN');
   const taxPercent = taxFor(save, voucher, undefined, feeBase);
-  const voucherPicker = usable.length > 0 && <label className="sd-voucher"><span>Phiếu giảm thuế</span><select value={voucher ?? ''} onChange={e => setVoucher(e.target.value ? Number(e.target.value) as TaxVoucher : null)} aria-label="Dùng phiếu giảm thuế cho lượt bán này"><option value="">Không dùng · thuế {baseTax}%{premiumActive(save) ? ' (Premium)' : ''}</option>{usable.map(pct => <option key={pct} value={pct}>Giảm {pct}% · thuế còn {taxFor(save, pct, undefined, feeBase)}% (còn {voucherCount(save, pct)} phiếu)</option>)}</select></label>;
+  const voucherPicker = usable.length > 0 && <label className="sd-voucher"><span>Phiếu giảm thuế</span><select value={voucher ?? ''} onChange={e => setVoucher(e.target.value ? Number(e.target.value) as TaxVoucher : null)} aria-label="Dùng phiếu giảm thuế cho lượt bán này"><option value="">Không dùng · thuế {pctText(baseTax)}%{premiumActive(save) ? ' (Premium)' : ''}</option>{usable.map(pct => <option key={pct} value={pct}>Giảm {pct}% thuế · còn {pctText(taxFor(save, pct, undefined, feeBase))}% (còn {voucherCount(save, pct)} phiếu)</option>)}</select></label>;
   const [tab, setTab] = useState<Tab>(initial.tab);
   const [uid, setUid] = useState(initial.uid ?? '');
   const locked = useMemo(() => new Set(save.locked ?? []), [save.locked]);
@@ -204,7 +205,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
         <label className="sd-field"><span>Giá{toSystem && <small> (giá tham chiếu)</small>}</span>
           <input inputMode="numeric" value={toSystem && range ? full(range.price) : priceText} readOnly={toSystem} disabled={!range} aria-invalid={!!range && !priceOk} onChange={e => setPriceText(e.target.value.replace(/\D/g, '') ? full(Number(e.target.value.replace(/\D/g, ''))) : '')} onBlur={clampPrice} onKeyDown={e => { if (e.key === 'ArrowUp') { e.preventDefault(); step(1); } if (e.key === 'ArrowDown') { e.preventDefault(); step(-1); } }}/>
         </label>
-        <p className={`sd-price-note ${range && !priceOk ? 'is-error' : ''}`}>{!range ? marketPriceMissing(card) : !priceOk ? `Giá phải từ ${money(range.min)} đến ${money(range.max)} (±${SELL_BAND_PERCENT}% giá thị trường)` : toSystem ? `Hệ thống mua ngay ${money(price)} · nhận ngay ${money(price * selling.length - sellingFees)} BP sau phí ${taxPercent}%` : `${money(price)} · nhận ${money(price * selling.length - sellingFees)} BP sau phí ${taxPercent}% · treo 24 giờ`}</p>
+        <p className={`sd-price-note ${range && !priceOk ? 'is-error' : ''}`}>{!range ? marketPriceMissing(card) : !priceOk ? `Giá phải từ ${money(range.min)} đến ${money(range.max)} (±${SELL_BAND_PERCENT}% giá thị trường)` : toSystem ? `Hệ thống mua ngay ${money(price)} · nhận ngay ${money(price * selling.length - sellingFees)} BP sau phí ${pctText(taxPercent)}%` : `${money(price)} · nhận ${money(price * selling.length - sellingFees)} BP sau phí ${pctText(taxPercent)}% · treo 24 giờ`}</p>
         <div className="sd-row"><span>Số lượng bán</span><div className="sd-stepper"><b>{count}</b><span><button aria-label="Tăng số lượng" disabled={count >= sellable} onClick={() => setCount(c => Math.min(sellable, c + 1))}><ChevronUp size={14}/></button><button aria-label="Giảm số lượng" disabled={count <= 1} onClick={() => setCount(c => Math.max(1, c - 1))}><ChevronDown size={14}/></button></span></div></div>
         <div className="sd-row"><span>Số lượng có thể bán</span><b className="sd-big">{sellable}</b></div>
         {isTradeLocked(card) ? <p className="sd-price-note is-error">{TRADE_LOCKED}</p> : locked.has(card.uid) && <p className="sd-price-note is-error">Thẻ đang bị khóa. Mở khóa trước khi bán.</p>}
@@ -231,7 +232,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
       </div>
       <footer className="sd-bulk-foot">
         <div className="sd-bulk-sum">
-          <span className="sd-fee">Chi phí bán<i title={`Phí ${taxPercent}% giá bán của mỗi thẻ`}>?</i><b>{money(totalFee)}</b></span>
+          <span className="sd-fee">Chi phí bán<i title={`Phí ${pctText(taxPercent)}% giá bán của mỗi thẻ`}>?</i><b>{money(totalFee)}</b></span>
           {voucherPicker}
             {!toSystem && <select value={mode} onChange={e => setMode(e.target.value as Mode)} aria-label="Mức giá bán hàng loạt">{MODES.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}</select>}
           <span className="sd-total">Tổng giá trị<b>{money(total)}</b></span>

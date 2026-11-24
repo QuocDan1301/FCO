@@ -58,9 +58,13 @@ test('Mua gói Star Point (game tự cộng khi máy chủ chưa giữ kho): đ�
   assert.ok(sameSettings(wallet, { ...wallet, stp: 1 }));
 });
 
-test('Phiếu giảm thuế: trừ thẳng điểm % thuế cho một lần bán, dùng xong mất phiếu; không có phiếu thì không bán được bằng phiếu', () => {
-  assert.equal(taxWithVoucher(40, 30), 10);
-  assert.equal(taxWithVoucher(28, 30), 0);
+test('Phiếu giảm thuế: giảm theo % của thuế cho một lần bán, dùng xong mất phiếu; không có phiếu thì không bán được bằng phiếu', () => {
+  assert.equal(taxWithVoucher(40, 30), 28);
+  assert.equal(taxWithVoucher(40, 40), 24);
+  assert.equal(taxWithVoucher(40, 10), 36);
+  assert.equal(taxWithVoucher(28, 30), 19.6);
+  const sql = readFileSync('supabase/migrations/202611240011_fco_voucher_percent_of_tax.sql', 'utf8');
+  assert.match(sql, /'tax \* \(100 - p_voucher\) \/ 100'/);
   assert.equal(taxWithVoucher(40, null), 40);
   const priced = players.filter(p => marketQuote({ playerId: p.id, level: 1 }).available).slice(0, 2);
   const cards = priced.map(p => makeCard(p.id));
@@ -68,12 +72,12 @@ test('Phiếu giảm thuế: trừ thẳng điểm % thuế cho một lần bán
   const price = sellRange(cards[0])!.max;
   assert.throws(() => sellCards(state, [{ uid: cards[0].uid, price }], false, 20), /phiếu/i);
   const sold = sellCards(state, [{ uid: cards[0].uid, price }], false, 30);
-  assert.equal(sold.fees, Math.floor(price * (MARKET_FEE_PERCENT - 30) / 100));
+  assert.equal(sold.fees, Math.floor(price * (MARKET_FEE_PERCENT * 70 / 100) / 100));
   assert.equal(voucherCount(sold.state, 30), 0);
-  assert.match(sold.state.history[0].detail, /Phí 10% \(phiếu −30%\)/);
+  assert.match(sold.state.history[0].detail, /Phí 28% \(phiếu giảm 30% thuế\)/);
   assert.throws(() => sellCards(sold.state, [{ uid: cards[1].uid, price: sellRange(cards[1])!.max }], false, 30), /phiếu/i);
   const single = sellPlayer({ ...state, taxVouchers: { 10: 2 } }, cards[1].uid, false, 10);
-  assert.equal(single.quote.feePercent, 30);
+  assert.equal(single.quote.feePercent, 36);
   assert.deepEqual(single.state.taxVouchers, { 10: 1 });
 });
 

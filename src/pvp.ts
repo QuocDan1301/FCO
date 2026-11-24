@@ -36,6 +36,12 @@ export const roundLabel = (round: number) => round <= PVP_RULES.kicks * 2 ? `Lư
 // Người sút quả thứ n (khớp fco_pvp_shooter): id trận chẵn → người 1 sút quả lẻ.
 export const shooterOf = (matchId: number, n: number): 1 | 2 => (matchId % 2 === 0) === (n % 2 === 1) ? 1 : 2;
 // Giây còn lại của lượt theo đồng hồ máy chủ (offset = giờ máy chủ − giờ máy này lúc nhận trạng thái).
+// Tỉ lệ thủ môn cản quả sút (máy chủ: fco_pvp_save_chance, 202611240012_fco_pvp_reach_save.sql): chỉ cản được khi điểm bay người với tới bóng.
+export const pvpSaveChance = (shot: { x: number; y: number; kind?: string }, dive: { x: number; y: number }) => {
+  const d = Math.sqrt((1.2 * (shot.x - dive.x)) ** 2 + (.6 * (shot.y - dive.y)) ** 2);
+  const kind = shot.kind === 'power' ? .85 : shot.kind === 'trivela' ? .92 : shot.kind === 'curl' ? (Math.abs(shot.x) > .6 ? .88 : 1.05) : 1;
+  return Math.min(.9, .9 * Math.min(1, Math.max(0, (.55 - d) / .35)) * kind);
+};
 // Hạn chọn của quả đang hiện (giờ máy người chơi): 10 giây từ lúc quả hiện trên sân, không quá hạn máy chủ (đã trừ lệch giờ).
 export const kickDeadline = (serverDeadline: number | null, shownAt: number) => serverDeadline === null ? null : Math.min(serverDeadline, shownAt + PVP_RULES.pickSeconds * 1000);
 export const secondsLeft = (deadline: number | null, offset: number, now = Date.now()) => deadline === null ? 0 : Math.max(0, Math.ceil((deadline - (now + offset)) / 1000));

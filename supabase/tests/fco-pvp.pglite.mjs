@@ -150,4 +150,10 @@ assert.equal(await one('select status from public.fco_pvp_matches where id = $1'
 const board = await rpc('B', 'select public.fco_pvp_board()');
 assert.ok(board.top.length >= 2); assert.equal(board.top[0].rank, 1); assert.ok(board.me && board.me.rank >= 1);
 await assert.rejects(rpc('A', `select public.fco_pvp_pick(${w2.id}, 1, '{"x":5,"y":0}'::jsonb, '{"x":0,"y":0}'::jsonb)`), /FCO_PVP_BAD_PICK/);
+// 202611240012: chỉ cản được khi bay người với tới bóng; sai hướng thì chắc chắn vào (hoặc sút hỏng).
+const sc = async (s, d) => Number((await db.query(`select public.fco_pvp_save_chance($1::jsonb, $2::jsonb) v`, [JSON.stringify(s), JSON.stringify(d)])).rows[0].v);
+assert.ok(Math.abs(await sc({ x: .75, y: .75, kind: 'normal' }, { x: .75, y: .75 }) - .9) < 1e-9);
+assert.equal(await sc({ x: .75, y: .5, kind: 'normal' }, { x: -.75, y: .5 }), 0);
+assert.equal(await sc({ x: .75, y: .2, kind: 'curl' }, { x: 0, y: .2 }), 0);
+for (let i = 0; i < 200; i++) assert.notEqual((await db.query(`select public.fco_pvp_kick('{"x":0.8,"y":0.4,"kind":"normal"}', '{"x":-0.75,"y":0.4}') o`)).rows[0].o, 'save');
 console.log('pvp OK');

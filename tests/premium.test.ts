@@ -22,13 +22,13 @@ test('Premium giảm 65% thuế bán (40% → 14%), không cộng dồn gói th�
   assert.match(sql, /interval '7 days'/);
 });
 
-test('Phiếu giảm thuế với Premium: không cộng dồn, chỉ phiếu cho thuế thấp hơn 14% mới dùng được', () => {
-  assert.equal(taxFor(premium, 30, NOW), 10);
-  assert.equal(voucherHelps(premium, 30, NOW), true);
+test('Phiếu giảm thuế với Premium: không cộng dồn; phiếu giảm theo % của thuế nên không phiếu nào thấp hơn 14%', () => {
+  assert.equal(taxFor(premium, 30, NOW), 14);
+  assert.equal(voucherHelps(premium, 30, NOW), false);
   assert.equal(voucherHelps(premium, 20, NOW), false);
   assert.equal(voucherHelps(premium, 10, NOW), false);
-  // Tài khoản thường vẫn trừ thẳng như trước.
-  assert.equal(taxFor({}, 20, NOW), 20);
+  // Tài khoản thường: thuế × (100 − phiếu)%.
+  assert.equal(taxFor({}, 20, NOW), 32);
   const priced = players.filter(p => marketQuote({ playerId: p.id, level: 1 }).available).slice(0, 2);
   const cards = priced.map(p => makeCard(p.id));
   const state = { ...initialSave(), balance: 0, cards, taxVouchers: { 20: 1, 30: 1 }, premiumUntil: Date.now() + DAY };
@@ -36,8 +36,7 @@ test('Phiếu giảm thuế với Premium: không cộng dồn, chỉ phiếu ch
   assert.throws(() => sellCards(state, [{ uid: cards[0].uid, price }], false, 20), /Premium/);
   const sold = sellCards(state, [{ uid: cards[0].uid, price }]);
   assert.equal(sold.fees, Math.floor(price * 14 / 100));
-  const withVoucher = sellCards(state, [{ uid: cards[1].uid, price: sellRange(cards[1])!.max }], false, 30);
-  assert.equal(withVoucher.state.taxVouchers?.['30'], undefined);
+  assert.throws(() => sellCards(state, [{ uid: cards[1].uid, price: sellRange(cards[1])!.max }], false, 30), /Premium/);
 });
 
 test('Ví máy chủ đặt hạn Premium vào bản lưu; về Classic thì xoá hạn', () => {

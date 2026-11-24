@@ -91,7 +91,7 @@ test('Bán cho hệ thống: thuế gốc 50% trước khi giảm, khớp máy c
   assert.match(sql, new RegExp(`fco_inv_check\\(p_catalog\\) \\|\\| jsonb_build_object\\('marketFee', ${SYSTEM_SALE_FEE_PERCENT}\\)`));
   const plain = {} as Parameters<typeof saleTaxPercent>[0];
   assert.equal(saleTaxPercent(plain, undefined, SYSTEM_SALE_FEE_PERCENT), 50);
-  assert.equal(taxFor(plain, 20, undefined, SYSTEM_SALE_FEE_PERCENT), 30, 'phiếu 20% trừ thẳng điểm %');
+  assert.equal(taxFor(plain, 20, undefined, SYSTEM_SALE_FEE_PERCENT), 40, 'phiếu 20% giảm 20% của thuế 50%');
   assert.equal(saleTaxPercent(plain), 40, 'bán cho người chơi vẫn 40%');
 });
 

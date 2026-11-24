@@ -79,10 +79,10 @@ export const saleTaxPercent = (state: TaxState, at = marketNow(), base = MARKET_
   const tier = tierDiscount(state, at);
   return tier !== null ? base * (100 - tier) / 100 : base * (100 - (bestMembership(state.membership, at)?.discount ?? 0)) / 100;
 };
-// Thuế khi dùng phiếu giảm thuế. Premium / Luxury không cộng dồn: lấy mức thấp hơn giữa thuế của hạng và thuế chung trừ phiếu.
+// Thuế khi dùng phiếu giảm thuế (giảm theo % của thuế). Premium / Luxury / Royal không cộng dồn: lấy mức thấp hơn giữa thuế của hạng và thuế gốc × (100 − phiếu)%.
 export const taxFor = (state: TaxState, voucher: TaxVoucher | null | undefined, at = marketNow(), base = MARKET_FEE_PERCENT) => !voucher
   ? saleTaxPercent(state, at, base)
-  : tierDiscount(state, at) !== null ? Math.min(saleTaxPercent(state, at, base), Math.max(0, base - voucher)) : taxWithVoucher(saleTaxPercent(state, at, base), voucher);
+  : tierDiscount(state, at) !== null ? Math.min(saleTaxPercent(state, at, base), base * (100 - voucher) / 100) : taxWithVoucher(saleTaxPercent(state, at, base), voucher);
 // Phiếu có giảm thêm thuế không (Premium chỉ phiếu 30% mới thấp hơn 14%; Luxury 10% thì không phiếu nào thấp hơn).
 export const voucherHelps = (state: TaxState, voucher: TaxVoucher, at = marketNow(), base = MARKET_FEE_PERCENT) => taxFor(state, voucher, at, base) < saleTaxPercent(state, at, base);
 const USELESS_VOUCHER = 'Phiếu này không giảm thêm thuế cho tài khoản Premium / Luxury / Royal (không cộng dồn).';
@@ -147,7 +147,7 @@ export function sellPlayer(state: Save, cardId: string, free = false, voucher: T
   const paid = voucher ? spendVoucher(state, voucher) : state;
   const balance = free ? state.balance : state.balance + quote.proceeds;
   if (!Number.isSafeInteger(balance)) throw new Error('Số dư đã đạt giới hạn. Không thể bán thêm thẻ.');
-  const entry: Entry = { id: uid(), time: Date.now(), type: 'market', title: `Bán · ${getPlayer(card).name} +${card.level}`, detail: `OVR ${ovr(card)} · Giá ${money(quote.price)} BP · Phí ${quote.feePercent}%${voucher ? ` (phiếu −${voucher}%)` : ''}: ${money(quote.fee)} BP · ${free ? 'Thử nghiệm · Không cộng BP' : `+${money(quote.proceeds)} BP`}` };
+  const entry: Entry = { id: uid(), time: Date.now(), type: 'market', title: `Bán · ${getPlayer(card).name} +${card.level}`, detail: `OVR ${ovr(card)} · Giá ${money(quote.price)} BP · Phí ${quote.feePercent}%${voucher ? ` (phiếu giảm ${voucher}% thuế)` : ''}: ${money(quote.fee)} BP · ${free ? 'Thử nghiệm · Không cộng BP' : `+${money(quote.proceeds)} BP`}` };
   return { state: { ...paid, balance, cards: state.cards.filter(c => c.uid !== cardId), history: [entry, ...state.history].slice(0, 200) }, card, quote };
 }
 
@@ -170,7 +170,7 @@ export function sellRange(card: Pick<Card, 'playerId' | 'level'>) {
   return { price: quote.price, min: Math.ceil(quote.price * (100 - SELL_BAND_PERCENT) / 100), max: Math.floor(quote.price * (100 + SELL_BAND_PERCENT) / 100) };
 }
 export type SellItem = { uid: string; price: number };
-// voucher: phiếu giảm thuế dùng cho cả lượt bán này (trừ thẳng điểm %, src/stp.ts), bớt 1 phiếu.
+// voucher: phiếu giảm thuế dùng cho cả lượt bán này (giảm theo % của thuế, src/stp.ts), bớt 1 phiếu.
 export function sellCards(state: Save, items: SellItem[], free = false, voucher: TaxVoucher | null = null) {
   if (!items.length) throw new Error('Hãy chọn cầu thủ để bán.');
   if (items.length > MAX_BULK_SELL) throw new Error(`Mỗi lần bán tối đa ${MAX_BULK_SELL} cầu thủ.`);
@@ -196,7 +196,7 @@ export function sellCards(state: Save, items: SellItem[], free = false, voucher:
   }
   const proceeds = total - fees, balance = free ? state.balance : state.balance + proceeds;
   if (!Number.isSafeInteger(balance)) throw new Error('Số dư đã đạt giới hạn. Không thể bán thêm thẻ.');
-  const tail = `Phí ${taxPercent}%${voucher ? ` (phiếu −${voucher}%)` : ''}: ${money(fees)} BP · ${free ? 'Thử nghiệm · Không cộng BP' : `+${money(proceeds)} BP`}`;
+  const tail = `Phí ${taxPercent}%${voucher ? ` (phiếu giảm ${voucher}% thuế)` : ''}: ${money(fees)} BP · ${free ? 'Thử nghiệm · Không cộng BP' : `+${money(proceeds)} BP`}`;
   const entry: Entry = sold.length === 1
     ? { id: uid(), time: Date.now(), type: 'market', title: `Bán · ${getPlayer(sold[0]).name} +${sold[0].level}`, detail: `OVR ${ovr(sold[0])} · Giá ${money(total)} BP · ${tail}` }
     : { id: uid(), time: Date.now(), type: 'market', title: `Bán hàng loạt · ${sold.length} cầu thủ`, detail: `Tổng giá ${money(total)} BP · ${tail}` };

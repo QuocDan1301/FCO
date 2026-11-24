@@ -11,7 +11,7 @@ import { findPack, grantRewards } from './event';
 // Có mùa 26HR (26 HEROES, tier hr26): thêm gói WG, 26HR 119+ (+5) vào Siêu cấp (migration 202611110010).
 // Có mùa LD (LAST DANCE, tier ld): thêm GRU, CU, 24EP, MDL, LD, UT 106+ (+8) vào Tinh anh và CU, LD, MDL All (+7~+8) vào Tân binh (202611110011).
 
-// Phiếu giảm giá thuế các mùa: trừ thẳng số điểm % vào thuế bán của MỘT lần bán (1 thẻ hoặc 1 lượt bán hàng loạt), thuế không âm.
+// Phiếu giảm giá thuế các mùa: giảm theo % CỦA THUẾ bán của MỘT lần bán (1 thẻ hoặc 1 lượt bán hàng loạt): thuế 40% + phiếu 30% → 28%.
 // 35 / 40 %: quà mốc đặc biệt Cờ tỷ phú (202611220002_fco_ctp_milestones.sql, máy chủ nhận ở fco_mkt_sell).
 export const TAX_VOUCHERS = [40, 35, 30, 20, 10] as const;
 export type TaxVoucher = typeof TAX_VOUCHERS[number];
@@ -20,8 +20,8 @@ export const isTaxVoucher = (value: unknown): value is TaxVoucher => TAX_VOUCHER
 export const voucherCount = (state: Pick<Save, 'taxVouchers'>, pct: TaxVoucher) => state.taxVouchers?.[`${pct}`] ?? 0;
 export const voucherTotal = (state: Pick<Save, 'taxVouchers'>) => TAX_VOUCHERS.reduce((sum, pct) => sum + voucherCount(state, pct), 0);
 export const voucherName = (pct: number) => `Phiếu giảm giá thuế các mùa ${pct}%`;
-// Thuế sau khi dùng phiếu: trừ thẳng điểm %, không dưới 0.
-export const taxWithVoucher = (tax: number, voucher: TaxVoucher | null | undefined) => voucher ? Math.max(0, tax - voucher) : tax;
+// Phiếu giảm theo phần trăm CỦA THUẾ (202611240011_fco_voucher_percent_of_tax.sql): thuế 40% + phiếu 30% → 40 × 70% = 28%.
+export const taxWithVoucher = (tax: number, voucher: TaxVoucher | null | undefined) => voucher ? tax * (100 - voucher) / 100 : tax;
 
 // Bớt 1 phiếu (gọi khi bán có dùng phiếu). Hết phiếu thì báo lỗi.
 export function spendVoucher(state: Save, pct: TaxVoucher): Save {
