@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Check, Copy, Crown, RotateCcw } from 'lucide-react';
 import { ROYAL_TAX_DISCOUNT, ROYAL_TOPUP_FC } from './market';
+import { TIER_RENEW } from './profile';
 import { asset } from './asset';
 import { money } from './game';
 import { TOPUP_QR, TOPUP_VIETQR, TOPUP_ZALO } from './config';
@@ -144,6 +145,7 @@ export default function TopUp({ online, onCredited, api = LIVE }: { online: bool
         {!done && <div className="tp-royal-bar" role="progressbar" aria-valuemin={0} aria-valuemax={ROYAL_TOPUP_FC} aria-valuenow={stats.topup}><span style={{ width: `${pct}%` }}/>
           <small>{money(stats.topup)} / {money(ROYAL_TOPUP_FC)} FC · còn {money(ROYAL_TOPUP_FC - stats.topup)} FC</small></div>}
       </section>; })()}
+    <p className="tp-renew" role="note"><b>Tự gia hạn đặc quyền:</b> tài khoản <b>Premium</b> nạp ≥ {TIER_RENEW.premium.fc.toLocaleString('vi-VN')} FC trong {TIER_RENEW.premium.days} ngày, <b>Luxury</b> nạp ≥ {TIER_RENEW.luxury.fc.toLocaleString('vi-VN')} FC trong {TIER_RENEW.luxury.days} ngày thì hết hạn sẽ tự gia hạn thêm một kỳ.</p>
     {cfg && <>
       <p className="topup-rate">Tỷ lệ: <b>{vnd(cfg.vndPer1000)} = 1.000 FC</b>{tiers?.event && Date.now() < tiers.event.endsAt && cfg.tiers.length > 0 && ' · đang có sự kiện nạp tích luỹ'}</p>
       {cfg.tiers.length > 0 && <div className="tp-tiers" role="group" aria-label="Mốc nạp">

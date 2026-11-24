@@ -35,7 +35,7 @@ import { claimableGrind } from './grind-missions';
 import type { GrindPeriod, GrindState } from './grind-missions';
 import { applyAdminGifts, applyGiftRewards, giftRewardText, prepareGiftCode } from './gift-codes';
 import { viewLineup, adminGuardSummary } from './wallet';
-import { LOGIN_FOR_FC, setClubLogo, fetchMyPlaySeconds, fetchTopupRace, fetchRanked, finishRanked, abandonRanked, playRanked, buyStpPackage, claimStpMission, fetchStpMissions, fetchGrind, claimGrind, fetchStpToday, penaltyShoot, penaltyStart, penaltyKeep, setNameEffect as setNameEffectOnServer, fetchRenameInfo, renameCoach, ackMyGifts, applyWallet, claimBilac, claimDailyFc, claimMissionFc, fetchBilacConfig, fetchVqtgConfig, playCtp, ctpMissionAccept, ctpMissionClaim, fetchCtpConfig, claimCtp, fetchCtpPending, pickCtp, ctpDraft, fetchCtpTop, fetchVqtgTop, fetchTopViewed, fetchPlus8Board, fetchPlus8History, fetchRankRound, playVqtg, claimVqtg, claimVqtgMany, fetchJackpot, fetchLeaderboard, fetchMyGifts, fetchServerNow, fetchWallet, heartbeat, playBilac, playEventFc, redeemGiftHash, reportSquadRank, reportUpgradeRank, spendFc, buyMembership } from './wallet';
+import { LOGIN_FOR_FC, pvpAccess, setClubLogo, fetchMyPlaySeconds, fetchTopupRace, fetchRanked, finishRanked, abandonRanked, playRanked, buyStpPackage, claimStpMission, fetchStpMissions, fetchGrind, claimGrind, fetchStpToday, penaltyShoot, penaltyStart, penaltyKeep, setNameEffect as setNameEffectOnServer, fetchRenameInfo, renameCoach, ackMyGifts, applyWallet, claimBilac, claimDailyFc, claimMissionFc, fetchBilacConfig, fetchVqtgConfig, playCtp, ctpMissionAccept, ctpMissionClaim, fetchCtpConfig, claimCtp, fetchCtpPending, pickCtp, ctpDraft, fetchCtpTop, fetchVqtgTop, fetchTopViewed, fetchPlus8Board, fetchPlus8History, fetchRankRound, playVqtg, claimVqtg, claimVqtgMany, fetchJackpot, fetchLeaderboard, fetchMyGifts, fetchServerNow, fetchWallet, heartbeat, playBilac, playEventFc, redeemGiftHash, reportSquadRank, reportUpgradeRank, spendFc, buyMembership } from './wallet';
 import AdminPanel from './AdminPanel';
 import type { GuardSummary } from './wallet-state';
 import type { AdminTab } from './AdminPanel';
@@ -99,6 +99,7 @@ import { usePricePeriod } from './use-price-period';
 import type { MarketTrade, SellItem } from './market';
 import SellDialog from './SellDialog';
 import TopupRaceBoard, { useTopupRace } from './TopupRaceBoard';
+import PenaltyPvp from './PenaltyPvp';
 import AssetProgressRing from './AssetProgress';
 import type { MarketPending } from './inventory-server';
 import { prefetchImages } from './preload';
@@ -153,7 +154,7 @@ function CardSortSelect({ id, value, onChange }: { id: string; value: CardSort; 
 // Lịch sử lưu từ trước khi bỏ tiền xu vẫn ghi "xu": hiển thị theo đơn vị duy nhất BP.
 const historyDetail = (entry: Entry) => (entry.type === 'upgrade' ? entry.detail.replace(/ · Tỷ lệ [0-9.,]+%/g, '') : entry.detail).replace(/(^|[\s(])xu(?=$|[\s·.,)])/g, '$1BP').replace(/(\d{1,3}(?:[.,]\d{3})+|\d{7,})(?=\s*BP)/g, value => money(Number(value.replace(/[.,]/g, ''))));
 
-type View = 'packs' | 'upgrade' | 'collection' | 'lineup' | 'inventory' | 'history' | 'market' | 'shop' | 'event' | 'bilac' | 'vqtg' | 'ctp' | 'ranks' | 'penalty' | 'ranked' | 'plus8' | 'locker' | 'missions';
+type View = 'packs' | 'upgrade' | 'collection' | 'lineup' | 'inventory' | 'history' | 'market' | 'shop' | 'event' | 'bilac' | 'vqtg' | 'ctp' | 'ranks' | 'penalty' | 'ranked' | 'plus8' | 'locker' | 'missions' | 'pvp';
 type Animation = { id: string; kind: 'pack'; cards: Card[]; pack: Pack; quick: boolean } | { id: string; kind: 'upgrade'; card: Card; success: boolean; before: number; droppedLevel: number | null; restoredLevel: number | null; shielded?: boolean };
 const preview = (id: number): Card => ({ uid: `preview-${id}`, playerId: id, level: 1, received: 0 });
 let audioContext: AudioContext | undefined;
@@ -875,6 +876,9 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
   const [missionsError, setMissionsError] = useState('');
   // Tab mở sẵn: thanh dưới → nhiệm vụ ngày (cày chay), ô STP trên thanh trên cùng → Star Point; false = đóng.
   // Nhiệm vụ là một trang (view 'missions'), không còn hộp thoại (người dùng 2026-11-24); missionsTab = tab mở sẵn khi vào trang.
+  // Penalty đối kháng: chỉ hiện lối vào khi máy chủ cho tài khoản này chơi (202611240008 — đang thử nghiệm thì chỉ admin + acc phụ).
+  const [pvpAllowed, setPvpAllowed] = useState(false);
+  useEffect(() => { if (online && view === 'penalty') void pvpAccess().then(a => setPvpAllowed(a.allowed)).catch(() => setPvpAllowed(false)); }, [online, view]);
   const [missionsTab, setMissionsTab] = useState<GrindPeriod | 'stp'>('day');
   const openMissions = (tab: GrindPeriod | 'stp') => { setMissionsTab(tab); switchView('missions'); };
   const [grind, setGrind] = useState<GrindState | null>(null);
@@ -1495,7 +1499,8 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
       {view === 'plus8' && <Plus8Page loadRound={online ? fetchRankRound : undefined} load={online ? fetchPlus8Board : undefined} loadHistory={online ? fetchPlus8History : undefined} online={online} onUpgrade={() => switchView('upgrade')}/>}
       {view === 'ranks' && <RanksPage load={fetchLeaderboard} loadRanked={fetchRanked} loadRound={online ? fetchRankRound : undefined} online={online} levelBadge={levelBadge} viewLineup={viewLineup}/>}
       {view === 'ranked' && <RankedPage save={save} online={online} load={fetchRanked} play={playRanked} finish={finishRanked} abandon={abandonRanked} onLineup={() => switchView('lineup')} onMatchChange={setRankedMatchActive} viewLineup={viewLineup} levelBadge={levelBadge}/>}
-      {view === 'penalty' && <PenaltyPage online={online} reduced={!!save.reduced} onStart={penaltyStart} onShoot={penaltyShoot} onKeep={penaltyKeep}/>}
+      {view === 'penalty' && <PenaltyPage online={online} reduced={!!save.reduced} onStart={penaltyStart} onShoot={penaltyShoot} onKeep={penaltyKeep} onPvp={pvpAllowed ? () => switchView('pvp') : undefined}/>}
+      {view === 'pvp' && <PenaltyPvp online={online} onBack={() => switchView('penalty')}/>}
       {EVENT_BILAC_ENABLED && view === 'bilac' && <BilacPage fc={save.fc ?? 0} bilac={bilac} loadConfig={fetchBilacConfig} loadJackpot={fetchJackpot} onPlay={playBilacTurns} onClaim={claimBilacMilestone} onRefresh={refreshWallet}/>}
       {EVENT_VQTG_ENABLED && view === 'vqtg' && <VqtgPage fc={save.fc ?? 0} vqtg={vqtg} loadConfig={fetchVqtgConfig} loadTop={fetchVqtgTop} loadJackpot={fetchJackpot} onPlay={playVqtgTurns} onClaim={claimVqtgMilestone} onRefresh={refreshWallet} onHistory={() => { setHistoryType('event'); switchView('history'); }}/>}
       {(EVENT_CTP_ENABLED || isAdmin) && view === 'ctp' && <CtpPage preview={!EVENT_CTP_ENABLED} fc={save.fc ?? 0} ctp={ctp} loadJackpot={fetchJackpot} onPlay={playCtpTurns} onMission={ctpMission} onRefresh={refreshWallet} loadConfig={fetchCtpConfig} onClaim={claimCtpMilestone} loadPending={fetchCtpPending} onPick={pickCtpTurn} onDraft={draftCtp} renderCard={card => <PlayerCard card={card} compact/>} loadTop={fetchCtpTop}/>}

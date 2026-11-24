@@ -1,4 +1,4 @@
-// Acc phụ mua thẻ hệ thống bán (202611220018_fco_sub_market_buy.sql): node fco-sub-market.pglite.mjs <thư mục dự án>
+// Acc phụ mua thẻ hệ thống bán (202611220018_fco_sub_market_buy.sql) + bán cho hệ thống (202611240007_fco_sub_market_sell.sql): node fco-sub-market.pglite.mjs <thư mục dự án>
 import { PGlite } from '@electric-sql/pglite';
 import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -30,7 +30,7 @@ for (const f of readdirSync(dir).filter(f => f.endsWith('.sql')).sort()) {
 }
 let fails = 0;
 const ok = (cond, msg) => { console.log(cond ? 'PASS' : 'FAIL', msg); if (!cond) fails++; };
-ok(!errs.some(e => e.startsWith('20261122001')), 'Migration 202611220017 / 0018 chạy được ' + errs.filter(e => e.startsWith('20261122001')).join(' | '));
+ok(!errs.some(e => e.startsWith('20261122001') || e.startsWith('202611240007')), 'Migration 202611220017 / 0018 / 202611240007 chạy được ' + errs.filter(e => e.startsWith('20261122001') || e.startsWith('202611240007')).join(' | '));
 const S = 'bbbbbbbb-0000-0000-0000-000000000001', B = 'bbbbbbbb-0000-0000-0000-000000000002', C = 'bbbbbbbb-0000-0000-0000-000000000003';
 const prices = Array.from({ length: 13 }, (_, i) => Math.round(100000 * 1.5 ** i));
 const ovrs = Array.from({ length: 13 }, (_, i) => 100 + i);
@@ -90,10 +90,18 @@ if (o20.price != null && o20.left != null) {
   for (let i = 0; i < left0 + 2; i++) await call(S, `public.fco_mkt_buy('v1', 20, 1, $1, true)`, [Number(o20.price)]);
   ok(Number((await offer(20)).left) === left0, `hàng giới hạn: acc phụ mua ${left0 + 2} thẻ, lượt còn lại vẫn ${left0}`);
 } else console.log('(bỏ qua kiểm tra hàng giới hạn: hệ thống không giới hạn thẻ 20)', JSON.stringify(o20));
-// Bán / đặt lệnh vẫn chặn.
+// 202611240007: acc phụ BÁN được — hệ thống mua ngay, KHÔNG khớp lệnh đặt mua (giá cao hơn) của người chơi thật C.
+const bp = (await db.query(`select public.fco_mkt_check_price(10, 1, ${prices[0]}, 10) is null as ok`).catch(() => ({ rows: [{}] })));
+await db.exec(`insert into public.fco_mkt_orders (user_id, side, player_id, level, price, tax, card) values ('${C}', 'buy', 10, 1, ${Math.floor(prices[0] * 1.1)}, 0, null)`);
 const r4 = await call(S, `public.fco_mkt_sell('v1', $1::jsonb)`, [JSON.stringify([{ uid: 's1', price: prices[0] }])]);
-ok(!!r4.e?.match(/FCO_SUB_(MARKET|ACCOUNT)/), 'acc phụ bán thẻ bị chặn ' + (r4.e ?? ''));
-ok((await db.query(`select data from public.fco_game_saves where user_id = $1`, [S])).rows[0].data.cards.some(c => c.uid === 's1'), 'thẻ vẫn còn trong kho');
+ok(!r4.e && r4.r.placed === 1 && r4.r.matched === 0 && r4.r.system === 1, 'acc phụ bán thẻ: hệ thống mua ngay, không khớp lệnh mua của người chơi ' + (r4.e ?? JSON.stringify(r4.r && { placed: r4.r.placed, matched: r4.r.matched, system: r4.r.system })));
+ok(!(await db.query(`select data from public.fco_game_saves where user_id = $1`, [S])).rows[0].data.cards.some(c => c.uid === 's1'), 'thẻ đã rời kho');
+ok((await db.query(`select status from public.fco_mkt_orders where user_id = $1 and side = 'buy' and player_id = 10 and price = $2`, [C, Math.floor(prices[0] * 1.1)])).rows[0].status === 'open', 'lệnh đặt mua của C vẫn mở');
+ok((await db.query(`select count(*)::int n from public.fco_mkt_deliveries where user_id = $1 and kind = 'sell'`, [S])).rows[0].n === 1, 'BP chờ nhận ở Lịch sử chuyển nhượng');
+// Đặt lệnh mua chờ vẫn chặn.
+let blocked = false; try { await db.exec(`insert into public.fco_mkt_orders (user_id, side, player_id, level, price, tax) values ('${S}', 'buy', 10, 1, 1, 0)`); } catch (e) { blocked = /FCO_SUB_MARKET/.test(e.message); }
+ok(blocked, 'acc phụ đặt lệnh mua chờ vẫn bị chặn');
+await db.exec(`delete from public.fco_mkt_orders where user_id = '${C}' and side = 'buy'`);
 // Người chơi thật vẫn khớp lệnh của B như cũ.
 const r5 = await call(C, `public.fco_mkt_buy('v1', 10, 1, $1)`, [sys10]);
 ok(!r5.e && r5.r.matched === true && r5.r.system === false, 'người chơi thường vẫn khớp lệnh bán rẻ của B ' + (r5.e ?? JSON.stringify(r5.r)));

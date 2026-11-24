@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp, Hand, RotateCcw, Target, Trophy, Volume2, VolumeX } from 'lucide-react';
+import { ChevronDown, ChevronUp, Hand, RotateCcw, Target, Trophy, Volume2, VolumeX, Swords } from 'lucide-react';
 import { CrowdAudio, savePenaltyMute, savedPenaltyMute } from './penalty-audio';
 import { setUpdateHold } from './update-check';
 import { BALL_SPOT, KEEPER_STEP, KEEPER_ZONES, SHOT_KINDS, SWEEP_MAX, aimToStage, bezier, flightPath, goalSweepSpeed, keeperToStage, missTargets, stageToAim, sweepMultiplier } from './penalty';
@@ -11,7 +11,7 @@ import type { PenaltyKeep, PenaltyRole, PenaltyShot, PenaltyStart, Point, ShotKi
 // kỷ lục lên BXH. Hình vẽ bằng SVG riêng của FCO VIP; vị trí tính theo % sân khấu 16:10 (src/penalty.ts).
 type Phase = 'idle' | 'starting' | 'aiming' | 'shooting' | 'result' | 'over';
 // onKeep: làm thủ môn (migration 202611120013). Không có thì chỉ có vai sút.
-type Props = { online: boolean; reduced: boolean; onStart: () => Promise<PenaltyStart>; onShoot: (x: number, y: number, kind: ShotKind) => Promise<PenaltyShot>; onKeep?: (x: number, y: number) => Promise<PenaltyKeep> };
+type Props = { online: boolean; reduced: boolean; onStart: () => Promise<PenaltyStart>; onShoot: (x: number, y: number, kind: ShotKind) => Promise<PenaltyShot>; onPvp?: () => void; onKeep?: (x: number, y: number) => Promise<PenaltyKeep> };
 
 const HEIGHT_STEP = .1;
 const SHADOW_SPOT = { left: 50, top: 89.6 };
@@ -452,7 +452,7 @@ function Pitch() {
   </svg>;
 }
 
-export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep }: Props) {
+export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep, onPvp }: Props) {
   const [phase, setPhase] = useState<Phase>('idle');
   // Đang trong lượt sút: không tải lại sang bản mới giữa chừng.
   useEffect(() => { setUpdateHold('penalty', phase !== 'idle' && phase !== 'over'); return () => setUpdateHold('penalty', false); }, [phase]);
@@ -724,6 +724,8 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep 
   return <section className={`workspace penalty-page${reduced ? ' is-reduced' : ''}`} aria-label="Penalty">
     <header className="pk-head">
       <h1><Target aria-hidden="true"/>Penalty</h1>
+      {/* Penalty đối kháng giữa người chơi (src/PenaltyPvp.tsx, người dùng 2026-11-24). */}
+      {onPvp && <button type="button" className="pk-pvp" onClick={onPvp}><Swords size={16} aria-hidden="true"/>Đấu với người chơi</button>}
       {onKeep && <div className="pk-roles" role="radiogroup" aria-label="Vai trò (đổi được sau mỗi lượt sút)">
         <button type="button" role="radio" aria-checked={!keeping} onClick={() => pickRole('shooter')} disabled={!canSwitch}><Target size={15} aria-hidden="true"/>Cầu thủ sút</button>
         <button type="button" role="radio" aria-checked={keeping} onClick={() => pickRole('keeper')} disabled={!canSwitch}><Hand size={15} aria-hidden="true"/>Thủ môn</button>

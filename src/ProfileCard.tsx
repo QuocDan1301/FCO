@@ -10,7 +10,7 @@ import { NAME_EFFECTS, avatarEffectClass, isLuxuryEffect, isRoyalEffect, nameEff
 import { ROYAL_TAX_DISCOUNT, ROYAL_TOPUP_FC } from './market';
 import type { NameEffect } from './name-effects';
 import type { Profile, Save } from './game';
-import { ACCOUNT_TIERS, GENDERS, MONTH_DAYS, accountTierOf, pad, paidTier, playedDays } from './profile';
+import { ACCOUNT_TIERS, GENDERS, MONTH_DAYS, TIER_RENEW, accountTierOf, pad, paidTier, playedDays } from './profile';
 import type { AccountTier } from './profile';
 
 // Thông tin HLV (bấm avatar trên thanh trên cùng): ID = tên đăng nhập, giới tính và sinh nhật (ngày/tháng, không năm) do người chơi
@@ -115,7 +115,7 @@ export default function ProfileCard({ save, accountId, accountEmail = null, club
       <div><dt><CalendarCheck size={15}/>Đã chơi</dt><dd>{joined ? `${playedDays(joined).toLocaleString('vi-VN')} ngày` : '—'}</dd></div>
       {/* Gmail đã gắn với tài khoản (che bớt). Tài khoản cũ đăng nhập bằng tên thì không có dòng này mà có ô Liên kết Gmail bên dưới. */}
       {accountEmail && !isLegacyEmail(accountEmail) && <div><dt><Mail size={15}/>Gmail</dt><dd>{maskEmail(accountEmail)}<small className="profile-locked">Đã liên kết</small></dd></div>}
-      <div><dt><Crown size={15}/>Loại tài khoản</dt><dd>{tier.name}{royal ? <small className="profile-tier-until"> · vĩnh viễn · giảm {ROYAL_TAX_DISCOUNT}% thuế bán · hiệu ứng độc quyền</small> : null}{!royal && premium && (luxury ? save.luxuryUntil : save.premiumUntil) ? <small className="profile-tier-until"> · hết hạn {new Date((luxury ? save.luxuryUntil : save.premiumUntil)!).toLocaleDateString('vi-VN')} · giảm {luxury ? 75 : 65}% thuế bán</small> : null}</dd></div>
+      <div><dt><Crown size={15}/>Loại tài khoản</dt><dd>{tier.name}{royal ? <small className="profile-tier-until"> · vĩnh viễn · giảm {ROYAL_TAX_DISCOUNT}% thuế bán · hiệu ứng độc quyền</small> : null}{!royal && premium && (luxury ? save.luxuryUntil : save.premiumUntil) ? <small className="profile-tier-until"> · hết hạn {new Date((luxury ? save.luxuryUntil : save.premiumUntil)!).toLocaleDateString('vi-VN')} · giảm {luxury ? 75 : 65}% thuế bán</small> : null}{!royal && premium && <small className="profile-tier-until"> · tự gia hạn khi nạp ≥ {TIER_RENEW[luxury ? 'luxury' : 'premium'].fc.toLocaleString('vi-VN')} FC trong {TIER_RENEW[luxury ? 'luxury' : 'premium'].days} ngày</small>}</dd></div>
     </dl>
     {onClub && <ClubLogoPicker value={club} onChoose={onClub}/>}
     <LinkGmail email={accountEmail}/>

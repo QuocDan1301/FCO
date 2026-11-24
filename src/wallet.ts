@@ -1,3 +1,4 @@
+import type { PvpAccess, PvpBoard, PvpMatch, PvpPoint, PvpShot } from './pvp';
 import { accountClient } from './account-client';
 import type { AdminTopupEvents, AdminTopupList, AdminTopupOrder, TopupConfig, TopupOrder, TopupTier, TopupTierState } from './topup-orders';
 import { deviceId } from './device-id';
@@ -182,7 +183,17 @@ export const fetchMyGifts = () => call<AdminGift[]>('fco_my_admin_gifts');
 export const ackMyGifts = (ids: number[]) => call<number>('fco_my_admin_gifts_ack', { p_ids: ids });
 export const adminStats = (search?: string) => call<AdminStats>('fco_admin_stats', { p_search: search || null, p_limit: 300 });
 // Mini game Sút phạt đền (migration 202611110005): máy chủ quyết định thủ môn bắt hay không và ghi kỷ lục.
-export const penaltyStart = () => call<PenaltyStart>('fco_penalty_start');
+// Penalty đối kháng (202611240006_fco_penalty_pvp.sql).
+export const pvpCurrent = () => call<PvpMatch | null>('fco_pvp_current');
+export const pvpFind = () => call<PvpMatch>('fco_pvp_find');
+export const pvpRoomCreate = () => call<PvpMatch>('fco_pvp_room_create');
+export const pvpRoomJoin = (code: string) => call<PvpMatch>('fco_pvp_room_join', { p_code: code });
+export const pvpState = (id: number) => call<PvpMatch>('fco_pvp_state', { p_id: id });
+export const pvpPick = (id: number, round: number, shot: PvpShot, dive: PvpPoint) => call<PvpMatch>('fco_pvp_pick', { p_id: id, p_round: round, p_shot: shot, p_dive: dive });
+export const pvpLeave = (id: number) => call<PvpMatch>('fco_pvp_leave', { p_id: id });
+export const pvpBoard = () => call<PvpBoard>('fco_pvp_board');
+export const pvpAccess = () => call<PvpAccess>('fco_pvp_access');
+export const adminPvpOpen = (open: boolean) => call<PvpAccess>('fco_admin_pvp_open', { p_open: open });export const penaltyStart = () => call<PenaltyStart>('fco_penalty_start');
 // Kiểu sút (migration 202611110006): kiểu Thường không gửi p_kind để máy chủ chưa chạy migration mới vẫn nhận.
 export const penaltyShoot = (x: number, y: number, kind: ShotKind = 'normal') => call<PenaltyShot>('fco_penalty_shoot', { p_x: x, p_y: y, ...(kind === 'normal' ? {} : { p_kind: kind }) });
 // Làm thủ môn: gửi điểm bay người, máy chủ tung cú sút của máy (migration 202611120013).

@@ -26,4 +26,6 @@ export const ACCOUNT_TIERS: Record<AccountTier, string> = { classic: 'Classic', 
 export const accountTierOf = (tier: unknown): AccountTier => tier === 'premium' || tier === 'luxury' || tier === 'royal' ? tier : 'classic';
 // Hạng trả phí (Premium / Luxury, migration 202611120011): dùng được hiệu ứng tên; Luxury thêm hiệu ứng riêng.
 // Royal (tự lên khi nạp đủ 100.000 FC, vĩnh viễn; migration 202611240003): đứng trên Luxury, thêm 6 hiệu ứng độc quyền.
+// Premium / Luxury tự gia hạn khi tổng FC nạp trong kỳ vừa qua đủ mốc (migration 202611240005_fco_tier_auto_renew.sql, fco_tier_renew_rules): khớp máy chủ.
+export const TIER_RENEW = { premium: { fc: 10_000, days: 7 }, luxury: { fc: 50_000, days: 30 } } as const;
 export const paidTier = (tier: unknown) => tier === 'premium' || tier === 'luxury' || tier === 'royal';
