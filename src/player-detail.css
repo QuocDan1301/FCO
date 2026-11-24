@@ -359,3 +359,13 @@
 /* Thanh tab bên phải nhỏ gọn hơn: tab vừa chữ (không chia đều), cao 28px, chữ 13px (người dùng 2026-11-24). */
 .pd-modal .pd-right .pd-tabs{width:auto;align-self:flex-start}
 .pd-modal .pd-right .pd-tabs button,.pd-modal .pd-right .pd-tabs span{flex:0 0 auto;min-width:0;height:28px;padding:0 14px;font-size:13px}
+
+/* Ô CSA vàng thêm bấm được (mở bảng chọn GoldExtraPicker bên dưới danh sách thông tin). */
+.pd-slot-btn{display:inline-flex;padding:0;border:0;background:none;cursor:pointer;border-radius:8px;transition:transform .15s,box-shadow .15s}
+.pd-slot-btn:hover{transform:translateY(-1px);box-shadow:0 0 0 2px #d9b45a}
+.pd-slot-btn[aria-expanded=true]{box-shadow:0 0 0 2px #b08a2e}
+.pd-slot-btn:focus-visible{outline:2px solid #b08a2e;outline-offset:2px}
+.pd-modal .pd-goldx{margin:8px 0 0;padding:8px 10px;border:1px solid #e3d3a0;border-radius:10px;background:#fffaf0}
+.pd-goldx-view{display:grid;gap:10px;align-content:start}
+.pd-modal .pd-goldx-view .pd-goldx{margin:0}
+.pd-goldx-back{justify-self:start}

@@ -16,6 +16,7 @@ import { goldSlotOpen, goldSlotsFor, goldTraitIcon, goldTraitName, goldTraitOf }
 import { careerOf } from './career';
 import { baseTraitDesc, baseTraitIcon, baseTraitName, extraOf } from './player-extra';
 import type { GoldSlot } from './gold-traits';
+import GoldExtraPicker from './GoldExtraPicker';
 import './player-detail.css';
 
 type Props = {
@@ -119,7 +120,7 @@ const ALL_ROLES = ROLE_SPOTS.map(x => x[0]);
 
 // Thông tin cầu thủ, bố cục kiểu FC Online (người dùng 2026-11-24): trái = tên / vị trí + OVR / CLB · quốc tịch · lương, mini face,
 // ô chọn mức cộng, dải 6 chỉ số tóm tắt, tab C.Số ẩn / Giá / Sự nghiệp CLB; phải = tab C.Số chung / Tất cả vị trí.
-export default function PlayerDetail({ card: owned, bonus: realBonus = 0, maxLevel, levelBadge, onClose, miniface, lineupName, inLineup }: Props) {
+export default function PlayerDetail({ card: owned, bonus: realBonus = 0, maxLevel, levelBadge, onClose, miniface, lineupName, inLineup, onGold }: Props) {
   // Đổi mức cộng để xem (OVR, chỉ số, giá theo cấp đó); thẻ thật không đổi.
   const [level, setLevel] = useState(owned.level);
   useEffect(() => setLevel(owned.level), [owned.uid, owned.level]);
@@ -149,6 +150,11 @@ export default function PlayerDetail({ card: owned, bonus: realBonus = 0, maxLev
   const now = priceAt(card);
   const career = careerOf(p.name), clubs = playerClubs(p), cardClub = p.club && !NOT_CLUBS.has(p.club) ? p.club : null;
   const goldTrait = goldTraitOf(p.id), extra = extraOf(p.id);
+  // Tự chọn CSA vàng thêm (ô +7 / +11 theo mùa thẻ, đổi miễn phí; người dùng 2026-11-24 "thêm tự chọn chỉ số ẩn vàng cho các mùa thẻ như trước"):
+  // bấm ô trong dòng "HLV đào tạo đặc điểm bổ sung" mở bảng chọn; chỉ khi xem đúng cấp thật của thẻ mình (onGold có từ App).
+  const [goldOpen, setGoldOpen] = useState(false);
+  useEffect(() => setGoldOpen(false), [owned.uid]);
+  const canPickGold = !!onGold && level === owned.level;
   const phys = physicalOf(p.id);
   const face = faceOf(p, miniface ? { [personKey(p)]: miniface.value ?? '' } : undefined);
   return <div className="pd">
@@ -183,20 +189,27 @@ export default function PlayerDetail({ card: owned, bonus: realBonus = 0, maxLev
           <button type="button" role="tab" aria-selected={tab === 'price'} onClick={() => setTab('price')}>Giá</button>
           <button type="button" role="tab" aria-selected={tab === 'career'} onClick={() => setTab('career')}>Sự nghiệp CLB</button>
         </div>
-        {tab === 'hidden' ? <dl className="pd-info" role="tabpanel">
+        {tab === 'hidden' ? (canPickGold && goldOpen ? <div className="pd-goldx-view" role="tabpanel">
+          <GoldExtraPicker card={owned} player={p} onChoose={onGold!}/>
+          <button type="button" className="secondary-button pd-goldx-back" onClick={() => setGoldOpen(false)}>← Quay lại thông tin</button>
+        </div> : <dl className="pd-info" role="tabpanel">
           <div><dt>Ngày sinh</dt><dd>{extra?.birth ?? '—'}</dd></div>
           <div><dt>Kỹ thuật</dt><dd className="pd-stars" aria-label={extra?.skill ? `${extra.skill} sao` : 'Chưa rõ'}>{Array.from({ length: 5 }, (_, i) => <svg key={i} className={i >= 5 - (extra?.skill ?? 0) ? 'is-on' : ''} viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.2 2.9 6.2 6.7.8-4.9 4.6 1.3 6.7L12 17.1l-6 3.4 1.3-6.7L2.4 9.2l6.7-.8z"/></svg>)}</dd></div>
           <div><dt>Danh tiếng</dt><dd>{extra?.reputation || '—'}</dd></div>
           <div className="pd-info-icons"><dt>Chỉ số ẩn gốc</dt><dd>{goldTrait || extra?.traits.length ? <>{goldTrait && <img src={goldTrait.icon} alt={goldTrait.name} title={`${goldTrait.name}: ${goldTrait.desc}`}/>}{extra?.traits.map(id => <img key={id} src={baseTraitIcon(id)} alt={baseTraitName(id)} title={`${baseTraitName(id)}: ${baseTraitDesc(id)}`}/>)}</> : 'Không có'}</dd></div>
           <div className="pd-info-icons"><dt>HLV đào tạo đặc điểm bổ sung</dt><dd>{lineupName && <strong className="pd-info-set">Đội hình {lineupName}</strong>}{goldSlotsFor(p.tier).map(slot => {
             const open = goldSlotOpen(p.tier, card.level, slot), id = open ? card.gold?.[slot] : undefined;
-            return id ? <img key={slot} src={goldTraitIcon(id)} alt={goldTraitName(id)} title={`+${slot}: ${goldTraitName(id)}`}/>
+            const cell = id ? <img key={slot} src={goldTraitIcon(id)} alt={goldTraitName(id)} title={`+${slot}: ${goldTraitName(id)}`}/>
               : <span key={slot} className={`pd-slot${open ? '' : ' is-locked'}`} title={open ? `Ô +${slot} chưa chọn` : `Mở khi thẻ đạt +${slot}`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 1.8h10.8L22.8 12l-5.4 10.2H6.6L1.2 12z"/>{!open && <path className="lk" d="M8.6 11h6.8v5.6H8.6zm1.5 0V9.3a1.9 1.9 0 0 1 3.8 0V11" />}</svg><em>+{slot}</em></span>;
+            return canPickGold && open ? <button key={slot} type="button" className="pd-slot-btn" aria-expanded={goldOpen} title={`Chọn CSA vàng ô +${slot}`} onClick={() => setGoldOpen(o => !o)}>{cell}</button> : cell;
           })}</dd></div>
           {/* Chỉ số ẩn mới / Tạo cầu thủ: tính năng chưa có trong game, hiện ô khóa để giữ đúng bố cục mẫu (người dùng 2026-11-24). */}
-          <div className="pd-info-icons"><dt>Chỉ số ẩn mới</dt><dd>{lineupName && <strong className="pd-info-set">Đội hình {lineupName}</strong>}{['is-silver', 'is-gold', 'is-silver'].map((tone, i) => <span key={i} className={`pd-slot is-locked ${tone}`} title="Sắp ra mắt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 1.8h10.8L22.8 12l-5.4 10.2H6.6L1.2 12z"/><path className="lk" d="M8.6 11h6.8v5.6H8.6zm1.5 0V9.3a1.9 1.9 0 0 1 3.8 0V11"/></svg></span>)}</dd></div>
+          <div className="pd-info-icons"><dt>Chỉ số ẩn mới</dt><dd>{lineupName && <strong className="pd-info-set">Đội hình {lineupName}</strong>}{['is-silver', 'is-gold', 'is-silver'].map((tone, i) => tone === 'is-gold' && canPickGold
+            // Ô vàng ở giữa bấm được (người dùng 2026-11-24: "nhấn vô đây để thêm chỉ số ẩn vàng"): mở bảng chọn CSA vàng thêm (+7 / +11 theo mùa thẻ).
+            ? <button key={i} type="button" className="pd-slot-btn" aria-expanded={goldOpen} title="Thêm chỉ số ẩn vàng" onClick={() => setGoldOpen(o => !o)}><span className="pd-slot is-gold"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 1.8h10.8L22.8 12l-5.4 10.2H6.6L1.2 12z"/><path className="lk" d="M11 8.2h2v2.8h2.8v2H13v2.8h-2V13H8.2v-2H11z"/></svg></span></button>
+            : <span key={i} className={`pd-slot is-locked ${tone}`} title="Sắp ra mắt"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 1.8h10.8L22.8 12l-5.4 10.2H6.6L1.2 12z"/><path className="lk" d="M8.6 11h6.8v5.6H8.6zm1.5 0V9.3a1.9 1.9 0 0 1 3.8 0V11"/></svg></span>)}</dd></div>
           <div><dt>Tạo cầu thủ</dt><dd>Chưa mở</dd></div>
-        </dl> : tab === 'price' ? <div className="pd-price" role="tabpanel">
+        </dl>) : tab === 'price' ? <div className="pd-price" role="tabpanel">
           {history.length > 1 ? <PriceChart points={history}/> : <p className="pd-empty">{now === null ? 'Thẻ này chưa có giá.' : 'Chưa đủ dữ liệu để vẽ biểu đồ.'}</p>}
           <p className="pd-now"><span>Giá hiện tại</span><b>{now === null ? 'Chưa có giá' : <>{money(now)}<small> BP</small></>}</b></p>
         </div> : <div className="pd-career" role="tabpanel">

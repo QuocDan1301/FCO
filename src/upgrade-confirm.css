@@ -518,3 +518,18 @@
 .uc-spark-cv.is-broken{width:16vh;height:20vh}
 /* Giữ lớp đồ hoạ cố định cho các khối có chuyển động lúc bấm / lộ kết quả (tấm LED nghiêng, khối thẻ): không tạo / huỷ lớp rồi vẽ lại cả khối sau mỗi chuyển động (gây khựng). */
 .uc-backdrop,.uc-rig,.uc-stage{will-change:transform}
+
+/* Intro vào màn chờ đập (người dùng 2026-11-24: "sau khi nhấn Tiếp theo … thêm intro animation hiện lên từ từ từ tối"; bỏ chữ NÂNG CẤP cùng ngày).
+   Màn hiện ngay nền tối (không còn mờ lộ trang cũ phía sau); màn đen phủ ngoài cùng mở dần ~2,2 s, sân khấu thu nhẹ vào, đèn sân bật lần lượt,
+   bảng thông tin bên phải trượt vào sau. Không chặn thao tác (pointer-events:none). Giảm chuyển động thì bỏ hết. */
+.uc-screen{animation:uc-in .12s ease-out both}
+.uc-intro{position:absolute;inset:0;z-index:90;pointer-events:none;background:#000;animation:uc-intro-curtain 2.2s cubic-bezier(.45,0,.2,1) .1s both}
+@keyframes uc-intro-curtain{0%,14%{opacity:1}100%{opacity:0;visibility:hidden}}
+.uc-stage{animation:uc-intro-stage 2.6s cubic-bezier(.2,.7,.2,1) .1s backwards}
+@keyframes uc-intro-stage{from{transform:scale(1.07)}}
+.uc-panel{animation:uc-intro-panel .9s cubic-bezier(.2,.8,.2,1) 1.3s backwards}
+@keyframes uc-intro-panel{from{opacity:0;translate:46px 0}}
+.uc-lights i::before{animation:uc-intro-bulb 1.8s ease-out calc(.4s + var(--d)) backwards}
+@keyframes uc-intro-bulb{from{opacity:1}35%{opacity:1}to{opacity:0}}
+.uc-reduced .uc-intro{display:none}
+@media(prefers-reduced-motion:reduce){.uc-intro{display:none}.uc-stage,.uc-panel,.uc-lights i::before{animation:none}.uc-screen{animation:none}}

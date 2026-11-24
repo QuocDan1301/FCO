@@ -1060,6 +1060,8 @@ export default function UpgradeConfirm({
       aria-label={`Xác nhận nâng cấp ${p.name}`}
       aria-busy={charging}
     >
+      {/* Intro (người dùng 2026-11-24): vào màn chờ đập thì cả màn đang tối đen rồi mở dần cho sân khấu sáng lên. */}
+      <div className="uc-intro" aria-hidden="true"/>
       <div className="uc-stage" aria-hidden="true">
         <div className="uc-zoom">
           <div className="uc-crowd">{UPGRADE_STAND}</div>
