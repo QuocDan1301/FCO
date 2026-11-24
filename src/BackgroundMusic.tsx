@@ -8,7 +8,9 @@ const tracksByType: Record<MusicType, string[]> = {
   vocals: ['/assets/SGD.mp3', '/assets/RTI.mp3', '/assets/background-music.mp3'],
 };
 
-export default function BackgroundMusic({ suspended = false, musicType = 'vocals' }: { suspended?: boolean; musicType?: MusicType }) {
+// enabled: bật / tắt từ Cài đặt (người dùng 2026-11-24: "Thêm bật nhạc trong cài đặt"); showButton: hiện nút loa riêng (hiện không dùng,
+// nút loa trên thanh trên cùng đã bỏ 2026-11-23). Không tự bật: chỉ phát khi người chơi bật trong Cài đặt.
+export default function BackgroundMusic({ suspended = false, musicType = 'vocals', enabled, showButton = true }: { suspended?: boolean; musicType?: MusicType; enabled?: boolean; showButton?: boolean }) {
   const tracks = tracksByType[musicType];
   const currentType = useRef(musicType);
   const initialSource = useRef(asset(tracks[0]));
@@ -84,6 +86,18 @@ export default function BackgroundMusic({ suspended = false, musicType = 'vocals
     }
   }, [musicType]);
 
+  // Bật / tắt từ Cài đặt: bấm ô bật là một thao tác của người chơi nên trình duyệt cho phát nhạc ngay.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || enabled === undefined) return;
+    if (!enabled) { resumeWanted.current = false; audio.pause(); return; }
+    if (suspendedRef.current) { resumeWanted.current = true; return; }
+    if (!audio.paused) return;
+    setError('');
+    setLoading(true);
+    void audio.play().catch(() => setError('Không phát được nhạc. Tắt rồi bật lại nhạc nền trong Cài đặt để thử lại.')).finally(() => setLoading(false));
+  }, [enabled]);
+
   const toggleMusic = async () => {
     const audio = audioRef.current;
     if (!audio || loading || suspendedRef.current) return;
@@ -125,10 +139,10 @@ export default function BackgroundMusic({ suspended = false, musicType = 'vocals
     <audio ref={audioRef} src={initialSource.current} onEnded={playNextTrack} preload="auto"
       onPlay={() => { if (suspendedRef.current) { audioRef.current?.pause(); return; } setPlaying(true); }} onPause={() => setPlaying(false)}
       onError={() => { setPlaying(false); setLoading(false); setError('Không tải được nhạc. Nhấn nút bật nhạc để thử lại.'); }}/>
-    <button className="icon-button music-button" type="button" aria-label={label} title={label}
+    {showButton && <button className="icon-button music-button" type="button" aria-label={label} title={label}
       aria-pressed={playing} aria-busy={loading} disabled={loading || suspended} onClick={toggleMusic}>
       {playing ? <Volume2 size={19}/> : <VolumeX size={19}/>}
-    </button>
+    </button>}
     <span className="sr-only" role="status">{error}</span>
   </>;
 }

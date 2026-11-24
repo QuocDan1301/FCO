@@ -101,8 +101,11 @@ test('Âm thanh sân: không có Web Audio thì không lỗi; nhạc nền tạm
   const a = new CrowdAudio(false);
   assert.doesNotThrow(() => { a.start(); a.kick(); a.netHit(); a.postHit(); a.save(); a.setMuted(true); a.pause(); a.dispose(); });
   const app = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
-  // 2026-11-23: người dùng bỏ nút nhạc nền trên thanh trên cùng và không cho nhạc tự bật, nên App không còn dựng BackgroundMusic.
-  assert.doesNotMatch(app, /<BackgroundMusic /);
+  // 2026-11-23: người dùng bỏ nút nhạc nền trên thanh trên cùng và không cho nhạc tự bật. 2026-11-24: bật / tắt nhạc nền trong Cài đặt
+  // (mặc định tắt), App dựng BackgroundMusic không có nút loa, vẫn tạm dừng ở Penalty.
+  assert.match(app, /<BackgroundMusic enabled=\{musicOn\} showButton=\{false\} suspended=\{[^}]*view === 'penalty'/);
+  assert.match(app, /const \[musicOn, setMusicOn\] = useState\(false\);/);
+  assert.match(app, /aria-label="Bật nhạc nền" checked=\{musicOn\}/);
   const html = renderToStaticMarkup(createElement(PenaltyPage, { online: true, reduced: false, onStart: async () => ({ streak: 0, best: 0 }), onShoot: async () => ({ goal: true, over: false, streak: 1, best: 1, keeper: { x: 0, y: 0 } }) }));
   assert.match(html, /class="pk-sound"[^>]*aria-label="Tắt tiếng khán giả"/);
   const page = readFileSync(new URL('../src/PenaltyPage.tsx', import.meta.url), 'utf8');
