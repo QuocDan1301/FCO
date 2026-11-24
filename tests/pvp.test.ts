@@ -1,13 +1,15 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { PVP_RULES, fromSvg, kickLabel, kicksOf, roundLabel, secondsLeft, shooterOf, toSvg } from '../src/pvp.ts';
+import { PVP_RULES, fromSvg, kickDeadline, kickLabel, kicksOf, roundLabel, secondsLeft, shooterOf, toSvg } from '../src/pvp.ts';
 
 // Penalty đối kháng (202611240006_fco_penalty_pvp.sql); máy chủ chạy thật ở supabase/tests/fco-pvp.pglite.mjs.
 const sql = readFileSync('supabase/migrations/202611240006_fco_penalty_pvp.sql', 'utf8');
 
-test('Luật đối kháng khớp máy chủ (bản luân phiên 202611240009): mỗi người 5 quả, tối đa 30 quả, 20 giây/quả, mất kết nối 45 giây, Elo K=24 từ 1.000', () => {
-  const alt = readFileSync('supabase/migrations/202611240009_fco_pvp_alternate.sql', 'utf8');
+test('Luật đối kháng khớp máy chủ (202611240010): mỗi người 5 quả, tối đa 30 quả, 10 giây chọn + 5 giây diễn mỗi quả, mất kết nối 45 giây, Elo K=24 từ 1.000', () => {
+  const alt = readFileSync('supabase/migrations/202611240010_fco_pvp_10s.sql', 'utf8');
+  assert.equal(PVP_RULES.pickSeconds, 10);
+  assert.equal(PVP_RULES.roundSeconds, PVP_RULES.pickSeconds + PVP_RULES.revealSeconds);
   const m = /fco_pvp_rules\(\)[\s\S]*?select '(\{[^']+\})'::jsonb/.exec(alt);
   assert.ok(m, 'có fco_pvp_rules');
   assert.deepEqual(JSON.parse(m![1]), { ...PVP_RULES });
@@ -33,7 +35,7 @@ test('Nhãn lượt, đồng hồ lượt theo giờ máy chủ, trang được 
   assert.equal(secondsLeft(10_000, 2_000, 0), 8, 'máy chủ chạy nhanh hơn 2 giây');
   assert.equal(secondsLeft(null, 0), 0);
   const app = readFileSync('src/App.tsx', 'utf8');
-  assert.match(app, /\{view === 'pvp' && <PenaltyPvp online=\{online\} onBack=\{\(\) => switchView\('penalty'\)\}\/>\}/);
+  assert.match(app, /\{view === 'pvp' && <PenaltyPvp online=\{online\} reduced=\{!!save\.reduced\} onBack=\{\(\) => switchView\('penalty'\)\}\/>\}/);
   assert.match(app, /onPvp=\{pvpAllowed \? \(\) => switchView\('pvp'\) : undefined\}/, 'chỉ hiện lối vào khi được chơi');
 });
 test('Chế độ thử nghiệm (202611240008): mặc định đóng, chỉ admin + acc phụ; mở thì mọi người trừ acc phụ; admin bật / tắt', () => {
@@ -55,7 +57,20 @@ test('Luân phiên: người sút đổi mỗi quả, khớp công thức máy c
   assert.equal(kickLabel({ shooter: 'opp', o: 'goal' }), 'Thủng lưới');
   const rounds = [{ r: 1, shooter: 'me', o: 'goal' }, { r: 2, shooter: 'opp', o: 'save' }, { r: 3, shooter: 'me', o: 'miss' }] as never;
   assert.deepEqual(kicksOf(rounds, 'me'), ['goal', 'miss']); assert.deepEqual(kicksOf(rounds, 'opp'), ['save']);
-  // Người sút chỉ gửi điểm sút, thủ môn chỉ gửi hướng bay người.
-  const page = readFileSync('src/PenaltyPvp.tsx', 'utf8');
-  assert.match(page, /api\.pick\(match\.id, match\.round, shooting \? \{ \.\.\.shot!, kind \} : null, shooting \? null : dive\)/);
+  // Trận diễn trên sân Penalty có sẵn: người sút chỉ gửi điểm sút, thủ môn chỉ gửi hướng bay người; diễn xong mới sang quả sau.
+  const page = readFileSync('src/PenaltyPvp.tsx', 'utf8'), stage = readFileSync('src/PenaltyPage.tsx', 'utf8');
+  assert.match(page, /<PenaltyPage online reduced=\{reduced\}[^>]*pvp=\{\{/);
+  assert.match(page, /onShoot: \(x: number, y: number, kind: ShotKind\) => submit\(kick, \{ x, y, kind \}, null, toShot\)/);
+  assert.match(page, /onKeep: \(x: number, y: number\) => submit\(kick, null, \{ x, y \}, toKeep\)/);
+  assert.match(stage, /setPhase\('waiting'\);\s*try \{ shot = await live\.onShoot\(x, y, shotKind\); \}/, 'chờ đối thủ chốt rồi mới diễn cú sút');
+  assert.match(stage, /setPhase\('waiting'\);\s*try \{ res = await live\.onKeep\(x, y\); \}/, 'chờ đối thủ chốt rồi mới diễn cú bay người');
+});
+test('Mỗi quả 10 giây từ lúc quả hiện trên sân, không quá hạn máy chủ; hết giờ máy tự sút / tự bắt (hướng ngẫu nhiên nếu chưa chọn)', () => {
+  assert.equal(kickDeadline(null, 1000), null);
+  assert.equal(kickDeadline(100_000, 50_000), 60_000);
+  assert.equal(kickDeadline(55_000, 50_000), 55_000);
+  const page = readFileSync('src/PenaltyPage.tsx', 'utf8'), pvp = readFileSync('src/PenaltyPvp.tsx', 'utf8');
+  assert.match(page, /if \(!diveTouched\.current\) \{ const z = KEEPER_ZONES\[Math\.floor\(Math\.random\(\) \* KEEPER_ZONES\.length\)\]/);
+  assert.match(page, /diveTouched\.current = false; resetScene\(\)/);
+  assert.match(pvp, /deadline: match\.picked \? null : pickBy,/);
 });

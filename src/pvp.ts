@@ -3,7 +3,8 @@
 import type { ShotKind } from './penalty';
 
 // Khớp fco_pvp_rules() trên máy chủ (tests/pvp.test.ts kiểm tra).
-export const PVP_RULES = { kicks: 5, maxKicks: 30, roundSeconds: 20, graceSeconds: 3, awaySeconds: 45, queueSeconds: 20, k: 24, start: 1000 } as const;
+// pickSeconds: thời gian chọn mỗi quả (đếm từ lúc quả hiện trên sân); roundSeconds = pickSeconds + revealSeconds là hạn máy chủ (202611240010).
+export const PVP_RULES = { kicks: 5, maxKicks: 30, pickSeconds: 10, revealSeconds: 5, roundSeconds: 15, graceSeconds: 3, awaySeconds: 45, queueSeconds: 20, k: 24, start: 1000 } as const;
 // Game hỏi trạng thái mỗi 1,5 giây khi đang chờ / đang đá (máy chủ chỉ ghi "còn online" tối đa 10 giây/lần).
 export const PVP_POLL_MS = 1500;
 
@@ -35,6 +36,8 @@ export const roundLabel = (round: number) => round <= PVP_RULES.kicks * 2 ? `Lư
 // Người sút quả thứ n (khớp fco_pvp_shooter): id trận chẵn → người 1 sút quả lẻ.
 export const shooterOf = (matchId: number, n: number): 1 | 2 => (matchId % 2 === 0) === (n % 2 === 1) ? 1 : 2;
 // Giây còn lại của lượt theo đồng hồ máy chủ (offset = giờ máy chủ − giờ máy này lúc nhận trạng thái).
+// Hạn chọn của quả đang hiện (giờ máy người chơi): 10 giây từ lúc quả hiện trên sân, không quá hạn máy chủ (đã trừ lệch giờ).
+export const kickDeadline = (serverDeadline: number | null, shownAt: number) => serverDeadline === null ? null : Math.min(serverDeadline, shownAt + PVP_RULES.pickSeconds * 1000);
 export const secondsLeft = (deadline: number | null, offset: number, now = Date.now()) => deadline === null ? 0 : Math.max(0, Math.ceil((deadline - (now + offset)) / 1000));
 export const REASON_LABEL: Record<string, string> = { leave: 'Đối thủ rời trận', away: 'Đối thủ mất kết nối', score: '', draw: 'Hết 30 quả vẫn hoà' };
 // Nhãn kết quả một quả theo góc nhìn người chơi.

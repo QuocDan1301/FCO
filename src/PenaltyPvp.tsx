@@ -1,58 +1,48 @@
 import { useEffect, useRef, useState } from 'react';
-import type { MouseEvent as ReactMouseEvent } from 'react';
-import { ArrowLeft, Copy, Crown, Hand, LogOut, Search, Shuffle, Swords, Target, Trophy, Users } from 'lucide-react';
-import { SHOT_KINDS } from './penalty';
-import type { ShotKind } from './penalty';
-import { PVP_POLL_MS, PVP_RULES, REASON_LABEL, fromSvg, kickLabel, kicksOf, roundLabel, secondsLeft, toSvg } from './pvp';
-import type { PvpAccess, PvpBoard, PvpMatch, PvpOutcome, PvpPoint, PvpShot } from './pvp';
+import { ArrowLeft, Copy, Crown, LogOut, Search, Shuffle, Swords, Trophy, Users } from 'lucide-react';
+import PenaltyPage from './PenaltyPage';
+import type { PenaltyKeep, PenaltyShot, ShotKind } from './penalty';
+import { PVP_POLL_MS, PVP_RULES, REASON_LABEL, kicksOf, roundLabel, kickDeadline, secondsLeft, shooterOf } from './pvp';
+import type { PvpAccess, PvpBoard, PvpMatch, PvpOutcome, PvpPoint, PvpRound, PvpShot } from './pvp';
 import { adminPvpOpen, pvpAccess, pvpBoard, pvpCurrent, pvpFind, pvpLeave, pvpPick, pvpRoomCreate, pvpRoomJoin, pvpState } from './wallet';
 import { clubLogoUrl } from './club-logo';
 import './pvp.css';
 
-// Penalty đối kháng (người dùng 2026-11-24): ghép ngẫu nhiên hoặc phòng mã; LUÂN PHIÊN mỗi quả một người sút, người kia bắt (202611240009),
-// hai bên chọn bí mật (điểm sút / hướng bay người), máy chủ tính kết quả.
+// Penalty đối kháng (người dùng 2026-11-24): ghép ngẫu nhiên hoặc phòng mã; LUÂN PHIÊN mỗi quả một người sút, người kia bắt (202611240009).
+// Trận diễn trên chính sân Penalty (PenaltyPage, chế độ pvp): người sút canh vạch ngắm + SÚT, thủ môn chọn hướng + BẮT; chốt xong chờ đối thủ,
+// đủ hai bên thì cả hai máy cùng diễn cú sút + cú bay người theo kết quả máy chủ.
 export type PvpApi = { current: () => Promise<PvpMatch | null>; find: () => Promise<PvpMatch>; create: () => Promise<PvpMatch>; join: (code: string) => Promise<PvpMatch>;
   state: (id: number) => Promise<PvpMatch>; pick: (id: number, round: number, shot: PvpShot | null, dive: PvpPoint | null) => Promise<PvpMatch>; leave: (id: number) => Promise<PvpMatch>; board: () => Promise<PvpBoard>;
   access?: () => Promise<PvpAccess>; setOpen?: (open: boolean) => Promise<PvpAccess> };
 const LIVE: PvpApi = { current: pvpCurrent, find: pvpFind, create: pvpRoomCreate, join: pvpRoomJoin, state: pvpState, pick: pvpPick, leave: pvpLeave, board: pvpBoard, access: pvpAccess, setOpen: adminPvpOpen };
 
-// Khung thành nhìn thẳng: bấm để chọn điểm. ball = điểm sút, glove = điểm bay người (vòng tầm với).
-function Goal({ ball, glove, onPick, label, result }: { ball?: PvpPoint | null; glove?: PvpPoint | null; onPick?: (p: PvpPoint) => void; label: string; result?: PvpOutcome }) {
-  const svg = useRef<SVGSVGElement>(null);
-  const click = (e: ReactMouseEvent<SVGSVGElement>) => {
-    if (!onPick || !svg.current) return;
-    const r = svg.current.getBoundingClientRect();
-    onPick(fromSvg((e.clientX - r.left) / r.width * 300, (e.clientY - r.top) / r.height * 110));
-  };
-  const b = ball ? toSvg(ball) : null, g = glove ? toSvg(glove) : null;
-  return <svg ref={svg} className={`pvp-goal${onPick ? ' is-pick' : ''}${result ? ` is-${result}` : ''}`} viewBox="0 0 300 110" role={onPick ? 'button' : 'img'} aria-label={label} onClick={click}>
-    <defs><pattern id="pvp-net" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 0L8 8M8 0L0 8" stroke="#ffffff2e" strokeWidth=".6"/></pattern></defs>
-    <rect x="10" y="10" width="280" height="90" fill="#0d2a1a"/>
-    <rect x="10" y="10" width="280" height="90" fill="url(#pvp-net)"/>
-    <line x1="0" y1="100.5" x2="300" y2="100.5" stroke="#ffffff55" strokeWidth="1"/>
-    <path d="M10 101V10h280v91" fill="none" stroke="#f4f6f8" strokeWidth="4" strokeLinejoin="round"/>
-    {g && <g className="pvp-glove"><circle cx={g.cx} cy={g.cy} r="40" className="pvp-reach"/><circle cx={g.cx} cy={g.cy} r="9"/><text x={g.cx} y={g.cy + 4} textAnchor="middle">✋</text></g>}
-    {b && <g className="pvp-ball"><circle cx={b.cx} cy={b.cy} r="7"/><path d={`M${b.cx - 3} ${b.cy - 2}l3-2 3 2-1 3h-4z`}/></g>}
-  </svg>;
-}
-
 const dot = (o: PvpOutcome | undefined) => o === 'goal' ? 'is-goal' : o ? 'is-fail' : '';
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+// Sút hỏng: căng / bổng thì vọt xà, còn lại dội cột (chỉ để diễn, máy chủ chỉ báo "miss").
+const missKind = (shot: PvpShot) => shot.kind === 'power' || shot.y > .6 ? 'bar' as const : 'post' as const;
+const toShot = (r: PvpRound): PenaltyShot => ({ goal: r.o === 'goal', over: false, streak: 0, best: 0, keeper: r.dive, saved: r.o === 'save', miss: r.o === 'miss' ? missKind(r.shot) : null, kind: r.shot.kind });
+const toKeep = (r: PvpRound): PenaltyKeep => ({ saved: r.o === 'save', goal: r.o === 'goal', over: false, miss: r.o === 'miss' ? missKind(r.shot) : null, shot: r.shot, streak: 0, best: 0 });
+const noStart = async () => ({ streak: 0, best: 0 });
+const noShoot = async (): Promise<PenaltyShot> => { throw new Error('Không dùng ở chế độ đối kháng.'); };
 
-export default function PenaltyPvp({ online, onBack, api = LIVE }: { online: boolean; onBack: () => void; api?: PvpApi }) {
+export default function PenaltyPvp({ online, reduced = false, onBack, api = LIVE }: { online: boolean; reduced?: boolean; onBack: () => void; api?: PvpApi }) {
   const [match, setMatch] = useState<PvpMatch | null>(null);
+  const latest = useRef<PvpMatch | null>(null);
   const [board, setBoard] = useState<PvpBoard | null>(null);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const [code, setCode] = useState('');
-  const [shot, setShot] = useState<PvpPoint | null>(null);
-  const [kind, setKind] = useState<ShotKind>('normal');
-  const [dive, setDive] = useState<PvpPoint | null>(null);
   const [offset, setOffset] = useState(0);
   const [, tick] = useState(0);
   const [copied, setCopied] = useState(false);
+  // Quả đang diễn trên sân: chỉ sang quả mới khi đã diễn xong quả trước (trạng thái máy chủ có thể đi trước).
+  const [shownKick, setShownKick] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  // Lúc quả đang chọn hiện trên sân (mỗi quả 10 giây tính từ đây).
+  const [kickAt, setKickAt] = useState<{ key: string; at: number } | null>(null);
   // Chế độ thử nghiệm (202611240008): admin thấy thanh bật / tắt mở cho mọi người.
   const [access, setAccess] = useState<PvpAccess | null>(null);
-  const adopt = (m: PvpMatch | null) => { setMatch(m); if (m) setOffset(m.now - Date.now()); };
+  const adopt = (m: PvpMatch | null) => { latest.current = m; setMatch(m); if (m) setOffset(m.now - Date.now()); };
   const run = async (task: () => Promise<unknown>) => { if (busy) return; setBusy(true); setError(''); try { await task(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); } };
   const loadBoard = () => { void api.board().then(setBoard).catch(() => {}); };
 
@@ -65,17 +55,36 @@ export default function PenaltyPvp({ online, onBack, api = LIVE }: { online: boo
     const id = window.setInterval(() => { if (document.visibilityState === 'visible') void api.state(active).then(adopt).catch(() => {}); }, PVP_POLL_MS);
     return () => clearInterval(id);
   }, [active]);
-  // Đồng hồ lượt.
+  // Đồng hồ quả.
   useEffect(() => { if (match?.status !== 'playing') return; const id = window.setInterval(() => tick(t => t + 1), 500); return () => clearInterval(id); }, [match?.status]);
-  // Sang lượt mới: xoá lựa chọn cũ. Trận xong: tải lại BXH.
-  const round = match?.round ?? 0;
-  useEffect(() => { setShot(null); setDive(null); setKind('normal'); }, [round, match?.id]);
+  // Không diễn dở thì theo kịp quả hiện tại của trận.
+  useEffect(() => { if (match && !animating && match.round > 0) setShownKick(match.round); }, [match?.id, match?.round, animating]);
   useEffect(() => { if (match?.status === 'done') loadBoard(); }, [match?.status]);
+  // Quả mới hiện trên sân (diễn xong quả trước) thì bắt đầu đếm 10 giây.
+  const liveKey = match && match.status === 'playing' && !animating && shownKick === match.round && match.round > 0 ? `${match.id}:${match.round}` : null;
+  useEffect(() => { if (liveKey) setKickAt(k => k?.key === liveKey ? k : { key: liveKey, at: Date.now() }); }, [liveKey]);
+
+  // Chốt lựa chọn rồi chờ máy chủ tính quả k (đối thủ chốt / hết giờ máy tự chọn).
+  const waitRound = async (id: number, k: number) => {
+    for (let i = 0; i < 150; i++) {
+      const m = latest.current, found = m?.rounds.find(x => x.r === k);
+      if (found) return found;
+      if (m && m.status !== 'playing') throw new Error('Trận đã kết thúc.');
+      await sleep(700);
+      try { adopt(await api.state(id)); } catch { /* thử lại vòng sau */ }
+    }
+    throw new Error('Mất kết nối với trận, hãy tải lại trang.');
+  };
+  const submit = async <T,>(k: number, shot: PvpShot | null, dive: PvpPoint | null, map: (r: PvpRound) => T) => {
+    const m = latest.current;
+    if (!m || m.status !== 'playing') throw new Error('Trận đã kết thúc.');
+    setAnimating(true);
+    try { adopt(await api.pick(m.id, k, shot, dive)); return map(await waitRound(m.id, k)); }
+    catch (e) { setAnimating(false); throw e; }
+  };
 
   if (!online) return <section className="workspace pvp-page"><p className="pvp-note">Hãy đăng nhập để chơi Penalty đối kháng.</p></section>;
 
-  const last = match?.rounds[match.rounds.length - 1];
-  const left = match ? secondsLeft(match.deadline, offset) : 0;
   const header = <><header className="pvp-head">
     <button type="button" className="pvp-back" onClick={onBack}><ArrowLeft size={16}/>Penalty</button>
     <h1><Swords aria-hidden="true"/>Penalty đối kháng</h1>
@@ -104,7 +113,7 @@ export default function PenaltyPvp({ online, onBack, api = LIVE }: { online: boo
         {error && <p className="pvp-error" role="alert">{error}</p>}
         <ul className="pvp-rules">
           <li>Mỗi người sút <b>{PVP_RULES.kicks} quả</b>, <b>luân phiên</b>: quả này bạn sút thì đối thủ làm thủ môn, quả sau đổi vai. Hai bên chọn bí mật <b>điểm sút</b> / <b>hướng bay người</b>.</li>
-          <li>Hoà sau {PVP_RULES.kicks} lượt thì đá <b>luân lưu</b> từng cặp tới khi có cách biệt. Mỗi quả {PVP_RULES.roundSeconds} giây, hết giờ máy tự chọn ngẫu nhiên.</li>
+          <li>Hoà sau {PVP_RULES.kicks} lượt thì đá <b>luân lưu</b> từng cặp tới khi có cách biệt. Mỗi quả <b>{PVP_RULES.pickSeconds} giây</b> cho cả hai bên, hết giờ chưa chọn thì máy <b>tự sút</b> / <b>tự bắt</b>.</li>
           <li>Rời trận hoặc mất kết nối quá {PVP_RULES.awaySeconds} giây là thua. Chỉ trận <b>ghép ngẫu nhiên</b> tính điểm BXH.</li>
         </ul>
       </div>
@@ -140,56 +149,54 @@ export default function PenaltyPvp({ online, onBack, api = LIVE }: { online: boo
     </div>
   </section>;
 
-  // ===== Đang đá / kết thúc (luân phiên: mỗi quả một người sút, người kia bắt) =====
-  const [me, opp] = match.score;
-  const myKicks = kicksOf(match.rounds, 'me'), oppKicks = kicksOf(match.rounds, 'opp');
+  // ===== Đang đá / kết thúc: diễn trên sân Penalty (luân phiên sút / bắt) =====
   const done = match.status === 'done';
-  const slots = (list: PvpOutcome[], mineTurn: boolean) => Math.max(PVP_RULES.kicks, list.length + (!done && mineTurn ? 1 : 0));
-  const shooting = match.iShoot;
-  const ready = shooting ? !!shot : !!dive;
-  const submit = () => { if (!ready) return; void run(async () => adopt(await api.pick(match.id, match.round, shooting ? { ...shot!, kind } : null, shooting ? null : dive))); };
-  return <section className="workspace pvp-page">
-    {header}
-    <div className="pvp-board-score">
-      <div className="pvp-side"><span>Bạn</span><b>{me}</b></div>
-      <div className="pvp-mid">{done ? <b>Kết thúc</b> : <><b>{roundLabel(match.round)}</b><span className={left <= 5 ? 'is-hurry' : undefined}>{left}s</span></>}
+  const kick = Math.max(1, shownKick || match.round);
+  // Người 1 / 2 của mình suy từ quả hiện tại (máy chủ chỉ báo iShoot cho quả hiện tại).
+  const myIdx = match.round > 0 ? (match.iShoot ? shooterOf(match.id, match.round) : 3 - shooterOf(match.id, match.round)) : 1;
+  const role = shooterOf(match.id, kick) === myIdx ? 'shooter' as const : 'keeper' as const;
+  // Đang diễn quả k: chưa lộ kết quả quả đó trên bảng tỉ số.
+  const vis = animating ? match.rounds.filter(x => x.r < kick) : match.rounds;
+  const mine = vis.filter(x => x.shooter === 'me' && x.o === 'goal').length, theirs = vis.filter(x => x.shooter === 'opp' && x.o === 'goal').length;
+  const myKicks = kicksOf(vis, 'me'), oppKicks = kicksOf(vis, 'opp');
+  const slots = (n: number) => Math.max(PVP_RULES.kicks, n + (done ? 0 : 1));
+  const live = !done && kick === match.round;
+  const oppName = match.opponent?.name ?? 'Đối thủ';
+  const kickKey = `${match.id}:${kick}`;
+  const pickBy = live && match.deadline ? kickDeadline(match.deadline - offset, kickAt?.key === kickKey ? kickAt.at : Date.now()) : null;
+  const left = pickBy === null ? 0 : secondsLeft(pickBy, 0);
+  const head = <div className="pvp-stage-head">
+    <div className="pvp-sb">
+      <span className="pvp-sb-name is-me">Bạn<small>{role === 'shooter' && !done ? 'đang sút' : !done ? 'đang bắt' : ''}</small></span>
+      <b>{mine}</b>
+      <div className="pvp-sb-mid">
+        <span>{done ? 'Kết thúc' : roundLabel(kick)}</span>
+        {live && <strong className={left <= 3 ? 'is-hurry' : undefined}>{left}s</strong>}
         <div className="pvp-dots" aria-label="Diễn biến từng quả">
-          <div>{Array.from({ length: slots(myKicks, shooting) }, (_, i) => <i key={i} className={dot(myKicks[i])}/>)}</div>
-          <div>{Array.from({ length: slots(oppKicks, !shooting) }, (_, i) => <i key={i} className={dot(oppKicks[i])}/>)}</div>
+          <div>{Array.from({ length: slots(myKicks.length) }, (_, i) => <i key={i} className={dot(myKicks[i])}/>)}</div>
+          <div>{Array.from({ length: slots(oppKicks.length) }, (_, i) => <i key={i} className={dot(oppKicks[i])}/>)}</div>
         </div>
       </div>
-      <div className="pvp-side is-opp"><span>{match.opponent?.name ?? 'Đối thủ'}</span><b>{opp}</b></div>
+      <b>{theirs}</b>
+      <span className="pvp-sb-name is-opp">{oppName}<small>{role === 'keeper' && !done ? 'đang sút' : !done ? 'đang bắt' : ''}</small></span>
     </div>
-
-    <div className="pvp-match">
-      {last && <div className="pvp-last" aria-live="polite">
-        <small>Quả vừa rồi · {last.shooter === 'me' ? 'Bạn sút' : 'Đối thủ sút, bạn bắt'}</small>
-        <Goal label="Quả vừa rồi" ball={last.shot} glove={last.dive} result={last.o}/>
-        <b className={`is-${last.shooter === 'me' ? last.o : last.o === 'goal' ? 'save' : 'goal'}`}>{kickLabel(last)}</b>
-      </div>}
-
-      {done ? <div className={`pvp-result is-${match.winner}`}>
-        <h2>{match.winner === 'me' ? 'CHIẾN THẮNG' : match.winner === 'opp' ? 'THẤT BẠI' : 'HOÀ'}</h2>
-        <p>{me} – {opp}{match.reason && REASON_LABEL[match.reason] ? ` · ${match.winner === 'opp' && match.reason !== 'draw' ? (match.reason === 'leave' ? 'Bạn đã rời trận' : 'Bạn mất kết nối') : REASON_LABEL[match.reason]}` : ''}</p>
-        {match.delta !== null && <p className="pvp-delta">{match.delta >= 0 ? `+${match.delta}` : match.delta} điểm BXH</p>}
-        <div className="pvp-actions">
-          <button type="button" className="primary-button" disabled={busy} onClick={() => void run(async () => adopt(await api.find()))}><Shuffle size={16}/>Trận mới</button>
-          <button type="button" className="secondary-button" onClick={() => adopt(null)}>Về sảnh</button>
-        </div>
-      </div> : match.picked ? <div className="pvp-waitpick"><div className="pvp-spinner" aria-hidden="true"/><p>Đã chốt · {match.oppPicked ? 'đang tính kết quả…' : shooting ? 'chờ thủ môn đối thủ chọn hướng bay…' : 'chờ đối thủ chọn điểm sút…'}</p></div>
-      : <div className={`pvp-pick-col is-${shooting ? 'shoot' : 'keep'}`}>
-        <h3>{shooting ? <><Target size={18}/>Lượt bạn SÚT · chọn điểm sút</> : <><Hand size={18}/>Lượt bạn BẮT · chọn hướng bay người</>}</h3>
-        {shooting
-          ? <Goal label="Bấm vào khung thành để chọn điểm sút" ball={shot} onPick={setShot}/>
-          : <Goal label="Bấm vào khung thành để chọn hướng bay người" glove={dive} onPick={setDive}/>}
-        {shooting && <div className="pvp-kinds" role="radiogroup" aria-label="Kiểu sút">{SHOT_KINDS.map(k => <button key={k.id} type="button" role="radio" aria-checked={kind === k.id} title={k.hint} onClick={() => setKind(k.id)}>{k.name}</button>)}</div>}
-        <p className="pvp-note">{shooting ? 'Đối thủ đang làm thủ môn' : 'Đối thủ đang chuẩn bị sút'} · {match.oppPicked ? 'đã chọn xong.' : 'đang chọn…'}</p>
-        <div className="pvp-pick-go">
-          <button type="button" className="primary-button" disabled={busy || !ready} onClick={submit}>{ready ? (shooting ? 'Sút!' : 'Bay người!') : shooting ? 'Chọn điểm sút' : 'Chọn hướng bay người'}</button>
-          <button type="button" className="pvp-leave" disabled={busy} onClick={() => { if (confirm('Rời trận sẽ bị xử thua. Vẫn rời?')) void run(async () => adopt(await api.leave(match.id))); }}><LogOut size={14}/>Rời trận</button>
-        </div>
-      </div>}
+    {!done && <button type="button" className="pvp-leave" disabled={busy} onClick={() => { if (confirm('Rời trận sẽ bị xử thua. Vẫn rời?')) void run(async () => adopt(await api.leave(match.id))); }}><LogOut size={14}/>Rời trận</button>}
+  </div>;
+  const overlay = done && !animating ? <div className={`pvp-result is-${match.winner}`}>
+    <h2>{match.winner === 'me' ? 'CHIẾN THẮNG' : match.winner === 'opp' ? 'THẤT BẠI' : 'HOÀ'}</h2>
+    <p>{match.score[0]} – {match.score[1]}{match.reason && REASON_LABEL[match.reason] ? ` · ${match.winner === 'opp' && match.reason !== 'draw' ? (match.reason === 'leave' ? 'Bạn đã rời trận' : 'Bạn mất kết nối') : REASON_LABEL[match.reason]}` : ''}</p>
+    {match.delta !== null && <p className="pvp-delta">{match.delta >= 0 ? `+${match.delta}` : match.delta} điểm BXH</p>}
+    <div className="pvp-actions">
+      <button type="button" className="primary-button" disabled={busy} onClick={() => void run(async () => { setShownKick(0); adopt(await api.find()); })}><Shuffle size={16}/>Trận mới</button>
+      <button type="button" className="secondary-button" onClick={() => { setShownKick(0); adopt(null); }}>Về sảnh</button>
     </div>
     {error && <p className="pvp-error" role="alert">{error}</p>}
-  </section>;
+  </div> : undefined;
+  return <PenaltyPage online reduced={reduced} onStart={noStart} onShoot={noShoot} pvp={{
+    role, kick, header: head, meName: 'Bạn', oppName, overlay,
+    deadline: match.picked ? null : pickBy,
+    onShoot: (x: number, y: number, kind: ShotKind) => submit(kick, { x, y, kind }, null, toShot),
+    onKeep: (x: number, y: number) => submit(kick, null, { x, y }, toKeep),
+    onShown: () => setAnimating(false),
+  }}/>;
 }

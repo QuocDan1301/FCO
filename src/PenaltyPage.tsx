@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { ChevronDown, ChevronUp, Hand, RotateCcw, Target, Trophy, Volume2, VolumeX, Swords } from 'lucide-react';
 import { CrowdAudio, savePenaltyMute, savedPenaltyMute } from './penalty-audio';
 import { setUpdateHold } from './update-check';
@@ -9,9 +10,14 @@ import type { PenaltyKeep, PenaltyRole, PenaltyShot, PenaltyStart, Point, ShotKi
 // (Thường / Xoáy / Căng / Trivela, phím 1–4), SÚT (hoặc Space). Máy chủ quyết định vào / bị bắt / vọt xà / dội cột
 // (supabase/migrations/202611110005_fco_penalty.sql, 202611110006_fco_penalty_kinds.sql): mỗi bàn +1 điểm, không vào là hết lượt,
 // kỷ lục lên BXH. Hình vẽ bằng SVG riêng của FCO VIP; vị trí tính theo % sân khấu 16:10 (src/penalty.ts).
-type Phase = 'idle' | 'starting' | 'aiming' | 'shooting' | 'result' | 'over';
+type Phase = 'idle' | 'starting' | 'aiming' | 'waiting' | 'shooting' | 'result' | 'over';
 // onKeep: làm thủ môn (migration 202611120013). Không có thì chỉ có vai sút.
-type Props = { online: boolean; reduced: boolean; onStart: () => Promise<PenaltyStart>; onShoot: (x: number, y: number, kind: ShotKind) => Promise<PenaltyShot>; onPvp?: () => void; onKeep?: (x: number, y: number) => Promise<PenaltyKeep> };
+type Props = { online: boolean; reduced: boolean; onStart: () => Promise<PenaltyStart>; onShoot: (x: number, y: number, kind: ShotKind) => Promise<PenaltyShot>; onPvp?: () => void; onKeep?: (x: number, y: number) => Promise<PenaltyKeep>; pvp?: PvpStage };
+// Penalty đối kháng dùng chung sân này (người dùng 2026-11-24: "hiển thị cả 2 bên giống như chế độ đá penalty sẵn có, việc sút và bắt gôn diễn ra cùng lúc"):
+// vai của quả hiện tại do trận quyết (role), người sút canh vạch ngắm + SÚT, thủ môn chọn hướng + BẮT; chốt xong chờ đối thủ, đủ hai bên mới
+// diễn cảnh sút + bay người cùng lúc (kết quả máy chủ). kick đổi = sang quả mới (đặt lại sân). Hết giờ (deadline) thì tự sút / tự bay người.
+export type PvpStage = { role: PenaltyRole; kick: number; deadline: number | null; header: ReactNode; meName: string; oppName: string; overlay?: ReactNode;
+  onShoot: (x: number, y: number, kind: ShotKind) => Promise<PenaltyShot>; onKeep: (x: number, y: number) => Promise<PenaltyKeep>; onShown: () => void };
 
 const HEIGHT_STEP = .1;
 const SHADOW_SPOT = { left: 50, top: 89.6 };
@@ -452,7 +458,8 @@ function Pitch() {
   </svg>;
 }
 
-export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep, onPvp }: Props) {
+export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep, onPvp, pvp }: Props) {
+  const pvpRef = useRef(pvp); pvpRef.current = pvp;
   const [phase, setPhase] = useState<Phase>('idle');
   // Đang trong lượt sút: không tải lại sang bản mới giữa chừng.
   useEffect(() => { setUpdateHold('penalty', phase !== 'idle' && phase !== 'over'); return () => setUpdateHold('penalty', false); }, [phase]);
@@ -472,7 +479,8 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
     document.addEventListener('visibilitychange', visible);
     return () => { document.removeEventListener('visibilitychange', visible); audio.current?.dispose(); };
   }, []);
-  const [role, setRole] = useState<PenaltyRole>(() => onKeep ? savedRole() : 'shooter');
+  const [roleState, setRole] = useState<PenaltyRole>(() => onKeep ? savedRole() : 'shooter');
+  const role: PenaltyRole = pvp ? pvp.role : roleState;
   // Điểm thủ môn (người chơi) sẽ bay người tới: x −1…1, y 0…1.
   const [dive, setDive] = useState({ x: 0, y: .2 });
   const pickShooter = (next: Shooter) => { setShooter(next); try { localStorage.setItem(SHOOTER_KEY, next); } catch { /* chỉ nhớ trong phiên này */ } };
@@ -499,8 +507,10 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
   const canSwitch = phase === 'aiming' || phase === 'idle' || phase === 'over';
   const pickRole = (next: PenaltyRole) => { if (!onKeep || !(phaseRef.current === 'aiming' || phaseRef.current === 'idle' || phaseRef.current === 'over')) return; setRole(next); try { localStorage.setItem(ROLE_KEY, next); } catch { /* chỉ nhớ trong phiên này */ } };
   const diveFree = () => phaseRef.current === 'aiming' || phaseRef.current === 'idle' || phaseRef.current === 'over';
-  const setDiveAt = (at: { x: number; y: number }) => { if (diveFree()) setDive({ x: Math.max(-1, Math.min(1, at.x)), y: Math.max(0, Math.min(1, at.y)) }); };
-  const moveDive = (dx: number, dy: number) => { if (diveFree()) setDive(d => ({ x: Math.max(-1, Math.min(1, Math.round((d.x + dx) * 100) / 100)), y: Math.max(0, Math.min(1, Math.round((d.y + dy) * 100) / 100)) })); };
+  // Đối kháng: người chơi đã tự chọn hướng bay người ở quả này chưa (chưa thì hết giờ máy chọn ngẫu nhiên).
+  const diveTouched = useRef(false);
+  const setDiveAt = (at: { x: number; y: number }) => { if (diveFree()) diveTouched.current = true; if (diveFree()) setDive({ x: Math.max(-1, Math.min(1, at.x)), y: Math.max(0, Math.min(1, at.y)) }); };
+  const moveDive = (dx: number, dy: number) => { if (diveFree()) diveTouched.current = true; if (diveFree()) setDive(d => ({ x: Math.max(-1, Math.min(1, Math.round((d.x + dx) * 100) / 100)), y: Math.max(0, Math.min(1, Math.round((d.y + dy) * 100) / 100)) })); };
   // Pháo giấy khi ghi bàn: vị trí / màu / độ trễ cố định theo lượt nổ.
   const confetti = useMemo(() => burst ? Array.from({ length: 36 }, (_, i) => ({
     left: Math.random() * 100, delay: Math.random() * .35, drift: (Math.random() - .5) * 30, color: CONFETTI[i % CONFETTI.length], spin: Math.random() * 720 - 360, size: 5 + Math.random() * 6,
@@ -573,8 +583,16 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
     await fly(hop, { left: (hop.left + stop.left) / 2, top: floor }, stop, 650, [.4, .4], [shadowTop, shadowTop], t => 1 - (1 - t) ** 3, { trail: false, shadowScale: [.55, .55] });
     setRolling(false);
   };
+  // Đối kháng: sang quả mới (kick đổi) thì đặt lại sân và cho chọn tiếp.
+  useEffect(() => { if (!pvp) return; diveTouched.current = false; resetScene(); setMessage(null); setError(''); setPhase('aiming'); }, [pvp?.kick]);
+  // Đối kháng: hết 10 giây mà chưa chốt thì máy tự sút (vạch ngắm đang ở đâu sút đó) / tự bay người (hướng đang chọn; chưa chọn thì ngẫu nhiên 1 trong 6 hướng).
+  useEffect(() => {
+    if (!pvp?.deadline) return;
+    const id = setInterval(() => { const live = pvpRef.current; if (!live?.deadline || phaseRef.current !== 'aiming' || Date.now() < live.deadline - 400) return; if (roleRef.current === 'keeper') { if (!diveTouched.current) { const z = KEEPER_ZONES[Math.floor(Math.random() * KEEPER_ZONES.length)]; diveRef.current = { x: z.x, y: z.y }; setDive({ x: z.x, y: z.y }); } void keep(); } else void shoot(); }, 250);
+    return () => clearInterval(id);
+  }, [pvp?.deadline, pvp?.kick]);
   const start = async () => {
-    if (!online || phaseRef.current === 'starting') return;
+    if (pvpRef.current || !online || phaseRef.current === 'starting') return;
     // Bật tiếng khán đài ngay trong lần bấm (trình duyệt chỉ cho phát âm thanh sau thao tác của người chơi).
     audio.current?.start(); started.current = true;
     setPhase('starting'); setError(''); setMessage(null);
@@ -588,13 +606,26 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
   const shoot = async () => {
     if (phaseRef.current !== 'aiming') return;
     const x = Math.round(aimX.current * 1000) / 1000, y = Math.round(heightRef.current * 1000) / 1000, shotKind = kindRef.current;
-    setPhase('shooting'); setError('');
-    // Cầu thủ lấy đà ngay khi bấm; kết quả máy chủ thường về trước khi chân chạm bóng.
-    setKicking(true); setCamera('shoot');
-    setTimeout(() => audio.current?.kick(), reduced ? 0 : 280);
+    const live = pvpRef.current;
+    setError('');
     let shot: PenaltyShot;
-    try { [shot] = await Promise.all([onShoot(x, y, shotKind), wait(300)]); }
-    catch (e) { setError((e as Error).message); setKicking(false); setCamera('idle'); setPhase('aiming'); return; }
+    if (live) {
+      // Đối kháng: chốt điểm sút, chờ thủ môn đối thủ chốt rồi mới diễn cú sút (cùng lúc với cú bay người).
+      audio.current?.start(); started.current = true;
+      setPhase('waiting');
+      try { shot = await live.onShoot(x, y, shotKind); }
+      catch (e) { setError((e as Error).message); setPhase('aiming'); return; }
+      setPhase('shooting'); setKicking(true); setCamera('shoot');
+      setTimeout(() => audio.current?.kick(), reduced ? 0 : 280);
+      await wait(300);
+    } else {
+      setPhase('shooting');
+      // Cầu thủ lấy đà ngay khi bấm; kết quả máy chủ thường về trước khi chân chạm bóng.
+      setKicking(true); setCamera('shoot');
+      setTimeout(() => audio.current?.kick(), reduced ? 0 : 280);
+      try { [shot] = await Promise.all([onShoot(x, y, shotKind), wait(300)]); }
+      catch (e) { setError((e as Error).message); setKicking(false); setCamera('idle'); setPhase('aiming'); return; }
+    }
     const aim = aimToStage(x, y), miss = shot.miss ?? null;
     const target = miss ? missTargets(miss, aim).hit : aim, path = flightPath(shotKind, target);
     setFlying(shotKind);
@@ -613,6 +644,7 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
       setMessage({ kind: 'goal', text: RESULT_TEXT.goal, good: true }); setPhase('result');
       void settleInNet(target, shotKind);
       await wait(1700);
+      if (live) { live.onShown(); return; }
       setMessage(null); resetScene();
       await wait(380);
       setPhase('aiming');
@@ -635,18 +667,32 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
       await fly(target, { left: (target.left + out.left) / 2, top: Math.min(target.top, out.top) - 6 }, out, 520, [.42, .62], [56.6, 68]);
     }
     await wait(900);
+    if (live) { setPhase('result'); live.onShown(); return; }
     setPhase('over');
   };
   // Làm thủ môn: chốt điểm bay người rồi máy mới sút (máy chủ quyết định). Bắt được / máy sút hỏng: +1 chuỗi, đá tiếp; thủng lưới: hết lượt.
   const keep = async () => {
-    if (phaseRef.current !== 'aiming' || !onKeep) return;
+    const live = pvpRef.current;
+    if (phaseRef.current !== 'aiming' || (!onKeep && !live)) return;
     const { x, y } = diveRef.current;
-    setPhase('shooting'); setError('');
-    setKicking(true); setCamera('shoot');
-    setTimeout(() => audio.current?.kick(), reduced ? 0 : 280);
+    setError('');
     let res: PenaltyKeep;
-    try { [res] = await Promise.all([onKeep(x, y), wait(300)]); }
-    catch (e) { setError((e as Error).message); setKicking(false); setCamera('idle'); setPhase('aiming'); return; }
+    if (live) {
+      // Đối kháng: chốt hướng bay người, chờ đối thủ chốt điểm sút rồi mới diễn (sút + bay người cùng lúc).
+      audio.current?.start(); started.current = true;
+      setPhase('waiting');
+      try { res = await live.onKeep(x, y); }
+      catch (e) { setError((e as Error).message); setPhase('aiming'); return; }
+      setPhase('shooting'); setKicking(true); setCamera('shoot');
+      setTimeout(() => audio.current?.kick(), reduced ? 0 : 280);
+      await wait(300);
+    } else {
+      setPhase('shooting');
+      setKicking(true); setCamera('shoot');
+      setTimeout(() => audio.current?.kick(), reduced ? 0 : 280);
+      try { [res] = await Promise.all([onKeep!(x, y), wait(300)]); }
+      catch (e) { setError((e as Error).message); setKicking(false); setCamera('idle'); setPhase('aiming'); return; }
+    }
     const shotAt = aimToStage(res.shot.x, res.shot.y), miss = res.miss ?? null;
     // Bắt được: bóng tới tay thủ môn (gần điểm bay người); thủng lưới / sút hỏng: tới đúng điểm máy sút.
     const target = miss ? missTargets(miss, shotAt).hit : res.saved ? aimToStage(x * .8 + res.shot.x * .2, y * .8 + res.shot.y * .2) : shotAt;
@@ -674,6 +720,7 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
         await fly(target, { left: (target.left + out.left) / 2, top: Math.min(target.top, out.top) - 6 }, out, 520, [.42, .62], [56.6, 68]);
       }
       await wait(1000);
+      if (live) { live.onShown(); return; }
       setMessage(null); resetScene();
       await wait(380);
       setPhase('aiming');
@@ -684,10 +731,11 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
     setMessage({ kind: 'conceded', text: RESULT_TEXT.conceded, good: false }); setPhase('result');
     void settleInNet(target, res.shot.kind);
     await wait(1700);
+    if (live) { setPhase('result'); live.onShown(); return; }
     setPhase('over');
   };
   const nudge = (delta: number) => { if (phaseRef.current === 'aiming' || phaseRef.current === 'idle' || phaseRef.current === 'over') setHeight(h => Math.max(0, Math.min(1, Math.round((h + delta) * 10) / 10))); };
-  const choose = (next: ShotKind) => { if (phaseRef.current !== 'shooting' && phaseRef.current !== 'result') setKind(next); };
+  const choose = (next: ShotKind) => { if (phaseRef.current !== 'shooting' && phaseRef.current !== 'result' && phaseRef.current !== 'waiting') setKind(next); };
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement)?.closest?.('input, textarea, select')) return;
@@ -723,15 +771,15 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
 
   return <section className={`workspace penalty-page${reduced ? ' is-reduced' : ''}`} aria-label="Penalty">
     <header className="pk-head">
-      <h1><Target aria-hidden="true"/>Penalty</h1>
+      {pvp ? pvp.header : <h1><Target aria-hidden="true"/>Penalty</h1>}
       {/* Penalty đối kháng giữa người chơi (src/PenaltyPvp.tsx, người dùng 2026-11-24). */}
-      {onPvp && <button type="button" className="pk-pvp" onClick={onPvp}><Swords size={16} aria-hidden="true"/>Đấu với người chơi</button>}
-      {onKeep && <div className="pk-roles" role="radiogroup" aria-label="Vai trò (đổi được sau mỗi lượt sút)">
+      {!pvp && onPvp && <button type="button" className="pk-pvp" onClick={onPvp}><Swords size={16} aria-hidden="true"/>Đấu với người chơi</button>}
+      {!pvp && onKeep && <div className="pk-roles" role="radiogroup" aria-label="Vai trò (đổi được sau mỗi lượt sút)">
         <button type="button" role="radio" aria-checked={!keeping} onClick={() => pickRole('shooter')} disabled={!canSwitch}><Target size={15} aria-hidden="true"/>Cầu thủ sút</button>
         <button type="button" role="radio" aria-checked={keeping} onClick={() => pickRole('keeper')} disabled={!canSwitch}><Hand size={15} aria-hidden="true"/>Thủ môn</button>
       </div>}
       <div className="pk-score" role="status">
-        <button type="button" className="pk-sound" onClick={toggleMute} aria-pressed={!muted} aria-label={muted ? 'Bật tiếng khán giả' : 'Tắt tiếng khán giả'} title={muted ? 'Bật tiếng khán giả' : 'Tắt tiếng khán giả'}>{muted ? <VolumeX size={16}/> : <Volume2 size={16}/>}</button>{!keeping && <span className={`pk-speed${goalSweepSpeed(streak) >= SWEEP_MAX ? ' is-max' : streak > 0 ? ' is-up' : ''}`} title="Vạch ngắm lắc nhanh dần theo chuỗi">Tốc độ <b>×{sweepMultiplier(streak).toLocaleString('vi-VN')}</b></span>}<span title="Sút vào hoặc bắt được đều +1">Chuỗi <b>{streak}</b></span><span><Trophy size={14} aria-hidden="true"/>Kỷ lục <b>{best}</b></span></div>
+        <button type="button" className="pk-sound" onClick={toggleMute} aria-pressed={!muted} aria-label={muted ? 'Bật tiếng khán giả' : 'Tắt tiếng khán giả'} title={muted ? 'Bật tiếng khán giả' : 'Tắt tiếng khán giả'}>{muted ? <VolumeX size={16}/> : <Volume2 size={16}/>}</button>{!pvp && !keeping && <span className={`pk-speed${goalSweepSpeed(streak) >= SWEEP_MAX ? ' is-max' : streak > 0 ? ' is-up' : ''}`} title="Vạch ngắm lắc nhanh dần theo chuỗi">Tốc độ <b>×{sweepMultiplier(streak).toLocaleString('vi-VN')}</b></span>}{!pvp && <><span title="Sút vào hoặc bắt được đều +1">Chuỗi <b>{streak}</b></span><span><Trophy size={14} aria-hidden="true"/>Kỷ lục <b>{best}</b></span></>}</div>
     </header>
     <div className={`pk-stage${shake ? ` is-shake-${shake % 2}` : ''}${keeping && phase === 'aiming' ? ' is-keeping' : ''}`} ref={stage} tabIndex={0} aria-label={keeping ? 'Sân penalty: bấm vào khung thành hoặc ← → ↑ ↓ chọn hướng bay người, Space để bắt' : 'Sân sút phạt: ↑ ↓ chỉnh độ cao, 1–4 chọn kiểu sút, Space để sút'}
       onClick={e => { if (roleRef.current !== 'keeper' || phaseRef.current !== 'aiming' || !stage.current) return; const r = stage.current.getBoundingClientRect(); setDiveAt(stageToAim((e.clientX - r.left) / r.width * 100, (e.clientY - r.top) / r.height * 100)); }}>
@@ -756,9 +804,12 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
       <div className="pk-vignette" aria-hidden="true"/>
       {!keeping && <div className="pk-height" aria-hidden="true"><span style={{ bottom: `${height * 100}%` }}/></div>}
       {burst && <div key={`confetti-${burst.id}`} className="pk-confetti" aria-hidden="true">{confetti.map((c, i) => <i key={i} style={{ left: `${c.left}%`, animationDelay: `${c.delay}s`, background: c.color, width: c.size, height: c.size * .45, ['--drift' as string]: `${c.drift}px`, ['--spin' as string]: `${c.spin}deg` }}/>)}</div>}
-      {message && <div className={`pk-flash is-${message.good ? 'goal' : 'saved'}`} role="status">{message.text}{message.good && <small>+1 chuỗi</small>}</div>}
+      {message && <div className={`pk-flash is-${message.good ? 'goal' : 'saved'}`} role="status">{message.text}{message.good && !pvp && <small>+1 chuỗi</small>}</div>}
       {message?.good && <><div className="pk-glare" aria-hidden="true"/><div className="pk-flare" aria-hidden="true"><i/><i/><i/></div></>}
-      {(phase === 'idle' || phase === 'starting' || phase === 'over') && <div className="pk-overlay">
+      {pvp && <><div className="pk-tag is-keeper" aria-hidden="true"><Hand size={13}/>{keeping ? pvp.meName : pvp.oppName}</div><div className="pk-tag is-striker" aria-hidden="true"><Target size={13}/>{keeping ? pvp.oppName : pvp.meName}</div></>}
+      {pvp && phase === 'waiting' && <div className="pk-pvp-wait" role="status">Đã chốt · chờ đối thủ…</div>}
+      {pvp?.overlay && <div className="pk-overlay is-pvp">{pvp.overlay}</div>}
+      {!pvp && (phase === 'idle' || phase === 'starting' || phase === 'over') && <div className="pk-overlay">
         {phase === 'over'
           ? <><h2>Hết lượt</h2><p>Chuỗi thành công: <b>{streak}</b>.{streak > 0 && streak >= best ? ' Kỷ lục mới!' : ` Kỷ lục: ${best}.`}</p></>
           : <><h2>Penalty</h2><p>{keeping
@@ -778,9 +829,9 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
     {error && <p className="pk-error" role="alert">{error}</p>}
     {keeping ? <div className="pk-controls is-keeper">
       <div className="pk-zones" role="radiogroup" aria-label="Hướng bay người">
-        {KEEPER_ZONES.map(z => <button key={z.id} type="button" role="radio" aria-checked={zoneOn(z)} className={`pk-zone is-${z.id}`} onClick={() => setDiveAt(z)} disabled={phase === 'shooting' || phase === 'result'}>{z.name}</button>)}
+        {KEEPER_ZONES.map(z => <button key={z.id} type="button" role="radio" aria-checked={zoneOn(z)} className={`pk-zone is-${z.id}`} onClick={() => setDiveAt(z)} disabled={phase === 'shooting' || phase === 'result' || phase === 'waiting'}>{z.name}</button>)}
       </div>
-      <small className="pk-kind-hint pk-keep-hint">Chọn ô hoặc bấm thẳng vào khung thành (← → ↑ ↓). Máy sút sau khi bạn bấm BẮT.</small>
+      <small className="pk-kind-hint pk-keep-hint">{pvp ? 'Chọn ô hoặc bấm thẳng vào khung thành (← → ↑ ↓) rồi bấm BẮT. Bóng bay khi đối thủ cũng chốt cú sút.' : 'Chọn ô hoặc bấm thẳng vào khung thành (← → ↑ ↓). Máy sút sau khi bạn bấm BẮT.'}</small>
       <button type="button" className="pk-shoot is-keep" onClick={() => void keep()} disabled={phase !== 'aiming'}>BẮT</button>
     </div> : <div className="pk-controls">
       <div className="pk-height-buttons">
@@ -789,7 +840,7 @@ export default function PenaltyPage({ online, reduced, onStart, onShoot, onKeep,
         <button type="button" onClick={() => nudge(-HEIGHT_STEP)} aria-label="Hạ bóng thấp hơn"><ChevronDown/></button>
       </div>
       <div className="pk-kinds" role="radiogroup" aria-label="Kiểu sút">
-        {SHOT_KINDS.map(k => <button key={k.id} type="button" role="radio" aria-checked={kind === k.id} className={`pk-kind is-${k.id}`} onClick={() => choose(k.id)} disabled={phase === 'shooting' || phase === 'result'} title={k.hint}>
+        {SHOT_KINDS.map(k => <button key={k.id} type="button" role="radio" aria-checked={kind === k.id} className={`pk-kind is-${k.id}`} onClick={() => choose(k.id)} disabled={phase === 'shooting' || phase === 'result' || phase === 'waiting'} title={k.hint}>
           <kbd>{k.key}</kbd>{k.name}
         </button>)}
         <small className="pk-kind-hint">{current.hint}</small>

@@ -252,3 +252,10 @@
 /* Nút vào Penalty đối kháng (người dùng 2026-11-24). */
 .pk-pvp{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border:1px solid #ffc94d88;border-radius:999px;background:linear-gradient(180deg,#3a2a08,#1f1604);color:#ffd76a;cursor:pointer;font:inherit;font-size:14px;font-weight:700;box-shadow:0 0 12px #ffb43c33}
 .pk-pvp:hover{border-color:#ffc94d;color:#fff2b0}
+
+/* Penalty đối kháng trên sân Penalty (PvpStage): tên hai bên trên sân, dải "chờ đối thủ", lớp phủ kết quả. */
+.pk-tag{position:absolute;z-index:6;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:#0b1220d9;color:#fff;font-size:13px;font-weight:700;white-space:nowrap;pointer-events:none;transform:translateX(-50%)}
+.pk-tag.is-keeper{left:50%;top:14%;border:1px solid #ffc94d99;color:#ffe9a8}
+.pk-tag.is-striker{left:50%;bottom:4%;border:1px solid #3ddc7a99;color:#c8ffd9}
+.pk-pvp-wait{position:absolute;z-index:7;left:50%;top:46%;transform:translate(-50%,-50%);padding:10px 22px;border-radius:999px;background:#0b1220e6;color:#fff;font-weight:800;font-size:16px;box-shadow:0 10px 30px #000a}
+.pk-overlay.is-pvp{z-index:20}
