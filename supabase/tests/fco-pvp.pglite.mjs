@@ -1,4 +1,4 @@
-// Penalty đối kháng (migration 202611240006_fco_penalty_pvp.sql + 202611240008_fco_pvp_test_mode.sql) trên PGlite, áp mọi migration của dự án theo thứ tự.
+// Penalty đối kháng (migration 202611240006_fco_penalty_pvp.sql + 202611240008_fco_pvp_test_mode.sql + 202611240009_fco_pvp_alternate.sql) trên PGlite, áp mọi migration của dự án theo thứ tự.
 // Chạy: node fco-pvp.pglite.mjs <thư mục dự án>  (từ thư mục có @electric-sql/pglite, ví dụ D:\FCOvv-tmp\pg)
 import { PGlite } from '@electric-sql/pglite';
 import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
@@ -78,36 +78,50 @@ a = await rpc('A', 'select public.fco_pvp_current()');
 assert.equal(a.status, 'playing'); assert.ok(a.opponent?.name, 'thấy tên đối thủ');
 await assert.rejects(rpc('A', 'select public.fco_pvp_room_create()'), /FCO_PVP_BUSY/, 'đang đá thì không tạo phòng');
 
-// 2. Lựa chọn bí mật: A chọn xong, B chỉ biết "đối thủ đã chọn", chưa có kết quả.
+// 2. Luân phiên (202611240009): quả 1 một người sút, người kia bắt; lựa chọn giữ kín tới khi đủ hai bên.
+const shooterA = a.iShoot; b = await rpc('B', 'select public.fco_pvp_state($1)', [a.id]);
+assert.equal(b.iShoot, !shooterA, 'đúng một người sút, người kia làm thủ môn');
 a = await pick('A', a.id, 1);
 assert.equal(a.picked, true); assert.equal(a.rounds.length, 0);
 b = await rpc('B', 'select public.fco_pvp_state($1)', [a.id]);
-assert.equal(b.oppPicked, true); assert.ok(!JSON.stringify(b).includes('"x":0.8'), 'không lộ điểm sút của A');
+assert.equal(b.oppPicked, true); assert.ok(!JSON.stringify(b).includes('"x":0.8') && !JSON.stringify(b).includes('"x":-0.8'), 'không lộ lựa chọn của A');
 b = await pick('B', a.id, 1, -.5, .3, .9, .8);
-assert.equal(b.rounds.length, 1); assert.ok(['goal', 'save', 'miss'].includes(b.rounds[0].mine));
-assert.deepEqual(b.rounds[0].myShot, { x: -.5, y: .3, kind: 'normal' }, 'sau khi tính mới thấy lựa chọn');
-assert.equal(b.score[0], b.rounds.filter(x => x.mine === 'goal').length);
+assert.equal(b.rounds.length, 1); assert.ok(['goal', 'save', 'miss'].includes(b.rounds[0].o));
+assert.equal(b.rounds[0].shooter, shooterA ? 'opp' : 'me');
+// Lựa chọn của người sút là điểm sút của quả, của thủ môn là hướng bay người.
+if (shooterA) { assert.deepEqual(b.rounds[0].shot, { x: .8, y: .7, kind: 'normal' }); assert.deepEqual(b.rounds[0].dive, { x: .9, y: .8 }); }
+else { assert.deepEqual(b.rounds[0].shot, { x: -.5, y: .3, kind: 'normal' }); assert.deepEqual(b.rounds[0].dive, { x: -.8, y: .2 }); }
+assert.equal(b.round, 2); assert.equal(b.iShoot, shooterA, 'quả 2 đổi vai');
+// Người sút chỉ cần gửi điểm sút, thủ môn chỉ cần hướng bay người.
+const keeperK = b.iShoot ? 'A' : 'B', shooterK = b.iShoot ? 'B' : 'A';
+await assert.rejects(rpc(shooterK, `select public.fco_pvp_pick($1, 2, null, '{"x":0,"y":0}'::jsonb)`, [a.id]), /FCO_PVP_BAD_PICK/, 'người sút phải có điểm sút');
+await rpc(keeperK, `select public.fco_pvp_pick($1, 2, null, '{"x":0.1,"y":0.2}'::jsonb)`, [a.id]);
+const two = await rpc(shooterK, `select public.fco_pvp_pick($1, 2, '{"x":-0.6,"y":0.4,"kind":"curl"}'::jsonb, null)`, [a.id]);
+assert.equal(two.rounds.length, 2); assert.deepEqual(two.rounds[1].dive, { x: .1, y: .2 }); assert.equal(two.rounds[1].shot.kind, 'curl');
 
-// 3. Đá hết trận (hết giờ thì máy tự chọn): chạy tới khi xong, kiểm luật kết thúc.
+// 3. Đá hết trận (có lượt hết giờ máy tự chọn), kiểm luật kết thúc kiểu luân phiên.
 let id = a.id, guard = 0, s;
-while (guard++ < 30) {
+while (guard++ < 60) {
   s = await rpc('A', 'select public.fco_pvp_state($1)', [id]);
   if (s.status === 'done') break;
   await pick('A', id, s.round);
-  if (guard % 3 === 0) { await db.query(`update public.fco_pvp_matches set deadline = now() - interval '10 seconds' where id = $1`, [id]); await rpc('A', 'select public.fco_pvp_state($1)', [id]); }
+  if (guard % 4 === 0) { await db.query(`update public.fco_pvp_matches set deadline = now() - interval '10 seconds' where id = $1`, [id]); await rpc('A', 'select public.fco_pvp_state($1)', [id]); }
   else await pick('B', id, s.round, -.7, .6, .7, .7);
 }
 assert.equal(s.status, 'done');
 const [mine, theirs] = s.score;
-assert.ok(mine !== theirs || s.winner === 'draw');
 assert.equal(s.winner, mine > theirs ? 'me' : mine < theirs ? 'opp' : 'draw');
 const n = s.rounds.length;
-assert.ok(n <= 15 && (n >= 5 || Math.abs(mine - theirs) > 5 - n), `kết thúc hợp lệ sau ${n} lượt`);
-assert.equal(s.rounds.some(x => x.myShot && x.oppShot), true);
+for (let i = 1; i < n; i++) assert.notEqual(s.rounds[i].shooter, s.rounds[i - 1].shooter, 'luân phiên người sút');
+assert.equal(mine, s.rounds.filter(x => x.shooter === 'me' && x.o === 'goal').length);
+assert.equal(theirs, s.rounds.filter(x => x.shooter === 'opp' && x.o === 'goal').length);
+const kMine = s.rounds.filter(x => x.shooter === 'me').length, kTheirs = n - kMine;
+if (n < 10) assert.ok(mine > theirs + (5 - kTheirs) || theirs > mine + (5 - kMine), `kết thúc sớm hợp lệ sau ${n} quả`);
+else if (s.winner !== 'draw') assert.ok(n === 10 || n % 2 === 0, `luân lưu kết thúc sau cặp đủ 2 quả (${n})`);
+assert.ok(n <= 30);
 const pa = await pts('A'), pb = await pts('B');
 assert.equal(pa + pb, 2000, 'Elo cộng / trừ bằng nhau');
 if (s.winner === 'me') assert.ok(pa >= 1005); if (s.winner === 'opp') assert.ok(pa <= 995);
-
 // 4. Phòng mã: A tạo, B nhập (chữ thường cũng được); giao hữu → không đổi điểm. Rời trận = thua.
 const room = await rpc('A', 'select public.fco_pvp_room_create()');
 assert.match(room.code, /^[A-Z2-9]{6}$/); assert.equal(room.status, 'waiting');

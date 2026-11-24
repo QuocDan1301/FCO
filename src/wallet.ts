@@ -189,7 +189,7 @@ export const pvpFind = () => call<PvpMatch>('fco_pvp_find');
 export const pvpRoomCreate = () => call<PvpMatch>('fco_pvp_room_create');
 export const pvpRoomJoin = (code: string) => call<PvpMatch>('fco_pvp_room_join', { p_code: code });
 export const pvpState = (id: number) => call<PvpMatch>('fco_pvp_state', { p_id: id });
-export const pvpPick = (id: number, round: number, shot: PvpShot, dive: PvpPoint) => call<PvpMatch>('fco_pvp_pick', { p_id: id, p_round: round, p_shot: shot, p_dive: dive });
+export const pvpPick = (id: number, round: number, shot: PvpShot | null, dive: PvpPoint | null) => call<PvpMatch>('fco_pvp_pick', { p_id: id, p_round: round, p_shot: shot, p_dive: dive });
 export const pvpLeave = (id: number) => call<PvpMatch>('fco_pvp_leave', { p_id: id });
 export const pvpBoard = () => call<PvpBoard>('fco_pvp_board');
 export const pvpAccess = () => call<PvpAccess>('fco_pvp_access');

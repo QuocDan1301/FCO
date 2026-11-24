@@ -99,3 +99,20 @@
 .pvp-testtag{padding:3px 10px;border-radius:999px;background:#3a2a08;color:#ffd76a;font-size:12px;font-weight:800;letter-spacing:.04em}
 .pvp-admin{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border:1px dashed #ffc94d88;border-radius:12px;background:#1f1806;color:#f3e6c8;font-size:13.5px}
 .pvp-admin.is-open{border-color:#3ddc7a88;background:#0f2a1a}
+/* Luân phiên (202611240009): mỗi quả một khung thành; khung "quả vừa rồi" bên trái, khung chọn bên phải. */
+.pvp-match{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:14px;align-items:start}
+.pvp-match>.pvp-last{grid-column:1}
+.pvp-match>:not(.pvp-last){grid-column:2}
+.pvp-match:not(:has(.pvp-last))>*{grid-column:1/-1}
+.pvp-match .pvp-last{display:grid;gap:8px;justify-items:center;padding:12px;border-radius:12px;background:#0f1824}
+.pvp-match .pvp-last .pvp-goal{max-width:100%}
+.pvp-match .pvp-last b{font-family:var(--display);font-size:22px}
+.pvp-match .pvp-last b.is-goal{color:#3ddc7a}.pvp-match .pvp-last b.is-save,.pvp-match .pvp-last b.is-miss{color:#ff8a8a}
+.pvp-pick-col.is-shoot{border-color:#2f8a54}.pvp-pick-col.is-keep{border-color:#a07a2c}
+.pvp-pick-col.is-shoot h3{color:#7ff0b0}.pvp-pick-col.is-keep h3{color:#ffd76a}
+.pvp-pick-col h3{font-size:18px}
+.pvp-pick-col .pvp-goal{max-width:560px;justify-self:center}
+.pvp-pick-col .pvp-pick-go{display:flex;align-items:center;justify-content:space-between;gap:12px}
+@media(max-width:900px){.pvp-match{grid-template-columns:1fr}.pvp-match>*{grid-column:1!important}}.pvp-match .pvp-last{grid-template-columns:1fr;align-content:start}
+.pvp-match .pvp-last small{justify-self:start;font-size:13px}
+.pvp-match .pvp-last .pvp-goal{width:100%;max-width:420px}

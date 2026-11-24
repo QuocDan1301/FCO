@@ -3,15 +3,16 @@ import type { MouseEvent as ReactMouseEvent } from 'react';
 import { ArrowLeft, Copy, Crown, Hand, LogOut, Search, Shuffle, Swords, Target, Trophy, Users } from 'lucide-react';
 import { SHOT_KINDS } from './penalty';
 import type { ShotKind } from './penalty';
-import { OUTCOME_LABEL, PVP_POLL_MS, PVP_RULES, REASON_LABEL, fromSvg, roundLabel, secondsLeft, toSvg } from './pvp';
+import { PVP_POLL_MS, PVP_RULES, REASON_LABEL, fromSvg, kickLabel, kicksOf, roundLabel, secondsLeft, toSvg } from './pvp';
 import type { PvpAccess, PvpBoard, PvpMatch, PvpOutcome, PvpPoint, PvpShot } from './pvp';
 import { adminPvpOpen, pvpAccess, pvpBoard, pvpCurrent, pvpFind, pvpLeave, pvpPick, pvpRoomCreate, pvpRoomJoin, pvpState } from './wallet';
 import { clubLogoUrl } from './club-logo';
 import './pvp.css';
 
-// Penalty đối kháng (người dùng 2026-11-24): ghép ngẫu nhiên hoặc phòng mã; mỗi lượt chọn bí mật điểm sút + hướng bay người, máy chủ tính cả hai quả.
+// Penalty đối kháng (người dùng 2026-11-24): ghép ngẫu nhiên hoặc phòng mã; LUÂN PHIÊN mỗi quả một người sút, người kia bắt (202611240009),
+// hai bên chọn bí mật (điểm sút / hướng bay người), máy chủ tính kết quả.
 export type PvpApi = { current: () => Promise<PvpMatch | null>; find: () => Promise<PvpMatch>; create: () => Promise<PvpMatch>; join: (code: string) => Promise<PvpMatch>;
-  state: (id: number) => Promise<PvpMatch>; pick: (id: number, round: number, shot: PvpShot, dive: PvpPoint) => Promise<PvpMatch>; leave: (id: number) => Promise<PvpMatch>; board: () => Promise<PvpBoard>;
+  state: (id: number) => Promise<PvpMatch>; pick: (id: number, round: number, shot: PvpShot | null, dive: PvpPoint | null) => Promise<PvpMatch>; leave: (id: number) => Promise<PvpMatch>; board: () => Promise<PvpBoard>;
   access?: () => Promise<PvpAccess>; setOpen?: (open: boolean) => Promise<PvpAccess> };
 const LIVE: PvpApi = { current: pvpCurrent, find: pvpFind, create: pvpRoomCreate, join: pvpRoomJoin, state: pvpState, pick: pvpPick, leave: pvpLeave, board: pvpBoard, access: pvpAccess, setOpen: adminPvpOpen };
 
@@ -102,8 +103,8 @@ export default function PenaltyPvp({ online, onBack, api = LIVE }: { online: boo
         </form>
         {error && <p className="pvp-error" role="alert">{error}</p>}
         <ul className="pvp-rules">
-          <li>Mỗi trận <b>{PVP_RULES.kicks} lượt</b>. Mỗi lượt cả hai cùng chọn bí mật <b>điểm sút</b> và <b>hướng bay người</b>, máy chủ tính cả hai quả.</li>
-          <li>Hoà sau {PVP_RULES.kicks} lượt thì đá <b>luân lưu</b> tới khi có cách biệt. Mỗi lượt {PVP_RULES.roundSeconds} giây, hết giờ máy tự chọn ngẫu nhiên.</li>
+          <li>Mỗi người sút <b>{PVP_RULES.kicks} quả</b>, <b>luân phiên</b>: quả này bạn sút thì đối thủ làm thủ môn, quả sau đổi vai. Hai bên chọn bí mật <b>điểm sút</b> / <b>hướng bay người</b>.</li>
+          <li>Hoà sau {PVP_RULES.kicks} lượt thì đá <b>luân lưu</b> từng cặp tới khi có cách biệt. Mỗi quả {PVP_RULES.roundSeconds} giây, hết giờ máy tự chọn ngẫu nhiên.</li>
           <li>Rời trận hoặc mất kết nối quá {PVP_RULES.awaySeconds} giây là thua. Chỉ trận <b>ghép ngẫu nhiên</b> tính điểm BXH.</li>
         </ul>
       </div>
@@ -139,54 +140,56 @@ export default function PenaltyPvp({ online, onBack, api = LIVE }: { online: boo
     </div>
   </section>;
 
-  // ===== Đang đá / kết thúc =====
+  // ===== Đang đá / kết thúc (luân phiên: mỗi quả một người sút, người kia bắt) =====
   const [me, opp] = match.score;
-  const kicks = Math.max(PVP_RULES.kicks, match.rounds.length + (match.status === 'playing' ? 1 : 0));
+  const myKicks = kicksOf(match.rounds, 'me'), oppKicks = kicksOf(match.rounds, 'opp');
   const done = match.status === 'done';
-  const submit = () => { if (!shot || !dive) return; void run(async () => adopt(await api.pick(match.id, match.round, { ...shot, kind }, dive))); };
+  const slots = (list: PvpOutcome[], mineTurn: boolean) => Math.max(PVP_RULES.kicks, list.length + (!done && mineTurn ? 1 : 0));
+  const shooting = match.iShoot;
+  const ready = shooting ? !!shot : !!dive;
+  const submit = () => { if (!ready) return; void run(async () => adopt(await api.pick(match.id, match.round, shooting ? { ...shot!, kind } : null, shooting ? null : dive))); };
   return <section className="workspace pvp-page">
     {header}
     <div className="pvp-board-score">
       <div className="pvp-side"><span>Bạn</span><b>{me}</b></div>
       <div className="pvp-mid">{done ? <b>Kết thúc</b> : <><b>{roundLabel(match.round)}</b><span className={left <= 5 ? 'is-hurry' : undefined}>{left}s</span></>}
-        <div className="pvp-dots" aria-label="Diễn biến từng lượt">
-          <div>{Array.from({ length: kicks }, (_, i) => <i key={i} className={dot(match.rounds[i]?.mine)}/>)}</div>
-          <div>{Array.from({ length: kicks }, (_, i) => <i key={i} className={dot(match.rounds[i]?.theirs)}/>)}</div>
+        <div className="pvp-dots" aria-label="Diễn biến từng quả">
+          <div>{Array.from({ length: slots(myKicks, shooting) }, (_, i) => <i key={i} className={dot(myKicks[i])}/>)}</div>
+          <div>{Array.from({ length: slots(oppKicks, !shooting) }, (_, i) => <i key={i} className={dot(oppKicks[i])}/>)}</div>
         </div>
       </div>
       <div className="pvp-side is-opp"><span>{match.opponent?.name ?? 'Đối thủ'}</span><b>{opp}</b></div>
     </div>
 
-    {last && <div className="pvp-last" aria-live="polite">
-      <div><small>Lượt {last.r} · Bạn sút</small><Goal label="Quả bạn sút" ball={last.myShot} glove={last.oppDive} result={last.mine}/><b className={`is-${last.mine}`}>{OUTCOME_LABEL[last.mine]}</b></div>
-      <div><small>Lượt {last.r} · Đối thủ sút</small><Goal label="Quả đối thủ sút" ball={last.oppShot} glove={last.myDive} result={last.theirs}/><b className={`is-${last.theirs}`}>{last.theirs === 'goal' ? 'Thủng lưới' : last.theirs === 'save' ? 'Bạn cản phá!' : 'Đối thủ sút hỏng'}</b></div>
-    </div>}
+    <div className="pvp-match">
+      {last && <div className="pvp-last" aria-live="polite">
+        <small>Quả vừa rồi · {last.shooter === 'me' ? 'Bạn sút' : 'Đối thủ sút, bạn bắt'}</small>
+        <Goal label="Quả vừa rồi" ball={last.shot} glove={last.dive} result={last.o}/>
+        <b className={`is-${last.shooter === 'me' ? last.o : last.o === 'goal' ? 'save' : 'goal'}`}>{kickLabel(last)}</b>
+      </div>}
 
-    {done ? <div className={`pvp-result is-${match.winner}`}>
-      <h2>{match.winner === 'me' ? 'CHIẾN THẮNG' : match.winner === 'opp' ? 'THẤT BẠI' : 'HOÀ'}</h2>
-      <p>{me} – {opp}{match.reason && REASON_LABEL[match.reason] ? ` · ${match.winner === 'opp' && match.reason !== 'draw' ? (match.reason === 'leave' ? 'Bạn đã rời trận' : 'Bạn mất kết nối') : REASON_LABEL[match.reason]}` : ''}</p>
-      {match.delta !== null && <p className="pvp-delta">{match.delta >= 0 ? `+${match.delta}` : match.delta} điểm BXH</p>}
-      <div className="pvp-actions">
-        <button type="button" className="primary-button" disabled={busy} onClick={() => void run(async () => adopt(await api.find()))}><Shuffle size={16}/>Trận mới</button>
-        <button type="button" className="secondary-button" onClick={() => adopt(null)}>Về sảnh</button>
-      </div>
-    </div> : match.picked ? <div className="pvp-waitpick"><div className="pvp-spinner" aria-hidden="true"/><p>Đã chốt lựa chọn · {match.oppPicked ? 'đang tính kết quả…' : 'chờ đối thủ chọn…'}</p></div>
-    : <div className="pvp-pick">
-      <div className="pvp-pick-col">
-        <h3><Target size={16}/>1. Chọn điểm sút</h3>
-        <Goal label="Bấm vào khung thành để chọn điểm sút" ball={shot} onPick={setShot}/>
-        <div className="pvp-kinds" role="radiogroup" aria-label="Kiểu sút">{SHOT_KINDS.map(k => <button key={k.id} type="button" role="radio" aria-checked={kind === k.id} title={k.hint} onClick={() => setKind(k.id)}>{k.name}</button>)}</div>
-      </div>
-      <div className="pvp-pick-col">
-        <h3><Hand size={16}/>2. Chọn hướng bay người</h3>
-        <Goal label="Bấm vào khung thành để chọn hướng bay người khi bắt quả của đối thủ" glove={dive} onPick={setDive}/>
-        <p className="pvp-note">{match.oppPicked ? 'Đối thủ đã chọn xong.' : 'Đối thủ đang chọn…'}</p>
-      </div>
-      <div className="pvp-pick-go">
-        <button type="button" className="primary-button" disabled={busy || !shot || !dive} onClick={submit}>{!shot ? 'Chọn điểm sút' : !dive ? 'Chọn hướng bay người' : 'Chốt lựa chọn'}</button>
-        <button type="button" className="pvp-leave" disabled={busy} onClick={() => { if (confirm('Rời trận sẽ bị xử thua. Vẫn rời?')) void run(async () => adopt(await api.leave(match.id))); }}><LogOut size={14}/>Rời trận</button>
-      </div>
-    </div>}
+      {done ? <div className={`pvp-result is-${match.winner}`}>
+        <h2>{match.winner === 'me' ? 'CHIẾN THẮNG' : match.winner === 'opp' ? 'THẤT BẠI' : 'HOÀ'}</h2>
+        <p>{me} – {opp}{match.reason && REASON_LABEL[match.reason] ? ` · ${match.winner === 'opp' && match.reason !== 'draw' ? (match.reason === 'leave' ? 'Bạn đã rời trận' : 'Bạn mất kết nối') : REASON_LABEL[match.reason]}` : ''}</p>
+        {match.delta !== null && <p className="pvp-delta">{match.delta >= 0 ? `+${match.delta}` : match.delta} điểm BXH</p>}
+        <div className="pvp-actions">
+          <button type="button" className="primary-button" disabled={busy} onClick={() => void run(async () => adopt(await api.find()))}><Shuffle size={16}/>Trận mới</button>
+          <button type="button" className="secondary-button" onClick={() => adopt(null)}>Về sảnh</button>
+        </div>
+      </div> : match.picked ? <div className="pvp-waitpick"><div className="pvp-spinner" aria-hidden="true"/><p>Đã chốt · {match.oppPicked ? 'đang tính kết quả…' : shooting ? 'chờ thủ môn đối thủ chọn hướng bay…' : 'chờ đối thủ chọn điểm sút…'}</p></div>
+      : <div className={`pvp-pick-col is-${shooting ? 'shoot' : 'keep'}`}>
+        <h3>{shooting ? <><Target size={18}/>Lượt bạn SÚT · chọn điểm sút</> : <><Hand size={18}/>Lượt bạn BẮT · chọn hướng bay người</>}</h3>
+        {shooting
+          ? <Goal label="Bấm vào khung thành để chọn điểm sút" ball={shot} onPick={setShot}/>
+          : <Goal label="Bấm vào khung thành để chọn hướng bay người" glove={dive} onPick={setDive}/>}
+        {shooting && <div className="pvp-kinds" role="radiogroup" aria-label="Kiểu sút">{SHOT_KINDS.map(k => <button key={k.id} type="button" role="radio" aria-checked={kind === k.id} title={k.hint} onClick={() => setKind(k.id)}>{k.name}</button>)}</div>}
+        <p className="pvp-note">{shooting ? 'Đối thủ đang làm thủ môn' : 'Đối thủ đang chuẩn bị sút'} · {match.oppPicked ? 'đã chọn xong.' : 'đang chọn…'}</p>
+        <div className="pvp-pick-go">
+          <button type="button" className="primary-button" disabled={busy || !ready} onClick={submit}>{ready ? (shooting ? 'Sút!' : 'Bay người!') : shooting ? 'Chọn điểm sút' : 'Chọn hướng bay người'}</button>
+          <button type="button" className="pvp-leave" disabled={busy} onClick={() => { if (confirm('Rời trận sẽ bị xử thua. Vẫn rời?')) void run(async () => adopt(await api.leave(match.id))); }}><LogOut size={14}/>Rời trận</button>
+        </div>
+      </div>}
+    </div>
     {error && <p className="pvp-error" role="alert">{error}</p>}
   </section>;
 }
