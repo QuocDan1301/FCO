@@ -14,10 +14,16 @@
         var W = 1536, H = 826;
         // Máy có màn cảm ứng: điện thoại / máy bảng (kể cả máy Samsung có bút S Pen, Samsung Internet, DeX báo "có rê chuột").
         // Máy tính có màn cảm ứng cũng khớp nhưng trình duyệt máy tính bỏ qua thẻ viewport nên không đổi gì.
-        var touch = matchMedia("(pointer: coarse)").matches || matchMedia("(any-pointer: coarse)").matches || (navigator.maxTouchPoints || 0) > 0;
-        if (!touch) return;
-        var meta = document.querySelector('meta[name="viewport"]'), last = "";
+        // Kiểm lại mỗi lần đo (không chỉ lúc tải trang): bật chế độ thiết bị của DevTools / nối màn cảm ứng SAU khi trang đã mở thì vẫn
+        // chuyển sang khung PC; tắt đi thì trả thẻ viewport gốc (người dùng 2026-11-24: DevTools iPhone SE hiện giao diện cỡ thật, bị khuất).
+        function isTouch() { return matchMedia("(pointer: coarse)").matches || matchMedia("(any-pointer: coarse)").matches || (navigator.maxTouchPoints || 0) > 0; }
+        var meta = document.querySelector('meta[name="viewport"]'), last = "", original = meta && meta.getAttribute ? meta.getAttribute("content") : "width=device-width, initial-scale=1.0, viewport-fit=cover";
+        if (!meta) return;
         function fit(recheck) {
+          if (!isTouch()) {
+            if (last) { last = ""; meta.setAttribute("content", original); window.__FCO_FIT_SCALE = 1; document.documentElement.style.setProperty("--fit-inv", "1"); }
+            return;
+          }
           // Bàn phím mở làm màn thấp đi: giữ nguyên, nếu không giao diện sẽ thu nhỏ thêm lúc đang gõ.
           var active = document.activeElement && document.activeElement.tagName;
           if (last && (active === "INPUT" || active === "TEXTAREA")) return;
@@ -59,6 +65,10 @@
         window.addEventListener("resize", fit);
         window.addEventListener("orientationchange", function () { setTimeout(fit, 250); });
         if (window.visualViewport) window.visualViewport.addEventListener("resize", fit);
+        ["(pointer: coarse)", "(any-pointer: coarse)"].forEach(function (q) {
+          var m = matchMedia(q), on = function () { fit(); };
+          if (m.addEventListener) m.addEventListener("change", on); else if (m.addListener) m.addListener(on);
+        });
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -73,9 +83,9 @@
       content="FCO VIP — Mở gói cầu thủ, nâng cấp thẻ và xây dựng bộ sưu tập. Trò chơi giả lập miễn phí bằng tiếng Việt."
     />
     <title>FCO VIP · Bức phá giới hạn</title>
-    <link rel="icon" type="image/png" href="/assets/fco-vip-logo.png" />
+    <link rel="icon" type="image/png" href="/icons/icon-192-v2.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-192-v2.png" />
     <style>
       .boot-screen {
         position: fixed;
@@ -317,7 +327,7 @@
       <div class="boot-content">
         <img
           class="boot-logo"
-          src="/assets/fco-vip-logo.png"
+          src="/assets/fco-vip-logo-v2.png"
           alt=""
           width="96"
           height="96"

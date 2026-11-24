@@ -2,11 +2,11 @@
 html,body,#root{height:100%;overflow:hidden}
 *{scrollbar-width:none}*::-webkit-scrollbar{display:none;width:0;height:0}
 .app{display:flex;flex-direction:column;height:100dvh;min-height:0;overflow:hidden}
-.app>.topbar{height:44px;flex-shrink:0}
+.app>.topbar{height:72px;flex-shrink:0}
 /* Thanh trên mỏng (44px) để kho vật phẩm đủ chỗ cho 2 hàng gói: logo, biểu tượng tiền và nút tài khoản thu nhỏ theo. */
 .app>.topbar .brand img{width:auto;height:32px}
 .app>.topbar .wallet .coin-icon{width:26px;height:26px}
-.app>.topbar .avatar{width:32px;height:32px;font-size:11px}
+.app>.topbar .avatar{width:66px;height:66px;font-size:22px}
 /* Thanh đầu: khẩu hiệu + ghi chú dự án người hâm mộ (thay cho chân trang đã bỏ). */
 .header-tag{flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
 .header-tag>span{display:flex;align-items:center;gap:8px}
@@ -16,7 +16,7 @@ html,body,#root{height:100%;overflow:hidden}
 .settings-help>svg:last-child{margin-left:auto;color:#8e98a7}
 .main-content{flex:1;min-height:0;min-width:0;overflow:hidden}
 /* Mọi mục trừ trang chủ (đã có sân 3D riêng): nền sân vận động mờ phía sau, nội dung là khung tối ở giữa (lộ sân hai bên trên màn rộng). */
-.main-content:not(.view-packs){background:linear-gradient(rgba(4,7,11,.35),rgba(4,7,11,.55)),#05080c url(/assets/view-backdrop.webp) center/cover no-repeat}
+.main-content:not(.view-packs){background:repeating-linear-gradient(45deg,transparent 0 43px,rgba(255,255,255,.07) 43px 44px),repeating-linear-gradient(-45deg,transparent 0 43px,rgba(255,255,255,.07) 43px 44px),linear-gradient(rgba(255,255,255,.28),rgba(255,255,255,.26)),#05080c url(/assets/view-backdrop-v2.webp) center/cover no-repeat}
 .main-content>:is(.inv-workspace,.market-workspace,.shop-workspace,.history-workspace){width:100%;background:rgba(11,15,21,.9);box-shadow:0 0 40px rgba(0,0,0,.6)}
 .main-content>.fco-upgrade{width:100%;box-shadow:0 0 40px rgba(0,0,0,.6)}
 .main-content>.squad-workspace{box-shadow:0 0 40px rgba(0,0,0,.6)}
@@ -290,7 +290,7 @@ html,body,#root{height:100%;overflow:hidden}
 .market-workspace .market-preview{display:none}
 }
 @media(max-width:640px){
-.app>.topbar{height:56px}
+.app>.topbar{height:72px}
 .main-content>.workspace{padding:12px 14px 6px}
 .main-content .page-heading{gap:8px;flex-wrap:nowrap;margin-bottom:8px}
 .main-content .page-heading h1{font-size:23px}

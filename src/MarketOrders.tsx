@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ovrStyle } from './ovr-color';
 import { Shirt } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
 import { SYSTEM_TAKEOVER_MIN, marketNow } from './market';
@@ -90,7 +91,7 @@ export default function MarketOrders({ load, onCancel, onRefreshClaims, onRelist
           <span className={`market-face${f.portrait ? ' is-portrait' : ''}`}><img src={f.src} alt="" loading="lazy"/></span>
           <span className="mo-player"><SeasonBadge tier={p.tier}/><b>{p.name}</b></span>
           <span className="squad-wage" aria-label={`Lương ${p.wage ?? 0}`}>{p.wage ?? 0}</span>
-          <strong className="mo-ovr">{ovr(o)}</strong>
+          <strong className="mo-ovr" style={ovrStyle(ovr(o))}>{ovr(o)}</strong>
           <span className="mo-level"><img src={levelBadge(o.level)} alt={`+${o.level}`}/></span>
           <span className="mo-club">{p.club}</span>
           <strong className="mo-price" title={o.fillPrice !== null && o.fillPrice !== o.price ? `Giá đặt ${money(o.price)}` : undefined}>{money(o.fillPrice ?? o.price)}</strong>

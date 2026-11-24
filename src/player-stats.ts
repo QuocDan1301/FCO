@@ -53,3 +53,14 @@ export function playerStats(player: Pick<Player, 'id' | 'pos'>, overall: number)
   for (let k = 0; diff !== 0 && k < order.length; k++, diff += diff > 0 ? -1 : 1) values[order[k].i] += diff > 0 ? 1 : -1;
   return names.map((name, i) => ({ name, value: values[i] }));
 }
+
+// 6 chỉ số tóm tắt kiểu FC Online (màn Đội hình): trung bình các chỉ số chi tiết cùng nhóm, chỉ để hiển thị.
+const SUMMARY: [string, string[]][] = [['Tốc độ', ['Tốc độ', 'Tăng tốc']], ['Sút', ['Dứt điểm', 'Lực sút', 'Sút xa']], ['Chuyền', ['Chuyền ngắn', 'Chuyền dài', 'Tầm nhìn']], ['Rê bóng', ['Rê bóng', 'Giữ bóng', 'Khéo léo']], ['Thủ', ['Kèm người', 'Cắt bóng', 'Xoạc bóng']], ['Thể lực', ['Thể lực']]];
+const GK_SUMMARY: [string, string[]][] = [['Đổ người', ['Đổ người']], ['Bắt bóng', ['Bắt bóng']], ['Phát bóng', ['Phát bóng']], ['Phản xạ', ['Phản xạ']], ['Tốc độ', ['Tốc độ']], ['Chọn vị trí', ['Chọn vị trí TM']]];
+export function summaryStats(player: Pick<Player, 'id' | 'pos'>, overall: number): { name: string; value: number }[] {
+  const all = playerStats(player, overall), isGk = statProfile(player.pos) === 'gk';
+  return (isGk ? GK_SUMMARY : SUMMARY).map(([name, parts]) => {
+    const picked = all.filter(s => parts.includes(s.name));
+    return { name, value: Math.round(picked.reduce((s, x) => s + x.value, 0) / Math.max(1, picked.length)) };
+  });
+}

@@ -4,7 +4,8 @@ import AccountApp from './AccountApp';
 import { background, critical } from 'virtual:preload-assets';
 import { asset } from './asset';
 import { canLoadInBackground, isConstrainedDevice, preloadResources, tooManyFailed } from './preload';
-import { assetProgress } from './asset-progress';
+import { assetParts, assetProgress } from './asset-progress';
+import { ASSET_PARTS, assetPart } from './asset-groups';
 import './styles.css';
 import './prime-cards.css';
 import './vietnam-cards.css';
@@ -111,7 +112,11 @@ async function start() {
       // Phần tải lúc vào game đã xong: vòng tròn trên thanh trên cùng tính cả phần đó vào tổng.
       const base = critical.length;
       assetProgress.update(base, base + background.length);
-      window.setTimeout(() => { void preloadResources(background.map(file => asset('/assets/' + file)), ({ loaded, total }) => assetProgress.update(base + loaded, base + total), completed, fetch, 3, 1).then(failed => assetProgress.finish(failed.length)); }, 1500);
+      // Bảng tiến độ theo phần: "Giao diện cơ bản" đã xong lúc vào game, các phần sau tải dần theo thứ tự.
+      const partOf = new Map(background.map(file => [asset('/assets/' + file), assetPart(file)]));
+      assetParts.init(ASSET_PARTS.map(p => ({ id: p.id, label: p.label, loaded: p.id === 'ui' ? base : 0, total: p.id === 'ui' ? base : background.filter(file => assetPart(file) === p.id).length })));
+      window.setTimeout(() => { void preloadResources(background.map(file => asset('/assets/' + file)), ({ loaded, total }) => assetProgress.update(base + loaded, base + total), completed, fetch, 3, 1,
+        url => { const id = partOf.get(url); if (id) assetParts.loaded(id); }).then(failed => { assetProgress.finish(failed.length); assetParts.finish(); }); }, 1500);
     }
   } catch (error) {
     status.textContent = error instanceof Error ? error.message : 'Không tải được game. Hãy thử lại.';

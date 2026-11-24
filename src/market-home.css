@@ -1,0 +1,159 @@
+/* TTCN kiểu FC Online (người dùng 2026-11-24): thanh tím trên cùng (ô tìm + Nâng cao + số dư), thanh tab, trang "Cầu thủ phổ biến" gồm 3 thẻ nổi bật và 3 cột xếp hạng. Không bo góc. */
+.main-content>.workspace.market-workspace{padding:0;overflow:hidden;background:#12141a!important}
+.market-workspace *{border-radius:0}
+.mk-top{flex:none;display:flex;align-items:center;gap:10px;height:52px;padding:0 20px;background:linear-gradient(100deg,#5b21d6,#4318b8 60%,#5a1fd0);color:#fff}
+.mk-search{display:flex;align-items:center;gap:10px;flex:1 1 auto;min-width:0}
+.mk-search input{flex:1 1 auto;min-width:0;height:36px;padding:0 6px;border:0;background:none;color:#fff;font-family:var(--display);font-size:19px;outline:0}
+.mk-search input::placeholder{color:#cbb8ff;opacity:.9}
+.mk-go{display:grid;place-items:center;width:56px;height:36px;border:0;background:#8a5cf0;color:#fff;cursor:pointer}
+.mk-go:hover{background:#9b73f5}
+.mk-adv{position:relative;height:36px;padding:0 44px 0 16px;border:0;background:#8a5cf0;color:#fff;font-family:var(--display);font-size:16px;font-weight:600;cursor:pointer}
+.mk-adv i{position:absolute;right:14px;top:50%;width:0;height:0;border:7px solid transparent;border-top:9px solid #fff;border-bottom:0;transform:translateY(-50%)}
+.mk-adv.is-open i{border-top:0;border-bottom:9px solid #fff}
+.mk-bal{margin-left:auto;font-family:var(--display);font-size:20px;color:#dccfff;white-space:nowrap}
+.mk-bal b{font-size:24px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.mk-tabs{flex:none;display:flex;align-items:stretch;gap:4px;height:44px;padding:0 20px;background:#3a1496}
+.mk-tabs button{position:relative;min-width:150px;padding:0 24px;border:0;background:none;color:#cbb8ff;font-family:var(--display);font-size:17px;font-weight:600;cursor:pointer}
+.mk-tabs button[aria-selected=true]{color:#fff;box-shadow:inset 0 -3px 0 #fff}
+.mk-tabs button:hover:not(:disabled){color:#fff}
+.mk-tabs button:disabled{opacity:.5;cursor:not-allowed}
+.mk-tabs .mk-history{margin-left:auto;min-width:0;font-size:14px;font-weight:500;color:#cbb8ff}
+
+.mk-body{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:transparent transparent}
+.mk-body:hover{scrollbar-color:#3a4452 transparent}
+.mk-pad{flex:1;min-height:0;display:flex;flex-direction:column;padding:12px 20px 12px}
+.market-workspace .market-filters:not(.filters-open){display:none}
+.market-workspace .market-filters>.search-field,.market-workspace .market-filter-toggle{display:none!important}
+.market-workspace .market-filters.filters-open{margin-top:0}
+
+.mk-home{display:flex;flex-direction:column;min-height:100%}
+.mk-hero{position:relative;flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:34px 40px 26px;overflow:hidden;background:linear-gradient(135deg,#7a2cf5 0%,#5b21d6 38%,#4b1ac0 62%,#7a2cf5 100%)}
+.mk-hero::before{content:'';position:absolute;left:-10%;right:-10%;top:52%;height:120px;background:linear-gradient(100deg,#00e060,#1bf07a 60%,#00e060);transform:rotate(-14deg);opacity:.9;filter:blur(1px)}
+.mk-hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0,#ffffff22,transparent 60%);pointer-events:none}
+.mk-feature{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;color:#fff;font-family:var(--display);text-shadow:0 2px 8px #0006}
+.mk-feature small{font-size:17px;color:#e0d4ff;font-weight:500}
+.mk-big{margin-top:2px;font-size:38px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.mk-big em{font-style:normal;font-size:.62em;font-weight:600;color:#e8dfff}
+.mk-sub{margin-top:2px;font-size:16px;color:#d6caf8}
+.mk-sub u{text-decoration:none;color:#ff4d5e}
+.mk-pos{display:block;font-size:18px;font-weight:700;color:#fff}
+.mk-card{display:block;margin-top:14px;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 12px 18px #0007);transition:transform .15s}
+.mk-card:hover{transform:translateY(-4px)}
+.mk-card .player-card,.mk-card .face-art{width:200px}
+.mk-card.is-main .player-card,.mk-card.is-main .face-art{width:210px}
+
+.mk-lists{flex:1;display:grid;grid-template-columns:1fr 1.15fr 1.15fr;gap:0;background:#1a1c20}
+.mk-col{min-width:0;border-right:1px solid #ffffff10}
+.mk-col:last-child{border-right:0}
+.mk-rank h3{margin:0;padding:0 16px;height:36px;display:flex;align-items:center;background:#34383b;color:#c9ced3;font-family:var(--display);font-size:15px;font-weight:500}
+.mk-rank ol{list-style:none;margin:0;padding:0}
+.mk-rank li{border-bottom:1px solid #ffffff12}
+.mk-rank li button{display:grid;grid-template-columns:28px 28px minmax(0,1fr) auto auto;align-items:center;gap:10px;width:100%;height:37px;padding:0 16px;border:0;background:none;color:#f1f3f4;font-family:var(--display);font-size:16px;text-align:left;cursor:pointer}
+.mk-rank li button:hover{background:#262a2d}
+.mk-rank li.is-top button{background:#faf9f4;color:#11161c}
+.mk-rank li i{font-style:normal;color:#9aa0a6;text-align:center}
+.mk-rank li.is-top i{color:#4a4e52}
+.mk-rank-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.mk-rank li b{font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.mk-level{width:30px;height:auto}
+.mk-rank .squad-season{font-size:12px}
+.mk-empty{margin:0;padding:24px 16px;color:#aeb6c2;font-size:15px}
+.mk-empty small{display:block;margin-top:6px;color:#7f8893}
+
+@media(max-width:900px){
+  .mk-top{padding:0 12px}.mk-tabs{padding:0 8px;overflow-x:auto}.mk-tabs button{min-width:0;padding:0 14px;white-space:nowrap}
+  .mk-hero{grid-template-columns:1fr;padding:20px}.mk-lists{grid-template-columns:1fr}.mk-col{border-right:0}
+}
+/* Trang Cầu thủ phổ biến: ẩn thanh cuộn (vẫn cuộn được bằng chuột / cảm ứng, người dùng 2026-11-24). */
+.mk-body{scrollbar-width:none}
+.mk-body::-webkit-scrollbar{display:none}
+/* Nút tìm và nút Nâng cao dịch sang trái 200px (người dùng 2026-11-24). */
+.mk-go,.mk-adv{translate:-400px 0}
+/* Gợi ý tên cầu thủ dưới ô tìm: bảng trắng xổ xuống, mỗi dòng ảnh nhỏ + tên + số thẻ; dòng đang chọn tô tím nhạt. */
+.mk-search{position:relative}
+.mk-suggest{position:absolute;z-index:60;left:0;top:100%;width:calc(100% - 466px);margin:0;padding:0;list-style:none;background:#202020;box-shadow:0 14px 34px #000a}
+.mk-suggest li{display:flex;align-items:center;height:37px;padding:0 14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;font-family:var(--display);font-size:17px;font-weight:600;color:#d9d9d9}
+.mk-suggest li.is-on,.mk-suggest li:hover{background:#2e2e2e;color:#fff}
+.mk-suggest mark{background:none;color:#1fe36b}
+/* Bỏ viền xanh khi ô tìm đang chọn (người dùng 2026-11-24). */
+.mk-search,.mk-search:focus-within,.mk-search input,.mk-search input:focus,.mk-search input:focus-visible{outline:0!important;box-shadow:none!important}
+.mk-search input{border:0}
+/* Ô nhập tên: kết thúc ngay trước nút tìm (nút đã dịch trái 400px nên chừa 400px bên phải ô) và khi đang nhập hiện thành khung tím sẫm kín (người dùng 2026-11-24). */
+.mk-search input{margin-right:400px;padding:0 14px;background:transparent;transition:background .12s}
+.mk-search input:focus,.mk-search input:not(:placeholder-shown){background:#2f1869}
+/* Bộ lọc cũ nằm ngang đã chuyển vào bảng Nâng cao: ẩn hẳn; số bộ lọc đang bật hiện trên nút Nâng cao. */
+.market-workspace .market-filters{display:none!important}
+.mk-adv-n{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-left:8px;padding:0 5px;border-radius:10px!important;background:#fff;color:#4318b8;font-size:13px}
+/* Bỏ nút kính lúp (Thông tin cầu thủ) ở từng dòng danh sách TTCN (người dùng 2026-11-24); giữ chỗ cột để bố cục không lệch. */
+.market-row-info{visibility:hidden;pointer-events:none}
+/* Bỏ nút Mua / Bán ở từng dòng danh sách TTCN (người dùng 2026-11-24): mua / bán ở khung chi tiết bên phải (Đặt mua / Bán); giữ chỗ cột để bố cục không lệch. */
+.market-row-action{visibility:hidden;pointer-events:none}
+/* Bỏ thanh "Chỉ thẻ chưa có giá · số thẻ · Đặt lại bộ lọc" phía trên danh sách TTCN (người dùng 2026-11-24); đặt lại bộ lọc dùng nút Tạo lại trong bảng Nâng cao. */
+.market-workspace .market-count{display:none}
+/* Khung chi tiết bên phải (ảnh thẻ, biểu đồ giá, bảng cấp) thu hẹp 30%: clamp(400px,35vw,560px) → clamp(280px,24.5vw,392px) (người dùng 2026-11-24). */
+@media(min-width:1051px){.market-workspace .market-layout{grid-template-columns:minmax(0,1fr) clamp(280px,24.5vw,392px)}}
+/* Danh sách TTCN kiểu FC Online (người dùng 2026-11-24): Vị trí · Tên · Lương · Cấp thẻ · OVR · Chân thuận · C.Số ẩn · Giá. */
+.market-workspace .mk-pad .market-columns,.market-workspace .mk-pad .market-row{grid-template-columns:56px minmax(0,1fr) 54px 54px 54px 62px 54px minmax(84px,120px);gap:8px;align-items:center}
+.market-workspace .mk-pad .market-columns>span,.market-workspace .mk-pad .market-columns>button{font-size:13px;white-space:nowrap}
+.market-feet{display:inline-flex;justify-content:center;gap:2px}
+.market-feet .pd-foot{width:15px;height:24px}
+.market-feet .pd-foot text{font-size:13px}
+.market-stat{text-align:center;font-family:var(--display);font-size:17px;font-weight:600;color:#e8ebef;font-variant-numeric:tabular-nums}
+.market-gold-cell{display:grid;place-items:center}
+@media(max-width:900px){
+  .market-workspace .mk-pad .market-columns,.market-workspace .mk-pad .market-row{grid-template-columns:44px minmax(0,1fr) 50px minmax(72px,100px)}
+  .market-workspace .mk-pad .market-columns>:is(:nth-child(3),:nth-child(4),:nth-child(6),:nth-child(7)),.market-workspace .mk-pad .market-row>:is(:nth-child(1),:nth-child(4),:nth-child(5),:nth-child(7),:nth-child(8),:nth-child(9),:nth-child(10)){display:none}
+}
+/* Số OVR trắng ở cả danh sách và khung chi tiết bên phải (người dùng 2026-11-24). */
+.market-ovr,.market-preview.md .md-ovr{color:#fff}
+/* Dòng cấp thẻ đang chọn (nền kem) ở khung chi tiết: số OVR đổi sang đen để đọc được. */
+.market-preview.md .md-row.is-on .md-ovr{color:#16191d}
+/* TTCN không bo góc ở bất kỳ chỗ nào (người dùng 2026-11-24), kể cả bảng Nâng cao, gợi ý, ô chọn và các dấu tích / chấm tròn. */
+html body .main-content>.workspace.market-workspace :is(*,*::before,*::after){border-radius:0!important}
+/* Nút Mua cầu thủ / Bán cắt góc 45° (người dùng 2026-11-24): bốn góc vát chéo 12px thay vì bo tròn; bóng đổ bỏ vì clip-path sẽ cắt mất. */
+.market-preview.md .md-actions button{clip-path:polygon(12px 0,calc(100% - 12px) 0,100% 12px,100% calc(100% - 12px),calc(100% - 12px) 100%,12px 100%,0 calc(100% - 12px),0 12px);box-shadow:none!important}
+/* Nút Mua cầu thủ / Bán bo tròn (người dùng 2026-11-24, thay cho kiểu cắt góc): viên thuốc, không cắt góc; là ngoại lệ của quy tắc không bo góc ở TTCN. */
+html body .main-content>.workspace.market-workspace .market-preview.md .md-actions button{clip-path:none!important;border-radius:999px!important}
+html body .main-content>.workspace.market-workspace .market-preview.md .md-actions .md-btn-buy:not(:disabled){box-shadow:0 2px 10px #e2361b55!important}
+/* Số OVR trong dòng căn giữa cột: lớp .market-ovr còn dùng cho ô lọc OVR (display:flex ở market.css) nên số bị dồn sang trái; ép về khối căn giữa. */
+.market-workspace .market-row .market-ovr{display:block;text-align:center}
+/* Thẻ không có người bán (mùa khóa giao dịch hoặc chưa có giá để bán) hiện mờ cả dòng; vẫn xem được chi tiết khi chọn (người dùng 2026-11-24). */
+.market-workspace .market-row.is-dim{opacity:.4}
+.market-workspace .market-row.is-dim:hover,.market-workspace .market-row.is-dim.is-selected{opacity:.75}
+
+/* Ngôi sao yêu thích (trái) + kính lúp + nút Tìm (trước giá) chỉ hiện khi rê chuột vào dòng (người dùng 2026-11-24); sao đã chọn vẫn màu vàng khi hiện. */
+.mk-star{display:grid;place-items:center;width:34px;height:34px;padding:0;border:0;background:#454a50;color:#fff;cursor:pointer;visibility:hidden}
+.mk-star.is-on{color:#ffc400}
+.market-row:hover .mk-star,.mk-star:focus-visible{visibility:visible}
+.mk-row-btn{display:grid;place-items:center;height:34px;border:0;background:#14543a;color:#3cf08a;font-family:var(--display);font-size:16px;font-weight:700;cursor:pointer;visibility:hidden}
+.mk-row-btn.is-info{width:38px}
+.mk-row-btn.is-find{grid-auto-flow:column;gap:6px;width:72px}
+.mk-row-btn:hover{background:#1a6b4a}
+.market-row:hover .mk-row-btn,.mk-row-btn:focus-visible{visibility:visible}
+.mk-tab-n{margin-left:6px;padding:0 6px;background:#fff;color:#4318b8;font-size:12px;font-weight:700}
+
+/* Các cột giữ nguyên vị trí như trước khi thêm nút (người dùng 2026-11-24): ngôi sao / kính lúp / nút Tìm không chiếm cột, mà nằm chồng lên dòng khi rê chuột.
+   Ngôi sao nằm ở lề trái mở rộng thêm 28px (khung danh sách lấn ra trái 28px, dòng đệm trái thêm 28px nên các cột không dịch);
+   kính lúp + Tìm nằm ở cuối cột Tên (cách mép phải = các cột bên phải 398px + 6 khe 8px + đệm 12px). */
+@media(min-width:901px){
+  .market-workspace .mk-pad .market-list-panel{margin-left:-28px}
+  .market-workspace .mk-pad .market-columns,.market-workspace .mk-pad .market-row{padding-left:40px}
+  .market-workspace .mk-pad .market-row{position:relative}
+  .mk-star{position:absolute;left:4px;top:50%;translate:0 -50%;width:30px;height:30px}
+  .mk-row-btn{position:absolute;top:50%;translate:0 -50%}
+  .mk-row-btn.is-find{right:66px}
+  .mk-row-btn.is-info{right:146px}
+}
+
+/* Cầu thủ của tôi kiểu FC Online (người dùng 2026-11-24): thanh chuyển Đội hình chính / Cầu thủ, chân bảng "số thẻ / giới hạn kho", nút Bán xanh dương. */
+.mk-seg{flex:none;display:grid;grid-template-columns:1fr 1fr;width:min(520px,70%);margin:0 0 8px 40px;background:#2a2c2e}
+.mk-seg button{height:36px;border:0;background:none;color:#e8e8e8;font-family:var(--display);font-size:16px;font-weight:700;cursor:pointer}
+.mk-seg button[aria-selected=true]{background:#faf9f4;color:#11161c}
+.mk-foot{flex:none;padding:8px 14px 0 40px;font-family:var(--display);font-size:24px;font-weight:700;color:#fff}
+.mk-foot b{font-weight:700}
+.market-stat{color:#cfd3d8}
+@media(min-width:901px){
+  .market-workspace .mk-pad .market-list-panel.is-mine .market-columns,.market-workspace .mk-pad .market-list-panel.is-mine .market-row{grid-template-columns:56px minmax(0,1fr) 54px 54px 54px 62px 54px minmax(84px,120px)}
+}
+@media(max-width:900px){.market-workspace .mk-pad .market-stat,.market-workspace .mk-pad .mk-stat-h{display:none}.mk-seg{margin-left:0;width:100%}.mk-foot{padding-left:14px}}
+html body .main-content>.workspace.market-workspace .market-preview.md .md-actions .md-btn-sell:not(:disabled){background:#2f63ee;color:#fff}

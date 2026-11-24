@@ -6,7 +6,8 @@ import { AlertTriangle, CalendarCheck, CalendarDays, Crown, IdCard, Lock, Mail, 
 import RenameCoach from './RenameCoach';
 import type { RenameInfo } from './wallet';
 import { isLegacyEmail, maskEmail } from './account-identity';
-import { NAME_EFFECTS, avatarEffectClass, isLuxuryEffect, nameEffectClass } from './name-effects';
+import { NAME_EFFECTS, avatarEffectClass, isLuxuryEffect, isRoyalEffect, nameEffectClass } from './name-effects';
+import { ROYAL_TAX_DISCOUNT, ROYAL_TOPUP_FC } from './market';
 import type { NameEffect } from './name-effects';
 import type { Profile, Save } from './game';
 import { ACCOUNT_TIERS, GENDERS, MONTH_DAYS, accountTierOf, pad, paidTier, playedDays } from './profile';
@@ -28,24 +29,28 @@ type Props = { save: Save; accountId?: string; accountEmail?: string | null; clu
 
 // Lưới chọn hiệu ứng avatar + tên (mở từ nút "Hiệu ứng" trong ô tên / avatar HLV). Classic: khoá hết, gợi ý liên hệ admin.
 // luxury: hạng Luxury (dùng được cả nhóm hiệu ứng Luxury); Premium thấy nhóm Luxury bị khoá.
-export function EffectPicker({ premium, luxury = false, shown, initials, busy, onPick }: { premium: boolean; luxury?: boolean; shown: NameEffect | null; initials: string; busy: boolean; onPick: (fx: NameEffect | null) => void }) {
+// royal: hạng Royal (nạp đủ 100.000 FC) mở thêm nhóm hiệu ứng độc quyền Royal; hạng khác thấy nhóm này bị khoá.
+export function EffectPicker({ premium, luxury = false, royal = false, shown, initials, busy, onPick }: { premium: boolean; luxury?: boolean; royal?: boolean; shown: NameEffect | null; initials: string; busy: boolean; onPick: (fx: NameEffect | null) => void }) {
   const card = (fx: (typeof NAME_EFFECTS)[number]) => {
-    const open = fx.luxury ? luxury : premium;
-    return <button type="button" key={fx.id} className={`profile-effect${fx.luxury ? ' is-luxury' : ''}`} aria-pressed={shown === fx.id} disabled={!open || busy} onClick={() => onPick(fx.id)}>
+    const open = fx.royal ? royal : fx.luxury ? luxury || royal : premium;
+    return <button type="button" key={fx.id} className={`profile-effect${fx.royal ? ' is-royal' : fx.luxury ? ' is-luxury' : ''}`} aria-pressed={shown === fx.id} disabled={!open || busy} onClick={() => onPick(fx.id)}>
       {fx.luxury && <span className="fx-lux-tag">LUXURY</span>}
+      {fx.royal && <span className="fx-lux-tag fx-royal-tag">ROYAL</span>}
       <span className={`fx-preview${avatarEffectClass(fx.id)}`}>{open ? initials : <Lock size={13}/>}</span>
       <b className={nameEffectClass(fx.id).trim()}>{fx.name}</b><small>{fx.description}</small>
     </button>;
   };
   return <>
-    <p>{premium ? 'Chọn hiệu ứng hiện ở avatar, bảng thông tin và tên của bạn trên BXH.' : 'Dành cho tài khoản Premium. Liên hệ admin để được nâng cấp.'}{premium && !luxury ? ' Nhóm Luxury dành cho tài khoản Luxury.' : ''}</p>
+    <p>{premium ? 'Chọn hiệu ứng hiện ở avatar, bảng thông tin và tên của bạn trên BXH.' : 'Dành cho tài khoản Premium. Liên hệ admin để được nâng cấp.'}{premium && !luxury && !royal ? ' Nhóm Luxury dành cho tài khoản Luxury.' : ''}{royal ? '' : ` Nhóm Royal độc quyền cho HLV đã nạp đủ ${ROYAL_TOPUP_FC.toLocaleString('vi-VN')} FC.`}</p>
     <div className="profile-effect-grid">
       <button type="button" className="profile-effect" aria-pressed={premium && !shown} disabled={!premium || busy} onClick={() => onPick(null)}>
         <span className="fx-preview">{initials}</span><b>Không hiệu ứng</b><small>Avatar và tên thường</small>
       </button>
-      {NAME_EFFECTS.filter(fx => !fx.luxury).map(card)}
+      {NAME_EFFECTS.filter(fx => !fx.luxury && !fx.royal).map(card)}
       <p className="profile-effect-group">Hiệu ứng Luxury</p>
       {NAME_EFFECTS.filter(fx => fx.luxury).map(card)}
+      <p className="profile-effect-group is-royal">Độc quyền Royal</p>
+      {NAME_EFFECTS.filter(fx => fx.royal).map(card)}
     </div>
   </>;
 }
@@ -59,8 +64,9 @@ export default function ProfileCard({ save, accountId, accountEmail = null, club
   const [month, setMonth] = useState(0);
   const [confirming, setConfirming] = useState(false);
   const tier = { id: accountTierOf(tierId), name: ACCOUNT_TIERS[accountTierOf(tierId)] };
-  const premium = paidTier(tier.id), luxury = tier.id === 'luxury';
-  const shown = premium && (luxury || !isLuxuryEffect(effect)) ? effect : null;
+  const premium = paidTier(tier.id), luxury = tier.id === 'luxury', royal = tier.id === 'royal';
+  // Hiệu ứng đang hiện: Royal hiện mọi hiệu ứng; Luxury không hiện hiệu ứng Royal; Premium chỉ hiệu ứng Premium (khớp fco_name_effect).
+  const shown = royal || (luxury && !isRoyalEffect(effect)) || (premium && !isLuxuryEffect(effect) && !isRoyalEffect(effect)) ? effect : null;
   const [effectBusy, setEffectBusy] = useState(false);
   const pickEffect = async (next: NameEffect | null) => {
     if (!onEffect || effectBusy || next === shown) return;
@@ -87,7 +93,7 @@ export default function ProfileCard({ save, accountId, accountEmail = null, club
       </button>
     </div>
     {fxOpen && <section id="profile-effects" className="profile-effects is-pop" aria-label="Hiệu ứng avatar và tên">
-      <EffectPicker premium={premium} luxury={luxury} shown={shown} initials={initials} busy={effectBusy} onPick={fx => void pickEffect(fx)}/>
+      <EffectPicker premium={premium} luxury={luxury} royal={royal} shown={shown} initials={initials} busy={effectBusy} onPick={fx => void pickEffect(fx)}/>
       {premium && onCursor && <label className="profile-fx-cursor">
         <input type="checkbox" checked={cursorOn} onChange={e => onCursor(e.target.checked)}/>
         <span><b>Con trỏ chuột theo hiệu ứng</b><small>{shown ? 'Mũi chuột đổi màu theo hiệu ứng đang dùng' : 'Chọn một hiệu ứng để đổi màu mũi chuột'}</small></span>
@@ -109,7 +115,7 @@ export default function ProfileCard({ save, accountId, accountEmail = null, club
       <div><dt><CalendarCheck size={15}/>Đã chơi</dt><dd>{joined ? `${playedDays(joined).toLocaleString('vi-VN')} ngày` : '—'}</dd></div>
       {/* Gmail đã gắn với tài khoản (che bớt). Tài khoản cũ đăng nhập bằng tên thì không có dòng này mà có ô Liên kết Gmail bên dưới. */}
       {accountEmail && !isLegacyEmail(accountEmail) && <div><dt><Mail size={15}/>Gmail</dt><dd>{maskEmail(accountEmail)}<small className="profile-locked">Đã liên kết</small></dd></div>}
-      <div><dt><Crown size={15}/>Loại tài khoản</dt><dd>{tier.name}{premium && (luxury ? save.luxuryUntil : save.premiumUntil) ? <small className="profile-tier-until"> · hết hạn {new Date((luxury ? save.luxuryUntil : save.premiumUntil)!).toLocaleDateString('vi-VN')} · giảm {luxury ? 75 : 65}% thuế bán</small> : null}</dd></div>
+      <div><dt><Crown size={15}/>Loại tài khoản</dt><dd>{tier.name}{royal ? <small className="profile-tier-until"> · vĩnh viễn · giảm {ROYAL_TAX_DISCOUNT}% thuế bán · hiệu ứng độc quyền</small> : null}{!royal && premium && (luxury ? save.luxuryUntil : save.premiumUntil) ? <small className="profile-tier-until"> · hết hạn {new Date((luxury ? save.luxuryUntil : save.premiumUntil)!).toLocaleDateString('vi-VN')} · giảm {luxury ? 75 : 65}% thuế bán</small> : null}</dd></div>
     </dl>
     {onClub && <ClubLogoPicker value={club} onChoose={onClub}/>}
     <LinkGmail email={accountEmail}/>

@@ -1,0 +1,115 @@
+/* Bảng "Nâng cao" của TTCN: phủ dưới thanh tím, cột trái trắng / đen, bốn cột bộ lọc nền xám đậm. Không bo góc. */
+.main-content>.workspace.market-workspace{position:relative}
+.mka{position:absolute;z-index:50;left:0;right:0;top:52px;bottom:0;display:flex;background:#1a1a1a;color:#eee;font-family:var(--display)}
+.mka-side{flex:none;display:flex;flex-direction:column;width:200px;background:#111}
+.mka-side button{position:relative;height:80px;padding:0 0 0 34px;border:0;background:none;color:#fff;font-family:var(--display);font-size:18px;font-weight:700;text-align:left;cursor:pointer}
+.mka-side button.is-on{background:#faf9f4;color:#11161c}
+.mka-side button:hover:not(.is-on){background:#1e1e1e}
+.mka-side button i{position:absolute;right:16px;top:50%;width:8px;height:8px;border-radius:50%!important;background:#1fe36b;transform:translateY(-50%)}
+.mka-main{flex:1;min-width:0;display:flex;flex-direction:column;padding:16px 36px 12px 36px;overflow:auto;scrollbar-width:none}
+.mka-main::-webkit-scrollbar{display:none}
+.mka-main header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.mka-main h2{margin:0;font-size:24px;font-weight:700;color:#fff}
+.mka-main header span{display:flex;gap:10px}
+.mka-main header button{min-width:150px;height:40px;padding:0 20px;border:0;border-radius:20px!important;background:#555;color:#f1f1f1;font-family:var(--display);font-size:17px;font-weight:600;cursor:pointer}
+.mka-main header button:hover{background:#666}
+.mka-grid{flex:1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0}
+.mka-col{display:flex;flex-direction:column;gap:14px;padding:0 16px;border-left:1px solid #ffffff1a}
+.mka-col:first-child{border-left:0;padding-left:0}
+.mka-field{display:flex;flex-direction:column;gap:6px}
+.mka-field.is-off{opacity:.45}
+.mka-label{font-size:15px;font-weight:400;color:#b9b9b9}
+.mka-pair{display:flex;align-items:center;gap:6px}
+.mka-pair em{font-style:normal;font-size:20px;color:#9a9a9a}
+.mka-sel{position:relative;display:block;flex:1;min-width:0;height:38px;background:#383838}
+.mka-sel select{width:100%;height:100%;padding:0 30px 0 12px;border:0;background:none;color:#ececec;font-family:var(--display);font-size:17px;font-weight:700;text-align:center;text-align-last:center;appearance:none;-webkit-appearance:none;cursor:pointer}
+.mka-sel select option{background:#2b2b2b;color:#eee}
+.mka-sel i{position:absolute;right:11px;top:50%;width:0;height:0;border:6px solid transparent;border-top:8px solid #f2f2f2;border-bottom:0;transform:translateY(-50%);pointer-events:none}
+.mka-sel.is-off{background:#2e2e2e}.mka-sel.is-off select{color:#777;cursor:not-allowed}.mka-sel.is-off i{border-top-color:#777}
+.mka-tc{display:block}
+.mka-tc .sp,.mka-tc>*{width:100%}
+@media(max-width:900px){.mka{flex-direction:column}.mka-side{flex-direction:row;width:auto;overflow-x:auto}.mka-side button{height:48px;padding:0 16px;white-space:nowrap}.mka-grid{grid-template-columns:1fr 1fr}.mka-col{border-left:0;padding:0}}
+/* Vị trí chọn nhiều: nút nền xám, chữ xanh khi đã chọn; bảng 4 cột đè lên các bộ lọc bên dưới. */
+.mka-pos{position:relative}
+.mka-pos-head{position:relative;display:block;width:100%;height:38px;padding:0 30px 0 12px;border:0;background:#383838;color:#ececec;font-family:var(--display);font-size:17px;font-weight:700;text-align:center;cursor:pointer}
+.mka-pos-head.has,.mka-pos-head[aria-expanded=true]{color:#1fe36b}
+.mka-pos-head i{position:absolute;right:11px;top:50%;width:0;height:0;border:6px solid transparent;border-top:8px solid #f2f2f2;border-bottom:0;transform:translateY(-50%)}
+.mka-pos-head i.up{border-top:0;border-bottom:8px solid #f2f2f2}
+.mka-pos-list{position:absolute;z-index:70;left:0;top:100%;display:flex;background:#2b2b2b;box-shadow:0 14px 34px #000a}
+.mka-pos-col{width:138px;padding:6px 0;border-left:1px solid #ffffff14}
+.mka-pos-col:first-child{border-left:0}
+.mka-pos-row{position:relative;display:flex;align-items:center;justify-content:space-between;height:40px;padding:0 14px 0 20px;font-size:18px;font-weight:700;color:#f0f0f0;cursor:pointer}
+.mka-pos-row:hover{background:#363636}
+.mka-pos-row input{position:absolute;opacity:0;inset:0;cursor:pointer}
+.mka-pos-row i{width:26px;height:26px;border:2px solid #777;background:#2b2b2b}
+.mka-pos-row input:checked~i{border-color:#1fe36b;background:#1fe36b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5' fill='none' stroke='%2306210f' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/80% no-repeat}
+.mka-pos-row.is-head{color:#bdbdbd;font-weight:600}
+.mka-pos-row.is-head u{display:inline-block;width:4px;height:18px;margin-right:10px;vertical-align:-3px}
+.mka-pos-row.pos-fw u{background:#e63946}.mka-pos-row.pos-mf u{background:#2ecc71}.mka-pos-row.pos-df u{background:#3a73e0}.mka-pos-row.pos-gk u{background:#f1c40f}
+/* Nút Mùa có biểu tượng ≡ (không phải mũi tên) và danh sách mùa 2 cột cuộn được. */
+.mka-pos-head.is-menu{background:#4a4a4a;color:#c8c8c8}
+.mka-pos-head.is-menu.has,.mka-pos-head.is-menu[aria-expanded=true]{color:#1fe36b}
+.mka-pos-head.is-menu i{width:16px;height:2px;border:0;background:#f2f2f2;box-shadow:0 -6px 0 #f2f2f2,0 6px 0 #f2f2f2;transform:translateY(-50%)}
+.mka-season-list{position:absolute;z-index:70;left:0;top:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:480px;max-height:340px;overflow-y:auto;padding:6px 0;background:#2b2b2b;box-shadow:0 14px 34px #000a;scrollbar-width:none}
+.mka-season-list::-webkit-scrollbar{display:none}
+.mka-season-list .mka-pos-row span{display:flex;align-items:center;gap:10px;min-width:0;font-size:16px}
+/* Cấp thẻ từ ~ đến: nút huy hiệu + mũi tên, lưới huy hiệu 5 cột xổ xuống (không cuộn, ô chọn có dấu tích xanh). */
+.mka-lv{position:relative;flex:1;min-width:0}
+.mka-lv-head{position:relative;display:grid;place-items:center;width:100%;height:38px;padding:0 30px 0 10px;border:0;background:#383838;color:#ececec;font-family:var(--display);font-size:17px;font-weight:700;cursor:pointer}
+.mka-lv-head img{height:22px;width:auto}
+.mka-lv-head i{position:absolute;right:11px;top:50%;width:0;height:0;border:6px solid transparent;border-top:8px solid #f2f2f2;border-bottom:0;transform:translateY(-50%)}
+.mka-lv-head i.up{border-top:0;border-bottom:8px solid #f2f2f2}
+.mka-lv-list{position:absolute;z-index:70;left:0;top:100%;display:grid;grid-template-columns:repeat(5,64px);gap:0;width:max-content;padding:8px 10px 12px;background:#2b2b2b;box-shadow:0 14px 34px #000a}
+.mka-lv-list button{position:relative;display:grid;place-items:center;height:54px;border:0;background:none;color:#ddd;font-size:17px;font-weight:700;cursor:pointer}
+.mka-lv-list button:hover{background:#363636}
+.mka-lv-list img{height:22px;width:auto}
+.mka-lv-list button.is-on b{position:absolute;left:50%;top:50%;width:28px;height:28px;translate:-50% -50%;border-radius:50%!important;background:#1fe36b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5' fill='none' stroke='%2306210f' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/70% no-repeat}
+.mka-lv-list button.is-on img,.mka-lv-list button.is-on span{opacity:0}
+/* Danh sách chọn một giá trị (Thể hình): cột chữ trắng đậm căn giữa, dòng đầu là nhãn xanh. */
+.mka-drop-list{position:absolute;z-index:70;left:0;right:0;top:100%;margin:0;padding:0;max-height:340px;overflow-y:auto;list-style:none;background:#2b2b2b;box-shadow:0 14px 34px #000a;scrollbar-width:none}
+.mka-drop-list::-webkit-scrollbar{display:none}
+.mka-drop-list li{display:grid;place-items:center;height:56px;color:#f4f4f4;font-family:var(--display);font-size:19px;font-weight:700;cursor:pointer}
+.mka-drop-list li:hover{background:#363636}
+.mka-drop-list li.is-title,.mka-drop-list li.is-on{color:#1fe36b}
+.mka-drop-list li.is-off{color:#6d6d6d;cursor:not-allowed}
+.mka-drop-list li.is-off:hover{background:none}
+/* Hai ô kỹ năng chân: nằm cạnh nhau, chữ nhỏ hơn cho vừa; danh sách rộng bằng nút. */
+.mka-pair.is-feet .mka-pos{flex:1;min-width:0}
+.mka-pair.is-feet .mka-pos-head{padding:0 24px 0 8px;font-size:15px;white-space:nowrap}
+.mka-pair.is-feet .mka-pos-head i{right:8px}
+.mka-pair.is-feet .mka-drop-list li{height:50px;font-size:16px}
+/* Chữ chạy qua lại khi dài quá ô (Marq). */
+.mka-marq{display:block;max-width:100%;min-width:0;overflow:hidden;white-space:nowrap}
+.mka-marq>span{display:inline-block}
+.mka-marq>.is-run{animation:mka-marq var(--dur) ease-in-out .5s infinite alternate}
+@keyframes mka-marq{0%,12%{transform:translateX(0)}88%,100%{transform:translateX(calc(-1 * var(--shift)))}}
+.mka-pos-head .mka-marq{margin:0 auto}
+.reduced-motion .mka-marq>.is-run{animation:none}
+@media(prefers-reduced-motion:reduce){.mka-marq>.is-run{animation:none}.mka-marq{text-overflow:ellipsis}}
+/* Kỹ thuật: mỗi mục là một hàng sao vàng (2–5 sao, lọc đúng số sao); nhãn "Kỹ thuật" vẫn xanh / trắng. */
+.mka-listdrop.is-stars .mka-drop-list li:not(.is-title),.mka-listdrop.is-stars .mka-pos-head.has span:not(:empty){color:#ffc400}
+.mka-listdrop.is-stars .mka-drop-list li:not(.is-title){font-size:24px;letter-spacing:1px}
+.mka-listdrop.is-stars .mka-drop-list li.is-on:not(.is-title){background:#363636}
+/* Giải đấu / Lục địa: nút ≡ mờ (chưa có dữ liệu để lọc), cùng kiểu ô Loại team color. */
+.mka-pos-head.is-off{background:#2e2e2e;color:#777;cursor:not-allowed}
+.mka-pos-head.is-off i{background:#777;box-shadow:0 -6px 0 #777,0 6px 0 #777}
+/* C.Số ẩn: mỗi dòng có biểu tượng lục giác bên trái, tên căn giữa phần còn lại; mục đã chọn ở ô khác thì mờ. */
+.mka-drop-list li.has-icon{display:flex;align-items:center;gap:8px;padding:0 14px 0 12px;height:60px}
+.mka-drop-list li.has-icon img{flex:none;width:44px;height:44px;object-fit:contain}
+.mka-drop-list li.has-icon .mka-marq{flex:1;text-align:center}
+/* Ô nhập số: nền xám như ô chọn nhưng không có mũi tên; chữ căn giữa, đang gõ nền sáng hơn một chút. */
+.mka-in{flex:1;min-width:0;width:100%;height:38px;padding:0 8px;border:0;background:#383838;color:#ececec;font-family:var(--display);font-size:17px;font-weight:700;text-align:center;outline:0}
+.mka-in::placeholder{color:#8a8a8a}
+.mka-in:focus{background:#444}
+/* Bỏ toàn bộ viền chọn (outline / viền focus) trong bảng Nâng cao, ô tìm và gợi ý (người dùng 2026-11-24). */
+.mka *,.mka *:focus,.mka *:focus-visible,.mka *:focus-within,.mk-top *,.mk-top *:focus,.mk-top *:focus-visible,.mk-tabs *:focus,.mk-tabs *:focus-visible{outline:0!important}
+.mka input,.mka select,.mka button,.mk-top input,.mk-top button{-webkit-tap-highlight-color:transparent}
+.mka input:focus,.mka select:focus,.mka button:focus,.mka input:focus-visible,.mka select:focus-visible,.mka button:focus-visible{box-shadow:none!important}
+.mka .sp,.mka .sp *,.mka .sp-input,.mka .sp-input:focus,.mka .sp-box,.mka .sp-box:focus-within{outline:0!important;box-shadow:none!important}
+/* Ô gõ-để-chọn (Team color) trong bảng Nâng cao: không viền, nền xám như các ô khác, mở ra cũng không viền vàng. */
+.mka .sp-field,.mka .sp-field.is-open,.mka .sp-field:focus-within{border:0!important;border-radius:0!important;box-shadow:none!important;background:#383838;height:38px}
+.mka .sp-field input{color:#ececec;font-family:var(--display);font-size:16px;font-weight:700}
+.mka .sp-field input::placeholder{color:#9a9a9a}
+/* Danh sách xổ xuống cuộn trong khung (ẩn thanh cuộn) khi bị giới hạn chiều cao. */
+.mka-pos-list,.mka-lv-list{overflow-y:auto;scrollbar-width:none}
+.mka-pos-list::-webkit-scrollbar,.mka-lv-list::-webkit-scrollbar{display:none}

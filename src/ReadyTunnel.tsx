@@ -75,7 +75,7 @@ export default function ReadyTunnel({ gateLight }: { gateLight: boolean }) {
     const observer = new ResizeObserver(place); observer.observe(el);
     return () => observer.disconnect();
   }, []);
-  const concrete = asset('/assets/rt-concrete.webp'), logo = asset('/assets/fco-vip-opening-logo.png');
+  const concrete = asset('/assets/rt-concrete.webp'), logo = asset('/assets/fco-vip-opening-logo-v2.png');
   return <div className="ready-tunnel" ref={root} aria-hidden="true">
     <svg className="rt-shell" viewBox="0 0 100 100" preserveAspectRatio="none">
       <defs>

@@ -42,19 +42,19 @@
 @media (max-width:900px) and (orientation:portrait){.p8-body{grid-template-columns:minmax(0,1fr)}.p8-board{min-height:420px}.p8-prizes ol{grid-template-rows:none}.p8-prizes li{height:84px}}
 @media (orientation:landscape) and (max-height:500px){.p8-page{gap:6px}.p8-body{grid-template-columns:200px minmax(0,1fr) 170px;gap:6px}.p8-prizes{padding:6px;gap:4px}.p8-prizes h2{font-size:14px}.p8-prizes li{gap:5px;padding:2px 6px}.p8-prize-rank{font-size:11px}.p8-prize-name{font-size:9.5px}.p8-hero{padding:6px 10px}.p8-hero h1{font-size:24px}.p8-tag{font-size:12px}.p8-hot{font-size:10px;padding:2px 8px}.p8-me{padding:8px 10px}.p8-me b{font-size:28px}.p8-side{gap:6px}.p8-rules{padding:8px 10px;gap:5px}.p8-rules li{font-size:11px}.p8-go{height:36px;font-size:15px}}
 /* Nút sự kiện HOT ở trang chủ: nổi bật trên menu chế độ. */
-.hero-hot{position:relative;display:flex;align-items:center;gap:14px;width:100%;padding:10px 18px 10px 12px;border:0;border-radius:14px;cursor:pointer;text-align:left;overflow:hidden;color:#fff;
-  background:linear-gradient(100deg,#7a1407ee,#c2410ccc 55%,#7a1407aa);box-shadow:inset 0 0 0 1px #ffb46a88,0 8px 24px #ff4d0040;transition:transform .2s,filter .2s}
-.hero-hot::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#ffffff33 45%,transparent 60%);transform:translateX(-100%);animation:p8-shine 3.2s ease-in-out infinite;pointer-events:none}
-.hero-hot:hover,.hero-hot:focus-visible{transform:translateX(4px);filter:brightness(1.1);outline:none}
-.hero-hot-icon{display:grid;place-items:center;flex:none;width:52px;height:52px;border-radius:12px;background:#0004;color:#ffd35a;filter:drop-shadow(0 0 8px #ff8a00aa)}
-.hero-hot-icon svg{width:34px;height:34px}
-.hero-hot-text{display:grid;gap:3px;min-width:0}
-.hero-hot-text b{font-family:var(--display);font-size:28px;font-weight:900;line-height:1;text-transform:uppercase;letter-spacing:.3px;text-shadow:0 2px 8px #000a}
-.hero-hot-text small{font-size:14px;font-weight:800;color:#ffe2b8;text-transform:uppercase;letter-spacing:.5px}
+/* Nút HOT cùng kiểu các nút chế độ khác (GLXH, Penalty…): không viền, không nền; chỉ khác là có nhãn HOT. */
+.hero-hot{position:relative;display:flex;align-items:center;gap:20px;width:100%;padding:12px 22px 12px 16px;border:0;border-radius:12px;background:transparent;color:#f4f6f8;opacity:.78;text-align:left;cursor:pointer;transition:background .2s,transform .2s,opacity .2s}
+.hero-hot:hover,.hero-hot:focus-visible{background:linear-gradient(90deg,#ffffff1c,#ffffff00 85%);opacity:1;transform:translateX(4px);outline:none}
+.hero-hot-icon{display:grid;place-items:center;flex:none;width:46px;height:46px;color:#fff;filter:drop-shadow(0 2px 6px #000a)}
+.hero-hot:hover .hero-hot-icon{color:#ffe08a}
+.hero-hot-icon svg{width:100%;height:100%}
+.hero-hot-text{display:grid;gap:2px;min-width:0}
+.hero-hot-text b{text-transform:uppercase;font-family:var(--display);font-size:28px;font-weight:500;line-height:1.05;letter-spacing:.3px;text-shadow:0 2px 10px #000c}
+.hero-hot-text small{font-size:15px;color:#a6b0bc;letter-spacing:.2px}
 .hero-hot-badge{position:absolute;top:8px;right:10px;font-size:10.5px;padding:2px 8px}
-@media(max-width:900px){.hero-hot-text b{font-size:22px}.hero-hot-icon{width:42px;height:42px}}
-.reduced-motion .hero-hot::after,.reduced-motion .p8-hero::after,.reduced-motion .p8-hot,.reduced-motion .hero-hot-badge{animation:none}
-@media(prefers-reduced-motion:reduce){.hero-hot::after,.p8-hero::after,.p8-hot,.hero-hot-badge{animation:none}}
+@media(max-width:900px){.hero-hot-icon{width:36px;height:36px}.hero-hot-text b{font-size:22px}}
+.reduced-motion .p8-hero::after,.reduced-motion .p8-hot,.reduced-motion .hero-hot-badge{animation:none}
+@media(prefers-reduced-motion:reduce){.p8-hero::after,.p8-hot,.hero-hot-badge{animation:none}}
 /* Lịch sử đập +8 của một HLV (bấm dòng BXH / ô Thành tích của bạn). */
 .p8-page .rk-row.is-link,.p8-me.is-link{cursor:pointer}
 .p8-page .rk-row.is-link:hover,.p8-page .rk-row.is-link:focus-visible{filter:brightness(1.18);outline:none}

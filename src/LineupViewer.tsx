@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ovrStyle } from './ovr-color';
 import type { CSSProperties } from 'react';
 import { Shield, X } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
@@ -75,7 +76,7 @@ export default function LineupViewer({ board, rank, name, load, levelBadge, onCl
             <span className={`lu-pos pos-${positionGroup(slot.role)}`}>{slot.label}</span>
             <span className="lv-name">{p ? <><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong></> : <em>Trống</em>}</span>
             {card ? <img className="squad-level-img" src={levelBadge(card.level)} alt={`+${card.level}`}/> : <span/>}
-            <b className="lv-ovr" title={card ? `OVR thẻ ${ovr(card)}` : undefined}>{card ? shown(i) : ''}</b>
+            <b className="lv-ovr" style={card ? ovrStyle(shown(i)) : undefined} title={card ? `OVR thẻ ${ovr(card)}` : undefined}>{card ? shown(i) : ''}</b>
           </li>;
         })}
       </ol>

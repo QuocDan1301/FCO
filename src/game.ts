@@ -71,11 +71,25 @@ const isEventReward = (r: unknown): r is EventReward => !!r && typeof r === 'obj
 // Sơ đồ đội hình A/B/C (màn Đội hình): mỗi bộ gồm mã sơ đồ và 11 ô (uid thẻ trong đội hình riêng hoặc null); squad.ts chuẩn hoá khi đọc.
 // custom: vị trí người chơi kéo tới của từng ô (cùng thứ tự slots), null = giữ vị trí theo sơ đồ.
 export type LineupSpot = { label: string; x: number; y: number };
-export type Lineup = { formation: string; slots: (string | null)[]; custom?: (LineupSpot | null)[] };
+// reserve: uid các cầu thủ được xếp vào nhóm Dự bị (không ra sân; cầu thủ còn lại ngoài sân là Thay thế). Mỗi bộ A/B/C có danh sách riêng.
+// Mỗi bộ A / B / C là một đội riêng (2026-11-23): slots = đội hình chính, subs = Thay thế, reserve = Dự bị (xem squad.ts membersOf).
+// tactic: chiến thuật (0–9) đang dùng cho bộ này; mỗi chiến thuật có tên và sơ đồ riêng (Save.tactics).
+export type Lineup = { formation: string; slots: (string | null)[]; custom?: (LineupSpot | null)[]; subs?: string[]; reserve?: string[]; tactic?: number };
+// 10 chiến thuật đội hình: người chơi đặt tên và sơ đồ cho từng chiến thuật (squad.ts getTactics).
+export type Tactic = { name: string; formation: string };
 export type Lineups = { active: number; sets: Lineup[] };
-export type Save = { version: 1; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; membership?: Membership; event?: EventState; reset?: string; bpReset?: string; codes?: string[]; inv?: 1; profile?: Profile; stp?: number; taxVouchers?: TaxVouchers; premiumUntil?: number | null; luxuryUntil?: number | null;
+export type Save = { version: 1; squadRules?: number; tactics?: Tactic[]; balance: number; cards: Card[]; history: Entry[]; daily: string; opened: number; upgrades: number; sound: boolean; reduced: boolean; quick?: boolean; light?: boolean; unopened?: Record<string, number>; bridge?: BridgeState; squad?: string[]; lineups?: Lineups; locked?: string[]; protection?: { pct: number; fixed: boolean }; fc?: number; membership?: Membership; event?: EventState; reset?: string; bpReset?: string; codes?: string[]; inv?: 1; profile?: Profile; stp?: number; taxVouchers?: TaxVouchers; premiumUntil?: number | null; luxuryUntil?: number | null; royal?: boolean;
   // Miniface người chơi chọn (portraits.ts): 'tên|quốc tịch' → spid chân dung, hoặc 'card' = dùng ảnh thẻ.
-  minifaces?: Record<string, string> };
+  minifaces?: Record<string, string>;
+  // Phòng thay đồ (src/LockerRoom.tsx, 2026-11-24): trang phục từng thẻ (theo uid) và thiết lập chung của đội; chỉ để hiển thị.
+  outfits?: Record<string, Outfit>; teamKit?: TeamKit;
+  // Nhà quản lý đã chọn (mã nhân sự trong src/managers.ts), chỉ để hiển thị ở khung HLV; bỏ trống = ảnh mặc định.
+  manager?: string;
+  // Cầu thủ yêu thích ở TTCN (mã cầu thủ, tối đa 300), chỉ để lọc danh sách.
+  favorites?: number[] };
+// Mỗi trường là vị trí lựa chọn trong danh sách ở src/locker.ts; number = số áo 1–99.
+export type Outfit = { style?: number; fit?: number; sleeve?: number; gear?: number; shorts?: number; under?: number; underColor?: number; boot?: number; socks?: number; tape?: number; number?: number };
+export type TeamKit = { kit?: number; gk?: number; captain?: string };
 // Thông tin HLV người chơi tự chọn (src/ProfileCard.tsx): giới tính, sinh nhật 'DD-MM' (không lưu năm).
 export type Profile = { gender?: 'male' | 'female' | 'other'; birthday?: string };
 const PROFILE_MONTH_DAYS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -554,21 +568,21 @@ export function isPackAvailable(pack: Pack): boolean {
 }
 // Cấp cộng tối đa của thẻ; mỗi cấp có một huy hiệu riêng (+1 → +13).
 // Mỗi dòng là cấp thẻ sau khi nâng cấp; tỷ lệ (%) áp dụng khi đủ 5 vạch năng lượng.
-// Tỷ lệ đập thẻ (2026-11-17, người dùng; 2026-11-18 +7→+8 giảm 20% → 15%, rồi trả lại 20% cùng ngày): +1→+2 100%, +2→+3 80%, +3→+4 70%, +4→+5 50%, +5→+6 35%, +6→+7 25%, +7→+8 20%,
-// +8→+9 15%, +9→+10 10%, +10→+11 7%, +11→+12 5%, +12→+13 3%. Máy chủ đọc từ bộ dữ liệu (chances) → admin Đồng bộ dữ liệu sau khi đưa bản mới lên.
+// Tỷ lệ đập thẻ (người dùng 2026-11-23, công khai: màn đập hiện đúng các số này): +1→+2 100%, +2→+3 90%, +3→+4 70%, +4→+5 60%, +5→+6 30%, +6→+7 20%, +7→+8 10%,
+// +8→+9 7%, +9→+10 6%, +10→+11 5%, +11→+12 4%, +12→+13 3%. Máy chủ đọc từ bộ dữ liệu (chances) → admin Đồng bộ dữ liệu sau khi đưa bản mới lên.
 export const UPGRADE_LEVELS = [
   { ovrGain: 0, chance: 0 },   // +1
   { ovrGain: 1, chance: 100 }, // +2
-  { ovrGain: 1, chance: 80 },  // +3
+  { ovrGain: 1, chance: 90 },  // +3
   { ovrGain: 2, chance: 70 },  // +4
-  { ovrGain: 2, chance: 50 },  // +5
-  { ovrGain: 2, chance: 35 },  // +6
-  { ovrGain: 3, chance: 25 },  // +7
-  { ovrGain: 4, chance: 20 },  // +8
-  { ovrGain: 2, chance: 15 },  // +9
-  { ovrGain: 2, chance: 10 },  // +10
-  { ovrGain: 2, chance: 7 },   // +11
-  { ovrGain: 3, chance: 5 },   // +12
+  { ovrGain: 2, chance: 60 },  // +5
+  { ovrGain: 2, chance: 30 },  // +6
+  { ovrGain: 3, chance: 20 },  // +7
+  { ovrGain: 4, chance: 10 },  // +8
+  { ovrGain: 2, chance: 7 },   // +9
+  { ovrGain: 2, chance: 6 },   // +10
+  { ovrGain: 2, chance: 5 },   // +11
+  { ovrGain: 3, chance: 4 },   // +12
   { ovrGain: 3, chance: 3 },   // +13
 ] as const;
 const levelOvrBonuses = UPGRADE_LEVELS.map((_, index) => UPGRADE_LEVELS.slice(0, index + 1).reduce((total, row) => total + row.ovrGain, 0));
@@ -714,6 +728,8 @@ export const getPackStock = (state: Save, pack: Pack): number => state.unopened?
 
 // Mở / mua tối đa mỗi lượt (2026-11-18: 150 → 500 theo người dùng). Máy chủ đọc từ bộ dữ liệu (rules.maxOpen) → admin phải Đồng bộ dữ liệu.
 export const MAX_INVENTORY_OPEN = 500;
+// Kho tối đa 200 thẻ (máy chủ chặn bằng trigger, migration 202611230002; tài khoản đang >200 thẻ lúc áp dụng và acc phụ được miễn).
+export const INVENTORY_CARD_CAP = 200;
 
 // Gói trong Shop mua bằng FC (giá gói = số FC). Mở gói luôn miễn phí, dù gói mua ở Shop hay nhận làm quà. catalog = danh sách gói được bán (test truyền gói mẫu).
 export function buyPacks(state: Save, requested: Pack, count: number, free = false, catalog: Pack[] = shopPacks): Save {
@@ -898,7 +914,36 @@ export function validateSave(data: unknown): data is Save {
     const l = s.lineups;
     const valid = !!l && Number.isInteger(l.active) && l.active >= 0 && l.active < 3 && Array.isArray(l.sets) && l.sets.length === 3 && l.sets.every(set => !!set && typeof set.formation === 'string' && Array.isArray(set.slots) && set.slots.length === 11 && set.slots.every(uid => uid === null || typeof uid === 'string'));
     if (!valid) delete s.lineups;
+    else for (const set of l.sets) if (set.tactic !== undefined && !(Number.isInteger(set.tactic) && set.tactic >= 0 && set.tactic < 10)) delete set.tactic;
+  if (s.lineups) for (const set of s.lineups.sets) for (const key of ['reserve', 'subs'] as const) if (set[key] !== undefined && !(Array.isArray(set[key]) && set[key]!.every(uid => typeof uid === 'string'))) delete set[key];
   }
+  // Chiến thuật: mảng tối đa 10 { name, formation } dạng chữ; sai kiểu thì bỏ (squad.ts getTactics điền mặc định).
+  if (s.tactics !== undefined) { if (Array.isArray(s.tactics) && s.tactics.length <= 10 && s.tactics.every(x => !!x && typeof x.name === 'string' && typeof x.formation === 'string')) s.tactics = s.tactics.map(x => ({ name: x.name.slice(0, 24), formation: x.formation })); else delete s.tactics; }
+  // Phòng thay đồ: chỉ giữ trường số nguyên trong khoảng cho phép, thẻ còn trong kho, tối đa 500 thẻ.
+  if (s.outfits !== undefined) {
+    const owned = new Set(Array.isArray(s.cards) ? s.cards.map(c => c?.uid) : []), out: Record<string, Outfit> = {};
+    if (s.outfits && typeof s.outfits === 'object' && !Array.isArray(s.outfits)) for (const [uid, raw] of Object.entries(s.outfits).slice(0, 500)) {
+      if (!owned.has(uid) || !raw || typeof raw !== 'object') continue;
+      const o: Outfit = {}, rec = raw as Record<string, unknown>;
+      for (const key of ['style', 'fit', 'sleeve', 'gear', 'shorts', 'under', 'underColor', 'boot', 'socks', 'tape'] as const) { const v = rec[key]; if (Number.isInteger(v) && (v as number) >= 0 && (v as number) < 20) o[key] = v as number; }
+      if (Number.isInteger(rec.number) && (rec.number as number) >= 1 && (rec.number as number) <= 99) o.number = rec.number as number;
+      if (Object.keys(o).length) out[uid] = o;
+    }
+    if (Object.keys(out).length) s.outfits = out; else delete s.outfits;
+  }
+  if (s.teamKit !== undefined) {
+    const raw = s.teamKit as unknown, k: TeamKit = {};
+    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+      const rec = raw as Record<string, unknown>;
+      for (const key of ['kit', 'gk'] as const) { const v = rec[key]; if (Number.isInteger(v) && (v as number) >= 0 && (v as number) < 10) k[key] = v as number; }
+      if (typeof rec.captain === 'string' && Array.isArray(s.cards) && s.cards.some(c => c?.uid === rec.captain)) k.captain = rec.captain;
+    }
+    if (Object.keys(k).length) s.teamKit = k; else delete s.teamKit;
+  }
+  // Nhà quản lý: chỉ giữ mã số 7 chữ số (src/managers.ts kiểm tra mã có trong danh sách khi hiển thị).
+  if (s.manager !== undefined && !(typeof s.manager === 'string' && /^\d{7}$/.test(s.manager))) delete s.manager;
+  // Cầu thủ yêu thích: chỉ giữ mã số nguyên không trùng, tối đa 300.
+  if (s.favorites !== undefined) { if (Array.isArray(s.favorites)) s.favorites = [...new Set(s.favorites.filter(x => Number.isInteger(x) && x > 0))].slice(0, 300); else delete s.favorites; }
   // Mức bảo vệ nâng cấp đã lưu: sai kiểu thì bỏ.
   if (s.protection !== undefined && !(s.protection && Number.isInteger(s.protection.pct) && s.protection.pct >= 0 && s.protection.pct <= 100 && s.protection.pct % 10 === 0 && typeof s.protection.fixed === 'boolean')) delete s.protection;
   if (s.locked !== undefined) {
@@ -918,6 +963,7 @@ export function validateSave(data: unknown): data is Save {
   // Hạn Premium (ms) chỉ để hiển thị / tính trước thuế; máy chủ tự kiểm tra khi bán.
   if (s.premiumUntil !== undefined && s.premiumUntil !== null && !Number.isSafeInteger(s.premiumUntil)) delete s.premiumUntil;
   if (s.luxuryUntil !== undefined && s.luxuryUntil !== null && !Number.isSafeInteger(s.luxuryUntil)) delete s.luxuryUntil;
+  if (s.royal !== undefined && typeof s.royal !== 'boolean') delete s.royal;
   // Phiếu giảm thuế (src/stp.ts): chỉ giữ mức 10 / 20 / 30 với số nguyên dương.
   if (s.taxVouchers !== undefined) {
     const raw = s.taxVouchers as unknown, out: TaxVouchers = {};

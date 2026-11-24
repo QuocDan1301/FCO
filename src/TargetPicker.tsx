@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { ovrStyle } from './ovr-color';
 import { ChevronDown, ChevronUp, Lock } from 'lucide-react';
 import { getPlayer, MAX_LEVEL, money, ovr } from './game';
 import type { Card, Save, Tier } from './game';
@@ -79,7 +80,7 @@ export default function TargetPicker({ save, targetId, onPick, onClose, view, on
           <span className={`tp-pos pos-${positionGroup(p.pos)}`}>{p.pos}</span>
           <span className="tp-face"><img src={faceOf(p).src} alt="" loading="lazy"/></span>
           <span className="tp-name"><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong></span>
-          <span className="tp-ovr">{ovr(c)}</span>
+          <span className="tp-ovr" style={ovrStyle(ovr(c))}>{ovr(c)}</span>
           <span className="tp-level"><img src={levelBadge(c.level)} alt={`+${c.level}`}/></span>
           <span className="tp-lock">{isLocked(save, c.uid) && <Lock size={15} aria-label="Đã khóa"/>}</span>
           <span className={`tp-price ${value === null ? 'is-unpriced' : ''}`}>{value === null ? 'Chưa có giá' : money(value)}</span>

@@ -27,7 +27,7 @@ export function StpIcon({ size = 18 }: { size?: number }) {
 
 function ItemIcon({ item, renderArt }: { item: StpItem; renderArt: Props['renderArt'] }) {
   if ('voucher' in item) return <span className="stp-item-voucher" aria-hidden="true"><VoucherCard pct={item.voucher}/></span>;
-  if ('bp' in item) return <img className="stp-item-bp" src={asset('/assets/currency-bp.png')} alt=""/>;
+  if ('bp' in item) return <img className="stp-item-bp" src={asset('/assets/currency-bp-v2.png')} alt=""/>;
   const pack = findPack(item.pack);
   return <span className="stp-item-pack" aria-hidden="true">{pack ? renderArt(pack) : null}</span>;
 }

@@ -1,5 +1,6 @@
 /* Star Point: ô STP trên thanh trên cùng (cạnh BP / FC), 4 khung gói STP trong Shop và hộp danh sách vật phẩm (src/StpShop.tsx). */
-.topbar .wallet.wallet-stp .coin-icon.currency-icon { width: 26px; height: 26px; }
+/* Ảnh Star Point có viền trong suốt dày (phần nhìn thấy chỉ ~70% ảnh) nên phải vẽ to hơn để cùng cỡ nhìn với icon BP và FC. */
+.topbar .wallet.wallet-stp .coin-icon.currency-icon { width: 37px; height: 37px; margin: -5px -5px -5px -5px; }
 .wallet.wallet-stp b { color: #c9a7ff; text-shadow: 0 0 12px #a274ff59; }
 .wallet.wallet-stp b span { color: #c9a7ffcc; }
 .stp-icon { display: inline-block; flex-shrink: 0; object-fit: contain; vertical-align: -3px; }

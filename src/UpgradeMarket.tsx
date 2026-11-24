@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { ovrStyle } from './ovr-color';
 import type { CSSProperties, ReactNode } from 'react';
 import { ChevronDown, ChevronUp, Menu, RefreshCw } from 'lucide-react';
 import { MAX_LEVEL, TIERS, getPlayer, money, ovr, players, seasons, upgradeInfo } from './game';
@@ -91,7 +92,7 @@ export default function UpgradeMarket({ mode, target, free, balance, onBuy, onBu
   const toggleClass = (tier: Tier) => setClasses(list => list.includes(tier) ? list.filter(t => t !== tier) : [...list, tier]);
 
   const levelDrop = (i: 0 | 1) => <Dropdown className="um-drop-level" label={i ? 'Cấp thẻ đến' : 'Cấp thẻ từ'} value={Math.min(levels[i], bulkMax)} options={range(1, bulkMax)} render={level => <img src={levelBadge(level)} alt={`+${level}`}/>} onChange={value => setLevel(i, value)}/>;
-  const ovrDrop = (i: 0 | 1) => <Dropdown className="um-drop-ovr" label={i ? 'Chỉ số đến' : 'Chỉ số từ'} value={ovrs[i]} options={range(minOvrAll, maxOvrAll)} render={value => <b>{value}</b>} onChange={value => setOvr(i, value)}/>;
+  const ovrDrop = (i: 0 | 1) => <Dropdown className="um-drop-ovr" label={i ? 'Chỉ số đến' : 'Chỉ số từ'} value={ovrs[i]} options={range(minOvrAll, maxOvrAll)} render={value => <b style={ovrStyle(value)}>{value}</b>} onChange={value => setOvr(i, value)}/>;
   const classPicker = <div className="um-classes" ref={classBox}>
     <button className={`um-class-btn ${classes.length ? 'on' : ''}`} aria-haspopup="dialog" aria-expanded={classesOpen} onClick={() => setClassesOpen(o => !o)}><span>Lớp cầu thủ{classes.length ? ` (${classes.length})` : ''}</span><Menu size={18}/></button>
     {classesOpen && <div className="um-class-menu" role="dialog" aria-label="Chọn lớp cầu thủ">
@@ -114,7 +115,7 @@ export default function UpgradeMarket({ mode, target, free, balance, onBuy, onBu
               <span className="fco-boost" aria-label={`Tăng ${boost}% năng lượng`} title={`${boost}% năng lượng · ${Number((boost / 20).toFixed(3))} vạch`}>{[1, 2, 3, 4, 5].map(n => <i key={n} style={{ '--energy-fill': `${Math.min(100, Math.max(0, boost - (n - 1) * 20) * 5)}%` } as CSSProperties} className={boost >= n * 20 ? 'on' : boost > (n - 1) * 20 ? 'part' : ''}/>)}</span>
               <span className={`fco-pos pos-${posGroup(p.pos)}`}>{p.pos}</span>
               <span className="fco-name"><img src={faceOf(p).src} alt=""/><em className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</em><b>{p.name}</b></span>
-              <span className="fco-ovr">{o.ovr}</span>
+              <span className="fco-ovr" style={ovrStyle(o.ovr)}>{o.ovr}</span>
               <span><img className="fco-badge" src={levelBadge(o.level)} alt={`+${o.level}`}/></span>
               <span className="fco-cost">{money(o.price)}</span>
               <span/>

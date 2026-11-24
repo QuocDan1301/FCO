@@ -32,7 +32,7 @@ export default function StpMissions({ state, grind, error, stp, onClaim, onClaim
   const run = (id: string, task: () => Promise<boolean>) => { setBusy(id); void task().finally(() => setBusy(null)); };
   const loading = tab === 'stp' ? !state : !grind;
   return <div className="stp-missions">
-    <div className="modal-heading"><div><span className="stp-missions-kicker">{TAB_KICKER[tab]}</span><h2>Nhiệm vụ</h2></div><button className="icon-button" aria-label="Đóng nhiệm vụ" onClick={onClose}><X/></button></div>
+    <div className="modal-heading"><div><span className="stp-missions-kicker">{TAB_KICKER[tab]}</span><h2>Trung tâm nhiệm vụ</h2></div><button className="icon-button" aria-label="Đóng nhiệm vụ" onClick={onClose}><X/></button></div>
     <div className="missions-tabs" role="tablist" aria-label="Loại nhiệm vụ">
       {(['day', 'week', 'stp'] as Tab[]).map(t => <button key={t} role="tab" aria-selected={tab === t} className={tab === t ? 'is-active' : ''} onClick={() => setTab(t)}>
         {TAB_LABEL[t]}{ready[t] > 0 && <b aria-label={`${ready[t]} phần thưởng chờ nhận`}>{ready[t]}</b>}</button>)}

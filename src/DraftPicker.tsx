@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { ovrStyle } from './ovr-color';
 import { ArrowLeft, ArrowRight, Check, Pencil, Search, X } from 'lucide-react';
 import { draftCandidates, draftSize, money, ovr, PACK_LEVELS, seasons } from './game';
 import type { Pack, Player, Tier } from './game';
@@ -75,7 +76,7 @@ export default function DraftPicker({ pack, initial, seasonShort, onConfirm, onL
           {results.slice(0, RESULT_LIMIT).map(p => { const on = chosenSet.has(p.id); return <div key={p.id} role="row" className={`dr-row dr-result-row ${on ? 'is-on' : ''}`} aria-label={`${p.pos} ${p.name}, OVR ${ovr(card(p))}${on ? ', đã chọn' : ''}`}>
             <span className={`dr-pos pos-${positionGroup(p.pos)}`}>{p.pos}</span><Face player={p}/>
             <span className="squad-name"><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong></span>
-            <span className="dr-center"><Wage player={p}/></span><b className="dr-ovr">{ovr(card(p))}</b><span className="dr-price">{priceText(p)}</span>
+            <span className="dr-center"><Wage player={p}/></span><b className="dr-ovr" style={ovrStyle(ovr(card(p)))}>{ovr(card(p))}</b><span className="dr-price">{priceText(p)}</span>
             <span className="dr-mark" aria-hidden="true">{on && <Check size={16}/>}</span>
             {!on && <button className="dr-move" onClick={() => toggle(p.id)} aria-label={`Chuyển ${p.name} sang danh sách đã chọn`}>Chuyển<ArrowRight size={20} strokeWidth={3}/></button>}
           </div>; })}
@@ -91,7 +92,7 @@ export default function DraftPicker({ pack, initial, seasonShort, onConfirm, onL
         {chosen.map(p => <div key={p.id} role="row" className="dr-row dr-chosen-row" aria-label={`${p.pos} ${p.name}, OVR ${ovr(card(p))}`}>
           <span className={`dr-pos pos-${positionGroup(p.pos)}`}>{p.pos}</span><Face player={p}/>
           <span className="squad-name"><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong></span>
-          <span className="dr-center"><Wage player={p}/></span><b className="dr-ovr">{ovr(card(p))}</b>
+          <span className="dr-center"><Wage player={p}/></span><b className="dr-ovr" style={ovrStyle(ovr(card(p)))}>{ovr(card(p))}</b>
           <button className="dr-move" onClick={() => toggle(p.id)} aria-label={`Chuyển ${p.name} ra khỏi danh sách đã chọn`}><ArrowLeft size={20} strokeWidth={3}/>Chuyển</button>
         </div>)}
         {!chosen.length && <p className="dr-empty">Chưa chọn cầu thủ nào.</p>}
@@ -121,7 +122,7 @@ export function DraftSummary({ pack, ids, seasonShort, onEdit }: { pack: Pack; i
         {list.map(p => <div key={p.id} role="row" className="dr-row dr-sum-row" aria-label={`${p.pos} ${p.name}, OVR ${ovr(card(p))}`}>
           <span className={`dr-pos pos-${positionGroup(p.pos)}`}>{p.pos}</span><Face player={p}/>
           <span className="squad-name"><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong></span>
-          <span className="dr-center"><Wage player={p}/></span><b className="dr-ovr">{ovr(card(p))}</b>
+          <span className="dr-center"><Wage player={p}/></span><b className="dr-ovr" style={ovrStyle(ovr(card(p)))}>{ovr(card(p))}</b>
         </div>)}
       </div>
     </aside>

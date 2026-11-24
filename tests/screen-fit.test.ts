@@ -86,3 +86,19 @@ test('Đo nhầm lúc trình duyệt vừa đổi tỉ lệ nhưng chưa đổi 
   assert.equal(content, good, 'đo lại sau 250 ms / 1 s phải về khung đúng');
 });
 
+
+test('Bật chế độ cảm ứng SAU khi trang đã mở (DevTools / nối màn cảm ứng): tự chuyển sang khung PC; tắt thì trả thẻ viewport gốc', () => {
+  let coarse = false, content = 'width=device-width, initial-scale=1.0';
+  const listeners: Record<string, (() => void)[]> = {}, media: (() => void)[] = [];
+  const win: Record<string, unknown> = { innerWidth: 667, innerHeight: 375, addEventListener: (type: string, fn: () => void) => { (listeners[type] ??= []).push(fn); } };
+  const doc = { documentElement: { style: { setProperty() {} } }, querySelector: () => ({ getAttribute: () => content, setAttribute: (_: string, v: string) => { content = v; } }), activeElement: { tagName: 'BODY' } };
+  const matchMedia = (query: string) => ({ get matches() { return query.includes('orientation') ? true : coarse; }, addEventListener: (_: string, fn: () => void) => { if (!query.includes('orientation')) media.push(fn); } });
+  new Function('window', 'document', 'screen', 'matchMedia', script)(win, doc, { width: 667, height: 375 }, matchMedia);
+  assert.equal(content, 'width=device-width, initial-scale=1.0', 'máy tính: chưa đổi');
+  coarse = true; media.forEach(fn => fn());
+  assert.match(content, /^width=\d{4}, initial-scale=0\.\d+/, 'bật cảm ứng → khung PC thu nhỏ');
+  assert.ok((win.__FCO_FIT_SCALE as number) < 1);
+  coarse = false; listeners.resize.forEach(fn => fn());
+  assert.equal(content, 'width=device-width, initial-scale=1.0', 'tắt cảm ứng → trả thẻ viewport gốc');
+  assert.equal(win.__FCO_FIT_SCALE, 1);
+});

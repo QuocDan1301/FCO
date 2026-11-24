@@ -112,3 +112,10 @@
 @media(max-width:640px){.profile-rows>div.profile-rename-wrap{padding:8px 11px}.profile-rename label small{display:none}}.profile-rename-row input{padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#0b0f15;color:#fff}
 .profile-rename-row input:focus{outline:none;border-color:var(--gold)}
 .profile-rename-row input::placeholder{color:#6f7d8c;font-weight:400}
+
+/* Hạng Royal (nạp đủ 100.000 FC): avatar viền vàng đỏ, nhãn hạng vàng ánh kim có vệt sáng (người dùng 2026-11-24). */
+.profile-avatar.is-royal{color:#fff2b0;background:radial-gradient(circle at 50% 30%,#4a1c0c,#1c0f22);border-color:#ffc93c;box-shadow:0 0 0 3px rgba(255,180,60,.3),0 0 18px rgba(255,160,40,.35)}
+.profile-tier.is-royal{position:relative;overflow:hidden;color:#2a0a00;border-color:transparent;background:linear-gradient(135deg,#fff2b0,#ffc93c 45%,#ff8a2a 75%,#c4161c);box-shadow:0 0 10px rgba(255,170,50,.45);font-weight:800}
+.profile-tier.is-royal::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,#ffffffaa 50%,transparent 70%) -120% 0/60% 100% no-repeat;animation:profile-royal-sheen 2.6s ease-in-out infinite}
+@keyframes profile-royal-sheen{to{background-position:220% 0}}
+@media(prefers-reduced-motion:reduce){.profile-tier.is-royal::after{animation:none}}

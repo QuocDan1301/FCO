@@ -109,6 +109,8 @@ export const redeemGiftHash = async (hash: string) => {
 };
 export const claimMissionFc = (id: string) => call<Wallet>('fco_event_mission', { p_id: id });
 export const playEventFc = (count: number, mode: 'fc' | 'free') => call<EventPlayResult>('fco_event_play', { p_count: count, p_mode: mode });
+// Giờ chơi của chính mình, tính bằng giây (migration 202611230001): hiện ở ô cấp độ cạnh tên HLV.
+export const fetchMyPlaySeconds = () => call<number>('fco_my_play_seconds');
 export const fetchFcStats = () => call<FcStats>('fco_my_fc_stats');
 export const fetchJackpot = () => call<ServerJackpot>('fco_jackpot_state');
 // gift = true: tặng FC (không tính vào Đã nạp / doanh thu), cần migration 202611090010. Nạp thường không gửi p_gift để vẫn chạy khi chưa có migration.
@@ -156,7 +158,7 @@ export const adminAccountReset = (id: string, resetFc: boolean) => call<{ reset:
 export const adminAccountsDelete = (target: { users: string[] } | { all: true; search: string; status: string | null }) => call<{ deleted: number; skippedAdmins: number; remaining: number }>('fco_admin_accounts_delete', 'all' in target ? { p_all: true, p_search: target.search || null, p_status: target.status } : { p_users: target.users });
 // Loại tài khoản Classic / Premium (migration 202611110003): tier = null chỉ đọc.
 // tier 'premium' = thêm 7 ngày (cộng dồn khi còn hạn, migration 202611110013); until = hạn Premium (ms).
-export const adminAccountTier = (user: string, tier: 'classic' | 'premium' | 'luxury' | null = null) => call<{ tier: 'classic' | 'premium' | 'luxury'; until?: number | null }>('fco_admin_account_tier', { p_user: user, p_tier: tier });
+export const adminAccountTier = (user: string, tier: 'classic' | 'premium' | 'luxury' | null = null) => call<{ tier: 'classic' | 'premium' | 'luxury' | 'royal'; until?: number | null }>('fco_admin_account_tier', { p_user: user, p_tier: tier });
 // Hiệu ứng avatar + tên (migration 202611110004): chỉ tài khoản Premium đặt được, null = tắt.
 // Đổi tên HLV (migration 202611160004): lần đầu miễn phí, sau đó 100 FC; 7 ngày / lần; không trùng tên.
 export type RenameInfo = { name: string; changes: number; nextAt: number | null; cost: number; now: number };

@@ -22,30 +22,20 @@ type Props = {
   online: boolean;
   onOpenNow: (pack: Pack, count: number) => void;
   onPreview: (pack: Pack, count: number) => void;
-  onInventory: () => void;
+  // Nút Kho vật phẩm ở đầu Shop đã bỏ (người dùng 2026-11-24); App vẫn truyền, không dùng.
+  onInventory?: () => void;
   renderArt: (pack: Pack) => ReactNode;
 };
 
-export default function PackShop({ save, packs, free, onBuy, onBuyMembership, onBuyStp, stpBought, online, onOpenNow, onPreview, onInventory, renderArt }: Props) {
+export default function PackShop({ save, packs, free, onBuy, onBuyMembership, onBuyStp, stpBought, online, onOpenNow, onPreview, renderArt }: Props) {
   const [quantities, setQuantities] = useState<Record<string, string>>({});
   const setQuantity = (id: string, value: string) => setQuantities(current => ({ ...current, [id]: value }));
-  // Tổng gói chưa mở hiện trên nút Kho vật phẩm; tổng tăng (vừa mua) thì nút nảy nhẹ.
-  const stockTotal = packs.filter(isPackAvailable).reduce((sum, pack) => sum + getPackStock(save, pack), 0);
-  const [stock, setStock] = useState({ total: stockTotal, bump: 0 });
-  if (stock.total !== stockTotal) setStock({ total: stockTotal, bump: stockTotal > stock.total ? stock.bump + 1 : stock.bump });
-  const inventoryRef = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    if (!stock.bump || save.reduced) return;
-    inventoryRef.current?.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.1)', offset: .35 }, { transform: 'scale(.97)', offset: .7 }, { transform: 'scale(1)' }], { duration: 480, easing: 'ease-out' });
-  }, [stock.bump]);
   // Nút mua vừa thêm gói vào kho: đổi sang "Đã thêm" trong chốc lát (thông báo chi tiết ở toast).
   const [added, setAdded] = useState<{ id: string } | null>(null);
   useEffect(() => { if (!added) return; const timer = window.setTimeout(() => setAdded(null), 1400); return () => clearTimeout(timer); }, [added]);
   return <section className="workspace shop-workspace" aria-labelledby="shop-title">
     <div className="page-heading shop-heading">
-      <div><div className="shop-title-row"><h1 id="shop-title">Shop gói cầu thủ</h1></div><p>Chọn gói, mua số lượng bạn muốn và mở trong kho vật phẩm.</p></div>
-      <div className="shop-heading-actions">
-      <button ref={inventoryRef} className="secondary-button shop-inventory" onClick={onInventory} aria-label={`Kho vật phẩm · ${stockTotal} gói chưa mở`}>Kho vật phẩm<b className="shop-inventory-count" aria-hidden="true">{money(stockTotal)}</b><ArrowRight size={17}/></button></div>
+      <div><div className="shop-title-row"><h1 id="shop-title">Cửa hàng</h1></div></div>
     </div>
     <div className="shop-grid" aria-label="Các gói đang bán">
       <StpShop save={save} online={online} onBuy={onBuyStp} bought={stpBought} renderArt={renderArt}/>

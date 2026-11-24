@@ -1,5 +1,6 @@
 /* Thông tin cầu thủ (PlayerDetail.tsx): trái = phần đầu + tab Giá / Sự nghiệp CLB, phải = Chỉ số chung. */
-.pd-modal .modal-panel{width:min(1120px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;padding:0}
+/* Thu nhỏ cả bảng còn 84% (30% rồi tăng 20%) (người dùng 2026-11-24): zoom .966 (84% rồi to thêm 15%) nên kích thước theo khung nhìn phải chia lại cho .966. */
+.pd-modal .modal-panel{zoom:.966;width:min(1120px,calc((100vw - 24px) / .966));max-height:calc((100dvh - 24px) / .966);overflow:auto;padding:0}
 .pd{display:flex;flex-direction:column;min-height:0;color:#eef1f5}
 .pd-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 22px 6px}
 .pd-bar h2{margin:0;font-family:var(--display);font-size:20px}
@@ -26,8 +27,8 @@
 .pd-tabs{display:flex;gap:2px;padding:2px;border-radius:6px;background:#ffffff0d;align-self:flex-start}
 .pd-tabs button,.pd-tabs span{min-width:120px;height:32px;padding:0 16px;border:0;border-radius:5px;background:none;color:#aab3c0;font:inherit;font-size:14px;font-weight:700;cursor:pointer;display:grid;place-items:center}
 .pd-tabs button[aria-selected=true],.pd-tabs .is-on{background:#e9edf2;color:#11151b}
-.pd-price,.pd-career{min-height:220px}
-.pd-chart{display:block;width:100%;height:auto;max-height:240px}
+.pd-price,.pd-career{min-height:148px}
+.pd-chart{display:block;width:100%;height:auto;max-height:168px}
 .pd-grid{stroke:#ffffff1a;stroke-width:1}
 .pd-line{fill:none;stroke:#d9ba76;stroke-width:2;stroke-linejoin:round}
 .pd-dot{fill:#d9ba76}.pd-dot.is-now{fill:#fff}
@@ -41,7 +42,7 @@
 .pd-note,.pd-empty{margin:8px 0 0;color:#8f99ab;font-size:12.5px}
 .pd-upgrade{align-self:flex-start;margin-top:auto}
 .pd-right{display:flex;flex-direction:column;gap:10px;min-width:0}
-.pd-stats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);max-height:min(620px,calc(100dvh - 170px));overflow-y:auto;padding-right:4px}
+.pd-stats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);max-height:min(548px,calc((100dvh - 242px) / .966));overflow-y:auto;padding-right:4px}
 .pd-stats li{display:grid;grid-template-columns:minmax(0,1fr) 52px 34px;align-items:center;gap:4px;padding:6px 4px;border-bottom:1px solid #ffffff14;font-size:14.5px}
 .pd-stats li>span{color:#d7dce4}
 .pd-stats b{font-family:var(--display);font-size:21px;text-align:right;font-variant-numeric:tabular-nums}
@@ -110,3 +111,251 @@
 .pd-goldx-grid{flex:1 1 100%;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px}
 .pd-goldx-grid button{padding:3px 6px}
 .pd-goldx-grid img{width:22px;height:22px}
+/* Nền mờ quanh bảng giảm 30%: độ phủ 87% → 61%, làm nhòe 7px → 5px. */
+.modal-backdrop.pd-modal{background:#02060d9c;backdrop-filter:blur(5px)}
+/* Nền trắng cho bảng Thông tin cầu thủ (người dùng 2026-11-24): đổi toàn bộ chữ / viền / đường kẻ sang màu tối. */
+.pd-modal .modal-panel{background:#fff;border-color:#d4dae2;color:#11161c}
+.pd-modal .pd{color:#11161c}
+.pd-modal .pd-bar h2{color:#11161c}
+.pd-modal .icon-button{color:#11161c}
+.pd-modal .pd-name{background:#0000000a}
+.pd-modal .pd-pos i.pos-fw{color:#d62839}.pd-modal .pd-pos i.pos-mf{color:#1c9c52}.pd-modal .pd-pos i.pos-df{color:#1f78c9}.pd-modal .pd-pos i.pos-gk{color:#b88100}
+.pd-modal .pd-meta{color:#5b6573}.pd-modal .pd-meta b{color:#11161c}.pd-modal .pd-meta>i{background:#00000033}
+.pd-modal .pd-wage{border-color:#00000044}
+.pd-modal .pd-plus{color:#1c9c52!important}
+.pd-modal .pd-tabs{background:#0000000d}
+.pd-modal .pd-tabs button,.pd-modal .pd-tabs span{color:#5b6573}
+.pd-modal .pd-tabs button[aria-selected=true],.pd-modal .pd-tabs .is-on{background:#11161c;color:#fff}
+.pd-modal .pd-grid{stroke:#0000001a}
+.pd-modal .pd-line{stroke:#b08a2e}.pd-modal .pd-dot{fill:#b08a2e}.pd-modal .pd-dot.is-now{fill:#11161c}
+.pd-modal .pd-label{fill:#11161c}.pd-modal .pd-tick{fill:#6b7480}
+.pd-modal .pd-now{color:#5b6573}.pd-modal .pd-now b{color:#11161c}
+.pd-modal .pd-career li{border-bottom-color:#00000014}
+.pd-modal .pd-career small{background:#b08a2e26;color:#7a5c10}
+.pd-modal .pd-note,.pd-modal .pd-empty{color:#6b7480}
+.pd-modal .pd-stats li{border-bottom-color:#00000014}
+.pd-modal .pd-stats li>span{color:#2a323c}
+.pd-modal .pd-stats b{-webkit-text-stroke:.5px #00000045}
+.pd-modal .pd-stats i{color:#1c9c52}
+.pd-modal .pd-gold{color:#8a6d1f}
+.pd-modal .pd-faces-title{color:#2a323c}.pd-modal .pd-faces-title small,.pd-modal .pd-goldx-title small{color:#6b7480}
+.pd-modal .pd-face{border-color:#d4dae2;background:radial-gradient(circle at 50% 35%,#ffffff,#e8edf3);color:#5b6573}
+.pd-modal .pd-face:hover{border-color:#8f99ab}
+.pd-modal .pd-face.is-on{border-color:#c8920a;box-shadow:0 0 0 1px #c8920a,0 0 10px #c8920a44;color:#8a6200}
+.pd-modal .pd-gold.is-extra>span,.pd-modal .pd-goldx-title{color:#8a6d1f}
+.pd-modal .pd-goldx-slot{border-color:#d9c27a;background:#fbf5e4}
+.pd-modal .pd-goldx-slot.is-locked{border-color:#d4dae2;background:#f1f3f6}
+.pd-modal .pd-goldx-level{background:#f3e6b8;color:#6b4f00}
+.pd-modal .pd-goldx-chosen{color:#7a5c10}.pd-modal .pd-goldx-empty{color:#6b7480}
+.pd-modal .pd-goldx-grid button{border-color:#d9c27a;background:#fbf5e4;color:#5c4a14}
+.pd-modal .pd-goldx-grid button:not(:disabled):hover{border-color:#b08a2e;background:#f6e9c2}
+.pd-modal .pd-goldx-grid button.is-on{border-color:#b08a2e;box-shadow:0 0 0 1px #b08a2e inset;color:#6b4f00}
+/* Không bo viền (người dùng 2026-11-24): bảng và mọi ô bên trong vuông góc; riêng thẻ cầu thủ giữ nguyên khung của thẻ. */
+.pd-modal .modal-panel,.pd-modal .modal-panel :not(.pd-card):not(.pd-card *){border-radius:0!important}
+/* Hai bên cách mép bảng 60px (30px rồi thêm 30px, người dùng 2026-11-24): bảng đang zoom .966 nên đặt 62px để nhìn ra đúng 60px. */
+.pd-modal .pd-bar,.pd-modal .pd-body{padding-left:min(62px,6vw);padding-right:min(62px,6vw)}
+/* Mini face thay khung thẻ (2026-11-24): chân dung không nền đứng sát đáy; ảnh thẻ (chưa có chân dung) cắt vào đầu – vai. */
+.pd-mini{display:grid;place-items:end center;height:300px;overflow:hidden;background:radial-gradient(circle at 50% 40%,#ffffff,#e6ebf1)}
+.pd-mini img{max-width:100%;max-height:100%;object-fit:contain;object-position:50% 100%;filter:drop-shadow(0 6px 10px #0003)}
+.pd-mini.is-card img{width:100%;height:100%;object-fit:cover;object-position:50% 18%;filter:none}
+@media(max-width:900px),(max-height:560px){.pd-mini{height:210px}}
+/* Bố cục mới kiểu FC Online (2026-11-24): mini face cạnh tên, ô chọn cấp, dải 6 chỉ số nền xám, tab C.Số ẩn. */
+.pd-modal .pd-body{grid-template-columns:minmax(0,560px) minmax(0,1fr);gap:56px}
+.pd-modal .pd-id{position:relative;display:grid;grid-template-columns:minmax(0,1fr) 158px;gap:8px;align-items:end}
+.pd-modal .pd-name{box-sizing:content-box;height:39px;margin-right:24px;padding:0 12px;background:#eef1f5}
+.pd-modal .pd-name strong{font-size:26px;line-height:39px}
+.pd-main{display:flex;align-items:baseline;gap:8px;margin:4px 0 2px;font-family:var(--display)}
+.pd-main i{font-style:normal;font-size:20px;font-weight:700}
+.pd-main b{font-size:34px;font-weight:700;line-height:1;color:#11161c}
+.pd-modal .pd-main .pos-fw{color:#d62839}.pd-modal .pd-main .pos-mf{color:#1c9c52}.pd-modal .pd-main .pos-df{color:#1f78c9}.pd-modal .pd-main .pos-gk{color:#b88100}
+.pd-modal .pd-meta{font-size:16px}
+.pd-modal .pd-meta .squad-wage{width:28px;height:28px;font-size:13px}
+.pd-modal .pd-mini{height:228px;background:none}
+.pd-modal .pd-mini img{filter:drop-shadow(0 6px 10px #0003)}
+.pd-emblem{position:absolute;top:0;right:0;width:48px;height:48px;object-fit:contain;filter:drop-shadow(0 2px 3px #0004)}
+.pd-pickers{display:flex;align-items:center;gap:12px;padding:6px 0}
+.pd-picker-note{font-size:13px;color:#6b7480}
+.pd-sum{display:grid;grid-template-columns:repeat(6,1fr);margin:0 calc(-1 * min(62px,6vw));padding:10px min(62px,6vw) 8px;background:#d9dde2;text-align:center}
+.pd-sum span{display:block;font-size:14px;color:#4a525d}
+.pd-sum b{display:block;font-family:var(--display);font-size:30px;font-weight:700;line-height:1.15;-webkit-text-stroke:.5px #00000045}
+.pd-modal .pd-tabs{gap:0;padding:0;background:#e3e7ec}
+.pd-modal .pd-tabs button,.pd-modal .pd-tabs span{min-width:122px;height:34px;font-size:15px}
+.pd-info{display:grid;margin:0}
+.pd-info>div{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;border-bottom:1px solid #00000014}
+.pd-info dt{font-size:15px;color:#4a525d}
+.pd-info dd{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:10px;margin:0;font-family:var(--display);font-size:16px;font-weight:700;color:#11161c}
+.pd-info-pos{display:inline-flex;align-items:baseline;gap:4px}
+.pd-info-pos i{font-style:normal;font-size:13px}
+.pd-modal .pd-info .pos-fw{color:#d62839}.pd-modal .pd-info .pos-mf{color:#1c9c52}.pd-modal .pd-info .pos-df{color:#1f78c9}.pd-modal .pd-info .pos-gk{color:#b88100}
+.pd-trait{display:inline-flex;align-items:center;gap:6px}
+.pd-trait img{width:30px;height:30px;object-fit:contain}
+.pd-modal .pd-stats li{padding:8px 4px}
+.pd-modal .pd-stats li>span{font-size:16px}
+.pd-modal .pd-stats b{font-size:24px}
+.pd-role{font-style:normal;font-family:var(--display);font-size:17px;font-weight:700}
+.pd-modal .pd-role.pos-fw{color:#d62839}.pd-modal .pd-role.pos-mf{color:#1c9c52}.pd-modal .pd-role.pos-df{color:#1f78c9}.pd-modal .pd-role.pos-gk{color:#b88100}
+@media(max-width:900px),(max-height:560px){
+  .pd-modal .pd-body{grid-template-columns:minmax(0,1fr) minmax(220px,300px);gap:20px}
+  .pd-modal .pd-id{grid-template-columns:minmax(0,1fr) 156px}
+  .pd-modal .pd-mini{height:156px}
+  .pd-sum b{font-size:22px}.pd-sum span{font-size:12px}
+}
+@media(max-width:620px){.pd-modal .pd-body{grid-template-columns:minmax(0,1fr)}}
+/* Khung mùa cạnh tên to hơn 10% (khung tính theo em: 11px → 12,1px). */
+.pd-modal .pd-name .squad-season{font-size:12.1px}
+/* Tiêu đề "Thông tin cầu thủ" to hơn 15% (20px → 23px). */
+.pd-modal .pd-bar h2{position:relative;top:12px;font-size:23px}
+/* Huy hiệu lương trong Thông tin cầu thủ: nền trắng, viền và số màu đen. */
+.pd-modal .pd-meta .squad-wage{background:#11161c;color:#11161c}
+.pd-modal .pd-meta .squad-wage::before{background:#fff}
+/* Chiều cao · cân nặng · thể hình · hai chân (src/physical.ts). Chân thuận nền xanh, chân còn lại nền tối. */
+.pd-feet{display:inline-flex;gap:3px;margin-left:8px}
+.pd-feet b{display:grid;place-items:center;width:20px;height:24px;border-radius:50%!important;background:#3a3f47;color:#fff;font-family:var(--display);font-size:13px;font-weight:700}
+.pd-feet b.is-main{background:#1f8f3a}
+/* Ô chọn cấp nằm sát bên trái (level-picker.css mặc định đẩy sang phải bằng margin-left:auto). */
+.pd-pickers .lvp{margin-left:0}
+/* Hàng ô chọn: cấp thẻ · cấp độ ①/⑤ · Team Color (-)/+1…+9, nền xám liền nhau, mũi tên đặc bên phải. */
+.pd-pickers{gap:4px}
+.pd-select{position:relative;display:block;height:36px;background:#e3e7ec}
+.pd-select select{width:100%;height:100%;padding:0 34px 0 14px;border:0;background:none;color:#11161c;font-family:var(--display);font-size:16px;font-weight:600;text-align:center;appearance:none;-webkit-appearance:none;cursor:pointer}
+.pd-select::after{content:'';position:absolute;right:12px;top:50%;border:7px solid transparent;border-top:9px solid #3a3f47;border-bottom:0;transform:translateY(-50%);pointer-events:none}
+.pd-select-train{width:120px}
+.pd-select-train select{font-size:20px}
+.pd-select-tc{flex:1;min-width:0}
+/* Góc trên khối tên: logo CLB. */
+.pd-emblem{filter:none}
+/* Hai chân dạng bàn chân theo ảnh mẫu: chân thuận xanh lá, chân còn lại xám; số trắng lớn ở giữa. */
+.pd-feet{gap:4px;align-items:center}
+.pd-foot{width:18px;height:35px}
+.pd-foot path{fill:#8d9299}
+.pd-foot-dot{fill:#fff}
+.pd-foot.is-main path{fill:#228b3c}
+.pd-foot text{fill:#fff;font-family:var(--display);font-size:15px;font-weight:700}
+/* Dòng CLB · quốc tịch to thêm 5px (16px → 21px: thêm 20px rồi giảm lại 15px, người dùng 2026-11-24); cờ và vạch ngăn to theo. */
+.pd-modal .pd-meta{font-size:21px;line-height:1.2}
+.pd-modal .pd-meta img{width:auto;height:16px}
+.pd-modal .pd-meta>i{height:15px;margin:0 6px}
+/* Dòng Lương · chiều cao · cân nặng dịch lên 5px rồi thêm 5px (người dùng 2026-11-24). */
+.pd-modal .pd-meta:not(.pd-meta-club){position:relative;top:-10px}
+/* Dòng vị trí + OVR (CF 122) dịch lên 5px (người dùng 2026-11-24). */
+.pd-modal .pd-main{position:relative;top:-5px}
+/* Các dòng thông tin không xuống hàng (người dùng 2026-11-24): chữ chạy một dòng; miniface 228px canh sát phải và lấn sang trái, nằm dưới chữ. */
+.pd-modal .pd-id-text{position:relative;z-index:1}
+.pd-modal .pd-meta{flex-wrap:nowrap;white-space:nowrap}
+.pd-modal .pd-mini{width:228px;justify-self:end}
+@media(max-width:900px),(max-height:560px){.pd-modal .pd-id{grid-template-columns:minmax(0,1fr) 100px}.pd-modal .pd-mini{width:156px}}
+/* Ô chọn cấp thẻ cao bằng hai ô Cấp độ / Team Color (36px). */
+.pd-pickers .lvp,.pd-pickers .lvp-current{height:36px;box-sizing:border-box}
+.pd-pickers .lvp-current{border-radius:0;padding:0 12px}
+/* Hàng 3 ô chọn (cấp thẻ · cấp độ · Team Color) dịch lên 5px rồi thêm 30px, thêm 20px; dùng margin âm nên dải 6 chỉ số, tab và nội dung bên dưới dịch lên theo. */
+.pd-pickers{margin-top:-55px}
+/* Miniface không nền (người dùng 2026-11-24): bỏ bóng đổ quanh ảnh, ảnh hoà vào nền trắng (multiply xoá phần nền trắng / xám nhạt trong ảnh); chữ thông tin nằm đè lên (.pd-id-text z-index 1). */
+.pd-modal .pd-mini,.pd-modal .pd-mini.is-card{background:none;box-shadow:none}
+.pd-modal .pd-mini img{filter:none;mix-blend-mode:multiply}
+.pd-modal .pd-mini.is-card img{mix-blend-mode:normal}
+.pd-modal .pd-id{isolation:isolate}
+.pd-modal .pd-mini{position:relative;z-index:0;pointer-events:none}
+/* Cả khối thông tin (tên, vị trí + OVR, CLB, lương…) dịch lên 10px rồi thêm 20px (người dùng 2026-11-24). */
+.pd-modal .pd-id-text{top:-30px}
+/* Miniface dịch lên 30px rồi thêm 10px (người dùng 2026-11-24). */
+.pd-modal .pd-mini{top:-40px}
+/* Miniface phóng to 20% (người dùng 2026-11-24): scale quanh góc dưới phải để không đẩy bố cục bên dưới. */
+.pd-modal .pd-mini{transform:translateX(40px) scale(1.2);transform-origin:100% 100%}
+/* Dải 6 chỉ số rút ngắn đầu bên phải 25px (người dùng 2026-11-24). */
+.pd-sum{margin-right:calc(-1 * min(62px,6vw) + 25px);padding-right:calc(min(62px,6vw) - 25px)}
+/* Dải 6 chỉ số dịch lên 10px (margin âm: tab và nội dung bên dưới lên theo, không để hở). */
+.pd-sum{margin-top:-10px}
+/* Biểu đồ biến động giá kiểu mẫu (người dùng 2026-11-24): nền trắng, trục chữ L, 3 đường kẻ ngang xám nhạt, đường giá xám đậm nét mảnh, nhãn cao nhất / thấp nhất. */
+.pd-modal .pd-price{padding:14px 10px 12px;background:#fff}
+.pd-modal .pd-axis{stroke:#6f7378;stroke-width:1.4}
+.pd-modal .pd-grid{stroke:#cfcfc8;stroke-width:1}
+.pd-modal .pd-line{stroke:#5b5f63;stroke-width:2.2;stroke-linejoin:miter}
+.pd-modal .pd-dot{display:none}
+.pd-modal .pd-label{fill:#5b5f63;font-weight:500;font-size:12.5px}
+.pd-modal .pd-tick{fill:#4a4e52;font-size:11.5px}
+.pd-modal .pd-now{justify-content:flex-end;gap:70px;margin-top:14px;padding-right:6px;color:#5b5f63;font-size:14px}
+.pd-modal .pd-now b{color:#11161c;font-size:21px}
+.pd-modal .pd-now b small{font-family:var(--body,inherit);font-size:15px;font-weight:500;color:#7b7f84}
+/* Ô chọn xổ xuống (PdDrop) thay cho <select>: nút xám nhạt như cũ, danh sách xám đậm chữ trắng, mục chọn sáng + tích xanh. */
+.pd-drop{position:relative;height:36px;background:#e3e7ec}
+.pd-drop-head{display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:0 34px 0 14px;border:0;background:none;color:#11161c;font-family:var(--display);font-size:16px;font-weight:600;cursor:pointer}
+.pd-select-train .pd-drop-head{font-size:20px}
+.pd-drop-head i{position:absolute;right:12px;top:50%;width:0;height:0;border:7px solid transparent;border-top:9px solid #3a3f47;border-bottom:0;transform:translateY(-50%)}
+.pd-drop.is-open .pd-drop-head i{border-top:0;border-bottom:9px solid #3a3f47}
+.pd-drop-list{position:absolute;left:0;right:0;top:100%;z-index:30;max-height:340px;margin:0;padding:0;overflow-y:auto;list-style:none;background:#4b4f52;box-shadow:0 8px 20px #0005;scrollbar-width:thin;scrollbar-color:#8b9094 #3a3d40}
+.pd-drop-list li{position:relative;display:grid;place-items:center;height:38px;color:#fff;font-family:var(--display);font-size:17px;font-weight:600;cursor:pointer}
+.pd-drop-list li:hover{background:#5a5f63}
+.pd-drop-list li.is-on{background:#faf9f4;color:#11161c}
+.pd-drop-list li b{position:absolute;left:10px;top:50%;display:grid;place-items:center;width:22px;height:22px;border-radius:50%!important;background:#1fe36b;color:#06210f;transform:translateY(-50%)}
+.pd-select-train{width:120px}
+.pd-select-tc{flex:1;min-width:0}
+.pd-modal .modal-panel .pd-drop .pd-drop-list li b{border-radius:50%!important}
+/* Ô cấp độ: số nằm trong vòng tròn viền mảnh (đầu nút: viền tối; danh sách xám đậm: viền sáng; mục chọn: viền tối). */
+.pd-ring{display:inline-grid;place-items:center;width:26px;height:26px;border:2px solid #8a8f94;border-radius:50%!important;font-family:var(--display);font-size:16px;font-weight:600;line-height:1}
+.pd-modal .modal-panel .pd-ring{border-radius:50%!important}
+.pd-select-train .pd-drop-head{font-size:16px}
+.pd-modal .modal-panel .pd-pickers .pd-drop .pd-ring,.pd-modal .modal-panel .pd-pickers .pd-drop-list li b{border-radius:50%!important}
+/* Tab C.Số ẩn kiểu FC Online (2026-11-24): hàng nhãn xám trái – giá trị đậm phải; sao kỹ thuật; hàng biểu tượng lục giác. */
+.pd-info>div{min-height:50px;border-bottom:1px solid #00000014}
+.pd-info dt{font-size:16px;color:#4a525d;font-weight:400}
+.pd-info dd{font-size:17px}
+.pd-stars{gap:4px}
+.pd-stars svg{width:26px;height:26px;fill:#dcdcdc}
+.pd-stars svg.is-on{fill:#f4b400}
+.pd-info-icons{align-items:center;padding:6px 0}
+.pd-info-icons dd{gap:6px;max-width:68%}
+.pd-info-icons dd img{width:40px;height:40px;object-fit:contain}
+.pd-slot{display:inline-flex;flex-direction:column;align-items:center;gap:0}
+.pd-slot svg{width:40px;height:40px}
+.pd-slot svg path{fill:#c3c7cd}
+.pd-slot.is-locked svg path:first-child{fill:#b5bac1}
+.pd-slot svg path.lk{fill:#fff;stroke:#fff;stroke-width:1}
+.pd-slot em{font-style:normal;font-size:11px;font-weight:700;color:#6b7480}
+/* Nhãn "Đội hình A" cạnh hàng biểu tượng; ô khóa xám xanh / vàng nhạt như mẫu. */
+.pd-info-set{margin-right:8px;font-family:var(--display);font-size:15px;font-weight:700;color:#11161c}
+.pd-slot.is-silver svg path:first-child{fill:#aeb6c1}
+.pd-slot.is-gold svg path:first-child{fill:#d6bd88}
+/* Sự nghiệp CLB dạng bảng Năm · CLB · Thuê (người dùng 2026-11-24). */
+.pd-career-table{width:100%;border-collapse:collapse}
+.pd-career-table th{padding:10px 4px;border-bottom:1px solid #00000014;font-size:15px;font-weight:400;text-align:left;color:#6b7480}
+.pd-career-table th:last-child{text-align:right}
+.pd-career-table td{padding:14px 4px;border-bottom:1px solid #00000014;font-size:16px;color:#4a525d}
+.pd-career-table td b{color:#11161c;font-weight:700}
+.pd-career-table td small{margin-left:10px}
+.pd-career-table td:last-child{text-align:right}
+/* Tab Tất cả vị trí: sân dọc nền xám nhạt, vạch trắng; mỗi vị trí là nhãn màu theo nhóm (công đỏ, giữa xanh lá, thủ xanh dương, thủ môn vàng) kèm OVR đậm bên dưới. */
+.pd-roles{position:relative;width:100%;aspect-ratio:440/520;background:#eceae6}
+.pd-roles>svg{position:absolute;inset:0;width:100%;height:100%}
+.pd-role-spot{position:absolute;display:grid;justify-items:center;translate:-50% -50%;font-family:var(--display);line-height:1.15;text-align:center}
+.pd-role-spot i{font-style:normal;font-size:18px;font-weight:500}
+.pd-role-spot b{font-size:23px;font-weight:700;color:#33373d}
+.pd-modal .pd-role-spot.pos-fw i{color:#d62839}.pd-modal .pd-role-spot.pos-mf i{color:#1c9c52}.pd-modal .pd-role-spot.pos-df i{color:#3a73e0}.pd-modal .pd-role-spot.pos-gk i{color:#e0a010}
+/* Thanh tab bên phải có tới 4 tab (C.Số chung · vị trí · vị trí · Tất cả vị trí): chia đều chiều rộng cột, không bị tràn / khuất. */
+.pd-modal .pd-right .pd-tabs{align-self:stretch;width:100%}
+.pd-modal .pd-right .pd-tabs button,.pd-modal .pd-right .pd-tabs span{flex:1 1 0;min-width:0;padding:0 6px;white-space:nowrap;font-size:14px}
+/* Cột bên phải (thanh tab + chỉ số / sơ đồ vị trí) dịch xuống 50px (người dùng 2026-11-24). */
+.pd-modal .pd-right{margin-top:50px}
+/* Thanh tab bên phải ngắn lại 30px (bảng zoom .966 nên trừ 31px, người dùng 2026-11-24). */
+.pd-modal .pd-right .pd-tabs{align-self:flex-start;width:calc(100% - 31px)}
+/* Sơ đồ vị trí dài thêm 30px rồi 50px nữa (chiều dọc, người dùng 2026-11-24): content-box để aspect-ratio chỉ tính phần nội dung, thêm 80px đệm dưới; hình sân và nhãn giãn theo. */
+.pd-roles{box-sizing:content-box;padding-bottom:80px}
+/* Sơ đồ vị trí dịch xuống 20px, cách thanh tab xa hơn (người dùng 2026-11-24). */
+.pd-roles{margin-top:20px}
+/* Danh sách xổ xuống rút gọn: hàng 31px, hiện hết (11 mục) không cuộn (người dùng 2026-11-24). */
+.pd-drop-list{max-height:none;overflow:visible}
+.pd-drop-list li{height:31px;font-size:15px}
+.pd-drop-list li b{width:20px;height:20px}
+/* Cột trái (thông tin cầu thủ + dải chỉ số + tab C.Số ẩn) thu hẹp 20px mỗi bên (bảng zoom .966 nên đệm 21px, người dùng 2026-11-24). */
+.pd-modal .pd-left{padding-left:21px;padding-right:21px}
+/* Dải 6 chỉ số sát viền trái của bảng (bù 21px đệm của cột trái, nội dung bên trong giữ nguyên chỗ, người dùng 2026-11-24). */
+.pd-modal .pd-sum{margin-left:calc(-1 * min(62px,6vw) - 21px);padding-left:calc(min(62px,6vw) + 21px)}
+/* Tab C.Số ẩn: các hàng sít lại (hàng chữ 38px, hàng biểu tượng đệm 2px và icon 36px, người dùng 2026-11-24). */
+.pd-info>div{min-height:38px}
+.pd-info-icons{padding:2px 0}
+.pd-info-icons dd img,.pd-slot svg{width:36px;height:36px}
+.pd-slot em{line-height:1}
+/* Danh sách chỉ số bên phải cũng sít hàng lại (đệm trên dưới 8px → 4px, người dùng 2026-11-24). */
+.pd-modal .pd-stats li{padding-top:4px;padding-bottom:4px}
+/* Thanh tab bên phải nhỏ gọn hơn: tab vừa chữ (không chia đều), cao 28px, chữ 13px (người dùng 2026-11-24). */
+.pd-modal .pd-right .pd-tabs{width:auto;align-self:flex-start}
+.pd-modal .pd-right .pd-tabs button,.pd-modal .pd-right .pd-tabs span{flex:0 0 auto;min-width:0;height:28px;padding:0 14px;font-size:13px}

@@ -79,13 +79,36 @@ ok((await db.query(`select public.fco_leaderboard() r`)).rows[0].r.ovr.length ==
 ok((await err(`insert into public.fco_mkt_orders(user_id, side, player_id, level, price) values ($1, 'buy', 4100, 1, 1000)`, [S]))?.match(/FCO_SUB_(ACCOUNT|MARKET)/), 'chợ: đặt lệnh chờ bị chặn');
 ok((await err(`insert into public.fco_mkt_sys_sold(player_id, level, minute, sold) values (4100, 1, 1, 1)`))?.includes('FCO_SUB_ACCOUNT'), 'chợ: mua từ hệ thống bị chặn');
 ok((await err(`insert into public.fco_ranked(user_id) values ($1)`, [S]))?.includes('FCO_SUB_ACCOUNT'), 'GLXH bị chặn');
-ok((await err(`update public.fco_wallets set ctp_pos = 3, ctp_first_done = true where user_id = $1`, [S]))?.includes('FCO_SUB_ACCOUNT'), 'Cờ tỷ phú bị chặn');
 ok((await err(`update public.fco_wallets set vqtg_pos = 3 where user_id = $1`, [S]))?.includes('FCO_SUB_ACCOUNT'), 'VQTG bị chặn');
 await db.exec(`update public.fco_ctp_state set open = true where id = 1`);
 await db.query(`select public.fco_apply_fc($1, 100000, 'admin_gift', '{}')`, [S]);
-const ctpErr = await err(`select public.fco_ctp_play(1, 'fc')`);
-ok(ctpErr?.includes('FCO_SUB_ACCOUNT'), `gọi thẳng fco_ctp_play khi sự kiện mở vẫn bị chặn (${ctpErr})`);
-ok(Number((await db.query(`select fc from public.fco_wallets where user_id = $1`, [S])).rows[0].fc) === 100000, 'bị chặn thì không mất FC');
+// Cờ tỷ phú (202611220019): acc phụ chơi được nhưng không đụng jackpot chung. Ép tỷ lệ nổ 100% để chắc chắn.
+await db.exec(`alter function public.fco_ctp_rules() rename to fco_ctp_rules_orig;
+  create function public.fco_ctp_rules() returns jsonb language sql stable as $$ select public.fco_ctp_rules_orig() || '{"ultimateChance":1,"miniChance":1}'::jsonb $$;
+  update public.fco_jackpot set pot = 500000, feed = '[]' where id = 1;`);
+const jp = async () => (await db.query(`select pot, jsonb_array_length(feed) n from public.fco_jackpot where id = 1`)).rows[0];
+const ctpOne = await err(`select public.fco_ctp_play(1, 'fc')`);
+ok(ctpOne === null, `acc phụ chơi Cờ tỷ phú bằng FC được (${ctpOne})`);
+ok(Number((await db.query(`select fc from public.fco_wallets where user_id = $1`, [S])).rows[0].fc) < 100000, 'trừ FC lượt chơi');
+await db.query(`update public.fco_wallets set ctp_free = 300 where user_id = $1`, [S]);
+const pot0 = Number((await jp()).pot);
+let landed = 0, jackpots = 0;
+for (let i = 0; i < 3; i++) {
+  const r = (await db.query(`select public.fco_ctp_play(100, 'free') r`)).rows[0].r;
+  for (const p of r.plays) { if ([7, 21].includes(p.to)) landed++; if (p.reward?.jackpot) jackpots++; }
+}
+const j1 = await jp();
+ok(landed === 0 && jackpots === 0, `300 lượt: acc phụ không dừng ô 7 / 21, không trúng jackpot (dừng ${landed}, trúng ${jackpots})`);
+ok(Number(j1.pot) === pot0 && Number(j1.n) === 0, `quỹ jackpot chung không đổi (${pot0} → ${j1.pot}), bảng tin jackpot trống`);
+ok(await cnt('fco_ctp_race_points', S) === 0, 'không có điểm đua top Cờ tỷ phú');
+await as(Q);
+await db.query(`select public.fco_wallet_lock($1)`, [Q]);
+await db.query(`update public.fco_wallets set ctp_free = 100 where user_id = $1`, [Q]);
+const rq = (await db.query(`select public.fco_ctp_play(100, 'free') r`)).rows[0].r;
+ok(rq.plays.some(p => p.reward?.jackpot) && Number((await jp()).n) > 0, 'người chơi thường vẫn trúng jackpot như cũ (đối chứng)');
+await db.exec(`drop function public.fco_ctp_rules(); alter function public.fco_ctp_rules_orig() rename to fco_ctp_rules;`);
+await as(S);
+ok((await err(`update public.fco_wallets set vqtg_pos = 3 where user_id = $1`, [S]))?.includes('FCO_SUB_ACCOUNT'), 'VQTG (đang ẩn) vẫn chặn');
 ok((await err(`select public.fco_apply_fc($1, 5000, 'admin', '{}')`, [S]))?.includes('FCO_SUB_TOPUP'), 'admin "nạp" FC cho acc phụ bị chặn');
 ok((await err(`select public.fco_apply_fc($1, 5000, 'admin_gift', '{}')`, [S])) === null, 'admin tặng FC cho acc phụ được');
 ok((await err(`select public.fco_apply_fc($1, -5000, 'admin', '{}')`, [S])) === null, 'admin sửa nạp nhầm (trừ) vẫn được');

@@ -35,7 +35,8 @@ test('Đơn nạp trên máy chủ (202611200002): FC tính ở máy chủ, gố
   assert.match(sql, /revoke all on function public\.fco_topup_rate_now\(\), public\.fco_topup_tiers_json\(\), public\.fco_topup_order_json\(public\.fco_topup_orders\) from public, anon, authenticated;/);
   const app = readFileSync('src/App.tsx', 'utf8');
   // Trang nạp tách khỏi game (2026-11-20): nút + cạnh ô FC chỉ báo liên hệ admin, game không liên kết sang nap.html.
-  assert.match(app, /className="wallet-plus" onClick=\{\(\) => notify\('Vui lòng liên hệ admin'\)\}/);
+  // 2026-11-23: người dùng bỏ nút + cạnh số FC trên thanh trên cùng.
+  assert.doesNotMatch(app, /className="wallet-plus"/);
   assert.doesNotMatch(app, /nap\.html/);
   const vite = readFileSync('vite.config.ts', 'utf8');
   // Trang nạp build riêng cho Cloudflare Pages (mode nap), không nằm trong bản GitHub Pages của game.
@@ -110,7 +111,9 @@ test('Hết sự kiện không bấm Nhận KM được (202611200007), trang n�
   const sql = readFileSync('supabase/migrations/202611200007_fco_topup_claim_running.sql', 'utf8');
   assert.match(sql, /if e\.id is null or now\(\) >= e\.ends_at then raise exception 'FCO_TOPUP_NO_EVENT'/);
   const ui = readFileSync('src/TopUp.tsx', 'utf8');
-  assert.match(ui, /tiers\?\.event && tiers\.tiers\.length > 0 && Date\.now\(\) < tiers\.event\.endsAt && <TierTrack/);
+  // Giao diện 2 cột (2026-11-24): điều kiện gom vào eventOn, thanh mốc (TierTrack) chỉ dựng khi eventOn.
+  assert.match(ui, /const eventOn = !!\(tiers\?\.event && tiers\.tiers\.length > 0 && Date\.now\(\) < tiers\.event\.endsAt\);/);
+  assert.match(ui, /\{eventOn && <aside className="tp-side">[\s\S]*?<TierTrack/);
 });
 
 test('Sự kiện nạp tích luỹ hết giờ là tắt hẳn (202611200008): không còn hạn nhận', () => {

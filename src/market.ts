@@ -65,11 +65,14 @@ export const SYSTEM_SALE_FEE_PERCENT = 50;
 export const PREMIUM_TAX_DISCOUNT = 65;
 // Tài khoản Luxury (admin đặt, có hạn 30 ngày; migration 202611120011): giảm 75% thuế bán, cũng KHÔNG cộng dồn.
 export const LUXURY_TAX_DISCOUNT = 75;
-type TaxState = Pick<Save, 'membership' | 'premiumUntil' | 'luxuryUntil'>;
+// Hạng Royal (tự lên khi tổng FC đã nạp đạt ROYAL_TOPUP_FC, vĩnh viễn; migration 202611240003_fco_royal.sql): giảm 85% thuế bán, KHÔNG cộng dồn.
+export const ROYAL_TAX_DISCOUNT = 85;
+export const ROYAL_TOPUP_FC = 100_000;
+type TaxState = Pick<Save, 'membership' | 'premiumUntil' | 'luxuryUntil' | 'royal'>;
 export const premiumActive = (state: Pick<Save, 'premiumUntil'>, at = marketNow()) => (state.premiumUntil ?? 0) > at;
 export const luxuryActive = (state: Pick<Save, 'luxuryUntil'>, at = marketNow()) => (state.luxuryUntil ?? 0) > at;
 // Phần giảm thuế của hạng tài khoản đang có hiệu lực (Luxury 75 / Premium 65), không có thì null.
-const tierDiscount = (state: TaxState, at: number) => luxuryActive(state, at) ? LUXURY_TAX_DISCOUNT : premiumActive(state, at) ? PREMIUM_TAX_DISCOUNT : null;
+const tierDiscount = (state: TaxState, at: number) => state.royal ? ROYAL_TAX_DISCOUNT : luxuryActive(state, at) ? LUXURY_TAX_DISCOUNT : premiumActive(state, at) ? PREMIUM_TAX_DISCOUNT : null;
 // Thuế người chơi này phải trả: Luxury 10%, Premium 14% (bỏ qua gói thành viên); ngược lại trừ phần giảm của gói thành viên còn hạn (SVIP Class 28%, Premium 20%).
 // base: thuế gốc (MARKET_FEE_PERCENT bán cho người chơi, SYSTEM_SALE_FEE_PERCENT bán cho hệ thống).
 export const saleTaxPercent = (state: TaxState, at = marketNow(), base = MARKET_FEE_PERCENT) => {
@@ -82,7 +85,7 @@ export const taxFor = (state: TaxState, voucher: TaxVoucher | null | undefined, 
   : tierDiscount(state, at) !== null ? Math.min(saleTaxPercent(state, at, base), Math.max(0, base - voucher)) : taxWithVoucher(saleTaxPercent(state, at, base), voucher);
 // Phiếu có giảm thêm thuế không (Premium chỉ phiếu 30% mới thấp hơn 14%; Luxury 10% thì không phiếu nào thấp hơn).
 export const voucherHelps = (state: TaxState, voucher: TaxVoucher, at = marketNow(), base = MARKET_FEE_PERCENT) => taxFor(state, voucher, at, base) < saleTaxPercent(state, at, base);
-const USELESS_VOUCHER = 'Phiếu này không giảm thêm thuế cho tài khoản Premium / Luxury (không cộng dồn).';
+const USELESS_VOUCHER = 'Phiếu này không giảm thêm thuế cho tài khoản Premium / Luxury / Royal (không cộng dồn).';
 export const saleFee = (price: number, taxPercent = MARKET_FEE_PERCENT) => Math.floor(price * taxPercent / 100);
 
 // Phần không đổi của báo giá (phân loại, nhóm giá, tỷ lệ bảo hiểm) chỉ phụ thuộc cầu thủ + cấp nên tính một lần;

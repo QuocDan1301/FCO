@@ -22,7 +22,8 @@ test('Máy chủ nhận lượt xem kèm heartbeat với cùng giới hạn; Tâ
   assert.match(sql, /limit 20/);
   assert.match(sql, /day > public\.fco_today\(\) - 7/);
   const market = readFileSync('src/TransferMarket.tsx', 'utf8');
-  assert.match(market, /'Được xem nhiều nhất'/);
+  // TTCN kiểu FC Online (2026-11-24): thẻ xem nhiều nhất 7 ngày nằm ở trang Cầu thủ phổ biến, nhãn Lượt xem tối đa.
+  assert.match(readFileSync('src/MarketHome.tsx', 'utf8'), /Lượt xem tối đa/);
   assert.doesNotMatch(market, /Ngôi sao Việt Nam/);
   assert.match(market, /EMPTY_TTL = 30_000/, 'chưa có dữ liệu chỉ nhớ 30 giây');
 });

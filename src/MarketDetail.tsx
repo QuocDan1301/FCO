@@ -1,4 +1,5 @@
 import { getPlayer, MAX_LEVEL, money, ovr } from './game';
+import { ovrStyle } from './ovr-color';
 import type { Card, Save } from './game';
 import { useEffect, useState } from 'react';
 import { hasSystemSale, isTradeLocked, marketQuote, marketNow, priceAt, PRICE_PERIOD_MS, SYSTEM_BUY_LEVEL } from './market';

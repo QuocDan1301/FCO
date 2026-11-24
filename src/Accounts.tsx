@@ -82,17 +82,17 @@ function SendGift({ account, busy, run, onSent }: { account: AdminAccount; busy:
 
 // Loại tài khoản Classic / Premium (migration 202611110003): admin đặt để người chơi nhận ưu đãi riêng; không phải gói thành viên trong Shop.
 function AccountTierField({ account, busy, run }: { account: AdminAccount; busy: boolean; run: (task: () => Promise<string>) => void }) {
-  const [tier, setTier] = useState<'classic' | 'premium' | 'luxury' | null>(null);
+  const [tier, setTier] = useState<'classic' | 'premium' | 'luxury' | 'royal' | null>(null);
   const [until, setUntil] = useState<number | null>(null);
   useEffect(() => { void adminAccountTier(account.id).then(r => { setTier(r.tier); setUntil(r.until ?? null); }).catch(() => setTier(null)); }, [account.id]);
   const date = (ms: number | null) => ms ? new Date(ms).toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' }) : '';
   // Premium có hạn 7 ngày, Luxury 30 ngày; bấm lại khi đang cùng hạng thì cộng dồn. Huỷ = về Classic ngay.
-  const name = (t: string | null) => t === 'luxury' ? 'Luxury' : 'Premium';
+  const name = (t: string | null) => t === 'royal' ? 'Royal' : t === 'luxury' ? 'Luxury' : 'Premium';
   const set = (next: 'classic' | 'premium' | 'luxury') => run(async () => { const before = tier; const r = await adminAccountTier(account.id, next); setTier(r.tier); setUntil(r.until ?? null);
     return r.tier !== 'classic' ? `${account.login} là ${name(r.tier)} tới ${date(r.until ?? null)}.` : `Đã huỷ ${name(before)} của ${account.login}.`; });
   return <form onSubmit={e => e.preventDefault()}>
     <h3>Loại tài khoản</h3>
-    <p className="pa-gift-note">Hiện tại: <b>{tier === 'premium' || tier === 'luxury' ? `${name(tier)} · hết hạn ${date(until)}` : tier ? 'Classic' : '…'}</b>. Premium 7 ngày: giảm 65% thuế bán và 5 hiệu ứng tên. Luxury 30 ngày: giảm 75% thuế bán, thêm 5 hiệu ứng Luxury. Không cộng dồn giảm giá khác; không liên quan gói thành viên trong Shop. Đổi hạng thì hạn mới tính từ bây giờ.</p>
+    <p className="pa-gift-note">Hiện tại: <b>{tier === 'royal' ? 'Royal · vĩnh viễn (đã nạp đủ 100.000 FC)' : tier === 'premium' || tier === 'luxury' ? `${name(tier)} · hết hạn ${date(until)}` : tier ? 'Classic' : '…'}</b>. Royal tự lên khi tổng FC nạp đạt 100.000 (giảm 85% thuế bán, 6 hiệu ứng độc quyền), không đặt tay; Royal đứng trên Premium / Luxury. Premium 7 ngày: giảm 65% thuế bán và 5 hiệu ứng tên. Luxury 30 ngày: giảm 75% thuế bán, thêm 5 hiệu ứng Luxury. Không cộng dồn giảm giá khác; không liên quan gói thành viên trong Shop. Đổi hạng thì hạn mới tính từ bây giờ.</p>
     <div className="pa-row pa-tier-actions"><button type="button" className="primary-button" disabled={busy || !tier} onClick={() => set('premium')}>{tier === 'premium' ? 'Gia hạn Premium 7 ngày' : 'Đặt Premium 7 ngày'}</button>
     <button type="button" className="primary-button" disabled={busy || !tier} onClick={() => set('luxury')}>{tier === 'luxury' ? 'Gia hạn Luxury 30 ngày' : 'Đặt Luxury 30 ngày'}</button>
     {(tier === 'premium' || tier === 'luxury') && <button type="button" className="secondary-button" disabled={busy} onClick={() => set('classic')}>Huỷ {name(tier)}</button>}</div>
@@ -140,7 +140,7 @@ function ResetPasswordField({ account, busy, run }: { account: AdminAccount; bus
   </form>;
 }
 // Acc phụ (supabase/migrations/202611220017_fco_sub_accounts.sql): đăng nhập bằng tên đăng nhập + mật khẩu admin đặt.
-const SUB_RULES = 'Acc phụ vẫn mở gói, mua thẻ hệ thống bán ở TTCN, đập thẻ, xếp đội hình và nhận quà admin tặng. Không tính vào BXH (đập OVR, giá trị ĐH, Penalty, Đập +8), tin LIVE, đua top, giờ chơi, thiết bị. Không bán / đặt mua / mua thẻ của người chơi ở TTCN, không dùng GLXH, Cờ tỷ phú / VQTG (jackpot chung), gift code, nạp FC.';
+const SUB_RULES = 'Acc phụ vẫn mở gói, mua thẻ hệ thống bán ở TTCN, đập thẻ, chơi Cờ tỷ phú (không góp / trúng jackpot chung), xếp đội hình và nhận quà admin tặng. Không tính vào BXH (đập OVR, giá trị ĐH, Penalty, Đập +8), tin LIVE, bảng tin jackpot, đua top, giờ chơi, thiết bị. Không bán / đặt mua / mua thẻ của người chơi ở TTCN, không dùng GLXH, VQTG / Bi Lắc, gift code, nạp FC.';
 function CreateSubAccount({ busy, onCreated }: { busy: boolean; onCreated: (text: string, login: string) => void }) {
   const [open, setOpen] = useState(false);
   const [login, setLogin] = useState('');

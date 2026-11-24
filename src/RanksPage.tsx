@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { ovrStyle } from './ovr-color';
 import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import type { ReactNode } from 'react';
 import { Crown, Gift, Medal, RefreshCw, Shirt, Swords, Target, Trophy, X } from 'lucide-react';
@@ -19,7 +20,7 @@ import type { LineupBoardId, PublicLineupView } from './public-lineup';
 // Penalty và GLXH (điểm xếp hạng giả lập, fco_ranked_state). Game gửi số lên ở App.tsx (đập thành công / Giá trị ĐH đổi); trang này chỉ đọc.
 // loadRanked: BXH GLXH (fco_ranked_state) — bảng thứ tư, top 10 theo điểm xếp hạng.
 // viewLineup: bấm một HLV để xem đội hình đang dùng của họ (fco_view_lineup).
-// loadRound: vòng đua BXH GLXH + Penalty (hộp quà Top 1–3, đếm ngược, reset mỗi 7 ngày — migration 202611140017).
+// loadRound: vòng đua BXH GLXH + Penalty (hộp quà Top 1–3, đếm ngược, mỗi tuần 2 đợt T2–T4 / T5–CN — migration 202611140017, 202611240004).
 type Props = { load: () => Promise<Leaderboard>; loadRanked?: () => Promise<RankedState>; loadRound?: () => Promise<RankRound>; online: boolean; levelBadge: (level: number) => string; viewLineup?: (board: LineupBoardId, rank: number) => Promise<PublicLineupView | null> };
 
 const PLACE = ['gold', 'silver', 'bronze'];
@@ -76,7 +77,7 @@ export default function RanksPage({ load, loadRanked, loadRound, online, levelBa
         <span className="rk-player">{p && <b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b>}{p?.name ?? '—'}</span>
         {r.level ? <img className="rk-level" src={levelBadge(r.level)} alt={`+${r.level}`}/> : null}
       </span>
-      <strong className="rk-value">{r.ovr}<small>OVR</small></strong>
+      <strong className="rk-value" style={ovrStyle(r.ovr)}>{r.ovr}<small>OVR</small></strong>
     </li>;
   });
   const squadRows = (data?.squad ?? []).map((r, i) => <li key={i} className={`rk-row rk-row-squad ${PLACE[i] ?? ''} ${r.mine ? 'is-mine' : ''}${link}`} {...open('squad', i + 1, r.name)}>
@@ -135,7 +136,7 @@ export default function RanksPage({ load, loadRanked, loadRound, online, levelBa
         <ol className="rk-prize-list">{round.prizes.slice(0, 3).map((fc, i) => <li key={i} className={PLACE[i]}>
           <span className="rk-rank">{i + 1}</span><b>Top {i + 1}</b><strong>{money(fc)} <small>FC</small></strong></li>)}</ol>
         <div className="rk-prize-clock"><small>{left?.done ? 'Đang chốt vòng…' : 'Kết thúc sau'}</small>{left && !left.done && <b>{left.text}</b>}<em>Hạn chót {endText(round.endsAt)}</em></div>
-        <p className="rk-prize-note">Hết giờ, Top 1–3 tự nhận FC vào ví, BXH {BOARD_NAME[prizeOf]} reset và bắt đầu vòng mới 7 ngày.</p>
+        <p className="rk-prize-note">Hết giờ, Top 1–3 tự nhận FC vào ví, BXH {BOARD_NAME[prizeOf]} reset và bắt đầu đợt mới. Mỗi tuần 2 đợt: Thứ 2 – Thứ 4 (3 ngày) và Thứ 5 – Chủ nhật (4 ngày), hết lúc 23:59.</p>
         {round.last[prizeOf]?.length ? <div className="rk-prize-last"><h3>Đợt trước</h3>
           <ol>{round.last[prizeOf]!.map(w => <li key={w.rank} className={w.mine ? 'is-mine' : ''}><span>Top {w.rank}</span><b>{w.mine ? 'Bạn' : w.name}</b><small>{prizeOf === 'ranked' ? `${w.score.toLocaleString('vi-VN')} điểm` : `chuỗi ${w.score}`} · +{money(w.fc)} FC</small></li>)}</ol></div> : null}
       </div>

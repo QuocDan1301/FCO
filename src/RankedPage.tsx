@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ovrStyle } from './ovr-color';
 import type { CSSProperties } from 'react';
 import { CheckCircle2, LoaderCircle, Medal, RefreshCw, Repeat, Shield, Swords, Trophy, Users, Volume2, VolumeX, X } from 'lucide-react';
 import { getPlayer, players } from './game';
@@ -12,7 +13,7 @@ import { RANKED_AUTO_DELAY, RANKED_INTRO_FOUND, RANKED_INTRO_SEARCH, RANKED_STAR
 import type { RankedFinish, RankedMatch, RankedSlot, RankedState } from './ranked';
 import { slotTraits, MatchSim, ballAt, minuteAt, statsAt } from './ranked-sim';
 import type { SimEvent, SimSlot, TraitEvent } from './ranked-sim';
-import { isNameEffect, nameEffectClass, isLuxuryEffect } from './name-effects';
+import { isNameEffect, nameEffectClass, isLuxuryEffect, isRoyalEffect } from './name-effects';
 import type { NameEffect } from './name-effects';
 import { clubLogoUrl } from './club-logo';
 import { cardGoldTraits, goldTraitIcon, goldTraitId, goldTraitName } from './gold-traits';
@@ -61,7 +62,16 @@ const conic = (ctx: Ctx, x: number, y: number, rot: number, colors: string[]) =>
   colors.forEach((c, i) => g.addColorStop(i / (colors.length - 1), c));
   return g;
 };
-// Viền Premium / Luxury quanh chấm cầu thủ, cùng kiểu hiệu ứng avatar chủ đội đã chọn.
+// Màu vòng hiệu ứng độc quyền Royal trên sân GLXH (khớp name-effects.css).
+const ROYAL_RING = {
+  emperor: { colors: ['#fff2b0', '#ffc93c', '#c4161c', '#ffc93c', '#fff2b0'], glow: '#ffb43c', spark: '#fff2b0', speed: 2.2 },
+  nebula: { colors: ['#ff6ad5', '#c774e8', '#5a7bff', '#8ef6ff', '#ff6ad5'], glow: '#c774e8', spark: '#ffffff', speed: 1.4 },
+  thunder: { colors: ['#ffffff', '#6ae3ff', '#2f6bff', '#6ae3ff', '#ffffff'], glow: '#6ae3ff', spark: '#ffffff', speed: 4.2 },
+  sakura: { colors: ['#fff0f6', '#ffb7d5', '#ff6fa8', '#ffb7d5', '#fff0f6'], glow: '#ff8fc0', spark: '#ffe3ef', speed: 1.2 },
+  obsidian: { colors: ['#ffe9a0', '#1b1b1f', '#e0b13a', '#1b1b1f', '#ffe9a0'], glow: '#e0b13a', spark: '#ffe9a0', speed: 1.8 },
+  celestial: { colors: ['#ffffff', '#fff3c4', '#e8c35a', '#fff3c4', '#ffffff'], glow: '#fff6d8', spark: '#ffffff', speed: 1.6 },
+} satisfies Record<string, { colors: string[]; glow: string; spark: string; speed: number }>;
+// Viền Premium / Luxury / Royal quanh chấm cầu thủ, cùng kiểu hiệu ứng avatar chủ đội đã chọn.
 function premiumRing(ctx: Ctx, x: number, y: number, r: number, fx: NameEffect, t: number, seed: number) {
   const R = r * 1.3, lw = Math.max(2, r * .26);
   ctx.save();
@@ -74,9 +84,18 @@ function premiumRing(ctx: Ctx, x: number, y: number, r: number, fx: NameEffect, 
   else if (fx === 'diamond') { ctx.shadowColor = '#c8f0ff'; ctx.shadowBlur = r * 1.1; ctx.strokeStyle = conic(ctx, x, y, t * 3, ['#ffffff', '#bfeaff', '#f2d4ff', '#7fc8ff', '#ffffff']); }
   else if (fx === 'aurora') { const h = 140 + 60 * Math.sin(t * .7 + seed); ctx.shadowColor = `hsl(${h},100%,62%)`; ctx.shadowBlur = r * 1.1; ctx.strokeStyle = conic(ctx, x, y, t * 1.2, ['#45ffb4', '#61d9ff', '#b07bff', '#ff7ad9', '#45ffb4']); }
   else if (fx === 'phoenix') { const f = .7 + .3 * Math.sin(t * 15 + seed); ctx.shadowColor = '#ff4a1a'; ctx.shadowBlur = r * (1 + .8 * f); ctx.strokeStyle = conic(ctx, x, y, -t * 3.6, ['#ffd34a', '#ff7a1a', '#ff2d2e', '#ff2d6e', '#ffd34a']); }
+  // Royal (độc quyền, nạp đủ 100.000 FC): vòng chính + 2 vòng mảnh quay ngược nhau + 6 hạt sáng (vẽ ở dưới).
+  else if (fx in ROYAL_RING) { const c = ROYAL_RING[fx as keyof typeof ROYAL_RING], f = fx === 'thunder' ? (Math.sin(t * 31 + seed) > .55 ? 1.9 : 1) : 1; ctx.shadowColor = c.glow; ctx.shadowBlur = r * 1.25 * f; ctx.strokeStyle = conic(ctx, x, y, t * c.speed, c.colors); }
   else if (fx === 'royal') { ctx.shadowColor = '#b48cff'; ctx.shadowBlur = r; ctx.strokeStyle = conic(ctx, x, y, t * 2, ['#ffd76a', '#fff4c7', '#8b4dff', '#c9a0ff', '#ffd76a']); }
   else { const h = (t * 160 + seed * 30) % 360; ctx.shadowColor = `hsl(${h},100%,70%)`; ctx.shadowBlur = r; ctx.strokeStyle = conic(ctx, x, y, t * 3.4, [0, 60, 120, 180, 240, 300, 360].map(d => `hsl(${(h + d) % 360},100%,62%)`)); }
   ctx.lineWidth = lw; ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.stroke();
+  if (isRoyalEffect(fx)) {
+    const c = ROYAL_RING[fx as keyof typeof ROYAL_RING];
+    for (const [k, dir] of [[1.15, -1], [1.75, 1]] as const) { ctx.lineWidth = Math.max(1, lw * .38); ctx.globalAlpha = .85; ctx.strokeStyle = conic(ctx, x, y, dir * t * c.speed * 1.4, c.colors); ctx.beginPath(); ctx.arc(x, y, R + lw * k, 0, Math.PI * 2); ctx.stroke(); }
+    ctx.globalAlpha = 1; ctx.shadowBlur = r * .7; ctx.fillStyle = c.spark;
+    for (let k = 0; k < 6; k++) { const ang = (k % 2 ? 1 : -1) * t * 2.2 + k * Math.PI / 3 + seed, rr = R + lw * (k % 2 ? 1.75 : 1.15); ctx.globalAlpha = .5 + .5 * Math.sin(t * 7 + k * 1.3 + seed); ctx.beginPath(); ctx.arc(x + Math.cos(ang) * rr, y + Math.sin(ang) * rr, lw * .5, 0, Math.PI * 2); ctx.fill(); }
+    ctx.globalAlpha = 1;
+  }
   if (isLuxuryEffect(fx)) {
     ctx.lineWidth = Math.max(1, lw * .4); ctx.globalAlpha = .8; ctx.beginPath(); ctx.arc(x, y, R + lw * 1.1, 0, Math.PI * 2); ctx.stroke(); ctx.globalAlpha = 1;
     ctx.shadowBlur = r * .6; ctx.fillStyle = fx === 'phoenix' ? '#ffd34a' : '#ffffff';
@@ -611,7 +630,7 @@ export default function RankedPage({ save, online, load, play, finish, abandon, 
         <dl className="rkd-record"><div><dt>Thắng</dt><dd>{me.wins}</dd></div><div><dt>Hoà</dt><dd>{me.draws}</dd></div><div><dt>Thua</dt><dd>{me.losses}</dd></div></dl>
         <div className="rkd-team-box">
           <h3><Users size={15}/>Đội hình thi đấu {team.formation ? `· ${team.formation}` : ''}</h3>
-          {team.ready ? <><p>OVR đội <b>{team.ovr}</b> (bộ đội hình đang dùng) · Lương <b className={team.overWage ? 'rkd-over' : undefined}>{team.wage}/{RANKED_WAGE_CAP}</b></p>
+          {team.ready ? <><p>OVR đội <b style={ovrStyle(team.ovr)}>{team.ovr}</b> (bộ đội hình đang dùng) · Lương <b className={team.overWage ? 'rkd-over' : undefined}>{team.wage}/{RANKED_WAGE_CAP}</b></p>
             {rating && <p className="rkd-rating" title="Từ chỉ số cầu thủ: xếp đúng người đúng chỗ, công thủ cân bằng thì có lợi thế (tối đa ~27% cơ hội ghi bàn)">Tấn công <b>{Math.round(rating.attack)}</b> · Phòng ngự <b>{Math.round(rating.defense)}</b></p>}<p className="rkd-names">{team.slots.map(s => s.name).join(' · ')}</p>
             {team.overWage && <p className="rkd-warn">Đội hình vượt mức lương {team.wage - RANKED_WAGE_CAP}. Giảm lương xuống tối đa {RANKED_WAGE_CAP} ở mục Đội hình để thi đấu.</p>}</>
             : <p className="rkd-warn">Bộ đội hình đang dùng mới có {team.filled}/11 cầu thủ. Xếp đủ 11 người ở mục Đội hình để thi đấu.</p>}

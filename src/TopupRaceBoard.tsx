@@ -70,7 +70,7 @@ function RewardTile({ reward }: { reward: TopupRace['rewards'][number]['rewards'
     const pack = findPack(reward.pack), name = `${pack?.name ?? reward.pack}${reward.count && reward.count > 1 ? ` ×${reward.count}` : ''}`;
     return <span className="tr-rw-item" title={name}>{pack ? <PackImage pack={pack}/> : <span className="tr-rw-icon"><Gift size={22}/></span>}<small>{name}</small></span>;
   }
-  if (typeof reward.bp === 'number') return <span className="tr-rw-item is-money"><span className="tr-rw-icon"><img src={asset('/assets/currency-bp.png')} alt=""/></span><small><b>{money(reward.bp)}</b> BP</small></span>;
+  if (typeof reward.bp === 'number') return <span className="tr-rw-item is-money"><span className="tr-rw-icon"><img src={asset('/assets/currency-bp-v2.png')} alt=""/></span><small><b>{money(reward.bp)}</b> BP</small></span>;
   if (typeof reward.fc === 'number') return <span className="tr-rw-item is-money"><span className="tr-rw-icon"><img src={asset('/assets/currency-fc.png')} alt=""/></span><small><b>{money(reward.fc)}</b> FC</small></span>;
   return null;
 }

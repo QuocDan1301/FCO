@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Flame, Gift, History, RefreshCw, Trophy, X, Zap } from 'lucide-react';
+import { Flame, Gift, History, RefreshCw, Trophy, X, Zap, CalendarDays } from 'lucide-react';
 import { getPlayer, players } from './game';
 import { seasonShort } from './badges';
 import { findPack } from './event';
@@ -15,7 +15,7 @@ import './plus8.css';
 // Sự kiện HOT "Đập 8 liền tay – Nhận ngay quà chất" (nút ở trang chủ, người dùng yêu cầu 2026-11-14): BXH số cầu thủ khác nhau
 // HLV đập thành công lên +8, mỗi mùa tối đa 3 (máy chủ: fco_plus8_board, migration 202611140005).
 // loadHistory: lịch sử đập +8 của HLV hạng N (null = của mình), mở khi bấm dòng BXH / ô Thành tích của bạn.
-// loadRound: vòng đua chung với BXH GLXH / Penalty (202611140017 / 0018): đếm ngược, hết vòng Top 1–5 tự nhận gói, bảng reset 7 ngày.
+// loadRound: vòng đua chung với BXH GLXH / Penalty (202611140017 / 0018): đếm ngược, hết vòng Top 1–5 tự nhận gói, bảng reset; mỗi tuần 2 đợt T2–T4 (3 ngày) / T5–CN (4 ngày) — 202611240004.
 type Props = { loadRound?: () => Promise<RankRound>; load?: () => Promise<Plus8Board>; loadHistory?: (rank: number | null) => Promise<Plus8History | null>; online: boolean; onUpgrade: () => void };
 const known = new Set(players.map(p => p.id));
 const when = (ms: number) => new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false, day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -83,6 +83,7 @@ export default function Plus8Page({ loadRound, load, loadHistory, online, onUpgr
           <li><Zap aria-hidden="true"/><span>Mỗi cầu thủ chỉ tính <b>1 lần</b>, đập lại cùng cầu thủ không cộng thêm.</span></li>
           <li><Zap aria-hidden="true"/><span>Mỗi mùa thẻ tính <b>tối đa 3 cầu thủ</b>, đập nhiều mùa khác nhau để leo hạng.</span></li>
           <li><Zap aria-hidden="true"/><span>Bằng điểm thì HLV đạt điểm đó trước xếp trên.</span></li>
+          <li><CalendarDays aria-hidden="true"/><span>Mỗi tuần 2 đợt: <b>Thứ 2 – Thứ 4</b> (3 ngày) và <b>Thứ 5 – Chủ nhật</b> (4 ngày), hết lúc 23:59; hết đợt bảng reset.</span></li>
           <li><Gift aria-hidden="true"/><span>Hết giờ đếm ngược: Top 1–5 tự nhận gói <b>EL, CU, UT, CC</b> (+8) theo hạng. Riêng cầu thủ <b>EL</b> trong gói luôn là thẻ <b>+1</b> và gồm mọi cầu thủ EL.</span></li>
         </ul>
         <button type="button" className="p8-go" onClick={onUpgrade}><Zap aria-hidden="true"/>Đập thẻ ngay</button>

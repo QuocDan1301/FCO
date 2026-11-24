@@ -38,7 +38,9 @@ export function matchesTeamColor(p: { id: number; nation?: string }, filter: str
   return kind === 'nation' ? p.nation === name : (teamColorData().clubsOf.get(p.id) ?? []).includes(name);
 }
 
-export default function TeamColorPicker({ value, onChange }: { value: string; onChange: (value: string) => void }) {
-  return <SearchPicker value={value} onChange={onChange} options={teamColorData().options} ariaLabel="Team color trên thị trường"
-    placeholder="Gõ tên CLB / quốc gia…" listLabel="CLB / quốc gia" empty="Không tìm thấy CLB / quốc gia"/>;
+// kind: chỉ hiện CLB hoặc chỉ quốc gia (bảng Nâng cao chọn loại team color trước); không truyền = cả hai.
+export default function TeamColorPicker({ value, onChange, kind }: { value: string; onChange: (value: string) => void; kind?: 'club' | 'nation' }) {
+  const options = kind ? teamColorData().options.filter(o => o.groupId === kind) : teamColorData().options;
+  return <SearchPicker value={value} onChange={onChange} options={options} ariaLabel="Team color trên thị trường"
+    placeholder={kind === 'club' ? 'Gõ tên CLB…' : kind === 'nation' ? 'Gõ tên quốc gia…' : 'Gõ tên CLB / quốc gia…'} listLabel={kind === 'club' ? 'CLB' : kind === 'nation' ? 'Quốc gia' : 'CLB / quốc gia'} empty="Không tìm thấy kết quả"/>;
 }

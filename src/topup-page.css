@@ -1,0 +1,146 @@
+/* Trang nạp FC (nap.html) — giao diện nâng cấp (người dùng 2026-11-24). Chỉ áp trong .sa-nap nên khung nạp trong game (nếu có) giữ kiểu cũ.
+   Bố cục 2 cột trên máy tính: trái = sự kiện nạp tích luỹ, phải = chọn mệnh giá / tạo đơn; lịch sử đơn nằm dưới, rộng hết khung. Điện thoại: 1 cột. */
+.sa-nap{--tp-green:#3ddc7a;--tp-green-d:#1f9d52;--tp-gold:#ffc94d;--tp-gold-d:#ff9a1f;--tp-line:#2a3a4f;--tp-panel:#0f1824;--tp-text:#f0f4f8;--tp-dim:#9fb0c3}
+body:has(.sa-nap){background:radial-gradient(90% 60% at 50% -5%,#1d3a52 0%,#0e1a28 48%,#080d14 100%) fixed}
+.sa-nap{padding:32px 16px 56px}
+.sa-nap .sa-card{width:min(1080px,100%);padding:30px 32px 32px;border:1px solid #2b3d54;border-radius:20px;background:linear-gradient(180deg,#152233 0%,#0f1926 55%);box-shadow:0 30px 80px #000a,0 0 0 1px #ffffff08 inset}
+.sa-nap .sa-head{align-items:center;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #ffffff12}
+.sa-nap .sa-head h1{display:flex;align-items:center;gap:12px;font-size:30px;font-weight:800;letter-spacing:.3px}
+.sa-nap .sa-head h1::before{content:'';width:5px;height:28px;border-radius:3px;background:linear-gradient(180deg,var(--tp-green),var(--tp-gold))}
+.sa-nap .sa-head p{margin-top:6px;padding-left:17px;font-size:14px}
+.sa-nap .sa-fc{gap:16px;margin-bottom:22px;padding:16px 20px;border:1px solid #2f6b48;border-radius:16px;background:linear-gradient(100deg,#123424 0%,#112a28 45%,#101b28 100%);box-shadow:0 8px 28px #0006}
+.sa-nap .sa-fc img{width:52px;height:52px;filter:drop-shadow(0 4px 10px #0009)}
+.sa-nap .sa-fc small{font-size:13px;letter-spacing:.6px;text-transform:uppercase;color:#9fd8b6}
+.sa-nap .sa-fc b{font-size:34px;line-height:1.1;color:var(--tp-green);text-shadow:0 0 24px #3ddc7a55;font-variant-numeric:tabular-nums}
+
+/* Bố cục form */
+.sa-nap .tp-form{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
+.sa-nap .tp-form.has-side{grid-template-columns:minmax(0,5fr) minmax(0,6fr)}
+.sa-nap .tp-side{position:sticky;top:16px;display:flex;flex-direction:column;gap:12px}
+.sa-nap .tp-pay{display:flex;flex-direction:column;gap:16px;min-width:0}
+.sa-nap .tp-history{grid-column:1/-1}
+.sa-nap .tp-form:not(.has-side) .tp-pay{max-width:680px;width:100%;margin:0 auto}
+
+/* Sự kiện nạp tích luỹ */
+.sa-nap .tp-ms{gap:14px;padding:18px 20px 16px;border:1px solid #6d5a2b;border-radius:16px;background:radial-gradient(120% 90% at 0% 0%,#2f2712 0%,#151d2a 60%);box-shadow:0 10px 30px #0006}
+.sa-nap .tp-ms-head>div>b{font-size:19px;font-weight:800;color:var(--tp-gold)}
+.sa-nap .tp-ms-head small{font-size:13px;line-height:1.5}
+.sa-nap .tp-ms-link{color:var(--tp-gold);font-size:13px}
+.sa-nap .tp-ms-link i{background:#ff5a4f}
+.sa-nap .tp-ms-bar{margin:30px 14px 0}
+.sa-nap .tp-ms-rail{height:10px;border-radius:5px;background:#2b3644;box-shadow:0 1px 3px #0008 inset}
+.sa-nap .tp-ms-rail span{background:linear-gradient(90deg,var(--tp-gold-d),var(--tp-gold));box-shadow:0 0 14px #ffb83d88}
+.sa-nap .tp-ms-node i{width:18px;height:18px;margin-top:2px;border:3px solid #5b6572;background:#1a2432}
+.sa-nap .tp-ms-node.is-on i{border-color:var(--tp-gold);background:var(--tp-gold)}
+.sa-nap .tp-ms-node.is-ready i{box-shadow:0 0 0 5px #ffc94d44}
+.sa-nap .tp-ms-node.is-on small{color:var(--tp-gold)}
+.sa-nap .tp-ms-tip{background:#ffc94d;color:#2a1c00;box-shadow:0 4px 12px #0008}
+.sa-nap .tp-ms-tip::after{border-top-color:#ffc94d}
+.sa-nap .tp-ms-list{gap:8px}
+.sa-nap .tp-ms-list li{padding:11px 14px;border:1px solid #2c3a4d;border-radius:12px;background:#0f1824}
+.sa-nap .tp-ms-list li b{font-size:15px}
+.sa-nap .tp-ms-list li.is-ready{border-color:var(--tp-gold);background:linear-gradient(100deg,#33290d,#111b28);box-shadow:0 0 0 1px #ffc94d55 inset}
+.sa-nap .tp-ms-list .primary-button{padding:8px 20px;border:0;border-radius:999px;background:linear-gradient(180deg,var(--tp-gold),var(--tp-gold-d));color:#2a1900;font-weight:800;cursor:pointer;box-shadow:0 4px 14px #ff9a1f55}
+.sa-nap .tp-claimed{padding:11px 14px;border:1px solid #2f6b48;border-radius:12px;background:#10301f;font-size:14px}
+
+/* Thống kê + tỷ lệ */
+.sa-nap .topup-summary{gap:12px}
+.sa-nap .topup-summary div{position:relative;padding:14px 16px;border:1px solid var(--tp-line);border-radius:14px;background:var(--tp-panel);overflow:hidden}
+.sa-nap .topup-summary div::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tp-green)}
+.sa-nap .topup-summary div+div::before{background:var(--tp-gold)}
+.sa-nap .topup-summary dt{font-size:12px;letter-spacing:.5px;text-transform:uppercase}
+.sa-nap .topup-summary dd{margin-top:4px;font-size:24px;font-variant-numeric:tabular-nums}
+.sa-nap .topup-rate{display:inline-block;align-self:flex-start;padding:8px 14px;border:1px solid var(--tp-line);border-radius:999px;background:var(--tp-panel);font-size:14px}
+
+/* Chọn mệnh giá */
+.sa-nap .tp-tiers{gap:12px}
+.sa-nap .tp-tier{position:relative;gap:4px;padding:18px 8px 14px;border:1px solid var(--tp-line);border-radius:14px;background:linear-gradient(180deg,#152233,#0f1824);transition:transform .15s,border-color .15s,box-shadow .15s}
+.sa-nap .tp-tier:hover{transform:translateY(-2px);border-color:#4a6a8c;box-shadow:0 8px 20px #0007}
+.sa-nap .tp-tier b{font-size:20px;font-weight:800}
+.sa-nap .tp-tier span{font-size:14px;font-weight:700;color:var(--tp-green)}
+.sa-nap .tp-tier em{position:absolute;top:-9px;left:50%;transform:translateX(-50%);padding:2px 9px;border-radius:999px;background:linear-gradient(180deg,var(--tp-gold),var(--tp-gold-d));color:#2a1900;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 3px 8px #0008}
+.sa-nap .tp-tier.is-on{border-color:var(--tp-green);background:linear-gradient(180deg,#17402a,#10281c);box-shadow:0 0 0 1px var(--tp-green) inset,0 8px 24px #3ddc7a33}
+
+/* Số tiền + báo giá + nút */
+.sa-nap .tp-amount{gap:8px;font-size:14px;font-weight:600}
+.sa-nap .tp-amount-box{position:relative;display:block}
+.sa-nap .tp-amount input{box-sizing:border-box;width:100%;padding:16px 46px 16px 18px;border:1px solid #35506d;border-radius:14px;background:#0a111a;font-size:26px;font-weight:800;letter-spacing:.3px;font-variant-numeric:tabular-nums;transition:border-color .15s,box-shadow .15s}
+.sa-nap .tp-amount input::placeholder{font-size:18px;font-weight:500;color:#5d7089}
+.sa-nap .tp-amount input:focus{outline:0;border-color:var(--tp-green);box-shadow:0 0 0 3px #3ddc7a33}
+.sa-nap .tp-amount-box i{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-style:normal;font-size:22px;font-weight:700;color:var(--tp-dim);pointer-events:none}
+.sa-nap .tp-quote{gap:6px;padding:14px 16px;border:1px solid #2f6b48;border-radius:14px;background:linear-gradient(100deg,#11301f,#10222a)}
+.sa-nap .tp-quote>span{font-size:15px}
+.sa-nap .tp-quote>span b{font-size:26px;font-weight:800}
+.sa-nap .tp-quote small{font-size:13px;line-height:1.5}
+.sa-nap .tp-main{box-sizing:border-box;min-height:56px;border:0;border-radius:14px;background:linear-gradient(180deg,#46e585,#1fa655);color:#05200f;font-size:18px;font-weight:800;letter-spacing:.4px;cursor:pointer;box-shadow:0 10px 26px #1fa65555,0 1px 0 #ffffff55 inset;transition:transform .12s,filter .15s,box-shadow .15s}
+.sa-nap .tp-main:hover:not(:disabled){filter:brightness(1.06);transform:translateY(-1px)}
+.sa-nap .tp-main:active:not(:disabled){transform:none}
+.sa-nap .tp-main:disabled{background:#26384c;color:#6f8399;box-shadow:none;cursor:not-allowed}
+
+/* Lịch sử đơn */
+.sa-nap .tp-history{gap:10px;padding-top:18px;border-top:1px solid #ffffff12}
+.sa-nap .tp-history-head{font-size:17px}
+.sa-nap .tp-history{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.sa-nap .tp-history-head{grid-column:1/-1}
+.sa-nap .tp-row{padding:12px 16px;border:1px solid var(--tp-line);border-radius:12px;background:var(--tp-panel);transition:border-color .15s,transform .15s}
+.sa-nap .tp-row:hover{border-color:#4a6a8c;transform:translateY(-1px)}
+.sa-nap .tp-row b{font-size:17px}
+.sa-nap .tp-chip{padding:4px 11px;font-size:12.5px}
+
+/* Đơn đang xem: QR bên trái, thông tin bên phải */
+.sa-nap .topup.tp-order{display:flex;flex-direction:column;gap:16px}
+.sa-nap .tp-order-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:24px;align-items:start}
+.sa-nap .tp-order-qr,.sa-nap .tp-order-info{display:flex;flex-direction:column;gap:14px;min-width:0}
+.sa-nap .tp-order-fc b{font-size:34px}
+.sa-nap .tp-status{padding:6px 14px;font-size:14px}
+.sa-nap .topup-qr{padding:18px;border-radius:18px;background:#fff;box-shadow:0 0 0 4px #3ddc7a55,0 16px 40px #000a}
+.sa-nap .topup-qr .vietqr{width:min(320px,100%)}
+.sa-nap .topup-info{gap:10px}
+.sa-nap .topup-info div,.sa-nap .tp-copy{padding:13px 16px;border:1px solid var(--tp-line);border-radius:12px;background:var(--tp-panel)}
+.sa-nap .tp-copy dd b{font-size:20px;letter-spacing:1px;color:var(--tp-gold)}
+.sa-nap .tp-copy-btn{width:34px;height:34px;border-radius:8px}
+.sa-nap .tp-wait{padding:13px 16px;border-radius:12px;font-size:14px}
+.sa-nap .tp-back{font-size:14px}
+
+@media(max-width:860px){
+  .sa-nap .sa-card{padding:20px 16px 24px}
+  .sa-nap .tp-form.has-side,.sa-nap .tp-order-grid,.sa-nap .tp-history{grid-template-columns:minmax(0,1fr)}
+  .sa-nap .tp-side{position:static}
+  .sa-nap .sa-fc b{font-size:28px}
+}
+@media(max-width:480px){.sa-nap .tp-tiers{grid-template-columns:repeat(2,minmax(0,1fr))}.sa-nap .tp-tier b{font-size:18px}}
+@media(prefers-reduced-motion:reduce){.sa-nap .tp-tier,.sa-nap .tp-main,.sa-nap .tp-row{transition:none}}
+.sa-nap .topup-info div{align-items:center}
+
+/* Nền trang nạp = nền các trang trong game (sân bóng ban đêm + lưới kim cương), phủ lớp tối cho dễ đọc; khung nạp thành kính mờ giống các bảng trong game (người dùng 2026-11-24). */
+body:has(.sa-nap){background:repeating-linear-gradient(45deg,transparent 0 43px,rgba(255,255,255,.06) 43px 44px),repeating-linear-gradient(-45deg,transparent 0 43px,rgba(255,255,255,.06) 43px 44px),linear-gradient(rgba(5,8,12,.2),rgba(5,8,12,.42)),#05080c url(/assets/view-backdrop-v2.webp) center/cover no-repeat fixed}
+.sa-nap .sa-card{background:linear-gradient(180deg,rgba(21,34,51,.66) 0%,rgba(12,19,29,.74) 60%);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+/* Logo FCO VIP mới (kim cương) cạnh tiêu đề, thay thanh màu trang trí. */
+.sa-nap .sa-head h1::before{display:none}
+.sa-nap .sa-logo{width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 2px 8px #0008)}
+
+/* Tiêu đề sự kiện nạp tích luỹ nổi bật (người dùng 2026-11-24): chữ to, chuyển màu vàng, ánh sáng chạy qua, nhãn "Sự kiện" phía trên, gạch chân sáng. */
+.sa-nap .tp-ms-head>div>b{position:relative;display:block;margin-bottom:6px;padding-bottom:10px;font-size:24px;line-height:1.25;font-weight:800;letter-spacing:.2px;
+  background:linear-gradient(100deg,#ffe9a0 0%,#ffc94d 30%,#fff7d6 50%,#ffc94d 70%,#ff9a1f 100%) 0 0/220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;
+  filter:drop-shadow(0 2px 10px #ff9a1f66);animation:tp-title-shine 5s linear infinite}
+.sa-nap .tp-ms-head>div>b::before{content:'★ SỰ KIỆN';display:block;width:max-content;margin-bottom:8px;padding:3px 10px;border-radius:999px;background:linear-gradient(180deg,#ff5a4f,#d62b22);-webkit-text-fill-color:#fff;color:#fff;font-size:11px;font-weight:800;letter-spacing:1.2px;filter:none}
+.sa-nap .tp-ms-head>div>b::after{content:'';position:absolute;left:0;bottom:0;width:72px;height:3px;border-radius:2px;background:linear-gradient(90deg,#ffc94d,#ff9a1f 60%,transparent)}
+@keyframes tp-title-shine{to{background-position:-220% 0}}
+@media(prefers-reduced-motion:reduce){.sa-nap .tp-ms-head>div>b{animation:none}}
+.sa-nap .tp-ms-head>div{flex:1 1 auto;min-width:0}
+
+/* Thẻ hạng Royal ở trang nạp: tiến độ tổng FC đã nạp tới 100.000 FC (người dùng 2026-11-24). */
+.sa-nap .tp-royal{position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px;padding:16px 18px;border:1px solid #ffc93c88;border-radius:16px;
+  background:radial-gradient(120% 120% at 0% 0%,#4a2a08 0%,#2a1020 50%,#131a26 100%);box-shadow:0 10px 30px #0006,inset 0 0 0 1px #ffd76a22}
+.sa-nap .tp-royal::after{content:'';position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 35%,#ffffff22 50%,transparent 65%) -150% 0/50% 100% no-repeat;animation:tp-royal-sheen 3.4s ease-in-out infinite}
+@keyframes tp-royal-sheen{to{background-position:250% 0}}
+.sa-nap .tp-royal-head{display:flex;align-items:center;gap:8px;color:#ffc93c}
+.sa-nap .tp-royal-head b{font-size:20px;font-weight:900;letter-spacing:3px;background:linear-gradient(90deg,#fff2b0,#ffc93c,#ff8a2a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.sa-nap .tp-royal-head span{padding:2px 9px;border-radius:999px;background:linear-gradient(135deg,#ffc93c,#c4161c);color:#fff;font-size:11px;font-weight:800;letter-spacing:.6px}
+.sa-nap .tp-royal p{margin:0;font-size:14px;line-height:1.5;color:#f3e6c8}
+.sa-nap .tp-royal p b{color:#ffd76a}
+.sa-nap .tp-royal-bar{position:relative;height:26px;border-radius:13px;background:#0b111a;box-shadow:inset 0 1px 3px #000a;overflow:hidden}
+.sa-nap .tp-royal-bar>span{position:absolute;left:0;top:0;bottom:0;border-radius:13px;background:linear-gradient(90deg,#ff8a2a,#ffc93c,#fff2b0);box-shadow:0 0 14px #ffb43c88;transition:width .5s ease}
+.sa-nap .tp-royal-bar small{position:relative;display:grid;place-items:center;height:100%;font-size:12.5px;font-weight:800;color:#fff;text-shadow:0 1px 3px #000}
+.sa-nap .tp-royal.is-done{border-color:#ffc93c}
+@media(prefers-reduced-motion:reduce){.sa-nap .tp-royal::after{animation:none}}

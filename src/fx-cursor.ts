@@ -14,6 +14,12 @@ export const CURSOR_COLORS: Record<NameEffect, [string, string, string]> = {
   phoenix: ['#ffd34a', '#ff7a1a', '#ff2d2e'],
   royal: ['#fff4c7', '#ffd76a', '#8b4dff'],
   prism: ['#ff5f6d', '#5fffb0', '#6b8bff'],
+  emperor: ['#fff2b0', '#ffc93c', '#c4161c'],
+  nebula: ['#ffb3ec', '#c774e8', '#5a7bff'],
+  thunder: ['#ffffff', '#6ae3ff', '#2f6bff'],
+  sakura: ['#fff0f6', '#ffb7d5', '#ff6fa8'],
+  obsidian: ['#fff3c4', '#e0b13a', '#1b1b1f'],
+  celestial: ['#ffffff', '#fff3c4', '#e8c35a'],
 };
 
 const svgUrl = (svg: string) => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;

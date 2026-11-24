@@ -220,7 +220,7 @@ const strongMaterial = () => {
   return { ...makeCard(best.id), level: 13 };
 };
 test('Tỷ lệ theo bảng, ranh giới thành công/thất bại ở đủ năng lượng cho cả 12 bước', () => {
-  const rates = [100, 80, 70, 50, 35, 25, 20, 15, 10, 7, 5, 3];
+  const rates = [100, 90, 70, 60, 30, 20, 10, 7, 6, 5, 4, 3];
   const gains = [1, 1, 2, 2, 2, 3, 4, 2, 2, 2, 3, 3];
   for (let level = 1; level < MAX_LEVEL; level++) {
     const target = { ...makeCard(11), level };
@@ -262,8 +262,8 @@ test('Tỷ lệ tăng theo năng lượng nguyên liệu; +1 lên +2 đủ năng
   // Phôi cùng cầu thủ ở +6 thấp hơn thẻ chính +7 ba OVR: chưa đủ 5 vạch, tỷ lệ = tối đa × vạch / 5.
   const weak = upgradeInfo(high, Array.from({ length: 5 }, () => ({ ...equal, level: 6 })));
   assert.ok(weak.energy < 100);
-  assert.equal(weak.chance, Math.round(20 * weak.energy) / 100);
-  assert.equal(upgradeInfo(high, Array.from({ length: 5 }, strongMaterial)).chance, 20);
+  assert.equal(weak.chance, Math.round(10 * weak.energy) / 100);
+  assert.equal(upgradeInfo(high, Array.from({ length: 5 }, strongMaterial)).chance, 10);
   const materials = Array.from({ length: 5 }, () => makeCard(11));
   const result = upgrade({ ...initialSave(), cards: [target, ...materials] }, target.uid, materials.map(c => c.uid), () => .999999999);
   assert.equal(result.success, true);
@@ -302,7 +302,7 @@ test('Năng lượng: mỗi phôi = số vạch × 20% (làm tròn 0,1%), cộng
   assert.equal(upgradeInfo(t4, [lower]).energy, 14);
   assert.equal(upgradeInfo(t4, [lower, lower, lower]).energy, 42, 'Cộng đúng phần 0,1% hiển thị ở từng phôi');
   assert.equal(upgradeInfo(t4, [same, same, same, above, above]).energy, 100);
-  assert.equal(upgradeInfo(t4, [same, same, same, above, above]).chance, 50);
+  assert.equal(upgradeInfo(t4, [same, same, same, above, above]).chance, 60);
   // Không phụ thuộc trùng cầu thủ; phôi cao OVR hơn nạp nhiều hơn.
   const target = cardWith(125), other = cardWith(125, 1, [target.playerId]);
   assert.equal(upgradeInfo(target, [other]).energy, upgradeInfo(target, [makeCard(target.playerId)]).energy);

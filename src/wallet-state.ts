@@ -32,7 +32,7 @@ export type CtpMilestone = { idx: number; points: number; options: CtpReward[][]
 export type CtpConfig = { open: boolean; round: number; milestones: CtpMilestone[] };
 // save: bản lưu mới khi máy chủ vừa cộng quà vào kho (điểm danh ngày 7), xem src/inventory-sync.ts.
 // stp: Star Point (migration 202611110007_fco_star_point.sql), máy chủ chưa chạy migration thì không có.
-export type Wallet = { fc: number; stp?: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; vqtg?: VqtgState; ctp?: CtpState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null; tier?: 'classic' | 'premium' | 'luxury'; tierUntil?: number | null; effect?: NameEffect | null; club?: string | null };
+export type Wallet = { fc: number; stp?: number; dailyClaimed: boolean; checkin?: Checkin; bilac?: BilacState; vqtg?: VqtgState; ctp?: CtpState; membership?: Membership; event: { points: number; free: number; paid: number; missions: string[] }; admin: boolean; save?: ServerRecord | null; tier?: 'classic' | 'premium' | 'luxury' | 'royal'; tierUntil?: number | null; effect?: NameEffect | null; club?: string | null };
 export type ServerJackpotWin = { name: string; amount: number; kind: 'special' | 'mini'; time: number; mine: boolean };
 export type ServerJackpot = { pot: number; feed: ServerJackpotWin[] };
 // Bảng xếp hạng HLV (fco_leaderboard): top 10 kỷ lục đập thẻ OVR, top 10 giá trị đội hình, hạng của người xem.
@@ -135,7 +135,7 @@ const MESSAGES: Record<string, string> = {
   FCO_BAD_PASSWORD: 'Mật khẩu phải từ 6 đến 72 ký tự.',
   FCO_DEVICE_LIMIT: 'Thiết bị này đã nhận phần quà này cho một tài khoản khác. Mỗi thiết bị chỉ một tài khoản được nhận.',
   // Acc phụ (migration 202611220017): chỉ để mở gói / đập thẻ, không dùng chợ, GLXH, sự kiện jackpot, gift code, nạp.
-  FCO_SUB_ACCOUNT: 'Acc phụ chỉ dùng để mở gói, mua thẻ hệ thống bán và đập thẻ, không dùng được chức năng này.',
+  FCO_SUB_ACCOUNT: 'Acc phụ không dùng được chức năng này (chỉ mở gói, mua thẻ hệ thống bán, đập thẻ và chơi Cờ tỷ phú).',
   FCO_SUB_MARKET: 'Acc phụ chỉ mua được thẻ hệ thống bán ở TTCN (giá hệ thống). Không bán, không đặt mua và không mua thẻ của người chơi khác.',
   FCO_SUB_TOPUP: 'Acc phụ không nhận FC kiểu Nạp (sẽ tính vào doanh thu). Hãy chọn Tặng quà.',
   FCO_SUB_LOGIN: 'Tên đăng nhập acc phụ cần 3–24 ký tự, chỉ gồm chữ a–z, số và dấu gạch dưới.',
@@ -211,6 +211,7 @@ const MESSAGES: Record<string, string> = {
   FCO_PROTECTION_LEVEL: 'Bảo vệ nâng cấp chỉ áp dụng cho thẻ từ +8.',
   FCO_NO_PRICE: 'Thẻ này chưa có giá.',
   FCO_NOT_ENOUGH_BP: 'Không đủ BP.',
+  FCO_INVENTORY_FULL: 'Kho thẻ đã đầy (tối đa 200 thẻ). Hãy bán hoặc xoá bớt thẻ rồi thử lại, không mất gì.',
   FCO_BAD_SELL: 'Danh sách bán không hợp lệ.',
   FCO_CARD_MISSING: 'Thẻ này không còn trong kho. Hãy chọn lại cầu thủ.',
   FCO_CARD_LOCKED: 'Thẻ đang bị khóa. Mở khóa trước khi bán hoặc xóa.',
@@ -221,6 +222,7 @@ const MESSAGES: Record<string, string> = {
   FCO_PENALTY_BAD_KIND: 'Kiểu sút không hợp lệ.',
   FCO_PREMIUM_ONLY: 'Hiệu ứng này chỉ dành cho tài khoản Premium.',
   FCO_LUXURY_ONLY: 'Hiệu ứng này chỉ dành cho tài khoản Luxury.',
+  FCO_ROYAL_ONLY: 'Hiệu ứng này độc quyền hạng Royal (nạp đủ 100.000 FC).',
   FCO_BAD_EFFECT: 'Hiệu ứng không hợp lệ.',
   FCO_BAD_PRICE: 'Giá đặt phải nằm trong ±10% giá thị trường. Giá có thể vừa đổi kỳ, hãy mở lại cửa sổ.',
   FCO_NO_SYSTEM_SALE: 'Hệ thống không bán thẻ mùa này: chỉ mua được từ người chơi khác (đặt mua trên TTCN).',
@@ -246,5 +248,5 @@ export function walletMessage(error: unknown) {
 export function applyWallet(state: Save, wallet: Wallet, today = dayKey()): Save {
   const event = eventState(state, today);
   const daily = wallet.dailyClaimed ? today : state.daily === today ? '' : state.daily;
-  return { ...state, fc: wallet.fc, ...(wallet.stp !== undefined ? { stp: wallet.stp } : {}), ...(wallet.tier ? { premiumUntil: wallet.tier === 'premium' ? wallet.tierUntil ?? null : null, luxuryUntil: wallet.tier === 'luxury' ? wallet.tierUntil ?? null : null } : {}), daily, ...(wallet.membership ? { membership: wallet.membership } : {}), event: { ...event, day: today, points: wallet.event.points, free: wallet.event.free, paid: wallet.event.paid, missions: [...wallet.event.missions] } };
+  return { ...state, fc: wallet.fc, ...(wallet.stp !== undefined ? { stp: wallet.stp } : {}), ...(wallet.tier ? { premiumUntil: wallet.tier === 'premium' ? wallet.tierUntil ?? null : null, luxuryUntil: wallet.tier === 'luxury' ? wallet.tierUntil ?? null : null, royal: wallet.tier === 'royal' } : {}), daily, ...(wallet.membership ? { membership: wallet.membership } : {}), event: { ...event, day: today, points: wallet.event.points, free: wallet.event.free, paid: wallet.event.paid, missions: [...wallet.event.missions] } };
 }

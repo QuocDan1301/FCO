@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { CSSProperties, DragEvent, PointerEvent as ReactPointerEvent, ReactNode } from 'react';
-import { ArrowDownToLine, Eraser, RefreshCw, RotateCcw, Search, Sparkles, Users } from 'lucide-react';
+import { ChevronDown, ChevronUp, Pencil, Eraser, RefreshCw, RotateCcw, Search, Sparkles, Users } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
-import type { Card, Save, Tier } from './game';
+import type { Card, Save, Tactic, Tier } from './game';
 import { marketQuote } from './market';
-import { benchBuff, FORMATIONS, LINEUP_NAMES, SQUAD_WAGE_CAP, clearLineup, getLineups, lineupSlots, lineupSummary, moveSlot, optimizeLineup, placeCard, playerPenalty, positionGroup, resetPositions, selectLineup, setFormation, slotOvr, squadCards, zoneAt } from './squad';
+import { benchBuff, FORMATIONS, LINEUP_NAMES, SQUAD_WAGE_CAP, clearLineup, getLineups, isLocked, getTactics, renameTactic, selectTactic, lineupSlots, lineupSummary, moveSlot, optimizeLineup, placeCard, playerPenalty, positionGroup, resetPositions, selectLineup, setFormation, slotOvr, setCards, zoneAt } from './squad';
 import type { Zone } from './squad';
 import { teamColorName as colorNameOf } from './teamColor';
 import type { AppliedBuff } from './teamColor';
@@ -13,69 +13,74 @@ import { asset } from './asset';
 import './squad.css';
 import './lineup.css';
 import { faceOf } from './portraits';
+import { summaryStats } from './player-stats';
+import { ovrStyle } from './ovr-color';
+import { managerImage } from './managers';
+import { physicalOf } from './physical';
+import { Foot } from './PlayerDetail';
 import type { Faces } from './portraits';
 
 type Props = {
   save: Save;
   onUpdate: (update: (state: Save) => Save) => void;
   onDetail: (card: Card) => void;
+  onUpgrade: (uid: string) => void;
+  onLock: (uid: string) => void;
   onManage: () => void;
+  coachName?: string;
   levelBadge: (level: number) => string;
   seasonShort: (tier: Tier) => string;
-  renderCard: (card: Card) => ReactNode;
 };
 // Ô đang chọn: một vị trí trên sân (kể cả ô trống) hoặc một cầu thủ dự bị.
 type Pick = { slot: number } | { uid: string };
 const same = (a: Pick, b: Pick) => 'slot' in a ? 'slot' in b && a.slot === b.slot : 'uid' in b && a.uid === b.uid;
 const groupOrder = { fw: 0, mf: 1, df: 2, gk: 3 };
 
-// Sân phối cảnh: toạ độ sân (0–100) chiếu lên hình thang hẹp dần về phía khung thành đối phương.
-const TOP = .74;
-export const depth = (y: number) => TOP + (1 - TOP) * y / 100;
-export const project = (x: number, y: number): [number, number] => [50 + (x - 50) * .92 * depth(y), 3 + y * .86];
-// Ngược lại: điểm trên khung sân (%) về toạ độ sân, để biết con trỏ đang ở vùng vị trí nào.
-const unproject = (px: number, py: number): [number, number] => { const y = (py - 3) / .86; return [50 + (px - 50) / (.92 * depth(y)), y]; };
-const path = (points: [number, number][], close = false) => points.map(([x, y], i) => `${i ? 'L' : 'M'}${project(x, y).map(n => n.toFixed(2)).join(' ')}`).join('') + (close ? 'Z' : '');
+// Nửa sân phối cảnh kiểu FC Online (2026-11-23): chỉ vẽ nửa sân nhà. Toạ độ hiển thị (0–100: 0 = vạch giữa sân, 100 = vạch cầu môn)
+// chiếu lên hình thang chiếm gần hết khung: cạnh trên ~80% bề ngang, cạnh dưới ~98%.
+const TOP_W = .8, BOTTOM_W = .98, Y0 = 1, YH = 98;
+const widthAt = (y: number) => TOP_W + (BOTTOM_W - TOP_W) * y / 100;
+const projectRaw = (x: number, y: number): [number, number] => [50 + (x - 50) * widthAt(y), Y0 + y * YH / 100];
+const unprojectRaw = (px: number, py: number): [number, number] => { const y = (py - Y0) * 100 / YH; return [50 + (px - 50) / widthAt(y), y]; };
+// Sơ đồ (squad.ts, vùng kéo thả zoneAt) giữ toạ độ cũ; khi vẽ đổi sang nửa sân: ST sát nửa vòng tròn giữa sân, LW / RW thấp hơn ST và rộng ra
+// gần biên (ngang LB / RB), trung vệ ngay mép trên vòng cấm (68), thủ môn giữa khu 5m50 (94). Nội suy tuyến tính giữa các mốc.
+const Y_MAP: [number, number][] = [[0, 0], [13, 13], [18, 21], [76, 66], [92, 85], [100, 92]];
+const X_SPREAD = 1.06;
+const piecewise = (v: number, pairs: [number, number][]) => {
+  if (v <= pairs[0][0]) return pairs[0][1] + (v - pairs[0][0]);
+  for (let i = 1; i < pairs.length; i++) { const [x0, y0] = pairs[i - 1], [x1, y1] = pairs[i]; if (v <= x1) return y0 + (y1 - y0) * (v - x0) / (x1 - x0); }
+  const last = pairs[pairs.length - 1]; return last[1] + (v - last[0]);
+};
+const mapY = (y: number) => piecewise(y, Y_MAP), unmapY = (y: number) => piecewise(y, Y_MAP.map(([a, b]) => [b, a]));
+// Tỉ lệ thu nhỏ cầu thủ theo độ xa (1 ở vạch cầu môn).
+// Giữ cả ảnh, số và tên cầu thủ nằm trong sân: chỗ vẽ được giới hạn 8–92 theo chiều ngang, 4–85 theo chiều dọc (tên nằm dưới ảnh).
+const SAFE = { x0: 8, x1: 92, y0: 4, y1: 85 };
+const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+const shownY = (y: number) => clamp(mapY(y), SAFE.y0, SAFE.y1);
+export const depth = (y: number) => widthAt(shownY(y)) / BOTTOM_W;
+export const project = (x: number, y: number): [number, number] => projectRaw(clamp(50 + (x - 50) * X_SPREAD, SAFE.x0, SAFE.x1), shownY(y));
+// Ngược lại: điểm trên khung sân (%) về toạ độ sơ đồ, để biết con trỏ đang ở vùng vị trí nào.
+const unproject = (px: number, py: number): [number, number] => { const [hx, hy] = unprojectRaw(px, py); return [50 + (hx - 50) / X_SPREAD, unmapY(hy)]; };
+const path = (points: [number, number][], close = false) => points.map(([x, y], i) => `${i ? 'L' : 'M'}${projectRaw(x, y).map(n => n.toFixed(2)).join(' ')}`).join('') + (close ? 'Z' : '');
 const box = (x0: number, y0: number, x1: number, y1: number) => path([[x0, y0], [x1, y0], [x1, y1], [x0, y1]], true);
 const arc = (cx: number, cy: number, rx: number, ry: number, from = 0, to = 360) => path(Array.from({ length: 41 }, (_, i) => { const a = (from + (to - from) * i / 40) * Math.PI / 180; return [cx + rx * Math.cos(a), cy + ry * Math.sin(a)]; }));
-const PITCH_LINES = [box(0, 0, 100, 100), path([[0, 50], [100, 50]]), arc(50, 50, 15, 9.5), box(20, 0, 80, 16), box(36, 0, 64, 6), box(20, 84, 80, 100), box(36, 94, 64, 100), arc(50, 11, 12, 8, 42, 138), arc(50, 89, 12, 8, 222, 318),
-  arc(0, 0, 2.4, 1.6, 0, 90), arc(100, 0, 2.4, 1.6, 90, 180), arc(0, 100, 2.4, 1.6, 270, 360), arc(100, 100, 2.4, 1.6, 180, 270)].join('');
-const PITCH_SPOTS = [arc(50, 50, .75, .55), arc(50, 11, .6, .45), arc(50, 89, .75, .55)].join('');
-// Thảm cỏ rộng hơn đường biên một chút để sân có khoảng lề như sân thật.
-const EDGE: [number, number, number, number] = [-4, -3, 104, 103];
+// Chỉ vẽ: đường biên, nửa vòng tròn giữa sân (chạm vạch trên), vòng cấm 16m50, khu 5m50 và vòng cung vòng cấm.
+const PITCH_LINES = [box(0, 0, 100, 100), arc(50, 0, 15, 17, 0, 180), box(20, 68, 80, 100), box(36, 88, 64, 100), arc(50, 78, 12, 16, 219, 321)].join('');
+const EDGE: [number, number, number, number] = [-1, -1, 101, 101];
 const TURF = box(...EDGE);
-// Sọc cắt cỏ theo chiều ngang, thêm sọc dọc rất nhạt để thành ô bàn cờ; đều theo phối cảnh.
-const STRIPES = Array.from({ length: 10 }, (_, i) => box(EDGE[0], i * 10, EDGE[2], i * 10 + 10));
-const STRIPES_DOWN = Array.from({ length: 5 }, (_, i) => box(i * 20 + 5, EDGE[1], i * 20 + 15, EDGE[3]));
-const [FRONT_LEFT, FRONT_Y] = project(EDGE[0], EDGE[3]), [FRONT_RIGHT] = project(EDGE[2], EDGE[3]);
-// Mặt trước của thảm cỏ, tạo cảm giác sân có độ dày.
-const FRONT_FACE = `M${FRONT_LEFT.toFixed(2)} ${FRONT_Y.toFixed(2)}H${FRONT_RIGHT.toFixed(2)}V${(FRONT_Y + 2.6).toFixed(2)}H${FRONT_LEFT.toFixed(2)}Z`;
-const goal = (y: number, lift: number) => { const [x0, py] = project(44, y), [x1] = project(56, y); return { frame: `M${x0.toFixed(2)} ${py.toFixed(2)}V${(py + lift).toFixed(2)}H${x1.toFixed(2)}V${py.toFixed(2)}`, net: Array.from({ length: 7 }, (_, i) => { const x = x0 + (x1 - x0) * (i + 1) / 8; return `M${x.toFixed(2)} ${py.toFixed(2)}V${(py + lift).toFixed(2)}`; }).join('') + `M${x0.toFixed(2)} ${(py + lift / 2).toFixed(2)}H${x1.toFixed(2)}` }; };
-const GOAL_TOP = goal(0, -2.2), GOAL_BOTTOM = goal(100, 2.2);
+// Sọc cắt cỏ dọc theo phối cảnh, hai tông xanh ô liu xen kẽ.
+const STRIPE_COUNT = 8;
+const STRIPES = Array.from({ length: STRIPE_COUNT }, (_, i) => { const w = (EDGE[2] - EDGE[0]) / STRIPE_COUNT; return box(EDGE[0] + i * w, EDGE[1], EDGE[0] + (i + 1) * w, EDGE[3]); });
 // Sân tĩnh dựng một lần: lớp vùng kéo nằm ở SVG riêng nên kéo cầu thủ không vẽ lại cỏ và bộ lọc độ hạt.
 export const PITCH_ART = <svg className="lu-pitch-art" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
   <defs>
     <clipPath id="lu-turf-clip"><path d={TURF}/></clipPath>
-    <radialGradient id="lu-floodlight" cx="50%" cy="34%" r="62%"><stop offset="0" stopColor="#fff6c8" stopOpacity=".3"/><stop offset=".55" stopColor="#fff6c8" stopOpacity=".07"/><stop offset="1" stopColor="#fff6c8" stopOpacity="0"/></radialGradient>
-    <radialGradient id="lu-vignette" cx="50%" cy="48%" r="72%"><stop offset=".55" stopColor="#031006" stopOpacity="0"/><stop offset="1" stopColor="#031006" stopOpacity=".62"/></radialGradient>
-    <linearGradient id="lu-depth" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#04140a" stopOpacity=".34"/><stop offset=".5" stopColor="#04140a" stopOpacity="0"/></linearGradient>
-    <linearGradient id="lu-front" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#2c5a1e"/><stop offset="1" stopColor="#0d1f0a"/></linearGradient>
-    <filter id="lu-grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.4 2.6" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  .9 .9 .9 0 -1"/></filter>
+    <linearGradient id="lu-shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#4c7d21" stopOpacity="0"/><stop offset="1" stopColor="#4c7d21" stopOpacity=".75"/></linearGradient>
   </defs>
-  <path d={FRONT_FACE} fill="url(#lu-front)"/>
   <path d={TURF} className="lu-turf"/>
   {STRIPES.map((d, i) => <path key={i} d={d} className={i % 2 ? 'lu-stripe-b' : 'lu-stripe-a'}/>)}
-  {STRIPES_DOWN.map((d, i) => <path key={i} d={d} className="lu-stripe-down"/>)}
-  <g clipPath="url(#lu-turf-clip)">
-    <rect x="-5" y="0" width="110" height="100" filter="url(#lu-grain)" className="lu-grain"/>
-    <rect x="0" y="0" width="100" height="100" fill="url(#lu-floodlight)"/>
-    <rect x="0" y="0" width="100" height="100" fill="url(#lu-depth)"/>
-    <rect x="0" y="0" width="100" height="100" fill="url(#lu-vignette)"/>
-  </g>
-  <path d={PITCH_LINES} className="lu-lines-glow"/>
+  <g clipPath="url(#lu-turf-clip)"><rect x="0" y="0" width="100" height="100" fill="url(#lu-shade)"/></g>
   <path d={PITCH_LINES} className="lu-lines"/>
-  <path d={PITCH_SPOTS} className="lu-spots"/>
-  {[GOAL_TOP, GOAL_BOTTOM].map((g, i) => <g key={i}><path d={g.net} className="lu-goal-net"/><path d={g.frame} className="lu-goal"/></g>)}
 </svg>;
 
 export const Face = ({ card, className, faces }: { card: Card; className: string; faces?: Faces }) => { const p = getPlayer(card), f = faceOf(p, faces); return <span className={`${className}${f.portrait ? ' is-portrait' : ''}`}><img src={f.src} alt="" loading="lazy" draggable={false}/></span>; };
@@ -83,18 +88,82 @@ const colorName = (c: AppliedBuff) => colorNameOf(c);
 export const Wage = ({ card }: { card: Card }) => <span className="squad-wage"><b>{getPlayer(card).wage ?? 0}</b></span>;
 
 // Màn Đội hình: chọn bộ A/B/C và sơ đồ, xếp 11 cầu thủ của đội hình riêng lên sân; bấm (hoặc kéo) hai ô để đổi chỗ.
-export default function LineupBoard({ save, onUpdate, onDetail, onManage, levelBadge, seasonShort, renderCard }: Props) {
+// Ảnh mini face HLV ở thanh thông tin dưới sân: người dùng sẽ gửi ảnh sau; điền đường dẫn ảnh (vd. asset('/assets/coach.webp')) vào đây, null = hình bóng mặc định.
+// Ảnh HLV ở hàng dưới sân: Nhà quản lý người chơi chọn (Save.manager), chưa chọn thì ảnh mặc định.
+// Chiến thuật đội hình: bấm xổ xuống 10 chiến thuật (tên + sơ đồ). Chọn một chiến thuật thì bộ đang xếp đổi sang sơ đồ đó;
+// đổi sơ đồ ở ô Sơ đồ dưới sân thì sơ đồ của chiến thuật đang dùng đổi theo. Bút chì để đổi tên (Enter lưu, Esc huỷ).
+function TacticPicker({ tactics, current, onPick, onRename }: { tactics: Tactic[]; current?: number; onPick: (i: number) => void; onRename: (i: number, name: string) => void }) {
+  const [open, setOpen] = useState(false), [edit, setEdit] = useState<number | null>(null), [draft, setDraft] = useState('');
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => { if (!ref.current?.contains(e.target as Node)) { setOpen(false); setEdit(null); } };
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape' && edit === null) setOpen(false); };
+    document.addEventListener('mousedown', close); document.addEventListener('keydown', esc);
+    return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', esc); };
+  }, [open, edit]);
+  const commitName = (i: number) => { const n = draft.replace(/\s+/g, ' ').trim(); if (n && n !== tactics[i].name) onRename(i, n); setEdit(null); };
+  return <div className="lu-field lu-tactic" ref={ref}>
+    <small>Chiến thuật</small>
+    <button type="button" className="lu-tactic-trigger" aria-haspopup="listbox" aria-expanded={open} onClick={() => { setOpen(o => !o); setEdit(null); }}>
+      <span>{current === undefined ? 'Chọn chiến thuật' : `${current + 1}. ${tactics[current].name}`}</span>{open ? <ChevronUp size={16}/> : <ChevronDown size={16}/>}
+    </button>
+    {open && <ul className="lu-tactic-list" role="listbox" aria-label="Chiến thuật đội hình">{tactics.map((t, i) => <li key={i} className={i === current ? 'is-on' : undefined} role="option" aria-selected={i === current}>
+      {edit === i
+        ? <input className="lu-tactic-input" autoFocus value={draft} maxLength={24} aria-label={`Tên chiến thuật ${i + 1}`} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') commitName(i); if (e.key === 'Escape') { e.stopPropagation(); setEdit(null); } }} onBlur={() => commitName(i)}/>
+        : <button type="button" className="lu-tactic-pick" onClick={() => { onPick(i); setOpen(false); }}><b>{i + 1}. {t.name}</b><small>{t.formation}</small></button>}
+      {edit !== i && <button type="button" className="lu-tactic-rename" title="Đổi tên chiến thuật" aria-label={`Đổi tên chiến thuật ${i + 1}`} onClick={() => { setEdit(i); setDraft(t.name); }}><Pencil size={13}/></button>}
+    </li>)}</ul>}
+  </div>;
+}
+
+// Biểu tượng cờ Team color CLB / quốc gia / mùa (người dùng gửi ảnh mẫu 2026-11-24): cờ trắng đặc đang phấp phới, cán nghiêng.
+const TeamFlag = () => <svg className="lu-teamflag" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.6 21 8.8 3.6" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/><path fill="currentColor" d="M9.6 4.8c2.8-1.6 5.4-.2 8.1.5 1.3.3 2.4.2 3.2-.1l-2.5 9.7c-.8.4-2 .5-3.4.1-2.7-.7-5.3-2.2-8.1-.7z"/></svg>;
+
+// Biểu tượng Team color cấp thẻ (ảnh mẫu 2026-11-24): mũi tên đặc hướng lên đứng trên hai vạch ngang.
+const TeamUp = () => <svg className="lu-teamup" width="19" height="19" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 1.5 22 11.6H16.4V14H7.6v-2.4H2z"/><rect x="7.6" y="15.2" width="8.8" height="2.8" rx=".4"/><rect x="7.6" y="19.2" width="8.8" height="2.8" rx=".4"/></svg>;
+
+// So sánh hai cầu thủ (2026-11-24): bảng hai cột, ô tốt hơn tô xanh.
+function ComparePanel({ a, b, levelBadge, seasonShort, onClose }: { a: Card; b: Card; levelBadge: (level: number) => string; seasonShort: (tier: Tier) => string; onClose: () => void }) {
+  useEffect(() => { const k = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); onClose(); } }; window.addEventListener('keydown', k, true); return () => window.removeEventListener('keydown', k, true); }, [onClose]);
+  const pa = getPlayer(a), pb = getPlayer(b), qa = marketQuote(a).price, qb = marketQuote(b).price;
+  // better: 1 = bên trái tốt hơn, 2 = bên phải tốt hơn, 0 = bằng nhau / không so được.
+  const cmp = (x: number | null, y: number | null, lowerIsBetter = false) => x === null || y === null || x === y ? 0 : (x > y) !== lowerIsBetter ? 1 : 2;
+  const rows: { label: string; l: ReactNode; r: ReactNode; better: number }[] = [
+    { label: 'OVR', l: ovr(a), r: ovr(b), better: cmp(ovr(a), ovr(b)) },
+    { label: 'Cấp thẻ', l: <img className="squad-level-img" src={levelBadge(a.level)} alt={`+${a.level}`}/>, r: <img className="squad-level-img" src={levelBadge(b.level)} alt={`+${b.level}`}/>, better: cmp(a.level, b.level) },
+    { label: 'Vị trí', l: pa.pos, r: pb.pos, better: 0 },
+    { label: 'Mùa', l: seasonShort(pa.tier), r: seasonShort(pb.tier), better: 0 },
+    { label: 'Lương', l: pa.wage ?? 0, r: pb.wage ?? 0, better: cmp(pa.wage ?? 0, pb.wage ?? 0, true) },
+    { label: 'Giá', l: qa === null ? '—' : money(qa), r: qb === null ? '—' : money(qb), better: cmp(qa, qb) },
+    { label: 'CLB', l: pa.club || '—', r: pb.club || '—', better: 0 },
+    { label: 'Quốc gia', l: pa.nation || '—', r: pb.nation || '—', better: 0 },
+  ];
+  return <div className="lu-compare-back" onClick={onClose}>
+    <div className="lu-compare" role="dialog" aria-modal="true" aria-label="So sánh cầu thủ" onClick={e => e.stopPropagation()}>
+      <button className="lu-compare-x" onClick={onClose} aria-label="Đóng">×</button>
+      <div className="lu-compare-head"><div><Face card={a} className="lu-face"/><strong>{pa.name}</strong></div><span>VS</span><div><Face card={b} className="lu-face"/><strong>{pb.name}</strong></div></div>
+      {rows.map(x => <div key={x.label} className="lu-compare-row"><span className={x.better === 1 ? 'is-better' : ''}>{x.l}</span><em>{x.label}</em><span className={x.better === 2 ? 'is-better' : ''}>{x.r}</span></div>)}
+    </div>
+  </div>;
+}
+
+export default function LineupBoard({ save, onUpdate, onDetail, onUpgrade, onLock, onManage, coachName, levelBadge, seasonShort }: Props) {
   const lineups = getLineups(save), index = lineups.active, set = lineups.sets[index], slots = lineupSlots(set);
-  const squad = squadCards(save), byUid = new Map(squad.map(c => [c.uid, c]));
+  const squad = setCards(save, set), byUid = new Map(squad.map(c => [c.uid, c]));
   const starters = set.slots.map(uid => uid ? byUid.get(uid) ?? null : null);
   const playing = new Set(set.slots.filter(Boolean));
   const subs = squad.filter(c => !playing.has(c.uid)).sort((a, b) => groupOrder[positionGroup(getPlayer(a).pos)] - groupOrder[positionGroup(getPlayer(b).pos)] || ovr(b) - ovr(a));
   // Dự bị cũng có +5 vì nằm trong đội hình riêng (benchBuff), chỉ không có team color.
-  const summary = lineupSummary(save, set), buffs = new Map([...subs.map(c => [c.uid, benchBuff(c)] as const), ...summary.colors.players.map(r => [r.playerId, r] as const)]);
+  // Giá trị cầu thủ trong đội = đội hình chính (summary.value) + dự bị. summary.value giữ nguyên chỉ tính đội hình chính (dùng cho BXH giá trị ĐH).
+  const summary = lineupSummary(save, set), teamValue = summary.value + subs.reduce((sum, c) => sum + (marketQuote(c).price ?? 0), 0), buffs = new Map([...subs.map(c => [c.uid, benchBuff(c)] as const), ...summary.colors.players.map(r => [r.playerId, r] as const)]);
   // OVR hiển thị của cầu thủ đá chính = OVR theo vị trí + team color; chú thích ghi rõ phần trừ / cộng.
   const shownOvr = (card: Card, role: string) => buffs.get(card.uid)?.finalOvr ?? slotOvr(card, role);
   const ovrNote = (card: Card, role: string) => { const p = getPlayer(card), penalty = playerPenalty(p, role), buff = buffs.get(card.uid); return [penalty ? `Đá trái vị trí (${p.pos}): −${penalty}` : '', ...(buff?.applied ?? []).map(c => `Team color ${colorName(c)}: +${c.ovr}`)].filter(Boolean).join(' · ') || undefined; };
-  const [pick, setPick] = useState<Pick | null>(null);
+  const [rawPick, setPick] = useState<Pick | null>(null);
+  // Luôn có một cầu thủ được chọn (2026-11-24): lựa chọn hợp lệ của người chơi, không thì cầu thủ đầu tiên trên sân.
+  const firstSlot = starters.findIndex(Boolean);
+  const pick: Pick | null = rawPick && ('slot' in rawPick ? (starters[rawPick.slot] || firstSlot < 0) : byUid.has(rawPick.uid)) ? rawPick : firstSlot >= 0 ? { slot: firstSlot } : null;
   const [dragging, setDragging] = useState<Pick | null>(null);
 
   // Ghép hai lựa chọn: ô ↔ ô đổi chỗ, dự bị ↔ ô thì dự bị vào sân (cầu thủ cũ của ô về dự bị).
@@ -111,8 +180,10 @@ export default function LineupBoard({ save, onUpdate, onDetail, onManage, levelB
     return true;
   };
   const choose = (target: Pick) => {
-    if (!pick || same(pick, target)) { setPick(pick ? null : target); return; }
-    setPick(combine(pick, target) ? null : target);
+    if (!pick || same(pick, target)) { if (!pick) setPick(target); return; }
+    // Chỉ đưa cầu thủ đang chọn vào ô trống; bấm vào cầu thủ khác thì chuyển lựa chọn sang người đó (đổi chỗ bằng cách kéo thả).
+    if ('slot' in target && !starters[target.slot]) { combine(pick, target); setPick(target); return; }
+    setPick(target);
   };
   const dragProps = (target: Pick, draggable: boolean) => ({
     draggable,
@@ -167,41 +238,54 @@ export default function LineupBoard({ save, onUpdate, onDetail, onManage, levelB
     onPointerCancel: () => { press.current = null; setMove(null); },
   });
   const switchSet = (next: number) => { setPick(null); onUpdate(s => selectLineup(s, next)); };
-  const run = (update: (state: Save) => Save) => { setPick(null); onUpdate(update); };
+  const run = (update: (state: Save) => Save) => onUpdate(update);
 
   // Thẻ đang xem ở khung thông tin: ô / dự bị đang chọn, mặc định cầu thủ đầu tiên trên sân.
-  const pickedSlot = pick && 'slot' in pick ? pick.slot : null;
+  const pickedSlot = pick && 'slot' in pick && !starters[pick.slot] ? pick.slot : null;
   const focus = pick ? ('slot' in pick ? starters[pick.slot] : byUid.get(pick.uid) ?? null) : starters.find(Boolean) ?? null;
   const focusSlot = focus ? set.slots.indexOf(focus.uid) : -1;
   const isPicked = (target: Pick) => !!pick && same(pick, target);
   const overCap = summary.wage > SQUAD_WAGE_CAP;
 
+  const [compare, setCompare] = useState<[Card, Card] | null>(null);
+  // Đổi chỗ cầu thủ đang chọn với cầu thủ ở dòng này; lựa chọn đi theo cầu thủ đã chọn.
+  const swapWith = (target: Pick) => {
+    if (!pick || !focus || !combine(pick, target)) return;
+    setPick('slot' in pick ? ('slot' in target ? target : { uid: focus.uid }) : target);
+  };
   const row = (target: Pick, card: Card | null, label: string, role: string | null) => {
     const p = card && getPlayer(card), group = positionGroup(role ?? p?.pos ?? 'CM');
     const value = card ? role ? shownOvr(card, role) : buffs.get(card.uid)?.finalOvr ?? ovr(card) : null, off = !!(card && role && playerPenalty(p!, role));
-    return <button key={'slot' in target ? `s${target.slot}` : target.uid} data-lu-pick={'slot' in target ? `s:${target.slot}` : `u:${target.uid}`} role="row" className={`lu-row ${isPicked(target) ? 'is-picked' : ''} ${card ? '' : 'is-empty'}`} onClick={() => choose(target)} {...dragProps(target, !!card)} aria-pressed={isPicked(target)} aria-label={card ? `${label} · ${p!.name} · OVR ${value}` : `${label} · trống`}>
+    const picked = isPicked(target), locked = !!card && isLocked(save, card.uid);
+    return <div key={'slot' in target ? `s${target.slot}` : target.uid} data-lu-pick={'slot' in target ? `s:${target.slot}` : `u:${target.uid}`} role="row" tabIndex={0} className={`lu-row ${picked ? 'is-picked' : ''} ${card ? '' : 'is-empty'}`} onClick={() => choose(target)} onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && e.target === e.currentTarget) { e.preventDefault(); choose(target); } }} {...dragProps(target, !!card)} aria-pressed={picked} aria-label={card ? `${label} · ${p!.name} · OVR ${value}` : `${label} · trống`}>
       <span className={`lu-pos pos-${group}`} role="cell">{label}</span>
       <span className="squad-name" role="cell">{p ? <><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong></> : <em>Trống</em>}</span>
       <span role="cell">{card && <Wage card={card}/>}</span>
       <strong className={`lu-row-ovr ${off ? 'is-off' : ''}`} role="cell" title={card && role ? ovrNote(card, role) : undefined}>{value ?? ''}</strong>
       <span role="cell">{card && <img className="squad-level-img" src={levelBadge(card.level)} alt={`+${card.level}`}/>}</span>
-    </button>;
+      {card && !!pick && !!focus && <span className="lu-row-acts" role="cell" onClick={e => e.stopPropagation()}>
+        <button onClick={() => onUpgrade(card.uid)} title="Nâng cấp" aria-label={`Nâng cấp ${p!.name}`}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5 22 11.6H16.4V14H7.6v-2.4H2z"/><rect x="7.6" y="15.2" width="8.8" height="2.8" rx=".4"/><rect x="7.6" y="19.2" width="8.8" height="2.8" rx=".4"/></svg></button>
+        {picked ? <button onClick={() => onDetail(card)} title="Xem thông tin" aria-label={`Xem thông tin ${p!.name}`}><Search size={18} strokeWidth={3}/></button> : <>
+          {!('uid' in pick! && 'uid' in target) && <button onClick={() => swapWith(target)} title="Đổi vị trí với cầu thủ đang chọn" aria-label={`Đổi vị trí với ${p!.name}`}><RefreshCw size={18} strokeWidth={3}/></button>}
+          <button onClick={() => setCompare([focus!, card])} title="So sánh với cầu thủ đang chọn" aria-label={`So sánh ${p!.name} với cầu thủ đang chọn`}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="7.6" fill="none" stroke="currentColor" strokeWidth="2.6"/><path d="m16.2 16.2 5 5" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><text x="10.5" y="13.5" textAnchor="middle" fontSize="8.5" fontWeight="800" fill="currentColor" stroke="none">VS</text></svg></button>
+        </>}
+        <button className={locked ? 'on' : ''} onClick={() => onLock(card.uid)} title={locked ? 'Mở khóa' : 'Khóa'} aria-label={`${locked ? 'Mở khóa' : 'Khóa'} ${p!.name}`} aria-pressed={locked}><svg viewBox="0 0 24 24" aria-hidden="true"><path d={locked ? 'M8 11V7.4a4 4 0 0 1 8 0V11' : 'M8 11V7.4a4 4 0 0 1 7.6-1.8'} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/><path fillRule="evenodd" d="M4 13a2.2 2.2 0 0 1 2.2-2.2h11.6A2.2 2.2 0 0 1 20 13v7.6a2.2 2.2 0 0 1-2.2 2.2H6.2A2.2 2.2 0 0 1 4 20.6zM12 14.2a1.9 1.9 0 0 1 .95 3.55V20h-1.9v-2.25A1.9 1.9 0 0 1 12 14.2z" fill="currentColor"/></svg></button>
+      </span>}
+    </div>;
   };
 
-  return <section className="workspace lineup-workspace" aria-labelledby="lineup-title" onKeyDown={e => { if (e.key === 'Escape') setPick(null); }}>
+  return <section className="workspace lineup-workspace" aria-labelledby="lineup-title">
     <div className="lu-main">
       <header className="lu-bar">
         <h1 id="lineup-title" className="sr-only">Sắp xếp đội hình</h1>
         <div className="lu-field"><small>Đội hình</small><div className="lu-sets" role="group" aria-label="Chọn bộ đội hình">{LINEUP_NAMES.map((name, i) => <button key={name} aria-pressed={i === index} onClick={() => switchSet(i)}>{name}</button>)}</div></div>
-        <label className="lu-field"><small>Sơ đồ</small><select value={set.formation} onChange={e => run(s => setFormation(s, index, e.target.value))}>{Object.keys(FORMATIONS).map(key => <option key={key} value={key}>{key}</option>)}</select></label>
+        <TacticPicker tactics={getTactics(save)} current={set.tactic} onPick={i => run(s => selectTactic(s, index, i))} onRename={(i, name) => run(s => renameTactic(s, i, name))}/>
         <div className="lu-stats">
-          <div><small>OVR đội</small><strong>{summary.ovr || '—'}</strong></div>
-          <div><small>Giá trị ĐH</small><strong>{money(summary.value)}</strong></div>
+          <div><small>Giá trị của cầu thủ trong đội<i className="lu-help" title="Tổng giá trị thị trường của các cầu thủ trong đội, gồm cả đội hình chính và dự bị." aria-label="Giải thích">?</i></small><strong>{money(teamValue)}</strong></div>
           <div className={overCap ? 'is-over' : ''} title={overCap ? `Vượt mức lương ${summary.wage - SQUAD_WAGE_CAP}` : undefined}><small>Tổng lương</small><strong>{summary.wage}<small>/{SQUAD_WAGE_CAP}</small></strong></div>
         </div>
       </header>
-      <div className="lu-colors" aria-label="Team color đang kích hoạt"><small>Team color</small>{summary.colors.active.length ? summary.colors.active.map(c => <span key={`${c.kind}-${c.key}`} className={`lu-color kind-${c.kind}`} title={`+${c.ovr} OVR cho ${c.beneficiaries.length} cầu thủ · nhóm có ${c.members.length} cầu thủ, đạt cấp ${c.tier} (mỗi cầu thủ chỉ nhận team color CLB / quốc gia mạnh nhất, cộng thêm team color cấp thẻ)`}>{colorName(c)}<i>{c.beneficiaries.length}</i><b>+{c.ovr}</b></span>) : <span className="lu-colors-none">Chưa kích hoạt · cần từ 3 cầu thủ cùng CLB / quốc gia hoặc 3 thẻ từ +3</span>}</div>
-      <div className={`lu-pitch ${move ? 'is-moving' : ''}`} ref={pitchRef} onClick={e => { if (e.target === e.currentTarget) setPick(null); }}>
+      <div className={`lu-pitch ${move ? 'is-moving' : ''}`} ref={pitchRef}>
         {PITCH_ART}
         <svg className="lu-pitch-overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           {move?.zone && <path d={box(move.zone.x0, move.zone.y0, move.zone.x1, move.zone.y1)} className="lu-zone"/>}
@@ -212,16 +296,10 @@ export default function LineupBoard({ save, onUpdate, onDetail, onManage, levelB
           const value = card ? shownOvr(card, slot.role) : 0, penalty = p ? playerPenalty(p, slot.role) : 0, off = penalty > 0, applied = card ? buffs.get(card.uid)?.applied ?? [] : [];
           const moving = move?.slot === i;
           return <button key={`${set.formation}-${i}`} className={`lu-token pos-${positionGroup(slot.role)} ${card ? '' : 'is-empty'} ${isPicked(target) ? 'is-picked' : ''} ${dragging && !same(dragging, target) ? 'is-drop' : ''} ${moving ? 'is-origin' : ''} ${move?.target === i ? 'is-swap' : ''}`} style={{ left: `${left}%`, top: `${top}%`, '--k': depth(slot.y) } as CSSProperties}
-            onClick={() => { if (justDragged.current) { justDragged.current = false; return; } choose(target); }} {...dragProps(target, false)} {...(card ? tokenPointer(i) : {})} aria-pressed={isPicked(target)} aria-label={card ? `${slot.label}: ${p!.name}, OVR ${value}` : `${slot.label}: trống`}>
+            onClick={() => { if (justDragged.current) { justDragged.current = false; return; } choose(target); }} {...dragProps(target, false)} {...(card && slot.role !== 'GK' ? tokenPointer(i) : {})} aria-pressed={isPicked(target)} aria-label={card ? `${slot.label}: ${p!.name}, OVR ${value}` : `${slot.label}: trống`}>
+            {isPicked(target) && !moving && <svg className="lu-ring" viewBox="0 0 240 100" preserveAspectRatio="none" aria-hidden="true"><ellipse cx="120" cy="50" rx="117" ry="47" pathLength="100"/></svg>}
             {moving ? <span className="lu-token-top"><span className="lu-face lu-face-ghost"><img src={asset('/assets/silhouette.svg')} alt="" draggable={false}/></span></span> : card ? <>
               <span className="lu-token-top"><Wage card={card}/><Face card={card} className="lu-face"/><strong className={off ? 'is-off' : ''}>{value}</strong></span>
-              {/* OVR trên sân đã gồm mọi phần cộng / trừ; rê chuột (cảm ứng: chạm chọn) để xem từng phần. */}
-              {(off || applied.length > 0) && <span className="lu-token-tip" role="tooltip">
-                <span><i>OVR thẻ</i><b>{ovr(card)}</b></span>
-                {off && <span className="is-minus"><i>Trái vị trí ({p!.pos})</i><b>−{penalty}</b></span>}
-                {applied.map(c => <span key={`${c.kind}-${c.key}`} className="is-plus"><i>{colorName(c)}</i><b>+{c.ovr}</b></span>)}
-                <span className="is-total"><i>OVR {slot.label}</i><b>{value}</b></span>
-              </span>}
               <span className="lu-token-name"><b className={`squad-season season-tag-${p!.tier}`}>{seasonShort(p!.tier)}</b>{p!.name}</span>
             </> : <>
               <span className="lu-token-top"><span className="lu-face lu-face-empty">+</span></span>
@@ -242,12 +320,20 @@ export default function LineupBoard({ save, onUpdate, onDetail, onManage, levelB
           </div>;
         })()}
         <div className="lu-pitch-actions">
-          {set.custom && <button onClick={() => run(s => resetPositions(s, index))} title="Đưa mọi cầu thủ về đúng vị trí của sơ đồ"><RotateCcw size={16}/>Về sơ đồ</button>}
-          <button onClick={() => run(s => clearLineup(s, index))} disabled={!summary.filled} title="Đưa cả 11 cầu thủ về dự bị"><Eraser size={16}/>Làm trống</button>
-          <button className="lu-optimize" onClick={() => run(s => optimizeLineup(s, index))} disabled={!squad.length} title="Xếp 11 cầu thủ có OVR theo vị trí cao nhất"><Sparkles size={16}/>Tối ưu ĐH</button>
+          <button className="lu-optimize" onClick={() => run(s => optimizeLineup(s, index))} disabled={!squad.length} title="Xếp 11 cầu thủ có OVR theo vị trí cao nhất"><RefreshCw size={16}/>Tối ưu ĐH</button>
         </div>
       </div>
-      <p className="lu-hint">{pick ? 'Chọn vị trí hoặc cầu thủ khác để đổi chỗ · Esc để bỏ chọn' : 'Kéo cầu thủ tới bất cứ đâu trên sân để đổi vị trí, thả lên người khác để đổi chỗ. Hoặc bấm hai cầu thủ để đổi chỗ.'}</p>
+      <div className="lu-coachbar">
+        <div className="lu-coach">
+          <span className="lu-coach-face"><img src={managerImage(save.manager)} alt=""/></span>
+          <span className="lu-coach-text"><small>HLV</small><b>{coachName || 'HLV'}</b></span>
+        </div>
+        <div className="lu-coach-colors" aria-label="Team color đang kích hoạt">
+          <small>Team color</small>
+          <span><span title="Team color CLB / quốc gia / mùa đang kích hoạt"><TeamFlag/>{summary.colors.active.filter(c => c.kind !== 'upgrade').length}</span><span title="Team color cấp thẻ đang kích hoạt"><TeamUp/>{summary.colors.active.filter(c => c.kind === 'upgrade').length}</span></span>
+        </div>
+        <label className="lu-coach-formation"><small>Sơ đồ</small><select aria-label="Sơ đồ" value={set.formation} onChange={e => run(s => setFormation(s, index, e.target.value))}>{Object.keys(FORMATIONS).map(key => <option key={key} value={key}>{key}</option>)}</select></label>
+      </div>
     </div>
 
     <aside className="lu-side" aria-label="Danh sách đội hình">
@@ -258,27 +344,25 @@ export default function LineupBoard({ save, onUpdate, onDetail, onManage, levelB
             <div className="lu-detail-text">
               <p className="lu-detail-name"><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong></p>
               <p className="lu-detail-ovr">{role && <><span className={`pos-${positionGroup(role)}`}>{slots[focusSlot].label}</span><strong className={penalty ? 'is-off' : ''}>{shownOvr(focus, role)}</strong></>}{(!role || penalty > 0) && <><span className={`pos-${positionGroup(p.pos)}`}>{p.pos}</span><strong>{ovr(focus) + (buff?.ovrBonus ?? 0)}</strong></>}</p>
-              <p className="lu-detail-meta">{p.club}{p.flag && <><img src={flagImageUrl(p.flag)} alt=""/>{p.nation}</>}</p>
+              <p className="lu-detail-meta">{p.club !== p.nation && <>{p.club}<i/></>}{p.nation}{p.flag && <img src={flagImageUrl(p.flag)} alt=""/>}</p>
               {penalty > 0 && <p className="lu-detail-warn">Đá trái vị trí sở trường ({p.pos}): −{penalty} OVR</p>}
-              {!!buff?.applied.length && <p className="lu-detail-colors">Cộng OVR: {buff.applied.map(c => `${colorName(c)} +${c.ovr}`).join(' · ')}</p>}
-              <dl className="lu-detail-stats">
-                <div><dt>Lương</dt><dd><Wage card={focus}/></dd></div>
-                <div><dt>Thẻ</dt><dd><img className="squad-level-img" src={levelBadge(focus.level)} alt={`+${focus.level}`}/></dd></div>
-                <div><dt>Giá</dt><dd>{price === null ? '—' : money(price)}</dd></div>
-              </dl>
-              <div className="lu-detail-actions">
-                <button onClick={() => onDetail(focus)}><Search size={15}/>Xem thẻ</button>
-                {focusSlot >= 0 && <button onClick={() => run(s => placeCard(s, index, focusSlot, null))}><ArrowDownToLine size={15}/>Ra dự bị</button>}
-              </div>
+              {/* Cùng thông tin như bảng Thông tin cầu thủ: lương, chiều cao, cân nặng, thể hình, hai chân (người dùng 2026-11-24). */}
+              {(() => { const phys = physicalOf(p.id); return <p className="lu-detail-phys">Lương <Wage card={focus}/>{phys && <>
+                <i/>{phys.height}cm<i/>{phys.weight}kg{phys.body && <><i/>{phys.body}</>}
+                <span className="lu-detail-feet"><Foot side="left" value={phys.left} main={phys.left >= phys.right}/><Foot side="right" value={phys.right} main={phys.right >= phys.left}/></span></>}</p>; })()}
             </div>
-            <div className="lu-detail-face">{renderCard(focus)}</div>
+            <div className="lu-detail-face"><Face card={focus} className="lu-face"/><img className="lu-detail-level squad-level-img" src={levelBadge(focus.level)} alt={`+${focus.level}`}/></div>
           </>;
         })() : <div className="lu-detail-empty">
           {squad.length ? <p>{pickedSlot !== null ? `Vị trí ${slots[pickedSlot].label} đang trống. Chọn một cầu thủ ở danh sách Thay thế để đưa vào sân.` : 'Chưa có cầu thủ trên sân. Bấm Tối ưu ĐH để tự xếp, hoặc chọn từng vị trí.'}</p>
-            : <p>Đội hình riêng chưa có cầu thủ. Thêm cầu thủ ở Quản lý CT (nút Vào ĐH) rồi quay lại để xếp đội hình.</p>}
-          <button onClick={onManage}><Users size={15}/>Quản lý CT</button>
+            : <p>Đội hình riêng chưa có cầu thủ. Thêm cầu thủ ở Đăng kí cầu thủ (nút Vào ĐH) rồi quay lại để xếp đội hình.</p>}
+          <button onClick={onManage}><Users size={15}/>Đăng kí cầu thủ</button>
         </div>}
       </div>
+      {focus && (() => {
+        const p = getPlayer(focus), overall = focusSlot >= 0 ? shownOvr(focus, slots[focusSlot].role) : buffs.get(focus.uid)?.finalOvr ?? ovr(focus);
+        return <div className="lu-sum" role="group" aria-label={`Chỉ số ${p.name}`}>{summaryStats(p, overall).map(s => <div key={s.name}><span>{s.name}</span><b style={ovrStyle(s.value)}>{s.value}</b></div>)}</div>;
+      })()}
       <div className="lu-cols" role="row"><span>Vị trí</span><span>Tên cầu thủ</span><span>Lương</span><span>OVR</span><span>Thẻ</span></div>
       <div className="lu-rows" role="table" aria-label="Cầu thủ đá chính và dự bị">
         {slots.map((slot, i) => row({ slot: i }, starters[i], slot.label, slot.role))}
@@ -286,5 +370,6 @@ export default function LineupBoard({ save, onUpdate, onDetail, onManage, levelB
         {subs.length ? subs.map(card => row({ uid: card.uid }, card, getPlayer(card).pos, null)) : <p className="lu-subs-empty">{squad.length ? 'Mọi cầu thủ trong đội hình riêng đều đang đá chính.' : 'Chưa có cầu thủ dự bị.'}</p>}
       </div>
     </aside>
+    {compare && <ComparePanel a={compare[0]} b={compare[1]} levelBadge={levelBadge} seasonShort={seasonShort} onClose={() => setCompare(null)}/>}
   </section>;
 }

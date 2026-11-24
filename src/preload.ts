@@ -13,6 +13,8 @@ export async function preloadResources(
   fetcher: typeof fetch = fetch,
   concurrency = 6,
   attempts = 3,
+  // Gọi sau mỗi file tải xong (bảng tiến độ theo phần, src/asset-progress.ts).
+  onLoaded?: (url: string) => void,
 ): Promise<string[]> {
   const unique = [...new Set(urls)];
   let pending = unique.filter(url => !completed.has(url));
@@ -31,6 +33,7 @@ export async function preloadResources(
           await response.arrayBuffer();
           completed.add(url);
           onProgress({ loaded: ++loaded, total: unique.length });
+          onLoaded?.(url);
         } catch {
           failed.push(url);
         }

@@ -85,7 +85,7 @@ function TileBody({ tile, pot, pool, picks, canPick, onPick }: {
       aria-label={`Chỉ định: còn ${picks} lượt${canPick ? ', bấm để sử dụng' : ''}`} title={canPick ? 'Dùng lượt Chỉ định' : 'Dừng ở ô này để nhận lượt Chỉ định'}/>
   </>;
   return <span className="vq-sp-text" style={boxStyle(sp.text)}>
-    <small>{tile.kind === 'bp' ? 'BP có thể nhận:' : 'FC có thể nhận:'}</small><b><RollingNumber value={tile.kind === 'bp' ? pool : pot}/></b></span>;
+    <small>{tile.kind === 'bp' ? 'BP có thể nhận:' : 'FC có thể nhận:'}</small><b><RollingNumber memo={tile.kind === 'bp' ? 'vqtg-bp' : 'vqtg-fc'} value={tile.kind === 'bp' ? pool : pot}/></b></span>;
 }
 
 // Vòng quay 6 số, kim cố định chỉ lên trên. Số k nằm ở góc (k − 1) × 60° theo chiều kim đồng hồ.
@@ -171,8 +171,8 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
   useEffect(() => {
     let alive = true;
     const update = () => { if (document.visibilityState === 'visible') loadJackpot().then(j => { if (alive) setJackpot(j); }).catch(() => { /* lần sau thử lại */ }); };
-    update(); const id = setInterval(update, 30000); // 30 giây: đỡ ghi đĩa máy chủ (mọi người ở trang sự kiện cùng hỏi); lượt quay tự trả quỹ mới
-    return () => { alive = false; clearInterval(id); };
+    update(); const first = setTimeout(update, 6000); const id = setInterval(update, 30000); // hỏi lại sau 6 giây để số bắt đầu chạy ngay sau khi vào trang; rồi 30 giây: đỡ ghi đĩa máy chủ (mọi người ở trang sự kiện cùng hỏi); lượt quay tự trả quỹ mới
+    return () => { alive = false; clearTimeout(first); clearInterval(id); };
   }, [loadJackpot]);
 
   // Bảng Đua top: tải khi vào trang, mỗi 30 giây (tab đang hiện) và sau mỗi lần số vé đổi.
@@ -386,7 +386,7 @@ export default function VqtgPage({ fc, vqtg, loadConfig, loadTop, loadJackpot, o
           <li>Ô quà: nhận ngẫu nhiên 1 trong 4 món của ô; trỏ chuột / chạm vào món quà để xem tên.</li>
           <li>Ô 6 · Chỉ định: nhận 1 lượt Chỉ định. Bấm ô 6 để tự chọn số xúc xắc cho lượt sau, miễn phí (không tốn FC, vẫn được vé); không chọn được số dừng ở ô 10 và ô 14.</li>
           <li>Ô 10 · Mini Jackpot: {Math.round(VQTG_RULES.bpChance * 100)}% trúng Mini Jackpot BP (mỗi HLV trúng tối đa 2 lần trong 24 giờ). Mini Jackpot tăng theo Giải Đặc Biệt: cứ 1.000 FC quỹ Giải Đặc Biệt thì Mini Jackpot được {shortBp(miniJackpotBp(1000))} BP. Chỉ trúng mới được đứng ở ô này; không trúng thì xúc xắc tự lắc lại sang ô khác và nhận quà ô đó.</li>
-          <li>Ô 14 · Giải Đặc Biệt: cơ hội nhận cả quỹ FC chung, tỷ lệ như nhau dù quỹ lớn hay nhỏ; mỗi HLV trúng tối đa 2 lần trong 24 giờ; quỹ chưa tới 10.000 FC thì quân không dừng ở ô 10 và ô 14 (xúc xắc tự lắc lại). Giải Đặc Biệt nổ thì Mini Jackpot cũng nổ cùng lúc nhưng về tay một HLV khác, cả hai về mức thấp. Chỉ trúng mới được đứng ở ô này; không trúng thì xúc xắc tự lắc lại sang ô khác.</li>
+          <li>Ô 14 · Giải Đặc Biệt: cơ hội nhận cả quỹ FC chung, tỷ lệ như nhau dù quỹ lớn hay nhỏ; mỗi HLV trúng tối đa 1 lần mỗi ngày (đặt lại lúc 00:00); quỹ chưa tới 10.000 FC thì quân không dừng ở ô 10 và ô 14 (xúc xắc tự lắc lại). Giải Đặc Biệt nổ thì Mini Jackpot cũng nổ cùng lúc nhưng về tay một HLV khác, cả hai về mức thấp. Chỉ trúng mới được đứng ở ô này; không trúng thì xúc xắc tự lắc lại sang ô khác.</li>
           <li>Giá: {(config?.prices ?? []).map(p => `${p.count} lần ${money(p.price)} FC`).join(' · ')}. Mỗi ngày có 1 lượt miễn phí.</li>
           <li>Mỗi lượt chơi (kể cả lượt miễn phí) được vé theo số lắc: số 1 được 1 vé, số 2 / 3 / 4 được 2 vé, số 5 được 3 vé, số 6 được 6 vé (vé in cạnh số trên vòng quay). Dùng Chỉ định chọn số nhiều vé để đủ mốc nhanh hơn. Shop Đổi Vé (kéo xuống dưới bàn): đủ vé của mốc là nhận quà, vé không bị trừ; qua mốc cuối thì sang vòng mới, mỗi mốc nhận lại được. Mốc 1 vé chỉ nhận khi đã chơi lượt trả phí.</li>
           <li>Quà BP và gói vào thẳng kho; FC cộng vào ví. Xem lại ở Lịch sử → Sự kiện.</li>

@@ -86,3 +86,57 @@ html.fx-cursor :is(input:not([type=checkbox]):not([type=radio]):not([type=range]
 .fx-lux.fx-name{-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent}
 .profile-effect.is-luxury{padding-top:22px}
 .profile-effect .fx-lux-tag{top:5px;right:50%;translate:50% 0;font-size:8.5px}
+
+/* ---- Hiệu ứng độc quyền ROYAL (fx-rx, kèm fx-lux; hạng Royal = nạp đủ 100.000 FC, migration 202611240003_fco_royal.sql) ----
+   Avatar: vòng chính dày quay nhanh + vòng hào quang thở + 8 hạt sáng quay ngược (vòng mảnh bên ngoài); tên: ánh kim 3 lớp, vệt sáng quét,
+   vương miện nhỏ phía trước. Giảm chuyển động thì giữ màu, dừng chuyển động. */
+.fx-rx.fx-avatar{animation:fx-rx-aura 2.4s ease-in-out infinite}
+.fx-rx.fx-avatar::before{inset:-5.5px;padding:3.8px;background:conic-gradient(from 0deg,var(--fx-a),var(--fx-b),#fff,var(--fx-c),var(--fx-d),var(--fx-b),#fff,var(--fx-c),var(--fx-a));
+  filter:drop-shadow(0 0 3px var(--fx-glow)) drop-shadow(0 0 8px color-mix(in srgb,var(--fx-glow) 70%,transparent));animation:fx-spin 2.6s linear infinite}
+.fx-rx.fx-avatar::after{inset:-12px;box-shadow:0 0 0 1px color-mix(in srgb,var(--fx-d) 55%,transparent),inset 0 0 10px color-mix(in srgb,var(--fx-glow) 35%,transparent);
+  background:radial-gradient(circle at 50% 1px,#fff 0 2px,transparent 3px),radial-gradient(circle at calc(100% - 1px) 50%,var(--fx-b) 0 1.7px,transparent 2.6px),
+    radial-gradient(circle at 50% calc(100% - 1px),#fff 0 2px,transparent 3px),radial-gradient(circle at 1px 50%,var(--fx-b) 0 1.7px,transparent 2.6px),
+    radial-gradient(circle at 15% 15%,var(--fx-d) 0 1.4px,transparent 2.3px),radial-gradient(circle at 85% 15%,var(--fx-a) 0 1.2px,transparent 2px),
+    radial-gradient(circle at 85% 85%,var(--fx-d) 0 1.4px,transparent 2.3px),radial-gradient(circle at 15% 85%,var(--fx-a) 0 1.2px,transparent 2px);
+  filter:drop-shadow(0 0 4px var(--fx-glow));animation:fx-spin 5s linear infinite reverse,fx-twinkle 1.3s ease-in-out infinite}
+.fx-rx.fx-name{background:linear-gradient(100deg,var(--fx-c) 0%,var(--fx-a) 14%,var(--fx-b) 26%,#fff 32%,var(--fx-b) 38%,var(--fx-a) 52%,var(--fx-d) 68%,#fff 74%,var(--fx-d) 80%,var(--fx-c) 100%);
+  background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 3px var(--fx-glow)) drop-shadow(0 0 10px color-mix(in srgb,var(--fx-glow) 75%,transparent)) drop-shadow(0 1px 0 #0009);animation:fx-shine 2s linear infinite}
+.fx-rx.fx-name::before{content:'♛';display:inline-block;margin-right:.28em;font-size:.82em;-webkit-text-fill-color:var(--fx-b);color:var(--fx-b);text-shadow:0 0 6px var(--fx-glow);animation:fx-rx-crown 2.4s ease-in-out infinite}
+@keyframes fx-rx-aura{0%,100%{box-shadow:0 0 0 2px color-mix(in srgb,var(--fx-d) 45%,transparent),0 0 14px var(--fx-glow),0 0 34px color-mix(in srgb,var(--fx-glow) 55%,transparent)}
+  50%{box-shadow:0 0 0 3px color-mix(in srgb,var(--fx-d) 70%,transparent),0 0 22px var(--fx-glow),0 0 52px color-mix(in srgb,var(--fx-glow) 75%,transparent)}}
+@keyframes fx-rx-crown{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+@keyframes fx-rx-zap{0%,100%{box-shadow:0 0 0 2px #b3f2ff88,0 0 14px var(--fx-glow),0 0 34px #2f6bff66}8%{box-shadow:0 0 0 3px #fff,0 0 30px #fff,0 0 60px #6ae3ffcc}
+  12%{box-shadow:0 0 0 2px #b3f2ff88,0 0 14px var(--fx-glow),0 0 34px #2f6bff66}55%{box-shadow:0 0 0 2px #b3f2ffaa,0 0 18px var(--fx-glow),0 0 40px #2f6bff88}
+  58%{box-shadow:0 0 0 3px #fff,0 0 34px #fff,0 0 64px #6ae3ffdd}62%{box-shadow:0 0 0 2px #b3f2ff88,0 0 14px var(--fx-glow),0 0 34px #2f6bff66}}
+@keyframes fx-rx-flash{0%,100%,10%,60%{filter:drop-shadow(0 0 3px var(--fx-glow)) drop-shadow(0 0 10px var(--fx-glow))}8%,58%{filter:drop-shadow(0 0 6px #fff) drop-shadow(0 0 18px #6ae3ff) brightness(1.5)}}
+
+.fx-emperor{--fx-a:#ffcf4a;--fx-b:#fff2b0;--fx-c:#c4161c;--fx-d:#ffe08a;--fx-glow:rgba(255,180,60,.78)}
+.fx-nebula{--fx-a:#ff6ad5;--fx-b:#ffd6f5;--fx-c:#6a8dff;--fx-d:#8ef6ff;--fx-glow:rgba(199,116,232,.72)}
+.fx-thunder{--fx-a:#6ae3ff;--fx-b:#ffffff;--fx-c:#2f6bff;--fx-d:#b3f2ff;--fx-glow:rgba(90,200,255,.82)}
+.fx-sakura{--fx-a:#ffb7d5;--fx-b:#fff0f6;--fx-c:#ff6fa8;--fx-d:#ffd6e8;--fx-glow:rgba(255,140,190,.68)}
+.fx-obsidian{--fx-a:#e0b13a;--fx-b:#fff3c4;--fx-c:#8a6418;--fx-d:#ffd76a;--fx-glow:rgba(224,177,58,.65)}
+.fx-celestial{--fx-a:#fff3c4;--fx-b:#ffffff;--fx-c:#e8c35a;--fx-d:#bfe9ff;--fx-glow:rgba(255,246,216,.88)}
+.fx-emperor.fx-avatar::before{background:conic-gradient(from 0deg,#fff2b0,#ffc93c,#c4161c,#ffc93c,#fff2b0,#ffc93c,#8f0f14,#ffc93c,#fff2b0)}
+.fx-nebula.fx-avatar::before{animation-duration:3.6s}
+.fx-nebula.fx-avatar,.fx-nebula.fx-name{animation:fx-rx-aura 2.8s ease-in-out infinite,fx-hue-soft 8s ease-in-out infinite}
+.fx-nebula.fx-name{animation:fx-shine 2.6s linear infinite,fx-hue-soft 8s ease-in-out infinite}
+.fx-thunder.fx-avatar{animation:fx-rx-zap 2.2s linear infinite}
+.fx-thunder.fx-avatar::before{animation-duration:1.1s}
+.fx-thunder.fx-name{animation:fx-shine 1.2s linear infinite,fx-rx-flash 2.2s linear infinite}
+.fx-sakura.fx-avatar::before{animation-duration:4.5s}
+.fx-sakura.fx-avatar::after{animation:fx-spin 7s linear infinite reverse,fx-twinkle 2.2s ease-in-out infinite}
+.fx-obsidian.fx-avatar::before{background:conic-gradient(from 0deg,#ffe9a0,#1b1b1f,#e0b13a,#1b1b1f,#ffe9a0,#1b1b1f,#e0b13a,#1b1b1f,#ffe9a0);animation-duration:3.2s}
+.fx-obsidian.fx-name{background:linear-gradient(100deg,#8a6418 0%,#e0b13a 18%,#fff3c4 30%,#fff 34%,#fff3c4 38%,#e0b13a 55%,#b8862a 75%,#ffd76a 88%,#8a6418 100%);background-size:300% 100%;-webkit-background-clip:text;background-clip:text}
+.fx-celestial.fx-avatar::before{background:conic-gradient(from 0deg,#fff,#fff3c4,#e8c35a,#fff,#bfe9ff,#fff,#e8c35a,#fff3c4,#fff)}
+.fx-celestial.fx-avatar{animation:fx-rx-aura 3.2s ease-in-out infinite}
+.reduced-motion .fx-rx.fx-avatar,.reduced-motion .fx-rx.fx-avatar::before,.reduced-motion .fx-rx.fx-avatar::after,.reduced-motion .fx-rx.fx-name,.reduced-motion .fx-rx.fx-name::before{animation:none}
+@media(prefers-reduced-motion:reduce){.fx-rx.fx-avatar,.fx-rx.fx-avatar::before,.fx-rx.fx-avatar::after,.fx-rx.fx-name,.fx-rx.fx-name::before{animation:none}}
+
+/* Lưới chọn: nhóm Royal (thẻ nền tím đen viền vàng, nhãn ROYAL vàng – đỏ). */
+.profile-effect.is-royal{position:relative;padding-top:22px;border-color:#ffd76a77;background:radial-gradient(120% 80% at 50% 0%,#3a2a0a 0%,#1a1424 55%,#12161f 100%);box-shadow:inset 0 0 0 1px #ffd76a22}
+.profile-effect.is-royal:hover:not(:disabled){border-color:#ffd76a}
+.profile-effect .fx-royal-tag{background:linear-gradient(135deg,#fff2b0,#ffc93c 45%,#c4161c);color:#2a0a00;box-shadow:0 0 8px #ffb43c88}
+.profile-effect-group.is-royal{background:linear-gradient(90deg,#ffe08a,#ff9a3c,#c4161c);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.profile-effect.is-royal .fx-preview{width:42px;height:42px}.profile-effect.is-royal{padding-top:30px}
+.profile-effect .fx-royal-tag{z-index:2}

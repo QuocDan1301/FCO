@@ -4,6 +4,9 @@ export const UNLIMITED_COINS = false;
 
 // Phiên bản mở thẻ không phát âm thanh, kể cả với thiết lập đã lưu trước đó.
 export const AUDIO_ENABLED = false;
+// Nhãn độ tuổi + khuyến cáo sức khoẻ ở góc trang chủ (người dùng gửi ảnh mẫu 2026-11-23, đang để "00+").
+// Đổi AGE_RATING thành độ tuổi thật theo giấy phép của game (vd. '18'); để '' thì ẩn nhãn.
+export const AGE_RATING = '00';
 
 // Nạp FC bằng chuyển khoản (nút "+" cạnh ô FC trên thanh trên cùng): 4.000 VND = 1.000 FC (đổi từ 2.000 ngày 2026-11-07).
 // TOPUP_QR: ảnh mã QR ngân hàng đặt trong public/ (vd. '/assets/topup-qr.png'); để trống thì khung nạp báo chưa có mã QR.

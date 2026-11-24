@@ -1,4 +1,5 @@
 import FlameJet from "./FlameJet";
+import { ovrStyle } from './ovr-color';
 import { UPGRADE_STAND } from "./UpgradeStand";
 import { useEffect, useRef, useState } from "react";
 import UpgradeMusic from "./UpgradeMusic";
@@ -574,7 +575,7 @@ function ResultBar({
           <div>
             <dt>C.Số</dt>
             <dd>
-              <b>{ovr(after)}</b>
+              <b style={ovrStyle(ovr(after))}>{ovr(after)}</b>
               {delta(ovr(after) - ovr(before))}
             </dd>
           </div>

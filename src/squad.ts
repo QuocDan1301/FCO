@@ -1,16 +1,22 @@
 import { getPlayer, ovr, players, seasons } from './game';
-import type { Card, Lineup, Lineups, Player, Save } from './game';
+import type { Card, Lineup, Lineups, Player, Save, Tactic } from './game';
 import clubHistoryData from './player-club-history.json';
 import { marketQuote } from './market';
 import { analyzeTeamColors, DEFAULT_TEAM_COLOR_CONFIG, upgradeColorName } from './teamColor';
 import type { BuffResult, TeamColorReport } from './teamColor';
 
 // Đội hình riêng: tối đa 50 thẻ, mỗi cầu thủ (playerId) chỉ một thẻ. 350 là mốc lương tham khảo (2026-11-18: 310 → 330 → 350): được phép vượt, chỉ đổi màu cảnh báo.
-export const SQUAD_LIMIT = 50;
+// Quy tắc đội hình (2026-11-23, người dùng): ĐH chính tối đa 11 (không quá 1 thủ môn), Thay thế tối đa 7 (không giới hạn thủ môn), Dự bị (danh sách ngoài) tối đa 10
+// và không tính vào đội 18 người (11 + 7) → tổng đăng ký tối đa 28. Chỉ xét bộ đội hình đang chọn.
+export const SQUAD_LIMIT = 28;
+export const SQUAD_SUBS_MAX = 7;
+export const SQUAD_RESERVE_MAX = 10;
+export const SQUAD_RULES_VERSION = 3;
 export const SQUAD_WAGE_CAP = 350;
 
 export const positionGroup = (pos: string) => pos === 'GK' ? 'gk' : ['CB', 'LB', 'RB', 'LWB', 'RWB', 'SW'].includes(pos) ? 'df' : ['ST', 'CF', 'LW', 'RW', 'LF', 'RF'].includes(pos) ? 'fw' : 'mf';
 const wage = (card: Card) => getPlayer(card).wage ?? 0;
+const isGk = (card: Card) => getPlayer(card).pos === 'GK';
 
 // Thẻ đã bán hoặc dùng làm nguyên liệu tự rơi khỏi đội hình; giữ đúng thứ tự thêm vào.
 export function squadCards(state: Pick<Save, 'cards' | 'squad'>): Card[] {
@@ -27,11 +33,14 @@ export function squadSummary(cards: Card[]) {
 export function addToSquad(state: Save, uid: string): Save {
   const card = state.cards.find(c => c.uid === uid);
   if (!card) throw new Error('Thẻ không còn trong kho.');
-  const current = squadCards(state);
-  if (current.some(c => c.uid === uid)) throw new Error('Cầu thủ đã có trong đội hình.');
-  if (current.length >= SQUAD_LIMIT) throw new Error(`Đội hình đã đủ ${SQUAD_LIMIT} cầu thủ.`);
-  if (current.some(c => c.playerId === card.playerId)) throw new Error(`${getPlayer(card).name} đã có một thẻ khác trong đội hình.`);
-  return { ...state, squad: [...current.map(c => c.uid), uid] };
+  // Mỗi bộ A / B / C là một đội riêng: thêm vào bộ đang chọn, luôn vào nhóm Dự bị (tối đa 10), tổng tối đa 28, mỗi cầu thủ một thẻ.
+  const lineups = getLineups(state), set = lineups.sets[lineups.active], mine = membersOf(set), byUid = new Map(state.cards.map(c => [c.uid, c]));
+  if (mine.includes(uid)) throw new Error('Cầu thủ đã có trong đội hình.');
+  if (mine.length >= SQUAD_LIMIT) throw new Error(`Đội hình đã đủ ${SQUAD_LIMIT} cầu thủ (11 đá chính + 7 thay thế + 10 dự bị).`);
+  if (mine.some(u => byUid.get(u)?.playerId === card.playerId)) throw new Error(`${getPlayer(card).name} đã có một thẻ khác trong đội hình.`);
+  if ((set.reserve ?? []).length >= SQUAD_RESERVE_MAX) throw new Error(`Dự bị đã đủ ${SQUAD_RESERVE_MAX} cầu thủ. Hãy chuyển bớt lên Thay thế hoặc đội hình chính trước khi thêm.`);
+  const squad = [...new Set([...squadCards(state).map(c => c.uid), uid])];
+  return withSet({ ...state, squad }, lineups.active, compose(set, set.slots, set.subs ?? [], [...(set.reserve ?? []), uid]));
 }
 
 export function removeFromSquad(state: Save, uid: string): Save {
@@ -39,6 +48,13 @@ export function removeFromSquad(state: Save, uid: string): Save {
 }
 
 // Khóa thẻ: thẻ đã khóa không xóa, không bán và không dùng làm nguyên liệu nâng cấp được.
+// Cho một cầu thủ rời bộ đội hình (chỉ bộ đó); không bộ nào còn dùng thì bỏ khỏi danh sách đăng ký chung.
+export function removeFromSet(state: Save, index: number, uid: string): Save {
+  checkSet(index);
+  const set = getLineups(state).sets[index];
+  const next = withSet(state, index, compose(set, set.slots.map(u => u === uid ? null : u), (set.subs ?? []).filter(u => u !== uid), (set.reserve ?? []).filter(u => u !== uid)));
+  return getLineups(next).sets.some(s => membersOf(s).includes(uid)) ? next : { ...next, squad: squadCards(next).map(c => c.uid).filter(id => id !== uid) };
+}
 export const isLocked = (state: Pick<Save, 'locked'>, uid: string) => !!state.locked?.includes(uid);
 export function toggleLock(state: Save, uid: string): Save {
   if (!state.cards.some(c => c.uid === uid)) throw new Error('Thẻ không còn trong kho.');
@@ -186,20 +202,32 @@ export const playerPenalty = (p: Pick<Player, 'name' | 'nation' | 'pos'>, role: 
 export const slotOvr = (card: Card, role: string) => Math.max(1, ovr(card) - playerPenalty(getPlayer(card), role));
 
 const blankLineup = (): Lineup => ({ formation: DEFAULT_FORMATION, slots: Array(XI).fill(null) });
-// Đọc 3 bộ đội hình đã chuẩn hoá: sơ đồ lạ về mặc định, ô trỏ tới thẻ không còn trong đội hình riêng (hoặc trùng) thành trống.
-export function getLineups(state: Pick<Save, 'cards' | 'squad' | 'lineups'>): Lineups {
+export function getLineups(state: Pick<Save, 'cards' | 'squad' | 'lineups'> & { squadRules?: number }): Lineups {
   const members = new Set(squadCards(state).map(c => c.uid));
+  // Dữ liệu cũ (chưa chuyển sang mô hình mỗi bộ một đội): bộ đang chọn chưa có danh sách Thay thế thì coi mọi cầu thủ đã đăng ký chưa ra sân / chưa ở Dự bị là Thay thế.
+  const legacyActive = state.squadRules !== SQUAD_RULES_VERSION ? Math.min(Math.max(Math.floor(state.lineups?.active ?? 0) || 0, 0), LINEUP_NAMES.length - 1) : -1;
   const sets = LINEUP_NAMES.map((_, i) => {
     const set = state.lineups?.sets[i];
-    if (!set) return blankLineup();
+    if (!set) return i === legacyActive && members.size ? { ...blankLineup(), subs: [...members] } : blankLineup();
     const seen = new Set<string>();
     const slots = Array.from({ length: XI }, (_, n) => { const uid = set.slots[n]; if (!uid || !members.has(uid) || seen.has(uid)) return null; seen.add(uid); return uid; });
     const formation = FORMATIONS[set.formation] ? set.formation : DEFAULT_FORMATION, custom = cleanCustom(set, formation);
-    return custom ? { formation, slots, custom } : { formation, slots };
+    // Thay thế / Dự bị: chỉ thẻ còn trong đội hình riêng, không đá chính, mỗi người một lần (Dự bị ưu tiên nếu ghi ở cả hai).
+    const take = (list: unknown) => { const out: string[] = []; for (const uid of Array.isArray(list) ? list : []) if (typeof uid === 'string' && members.has(uid) && !seen.has(uid)) { seen.add(uid); out.push(uid); } return out; };
+    const reserve = take(set.reserve), subs = take(set.subs !== undefined || i !== legacyActive ? set.subs : [...members]);
+    const tactic = Number.isInteger(set.tactic) && set.tactic! >= 0 && set.tactic! < TACTIC_COUNT ? set.tactic : undefined;
+    return { formation, slots, ...(custom ? { custom } : {}), ...(subs.length ? { subs } : {}), ...(reserve.length ? { reserve } : {}), ...(tactic !== undefined ? { tactic } : {}) };
   });
   const active = state.lineups?.active ?? 0;
   return { active: Number.isInteger(active) && active >= 0 && active < sets.length ? active : 0, sets };
 }
+// Mọi cầu thủ của một bộ: đá chính + Thay thế + Dự bị.
+export const membersOf = (set: Lineup): string[] => [...set.slots.filter((u): u is string => !!u), ...(set.subs ?? []), ...(set.reserve ?? [])];
+export const setCards = (state: Pick<Save, 'cards'>, set: Lineup): Card[] => { const byUid = new Map(state.cards.map(c => [c.uid, c])); return membersOf(set).flatMap(uid => byUid.get(uid) ?? []); };
+const compose = (base: Lineup, slots: (string | null)[], subs: string[], reserve: string[]): Lineup => {
+  const { subs: _s, reserve: _r, ...rest } = base;
+  return { ...rest, slots, ...(subs.length ? { subs } : {}), ...(reserve.length ? { reserve } : {}) };
+};
 const checkSet = (index: number) => { if (!Number.isInteger(index) || index < 0 || index >= LINEUP_NAMES.length) throw new Error('Đội hình không tồn tại.'); };
 const withSet = (state: Save, index: number, set: Lineup): Save => {
   checkSet(index);
@@ -210,16 +238,26 @@ export function selectLineup(state: Save, index: number): Save {
   checkSet(index);
   return { ...state, lineups: { ...getLineups(state), active: index } };
 }
-// Đặt thẻ vào ô: thẻ đang đá ô khác thì hai ô đổi chỗ; cầu thủ cũ của ô (nếu có) về dự bị. uid null = để trống ô.
 export function placeCard(state: Save, index: number, slot: number, uid: string | null): Save {
   checkSet(index);
   if (!Number.isInteger(slot) || slot < 0 || slot >= XI) throw new Error('Vị trí không tồn tại.');
-  if (uid && !squadCards(state).some(c => c.uid === uid)) throw new Error('Cầu thủ không còn trong đội hình.');
-  const set = getLineups(state).sets[index], slots = [...set.slots];
-  const from = uid ? slots.indexOf(uid) : -1;
-  if (from >= 0) slots[from] = slots[slot];
+  const set = getLineups(state).sets[index];
+  if (uid && !membersOf(set).includes(uid)) throw new Error('Cầu thủ không có trong bộ đội hình này.');
+  const slots = [...set.slots]; let subs = [...(set.subs ?? [])], reserve = [...(set.reserve ?? [])];
+  const prev = slots[slot], from = uid ? slots.indexOf(uid) : -1;
+  if (from >= 0) slots[from] = prev;
+  else {
+    // Người từ Thay thế / Dự bị ra sân; người đang đứng ô (nếu có) xuống Thay thế.
+    if (uid) { subs = subs.filter(x => x !== uid); reserve = reserve.filter(x => x !== uid); }
+    if (prev) subs.push(prev);
+  }
   slots[slot] = uid;
-  return withSet(state, index, { ...set, slots });
+  // Đội hình chính chỉ một thủ môn; Thay thế không vượt 7.
+  const byUid = new Map(state.cards.map(c => [c.uid, c]));
+  const gkIn = (list: (string | null)[]) => list.filter(u => u && byUid.get(u) && isGk(byUid.get(u)!)).length;
+  if (gkIn(slots) > 1 && gkIn(slots) > gkIn(set.slots)) throw new Error('Đội hình chính chỉ được có 1 thủ môn.');
+  if (subs.length > SQUAD_SUBS_MAX && subs.length > (set.subs ?? []).length) throw new Error(`Thay thế chỉ chứa tối đa ${SQUAD_SUBS_MAX} cầu thủ. Hãy chuyển bớt cầu thủ xuống Dự bị.`);
+  return withSet(state, index, compose(set, slots, subs, reserve));
 }
 // Kéo một ô tới vị trí mới trên sân. Hai ô không thể cùng vị trí: đổi chỗ với người đang đứng đó thì dùng placeCard.
 export function moveSlot(state: Save, index: number, slot: number, label: string, x: number, y: number): Save {
@@ -227,6 +265,8 @@ export function moveSlot(state: Save, index: number, slot: number, label: string
   if (!Number.isInteger(slot) || slot < 0 || slot >= XI) throw new Error('Vị trí không tồn tại.');
   if (!ZONE_LABELS.has(label) || !Number.isFinite(x) || !Number.isFinite(y)) throw new Error('Vị trí không tồn tại.');
   const set = getLineups(state).sets[index];
+  // Thủ môn đứng cố định ở khung thành, không kéo đi vị trí khác được.
+  if (lineupSlots(set)[slot].role === 'GK') throw new Error('Thủ môn đứng cố định, không di chuyển được.');
   if (lineupSlots(set).some((s, i) => i !== slot && s.label === label)) throw new Error(`Vị trí ${label} đã có người.`);
   const custom = Array.from({ length: XI }, (_, i) => set.custom?.[i] ?? null);
   custom[slot] = { label, x: Math.round(Math.min(100, Math.max(0, x)) * 10) / 10, y: Math.round(Math.min(100, Math.max(0, y)) * 10) / 10 };
@@ -237,7 +277,12 @@ export function resetPositions(state: Save, index: number): Save {
   const { formation, slots } = getLineups(state).sets[index];
   return withSet(state, index, { formation, slots });
 }
-export const clearLineup = (state: Save, index: number): Save => withSet(state, index, { ...getLineups(state).sets[index], slots: Array(XI).fill(null) });
+export function clearLineup(state: Save, index: number): Save {
+  checkSet(index);
+  const set = getLineups(state).sets[index], starters = set.slots.filter((u): u is string => !!u), subs = [...(set.subs ?? []), ...starters];
+  if (subs.length > SQUAD_SUBS_MAX) throw new Error(`Làm trống sẽ đưa ${subs.length} cầu thủ vào Thay thế (tối đa ${SQUAD_SUBS_MAX}). Hãy chuyển bớt xuống Dự bị trước.`);
+  return withSet(state, index, compose(set, Array(XI).fill(null), subs, set.reserve ?? []));
+}
 
 // Ghép cầu thủ vào ô sao cho tổng OVR theo vị trí cao nhất (thuật toán Hungary; ≤ 50 thẻ × 11 ô nên rất nhanh).
 function hungarian(cost: number[][]): number[] {
@@ -274,19 +319,61 @@ export function arrange(cards: Card[], formation: string, slots: FormationSlot[]
   else hungarian(cards.map(card => slots.map(slot => -score(card, slot)))).forEach((s, c) => { result[s] = cards[c].uid; });
   return result;
 }
-// Đổi sơ đồ: giữ nguyên các cầu thủ đang đá chính, xếp lại vào ô hợp nhất của sơ đồ mới; vị trí đã kéo tay bị bỏ.
 export function setFormation(state: Save, index: number, formation: string): Save {
   if (!FORMATIONS[formation]) throw new Error('Sơ đồ không tồn tại.');
   checkSet(index);
-  const set = getLineups(state).sets[index], byUid = new Map(squadCards(state).map(c => [c.uid, c]));
+  const set = getLineups(state).sets[index], byUid = new Map(state.cards.map(c => [c.uid, c]));
   const starters = set.slots.flatMap(uid => uid && byUid.has(uid) ? [byUid.get(uid)!] : []);
-  return withSet(state, index, { formation, slots: arrange(starters, formation) });
+  // Bộ đang dùng một chiến thuật thì sơ đồ của chiến thuật đó đổi theo.
+  const tactics = set.tactic !== undefined ? getTactics(state).map((t, i) => i === set.tactic ? { ...t, formation } : t) : state.tactics;
+  return withSet({ ...state, ...(tactics ? { tactics } : {}) }, index, { formation, slots: arrange(starters, formation), ...(set.subs ? { subs: set.subs } : {}), ...(set.reserve ? { reserve: set.reserve } : {}), ...(set.tactic !== undefined ? { tactic: set.tactic } : {}) });
 }
-// Tối ưu ĐH: chọn 11 cầu thủ trong đội hình riêng cho tổng OVR theo vị trí cao nhất ở sơ đồ hiện tại, tính cả vị trí đã kéo tay.
+// 10 chiến thuật đội hình (2026-11-24): mỗi chiến thuật có tên (người chơi đổi được) và sơ đồ riêng. Chọn chiến thuật thì bộ đang xếp đổi sang sơ đồ đó.
+export const TACTIC_COUNT = 10;
+export function getTactics(state: Pick<Save, 'tactics'>): Tactic[] {
+  return Array.from({ length: TACTIC_COUNT }, (_, i) => {
+    const t = state.tactics?.[i];
+    const name = typeof t?.name === 'string' && t.name.trim() ? t.name.trim().slice(0, 24) : `Chiến thuật ${i + 1}`;
+    return { name, formation: t && FORMATIONS[t.formation] ? t.formation : DEFAULT_FORMATION };
+  });
+}
+export function selectTactic(state: Save, index: number, tactic: number): Save {
+  checkSet(index);
+  if (!Number.isInteger(tactic) || tactic < 0 || tactic >= TACTIC_COUNT) throw new Error('Chiến thuật không tồn tại.');
+  const tactics = getTactics(state), before = getLineups(state).sets[index];
+  const next = setFormation({ ...state, tactics, lineups: { ...getLineups(state), sets: getLineups(state).sets.map((s, i) => i === index ? { ...before, tactic } : s) } }, index, tactics[tactic].formation);
+  return next;
+}
+export function renameTactic(state: Save, tactic: number, name: string): Save {
+  if (!Number.isInteger(tactic) || tactic < 0 || tactic >= TACTIC_COUNT) throw new Error('Chiến thuật không tồn tại.');
+  const clean = name.replace(/\s+/g, ' ').trim();
+  if (!clean) throw new Error('Tên chiến thuật không được để trống.');
+  if (clean.length > 24) throw new Error('Tên chiến thuật tối đa 24 ký tự.');
+  return { ...state, tactics: getTactics(state).map((t, i) => i === tactic ? { ...t, name: clean } : t) };
+}
+export function setReserve(state: Save, index: number, uid: string, on: boolean): Save {
+  checkSet(index);
+  const set = getLineups(state).sets[index], subs = [...(set.subs ?? [])], reserve = [...(set.reserve ?? [])];
+  if (set.slots.includes(uid)) throw new Error('Cầu thủ đang đá chính, hãy đưa xuống Thay thế trước.');
+  const inSubs = subs.includes(uid), inReserve = reserve.includes(uid);
+  if (!inSubs && !inReserve) throw new Error('Cầu thủ không có trong Thay thế hoặc Dự bị.');
+  if (on) {
+    if (inReserve) return state;
+    if (reserve.length >= SQUAD_RESERVE_MAX) throw new Error(`Dự bị chỉ chứa tối đa ${SQUAD_RESERVE_MAX} cầu thủ.`);
+    return withSet(state, index, compose(set, set.slots, subs.filter(u => u !== uid), [...reserve, uid]));
+  }
+  if (inSubs) return state;
+  if (subs.length >= SQUAD_SUBS_MAX) throw new Error(`Thay thế đã đủ ${SQUAD_SUBS_MAX} cầu thủ.`);
+  return withSet(state, index, compose(set, set.slots, [...subs, uid], reserve.filter(u => u !== uid)));
+}
 export function optimizeLineup(state: Save, index: number): Save {
   checkSet(index);
-  const set = getLineups(state).sets[index];
-  return withSet(state, index, { ...set, slots: arrange(squadCards(state), set.formation, lineupSlots(set)) });
+  const set = getLineups(state).sets[index], byUid = new Map(state.cards.map(c => [c.uid, c]));
+  // Chọn trong đội hình chính + Thay thế (không lấy Dự bị), tối đa 1 thủ môn (OVR cao nhất); người không được chọn về Thay thế.
+  const pool = [...set.slots.filter((u): u is string => !!u), ...(set.subs ?? [])].flatMap(uid => byUid.get(uid) ?? []);
+  const keeper = pool.filter(isGk).sort((a, b) => ovr(b) - ovr(a))[0];
+  const slots = arrange(pool.filter(c => !isGk(c) || c === keeper), set.formation, lineupSlots(set)), chosen = new Set(slots);
+  return withSet(state, index, compose(set, slots, pool.map(c => c.uid).filter(uid => !chosen.has(uid)), set.reserve ?? []));
 }
 // Trường CLB trong dữ liệu đôi khi không phải CLB thật: cầu thủ tự do, hoặc tên mùa in thay logo CLB — không tạo team color CLB.
 export const NOT_CLUBS = new Set(['Tự do', 'Ballon d’Or', 'Champions of Europe', 'Century Club', 'Decade', 'Returnees', 'Wonderboys', 'Unexpected Transfer', 'Greatest Runner-Ups', 'Spartan', '23 Hard Worker', '24 Energetic Player']);
@@ -321,7 +408,7 @@ export function activeTeamColors(state: Pick<Save, 'cards' | 'squad' | 'lineups'
 export const benchBuff = (card: Card): BuffResult => ({ playerId: card.uid, baseOvr: ovr(card), ovrBonus: LINEUP_BONUS, finalOvr: ovr(card) + LINEUP_BONUS, stats: { pace: 0, shooting: 0, passing: 0, dribbling: 0, defending: 0, physical: 0 }, applied: [LINEUP_BUFF] });
 export function teamColorDetails(state: Pick<Save, 'cards' | 'squad' | 'lineups'>): Map<string, BuffResult> {
   const lineups = getLineups(state), result = new Map(lineupTeamColor(state, lineups.sets[lineups.active]).players.map(r => [r.playerId, r]));
-  for (const card of squadCards(state)) if (!result.has(card.uid)) result.set(card.uid, benchBuff(card));
+  for (const card of setCards(state, lineups.sets[lineups.active])) if (!result.has(card.uid)) result.set(card.uid, benchBuff(card));
   return result;
 }
 export const teamColorBonuses = (state: Pick<Save, 'cards' | 'squad' | 'lineups'>) => new Map([...teamColorDetails(state)].map(([uid, r]) => [uid, r.ovrBonus]));
@@ -337,4 +424,51 @@ export function lineupSummary(state: Pick<Save, 'cards' | 'squad'>, set: Lineup)
   }
   const filled = colors.players.length;
   return { ovr: filled ? Math.round(colors.players.reduce((sum, r) => sum + r.finalOvr, 0) / filled) : 0, wage: wageSum, value, filled, colors };
+}
+
+// Chuyển dữ liệu cũ sang quy tắc đội hình mới (chạy MỘT lần cho mỗi tài khoản, đánh dấu squadRules): mỗi bộ A / B / C thành một đội riêng với danh sách rõ ràng
+// (đá chính / Thay thế / Dự bị). Bộ đang chọn nhận toàn bộ cầu thủ đã đăng ký (Thay thế = người chưa ra sân và chưa ở Dự bị); bộ còn lại chỉ giữ người đã
+// xếp ra sân hoặc Dự bị (không có Thay thế). Mỗi bộ: 1 thủ môn đá chính, Dự bị tối đa 10, Thay thế tối đa 7 (người dư xuống Dự bị rồi rời đội hình), tối đa 28.
+// Thẻ rời đội hình vẫn còn trong kho; danh sách đăng ký chung = hợp của mọi bộ.
+export function normalizeSquad(state: Save): Save {
+  if (state.squadRules === SQUAD_RULES_VERSION) return state;
+  const base: Save = { ...state, squadRules: SQUAD_RULES_VERSION };
+  if (!(state.squad?.length) && !state.lineups) return base;
+  const byUid = new Map(state.cards.map(c => [c.uid, c])), lineups = getLineups(state), registry = squadCards(state).map(c => c.uid);
+  const sets: Lineup[] = lineups.sets.map((set, index) => {
+    let seenGk = false;
+    const slots = set.slots.map(uid => { const c = uid ? byUid.get(uid) : undefined; if (!c || !isGk(c)) return uid; if (seenGk) return null; seenGk = true; return uid; });
+    let subs = [...(set.subs ?? [])], reserve = [...(set.reserve ?? [])];
+    // Cầu thủ bị bỏ khỏi ô (thủ môn thứ hai) xuống Thay thế.
+    const placed = new Set(slots);
+    subs.push(...set.slots.filter((u): u is string => !!u && !placed.has(u)));
+    if (index === lineups.active && state.squadRules !== undefined && state.squadRules >= 3) { /* đã ở mô hình mới */ }
+    else if (index === lineups.active) {
+      const have = new Set([...placed, ...subs, ...reserve]);
+      subs.push(...registry.filter(u => !have.has(u)));
+    }
+    reserve = reserve.slice(0, SQUAD_RESERVE_MAX);
+    const overflow = subs.slice(SQUAD_SUBS_MAX);
+    subs = subs.slice(0, SQUAD_SUBS_MAX);
+    reserve = [...reserve, ...overflow].slice(0, SQUAD_RESERVE_MAX);
+    return compose(set, slots, subs, reserve);
+  });
+  const kept = new Set(sets.flatMap(s => membersOf(s)));
+  return { ...base, squad: registry.filter(u => kept.has(u)), lineups: { active: lineups.active, sets } };
+}
+export function swapPositions(state: Save, index: number, a: string, b: string): Save {
+  checkSet(index);
+  const set = getLineups(state).sets[index], byUid = new Map(state.cards.map(c => [c.uid, c]));
+  const slots = [...set.slots], subs = [...(set.subs ?? [])], reserve = [...(set.reserve ?? [])];
+  const loc = (uid: string): { list: (string | null)[]; i: number } | null => {
+    for (const list of [slots, subs, reserve] as (string | null)[][]) { const i = list.indexOf(uid); if (i >= 0) return { list, i }; }
+    return null;
+  };
+  const la = loc(a), lb = loc(b);
+  if (a === b || !la || !lb) throw new Error('Cầu thủ không còn trong đội hình.');
+  if (la.list === lb.list && la.list !== slots) throw new Error('Hai cầu thủ đang cùng một nhóm, không cần đổi chỗ.');
+  la.list[la.i] = b; lb.list[lb.i] = a;
+  const gkIn = (list: (string | null)[]) => list.filter(u => u && byUid.get(u) && isGk(byUid.get(u)!)).length;
+  if (gkIn(slots) > 1 && gkIn(slots) > gkIn(set.slots)) throw new Error('Đội hình chính chỉ được có 1 thủ môn.');
+  return withSet(state, index, compose(set, slots, subs, reserve));
 }

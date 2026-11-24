@@ -17,7 +17,8 @@ export default function BackgroundMusic({ suspended = false, musicType = 'vocals
   const resumeWanted = useRef(false);
   const trackIndex = useRef(0);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const autoStartWanted = useRef(true);
+  // Không tự bật nhạc nữa (người dùng 2026-11-23): chỉ phát khi bấm nút loa.
+  const autoStartWanted = useRef(false);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

@@ -27,7 +27,7 @@ try {
   assert.match(await page.eval(() => document.querySelector('.pack-preview-sub').textContent), /165 cầu thủ/);
   await page.screenshot({ path: 'outputs/le-qa/preview-1440.jpg' });
   await click('[aria-label="Đóng xem trước gói"]');
-  await nav('Quản lý CT');
+  await nav('Đăng kí cầu thủ');
   assert.match(await page.eval(() => document.body.innerText), /Bruno Fernandes/);
   for (const width of [1440, 768, 390]) {
     await page.setViewport({ width, height: 900, mobile: width === 390 });

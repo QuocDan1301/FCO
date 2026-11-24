@@ -40,7 +40,7 @@
 .squad-wage-total.is-over{color:#ff8a7e;background:#ff3b3b14;box-shadow:0 0 0 1px #ff5a4e59,0 0 14px #ff3b3b38}
 .squad-wage-total.is-over svg{color:#ff5a4e}
 /* Thanh tuyến: 4 ô rộng tỷ lệ với số cầu thủ mỗi tuyến, chữ FW/MF/DF/GK cùng màu nằm trên ô. */
-.squad-bar{display:flex;gap:2px;flex:1 1 210px;min-width:96px;max-width:240px;height:22px;margin-top:14px;font-family:var(--display);font-weight:700}
+.squad-bar{display:flex;gap:2px;flex:1 1 210px;min-width:96px;height:22px;margin-top:14px;font-family:var(--display);font-weight:700}
 .squad-bar>span{position:relative;display:flex;align-items:center;justify-content:center;min-width:18px;flex-basis:0;border-radius:2px;color:#fff;font-size:13px}
 .squad-bar>span[style*="flex-grow: 0"]{display:none}
 .squad-bar i{position:absolute;bottom:100%;left:50%;translate:-50% -1px;font-style:normal;font-size:10px;line-height:1.2}
@@ -49,6 +49,16 @@
 .squad-bar .seg-df{background:#3498db}.squad-bar .seg-df i{color:#6cb6ea}
 .squad-bar .seg-gk{background:#f1c40f;color:#2a1f00}.squad-bar .seg-gk i{color:#f7d64a}
 .squad-bar.is-empty{background:#232a33;border-radius:2px}
+/* Phần còn trống tới mức tối đa (SQUAD_LIMIT): ô tối có chữ MAX ở cuối, như thanh đội hình xếp hạng mẫu. */
+.squad-bar .seg-rest{display:flex;align-items:center;justify-content:flex-end;min-width:0;flex-basis:0;padding-right:8px;background:#2a2d31;border-radius:2px;color:#9aa3ad}
+.squad-bar .seg-rest em{font-style:normal;font-size:11px;font-weight:700;letter-spacing:.06em}
+/* Bộ A / B / C: 3 nút chữ nhật liền nhau, nút đang chọn nền trắng chữ tối. */
+.squad-sets{display:flex;gap:2px;margin-left:auto}
+.squad-sets>button{width:52px;height:34px;background:#2a2d31;color:#cfd5dc;font-family:var(--display);font-size:20px;font-weight:700;border-radius:0}
+.squad-sets>button:hover{background:#363a40;color:#fff}
+.squad-sets>button.on{background:#fff;color:#1a1f2b}
+.squad-head-lineup .squad-meter{flex-basis:100%;justify-content:flex-start}
+.squad-head-lineup .squad-wage-total{margin-left:auto}
 .squad-bar .seg-empty{flex:1;color:#7f8a98;font-size:11px;font-weight:600}
 
 .squad-search{display:flex;align-items:center;gap:7px;padding:0 10px;height:34px;border-radius:999px;background:#0d1116;color:#7f8a98;flex:1;max-width:260px}
@@ -203,3 +213,153 @@
   .squad-hover button{width:28px;height:28px}
   .squad-hover .squad-move{min-width:0;margin-left:2px;padding:0 8px;font-size:13px}
 }
+
+/* Thanh phân đoạn "ĐH chính" giữa phần header và danh sách cầu thủ đội hình. */
+.squad-section-bar{flex:none;display:flex;align-items:center;height:27px;padding:0 20px;background:#3a3e44cc;color:#aab2bc;font-family:var(--display);font-size:14px;font-weight:500;letter-spacing:.02em;border-top:1px solid #ffffff14}
+/* Bảng đội hình bên trái: tiêu đề, thanh tuyến, nhãn ĐH chính và danh sách cầu thủ cách lề trái 30px. */
+.squad-left .squad-head-lineup{padding-left:40px}
+.squad-left .squad-section-bar{padding-left:30px}
+.squad-left .squad-list{padding-left:30px}
+.squad-head-lineup .squad-title p{font-size:17px;position:relative;top:-10px}
+.squad-head-lineup .squad-meter{position:relative;top:-10px}
+/* 1/50 và Lương ngang hàng với thanh đo vị trí (thanh có lề trên 14px dành cho chữ FW/MF/DF/GK nên 2 ô này phải hạ 7px). */
+.squad-head-lineup .squad-size,.squad-head-lineup .squad-wage-total{position:relative;top:7px}
+/* Thanh đo vị trí ngắn lại 30% (trước đó kéo gần hết hàng, ~66% hàng; giờ ~46%). */
+.squad-head-lineup .squad-bar{flex:0 0 53%}
+/* Cụm vị trí hàng đội hình chính kiểu mẫu: nhãn ĐH chính, vị trí lớn có vạch màu bên trái, mũi tên phong độ xanh to; không còn bánh răng. */
+.squad-row-lineup .squad-pos small{font-size:13px;color:#b4bcc6}
+.squad-row-lineup .squad-pos b{font-size:23px}
+.squad-row-lineup .squad-pos-icons{margin-top:4px}
+/* Vạch màu vị trí chỉ cao bằng chữ vị trí (ST, CF...), không kéo dài hết cụm nhãn + mũi tên. */
+.squad-row-lineup .squad-pos{border-left:0;padding-left:0}
+.squad-row-lineup .squad-pos b{align-self:flex-start;padding-left:8px;border-left:3px solid transparent;line-height:1.15}
+.squad-row-lineup .squad-pos.pos-fw b{border-color:#e63946}
+.squad-row-lineup .squad-pos.pos-mf b{border-color:#2ecc71}
+.squad-row-lineup .squad-pos.pos-df b{border-color:#3498db}
+.squad-row-lineup .squad-pos.pos-gk b{border-color:#f1c40f}
+/* Hàng cầu thủ đội hình chính thấp hơn 20% (72px -> 58px): thu ảnh, vị trí và mũi tên phong độ theo. */
+.squad-row-lineup{min-height:58px;padding-top:3px;padding-bottom:3px}
+.squad-row-lineup .squad-face{width:46px;height:50px}
+.squad-row-lineup .squad-pos small{font-size:12px}
+.squad-row-lineup .squad-pos b{font-size:20px}
+.squad-row-lineup .squad-pos-icons{margin-top:1px}
+.squad-row-lineup .squad-form{width:20px;height:20px}
+/* Ảnh mini face hàng đội hình chính to hơn 30% (46x50 -> 60x65); cột ảnh rộng theo. */
+.squad-row-lineup{grid-template-columns:54px 62px minmax(0,1fr) minmax(76px,104px)}
+.squad-row-lineup .squad-face{width:60px;height:65px}
+/* Lương · OVR · Thẻ sau khi bỏ nhãn nhỏ: 3 ô cùng rộng, cùng cao, căn giữa theo chiều dọc và cách đều nhau. */
+.squad-row-lineup .squad-stats{align-items:center;gap:0}
+.squad-row-lineup .squad-stats>span{flex:0 0 48px;height:30px;justify-content:center;align-items:center}
+/* Lương · OVR · Thẻ bắt đầu thẳng mép trái với mùa + tên cầu thủ phía trên; các ô cách đều 22px (không còn ô cố định 48px căn giữa làm lệch). */
+.squad-row-lineup .squad-stats{gap:22px}
+.squad-row-lineup .squad-stats>span{flex:none;height:30px;justify-content:flex-start}
+/* Mũi tên phong độ: hai chevron lần lượt chạy lên rồi mờ dần, lặp liên tục. */
+.squad-row-lineup .squad-form{overflow:hidden}
+.squad-row-lineup .squad-form path{transform-box:fill-box;animation:squad-arrow-run 1.3s ease-in infinite}
+.squad-row-lineup .squad-form path:nth-child(2){animation-delay:.45s}
+@keyframes squad-arrow-run{0%{transform:translateY(7px);opacity:0}35%{opacity:1}100%{transform:translateY(-7px);opacity:0}}
+.reduced-motion .squad-form path{animation:none}
+@media(prefers-reduced-motion:reduce){.squad-form path{animation:none}}
+/* Mũi tên phong độ rộng hơn 50% (kéo ngang, giữ chiều cao). */
+.squad-row-lineup .squad-form{transform:scaleX(1.5);transform-origin:left center}
+/* Mũi tên dày hơn và chạy liên tục: nét 4px; hai chevron lệch nửa chu kỳ, chạy đều (linear) và chỉ mờ ở hai đầu hành trình nên luôn có mũi tên đang hiện. */
+.squad-row-lineup .squad-form{stroke-width:4}
+.squad-row-lineup .squad-form path{animation:squad-arrow-run 1.2s linear infinite}
+.squad-row-lineup .squad-form path:nth-child(1){animation-delay:0s}
+.squad-row-lineup .squad-form path:nth-child(2){animation-delay:0s}
+@keyframes squad-arrow-run{0%{transform:translateY(9px);opacity:0}25%{opacity:1}75%{opacity:1}100%{transform:translateY(-9px);opacity:0}}
+/* Hai chevron sát nhau: kéo chevron dưới lên (cách đỉnh 5 đơn vị thay vì 7). */
+/* Hai mũi tên chạy cùng pha (luôn đi cạnh nhau như một cặp), cách đỉnh 6,5 đơn vị để nét 4 không chồng lên nhau. */
+
+/* 4 mũi tên xếp dọc, cố định vị trí, sáng lần lượt từ dưới lên trên thành làn sóng chạy lên liên tục (không dịch chuyển nên không bao giờ chồng nhau). */
+.squad-row-lineup .squad-form{width:30px;height:22px;stroke-width:2.6;transform:none;overflow:visible}
+.squad-row-lineup .squad-form path{transform:none;opacity:.22;animation:squad-arrow-wave 1.2s linear infinite}
+.squad-row-lineup .squad-form path:nth-child(4){animation-delay:0s}
+.squad-row-lineup .squad-form path:nth-child(3){animation-delay:.2s}
+.squad-row-lineup .squad-form path:nth-child(2){animation-delay:.4s}
+.squad-row-lineup .squad-form path:nth-child(1){animation-delay:.6s}
+@keyframes squad-arrow-wave{0%{opacity:.22}12%{opacity:1}38%{opacity:1}60%,100%{opacity:.22}}
+/* Thanh thao tác khi rê chuột vào hàng cầu thủ: các nút cách nhau 10px (trước 5px nên nhìn dính vào nhau). */
+/* Các nút thao tác liền nhau thành một dải (cách 1px, chỉ bo góc hai đầu). */
+.squad-hover{gap:1px!important}
+.squad-hover .squad-move{margin-left:1px!important}
+.squad-hover button{border-radius:0}
+.squad-hover button:first-child{border-radius:4px 0 0 4px}
+.squad-hover button:last-child{border-radius:0 4px 4px 0}
+/* Biểu tượng thao tác kiểu mẫu: xanh lá sáng trên nền xanh lá đậm, nét dày; giỏ hàng có dấu + (chỉ biểu tượng, không chữ "Bán"). Nút Rời ĐH / Vào ĐH giữ nền xanh sáng. */
+.squad-hover button:not(.squad-move){background:#24593a;color:#25e27a}
+.squad-hover button:hover:not(:disabled):not(.squad-move){background:#2d6e47;color:#5dfb9d}
+.squad-hover button:disabled:not(.squad-move){color:#3e7a58;background:#1f4a31}
+.squad-hover .squad-act,.squad-hover .squad-act-upgrade{width:30px;padding:0;background:#24593a;color:#25e27a;box-shadow:none}
+.squad-hover .squad-act svg{width:19px;height:19px}
+.squad-hover .squad-act-upgrade:hover{background:#2d6e47}
+.squad-hover .squad-act-upgrade svg{width:20px;height:16px;filter:none}
+/* Bỏ nền xanh đậm của các nút biểu tượng: chỉ còn biểu tượng xanh lá; rê chuột chỉ sáng nhẹ. Nút Rời ĐH / Vào ĐH giữ nền xanh sáng. */
+.squad-hover button:not(.squad-move),.squad-hover .squad-act,.squad-hover .squad-act-upgrade{background:transparent;box-shadow:none}
+.squad-hover button:hover:not(:disabled):not(.squad-move),.squad-hover .squad-act-upgrade:hover{background:#ffffff14}
+.squad-hover button:disabled:not(.squad-move){background:transparent}
+/* Nút thao tác to hơn 30% (30px -> 39px), biểu tượng và chữ Rời ĐH to theo. */
+.squad-hover button{width:33px;height:33px}
+.squad-hover .squad-act,.squad-hover .squad-act-upgrade{width:33px}
+.squad-hover button svg{width:19px;height:19px}
+.squad-hover .squad-act svg{width:21px;height:21px}
+.squad-hover .squad-act-upgrade svg{width:22px;height:18px}
+.squad-hover .squad-move{width:auto;min-width:102px;padding:0 14px;font-size:15px}
+.squad-hover .squad-move svg{width:18px;height:18px}
+/* Nút biểu tượng nền xám (biểu tượng vẫn xanh lá). */
+.squad-hover button:not(.squad-move),.squad-hover .squad-act,.squad-hover .squad-act-upgrade{background:#3a3f47}
+.squad-hover button:hover:not(:disabled):not(.squad-move),.squad-hover .squad-act-upgrade:hover{background:#4a5059}
+.squad-hover button:disabled:not(.squad-move){background:#32363c}
+.squad-hover .squad-act-upgrade svg{width:22px;height:22px}
+/* Chọn (bấm) vào hàng cầu thủ: cả hàng đổi sang nền trắng, chữ đổi tối để đọc được. Chọn theo trạng thái (.is-selected), không theo focus. */
+.squad-row.is-selected,.squad-row.is-selected:hover{background:#fff}
+.squad-row.is-selected .squad-pos,.squad-row.is-selected .squad-name strong,.squad-row.is-selected .squad-ovr,
+.squad-row.is-selected .squad-price,.squad-row.is-selected .squad-stat{color:#1a1f2b}
+.squad-row.is-selected .squad-pos small,.squad-row.is-selected .squad-price-block small{color:#5b6672}
+.squad-row.is-selected .squad-hover{background:linear-gradient(90deg,#fff0,#fff 48px)}
+/* Nút Thay thế: hiện ở hàng đang rê chuột khi đã chọn một cầu thủ khác. */
+.squad-hover button.squad-swap:not(.squad-move){width:auto;padding:0 14px;gap:7px;background:#1fe36b;color:#06210f;font-size:15px}
+.squad-hover button.squad-swap:hover:not(:disabled):not(.squad-move){background:#4dfa8c;color:#06210f}
+.squad-hover button.squad-swap span{display:inline}
+
+/* Khung bên trái (Đội hình chính) nền đen đậm hơn. */
+/* Phải đủ độ ưu tiên để thắng luật nền chung của các màn (home.css, .main-content:not(.view-packs) :is(.squad-left...)). */
+.main-content:not(.view-packs) .squad-workspace .squad-left{background:rgba(0,0,0,.48)!important}
+/* Thanh cuộn danh sách cầu thủ chỉ hiện khi rê chuột vào danh sách. */
+.squad-list{scrollbar-color:transparent transparent}
+.squad-list::-webkit-scrollbar-thumb{background:transparent}
+.squad-list:hover{scrollbar-color:#3a4452 transparent}
+.squad-list:hover::-webkit-scrollbar-thumb{background:#3a4452}
+.squad-list:hover::-webkit-scrollbar-thumb:hover{background:#4d5867}
+/* Khung bên phải nhạt hơn 20% (độ đậm 50% -> 40%). */
+.main-content:not(.view-packs) .squad-workspace .squad-right{background:rgba(18,23,31,.08)!important}
+/* Phần đầu khung Cầu thủ (bên phải) kiểu mẫu: tiêu đề + dòng giải thích bên trái, "Cầu thủ của tôi" + số lớn bên phải; tìm kiếm / gộp thẻ / bán hàng loạt chuyển xuống hàng công cụ; thanh tiêu đề cột xám đậm chữ lớn hơn. */
+.squad-head-owned{align-items:flex-start;flex-wrap:nowrap;padding:18px 20px 14px}
+.squad-head-owned .squad-title{flex:1;min-width:0;gap:6px}
+.squad-head-owned h2{font-size:22px}
+.squad-head-owned .squad-title p{margin:0;font-size:14px;line-height:1.35;color:#8e98a7}
+.squad-head-owned .squad-owned{flex:none}
+.squad-head-owned .squad-owned span{font-size:13px;color:#aab2bc}
+.squad-head-owned .squad-owned strong{display:block;margin-top:2px;font-size:34px;font-weight:700;line-height:1}
+.squad-tools-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.squad-columns{height:27px;background:#3a3e44cc;font-size:14px;color:#cfd5dc}
+.squad-col{font-size:14px}
+/* Toàn bảng đội hình trong suốt hơn 20% (độ đậm x0.8): khung ngoài 50% -> 40%, khung trái 60% -> 48%, khung phải 10% -> 8%, thanh tiêu đề 100% -> 80%. */
+.main-content:not(.view-packs)>.squad-workspace.squad-workspace{background:rgba(9,13,19,.4)!important}
+.squad-head-owned .squad-owned strong small{font-size:.62em;font-weight:500;color:#929cab}
+/* Khung bảng đội hình không bo góc. */
+.main-content>.workspace.squad-workspace,.squad-workspace .squad-panel{border-radius:0!important}
+/* Thanh Thay thế (dự bị) nằm trong danh sách, cuộn cùng danh sách. */
+.squad-list .squad-section-sub{margin-left:-30px}
+.squad-section-bar small{margin-left:10px;font-size:12px;font-weight:400;color:#8e98a7}
+/* Hàng đang chọn nền trắng: số OVR giữ chữ tối (màu ngưỡng OVR gắn trực tiếp lên số sẽ khó đọc trên nền trắng). */
+.squad-row.is-selected .squad-ovr{color:#11161c!important;text-shadow:none!important}
+/* Số lương trong huy hiệu lục giác nằm cao hơn tâm khoảng 0,12em (do metrics chữ số của font): hạ xuống cho cân giữa (người dùng 2026-11-24). */
+.squad-wage b{position:relative;top:.12em;line-height:1}
+
+/* Đăng kí cầu thủ: cả trang (hai bảng) chạy từ phải qua trái, mượt (người dùng 2026-11-24). Chỉ có "from", không giữ trạng thái cuối nên xong là không còn transform.
+   Phải dùng `.app>.main-content>.squad-workspace` (cao hơn `.app>.main-content>*{animation:page-in}` ở home.css) mới thay được hiệu ứng chuyển trang mặc định. */
+@keyframes squad-slide-in{from{opacity:0;transform:translateX(min(46vw,620px))}}
+.app>.main-content>.squad-workspace{animation:squad-slide-in .65s cubic-bezier(.2,.85,.3,1) backwards}
+@media(prefers-reduced-motion:reduce){.app>.main-content>.squad-workspace{animation:none}}
+.reduced-motion .app>.main-content>.squad-workspace,.app.reduced-motion>.main-content>.squad-workspace{animation:none}

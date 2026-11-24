@@ -1,0 +1,117 @@
+/* Phòng thay đồ (LockerRoom.tsx, 2026-11-24): trái = bảng tùy chọn (thanh tím), phải = sân khấu ảnh cầu thủ + Hủy / Lưu. Không bo góc. */
+.main-content>.workspace.locker-workspace{display:grid;grid-template-columns:minmax(0,min(780px,48%)) minmax(0,1fr);gap:24px;width:min(1440px,calc(100% - 32px));max-width:none;height:calc(100% - 24px);min-height:0;margin:12px auto;padding:0;overflow:hidden;background:none!important;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+.locker-workspace *{border-radius:0}
+.locker-workspace.is-empty{display:grid;place-items:center}
+.lk-empty{display:flex;flex-direction:column;align-items:center;gap:12px;max-width:420px;padding:24px;background:#11161ce6;color:#c9d2dc;text-align:center;line-height:1.6}
+.lk-empty button,.lk-actions button{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;cursor:pointer;font-family:var(--display);font-weight:700}
+.lk-empty button{height:36px;padding:0 16px;background:#1fe36b;color:#06210f}
+
+.lk-panel{position:relative;z-index:3;left:150px;display:flex;flex-direction:column;min-height:0;background:#1b1d22f2;box-shadow:0 10px 40px #0009}
+.lk-tabs{flex:none;display:grid;grid-template-columns:1fr 1fr;background:linear-gradient(100deg,#7a2cf5,#5a1fd0 55%,#4b3df0)}
+.lk-tabs button{height:44px;border:0;background:none;color:#d9ccff;font-family:var(--display);font-size:18px;font-weight:700;cursor:pointer}
+.lk-tabs button.is-on{background:#ffffff1f;color:#fff;box-shadow:inset 0 -3px 0 #fff}
+.lk-picker{flex:none;display:grid;grid-template-columns:auto auto auto auto minmax(0,1fr) auto auto;align-items:center;gap:10px;height:64px;padding:0 14px;background:#5b21d6}
+.lk-picker select{height:34px;padding:0 8px;border:1px solid #ffffff55;background:#2c0f73;color:#fff;font-size:14px;font-weight:600}
+.lk-step{display:grid;place-items:center;width:34px;height:40px;border:0;background:none;color:#c9b6ff;cursor:pointer}
+.lk-step:hover{color:#fff}
+.lk-pos{padding-left:8px;border-left:3px solid;font-family:var(--display);font-size:20px;font-weight:700;color:#fff}
+.lk-pos.pos-fw{border-color:#e63946}.lk-pos.pos-mf{border-color:#2ecc71}.lk-pos.pos-df{border-color:#3498db}.lk-pos.pos-gk{border-color:#f1c40f}
+.lk-face{position:relative;display:block;width:52px;height:56px;overflow:hidden}
+.lk-face img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
+.lk-face.is-portrait img{object-fit:contain;object-position:50% 100%}
+.lk-name{display:flex;align-items:center;gap:8px;min-width:0}
+.lk-name strong{font-family:var(--display);font-size:20px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lk-num{min-width:44px;font-family:var(--display);font-size:40px;font-weight:700;line-height:1;color:#d9ccff;text-align:right;font-variant-numeric:tabular-nums}
+.lk-subtabs{flex:none;display:grid;grid-template-columns:repeat(5,1fr);background:#4a17b8}
+.lk-subtabs button{height:44px;border:0;background:none;color:#cbb8ff;font-family:var(--display);font-size:16px;font-weight:600;cursor:pointer}
+.lk-subtabs button.is-on{color:#fff;box-shadow:inset 0 -3px 0 #fff}
+.lk-subtabs button:hover{color:#fff}
+.lk-body{flex:1;min-height:0;overflow-y:auto;padding:20px 30px 24px;scrollbar-width:thin;scrollbar-color:transparent transparent}
+.lk-body:hover{scrollbar-color:#3a4452 transparent}
+
+.lk-row{display:grid;grid-template-columns:minmax(0,1fr) 36px 200px 36px;align-items:center;height:52px;margin-bottom:8px;padding:0 14px 0 22px;background:#26292f}
+.lk-row>span{font-family:var(--display);font-size:16px;font-weight:600;color:#e8ebef}
+.lk-row>b{font-family:var(--display);font-size:17px;font-weight:600;color:#fff;text-align:center}
+.lk-row>button{display:grid;place-items:center;height:36px;border:0;background:none;color:#e8ebef;cursor:pointer}
+.lk-row>button:hover{color:#1fe36b}
+.lk-title{margin:18px 0 10px;font-family:var(--display);font-size:16px;font-weight:600;color:#e8ebef}
+.lk-note{margin:0 0 12px;font-size:13px;color:#9aa4b2}
+.lk-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.lk-tiles>button{display:flex;flex-direction:column;align-items:center;gap:8px;padding:6px 6px 10px;border:0;background:#26292f;color:#e8ebef;font-family:var(--display);font-size:15px;font-weight:600;cursor:pointer}
+.lk-tiles>button:hover{background:#30343b}
+.lk-tiles>button.is-on{background:#f4f6f8;color:#11161c}
+.lk-tile-art{display:grid;place-items:center;width:100%;aspect-ratio:1;background:#e9edf2;overflow:hidden}
+.lk-tile-art svg{width:78%;height:78%}
+.lk-tile-art img{width:100%;height:100%;object-fit:contain;object-position:50% 100%}
+.lk-shirts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;margin:-20px -30px -24px;background:#1b1d1c}
+.lk-shirt{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:150px;padding:10px 6px;border:0;background:linear-gradient(160deg,#25292a,#1c1f1f);color:#fff;font-family:var(--display);cursor:pointer}
+.lk-shirt svg{width:min(96px,70%);height:auto;filter:drop-shadow(0 6px 8px #0008)}
+.lk-shirt svg path{fill:#f2f2f0}
+.lk-shirt svg text{fill:#6e6e6c;font-family:var(--display);font-size:38px;font-weight:700}
+.lk-shirt:hover:not(:disabled):not(.is-on){background:linear-gradient(160deg,#30393a,#242a2a)}
+.lk-shirt.is-taken{cursor:not-allowed}
+.lk-shirt.is-taken svg path{fill:#8e8f8d}.lk-shirt.is-taken svg text{fill:#b7b8b6}
+.lk-shirt.is-on{background:#f6f7f5;color:#11161c}
+.lk-shirt.is-on svg path{fill:#1fd060}.lk-shirt.is-on svg text{fill:#fff}
+.lk-shirt-check{position:absolute;left:10px;top:10px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%!important;background:#1fd060;color:#06210f}
+.lk-shirt-name{display:flex;align-items:center;gap:5px;max-width:100%;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lk-roster{list-style:none;margin:0;padding:0}
+.lk-roster li{display:grid;grid-template-columns:44px 52px minmax(0,1fr) auto;align-items:center;height:36px;border-bottom:1px solid #2c3038;font-size:15px;color:#e8ebef}
+.lk-roster b{font-family:var(--display);font-size:18px;color:#fff;text-align:center}
+.lk-roster i{font-style:normal;font-weight:700}
+.lk-roster .pos-fw{color:#ff6b75}.lk-roster .pos-mf{color:#5be38e}.lk-roster .pos-df{color:#6cb6ea}.lk-roster .pos-gk{color:#f7d64a}
+.lk-roster em{padding:0 7px;background:#f5c518;color:#11161c;font-style:normal;font-weight:800}
+
+.lk-stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:0;overflow:hidden}
+.lk-exit{position:absolute;top:10px;right:16px;z-index:3;display:grid;place-items:center;width:48px;height:48px;border:0;background:none;color:#fff;cursor:pointer;filter:drop-shadow(0 2px 4px #000a)}
+.lk-exit:hover{color:#1fe36b}
+.lk-stage-num{position:absolute;top:6%;left:50%;transform:translateX(-50%);font-family:var(--display);font-size:clamp(160px,30vh,320px);font-weight:800;line-height:1;color:var(--kit);-webkit-text-stroke:3px color-mix(in srgb,var(--kit-text) 60%,transparent);opacity:.55;pointer-events:none}
+.lk-stage-img{position:relative;z-index:1;max-width:min(560px,90%);max-height:78%;object-fit:contain;filter:drop-shadow(0 16px 30px #000c)}
+.lk-stage-img:not(.is-portrait){max-height:66%;margin-bottom:4%}
+.lk-stage-tags{position:relative;z-index:2;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:10px 0 8px}
+.lk-stage-tags span{padding:4px 10px;background:#0b0f14cc;color:#e8ebef;font-size:13px;font-weight:600}
+.lk-stage-tags .is-captain{background:#f5c518;color:#11161c}
+.lk-error{position:relative;z-index:2;margin:0 0 8px;padding:6px 12px;background:#3a0d12e6;color:#ffb3b8;font-size:13px}
+.lk-actions{position:relative;z-index:2;display:flex;gap:16px;margin-bottom:14px}
+.lk-actions button{width:200px;height:44px;background:#d7dbe0;color:#2a2f36;font-size:17px}
+.lk-actions button.is-save{background:#1fe36b;color:#06210f}
+.lk-actions button:disabled{background:#8d939b99;color:#d7dbe0;cursor:not-allowed}
+
+@media(max-width:900px){
+  .main-content>.workspace.locker-workspace{grid-template-columns:minmax(0,1fr) minmax(0,38%);gap:10px;width:calc(100% - 16px);height:calc(100% - 12px);margin:6px auto}
+  .lk-picker{grid-template-columns:auto auto auto minmax(0,1fr) auto auto;height:54px;gap:6px;padding:0 8px}
+  .lk-face{display:none}
+  .lk-row{grid-template-columns:minmax(0,1fr) 30px 140px 30px;height:44px;padding:0 8px 0 12px}
+  .lk-body{padding:12px 12px 16px}
+  .lk-actions button{width:120px;height:40px}
+}
+@media(max-width:640px){
+  .main-content>.workspace.locker-workspace{display:flex;flex-direction:column-reverse;height:auto;overflow:visible}
+  .lk-stage{height:320px}
+}
+/* Tài khoản Premium / Luxury: ba dải tím (tab Cầu thủ / Đội, hàng chọn cầu thủ, tab Áo / Quần…) loang theo màu hiệu ứng avatar, cùng công thức thanh trên (--fx-a/b/c/d). */
+.lk-panel.fx-bar .lk-tabs,.lk-panel.fx-bar .lk-picker,.lk-panel.fx-bar .lk-subtabs{background:linear-gradient(100deg,color-mix(in srgb,var(--fx-c) 62%,#12071f),color-mix(in srgb,var(--fx-a) 68%,#12071f) 24%,color-mix(in srgb,var(--fx-b) 48%,#12071f) 48%,color-mix(in srgb,var(--fx-d,var(--fx-a)) 66%,#12071f) 72%,color-mix(in srgb,var(--fx-c) 62%,#12071f))}
+.lk-panel.fx-bar .lk-picker{filter:brightness(.86)}
+.lk-panel.fx-bar .lk-subtabs{filter:brightness(.72)}
+.lk-panel.fx-bar .lk-picker select{background:color-mix(in srgb,var(--fx-c) 35%,#12071f)}
+.lk-panel.fx-bar .lk-tabs button,.lk-panel.fx-bar .lk-subtabs button,.lk-panel.fx-bar .lk-step,.lk-panel.fx-bar .lk-num{color:#ffffffc8}
+.lk-panel.fx-bar .lk-tabs button.is-on,.lk-panel.fx-bar .lk-subtabs button.is-on{color:#fff}
+/* Ảnh thật trong ô thiết bị bảo vệ: phủ kín ô, cắt giữa. */
+.lk-tile-art img.lk-photo{width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+/* Tab bị khóa: mờ, có ổ khóa nhỏ cạnh chữ, con trỏ cấm. */
+.lk-subtabs button.is-locked{display:inline-flex;align-items:center;justify-content:center;gap:5px;opacity:.5;cursor:not-allowed}
+.lk-subtabs button.is-locked:hover{color:#cbb8ff}
+/* Tab Ảnh: bỏ nền xám của ô miniface (chân dung không nền đứng trực tiếp trên nền ô tối); ô được chọn vẫn nền sáng (người dùng 2026-11-24). */
+.lk-tile-art.is-plain,.lk-tiles>button.is-on .lk-tile-art.is-plain{background:none}
+/* Miniface trong sân khấu phóng to 50% (người dùng 2026-11-24): scale từ chân ảnh để không đẩy các nút Hủy / Lưu. */
+.lk-stage-img{scale:3.375;transform-origin:50% 100%}
+/* Miniface sân khấu dịch lên 100px (người dùng 2026-11-24). */
+.lk-stage-img{translate:30px -200px}
+/* Số áo mờ phía sau cũng dịch sang phải 30px cùng miniface (người dùng 2026-11-24). */
+.lk-stage-num{left:calc(50% + 80px)}
+/* Số áo mờ thu nhỏ 50% (người dùng 2026-11-24): cỡ chữ clamp(80px,15vh,160px), viền chữ 1,5px. */
+.lk-stage-num{font-size:clamp(80px,15vh,160px);-webkit-text-stroke-width:1.5px}
+/* Mọi miniface trên sân khấu cùng một khung 112×112px (chân dung, ảnh thẻ, ảnh mùa đều vừa khung, canh chân ảnh sát đáy), nên cùng kích thước sau khi phóng 2,25 lần (người dùng 2026-11-24). */
+.lk-stage-img,.lk-stage-img:not(.is-portrait){width:112px;height:112px;max-width:none;max-height:none;margin-bottom:0;object-fit:contain;object-position:50% 100%}
+.lk-tabs button.is-locked{display:inline-flex;align-items:center;justify-content:center;gap:6px;opacity:.5;cursor:not-allowed}
+.lk-tabs button.is-locked:hover{color:#d9ccff}

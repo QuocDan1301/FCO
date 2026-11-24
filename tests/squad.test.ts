@@ -4,7 +4,7 @@ import { getPlayer, makeCard, ovr, players, upgrade, validateSave } from '../src
 import type { Save, Tier } from '../src/game.ts';
 import clubHistory from '../src/player-club-history.json';
 import { initialSave } from './stocked-save.ts';
-import { activeTeamColors, addToSquad, clearLineup, DEFAULT_FORMATION, FORMATIONS, getLineups, isLocked, lineupSlots, lineupSummary, moveSlot, optimizeLineup, placeCard, playerClubs, playerPenalty, playerPositions, positionPenalty, releaseCard, removeFromSquad, resetPositions, selectLineup, setFormation, slotOvr, squadCards, squadSummary, teamColorBonuses, teamColorDetails, toggleLock, LINEUP_BONUS, zoneAt, SQUAD_LIMIT, SQUAD_WAGE_CAP, XI } from '../src/squad.ts';
+import { activeTeamColors, addToSquad, clearLineup, DEFAULT_FORMATION, FORMATIONS, getLineups, isLocked, lineupSlots, lineupSummary, moveSlot, optimizeLineup, placeCard, playerClubs, playerPenalty, playerPositions, positionPenalty, releaseCard, removeFromSquad, resetPositions, selectLineup, setFormation, setReserve, slotOvr, squadCards, squadSummary, teamColorBonuses, teamColorDetails, toggleLock, LINEUP_BONUS, zoneAt, SQUAD_LIMIT, SQUAD_WAGE_CAP, XI } from '../src/squad.ts';
 import { sellPlayer } from '../src/market.ts';
 import { readFileSync } from 'node:fs';
 
@@ -189,16 +189,25 @@ test('Chặn thêm trùng thẻ, trùng cầu thủ, thẻ không có; cho phép
   assert.throws(() => addToSquad(state, a.uid), /đã có trong đội hình/);
   assert.throws(() => addToSquad(state, b.uid), /thẻ khác/);
   assert.throws(() => addToSquad(state, 'khong-co'), /không còn/);
-  const pricey = [...players].sort((x, y) => (y.wage ?? 0) - (x.wage ?? 0));
-  const big = pricey.slice(0, 40).map(p => makeCard(p.id));
-  let full = { ...initialSave(), cards: big };
-  for (const c of big) full = addToSquad(full, c.uid);
-  assert.equal(squadCards(full).length, 40);
-  assert.ok(squadSummary(squadCards(full)).wage > SQUAD_WAGE_CAP);
-  const more = players.slice(0, SQUAD_LIMIT + 5).filter(p => !big.some(c => c.playerId === p.id)).map(p => makeCard(p.id));
-  let capped = { ...full, cards: [...full.cards, ...more] };
-  for (const c of more) { if (squadCards(capped).length >= SQUAD_LIMIT) break; capped = addToSquad(capped, c.uid); }
-  assert.throws(() => addToSquad(capped, more.at(-1)!.uid), /đủ 50/);
+  const pricey = [...players].filter(p => p.pos !== 'GK').sort((x, y) => (y.wage ?? 0) - (x.wage ?? 0));
+  const big = pricey.slice(0, 40).map(p => makeCard(p.id)), gk = makeCard(players.find(p => p.pos === 'GK')!.id);
+  let full = { ...initialSave(), cards: [...big, gk] };
+  // Người mới đăng ký luôn vào Dự bị (tối đa 10): người thứ 11 bị chặn.
+  for (const c of big.slice(0, 10)) full = addToSquad(full, c.uid);
+  assert.equal(getLineups(full).sets[0].reserve!.length, 10);
+  assert.throws(() => addToSquad(full, big[10].uid), /Dự bị đã đủ 10/);
+  // Đưa 10 người ra các ô ngoài sân + thủ môn vào ô GK = đội hình chính đủ 11; Dự bị trống chỗ.
+  const defs = lineupSlots(getLineups(full).sets[0]), fieldSlots = defs.map((d, i) => d.role === 'GK' ? -1 : i).filter(i => i >= 0), gkSlot = defs.findIndex(d => d.role === 'GK');
+  big.slice(0, 10).forEach((c, i) => { full = placeCard(full, 0, fieldSlots[i], c.uid); });
+  full = placeCard(addToSquad(full, gk.uid), 0, gkSlot, gk.uid);
+  assert.equal(getLineups(full).sets[0].slots.filter(Boolean).length, 11);
+  // 7 người Thay thế rồi 10 người Dự bị: tổng 28, người thứ 29 bị chặn.
+  for (const c of big.slice(10, 17)) full = setReserve(addToSquad(full, c.uid), 0, c.uid, false);
+  for (const c of big.slice(17, 27)) full = addToSquad(full, c.uid);
+  assert.equal(squadCards(full).length, SQUAD_LIMIT);
+  assert.equal(SQUAD_LIMIT, 28);
+  assert.ok(squadSummary(squadCards(full).slice(0, 18)).wage > SQUAD_WAGE_CAP);
+  assert.throws(() => addToSquad(full, big[27].uid), /đủ 28/);
 });
 
 test('Thẻ bị bán / dùng làm nguyên liệu tự rơi khỏi đội hình; bản lưu hỏng được làm sạch', () => {
@@ -287,7 +296,10 @@ test('Tối ưu ĐH cho tổng OVR cao nhất; đổi chỗ, dự bị vào sân
   assert.equal(getLineups(other).active, 1);
   assert.equal(getLineups(other).sets[1].formation, '4-4-2');
   assert.deepEqual(getLineups(other).sets[0].slots, set.slots);
-  assert.deepEqual(getLineups(clearLineup(state, 0)).sets[0].slots, Array(XI).fill(null));
+  // Quy tắc 11 + 7 + 10 (2026-11-23): làm trống đưa cả đội vào Thay thế nên bị chặn khi quá 7 người; hết trùng 7 thì làm trống được.
+  assert.throws(() => clearLineup(state, 0), /Thay thế/);
+  const small = { ...state, squad: squadCards(state).slice(0, 5).map(c => c.uid) };
+  assert.deepEqual(getLineups(clearLineup(small, 0)).sets[0].slots, Array(XI).fill(null));
   // Ít hơn 11 người: tối ưu vẫn xếp hết, ô còn lại để trống.
   const few = optimizeLineup({ ...state, squad: cards.slice(0, 4).map(c => c.uid), lineups: undefined }, 0);
   assert.equal(getLineups(few).sets[0].slots.filter(Boolean).length, 4);

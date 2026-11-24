@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { canLoadInBackground, preloadResources, tooManyFailed } from '../src/preload';
-import { assetGroup, backgroundRank } from '../src/asset-groups';
-import { createAssetProgress } from '../src/asset-progress';
+import { ASSET_PARTS, assetGroup, assetPart, backgroundRank } from '../src/asset-groups';
+import { createAssetParts, createAssetProgress } from '../src/asset-progress';
 
 test('chờ nhận hết nội dung, loại URL trùng và giới hạn số lượt tải đồng thời', async () => {
   let active = 0, peak = 0;
@@ -67,9 +67,10 @@ test('file lỗi lẻ tẻ được tự tải lại; lỗi mãi thì trả về
 });
 
 test('Chia nhóm tải: chỉ giao diện chặn vào game; ảnh thẻ và nhạc không tải trước; mạng yếu bỏ qua tải nền', () => {
-  for (const file of ['levels/lv-1.webp', 'fco-vip-logo.png', 'currency-bp.png', 'view-backdrop.webp', 'login-background.png', 'silhouette.svg']) assert.equal(assetGroup(file), 'critical', file);
+  for (const file of ['levels/lv-1.webp', 'fco-vip-logo-v2.png', 'currency-bp.png', 'view-backdrop.webp', 'login-background.webp', 'silhouette.svg', 'home-stadium-bg.webp', 'seasons/ch.webp']) assert.equal(assetGroup(file), 'critical', file);
   for (const file of ['ut-back.webp', 'ut-tunnel.webp', 'custom/ms-1-1-back.webp', 'clubs/86.webp', 'ut-team.webp', 'event/jar-1.webp', 'rs-turf.webp', 'pf-flame-red-1.webp', 'cinema-cue.wav', 'fonts-inline.css']) assert.equal(assetGroup(file), 'background', file);
-  for (const file of ['ut-p-aubameyang-card.webp', 'prime-quang-hai-card.png', 'background-music.mp3']) assert.equal(assetGroup(file), 'demand', file);
+  for (const file of ['ut-p-aubameyang-card.webp', 'prime-quang-hai-card.png', 'background-music.mp3', 'ch-4195-card-v3.webp', 'el-4085-fx.webp', 'managers/m-12.webp', 'fco-vip-logo.png', 'fco-vip-opening-logo.png']) assert.equal(assetGroup(file), 'demand', file);
+  for (const file of ['ctp/board.webp', 'vqtg/loop.webp', 'bilac/logo.webp', 'traits/1.png', 'training-traits/2.png', 'team-color/flag.png']) assert.equal(assetGroup(file), 'background', file);
   // Chân dung / mặt nạ / khung trống (hàng nghìn file): không được nằm trong phần tải trước khi vào game (2026-11-16 từng lên 6.821 file).
   for (const file of ['portraits/866158023.webp', 'portraits/masks/1001.webp', 'portraits/blank/prm.webp', 'portraits/custom/barca-messi.webp']) assert.equal(assetGroup(file), 'demand', file);
   assert.ok(backgroundRank('custom/a-back.webp') < backgroundRank('ut-tunnel.webp') && backgroundRank('ut-tunnel.webp') < backgroundRank('clubs/86.webp'));
@@ -105,4 +106,31 @@ test('Vòng tròn tiến trình: chỉ báo khi phần trăm đổi, chưa đủ
   const empty = createAssetProgress();
   empty.update(0, 0);
   assert.equal(empty.get().percent, 100, 'không có gì để tải không chia cho 0');
+});
+
+test('Bảng tiến độ tải: chia tài nguyên theo phần, đếm từng phần, báo đúng phần đang tải; gọi onLoaded cho từng file', async () => {
+  assert.equal(assetPart('levels/lv-1.webp'), 'ui');
+  assert.equal(assetPart('custom/ms-1-1-back.webp'), 'packs');
+  assert.equal(assetPart('ut-tunnel.webp'), 'tunnel');
+  assert.equal(assetPart('rs-turf.webp'), 'fx');
+  assert.equal(assetPart('ctp/board.webp'), 'events');
+  assert.equal(assetPart('traits/1.png'), 'traits');
+  assert.equal(assetPart('clubs/86.webp'), 'clubs');
+  assert.equal(assetPart('ut-team.webp'), 'other');
+  assert.ok(ASSET_PARTS.every(p => p.label.length > 0));
+  const s = createAssetParts();
+  let calls = 0; s.subscribe(() => { calls++; });
+  s.init([{ id: 'ui', label: 'UI', loaded: 5, total: 5 }, { id: 'packs', label: 'Gói', loaded: 0, total: 200 }, { id: 'clubs', label: 'CLB', loaded: 0, total: 2 }, { id: 'none', label: 'Trống', loaded: 0, total: 0 }]);
+  assert.deepEqual(s.get().parts.map(p => p.id), ['ui', 'packs', 'clubs'], 'phần không có file thì bỏ');
+  assert.equal(s.get().current, 'packs');
+  const before = calls; s.loaded('packs'); assert.equal(calls, before, 'chưa đổi % thì không báo'); s.loaded('packs');
+  assert.equal(s.get().parts[1].loaded, 2);
+  for (let i = 0; i < 198; i++) s.loaded('packs');
+  assert.equal(s.get().current, 'clubs', 'xong phần trước thì chuyển sang phần sau');
+  s.loaded('clubs'); s.loaded('clubs'); s.loaded('clubs');
+  assert.equal(s.get().parts[2].loaded, 2, 'không đếm quá tổng');
+  assert.equal(s.get().current, null);
+  const seen: string[] = [];
+  await preloadResources(['a', 'b'], () => {}, new Set(), (async () => new Response('x')) as never, 2, 1, url => seen.push(url));
+  assert.deepEqual(seen.sort(), ['a', 'b']);
 });

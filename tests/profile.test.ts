@@ -59,7 +59,8 @@ test('Thông tin HLV đã lưu thì không còn ô chọn / nút lưu; còn tr�
 });
 test('Hiệu ứng avatar + tên: danh sách khớp ràng buộc máy chủ; Classic bị khoá, Premium chọn được và hiện trên avatar / tên', () => {
   const sql = readFileSync(new URL('../supabase/migrations/202611120011_fco_luxury.sql', import.meta.url), 'utf8');
-  const ids = NAME_EFFECTS.map(e => `'${e.id}'`).join(', '), lux = NAME_EFFECTS.filter(e => e.luxury).map(e => `'${e.id}'`).join(', ');
+  // Hiệu ứng Royal thêm sau ở 202611240003_fco_royal.sql (kiểm ở tests/royal.test.ts); migration Luxury chỉ có nhóm Premium + Luxury.
+  const ids = NAME_EFFECTS.filter(e => !e.royal).map(e => `'${e.id}'`).join(', '), lux = NAME_EFFECTS.filter(e => e.luxury).map(e => `'${e.id}'`).join(', ');
   assert.ok(sql.includes(`check (name_effect in (${ids}))`), 'ràng buộc check trên bảng');
   assert.ok(sql.includes(`p_effect not in (${ids})`), 'kiểm tra trong fco_set_name_effect');
   assert.ok(sql.includes(`select p_effect in (${lux})`), 'danh sách hiệu ứng Luxury');
@@ -77,7 +78,7 @@ test('Hiệu ứng avatar + tên: danh sách khớp ràng buộc máy chủ; Cla
   assert.match(classic, /Hiệu ứng<small>Premium<\/small>/);
   const locked = picker(false, null);
   assert.match(locked, /Dành cho tài khoản Premium/);
-  assert.equal((locked.match(/class="profile-effect( is-luxury)?"[^>]*disabled/g) ?? []).length, NAME_EFFECTS.length + 1);
+  assert.equal((locked.match(/class="profile-effect( is-luxury| is-royal)?"[^>]*disabled/g) ?? []).length, NAME_EFFECTS.length + 1);
 });
 test('Hạng Luxury: hiện huy hiệu Luxury, hiệu ứng Luxury mở cho Luxury, khoá với Premium', () => {
   const render = (tier: 'premium' | 'luxury', effect: 'prism' | null) => renderToStaticMarkup(createElement(ProfileCard, { save: initialSave(), accountId: 'abc', joined: null, tier, effect, onEffect: () => true, onSave() {}, onSettings() {}, onClose() {} }));

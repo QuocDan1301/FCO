@@ -1,6 +1,5 @@
 // Menu chế độ chơi ở trang chủ (thay phần giới thiệu "Chạm tới huyền thoại", người dùng yêu cầu 2026-11-12):
 // biểu tượng nét trắng + chữ lớn xếp dọc. Biểu tượng tự vẽ.
-import { Flame } from 'lucide-react';
 import './plus8.css';
 
 // onPlus8: nút sự kiện HOT "Đập 8 liền tay" (BXH đập +8, src/Plus8Page.tsx) đứng đầu menu.
@@ -44,12 +43,11 @@ export default function HomeModes({ onRanked, onPenalty, onUpgrade, onRanks, onP
   return <nav className="hero-modes" aria-label="Chế độ chơi">
     {onPlus8 && <button type="button" className="hero-hot" onClick={onPlus8} aria-label="Sự kiện hot · Đập 8 liền tay · Nhận ngay quà chất">
       <span className="hero-hot-icon"><Plus8Icon/></span>
-      <span className="hero-hot-text"><b>Đập 8 liền tay</b><small>Nhận ngay quà chất</small></span>
-      <span className="hero-hot-badge"><Flame aria-hidden="true"/>Hot</span>
+      <span className="hero-hot-text"><b>Đập 8 liền tay</b></span>
     </button>}
     {modes.map(m => <button key={m.id} type="button" className={`hero-mode is-${m.id}`} onClick={m.onClick} aria-label={`${m.label} · ${m.hint}`}>
       <span className="hero-mode-icon">{m.icon}</span>
-      <span className="hero-mode-text"><b>{m.label}</b><small>{m.hint}</small></span>
+      <span className="hero-mode-text"><b>{m.label}</b></span>
     </button>)}
   </nav>;
 }

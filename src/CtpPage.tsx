@@ -282,8 +282,8 @@ function Board({ fc, effects, jackpot, ctp, token, rolled, spin, hit, kick, busy
       style={{ left: `${c.at[0]}%`, top: `${c.at[1]}%`, width: `${c.kind === 'normal' ? L.tileW : L.cornerW}%` }} draggable={false}/>)}
     {effects && [7, 14, 21, 28].map(n => <img key={n} className="ctp-light" src={A('light.webp')} alt="" style={{ left: `${cell(n)[0]}%`, top: `${cell(n)[1]}%`, width: `${L.cornerW * .8}%` }} draggable={false}/>)}
     {/* Như Bi Lắc: Ultimate Prize = Giải Đặc Biệt (cả quỹ Jackpot FC chung), Mini Prize = Giải Phụ (1/10 quỹ, FC). */}
-    <span className="ctp-jackpot is-mini" style={px(590, 509)} title="Mini Prize · 1/10 quỹ Jackpot FC"><RollingNumber value={miniPrize({ pot })}/> FC</span>
-    <span className="ctp-jackpot" style={px(1320, 506)} title="Ultimate Prize · Giải Đặc Biệt (quỹ FC chung)"><RollingNumber value={pot}/> FC</span>
+    <span className="ctp-jackpot is-mini" style={px(590, 509)} title="Mini Prize · 1/10 quỹ Jackpot FC"><RollingNumber memo="ctp-mini" value={miniPrize({ pot })}/> FC</span>
+    <span className="ctp-jackpot" style={px(1320, 506)} title="Ultimate Prize · Giải Đặc Biệt (quỹ FC chung)"><RollingNumber memo="ctp-pot" value={pot}/> FC</span>
     {/* Luật ô Lucky (202611220016_fco_ctp_lucky_rule.sql): rê chuột / chạm / Tab vào "Số may mắn" hiện khung giải thích. */}
     <span className="ctp-lucky" style={px(955, 729)} tabIndex={0} aria-describedby="ctp-lucky-tip">Số may mắn: {ctp?.lucky ?? '—'}
       <span className="ctp-lucky-tip" role="tooltip" id="ctp-lucky-tip">
@@ -445,8 +445,8 @@ export default function CtpPage({ preview = false, fc = 0, ctp = null, loadJackp
     if (!loadJackpot) return;
     let alive = true;
     const update = () => { if (document.visibilityState === 'visible') loadJackpot().then(j => { if (alive) setJackpot(j); }).catch(() => { /* lần sau thử lại */ }); };
-    update(); const id = setInterval(update, 30000);
-    return () => { alive = false; clearInterval(id); };
+    update(); const first = setTimeout(update, 6000); const id = setInterval(update, 30000); // hỏi lại sau 6 giây để số bắt đầu chạy ngay sau khi vào trang
+    return () => { alive = false; clearTimeout(first); clearInterval(id); };
   }, [loadJackpot]);
 
   // Quân đá bóng từ ô đang đứng vào thẻ quà trúng, bóng tới nơi thì thẻ sáng.
@@ -613,7 +613,7 @@ export default function CtpPage({ preview = false, fc = 0, ctp = null, loadJackp
         <li><b>Ô bóng:</b> cầu thủ sút trúng ngẫu nhiên 1 phần quà trên kệ (quà càng giá trị càng khó trúng).</li>
         <li><b>Ô Special:</b> được đi tiếp ngay 1 bước, quà và điểm của bước đó nhân đôi.</li>
         <li><b>Ô Lucky:</b> 1 phần quà + lượt miễn phí: số đổ vào ô lớn hơn hoặc bằng Số may mắn → {CTP_RULES.luckyMore} lượt, nhỏ hơn → {CTP_RULES.luckyLess} lượt. Lần đầu Số may mắn là 1; từ lần sau là số bạn đã đổ vào ô Lucky lần trước.</li>
-        <li><b>Ô Ultimate Prize:</b> cơ hội nhận cả quỹ FC đang hiện; <b>ô Mini Prize:</b> cơ hội nhận 10% quỹ (trừ vào quỹ). Quỹ từ {money(CTP_RULES.jackpotMin)} FC mới nổ được; mỗi HLV trúng mỗi giải tối đa {CTP_RULES.winsPerDay} lần / 24 giờ. Quân cờ chỉ dừng ở 2 ô này khi trúng giải.</li>
+        <li><b>Ô Ultimate Prize:</b> cơ hội nhận cả quỹ FC đang hiện; <b>ô Mini Prize:</b> cơ hội nhận 10% quỹ (trừ vào quỹ). Quỹ từ {money(CTP_RULES.jackpotMin)} FC mới nổ được. Quân cờ chỉ dừng ở 2 ô này khi trúng giải.</li>
         <li>Mỗi lượt chơi góp {CTP_RULES.potPerPlay} FC vào quỹ Ultimate Prize.</li>
         <li>Lượt miễn phí: ô Lucky, và nhiệm vụ ngày (thắng 1 trận GLXH sau khi bấm Nhận nhiệm vụ). Có từ 2 lượt: bấm <b>Chơi hết</b> để dùng tất cả (tối đa {CTP_FREE_BATCH} lượt) trong 1 lần.</li>
       </ul>

@@ -27,3 +27,30 @@ export function createAssetProgress() {
 }
 
 export const assetProgress = createAssetProgress();
+// Tiến độ từng phần (bảng mở ra khi bấm nút tiến độ): mỗi phần đã tải / tổng, phần đang tải. Chỉ báo khi % một phần hoặc phần đang tải đổi.
+export type AssetPart = { id: string; label: string; loaded: number; total: number };
+export type AssetPartsState = { parts: AssetPart[]; current: string | null };
+export function createAssetParts() {
+  let snapshot: AssetPartsState = { parts: [], current: null };
+  const listeners = new Set<() => void>();
+  let parts: AssetPart[] = [];
+  let current: string | null = null;
+  const pct = (p: AssetPart) => p.total > 0 ? Math.floor(p.loaded / p.total * 100) : 100;
+  const publish = () => { snapshot = { parts: parts.map(p => ({ ...p })), current }; listeners.forEach(listener => listener()); };
+  return {
+    get: () => snapshot,
+    subscribe(listener: () => void) { listeners.add(listener); return () => { listeners.delete(listener); }; },
+    // Danh sách phần theo thứ tự tải; phần không có file thì bỏ.
+    init(list: AssetPart[]) { parts = list.filter(p => p.total > 0).map(p => ({ ...p })); current = parts.find(p => p.loaded < p.total)?.id ?? null; publish(); },
+    loaded(id: string) {
+      const part = parts.find(p => p.id === id);
+      if (!part || part.loaded >= part.total) return;
+      const before = pct(part);
+      part.loaded++;
+      const next = part.loaded < part.total ? id : parts.find(p => p.loaded < p.total)?.id ?? null;
+      if (pct(part) !== before || next !== current) { current = next; publish(); }
+    },
+    finish() { if (current !== null) { current = null; publish(); } },
+  };
+}
+export const assetParts = createAssetParts();

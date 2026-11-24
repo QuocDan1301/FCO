@@ -1,5 +1,5 @@
 /* Màn Đội hình (LineupBoard.tsx): trái là thanh chọn bộ / sơ đồ + sân phối cảnh, phải là thông tin cầu thủ và danh sách đá chính / Thay thế. */
-.main-content>.workspace.lineup-workspace{display:grid;grid-template-columns:minmax(0,1fr) 380px;grid-template-rows:minmax(0,1fr);width:min(1440px,calc(100% - 32px));max-width:none;height:calc(100% - 24px);min-height:0;margin:12px auto;padding:0;overflow:hidden;background:#11161c;border:1px solid #232c37;border-radius:6px;box-shadow:0 0 40px rgba(0,0,0,.6)}
+.main-content>.workspace.lineup-workspace{display:grid;grid-template-columns:minmax(0,1fr) 440px;grid-template-rows:minmax(0,1fr);width:min(1440px,calc(100% - 32px));max-width:none;height:calc(100% - 24px);min-height:0;margin:12px auto;padding:0;overflow:hidden;background:#11161c;border:1px solid #232c37;border-radius:6px;box-shadow:0 0 40px rgba(0,0,0,.6)}
 .lu-main{display:flex;flex-direction:column;min-width:0;min-height:0;padding:14px 18px 8px;background:linear-gradient(180deg,#1a1f26,#12161c)}
 
 /* Thanh trên: bộ A/B/C · sơ đồ · OVR đội · giá trị · tổng lương. */
@@ -73,20 +73,20 @@
 
 /* Khung phải: thông tin cầu thủ đang chọn, rồi bảng 11 vị trí + Thay thế (bảng tự cuộn). */
 .lu-side{display:flex;flex-direction:column;min-width:0;min-height:0;background:#151a21;border-left:1px solid #232c37}
-.lu-detail{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;flex-shrink:0;min-height:156px;padding:14px 16px;border-bottom:1px solid #232c37;background:linear-gradient(135deg,#1e2631,#141920)}
-.lu-detail-text{display:flex;flex-direction:column;gap:6px;min-width:0}
+.lu-detail{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px;flex-shrink:0;min-height:108px;padding:8px 16px;border-bottom:1px solid #232c37;background:linear-gradient(135deg,#1e2631,#141920)}
+.lu-detail-text{display:flex;flex-direction:column;gap:3px;min-width:0}
 .lu-detail p{margin:0}
 .lu-detail-name{display:flex;align-items:center;gap:8px;min-width:0}
-.lu-detail-name strong{font-family:var(--display);font-size:23px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lu-detail-name strong{font-family:var(--display);font-size:21px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lu-detail-ovr{display:flex;align-items:baseline;gap:6px;font-family:var(--display)}
-.lu-detail-ovr span{font-size:18px;font-weight:600}
-.lu-detail-ovr strong{margin-right:12px;font-size:28px;font-weight:600;line-height:1;color:#fff}
+.lu-detail-ovr span{font-size:16px;font-weight:600}
+.lu-detail-ovr strong{margin-right:12px;font-size:24px;font-weight:600;line-height:1;color:#fff}
 .lu-detail-ovr strong.is-off{color:#ffc061}
 .lu-detail .pos-fw{color:#ff6b75}.lu-detail .pos-mf{color:#5be38e}.lu-detail .pos-df{color:#6cb6ea}.lu-detail .pos-gk{color:#f7d64a}
 .lu-detail-meta{display:flex;align-items:center;gap:6px;font-size:13px;color:#aeb6c2;white-space:nowrap;overflow:hidden}
 .lu-detail-meta img{width:auto;height:13px;margin-left:8px;border-radius:1px}
 .lu-detail-warn{font-size:12px;color:#ffc061}
-.lu-detail-stats{display:flex;align-items:flex-end;gap:18px;margin:2px 0 0}
+.lu-detail-stats{display:flex;align-items:flex-end;gap:18px;margin:0}
 .lu-detail-stats>div{display:flex;flex-direction:column;align-items:center;gap:2px}
 .lu-detail-stats dt{font-size:10px;color:#7f8a98}
 .lu-detail-stats dd{margin:0;font-family:var(--display);font-size:16px;font-weight:700;color:#f0f1f3}
@@ -95,32 +95,31 @@
 .lu-detail-actions button,.lu-detail-empty button{display:flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:4px;background:#2a313a;color:#e6ebf0;font-size:13px;font-weight:600}
 .lu-detail-actions button:hover,.lu-detail-empty button:hover{background:#353d47;color:#fff}
 /* Ảnh thẻ chừa lề trong suốt hai bên nên lấn margin âm để thẻ to hơn mà chữ bên trái vẫn đủ chỗ. */
-.lu-detail-face{display:block;width:165px;margin:0 -22px;filter:drop-shadow(0 6px 14px #000a)}
-.lu-detail-face>.player-card{width:100%}
+.lu-detail-face{display:grid;place-items:end center;align-self:end;--face:92px}
 .lu-detail-empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:flex-start;gap:10px;font-size:13px;line-height:1.6;color:#aeb6c2}
 
-.lu-cols,.lu-row{display:grid;grid-template-columns:46px minmax(0,1fr) 26px 34px 30px;align-items:center;gap:6px;padding:0 10px}
-.lu-cols{flex-shrink:0;height:30px;background:#232a33;font-size:11px;color:#aeb6c2;scrollbar-gutter:stable;overflow:hidden}
+.lu-cols,.lu-row{display:grid;grid-template-columns:46px minmax(0,1fr) 26px 34px 30px;align-items:center;gap:6px;padding:0 34px 0 40px}
+.lu-cols{flex-shrink:0;height:30px;background:#232a33;font-size:12.1px;color:#aeb6c2;scrollbar-gutter:stable;overflow:hidden}
 .lu-cols>span:nth-child(n+3){text-align:center}
 .lu-rows{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#3a4452 transparent;scrollbar-gutter:stable}
 .lu-row{width:100%;height:32px;border:0;border-bottom:1px solid #1f262f;border-radius:0;background:none;color:inherit;text-align:left;cursor:pointer}
 .lu-row:hover{background:#1c232c}
 .lu-row:focus-visible{outline:none;box-shadow:inset 0 0 0 2px #7bc9ff}
 .lu-row>span:nth-child(3),.lu-row>span:nth-child(5){display:flex;justify-content:center}
-.lu-row .squad-wage{width:20px;height:20px;font-size:10px}
+.lu-row .squad-wage{width:20px;height:20px;font-size:11px}
 .lu-row .squad-level-img{width:24px}
-.lu-row .squad-season{font-size:9px}
-.lu-row .squad-name strong{font-size:14px}
-.lu-row em{font-style:normal;font-size:12px;color:#6f7a88}
-.lu-pos{padding-left:7px;border-left:3px solid;font-family:var(--display);font-size:15px;font-weight:700;line-height:1.15;color:#f0f1f3}
+.lu-row .squad-season{font-size:9.9px}
+.lu-row .squad-name strong{font-size:15.4px}
+.lu-row em{font-style:normal;font-size:13.2px;color:#6f7a88}
+.lu-pos{padding-left:7px;border-left:3px solid;font-family:var(--display);font-size:16.5px;font-weight:700;line-height:1.15;color:#f0f1f3}
 .lu-pos.pos-fw{border-color:#e63946}.lu-pos.pos-mf{border-color:#2ecc71}.lu-pos.pos-df{border-color:#3498db}.lu-pos.pos-gk{border-color:#f1c40f}
-.lu-row-ovr{font-family:var(--display);font-size:16px;font-weight:700;color:#fff;text-align:center;font-variant-numeric:tabular-nums}
+.lu-row-ovr{font-family:var(--display);font-size:17.6px;font-weight:700;color:#fff;text-align:center;font-variant-numeric:tabular-nums}
 .lu-row-ovr.is-off{color:#ffc061}
 .lu-row.is-picked{background:#eef1f4}
 .lu-row.is-picked .lu-pos,.lu-row.is-picked .squad-name strong,.lu-row.is-picked .lu-row-ovr{color:#11161c}
 .lu-row.is-picked .lu-row-ovr.is-off{color:#c46a00}
-.lu-subhead{display:flex;align-items:center;gap:6px;padding:12px 14px 6px;font-size:12px;color:#929cab}
-.lu-subhead small{padding:0 6px;border-radius:999px;background:#232a33;font-size:11px;color:#c9d2dc}
+.lu-subhead{display:flex;align-items:center;gap:6px;padding:12px 40px 6px;font-size:13.2px;color:#929cab}
+.lu-subhead small{padding:0 6px;border-radius:999px;background:#232a33;font-size:12.1px;color:#c9d2dc}
 .lu-subs-empty{margin:0;padding:14px;font-size:13px;color:#7f8a98;text-align:center}
 
 /* Team color: dải chip các nhóm đang kích hoạt (CLB xanh lá, quốc gia xanh dương, cấp thẻ vàng); huy hiệu +n ở góc ảnh cầu thủ được cộng. */
@@ -133,24 +132,14 @@
 .lu-colors-none{font-size:12px;color:#6f7a88}
 /* Chi tiết OVR khi rê chuột vào cầu thủ trên sân (cảm ứng: khi chạm chọn); ẩn trong lúc kéo. */
 .lu-token:hover,.lu-token.is-picked{z-index:5}
-.lu-token-tip{position:absolute;left:50%;bottom:calc(100% + 6px);display:flex;flex-direction:column;gap:2px;min-width:170px;padding:7px 10px;border:1px solid #ffffff2e;border-radius:6px;background:#0b0f14f5;box-shadow:0 8px 20px #000b;font-size:12px;line-height:1.35;white-space:nowrap;text-align:left;opacity:0;visibility:hidden;transform:translate(-50%,4px);transition:opacity .12s,transform .12s;pointer-events:none}
-.lu-token:hover .lu-token-tip,.lu-token:focus-visible .lu-token-tip,.lu-token.is-picked .lu-token-tip{opacity:1;visibility:visible;transform:translate(-50%,0)}
-.lu-pitch.is-moving .lu-token-tip{display:none}
-.lu-token-tip>span{display:flex;justify-content:space-between;gap:16px}
-.lu-token-tip i{font-style:normal;color:#aeb6c2}
-.lu-token-tip b{font-family:var(--display);font-weight:700;color:#f0f1f3;font-variant-numeric:tabular-nums}
-.lu-token-tip .is-plus i,.lu-token-tip .is-plus b{color:#4dfa8c}
-.lu-token-tip .is-minus i,.lu-token-tip .is-minus b{color:#ffc061}
-.lu-token-tip .is-total{margin-top:2px;padding-top:4px;border-top:1px solid #ffffff24}
-.lu-token-tip .is-total i{color:#f0f1f3}
 .lu-detail-colors{font-size:12px;color:#7ee2a5}
 
 @media(max-width:1100px){
   .main-content>.workspace.lineup-workspace{grid-template-columns:minmax(0,1fr) 320px}
   .lu-stats{gap:14px}
   .lu-stats strong{font-size:21px}
-  .lu-detail-face{width:88px}
-  .lu-cols,.lu-row{grid-template-columns:50px minmax(0,1fr) 30px 40px 36px;gap:6px;padding:0 10px}
+  .lu-detail-face{--face:84px}
+  .lu-cols,.lu-row{grid-template-columns:50px minmax(0,1fr) 30px 40px 36px;gap:6px;padding:0 34px 0 40px}
 }
 @media(max-width:900px){
   .main-content>.workspace.lineup-workspace{grid-template-columns:minmax(0,1fr) 280px;width:calc(100% - 20px);margin:10px auto}
@@ -168,7 +157,7 @@
   .lu-pitch{flex:none;height:min(125vw,560px)}
   .lu-side{border-left:0;border-top:1px solid #232c37}
   .lu-rows{flex:none;overflow:visible}
-  .lu-detail-face{display:block;width:84px}
+  .lu-detail-face{display:grid;--face:72px}
   .lu-detail{grid-template-columns:minmax(0,1fr) auto}
 }
 
@@ -198,4 +187,172 @@
 .lu-token:focus-visible .lu-face.is-portrait img{filter:drop-shadow(0 0 4px #7bc9ff) drop-shadow(0 2px 3px #000b)}
 .lu-token.is-drop .lu-face.is-portrait img{filter:drop-shadow(0 0 4px #1fe36b99) drop-shadow(0 2px 3px #000b)}
 .lu-token.is-picked .lu-face.is-portrait img{filter:drop-shadow(0 0 5px #1fe36b) drop-shadow(0 0 10px #1fe36b99)}
-.squad-face.is-portrait:hover img{transform:scale(1.06);transform-origin:50% 100%}
+.squad-face.is-portrait:hover img{transform:scale(1.06);transform-origin:50% 100%}/* Màn Đội hình không bo góc: khung ngoài, các nút, ô chọn, nhãn, ảnh cầu thủ, thẻ màu đội. Giữ nguyên hình tròn của ô trống và ảnh mờ khi kéo. */
+.main-content>.workspace.lineup-workspace,.lineup-workspace .lu-main,.lineup-workspace .lu-side,
+.lu-sets button,.lu-field select,.lu-face:not(.lu-face-empty):not(.lu-face-ghost),.lu-token-name,.lu-drag-tag,
+.lu-pitch-actions button,.lu-detail-actions button,.lu-detail-empty button,.lu-detail-meta img,
+.lu-subhead small,.lu-color{border-radius:0!important}
+/* Khung A/B/C và ô Sơ đồ nhỏ lại 25%. */
+.lu-sets button{width:38px;height:29px;font-size:17px}
+.lu-field select{height:29px;min-width:115px;padding:0 9px;font-size:16px}
+/* Khối A/B/C và ô Sơ đồ dịch sang phải 30px (dịch hình, không đẩy các số liệu bên cạnh). */
+.lu-bar>.lu-field{position:relative;left:30px}
+/* Dấu ? xanh lá giải thích nhãn Giá trị của cầu thủ trong đội. */
+.lu-help{display:inline-grid;place-items:center;width:17px;height:17px;margin-left:8px;border-radius:0;background:#1fb35a;color:#fff;font-family:var(--display);font-size:13px;font-style:normal;font-weight:700;line-height:1;cursor:help;vertical-align:middle}
+/* Giá trị cầu thủ trong đội + Tổng lương dịch sang trái 30px (dịch hình, không đổi bố cục). */
+.lu-bar>.lu-stats{position:relative;left:-30px}
+/* Khung bên trái (sân bóng) thu vào 30px mỗi bên (màn rộng): lề trái / phải từ 18px lên 48px. */
+@media(min-width:901px){.lu-main{padding-left:33px;padding-right:33px}}
+/* Thanh thông tin dưới sân: HLV (mini face + tên), Team color (số màu CLB / quốc gia và màu cấp thẻ), Sơ đồ. */
+.lu-coachbar{flex:none;display:flex;align-items:center;gap:24px;margin-top:10px;padding:10px 6px 4px}
+.lu-coach{display:flex;align-items:center;gap:14px;flex:1;min-width:0}
+.lu-coach-face{flex:none;display:grid;place-items:center;width:62px;height:76px;overflow:hidden;background:radial-gradient(circle at 50% 30%,#2b3440,#141920);box-shadow:inset 0 0 0 1px #ffffff14}
+.lu-coach-face img{width:100%;height:100%;object-fit:cover}
+.lu-coach-text{display:grid;gap:4px;min-width:0}
+.lu-coach-text small,.lu-coach-colors small,.lu-coach-formation small{font-size:13px;color:#929cab}
+.lu-coach-text b{font-family:var(--display);font-size:20px;font-weight:700;color:#f0f1f3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lu-coach-colors{display:grid;gap:6px;justify-items:center}
+.lu-coach-colors>span{display:flex;gap:18px;font-family:var(--display);font-size:18px;font-weight:600;color:#f0f1f3}
+.lu-coach-colors>span>span{display:inline-flex;align-items:center;gap:6px}
+.lu-coach-colors svg{color:#cfd5dc}
+.lu-coach-formation{display:grid;gap:6px;justify-items:end}
+.lu-coach-formation select{height:34px;min-width:150px;padding:0 12px;border:0;border-radius:0;background:#2a313a;color:#f0f1f3;font-family:var(--display);font-size:18px;font-weight:700}
+/* Nửa sân kiểu FC Online (2026-11-23): nền ngoài xám than phẳng, cỏ sọc dọc ô liu, vạch trắng mờ mảnh, không gờ 3D, không bóng đổ. */
+.main-content:not(.view-packs) .lineup-workspace .lu-main{background:#151618!important}
+.lu-pitch-art{filter:none}
+.lu-turf{fill:#6f9532}
+.lu-stripe-a{fill:#719a34}.lu-stripe-b{fill:#658e2d}
+.lu-lines{fill:none;stroke:#fff;stroke-opacity:.55;stroke-width:1.8;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+/* Nửa sân rộng hơn để phủ gần hết bề ngang khung. */
+.lu-pitch{aspect-ratio:16/9}
+/* Cầu thủ trên sân (giữ nguyên ảnh mini face): tên không nền, lục giác lương đứng, OVR gọn không viền đen. */
+.lu-token-name{gap:5px;padding:0;border-radius:0;background:none;font-size:14px;font-weight:500;text-shadow:0 1px 2px rgba(0,0,0,.65)}
+.lu-token-name .squad-season{display:inline-flex;align-items:center;height:18px;padding:0 3px;font-size:10.5px;line-height:1;text-shadow:none}
+.lu-token .squad-wage{width:calc(var(--face) * .4);height:calc(var(--face) * .46);clip-path:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpolygon points='50,2 97,26 97,74 50,98 3,74 3,26' fill='rgba(30,50,15,0.25)' stroke='rgba(255,255,255,0.45)' stroke-width='4' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center/100% 100% no-repeat;font-size:calc(var(--face) * .2)}
+.lu-token .squad-wage::before{display:none}
+.lu-token .squad-wage b{font-weight:600;color:#fff;text-shadow:none}
+.lu-token-top>strong{font-family:'Roboto Condensed','Barlow Condensed',var(--display),sans-serif;font-size:clamp(16px,calc(var(--face) * .3),22px);font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+/* Một nút Tối ưu ĐH nằm trong góc dưới phải của sân. */
+.lu-pitch-actions{right:14px;bottom:14px}
+.lu-pitch-actions .lu-optimize{justify-content:center;gap:8px;min-width:150px;height:36px;padding:0 16px;border:0;border-radius:4px;background:rgba(35,58,20,.55);color:#fff;font-weight:600;-webkit-backdrop-filter:none;backdrop-filter:none}
+.lu-pitch-actions .lu-optimize:hover:not(:disabled){background:rgba(71,100,44,.85);color:#fff}
+.lu-pitch-actions .lu-optimize svg{stroke-width:2.8}
+/* Về sơ đồ / Làm trống chuyển xuống thanh HLV. */
+.lu-coach-actions{display:flex;gap:8px}
+.lu-coach-actions button{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:0;border-radius:0;background:#2a313a;color:#e6ebf0;font-family:var(--display);font-size:14px;font-weight:600}
+.lu-coach-actions button:hover:not(:disabled){background:#353d47;color:#fff}
+.lu-coach-actions button:disabled{opacity:.45;cursor:not-allowed}
+/* Ô đang chọn: chấm sáng xanh lá nhấp nháy dưới chân cầu thủ thay cho viền quanh ảnh. */
+.lu-token.is-picked .lu-face{box-shadow:none}
+.lu-token.is-picked::after{content:'';position:absolute;left:50%;top:calc(var(--face) * 1.06 - 3px);width:calc(var(--face) * .42);height:calc(var(--face) * .13);translate:-50% 0;border-radius:50%;background:#2dea78;box-shadow:0 0 10px 3px #2dea78aa;animation:lu-picked-dot 1.3s ease-in-out infinite;pointer-events:none}
+@keyframes lu-picked-dot{50%{opacity:.45;box-shadow:0 0 5px 1px #2dea7866}}
+.reduced-motion .lu-token.is-picked::after{animation:none}
+@media(prefers-reduced-motion:reduce){.lu-token.is-picked::after{animation:none}}
+/* Thủ môn đứng cố định: không kéo được, chỉ bấm để chọn / đổi người. */
+.lu-token.pos-gk:not(.is-empty){cursor:pointer;touch-action:manipulation}
+/* Mini face cầu thủ trên sân màn Đội hình to hơn 30% (36–86px theo chiều cao sân -> 47–112px); lục giác lương và OVR to theo. */
+.lineup-workspace .lu-token{--face:clamp(42px,15.4cqh,99px)}
+/* Chiến thuật đội hình: nút xổ xuống + danh sách 10 chiến thuật (tên · sơ đồ), dòng đang dùng nền trắng; bút chì đổi tên. */
+.lu-tactic{position:relative}
+.lu-tactic-trigger{display:flex;align-items:center;justify-content:space-between;gap:10px;height:29px;min-width:190px;padding:0 10px;border:0;border-radius:0;background:#2a313a;color:#f0f1f3;font-family:var(--display);font-size:16px;font-weight:600;cursor:pointer}
+.lu-tactic-trigger span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lu-tactic-list{position:absolute;top:100%;left:0;z-index:30;width:max(100%,250px);margin:2px 0 0;padding:4px 0;list-style:none;background:#14181cf2;box-shadow:0 10px 24px #000a}
+.lu-tactic-list li{position:relative;display:flex;align-items:center}
+.lu-tactic-pick{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:1;min-width:0;height:34px;padding:0 34px 0 12px;border:0;background:none;color:#f0f1f3;font-family:var(--display);font-size:15px;text-align:left;cursor:pointer}
+.lu-tactic-pick b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lu-tactic-pick small{flex:none;font-size:13px;color:#8e98a7;font-variant-numeric:tabular-nums}
+.lu-tactic-pick:hover{background:#ffffff12}
+.lu-tactic-list li.is-on .lu-tactic-pick{background:#fff;color:#1a1f2b}
+.lu-tactic-list li.is-on .lu-tactic-pick small{color:#5b6672}
+.lu-tactic-rename{position:absolute;right:6px;top:50%;translate:0 -50%;display:grid;place-items:center;width:24px;height:24px;padding:0;border:0;background:none;color:#8e98a7;opacity:0;cursor:pointer}
+.lu-tactic-list li:hover .lu-tactic-rename,.lu-tactic-rename:focus-visible{opacity:1}
+.lu-tactic-rename:hover{color:#fff}
+.lu-tactic-list li.is-on .lu-tactic-rename{color:#5b6672}
+.lu-tactic-input{flex:1;height:34px;margin:0 6px;padding:0 8px;border:1px solid #1fe36b;border-radius:0;background:#0b0f14;color:#fff;font-family:var(--display);font-size:15px}
+/* Danh sách cầu thủ bên phải: thanh cuộn chỉ hiện khi trỏ chuột vào (giống màn Đăng kí cầu thủ). */
+.lu-rows::-webkit-scrollbar{display:block;width:6px}
+.lu-rows::-webkit-scrollbar-track{background:transparent}
+.lu-rows{scrollbar-color:transparent transparent}
+.lu-rows::-webkit-scrollbar-thumb{background:transparent;border-radius:3px}
+.lu-rows:hover{scrollbar-color:#3a4452 transparent}
+.lu-rows:hover::-webkit-scrollbar-thumb{background:#3a4452}
+.lu-rows:hover::-webkit-scrollbar-thumb:hover{background:#4d5867}
+/* Chọn một cầu thủ trong danh sách: chỉ đổi nền trắng. Phải vừa chọn vừa rê chuột (hoặc Tab) vào dòng mới hiện 3 nút Nâng cấp · Xem thông tin · Khóa phủ lên phần chỉ số bên phải. */
+.lu-row{position:relative}
+.lu-row-acts{position:absolute;top:0;right:0;bottom:0;display:none;align-items:center;gap:2px;padding:0 34px 0 40px;background:linear-gradient(90deg,#1c232c00,#1c232c 36px)}
+.lu-row.is-picked:hover .lu-row-acts,.lu-row.is-picked:focus-visible .lu-row-acts,.lu-row.is-picked:has(button:focus-visible) .lu-row-acts{display:flex}
+.lu-row.is-picked .lu-row-acts{background:linear-gradient(90deg,#eef1f400,#eef1f4 36px)}
+.lu-row-acts button{display:flex;align-items:center;justify-content:center;width:32px;height:28px;padding:0;border:0;border-radius:0;background:#3a3f47;color:#c9d2dc;cursor:pointer}
+.lu-row-acts button:first-child{border-radius:4px 0 0 4px}
+.lu-row-acts button:last-child{border-radius:0 4px 4px 0}
+.lu-row-acts button:hover{background:#4a5059;color:#fff}
+.lu-row-acts button.on{color:#ffd166}
+.lu-row-acts svg{width:18px;height:18px}
+.lu-row-acts button:first-child svg{fill:currentColor;color:#2be27a}
+/* Rê chuột vào cầu thủ khác khi đã chọn một người: nút Nâng cấp · Đổi vị trí · So sánh · Khóa. */
+.lu-row:not(.is-picked):hover .lu-row-acts{display:flex}
+.lu-row-acts button svg text{font-family:var(--display)}
+.lu-compare-back{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:#000a}
+.lu-compare{position:relative;width:min(460px,calc(100vw - 24px));padding:18px 20px 12px;background:#141920;border:1px solid #2b3440;color:#e8edf3}
+.lu-compare-x{position:absolute;top:6px;right:10px;border:0;background:none;color:#aeb6c2;font-size:24px;line-height:1;cursor:pointer}
+.lu-compare-x:hover{color:#fff}
+.lu-compare-head{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-bottom:12px;text-align:center}
+.lu-compare-head>div{display:flex;flex-direction:column;align-items:center;gap:6px;--face:84px;font-size:15px}
+.lu-compare-head>span{font-family:var(--display);font-size:22px;font-weight:800;color:#6f7a88}
+.lu-compare-row{display:grid;grid-template-columns:1fr 84px 1fr;align-items:center;min-height:34px;border-top:1px solid #232c37;text-align:center;font-size:15px;font-weight:600}
+.lu-compare-row em{font-style:normal;font-size:12px;font-weight:400;color:#929cab}
+.lu-compare-row .is-better{color:#2be27a}
+.lu-compare-row img{width:26px}
+/* 6 chỉ số tóm tắt của cầu thủ đang chọn, nằm trên tiêu đề cột danh sách. */
+.lu-sum{display:grid;grid-template-columns:repeat(6,1fr);flex-shrink:0;padding:12px 20px 10px;background:#1a1d22;border-bottom:1px solid #2a2f36;text-align:center}
+.lu-sum span{display:block;font-size:14px;font-weight:500;line-height:1.3;color:#d3d8df}
+.lu-sum b{display:block;margin-top:2px;font-family:var(--display);font-size:30px;font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+/* Ô đang chọn: thêm vòng tròn (elip) sáng mờ rộng quanh chân cầu thủ, tâm là chấm xanh lá, nằm dưới ảnh và nhãn tên (người dùng 2026-11-24). */
+.lu-token.is-picked::before{content:'';position:absolute;z-index:-1;left:50%;top:calc(var(--face) * 1.06 + var(--face) * .02);width:calc(var(--face) * 2.3 - 65px);height:calc(var(--face) * .95 - 26px);translate:-50% -34%;border-radius:50%;background:radial-gradient(ellipse at 50% 38%,#ffffff40 0,#ffffff2e 52%,#ffffff1f 68%,#ffffff00 70%);box-shadow:inset 0 0 0 1px #ffffff1f;pointer-events:none}
+.lu-token.is-picked::after{background:radial-gradient(ellipse,#2dea78 0,#2dea78 55%,#2dea7800 100%);box-shadow:0 0 14px 4px #2dea7899;width:calc(var(--face) * .6);height:calc(var(--face) * .2)}
+/* Bỏ viền / quầng xanh quanh miniface khi chọn (người dùng 2026-11-24): chỉ còn vòng elip và chấm xanh dưới chân. */
+.lu-token.is-picked .lu-face,.lu-token.is-picked .lu-face.is-portrait{box-shadow:none}
+.lu-token.is-picked .lu-face.is-portrait img,.lu-token.is-picked:hover .lu-face.is-portrait img{filter:drop-shadow(0 2px 3px #000b)}
+/* Vòng và chấm xanh nằm dưới nhãn tên, không che tên (người dùng 2026-11-24). */
+.lu-token.is-picked::after{z-index:-1;top:calc(var(--face) * 1.06 - var(--face) * .12)}
+.lu-token.is-picked .lu-token-name{position:relative;z-index:1}
+/* Nhãn tên cầu thủ trên sân dịch xuống 15px rồi lên 7px (người dùng 2026-11-24). */
+.lu-token:not(.is-empty) .lu-token-name{position:relative;top:8px}
+/* Vạch trắng ngắn (một đoạn cung) chạy đều quanh vòng elip ngoài của cầu thủ đang chọn (người dùng 2026-11-24): elip SVG nét đứt 22% chu vi,
+   dịch stroke-dashoffset tuyến tính nên tốc độ dọc theo đường là hằng số; không dùng non-scaling-stroke vì nó làm pathLength không còn áp dụng (nét đứt lặp nhiều đoạn, nhìn như bị ngắt) (khác kiểu quay góc, nhanh chậm theo chỗ rộng / hẹp của elip). */
+.lu-ring{position:absolute;z-index:-1;left:50%;top:calc(var(--face) * 1.06 + var(--face) * .02);width:calc(var(--face) * 2.3 - 65px);height:calc(var(--face) * .95 - 26px);translate:-50% -34%;overflow:visible;pointer-events:none}
+.lu-ring ellipse{fill:none;stroke:#ffffffa6;stroke-width:4.5;stroke-linecap:round;stroke-dasharray:22 78;filter:drop-shadow(0 0 3px #ffffff66);animation:lu-ring-run 1s linear infinite}
+@keyframes lu-ring-run{to{stroke-dashoffset:-100}}
+.reduced-motion .lu-ring ellipse{animation:none}
+@media(prefers-reduced-motion:reduce){.lu-ring ellipse{animation:none}}
+/* Sân ngắn lại 20px chiều dài (chiều dọc, hai đầu cầu môn), giữ nguyên chiều ngang (người dùng 2026-11-24): sân là flex:1 chiếm hết chỗ còn lại nên chừa 20px phía dưới. */
+@media(min-width:901px){.lu-pitch{margin-bottom:20px}}
+/* Sân rộng thêm 15px rồi 15px nữa = 30px (người dùng 2026-11-24): lấn ra lề đệm của .lu-main, canh giữa nên mỗi bên ~7,5px. */
+@media(min-width:901px){.lu-pitch{width:calc(100% + 30px);max-width:calc(100% + 30px)}}
+/* Hàng HLV · Team color · Sơ đồ dịch lên 20px, sát chân sân (bù khoảng chừa khi sân ngắn lại 20px, người dùng 2026-11-24). */
+@media(min-width:901px){.lu-coachbar{margin-top:-10px}}
+/* Bỏ khung bao quanh ảnh HLV: không nền, không viền (người dùng 2026-11-24). */
+.lu-coach-face{background:none;box-shadow:none;border:0}
+/* Ảnh HLV dịch lên 10px để chân ảnh ngang đáy các mục Team color / Sơ đồ (người dùng 2026-11-24). */
+.lu-coach-face{position:relative;top:-10px}
+/* Dải 6 chỉ số của danh sách bên phải thấp xuống ~20px: đệm trên dưới 12/10 → 4/2px, tên chỉ số 13px, số 26px (người dùng 2026-11-24). */
+.lu-sum{padding-top:9px;padding-bottom:7px}
+.lu-sum span{font-size:13px;line-height:1.25}
+.lu-sum b{margin-top:0;font-size:26px}
+/* Khung thông tin cầu thủ thu hẹp hai bên bằng lề của danh sách bên dưới (trái 40px, phải 34px, người dùng 2026-11-24). */
+.lu-detail{padding-left:40px;padding-right:34px}
+/* Dòng Lương · cao · nặng · thể hình · hai chân trong khung thông tin cầu thủ của màn Đội hình, và dòng CLB · quốc tịch có vạch ngăn (giống bảng Thông tin cầu thủ). */
+.lu-detail-meta>i,.lu-detail-phys>i{width:1px;height:13px;margin:0 6px;background:#ffffff33}
+.lu-detail-phys{display:flex;align-items:center;flex-wrap:nowrap;white-space:nowrap;font-size:14px;color:#aeb6c2}
+.lu-detail-phys .squad-wage{width:26px;height:26px;margin-left:4px;font-size:12px}
+.lu-detail-feet{display:inline-flex;gap:2px;margin-left:8px}
+.lu-detail-feet .pd-foot{width:16px;height:26px}
+.lu-detail-feet .pd-foot text{font-size:14px}
+/* Mức cộng của thẻ ở góc dưới phải miniface trong khung thông tin cầu thủ (người dùng 2026-11-24). */
+.lu-detail-face{position:relative}
+.lu-detail-level{position:absolute;right:-6px;bottom:2px;width:30px;height:auto;filter:drop-shadow(0 2px 3px #000a)}
+/* Hai dòng CLB · quốc tịch và Lương · cao · nặng to thêm 10% (13px → 14,3px; 14px → 15,4px), cờ và vạch ngăn theo (người dùng 2026-11-24). */
+.lu-detail-meta{font-size:14.3px}
+.lu-detail-meta img{height:14.3px}
+.lu-detail-phys{font-size:15.4px}
+.lu-detail-phys .squad-wage{width:28px;height:28px;font-size:13px}

@@ -78,13 +78,16 @@ const CATALOG_VERSION = catalogVersionAtBuild();
 // Trang nạp FC tách khỏi game, đưa lên Cloudflare Pages (người dùng 2026-11-20): `npm run build:nap` (vite build --mode nap) chỉ build
 // nap.html + quan-ly-nap.html ở gốc tên miền vào dist-nap/, không chép thư mục public (ảnh game hàng trăm MB, vượt giới hạn Cloudflare),
 // chỉ mang theo vài ảnh trang nạp dùng + _redirects (/ → trang nạp, /quan-ly → trang quản lý).
-const NAP_ASSETS = ['currency-fc.png', 'topup-qr.webp', 'icon-tm-back.webp', 'rt-concrete.webp'];
+const NAP_ASSETS = ['currency-fc.png', 'topup-qr.webp', 'icon-tm-back.webp', 'rt-concrete.webp', 'fco-vip-logo-v2.png', 'view-backdrop-v2.webp'];
+// Favicon của nap.html / quan-ly-nap.html (public/icons/…): bản nạp không chép thư mục public nên phải phát ra từng file.
+const NAP_ICONS = ['icon-192-v2.png'];
 function napSite(): Plugin {
   return {
     name: 'nap-site',
     apply: 'build',
     generateBundle() {
       for (const file of NAP_ASSETS) this.emitFile({ type: 'asset', fileName: `assets/${file}`, source: readFileSync(path.resolve('public/assets', file)) });
+      for (const file of NAP_ICONS) this.emitFile({ type: 'asset', fileName: `icons/${file}`, source: readFileSync(path.resolve('public/icons', file)) });
       this.emitFile({ type: 'asset', fileName: '_redirects', source: '/  /nap.html  302\n/quan-ly  /quan-ly-nap.html  302\n' });
       this.emitFile({ type: 'asset', fileName: '_headers', source: '/*\n  X-Robots-Tag: noindex\n  Referrer-Policy: same-origin\n' });
     },

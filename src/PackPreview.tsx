@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ovrStyle } from './ovr-color';
 import { ChevronDown, ChevronUp, ShoppingBag, X, Zap } from 'lucide-react';
 import { money, ovr, packOdds } from './game';
 import type { Card, Pack } from './game';
@@ -42,7 +43,7 @@ export default function PackPreview({ pack, count, free, balance, onBuy, onOpenN
       <img src={player.cardFace || asset('/assets/silhouette.svg')} alt="" loading="lazy"/>
       <PositionBadge pos={player.pos}/>
       <b className="pack-preview-name">{player.name}</b>
-      <strong className="pack-preview-ovr" aria-label={`OVR ${value}`}>{value}</strong>
+      <strong className="pack-preview-ovr" style={ovrStyle(Number(value))} aria-label={`OVR ${value}`}>{value}</strong>
       <span className="pack-preview-chance" aria-label={`Tỷ lệ ${percent(chance)}`}>{percent(chance)}</span>
       <span className="pack-preview-price">{price === null ? '—' : `${money(price)} BP`}</span>
     </li>)}</ol>

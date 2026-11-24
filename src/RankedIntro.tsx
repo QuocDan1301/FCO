@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ovrStyle } from './ovr-color';
 import type { CSSProperties } from 'react';
 import { Shield } from 'lucide-react';
 import { getPlayer, players } from './game';
@@ -84,7 +85,7 @@ export default function RankedIntro({ match, sheets, onDone }: { match: RankedMa
       <TeamSheet sheet={sheets[0]}/>
       <div className="rki-mid">
         <span className="rki-vs-big">VS</span>
-        <div className="rki-score"><b>{match.me.ovr}</b><small>OVR</small><b>{match.opp.ovr}</b></div>
+        <div className="rki-score"><b style={ovrStyle(match.me.ovr)}>{match.me.ovr}</b><small>OVR</small><b style={ovrStyle(match.opp.ovr)}>{match.opp.ovr}</b></div>
         {match.me.attack !== undefined && match.opp.attack !== undefined && <div className="rki-score is-sub"><b>{Math.round(match.me.attack)}</b><small>Tấn công</small><b>{Math.round(match.opp.attack)}</b></div>}
         {match.me.defense !== undefined && match.opp.defense !== undefined && <div className="rki-score is-sub"><b>{Math.round(match.me.defense)}</b><small>Phòng ngự</small><b>{Math.round(match.opp.defense)}</b></div>}
         <div className="rki-load" role="progressbar" aria-label="Đang vào trận" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(done * 100)}><i style={{ width: `${done * 100}%` }}/></div>

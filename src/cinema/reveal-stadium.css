@@ -106,3 +106,6 @@
 @media(prefers-reduced-motion:reduce){.rs-firework,.rs-sparkles,.rp-ring{animation:none!important}.rs-firework{opacity:.75}}
 /* Màn hẹp: bỏ mặt màn cong, hai cánh trở về bố cục cũ (thẻ thông số xếp dọc); mặt sân bám đáy khung. */
 @media(max-width: 900px) and (orientation: portrait), (max-width: 900px) and (min-height: 501px){.reveal-screen{display:contents}.reveal-screen-face,.reveal-screen-bezel,.reveal-ground,.reveal-jets{display:none}}
+
+/* OVR ở kết quả mở thẻ luôn màu trắng (người dùng 2026-11-24), không theo bảng màu ngưỡng OVR. */
+.opening-result .reveal-screen .reveal-ovr,.opening-result .reveal-screen .reveal-info-ovr{color:#fff}

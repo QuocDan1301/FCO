@@ -32,7 +32,7 @@ try {
   assert.match(await page.eval(() => document.querySelector('.pack-preview-sub').textContent), /108 cầu thủ/);
   await page.screenshot({ path: 'outputs/bdo-qa/preview-1440.jpg' });
   await click('[aria-label="Đóng xem trước gói"]');
-  await nav('Quản lý CT');
+  await nav('Đăng kí cầu thủ');
   await page.screenshot({ path: 'outputs/bdo-qa/inventory-1440.jpg' });
   assert.match(await page.eval(() => document.body.innerText), /R\. Ferdinand/);
   assert.ok(await page.eval(() => [...document.querySelectorAll('.season-bdo img')].every(i => i.complete && i.naturalWidth > 0)));

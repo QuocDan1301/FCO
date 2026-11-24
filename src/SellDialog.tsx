@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ovrStyle } from './ovr-color';
 import type { ReactNode } from 'react';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
@@ -222,7 +223,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
           {reason ? <span className="sd-reason" title={reason}/> : <input type="checkbox" checked={on} onChange={() => toggle(c.uid)} aria-label={`Chọn ${pl.name} +${c.level}`}/>}
           <span className="sd-name"><span className={`squad-face sd-face${faceOf(pl).portrait ? ' is-portrait' : ''}`}><img src={faceOf(pl).src} alt=""/></span><b className={`squad-season season-tag-${pl.tier}`}>{seasonShort(pl.tier)}</b>{reason ? <strong>{pl.name}</strong> : <button className="sd-name-link" onClick={() => pick(c)} title="Bán lẻ với giá tự đặt">{pl.name}</button>}{reason && <em>{reason}</em>}</span>
           <span className="squad-wage"><b>{pl.wage ?? 0}</b></span>
-          <strong className="sd-ovr">{ovr(c)}</strong>
+          <strong className="sd-ovr" style={ovrStyle(ovr(c))}>{ovr(c)}</strong>
           <span><img className="sd-level" src={levelBadge(c.level)} alt={`+${c.level}`}/></span>
           <strong className="sd-price">{r && !reason ? money(priceFor({ card: c, range: r })) : '0'}</strong>
         </div>; })}

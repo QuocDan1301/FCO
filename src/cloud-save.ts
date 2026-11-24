@@ -19,7 +19,7 @@ const serverOwned = (data: Save | undefined) => data?.inv === 1;
 const EVENT_MIRROR = ['day', 'points', 'free', 'paid', 'missions'] as const;
 function uploadable(s: Save) {
   const copy: Record<string, unknown> = { ...s };
-  for (const key of [...PROTECTED_KEYS, 'history', 'fc', 'stp', 'premiumUntil', 'luxuryUntil', 'daily', 'membership']) delete copy[key];
+  for (const key of [...PROTECTED_KEYS, 'history', 'fc', 'stp', 'premiumUntil', 'luxuryUntil', 'royal', 'daily', 'membership']) delete copy[key];
   if (copy.event && typeof copy.event === 'object') { const event: Record<string, unknown> = { ...(copy.event as Record<string, unknown>) }; for (const key of EVENT_MIRROR) delete event[key]; copy.event = Object.keys(event).length ? event : undefined; }
   return JSON.stringify(Object.keys(copy).sort().filter(key => copy[key] !== undefined).map(key => [key, copy[key]]));
 }
