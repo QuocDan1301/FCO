@@ -348,8 +348,8 @@ export default function LineupBoard({ save, onUpdate, onDetail, onUpgrade, onLoc
               {penalty > 0 && <p className="lu-detail-warn">Đá trái vị trí sở trường ({p.pos}): −{penalty} OVR</p>}
               {/* Cùng thông tin như bảng Thông tin cầu thủ: lương, chiều cao, cân nặng, thể hình, hai chân (người dùng 2026-11-24). */}
               {(() => { const phys = physicalOf(p.id); return <p className="lu-detail-phys">Lương <Wage card={focus}/>{phys && <>
-                <i/>{phys.height}cm<i/>{phys.weight}kg{phys.body && <><i/>{phys.body}</>}
-                <span className="lu-detail-feet"><Foot side="left" value={phys.left} main={phys.left >= phys.right}/><Foot side="right" value={phys.right} main={phys.right >= phys.left}/></span></>}</p>; })()}
+                <i/>{phys.height}cm{phys.weight > 0 && <><i/>{phys.weight}kg</>}{phys.body && <><i/>{phys.body}</>}
+                {phys.left + phys.right > 0 && <span className="lu-detail-feet"><Foot side="left" value={phys.left} main={phys.left >= phys.right}/><Foot side="right" value={phys.right} main={phys.right >= phys.left}/></span>}</>}</p>; })()}
             </div>
             <div className="lu-detail-face"><Face card={focus} className="lu-face"/><img className="lu-detail-level squad-level-img" src={levelBadge(focus.level)} alt={`+${focus.level}`}/></div>
           </>;

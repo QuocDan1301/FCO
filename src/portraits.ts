@@ -5,7 +5,8 @@ import maskData from './portrait-masks.json';
 import blankData from './portrait-blank.json';
 import zoneData from './portrait-zones.json';
 import { asset } from './asset';
-import { seasons } from './game';
+import { latestSourceId } from './latest-season';
+import { players, seasons } from './game';
 import type { Player, Tier } from './game';
 
 // Chân dung không nền (ảnh playersAction của FC Online, 112×112 WebP trong suốt) theo mã cầu thủ — dựng bởi scripts/portraits/
@@ -19,7 +20,25 @@ const customOf: Record<string, string[]> = {};
 for (const [id, c] of Object.entries(custom)) (customOf[c.person] ??= []).push(id);
 export const isCustomMiniface = (v: string) => Object.hasOwn(custom, v);
 const url = (spid: string) => asset(isCustomMiniface(spid) ? `/assets/portraits/custom/${spid}.webp` : `/assets/portraits/${spid}.webp`);
-export const portraitOf = (playerId: number): string | undefined => { const spid = cards[String(playerId)]; return spid ? url(spid) : undefined; };
+// Thẻ NARUTO… (người dùng 2026-11-25 "lấy miniface tôi gửi làm miniface luôn"): có miniface người dùng gửi (minifaces-custom.json) cùng cầu thủ
+// và cùng CLB trên thẻ (nhãn Barça ↔ Barcelona, Real Madrid) thì dùng làm miniface mặc định; không có thì chân dung mùa mới nhất của cùng cầu thủ.
+const CUSTOM_LABEL_CLUB: Record<string, string> = { 'Barça': 'Barcelona', 'Real Madrid': 'Real Madrid' };
+const CUSTOM_DEFAULT_TIERS: ReadonlySet<string> = new Set(['naruto']);
+let playerById: Map<number, Player> | null = null;
+export function customDefaultOf(playerId: number): string | undefined {
+  playerById ??= new Map(players.map(p => [p.id, p]));
+  const p = playerById.get(playerId);
+  if (!p || !CUSTOM_DEFAULT_TIERS.has(p.tier)) return undefined;
+  const own = customOf[personKey(p)] ?? [];
+  return own.find(id => custom[id].label === seasons[p.tier]) ?? own.find(id => CUSTOM_LABEL_CLUB[custom[id].label] === p.club);
+}
+export const portraitOf = (playerId: number): string | undefined => {
+  const mine = customDefaultOf(playerId);
+  if (mine) return url(mine);
+  const src = cards[String(playerId)] ? playerId : latestSourceId(playerId, id => !!cards[String(id)]);
+  const spid = src === null ? undefined : cards[String(src)];
+  return spid ? url(spid) : undefined;
+};
 
 // Miniface người chơi chọn (bản lưu `minifaces`): App gọi setMinifaces mỗi lần vẽ để mọi chỗ hiện ảnh mặt dùng cùng lựa chọn.
 let chosen: Record<string, string> = {};
@@ -64,7 +83,7 @@ const maskTf = (maskData as { cards: Record<string, number[]> }).cards;
 const blankOf = (blankData as { tiers: Record<string, { box: number[] }> }).tiers;
 // zone: vùng an toàn của mùa (portrait-zones.json) — không xoá / đặt miniface lên thông tin in trên thẻ, không tràn viền.
 const zoneOf = (zoneData as { tiers: Record<string, { level: number[]; info: number[]; cut: number; inset: number }> }).tiers;
-const NO_CARD_SWAP = new Set<string>(['tsubasa']);
+const NO_CARD_SWAP = new Set<string>(['tsubasa', 'naruto']); // NARUTO: thẻ vẽ chung nhân vật Naruto, không đổi miniface
 export type CardSwap = { key: string; old?: string; mask?: string; blank?: string; box?: [number, number, number]; zone?: { level: number[]; info: number[]; cut: number; inset: number }; next: string; tf: [number, number, number]; soft: boolean };
 export function cardSwapOf(p: Pick<Player, 'id' | 'name' | 'nation' | 'tier' | 'cardFace'>): CardSwap | null {
   const key = personKey(p), pick = chosen[key], own = cards[String(p.id)];

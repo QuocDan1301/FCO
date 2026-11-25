@@ -17,7 +17,7 @@ const base = defaultPacks.find(p => p.id === 'ch')!;
 
 test('Mùa CH có đủ ảnh gói, hầm, huy hiệu mùa, nhãn và khung trống đổi miniface', () => {
   assert.ok(TIERS.includes('ch'));
-  assert.equal(TIERS.at(-1), 'ch');
+  assert.equal(TIERS[TIERS.indexOf('tsubasa') + 1], 'ch'); // sau CH là NARUTO (2026-11-25)
   assert.ok((SEASON_IDS as readonly string[]).includes('ch'));
   assert.equal(seasons.ch, 'CH');
   assert.equal(seasonShort('ch'), 'CH');

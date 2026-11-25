@@ -87,7 +87,7 @@ test('Đổi miniface lên ảnh thẻ: chân dung cùng mùa / mặt nạ ngư�
     const s = cardSwapOf(p)!;
     assert.ok(s.old.endsWith(`/${own}.webp`) && s.next.endsWith(`/${other}.webp`) && !s.soft);
     assert.deepEqual(s.tf, frames.tiers[p.tier]);
-    const noFrame = players.find(c => c.cardFace && c.tier !== 'tsubasa' && !frames.tiers[c.tier] && !blankTiers[c.tier] && personKey(c) !== key && data.persons[personKey(c)]);
+    const noFrame = players.find(c => c.cardFace && c.tier !== 'tsubasa' && c.tier !== 'naruto' && !frames.tiers[c.tier] && !blankTiers[c.tier] && personKey(c) !== key && data.persons[personKey(c)]);
     if (noFrame && data.persons[personKey(noFrame)]) { setMinifaces({ [personKey(noFrame)]: data.persons[personKey(noFrame)][0] }); const m = cardSwapOf(noFrame); assert.ok(m?.mask && !m.old, 'mùa không có vị trí chân dung: đổi bằng mặt nạ người'); }
   } finally { setMinifaces(undefined); }
 

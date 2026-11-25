@@ -1,0 +1,17 @@
+/* NARUTO (NARUTO SHIPPUDEN): tạo bởi scripts/import-naruto.py. Ảnh thẻ người dùng gửi (đã xoá OVR, nhãn + tên in sẵn); OVR / tên / cấp vẽ bằng HTML. */
+.rarity-dot.naruto{background:#ff8a1f}
+.player-card.face-art.season-naruto{aspect-ratio:555/684}
+.player-card.face-art.season-naruto>.face-art-img{filter:drop-shadow(0 0 5px #ff8a1f33)}
+.season-naruto[data-level="1"] .face-art-level{visibility:hidden}
+.season-naruto .face-art-ovr{left:25.68%;top:22.95%;font-size:9.2cqw;color:#ffc25a;letter-spacing:-.01em;text-shadow:0 .03em .1em #3a1a0499}
+.season-naruto .face-art-level{left:20.00%;top:58.33%;width:12.97%;height:6.87%;transform:none;object-fit:fill}
+.season-naruto{--name-size:6.6cqw;--name-color:#ffffff;--nx:20.72%;--nw:54.77%;--ny:75.58%}
+.season-naruto .face-art-name{text-align:center;text-shadow:0 .05em .14em #000c}
+.season-naruto .face-art-name.is-long{text-align:left}
+.season-naruto .face-art-name>b::before{content:"";display:inline-block;width:1.158em;height:.84em;margin-right:.32em;vertical-align:-.08em;background:url(/assets/naruto-label.webp) center/100% 100% no-repeat}
+[data-tone=naruto]{--shop-tone:#ff8a1f;--shop-tone2:#0d2a55}
+.season-tag-naruto{color:#ffb15c}
+.reveal-naruto .reveal-panel{--led:#4fd2ff;--led2:#1c0f06;border-color:#ff8a1f66}
+.reveal-naruto .reveal-stats dt{color:#ffffff}
+.reveal-naruto .reveal-podium{background:linear-gradient(180deg,#5a2a08,#1c0f06);border-top-color:#4fd2ff}
+.reveal-naruto .reveal-podium span{color:#ffffff}

@@ -18,13 +18,16 @@ COLS = [19, 66, 112, 158, 204, 251, 297, 343, 389, 436, 482, 528, 574, 621, 667,
 ROWS = [11, 50, 89, 127, 166, 205]
 
 TIER_CELLS = {
+    'dcb': '5.14',
     'origin': '5.8', 'stellar': '6.5', 'eternal': '3.3', 'prime': '6.12', 'vietnam': '4.14', 'prm': '5.20', 'mdl': '3.17', 'amb': '4.16',
     'uc': '6.14', 'wg': '6.1', 'ut': '3.2', 'cu': '2.16', 'gru': '2.15', 'rtn': '2.21', 'dc': '3.4', 'cc': '3.7', 'bld': '3.15', 'wb': '5.10',
     'spt': '6.13', 'bdo': '3.8', 'hw23': '2.9', 'ep24': '2.10', 'ptg': '6.4', 'le': '5.11', 'hg': '2.14', 'spl': '3.5', 'ln': '3.14', 'fa': '3.11',
     'lol': '3.10', 'cap': '3.1', 'boe21': '1.21', 'btb': '2.4', 'ebs': '2.13', 'juventus': '4.7', 'jnm': '3.19', 'hr25': '5.9', 'hr24': '4.6', 'chelsea': '4.3', 'hr26': '5.21', 'ld': '4.4', 'ws': '5.15',
 }
-# Mùa bảng chưa có: cắt từ ảnh gói (ảnh, hộp x0 y0 x1 y1). EL: ô vuông chữ EL ở góc dưới trái ảnh gói. Ô 2.17 "UP" khác huy hiệu 26UP in trên thẻ nên không dùng.
+# Mùa bảng chưa có: cắt từ ảnh gói (ảnh, hộp x0 y0 x1 y1). NARUTO: huy hiệu người dùng gửi riêng, xem FILE_BADGES. EL: ô vuông chữ EL ở góc dưới trái ảnh gói. Ô 2.17 "UP" khác huy hiệu 26UP in trên thẻ nên không dùng.
 PACK_CROPS = {'el': ('el-back', (370, 1820, 608, 2065)), 'tsubasa': ('tsubasa-back', (206, 2063, 406, 2213)), 'ch': ('ch-back', (205, 2068, 420, 2240)), 'up26': ('up26-back', (136, 2094, 358, 2278)), 'live': ('live-back', (259, 2032, 461, 2202))}
+# Huy hiệu người dùng gửi thành file riêng (đã cắt sát, scripts/import-naruto.py).
+FILE_BADGES = {'naruto': os.path.join(ROOT, 'scripts', 'data', 'naruto-badge.png')}
 
 
 def from_sheet(sheet, cell):
@@ -43,6 +46,9 @@ sheet = Image.open(SHEET).convert('RGB')
 os.makedirs(os.path.join(ASSETS, 'seasons'), exist_ok=True)
 badges = {tier: from_sheet(sheet, cell) for tier, cell in TIER_CELLS.items()}
 badges.update({tier: from_pack(*source) for tier, source in PACK_CROPS.items()})
+for tier, path in FILE_BADGES.items():
+    im = Image.open(path).convert('RGB')
+    badges[tier] = im.resize((round(im.width * CELL_H * 2 / im.height), CELL_H * 2), Image.LANCZOS)
 rules = []
 for tier, image in badges.items():
     image.save(os.path.join(ASSETS, 'seasons', tier + '.webp'), lossless=True)

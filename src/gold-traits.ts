@@ -4,6 +4,7 @@ import { asset } from './asset';
 // Chỉ số ẩn vàng của từng thẻ (theo mã cầu thủ = một mùa), lấy từ vn.fifaaddict.com (trait_gold của thẻ cùng tên, cùng mùa, OVR lệch ≤ 3).
 // Dựng lại: node --import tsx scripts/build-gold-traits.mjs <fifaaddict-gold.json>. Thẻ không có trong bảng = không có chỉ số ẩn vàng
 // (hoặc chưa có dữ liệu: mùa EL / TSUBASA không có trên fifaaddict VN, một số thẻ VIETNAM / LIVE / khác tên).
+// Mùa NARUTO (không có trên fifaaddict): gán tay theo CSA của cầu thủ ở mùa khác + lối chơi, scripts/data/gold-manual.json.
 type GoldData = { names: Record<string, string>; desc: Record<string, string>; cards: Record<string, string> };
 const gold = data as unknown as GoldData;
 export type GoldTrait = { id: string; name: string; desc: string; icon: string };
@@ -17,16 +18,23 @@ export function goldTraitOf(playerId: number): GoldTrait | null {
   return id && gold.names[id] ? { id, name: gold.names[id], desc: gold.desc[id] ?? '', icon: goldTraitIcon(id) } : null;
 }
 // ===== CSA vàng thêm (người dùng 2026-11-16) =====
-// Thẻ +11 trở lên: chọn thêm 1 CSA vàng (ô "11"). Mùa ICON TM / INFINITE PRIME / PRIME / EL: thêm 1 ô nữa từ +7 (ô "7").
+// Thẻ +11 trở lên: chọn thêm 1 CSA vàng (ô "11"). Mùa ICON TM / INFINITE PRIME / PRIME / EL / NARUTO: thêm 1 ô nữa từ +7 (ô "7").
+// Mùa EL thêm 1 ô nữa từ +5 (ô "5", người dùng 2026-11-25; máy chủ 202611250007_fco_gold_el_5.sql) → EL có 3 ô +5 / +7 / +11.
 // GK chỉ chọn CSA của GK, cầu thủ khác không chọn CSA của GK. Đổi miễn phí bất cứ lúc nào; thẻ tụt dưới mốc thì mất CSA của ô đó
-// (máy chủ xoá — migration 202611160006). Lưu trên thẻ: card.gold = { "7"?: mã, "11"?: mã }.
+// (máy chủ xoá — migration 202611160006). Lưu trên thẻ: card.gold = { "5"?: mã, "7"?: mã, "11"?: mã }.
 export const GOLD_GK_TRAITS = ['57', '60', '68'] as const;
-export const GOLD_EXTRA_TIERS = ['eternal', 'prime', 'prm', 'el'] as const;
-export type GoldSlot = '7' | '11';
-export const GOLD_SLOTS: GoldSlot[] = ['7', '11'];
+// NARUTO thêm 2026-11-25 (máy chủ: 202611250006_fco_gold_extra_naruto.sql).
+export const GOLD_EXTRA_TIERS = ['eternal', 'prime', 'prm', 'el', 'naruto'] as const;
+export const GOLD_EL5_TIERS = ['el'] as const;
+export type GoldSlot = '5' | '7' | '11';
+export const GOLD_SLOTS: GoldSlot[] = ['5', '7', '11'];
 const isGkTrait = (id: string) => (GOLD_GK_TRAITS as readonly string[]).includes(id);
-/** Ô CSA thêm của thẻ theo mùa (không tính cấp): ô 7 chỉ có ở 4 mùa trên. */
-export const goldSlotsFor = (tier: string): GoldSlot[] => (GOLD_EXTRA_TIERS as readonly string[]).includes(tier) ? ['7', '11'] : ['11'];
+/** Ô CSA thêm của thẻ theo mùa (không tính cấp): ô 7 chỉ ở GOLD_EXTRA_TIERS, ô 5 chỉ ở GOLD_EL5_TIERS. */
+export const goldSlotsFor = (tier: string): GoldSlot[] => [
+  ...((GOLD_EL5_TIERS as readonly string[]).includes(tier) ? ['5' as const] : []),
+  ...((GOLD_EXTRA_TIERS as readonly string[]).includes(tier) ? ['7' as const] : []),
+  '11',
+];
 /** Ô đang mở theo cấp thẻ. */
 export const goldSlotOpen = (tier: string, level: number, slot: GoldSlot) => goldSlotsFor(tier).includes(slot) && level >= Number(slot);
 /** CSA vàng chọn được cho cầu thủ: GK chỉ CSA GK; cầu thủ khác không có CSA GK. */

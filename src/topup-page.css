@@ -147,3 +147,11 @@ body:has(.sa-nap){background:repeating-linear-gradient(45deg,transparent 0 43px,
 /* Dòng nhắc "tự gia hạn đặc quyền" ở trang nạp. */
 .sa-nap .tp-renew{margin:0;padding:11px 14px;border:1px solid #3a4f6b;border-radius:12px;background:linear-gradient(100deg,#10223a,#122033);font-size:13.5px;line-height:1.55;color:#cfe0f2}
 .sa-nap .tp-renew b{color:#8fd0ff}
+/* Mốc quà tích luỹ (202611250004): thanh thứ hai dưới thanh FC, viền tím để phân biệt; quà là các nhãn nhỏ. */
+.sa-nap .tp-gifts{border-color:#4b3f7a;background:radial-gradient(120% 90% at 0% 0%,#231a3d 0%,#151d2a 60%)}
+.sa-nap .tp-gifts .tp-ms-head b{display:inline-flex;align-items:center;gap:6px}
+.tp-gift-items{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tp-gift{padding:2px 8px;border-radius:999px;background:#ffffff14;color:#e8eef8;font-style:normal;font-size:12px;font-weight:700;white-space:nowrap}
+.tp-gift.is-pack{background:#ffb02e22;color:#ffd27a}
+.tp-gift.is-bp{background:#4fb3ff22;color:#9fd6ff}
+.tp-gift.is-stp{background:#b57bff22;color:#d9b8ff}

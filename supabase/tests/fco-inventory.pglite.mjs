@@ -657,6 +657,8 @@ if (files.some(f => f.includes('202611120002'))) {
   const baseAvg = Math.round(strong.reduce((s, p) => s + p[2][0] + 17, 0) / 11);
   assert.equal(r.me.ovr, baseAvg);
   assert.equal(r.opp.bot, true); assert.equal(r.opp.slots.length, 11); assert.ok(Math.abs(r.opp.ovr - r.me.ovr) <= 4);
+  // 202611250009: OVR bot theo đội mình + min(4, (điểm − 1000) / 100) − 0…2 → ở 1.000 điểm bot bằng hoặc kém 1–2 OVR.
+  if (files.some(f => f.includes('202611250009'))) assert.ok(r.opp.ovr <= r.me.ovr && r.opp.ovr >= r.me.ovr - 2, `bot ${r.opp.ovr} / mình ${r.me.ovr}`);
   assert.equal(r.goals.length, r.score[0] + r.score[1]);
   for (const g of r.goals) { assert.ok(g.minute >= 1 && g.minute <= 90); assert.ok(g.scorer >= 0 && g.scorer <= 10); assert.notEqual(g.scorer, g.assist); }
   assert.deepEqual(r.goals.map(g => g.minute), [...r.goals.map(g => g.minute)].sort((a, b) => a - b));

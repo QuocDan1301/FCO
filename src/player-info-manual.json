@@ -1,0 +1,52 @@
+{
+ "note": "Thông tin cầu thủ điền tay khi fifaaddict không có / không vào được và cầu thủ không có thẻ mùa khác trong game (người dùng 2026-11-25: \"điền tạm\"). Chỉ ghi phần chắc chắn (ngày sinh YYYY.M.D, chiều cao cm; chân trái / phải, sao kỹ thuật khi có từ fifaaddict); phần không có (cân nặng, chân, thể hình, sao, danh tiếng, chỉ số ẩn) để trống = hiển thị \"chưa rõ\". Có dữ liệu fifaaddict thì thay bằng dữ liệu thật và xoá mục ở đây.",
+ "cards": {
+  "4354": {
+   "name": "Fermín López",
+   "birth": "2003.5.11",
+   "height": 174
+  },
+  "4356": {
+   "name": "Marc Bernal",
+   "birth": "2007.5.2",
+   "height": 191
+  },
+  "4370": {
+   "name": "P. Guardiola",
+   "birth": "1971.1.18",
+   "height": 180
+  },
+  "4408": {
+   "name": "J. Dudek",
+   "birth": "1973.3.23",
+   "height": 187,
+   "left": 5,
+   "right": 3,
+   "skill": 1
+  },
+  "4446": {
+   "name": "Ł. Fabiański",
+   "birth": "1985.4.18",
+   "height": 190,
+   "left": 2,
+   "right": 5,
+   "skill": 1
+  },
+  "4404": {
+   "name": "T. Alexander-Arnold",
+   "birth": "1998.10.7",
+   "height": 180,
+   "left": 4,
+   "right": 5,
+   "skill": 3
+  },
+  "4430": {
+   "name": "H. Son",
+   "birth": "1992.7.8",
+   "height": 183,
+   "left": 5,
+   "right": 5,
+   "skill": 4
+  }
+ }
+}

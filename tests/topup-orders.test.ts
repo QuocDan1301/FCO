@@ -113,7 +113,27 @@ test('Hết sự kiện không bấm Nhận KM được (202611200007), trang n�
   const ui = readFileSync('src/TopUp.tsx', 'utf8');
   // Giao diện 2 cột (2026-11-24): điều kiện gom vào eventOn, thanh mốc (TierTrack) chỉ dựng khi eventOn.
   assert.match(ui, /const eventOn = !!\(tiers\?\.event && tiers\.tiers\.length > 0 && Date\.now\(\) < tiers\.event\.endsAt\);/);
-  assert.match(ui, /\{eventOn && <aside className="tp-side">[\s\S]*?<TierTrack/);
+  // 2026-11-25: cột bên cũng hiện khi chỉ có mốc quà (giftsOn); TierTrack vẫn chỉ dựng khi eventOn, GiftTrack chỉ khi giftsOn (cùng điều kiện hết giờ).
+  assert.match(ui, /\{\(eventOn \|\| giftsOn\) && <aside className="tp-side">[\s\S]*?\{eventOn && <TierTrack/);
+  assert.match(ui, /const giftsOn = !!\(gifts\?\.event && gifts\.tiers\.length > 0 && Date\.now\(\) < gifts\.event\.endsAt\);/);
+  assert.match(ui, /\{giftsOn && <GiftTrack/);
+});
+
+test('Mốc quà tích luỹ (202611250004): gói / BP / STP song song mốc FC, cùng sự kiện, tự trao qua trigger nạp, hết giờ tắt', async () => {
+  const sql = readFileSync('supabase/migrations/202611250004_fco_topup_gift_tiers.sql', 'utf8');
+  assert.match(sql, /perform public\.fco_topup_auto_award\(new\.user_id\);\s*perform public\.fco_topup_gift_award\(new\.user_id\);/);
+  assert.match(sql, /total := public\.fco_topup_event_vnd\(p_uid, e\);/);
+  assert.match(sql, /if e\.id is null or now\(\) >= e\.ends_at then raise exception 'FCO_TOPUP_NO_EVENT'/);
+  assert.match(sql, /insert into public\.fco_admin_gifts \(user_id, rewards, note\)/);
+  assert.match(sql, /public\.fco_apply_stp\(p_uid, stp, 'topup_milestone'/);
+  const { giftRewardText, giftsUnlockedBy } = await import('../src/topup-orders.ts');
+  assert.equal(giftRewardText({ pack: 'ch', count: 2 }, id => `Gói ${id}`), '2 × Gói ch');
+  assert.equal(giftRewardText({ pack: 'ch', count: 1 }), 'ch');
+  assert.equal(giftRewardText({ bp: 5_000_000_000 }), '5.000.000.000 BP');
+  assert.equal(giftRewardText({ stp: 50 }), '50 STP');
+  const state = { event: null, totalVnd: 60_000, tiers: [{ vnd: 50_000, rewards: [{ stp: 1 }], claimed: true }, { vnd: 100_000, rewards: [{ stp: 2 }], claimed: false }, { vnd: 300_000, rewards: [{ bp: 1 }], claimed: false }] };
+  assert.deepEqual(giftsUnlockedBy(state, 50_000).map(t => t.vnd), [100_000]);
+  assert.deepEqual(giftsUnlockedBy(state, 300_000).map(t => t.vnd), [100_000, 300_000]);
 });
 
 test('Sự kiện nạp tích luỹ hết giờ là tắt hẳn (202611200008): không còn hạn nhận', () => {

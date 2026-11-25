@@ -7,7 +7,8 @@ import { GOLD_GK_TRAITS, cardGoldTraits, dropClosedGold, goldChoicesFor, goldExt
 const pick = (pred: (p: typeof players[number]) => boolean) => players.find(pred)!;
 
 test('CSA vàng thêm: ô +11 cho mọi thẻ, ô +7 chỉ ICON TM / INFINITE PRIME / PRIME / EL', () => {
-  for (const tier of ['eternal', 'prime', 'prm', 'el']) assert.deepEqual(goldSlotsFor(tier), ['7', '11'], tier);
+  for (const tier of ['eternal', 'prime', 'prm', 'naruto']) assert.deepEqual(goldSlotsFor(tier), ['7', '11'], tier);
+  assert.deepEqual(goldSlotsFor('el'), ['5', '7', '11'], 'EL thêm ô +5');
   for (const tier of ['stellar', 'wb', 'ep24', 'up26']) assert.deepEqual(goldSlotsFor(tier), ['11'], tier);
   assert.equal(goldSlotOpen('eternal', 6, '7'), false); assert.equal(goldSlotOpen('eternal', 7, '7'), true);
   assert.equal(goldSlotOpen('stellar', 13, '7'), false); assert.equal(goldSlotOpen('stellar', 10, '11'), false); assert.equal(goldSlotOpen('stellar', 11, '11'), true);
@@ -41,4 +42,29 @@ test('Migration CSA vàng thêm: hàm đặt CSA, trigger xoá khi tụt cấp, 
   assert.match(sql, /'gx', coalesce/);
   assert.match(sql, /'faces', case when bot then null else public\.fco_public_faces/);
   assert.match(sql, /grant execute on function public\.fco_inv_gold\(text, text, text\) to authenticated/);
+});
+
+test('NARUTO có ô CSA vàng +7: máy chủ (202611250006) khớp tên mùa của game cho mọi mùa trong GOLD_EXTRA_TIERS', async () => {
+  const { seasons } = await import('../src/game.ts');
+  const { GOLD_EXTRA_TIERS } = await import('../src/gold-traits.ts');
+  const sql = readFileSync('supabase/migrations/202611250007_fco_gold_el_5.sql', 'utf8');
+  const list = /k = '7' and \(lv < 7 or coalesce\(season, ''\) not in \(([^)]*)\)\)/.exec(sql)![1].split(',').map(s => s.trim().replace(/'/g, ''));
+  assert.deepEqual([...list].sort(), GOLD_EXTRA_TIERS.map(t => seasons[t]).sort());
+  assert.match(sql, /k = '11' and lv < 11/);
+});
+
+test('Mùa EL: ô CSA vàng +5 (ngoài +7, +11), tụt dưới +5 thì mất; máy chủ (202611250007) có ô 5 chỉ cho EL', () => {
+  const el = pick(p => p.tier === 'el' && p.pos !== 'GK'), other = pick(p => p.tier === 'eternal' && p.pos !== 'GK');
+  const native = goldTraitId(el.id), free = goldChoicesFor(el.pos).filter(id => id !== native);
+  assert.equal(goldSlotOpen('el', 4, '5'), false); assert.equal(goldSlotOpen('el', 5, '5'), true); assert.equal(goldSlotOpen('eternal', 13, '5'), false);
+  const card = { uid: 'e', playerId: el.id, level: 11, received: 0, gold: { '5': free[0], '7': free[1], '11': free[2] } };
+  assert.deepEqual(goldExtras(card, el.tier, el.pos), [free[0], free[1], free[2]]);
+  assert.deepEqual(goldExtras({ ...card, level: 6 }, el.tier, el.pos), [free[0]]);
+  assert.deepEqual(goldExtras({ ...card, playerId: other.id }, other.tier, other.pos).includes(free[0]), false, 'mùa khác không có ô +5');
+  assert.deepEqual(dropClosedGold({ ...card, level: 6 }, el.tier).gold, { '5': free[0] });
+  assert.equal('gold' in dropClosedGold({ ...card, level: 4 }, el.tier), false);
+  const sql = readFileSync('supabase/migrations/202611250007_fco_gold_el_5.sql', 'utf8');
+  assert.match(sql, /foreach k in array array\['11', '7', '5'\]/);
+  assert.match(sql, /k = '5' and \(lv < 5 or coalesce\(season, ''\) not in \('EL'\)\)/);
+  assert.match(sql, /p_slot not in \(''5'', ''7'', ''11''\)/);
 });

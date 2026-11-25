@@ -72,9 +72,11 @@ test('EL và TSUBASA mở giao dịch giữa người chơi nhưng hệ thống 
   assert.match(sql, /fco_mkt_no_system\(p_player\) then raise exception 'FCO_NO_SYSTEM_SALE'/);
   const ranges = [...sql.matchAll(/\('(\w+)', (\d+), (\d+)\)/g)].map(m => [m[1], +m[2], +m[3]] as const);
   assert.deepEqual(ranges.map(r => r[0]), ['EL', 'TSUBASA']);
+  // 2026-11-25: NARUTO cũng không có hệ thống bán (202611250003, nâng last_id ở 202611250005).
+  ranges.push(...[...readFileSync('supabase/migrations/202611250005_fco_naruto_real_madrid.sql', 'utf8').matchAll(/\('(\w+)', (\d+), (\d+)\)/g)].map(m => [m[1], +m[2], +m[3]] as const));
   for (const p of players) {
     const inRange = ranges.some(([, a, b]) => p.id >= a && p.id <= b);
-    assert.equal(inRange, p.tier === 'el' || p.tier === 'tsubasa', `${p.name} (${p.tier}, id ${p.id})`);
+    assert.equal(inRange, p.tier === 'el' || p.tier === 'tsubasa' || p.tier === 'naruto', `${p.name} (${p.tier}, id ${p.id})`);
     assert.equal(isTradeLocked({ playerId: p.id }), false, p.name);
     assert.equal(hasSystemSale({ playerId: p.id }), !inRange, p.name);
   }

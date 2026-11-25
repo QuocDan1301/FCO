@@ -1,6 +1,6 @@
 /* Thông tin cầu thủ (PlayerDetail.tsx): trái = phần đầu + tab Giá / Sự nghiệp CLB, phải = Chỉ số chung. */
-/* Thu nhỏ cả bảng còn 84% (30% rồi tăng 20%) (người dùng 2026-11-24): zoom .966 (84% rồi to thêm 15%) nên kích thước theo khung nhìn phải chia lại cho .966. */
-.pd-modal .modal-panel{zoom:.966;width:min(1120px,calc((100vw - 24px) / .966));max-height:calc((100dvh - 24px) / .966);overflow:auto;padding:0}
+/* Thu nhỏ cả bảng còn 84% (30% rồi tăng 20%) (người dùng 2026-11-24): zoom .966 (84% rồi to thêm 15%); 2026-11-25 "thu nhỏ toàn bộ khung 25%": zoom .966 × .75 × 1,15 = .8332. Kích thước theo khung nhìn chia lại cho .8332. */
+.pd-modal .modal-panel{zoom:.8332;width:min(1120px,calc((100vw - 24px) / .8332));max-height:calc((100dvh - 24px) / .8332);overflow:auto;padding:0}
 .pd{display:flex;flex-direction:column;min-height:0;color:#eef1f5}
 .pd-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 22px 6px}
 .pd-bar h2{margin:0;font-family:var(--display);font-size:20px}
@@ -42,7 +42,7 @@
 .pd-note,.pd-empty{margin:8px 0 0;color:#8f99ab;font-size:12.5px}
 .pd-upgrade{align-self:flex-start;margin-top:auto}
 .pd-right{display:flex;flex-direction:column;gap:10px;min-width:0}
-.pd-stats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);max-height:min(548px,calc((100dvh - 242px) / .966));overflow-y:auto;padding-right:4px}
+.pd-stats{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:minmax(0,1fr);max-height:min(548px,calc((100dvh - 242px) / .8332));overflow-y:auto;padding-right:4px}
 .pd-stats li{display:grid;grid-template-columns:minmax(0,1fr) 52px 34px;align-items:center;gap:4px;padding:6px 4px;border-bottom:1px solid #ffffff14;font-size:14.5px}
 .pd-stats li>span{color:#d7dce4}
 .pd-stats b{font-family:var(--display);font-size:21px;text-align:right;font-variant-numeric:tabular-nums}
@@ -369,3 +369,33 @@
 .pd-goldx-view{display:grid;gap:10px;align-content:start}
 .pd-modal .pd-goldx-view .pd-goldx{margin:0}
 .pd-goldx-back{justify-self:start}
+
+/* Khung Thông tin cầu thủ mùa INFINITE PRIME (người dùng 2026-11-25): dùng ĐÚNG ảnh khung người dùng gửi (cẩm thạch kem, viền đỏ, cánh thiên thần ngoài mép, lụa đỏ góc dưới phải),
+   đã xoá chữ / giao diện trong ảnh (scripts/clean-ip-detail-frame.py, nguồn scripts/data/pd-ip-frame-src.png → public/assets/pd-ip-frame.webp 1467×1001).
+   Bảng 1260×847 nằm ở (79, 109) trong ảnh nên ảnh phủ rộng hơn bảng 116,43% × 118,2% và lệch -6,27% / -12,87%; thông tin cầu thủ vẽ bằng HTML phía trên (chữ tối). */
+.pd-modal.pd-ip .modal-panel{position:relative;overflow:visible;aspect-ratio:1260/847;width:1120px;max-width:none;max-height:none;zoom:var(--pd-ip-zoom,.8332);background:none;border:0;box-shadow:none} /* cỡ cố định 1120×753, PlayerDetail đặt --pd-ip-zoom để cả khung thu vừa màn hình (không cắt, không cuộn phần thông tin) */
+.pd-modal.pd-ip .modal-panel::before{content:'';position:absolute;z-index:0;left:-6.27%;top:-12.87%;width:116.43%;height:118.2%;background:url(/assets/pd-ip-frame.webp) 0 0/100% 100% no-repeat;pointer-events:none}
+.pd-modal.pd-ip .pd{position:relative;z-index:1;height:100%}
+.pd-modal.pd-ip .pd-tabs{background:#0000000f}
+.pd-modal.pd-ip .pd-stats{align-content:start;max-height:480px;overflow-y:auto;padding-right:4px} /* danh sách chỉ số được cuộn; 480px ≈ 16 hàng, dừng trước dải lụa đỏ */
+.pd-modal.pd-ip .pd-stats li{height:29px;padding:0 4px;font-size:14px;line-height:1}.pd-modal.pd-ip .pd-stats b{font-size:19px;line-height:1} /* dải lụa đỏ góc dưới phải của khung: hàng chỉ số cuối không đè lên lụa */
+@media(max-width:900px){.pd-modal.pd-ip .modal-panel{aspect-ratio:auto;background:#f7f1e6;border:2px solid #c3363c}.pd-modal.pd-ip .modal-panel::before{display:none}}
+
+/* Thanh tên đổi mùa (2026-11-25, kiểu FC Online): bấm tên mở danh sách mọi mùa của cầu thủ, mùa đang xem có dấu tích xanh. */
+.pd-name-wrap{position:relative;z-index:60;margin-right:24px}
+.pd-id:has(.pd-name-wrap.is-open){position:relative;z-index:50} /* danh sách mùa nằm trên hàng chọn cấp / team color */
+.pd-modal .pd-name-wrap .pd-name{margin-right:0}
+.pd-name.is-switch{width:100%;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer;position:relative;padding-right:34px}
+.pd-name.is-switch:hover{background:#e3e7ec}
+.pd-name.is-switch>i{position:absolute;right:12px;top:50%;width:0;height:0;border:7px solid transparent;border-top:9px solid #8b9198;border-bottom:0;transform:translateY(-50%)}
+.pd-name-wrap.is-open .pd-name.is-switch>i{border-top:0;border-bottom:9px solid #8b9198}
+.pd-seasons{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:40;max-height:320px;margin:0;padding:4px 0;overflow-y:auto;list-style:none;background:#4b4f52;box-shadow:0 10px 24px #0006;scrollbar-width:none}
+.pd-seasons::-webkit-scrollbar{display:none}
+.pd-seasons li{display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;color:#fff;font-family:var(--display);font-size:16px;font-weight:600;white-space:nowrap;cursor:pointer}
+.pd-seasons li:hover{background:#5a5f63}
+.pd-seasons li.is-on{background:#faf9f4;color:#11161c}
+.pd-seasons li>span:last-child{overflow:hidden;text-overflow:ellipsis}
+.pd-season-check{flex:none;width:22px;height:22px;padding:3px;border-radius:50%;background:#1fe36b;color:#06210f}
+span.pd-season-check{background:none}
+.pd-seasons .squad-season{flex:none}
+

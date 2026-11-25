@@ -1,8 +1,9 @@
-// Giới hạn kho 200 thẻ (202611230002_fco_inventory_cap.sql): node fco-inventory-cap.pglite.mjs <thư mục dự án>
+// Giới hạn kho thẻ (202611230002_fco_inventory_cap.sql, 200 → 500 ở 202611250012_fco_inventory_cap_500.sql): node fco-inventory-cap.pglite.mjs <thư mục dự án>
 import { PGlite } from '@electric-sql/pglite';
 import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
 import { readFileSync, readdirSync } from 'node:fs';
 const root = process.argv[2];
+const CAP = 500; // 202611250012
 const db = new PGlite({ extensions: { pgcrypto } });
 await db.exec(`
   create role anon nologin; create role authenticated nologin; create role service_role nologin;
@@ -42,33 +43,33 @@ await db.exec(`
     rules = '{"marketFee":40,"sellBand":10,"maxLevel":13,"maxBulkSell":99,"flatPrice":0,"priceEpoch":0,"pricePeriodMs":18000000,"priceSwing":10,"membership":{"svip":28,"premium":20}}' where id = 1;
   insert into public.fco_cat_players(id, name, ovrs, prices, fixed, insurance, grp) values (10, 'Phoi', '{${ovrs}}', '{${prices}}', true, 0, 1);
   insert into public.fco_game_saves(user_id, revision, data) values
-    ('${A}', 1, '${save(50_000_000, cards(199, 'a'))}'),
-    ('${B}', 1, '${save(50_000_000, cards(200, 'b'))}'),
-    ('${C}', 1, '${save(50_000_000, cards(250, 'c'))}'),
-    ('${S}', 1, '${save(50_000_000, cards(200, 's'))}');
+    ('${A}', 1, '${save(50_000_000, cards(CAP - 1, 'a'))}'),
+    ('${B}', 1, '${save(50_000_000, cards(CAP, 'b'))}'),
+    ('${C}', 1, '${save(50_000_000, cards(CAP + 50, 'c'))}'),
+    ('${S}', 1, '${save(50_000_000, cards(CAP, 's'))}');
 `);
 // Mô phỏng bước "ghi danh sách miễn" của migration cho dữ liệu vừa tạo (C đang 250 thẻ lúc áp dụng).
-await db.exec(`insert into public.fco_inv_cap_exempt (user_id, cards) select s.user_id, jsonb_array_length(s.data->'cards') from public.fco_game_saves s where jsonb_array_length(s.data->'cards') > 200 on conflict do nothing`);
+await db.exec(`insert into public.fco_inv_cap_exempt (user_id, cards) select s.user_id, jsonb_array_length(s.data->'cards') from public.fco_game_saves s where jsonb_array_length(s.data->'cards') > ${CAP} on conflict do nothing`);
 const err = async (sql, args = []) => { try { await db.query(sql, args); return null; } catch (e) { return e.message; } };
 const setCards = (uid, cs, balance = 50_000_000) => err(`update public.fco_game_saves set data = $2::jsonb where user_id = $1`, [uid, save(balance, cs)]);
 const n = async uid => Number((await db.query(`select jsonb_array_length(data->'cards') n from public.fco_game_saves where user_id = $1`, [uid])).rows[0].n);
-ok((await db.query(`select count(*)::int c from public.fco_inv_cap_exempt`)).rows[0].c === 1, 'chỉ tài khoản đang >200 thẻ vào danh sách miễn (C)');
+ok((await db.query(`select count(*)::int c from public.fco_inv_cap_exempt`)).rows[0].c === 1, 'chỉ tài khoản đang vượt trần vào danh sách miễn (C)');
 
-ok(await setCards(A, cards(200, 'a')) === null && await n(A) === 200, 'A: 199 → 200 thẻ được');
-const e1 = await setCards(A, cards(201, 'a'));
-ok(e1?.includes('FCO_INVENTORY_FULL') && await n(A) === 200, `A: 200 → 201 bị chặn (${e1})`);
-ok(await setCards(A, cards(199, 'a')) === null && await n(A) === 199, 'A: giảm xuống 199 (bán / xoá) được');
-ok(await setCards(B, cards(200, 'b'), 12345) === null, 'B: đổi BP khi đang 200 thẻ (không thêm thẻ) được');
-ok((await setCards(B, cards(205, 'b')))?.includes('FCO_INVENTORY_FULL'), 'B: 200 → 205 thẻ (thêm một lượt nhiều thẻ) bị chặn');
-ok(await setCards(C, cards(251, 'c')) === null && await n(C) === 251, 'C (đang 250 thẻ, miễn giới hạn): thêm 1 thẻ được');
-ok(await setCards(S, cards(205, 's')) === null, 'acc phụ: thêm thẻ vượt 200 được');
+ok(await setCards(A, cards(CAP, 'a')) === null && await n(A) === CAP, `A: ${CAP - 1} → ${CAP} thẻ được`);
+const e1 = await setCards(A, cards(CAP + 1, 'a'));
+ok(e1?.includes('FCO_INVENTORY_FULL') && await n(A) === CAP, `A: ${CAP} → ${CAP + 1} bị chặn (${e1})`);
+ok(await setCards(A, cards(CAP - 1, 'a')) === null && await n(A) === CAP - 1, 'A: giảm 1 thẻ (bán / xoá) được');
+ok(await setCards(B, cards(CAP, 'b'), 12345) === null, 'B: đổi BP khi đang đầy kho (không thêm thẻ) được');
+ok((await setCards(B, cards(CAP + 5, 'b')))?.includes('FCO_INVENTORY_FULL'), 'B: đầy kho → thêm 5 thẻ một lượt bị chặn');
+ok(await setCards(C, cards(CAP + 51, 'c')) === null && await n(C) === CAP + 51, 'C (miễn giới hạn): thêm 1 thẻ được');
+ok(await setCards(S, cards(CAP + 5, 's')) === null, 'acc phụ: thêm thẻ vượt trần được');
 
-// Luồng thật: B (200 thẻ) mua thẻ từ hệ thống vào thẳng kho → bị chặn, BP không đổi.
-await setCards(B, cards(200, 'b'), 50_000_000);
+// Luồng thật: B (đầy kho) mua thẻ từ hệ thống vào thẳng kho → bị chặn, BP không đổi.
+await setCards(B, cards(CAP, 'b'), 50_000_000);
 await db.query(`select set_config('test.uid', $1, false)`, [B]);
 const b0 = Number((await db.query(`select data->>'balance' b from public.fco_game_saves where user_id = $1`, [B])).rows[0].b);
 const buy = await err(`select public.fco_mkt_buy('v1', 10, 1, $1, true)`, [prices[0]]);
 const b1 = Number((await db.query(`select data->>'balance' b from public.fco_game_saves where user_id = $1`, [B])).rows[0].b);
 ok(buy?.includes('FCO_INVENTORY_FULL'), `B đầy kho: mua thẻ hệ thống vào kho bị chặn (${buy})`);
-ok(b1 === b0 && await n(B) === 200, 'bị chặn thì không mất BP, không thêm thẻ');
+ok(b1 === b0 && await n(B) === CAP, 'bị chặn thì không mất BP, không thêm thẻ');
 console.log(fails ? `${fails} lỗi` : 'TẤT CẢ ĐẠT'); process.exit(fails ? 1 : 0);

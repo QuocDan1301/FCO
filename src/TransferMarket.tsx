@@ -286,7 +286,7 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
           <span className="market-level"><img src={levelBadge(card.level)} alt={`+${card.level}`}/></span>
           <strong className="market-ovr">{ovr(card)}</strong>
           {/* Cột thông tin thêm kiểu FC Online (người dùng 2026-11-24): hai chân thuận, chỉ số ẩn. */}
-          <span className="market-feet">{(() => { const ph = physicalOf(player.id); return ph && <><Foot side="left" value={ph.left} main={ph.left >= ph.right}/><Foot side="right" value={ph.right} main={ph.right >= ph.left}/></>; })()}</span>
+          <span className="market-feet">{(() => { const ph = physicalOf(player.id); return ph && ph.left + ph.right > 0 && <><Foot side="left" value={ph.left} main={ph.left >= ph.right}/><Foot side="right" value={ph.right} main={ph.right >= ph.left}/></>; })()}</span>
           <span className="market-gold-cell">{(() => { const g = goldTraitOf(player.id); return g && <img src={g.icon} alt={`Chỉ số ẩn: ${g.name}`} title={`Chỉ số ẩn: ${g.name} — ${g.desc}`} width={30} height={30}/>; })()}</span>
           {onDetail ? <button type="button" className="mk-row-btn is-info" title="Thông tin cầu thủ" aria-label={`Thông tin ${player.name}`} onClick={event => { event.stopPropagation(); onDetail(card); }}><Search size={18}/></button> : <span/>}
           <button type="button" className="mk-row-btn is-find" title="Xem tất cả các mùa của cầu thủ này" aria-label={`Tìm mọi mùa của ${player.name}`} onClick={event => { event.stopPropagation(); viewInList(card); }}>Tìm<ArrowRight size={16}/></button>

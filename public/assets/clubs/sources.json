@@ -1163,5 +1163,10 @@
     "club": "Sampdoria",
     "url": "https://a.espncdn.com/i/teamlogos/soccer/500/2734.png",
     "asset": "/assets/clubs/2734.webp"
+  },
+  {
+    "club": "Deportivo",
+    "url": "https://a.espncdn.com/i/teamlogos/soccer/500/90.png",
+    "asset": "/assets/clubs/90.webp"
   }
 ]

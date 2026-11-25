@@ -1,0 +1,14 @@
+/* DCB (DRAMATIC COMEBACKS): tạo bởi scripts/import-dcb.py. Thẻ dựng từ khung trống + chân dung; nhãn DCB in sẵn; OVR / tên / cấp vẽ bằng HTML. */
+.rarity-dot.dcb{background:#c9a24a}
+.player-card.face-art.season-dcb{aspect-ratio:371/423}
+.player-card.face-art.season-dcb>.face-art-img{filter:drop-shadow(0 0 5px #c9a24a33)}
+.season-dcb .face-art-ovr{left:26.42%;top:15.13%;font-size:11cqw;color:#ffe9b0;letter-spacing:-.02em;text-shadow:0 .03em .12em #2a0a06}
+.season-dcb .face-art-level{left:20.49%;top:48.23%;width:11.86%;height:6.15%;transform:none;object-fit:fill}
+.season-dcb{--name-size:6.2cqw;--name-color:#ffffff;--nx:36.93%;--nw:44.47%;--ny:79.67%}
+.season-dcb .face-art-name{text-align:left;text-shadow:0 .05em .14em #000c}
+[data-tone=dcb]{--shop-tone:#c9a24a;--shop-tone2:#5a0e14}
+.season-tag-dcb{color:#e6c172}
+.reveal-dcb .reveal-panel{--led:#ffd98a;--led2:#2a0a06;border-color:#c9a24a66}
+.reveal-dcb .reveal-stats dt{color:#ffffff}
+.reveal-dcb .reveal-podium{background:linear-gradient(180deg,#6a1218,#24070a);border-top-color:#c9a24a}
+.reveal-dcb .reveal-podium span{color:#ffffff}

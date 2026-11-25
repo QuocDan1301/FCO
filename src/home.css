@@ -365,6 +365,8 @@
 @media(min-width:901px){.main-content.view-lineup>.squad-tabs{margin-top:26px}.app>.main-content>.workspace.lineup-workspace{margin-top:0;margin-bottom:22px}}
 /* TTCN: khung thu hẹp bằng khung các màn khác (Đăng ký cầu thủ / Đội hình): cùng lề hai bên (lề thanh trên + 84px trái / 80px phải), cách trên dưới 12px (người dùng 2026-11-24). */
 @media(min-width:901px){.app>.main-content>.workspace.market-workspace{width:auto;max-width:none;margin:12px calc(var(--tb-pad) + 80px) 12px calc(var(--tb-pad) + 84px);height:calc(100% - 24px)}}
+/* Nâng cấp thẻ: khung thu hẹp bằng khung các màn khác (TTCN / Đội hình), cùng lề hai bên và cách trên dưới 12px (người dùng 2026-11-25). */
+@media(min-width:901px){.app>.main-content>.workspace.upgrade-workspace{width:auto;max-width:none;margin:12px calc(var(--tb-pad) + 80px) 12px calc(var(--tb-pad) + 84px);height:calc(100% - 24px)}}
 /* Trang Nhiệm vụ (thay hộp thoại): cùng khung và lề với các trang khác; nội dung nhiệm vụ căn giữa, rộng tối đa 960px (người dùng 2026-11-24). */
 .main-content>.workspace.missions-page{display:block;overflow-y:auto;padding:24px 32px;background:rgba(9,13,19,.5);box-shadow:0 0 40px rgba(0,0,0,.6);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);scrollbar-width:none}
 .missions-page::-webkit-scrollbar{display:none}

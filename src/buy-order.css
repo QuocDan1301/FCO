@@ -12,4 +12,28 @@
 .bo-note{margin:auto 0 0;padding-top:12px;font-size:15px;color:#4a4e55;text-align:right}
 .bo-note.is-error{color:#d81b3c}
 .bo .sd-form{overflow-y:auto;scrollbar-width:thin}
-.bo .sd-actions{margin-top:0;padding:10px 0 22px}
+.bo .sd-actions{position:sticky;bottom:0;z-index:1;margin-top:0;padding:10px 0 22px;background:#f8f8f3}
+.bo .sd-sell,.bo .sd-cancel{flex:1;min-width:0}
+
+/* Giao diện kiểu chợ FC Online (2026-11-25, theo ảnh người dùng gửi): thẻ lớn + dòng Kỹ thuật, biểu đồ có đường kẻ giữa / trục ngày,
+   cột phải bắt đầu ngang đầu bảng sổ lệnh. */
+.bo-skill{display:flex;align-items:center;gap:12px;font-size:16px;color:#3a3d42}
+.bo-stars{display:flex;gap:2px}
+.bo-stars svg{width:23px;height:23px;fill:#c9c9c2}
+.bo-stars svg.is-on{fill:#f6b400}
+.sd-chart.is-fco{max-width:290px;height:170px;padding:20px 0 34px 0;margin-top:6px}
+.sd-chart.is-fco line{stroke:#d3d3cc;stroke-width:1.2}
+.sd-chart.is-fco line.axis{stroke:#9fa2a6;stroke-width:1.6}
+.sd-chart.is-fco polyline{stroke:#4a4e55;stroke-width:2}
+.sd-chart.is-fco .sd-chart-max,.sd-chart.is-fco .sd-chart-min{left:clamp(22px,var(--mx),calc(100% - 22px));transform:translateX(-50%);white-space:nowrap}
+.sd-chart.is-fco .sd-chart-max{top:0}
+.sd-chart.is-fco .sd-chart-min{left:clamp(22px,var(--mn),calc(100% - 22px));top:calc(20px + (100% - 54px) * .667 + 3px)}
+.sd-chart.is-fco figcaption{left:0}
+/* Chỉ bố cục 3 cột (> 1100px): màn hẹp dùng luật xếp dọc của sell.css / responsive.css. */
+@media(min-width:1101px){
+  /* Thu nhỏ cho vừa các khung khác (người dùng 2026-11-25): khung 1400×860 → 1120×688, cùng cỡ khung Thông tin cầu thủ (player-detail.css cũng dùng zoom). */
+  .sd.bo{zoom:.8}
+  .bo .sd-left{gap:14px;padding-top:44px}
+  .bo .sd-card{width:min(290px,80%,33vh)}
+  .bo .sd-form{padding-top:106px}
+}

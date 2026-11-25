@@ -41,6 +41,19 @@ export type TopupEvent = { id: number; title: string; startsAt: number; endsAt: 
 export type TopupTierState = { event: TopupEvent | null; totalVnd: number; tiers: (TopupTier & { claimed: boolean })[] };
 export type AdminTopupEvent = { id: number; title: string; startsAt: number; endsAt: number; claims: number; players: number; bonusFc: number };
 export type AdminTopupEvents = { claimDays: number; now: number; events: AdminTopupEvent[] };
+
+// Mốc quà tích luỹ (migration 202611250004_fco_topup_gift_tiers.sql): chạy song song mốc FC, cùng sự kiện nạp tích luỹ.
+export type TopupGiftReward = { pack: string; count: number } | { bp: number } | { stp: number };
+export type TopupGiftTier = { vnd: number; rewards: TopupGiftReward[] };
+export type TopupGiftState = { event: TopupEvent | null; totalVnd: number; tiers: (TopupGiftTier & { claimed: boolean })[] };
+export type AdminTopupGifts = { event: { id: number; title: string } | null; tiers: (TopupGiftTier & { claims: number })[] };
+const groupDigits = (n: number) => n.toLocaleString('vi-VN');
+/** Chữ một phần quà: "2 × Gói CH (ALL)", "5.000.000.000 BP", "50 STP". packName: tên gói theo id (mặc định id). */
+export const giftRewardText = (r: TopupGiftReward, packName: (id: string) => string = id => id) =>
+  'pack' in r ? `${r.count > 1 ? `${r.count} × ` : ''}${packName(r.pack)}` : 'bp' in r ? `${groupDigits(r.bp)} BP` : `${groupDigits(r.stp)} STP`;
+/** Mốc quà mới mở khi nạp thêm vnd (chưa nhận, đang dưới mốc, tổng + vnd ≥ mốc). */
+export const giftsUnlockedBy = (state: TopupGiftState, vnd: number) =>
+  state.tiers.filter(t => !t.claimed && state.totalVnd < t.vnd && state.totalVnd + vnd >= t.vnd);
 /** Thời gian còn lại dạng "2 ngày 05:12:33". */
 export function leftText(ms: number) {
   const s = Math.max(0, Math.floor(ms / 1000)), d = Math.floor(s / 86400), pad = (n: number) => String(n).padStart(2, '0');

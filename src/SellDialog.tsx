@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ovrStyle } from './ovr-color';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { ChevronDown, ChevronUp, X } from 'lucide-react';
 import { getPlayer, money, ovr } from './game';
 import type { Card, Save, Tier } from './game';
@@ -58,13 +58,15 @@ function marketView(card: Card, price: number) {
 }
 
 // Biểu đồ giá 30 ngày: đường gấp khúc, ghi giá cao / thấp nhất và 5 mốc ngày.
-export function PriceChart({ history }: { history: number[] }) {
+// fco (cửa sổ Mua, 2026-11-25): thêm đường kẻ giữa + trục ngày, nhãn giá cao / thấp nhất nằm đúng vị trí điểm đó (--mx / --mn) như chợ FC Online.
+export function PriceChart({ history, fco = false }: { history: number[]; fco?: boolean }) {
   const max = Math.max(...history), min = Math.min(...history), span = Math.max(1, max - min);
+  const last = Math.max(1, history.length - 1), where = (v: number) => `${(history.indexOf(v) / last) * 100}%`;
   const points = history.map((v, i) => `${(i / (history.length - 1)) * 100},${8 + (1 - (v - min) / span) * 84}`).join(' ');
   const today = Date.now();
-  return <figure className="sd-chart" aria-label={`Giá 30 ngày: cao nhất ${money(max)}, thấp nhất ${money(min)}`}>
+  return <figure className={`sd-chart${fco ? ' is-fco' : ''}`} style={fco ? { '--mx': where(max), '--mn': where(min) } as CSSProperties : undefined} aria-label={`Giá 30 ngày: cao nhất ${money(max)}, thấp nhất ${money(min)}`}>
     <span className="sd-chart-max">{money(max)}</span><span className="sd-chart-min">{money(min)}</span>
-    <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="8" x2="100" y2="8"/><line x1="0" y1="92" x2="100" y2="92"/><polyline points={points}/></svg>
+    <svg viewBox={`0 0 100 ${fco ? 138 : 100}`} preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="8" x2="100" y2="8"/>{fco && <line x1="0" y1="50" x2="100" y2="50"/>}<line x1="0" y1="92" x2="100" y2="92"/>{fco && <line className="axis" x1="0" y1="132" x2="100" y2="132"/>}<polyline points={points}/></svg>
     <figcaption>{[29, 22, 15, 8, 0].map(d => { const date = new Date(today - d * DAY); return <span key={d}>{date.getDate()}/{date.getMonth() + 1}</span>; })}</figcaption>
   </figure>;
 }

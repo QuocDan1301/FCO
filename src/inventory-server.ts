@@ -28,7 +28,7 @@ export const serverSell = (items: SellItem[], voucher: number | null = null) => 
 export const serverBuy = (playerId: number, level: number, count: number) => withVersion<{ cards: Card[]; price: number } & WithSave>('fco_inv_buy', { p_player: playerId, p_level: level, p_count: count });
 export const serverShop = (packId: string, count: number) => withVersion<{ wallet: Wallet } & WithSave>('fco_inv_shop', { p_pack: packId, p_count: count });
 // CSA vàng thêm của thẻ (migration 202611160006): đặt / đổi / bỏ (trait null) CSA ô "7" / "11".
-export const serverGold = (uid: string, slot: '7' | '11', trait: string | null) => rpcCall<{ card: Card } & WithSave>('fco_inv_gold', { p_uid: uid, p_slot: slot, p_trait: trait });
+export const serverGold = (uid: string, slot: '5' | '7' | '11', trait: string | null) => rpcCall<{ card: Card } & WithSave>('fco_inv_gold', { p_uid: uid, p_slot: slot, p_trait: trait });
 export const serverRelease = (uids: string[]) => rpcCall<WithSave>('fco_inv_release', { p_uids: uids });
 // ===== Chợ giữa người chơi (migration 202611170002_fco_player_market.sql) =====
 // Bán: khớp ngay với lệnh mua giá ≥ giá bán; còn lại hệ thống mua ngay đúng giá bán (202611180010). BP chờ nhận ở Lịch sử chuyển nhượng.

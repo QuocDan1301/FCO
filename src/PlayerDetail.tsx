@@ -14,10 +14,43 @@ import { playerStats, summaryStats } from './player-stats';
 import { flagImageUrl } from './flags';
 import { goldSlotOpen, goldSlotsFor, goldTraitIcon, goldTraitName, goldTraitOf } from './gold-traits';
 import { careerOf } from './career';
+import { emblemLogo } from './teamLogos';
 import { baseTraitDesc, baseTraitIcon, baseTraitName, extraOf } from './player-extra';
 import type { GoldSlot } from './gold-traits';
 import GoldExtraPicker from './GoldExtraPicker';
+import { SEASON_CODE } from './latest-season';
 import './player-detail.css';
+
+// Tên mùa đầy đủ trong danh sách đổi mùa ở thanh tên (kiểu FC Online, người dùng 2026-11-25).
+const SEASON_TITLES: Partial<Record<string, string>> = { origin: 'Number 7', stellar: '26 TOTS', eternal: 'ICON TM', prime: 'Infinite Prime', vietnam: 'Viet Nam', prm: 'Prime',
+  mdl: 'Medalist', amb: 'FC Ambassador', wg: 'Warriors of Glory', gru: 'Greatest Runner-Ups', rtn: 'Returnees', dc: 'Decade', cc: 'Century Club', bld: 'Best Legends',
+  wb: 'Wonderboys', spt: 'Spartan', bdo: 'Ballon d’Or', hw23: '23 Hard Worker', ep24: '24 Energetic Player', ptg: 'Path to Glory', le: 'Legend of Europa', hg: 'Home Grown',
+  spl: 'Spotlight', ln: 'Legendary Numbers', fa: 'Free Agent', lol: 'Legend of the Loan', cap: 'Captain Class', boe21: 'Best of Europe 21', btb: 'Back to Back',
+  ebs: 'European Best Stars', juventus: 'Ambassador Juventus', jnm: 'Journeyman', hr25: '25 Heroes', up26: '26 Up', live: 'Live', hr24: '24 Heroes',
+  chelsea: 'Ambassador Chelsea FC', hr26: '26 Heroes', ld: 'Last Dance', ws: 'Winning Streak', el: 'Eternal Legends', tsubasa: 'Captain Tsubasa', ch: 'Continental Heroes',
+  naruto: 'Naruto Shippuden', dcb: 'Dramatic Comebacks' };
+const seasonTitle = (tier: string) => SEASON_TITLES[tier] ?? seasons[tier as keyof typeof seasons] ?? tier;
+
+// Thanh tên: bấm mở danh sách mọi mùa của cùng cầu thủ (cùng tên + quốc tịch), mùa mới trước; chọn để xem thông tin mùa đó (chỉ xem, thẻ thật không đổi).
+function SeasonSwitch({ player, versions, onPick }: { player: Player; versions: Player[]; onPick: (id: number) => void }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const away = (e: PointerEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false); };
+    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopPropagation(); setOpen(false); } };
+    document.addEventListener('pointerdown', away); document.addEventListener('keydown', key, true);
+    return () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', key, true); };
+  }, [open]);
+  const name = <><b className={`squad-season season-tag-${player.tier}`}>{seasonShort(player.tier)}</b><strong>{player.name}</strong></>;
+  if (versions.length < 2) return <p className="pd-name">{name}</p>;
+  return <div ref={box} className={`pd-name-wrap${open ? ' is-open' : ''}`}>
+    <button type="button" className="pd-name is-switch" aria-haspopup="listbox" aria-expanded={open} title="Xem mùa khác của cầu thủ này" onClick={() => setOpen(o => !o)}>{name}<i aria-hidden="true"/></button>
+    {open && <ul className="pd-seasons" role="listbox" aria-label="Mùa khác của cầu thủ">{versions.map(v => <li key={v.id} role="option" aria-selected={v.id === player.id} className={v.id === player.id ? 'is-on' : undefined}
+      onClick={() => { onPick(v.id); setOpen(false); }}>{v.id === player.id ? <Check className="pd-season-check" size={14} strokeWidth={3.4}/> : <span className="pd-season-check"/>}
+      <b className={`squad-season season-tag-${v.tier}`}>{seasonShort(v.tier)}</b><span>{seasonTitle(v.tier)}</span></li>)}</ul>}
+  </div>;
+}
 
 type Props = {
   card: Card;
@@ -76,9 +109,6 @@ function PriceChart({ points }: { points: { at: number; price: number }[] }) {
   </svg>;
 }
 
-// Logo CLB ở góc phải thẻ: thẻ có teamLogo dùng luôn, không có thì lấy logo của thẻ khác cùng tên CLB (dựng một lần khi cần).
-let clubLogos: Map<string, string> | null = null;
-const clubLogoOf = (p: Player): string | null => p.teamLogo ?? (clubLogos ??= new Map(players.flatMap(x => x.teamLogo && x.club ? [[x.club, x.teamLogo] as [string, string]] : []))).get(p.club) ?? null;
 
 // Hình bàn chân theo ảnh người dùng gửi (2026-11-24): bàn chân xanh lá nguyên khối, chấm trắng nhỏ ở mũi (chỉ chân thuận), số điểm trắng lớn ở giữa; chân phải lật ngang.
 // Chân thuận màu xanh lá, chân còn lại màu xám.
@@ -124,8 +154,26 @@ export default function PlayerDetail({ card: owned, bonus: realBonus = 0, maxLev
   // Đổi mức cộng để xem (OVR, chỉ số, giá theo cấp đó); thẻ thật không đổi.
   const [level, setLevel] = useState(owned.level);
   useEffect(() => setLevel(owned.level), [owned.uid, owned.level]);
-  const card = useMemo(() => level === owned.level ? owned : { ...owned, level }, [owned, level]);
+  // Đổi mùa ở thanh tên (2026-11-25): viewId = mùa đang xem; khác thẻ thật thì chỉ xem (không CSA vàng thêm của thẻ mình).
+  const [viewId, setViewId] = useState(owned.playerId);
+  useEffect(() => setViewId(owned.playerId), [owned.uid, owned.playerId]);
+  const other = viewId !== owned.playerId;
+  const card = useMemo(() => !other && level === owned.level ? owned : { ...owned, playerId: viewId, level, ...(other ? { gold: undefined } : {}) }, [owned, level, viewId, other]);
   const p = getPlayer(card);
+  const versions = useMemo(() => { const me = getPlayer(owned); return players.filter(q => q.name === me.name && q.nation === me.nation)
+    .sort((a, b) => (SEASON_CODE[b.tier] ?? 0) - (SEASON_CODE[a.tier] ?? 0) || b.id - a.id); }, [owned.playerId]);
+  // Khung mùa INFINITE PRIME (pd-ip, player-detail.css) cỡ cố định 1120×753: thu cả khung vừa màn hình bằng biến --pd-ip-zoom (tối đa .8332 như các khung khác; 2026-11-25 thu nhỏ 25%).
+  const rootRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const host = rootRef.current?.closest<HTMLElement>('.pd-modal');
+    if (!host) return;
+    // Đổi mùa ngay trong bảng: bật / tắt khung IP theo mùa đang xem.
+    host.classList.toggle('pd-ip', p.tier === 'prime');
+    if (p.tier !== 'prime') return;
+    const fit = () => host.style.setProperty('--pd-ip-zoom', String(Math.min(.8332, (window.innerWidth - 24) / 1120, (window.innerHeight - 24) / 753)));
+    fit(); window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
+  }, [p.tier]);
   // Hai ô xem thử (2026-11-24): Cấp độ ① / ⑤ (⑤ cộng TRAIN5_BONUS) và Team Color (-) / +1…+9; mặc định team color là phần cộng thật của thẻ trong đội hình.
   const [train, setTrain] = useState<1 | 5>(inLineup ? 5 : 1);
   useEffect(() => setTrain(inLineup ? 5 : 1), [owned.uid, inLineup]);
@@ -154,28 +202,29 @@ export default function PlayerDetail({ card: owned, bonus: realBonus = 0, maxLev
   // bấm ô trong dòng "HLV đào tạo đặc điểm bổ sung" mở bảng chọn; chỉ khi xem đúng cấp thật của thẻ mình (onGold có từ App).
   const [goldOpen, setGoldOpen] = useState(false);
   useEffect(() => setGoldOpen(false), [owned.uid]);
-  const canPickGold = !!onGold && level === owned.level;
+  const canPickGold = !!onGold && level === owned.level && !other;
   const phys = physicalOf(p.id);
   const face = faceOf(p, miniface ? { [personKey(p)]: miniface.value ?? '' } : undefined);
-  return <div className="pd">
+  return <div className="pd" ref={rootRef}>
     <header className="pd-bar"><h2>Thông tin cầu thủ</h2><button className="icon-button" aria-label="Đóng chi tiết" onClick={onClose}><X/></button></header>
     <div className="pd-body">
       <section className="pd-left">
         <div className="pd-id">
           <div className="pd-id-text">
-            <p className="pd-name"><b className={`squad-season season-tag-${p.tier}`}>{seasonShort(p.tier)}</b><strong>{p.name}</strong></p>
+            <SeasonSwitch player={p} versions={versions} onPick={id => { setViewId(id); setSide('stats'); setGoldOpen(false); }}/>
             <p className="pd-main"><i className={`pos-${positionGroup(main.pos)}`}>{main.pos}</i><b>{main.value}</b></p>
             <p className="pd-meta pd-meta-club">{(cardClub ?? p.club) !== p.nation && <>{cardClub ?? p.club}<i/></>}{p.nation}{p.flag && <img src={flagImageUrl(p.flag)} alt=""/>}</p>
             <p className="pd-meta">Lương <span className="squad-wage"><b>{p.wage ?? 0}</b></span>{phys && <>
-              <i/>{phys.height}cm<i/>{phys.weight}kg{phys.body && <><i/>{phys.body}</>}
-              {/* Hai chân: chân thuận (điểm cao hơn, bằng nhau thì chân trái) tô xanh, đặt trước. */}
-              <span className="pd-feet" aria-label={`Chân trái ${phys.left}, chân phải ${phys.right}`}><Foot side="left" value={phys.left} main={phys.left >= phys.right}/><Foot side="right" value={phys.right} main={phys.right >= phys.left}/></span>
+              <i/>{phys.height}cm{phys.weight > 0 && <><i/>{phys.weight}kg</>}{phys.body && <><i/>{phys.body}</>}
+              {/* Hai chân: chân thuận (điểm cao hơn, bằng nhau thì chân trái) tô xanh, đặt trước. 0 = chưa rõ (điền tay) → ẩn. */}
+              {phys.left + phys.right > 0 && <span className="pd-feet" aria-label={`Chân trái ${phys.left}, chân phải ${phys.right}`}><Foot side="left" value={phys.left} main={phys.left >= phys.right}/><Foot side="right" value={phys.right} main={phys.right >= phys.left}/></span>}
             </>}</p>
           </div>
           {/* Mini face thay cho khung thẻ: ảnh miniface đang chọn, không có thì chân dung tự gán / ảnh thẻ. */}
           <div className={`pd-mini${face.portrait ? '' : ' is-card'}`}><img src={face.src} alt={p.name}/></div>
-          {/* Góc trên: logo CLB như ở góc phải thẻ (người dùng 2026-11-24, thay biểu tượng chỉ số ẩn vàng); CLB chưa có logo thì để trống. */}
-          {(() => { const logo = clubLogoOf(p); return logo && <img className="pd-emblem" src={logo} alt={p.club} title={p.club}/>; })()}
+          {/* Góc trên: logo đúng như ở góc phải thẻ (emblemLogo, người dùng 2026-11-24 thay biểu tượng chỉ số ẩn vàng): mùa dùng huy hiệu mùa (ICON TM, IP, WG, VIETNAM…) hiện huy hiệu đó,
+              còn lại logo CLB; thẻ không có logo thì để trống. 2026-11-25: bỏ cách mượn logo của thẻ khác cùng tên CLB (làm 190 thẻ hiện huy hiệu mùa khác, vd IP/WG hiện huy hiệu CH). */}
+          {(() => { const logo = emblemLogo(p); return logo && <img className="pd-emblem" src={logo} alt={p.club} title={p.club}/>; })()}
         </div>
         <div className="pd-pickers">
           <LevelPicker value={level} levels={Array.from({ length: maxLevel }, (_, i) => i + 1)} levelBadge={levelBadge} onChange={setLevel} tone="light"/>

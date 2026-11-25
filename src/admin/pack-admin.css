@@ -308,3 +308,14 @@
 .tpa-event-status.is-grace { background: #3b2f0d; color: #f6c85f; } .tpa-event-status.is-closed { opacity: .6; }
 @media (max-width: 760px) { .tpa-event-form, .tpa-event { grid-template-columns: 1fr; } }
 
+/* Quản lý nạp → Mốc quà tích luỹ (202611250004). */
+.tpa-gift-rows{display:flex;flex-direction:column;gap:12px;margin:10px 0}
+.tpa-gift-row{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border:1px solid #ffffff1f;border-radius:10px;background:#ffffff08}
+.tpa-gift-item{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;padding-left:12px;min-width:0}
+.tpa-gift-item select,.tpa-gift-item input{min-height:32px;padding:4px 8px;border:1px solid #ffffff2e;border-radius:6px;background:#0d141e;color:inherit;font:inherit}
+.tpa-gift-item select{flex:0 0 auto}
+.tpa-gift-item input[list]{flex:1 1 150px;min-width:90px;width:150px}
+.tpa-gift-item input[inputmode]{flex:0 1 120px;min-width:70px;width:120px}
+.tpa-gift-item small{flex:1 1 auto;min-width:0;overflow:hidden;color:#9fb0c6;text-overflow:ellipsis;white-space:nowrap}
+.tpa-gift-item .icon-button{flex:0 0 auto}
+.tpa-gift-add{align-self:flex-start;margin-left:12px}

@@ -14,6 +14,8 @@ export function assetGroup(file: string): AssetGroup {
   if (file.startsWith('managers/') || /^fco-vip-(?:opening-)?logo\.png$/.test(file)) return 'demand';
   // Ảnh trang sự kiện (Cờ tỷ phú, Vòng quanh thế giới, Bi lắc), biểu tượng chỉ số ẩn, ảnh team color: tải dần sau khi vào game.
   if (/^(?:ctp|vqtg|bilac|traits|training-traits|team-color)\//.test(file)) return 'background';
+  // Nền khung Thông tin cầu thủ mùa INFINITE PRIME (cẩm thạch, cánh, lụa): chỉ hiện khi mở thẻ IP, tải dần.
+  if (/^pd-ip-/.test(name)) return 'background';
   if (/^(?:custom|clubs|event)\//.test(file) || /-(?:back|tunnel|team)\.[a-z0-9]+$/i.test(name) || /^(?:rs|pf)-/.test(name) || /\.(?:wav|css)$/i.test(name) || name === 'fco-vip-opening-logo-v2.png' || name === 'messi.jpg') return 'background';
   return 'critical';
 }

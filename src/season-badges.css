@@ -2,6 +2,7 @@
    Nạp trước squad.css để các luật ẩn nhãn (display:none) ở màn hẹp vẫn thắng; các thuộc tính khác dùng !important vì nhiều màn chỉnh cỡ / viền riêng. */
 .squad-season{display:inline-block;vertical-align:middle}
 .squad-season,.season-badge{width:2.1em;height:1.65em;padding:0!important;border:0!important;border-radius:2px;background:var(--season-img) center/contain no-repeat!important;color:transparent!important;overflow:hidden;white-space:nowrap;box-sizing:border-box}
+.season-tag-dcb{--season-img:url(/assets/seasons/dcb.webp)}
 .season-tag-origin{--season-img:url(/assets/seasons/origin.webp)}
 .season-tag-stellar{--season-img:url(/assets/seasons/stellar.webp)}
 .season-tag-eternal{--season-img:url(/assets/seasons/eternal.webp)}
@@ -48,3 +49,4 @@
 .season-tag-ch{--season-img:url(/assets/seasons/ch.webp)}
 .season-tag-up26{--season-img:url(/assets/seasons/up26.webp)}
 .season-tag-live{--season-img:url(/assets/seasons/live.webp)}
+.season-tag-naruto{--season-img:url(/assets/seasons/naruto.webp)}

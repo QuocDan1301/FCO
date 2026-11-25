@@ -11,7 +11,7 @@ al = json.load(open('D:/FCOvv-tmp/garena/align.json'))
 zones = json.load(open(repo + '/src/portrait-zones.json', encoding='utf8'))['tiers']
 zones['stellar'] = {'level': [0, .383, .565, .705], 'info': [0, .37, .16, .485], 'cut': .715, 'inset': .045}
 if 'el' in zones: zones['el'] = {**zones['el'], 'info': [0, max(.42, zones['el']['info'][1]), zones['el']['info'][2], zones['el']['info'][3]]}  # OVR in sẵn trong ảnh chụp khung EL
-SKIP_TIERS_NO_SWAP = {'tsubasa'}
+SKIP_TIERS_NO_SWAP = {'tsubasa', 'naruto'}
 frames = json.load(open(repo + '/src/portrait-frames.json', encoding='utf8'))['tiers']
 SKIP = {'prime'}  # bố cục ảnh thẻ khác khung Garena
 by = collections.defaultdict(list)

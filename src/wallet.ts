@@ -1,6 +1,6 @@
 import type { PvpAccess, PvpBoard, PvpMatch, PvpPoint, PvpShot } from './pvp';
 import { accountClient } from './account-client';
-import type { AdminTopupEvents, AdminTopupList, AdminTopupOrder, TopupConfig, TopupOrder, TopupTier, TopupTierState } from './topup-orders';
+import type { AdminTopupEvents, AdminTopupGifts, AdminTopupList, AdminTopupOrder, TopupConfig, TopupGiftState, TopupGiftTier, TopupOrder, TopupTier, TopupTierState } from './topup-orders';
 import { deviceId } from './device-id';
 import type { EventReward } from './game';
 import type { GiftCode } from './gift-code-rules';
@@ -102,6 +102,11 @@ export const claimTopupTier = (vnd: number) => call<{ vnd: number; bonus: number
 export const adminTopupEvents = () => call<AdminTopupEvents>('fco_admin_topup_events');
 export const adminTopupEventSave = (id: number | null, title: string, startsAt: Date, endsAt: Date) => call<AdminTopupEvents>('fco_admin_topup_event_save', { p_id: id, p_title: title, p_starts: startsAt.toISOString(), p_ends: endsAt.toISOString() });
 export const adminTopupEventEnd = (id: number) => call<AdminTopupEvents>('fco_admin_topup_event_end', { p_id: id });
+// Mốc quà tích luỹ: gói / BP / STP, song song mốc FC (migration 202611250004_fco_topup_gift_tiers.sql).
+export const fetchTopupGiftsMe = () => call<TopupGiftState>('fco_topup_gifts_me');
+export const claimTopupGift = (vnd: number) => call<{ vnd: number; rewards: TopupGiftTier['rewards']; wallet: Wallet }>('fco_topup_gift_claim', { p_vnd: vnd });
+export const adminTopupGiftTiers = () => call<AdminTopupGifts>('fco_admin_topup_gift_tiers');
+export const adminTopupGiftTiersSave = (tiers: TopupGiftTier[]) => call<AdminTopupGifts>('fco_admin_topup_gift_tiers_save', { p_tiers: tiers });
 // Code sai: máy chủ trả {error} thay vì báo lỗi để còn ghi lại lần thử (chống dò code, migration 202611140010).
 export const redeemGiftHash = async (hash: string) => {
   const result = await call<{ rewards: EventReward[]; wallet: Wallet; save?: ServerRecord | null } | { error: string }>('fco_redeem_gift', { p_hash: hash });

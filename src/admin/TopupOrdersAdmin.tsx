@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Check, Plus, RotateCcw, Trash2, X } from 'lucide-react';
-import { money } from '../game';
-import { adminTopupDecide, adminTopupEventEnd, adminTopupEvents, adminTopupEventSave, adminTopupOrders, adminTopupTiersSave, fetchTopupConfig } from '../wallet';
-import { TOPUP_STATUS } from '../topup-orders';
-import type { AdminTopupEvent, AdminTopupEvents, AdminTopupList, AdminTopupOrder, TopupConfig, TopupTier } from '../topup-orders';
+import { money, packs } from '../game';
+import { adminTopupDecide, adminTopupEventEnd, adminTopupEvents, adminTopupEventSave, adminTopupGiftTiers, adminTopupGiftTiersSave, adminTopupOrders, adminTopupTiersSave, fetchTopupConfig } from '../wallet';
+import { giftRewardText, TOPUP_STATUS } from '../topup-orders';
+import type { AdminTopupEvent, AdminTopupEvents, AdminTopupGifts, AdminTopupList, AdminTopupOrder, TopupConfig, TopupGiftReward, TopupGiftTier, TopupTier } from '../topup-orders';
 
 // Quản trị FC → Đơn nạp (migration 202611200002_fco_topup_orders.sql): duyệt / từ chối đơn nạp một chạm, sửa mốc khuyến mãi.
 // Duyệt = máy chủ cộng FC gốc của đơn (tính doanh thu + Top Đặc Huấn). KM tính theo tổng nạp cộng dồn, người chơi tự nhận (202611200004).
@@ -13,9 +13,10 @@ const vnd = (n: number) => `${n.toLocaleString('vi-VN')}đ`;
 const time = (ms: number | null) => ms ? new Date(ms).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour12: false }) : '';
 export type TopupAdminApi = { list: (f: Filter, q: string) => Promise<AdminTopupList>; decide: (id: number, ok: boolean, note: string) => Promise<AdminTopupOrder>;
   config: () => Promise<TopupConfig>; saveTiers: (t: TopupTier[]) => Promise<TopupTier[]>;
-  events: () => Promise<AdminTopupEvents>; saveEvent: (id: number | null, title: string, s: Date, e: Date) => Promise<AdminTopupEvents>; endEvent: (id: number) => Promise<AdminTopupEvents> };
+  events: () => Promise<AdminTopupEvents>; saveEvent: (id: number | null, title: string, s: Date, e: Date) => Promise<AdminTopupEvents>; endEvent: (id: number) => Promise<AdminTopupEvents>;
+  gifts?: () => Promise<AdminTopupGifts>; saveGifts?: (t: TopupGiftTier[]) => Promise<AdminTopupGifts> };
 const LIVE: TopupAdminApi = { list: adminTopupOrders, decide: adminTopupDecide, config: fetchTopupConfig, saveTiers: adminTopupTiersSave,
-  events: adminTopupEvents, saveEvent: adminTopupEventSave, endEvent: adminTopupEventEnd };
+  events: adminTopupEvents, saveEvent: adminTopupEventSave, endEvent: adminTopupEventEnd, gifts: adminTopupGiftTiers, saveGifts: adminTopupGiftTiersSave };
 
 // Sự kiện nạp tích luỹ (202611200005): ngoài thời gian sự kiện không có KM tích luỹ. Giờ nhập theo giờ máy admin (giờ Việt Nam).
 const localInput = (ms: number) => { const d = new Date(ms); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); };
@@ -87,6 +88,56 @@ function TierEditor({ api }: { api: TopupAdminApi }) {
   </section>;
 }
 
+// Mốc quà tích luỹ (202611250004): song song mốc FC, cùng sự kiện. Mỗi mốc 1–10 phần quà: gói cầu thủ (mã gói + số lượng), BP hoặc STP.
+type GiftKind = 'pack' | 'bp' | 'stp';
+type GiftDraft = { kind: GiftKind; pack: string; amount: string };
+const toDraft = (r: TopupGiftReward): GiftDraft => 'pack' in r ? { kind: 'pack', pack: r.pack, amount: String(r.count) } : 'bp' in r ? { kind: 'bp', pack: '', amount: String(r.bp) } : { kind: 'stp', pack: '', amount: String(r.stp) };
+const packLabel = (id: string) => packs.find(p => p.id === id)?.name ?? id;
+function GiftTierEditor({ api }: { api: TopupAdminApi }) {
+  const [rows, setRows] = useState<{ vnd: string; rewards: GiftDraft[]; claims: number }[] | null>(null);
+  const [eventTitle, setEventTitle] = useState('');
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const apply = (d: AdminTopupGifts) => { setEventTitle(d.event?.title ?? ''); setRows(d.tiers.map(t => ({ vnd: String(t.vnd), rewards: t.rewards.map(toDraft), claims: t.claims }))); };
+  useEffect(() => { void api.gifts?.().then(apply).catch(e => setMsg({ ok: false, text: (e as Error).message })); }, []);
+  if (!api.gifts || !api.saveGifts) return null;
+  if (!rows) return msg ? <p className="pa-message is-error">{msg.text}</p> : null;
+  const num = (s: string) => Number(s.replace(/[.\s]/g, ''));
+  const setRow = (i: number, patch: Partial<(typeof rows)[number]>) => setRows(rows.map((r, j) => j === i ? { ...r, ...patch } : r));
+  const setGift = (i: number, k: number, patch: Partial<GiftDraft>) => setRow(i, { rewards: rows[i].rewards.map((g, j) => j === k ? { ...g, ...patch } : g) });
+  const toReward = (g: GiftDraft): TopupGiftReward => g.kind === 'pack' ? { pack: g.pack.trim(), count: num(g.amount) || 1 } : g.kind === 'bp' ? { bp: num(g.amount) } : { stp: num(g.amount) };
+  const save = () => { setMsg(null);
+    const tiers = rows.filter(r => r.vnd.trim()).map(r => ({ vnd: num(r.vnd), rewards: r.rewards.filter(g => g.kind === 'pack' ? g.pack.trim() : num(g.amount) > 0).map(toReward) }));
+    if (tiers.some(t => !t.rewards.length)) return setMsg({ ok: false, text: 'Mỗi mốc cần ít nhất một phần quà.' });
+    const unknown = tiers.flatMap(t => t.rewards).filter((r): r is { pack: string; count: number } => 'pack' in r && !packs.some(p => p.id === r.pack));
+    if (unknown.length) return setMsg({ ok: false, text: `Không có gói: ${unknown.map(r => r.pack).join(', ')}.` });
+    void api.saveGifts!(tiers).then(d => { apply(d); setMsg({ ok: true, text: `Đã lưu ${d.tiers.length} mốc quà. Người chơi thấy ở trang nạp khi đang có sự kiện.` }); }).catch(e => setMsg({ ok: false, text: (e as Error).message })); };
+  return <section className="tpa-tiers tpa-gifts" aria-label="Mốc quà tích luỹ">
+    <h3>Mốc quà tích luỹ (gói / BP / STP)</h3>
+    <p className="pa-gift-note">Chạy song song mốc FC khuyến mãi ở trên, cùng sự kiện nạp tích luỹ và cùng tổng tiền nạp trong sự kiện. Qua mốc nào máy chủ TỰ TRAO quà mốc đó ngay lúc duyệt đơn / nạp bill, mỗi mốc một lần mỗi sự kiện: gói + BP vào kho khi người chơi vào game, STP cộng thẳng. Ngoài sự kiện không có quà.{eventTitle && <> Số người đã nhận tính theo sự kiện gần nhất: <b>{eventTitle}</b>.</>}</p>
+    <datalist id="tpa-gift-packs">{packs.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</datalist>
+    <div className="tpa-gift-rows">
+      {rows.map((r, i) => <div key={i} className="tpa-gift-row">
+        <div className="tpa-tier-row">
+          <label className="pa-field"><span>Mốc (VND)</span><input value={r.vnd} inputMode="numeric" onChange={e => setRow(i, { vnd: e.target.value.replace(/[^\d.]/g, '').slice(0, 13) })}/></label>
+          <small>{r.claims ? `${money(r.claims)} người đã nhận` : ''}</small>
+          <button type="button" className="icon-button" aria-label="Xoá mốc" onClick={() => setRows(rows.filter((_, j) => j !== i))}><Trash2 size={15}/></button>
+        </div>
+        {r.rewards.map((g, k) => <div key={k} className="tpa-gift-item">
+          <select value={g.kind} aria-label="Loại quà" onChange={e => setGift(i, k, { kind: e.target.value as GiftKind })}><option value="pack">Gói cầu thủ</option><option value="bp">BP</option><option value="stp">STP</option></select>
+          {g.kind === 'pack' && <input list="tpa-gift-packs" value={g.pack} placeholder="Mã gói" aria-label="Mã gói" onChange={e => setGift(i, k, { pack: e.target.value.trim().slice(0, 64) })}/>}
+          <input value={g.amount} inputMode="numeric" placeholder={g.kind === 'pack' ? 'Số gói' : g.kind === 'bp' ? 'Số BP' : 'Số STP'} aria-label="Số lượng" onChange={e => setGift(i, k, { amount: e.target.value.replace(/[^\d.]/g, '').slice(0, 19) })}/>
+          <small>{g.kind === 'pack' ? (g.pack ? packLabel(g.pack) : '') : giftRewardText(toReward(g))}</small>
+          <button type="button" className="icon-button" aria-label="Xoá phần quà" onClick={() => setRow(i, { rewards: r.rewards.filter((_, j) => j !== k) })}><X size={14}/></button>
+        </div>)}
+        {r.rewards.length < 10 && <button type="button" className="secondary-button tpa-gift-add" onClick={() => setRow(i, { rewards: [...r.rewards, { kind: 'pack', pack: '', amount: '1' }] })}><Plus size={14}/>Thêm phần quà</button>}
+      </div>)}
+    </div>
+    <div className="pa-row"><button type="button" className="secondary-button" onClick={() => setRows([...rows, { vnd: '', rewards: [{ kind: 'pack', pack: '', amount: '1' }], claims: 0 }])}><Plus size={15}/>Thêm mốc quà</button>
+      <button type="button" className="primary-button" onClick={save}>Lưu mốc quà</button></div>
+    {msg && <p className={`pa-message ${msg.ok ? 'is-ok' : 'is-error'}`} role="status">{msg.text}</p>}
+  </section>;
+}
+
 export default function TopupOrdersAdmin({ api = LIVE, onChanged }: { api?: TopupAdminApi; onChanged?: () => void }) {
   const [filter, setFilter] = useState<Filter>('open');
   const [query, setQuery] = useState('');
@@ -141,5 +192,6 @@ export default function TopupOrdersAdmin({ api = LIVE, onChanged }: { api?: Topu
     </div>
     <EventEditor api={api}/>
     <TierEditor api={api}/>
+    <GiftTierEditor api={api}/>
   </section>;
 }

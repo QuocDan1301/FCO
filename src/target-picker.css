@@ -35,6 +35,8 @@
 .tp-price.is-unpriced{font-size:12px;font-weight:500;color:#7f8a98}
 .tp-empty{margin:30px 16px;text-align:center;font-size:13px;color:#7f8a98}
 .fco-change.is-open svg{transform:rotate(180deg)}
+/* Màn Nâng cấp thẻ thu hẹp bằng khung các màn khác (home.css, 2026-11-25): cột trái chỉ còn ~450px nên bảng chọn cầu thủ dùng cột gọn hơn, tiêu đề không xuống dòng. */
+@media(min-width:901px){.tp-panel .tp-columns,.tp-panel .tp-row{grid-template-columns:48px 36px minmax(0,1fr) 46px 40px 28px minmax(60px,76px);gap:6px;padding:0 12px}.tp-panel .tp-col{white-space:nowrap}}
 @media(max-width:640px){
   .tp-columns,.tp-row{grid-template-columns:44px 34px minmax(0,1fr) 40px 36px 22px 60px;gap:5px;padding:0 10px}
   .tp-name .squad-season{display:none}

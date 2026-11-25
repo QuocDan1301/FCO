@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Lock, X } from 'lucide-react';
-import { GOLD_EXTRA_TIERS, goldChoicesFor, goldSlotOpen, goldSlotsFor, goldTraitDesc, goldTraitIcon, goldTraitId, goldTraitName } from './gold-traits';
+import { goldChoicesFor, goldSlotOpen, goldSlotsFor, goldTraitDesc, goldTraitIcon, goldTraitId, goldTraitName } from './gold-traits';
 import type { GoldSlot } from './gold-traits';
 import type { Card, Player } from './game';
 
-// CSA vàng thêm trong chi tiết thẻ (người dùng 2026-11-16): ô +11 cho mọi thẻ, thêm ô +7 cho ICON TM / INFINITE PRIME / PRIME / EL.
+// CSA vàng thêm trong chi tiết thẻ (người dùng 2026-11-16): ô +11 cho mọi thẻ, thêm ô +7 cho ICON TM / INFINITE PRIME / PRIME / EL / NARUTO, ô +5 cho EL.
 // GK chỉ chọn CSA của GK. Đổi miễn phí bất cứ lúc nào; thẻ tụt dưới mốc thì mất CSA của ô đó.
 export default function GoldExtraPicker({ card, player, onChoose }: { card: Card; player: Player; onChoose: (slot: GoldSlot, trait: string | null) => Promise<void> | void }) {
   const [open, setOpen] = useState<GoldSlot | null>(null);
@@ -16,7 +16,7 @@ export default function GoldExtraPicker({ card, player, onChoose }: { card: Card
     try { await onChoose(slot, trait); setOpen(null); } finally { setBusy(false); }
   };
   return <section className="pd-goldx" aria-label="CSA vàng thêm">
-    <span className="pd-goldx-title">CSA vàng thêm<small>{(GOLD_EXTRA_TIERS as readonly string[]).includes(player.tier) ? 'mở ở +7 và +11' : 'mở ở +11'} · đổi miễn phí · tụt dưới mốc thì mất</small></span>
+    <span className="pd-goldx-title">CSA vàng thêm<small>{`mở ở ${slots.map(s => `+${s}`).join(slots.length > 2 ? ', ' : ' và ').replace(/, ([^,]*)$/, ' và $1')}`} · đổi miễn phí · tụt dưới mốc thì mất</small></span>
     {slots.map(slot => {
       const unlocked = goldSlotOpen(player.tier, card.level, slot), id = unlocked ? card.gold?.[slot] : undefined;
       const other = slots.filter(s => s !== slot).map(s => card.gold?.[s]).filter(Boolean);

@@ -11,7 +11,7 @@ export const TIER_YEARS = {
   uc: ['877'], wg: ['861'], ut: ['814'], cu: ['825'], gru: ['829'], rtn: ['284'], dc: ['802'], cc: ['289'], bld: ['828'], wb: ['836'],
   spt: ['867'], bdo: ['827'], hw23: ['291'], ep24: ['826'], ptg: ['863'], le: ['840'], hg: ['283'], spl: ['270'], ln: ['268'], fa: ['264'],
   lol: ['265'], cap: ['252'], boe21: ['253'], btb: ['256'], ebs: ['251'], juventus: ['801'], jnm: ['813'], hr25: ['835'], up26: ['878'],
-  live: ['300'], hr24: ['811'], chelsea: ['254'], hr26: ['858'], ld: ['818'], ws: ['848'], el: ['112'], tsubasa: ['871', '874', '875'],
+  live: ['300'], hr24: ['811'], chelsea: ['254'], hr26: ['858'], ld: ['818'], ws: ['848'], el: ['112'], tsubasa: ['871', '874', '875'], dcb: ['846'],
 };
 export const OVR_OFFSET = { el: 3, tsubasa: 3 };
 
@@ -40,6 +40,8 @@ if (process.argv[2]) {
   const raw = JSON.parse(readFileSync(process.argv[2], 'utf8'));
   const cards = players.map(p => ({ id: p.id, name: p.name, tier: p.tier, ovr: ovr({ playerId: p.id, level: 1 }) }));
   const { names, cards: out, report } = matchGold(cards, raw);
+  // Thẻ không có trên fifaaddict (mùa NARUTO…): gán tay ở scripts/data/gold-manual.json, ghép sau.
+  Object.assign(out, JSON.parse(readFileSync('scripts/data/gold-manual.json', 'utf8')).cards);
   const desc = Object.fromEntries(Object.keys(names).map(id => [id, raw.desc?.[id] ?? '']));
   writeFileSync('src/gold-traits.json', JSON.stringify({ note: 'Chỉ số ẩn vàng theo mã cầu thủ (mỗi mã một mùa thẻ), nguồn vn.fifaaddict.com (trait_gold), thu thập 2026-11-15. Thẻ không có trong cards = không có chỉ số ẩn vàng hoặc chưa có dữ liệu.', names, desc, cards: out }, null, 1) + '\n');
   writeFileSync('D:/FCOvv-tmp/fa/report.json', JSON.stringify(report, null, 1));

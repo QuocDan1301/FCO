@@ -121,7 +121,8 @@ export const TRADE_LOCKED_TIERS: ReadonlySet<string> = new Set<string>();
 export const TRADE_LOCKED = 'Thẻ mùa này bị khóa giao dịch: không mua / bán được trên TTCN.';
 export const isTradeLocked = (card: Pick<Card, 'playerId'>) => TRADE_LOCKED_TIERS.has(getPlayer(card).tier);
 // Mùa hệ thống không bán ở cấp nào (không +1, không hàng phôi): chỉ mua được từ người chơi khác. Máy chủ: fco_mkt_no_system (202611170010).
-export const NO_SYSTEM_SALE_TIERS: ReadonlySet<string> = new Set(['el', 'tsubasa']);
+// 2026-11-25: NARUTO cũng không có hệ thống bán (migration 202611250003_fco_naruto_no_system_sale.sql).
+export const NO_SYSTEM_SALE_TIERS: ReadonlySet<string> = new Set(['el', 'tsubasa', 'naruto']);
 export const NO_SYSTEM_SALE = 'Hệ thống không bán thẻ mùa này: chỉ mua được từ người chơi khác (đặt mua trên TTCN).';
 export const hasSystemSale = (card: Pick<Card, 'playerId'>) => !isTradeLocked(card) && !NO_SYSTEM_SALE_TIERS.has(getPlayer(card).tier);
 

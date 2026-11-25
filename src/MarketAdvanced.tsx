@@ -51,7 +51,7 @@ function ranges() {
   for (const p of players) {
     const w = p.wage ?? 0; wMin = Math.min(wMin, w); wMax = Math.max(wMax, w);
     if (p.club && !NOT_CLUBS.has(p.club)) clubs.add(p.club); // tên mùa ghi ở ô CLB (Ballon d’Or, 23 Hard Worker, 24 Energetic Player…) không phải CLB if (p.nation) nations.add(p.nation);
-    const ph = physicalOf(p.id); if (ph) { hMin = Math.min(hMin, ph.height); hMax = Math.max(hMax, ph.height); kMin = Math.min(kMin, ph.weight); kMax = Math.max(kMax, ph.weight); if (ph.body) bodies.add(ph.body); }
+    const ph = physicalOf(p.id); if (ph) { hMin = Math.min(hMin, ph.height); hMax = Math.max(hMax, ph.height); if (ph.weight > 0) { kMin = Math.min(kMin, ph.weight); kMax = Math.max(kMax, ph.weight); } if (ph.body) bodies.add(ph.body); }
     const ex = extraOf(p.id); if (ex?.birth) { const y = Number(ex.birth.slice(0, 4)); if (y) { yMin = Math.min(yMin, y); yMax = Math.max(yMax, y); } }
   }
   const col = new Intl.Collator('vi');

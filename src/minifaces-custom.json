@@ -1,5 +1,5 @@
 {
- "note": "Miniface tùy chọn do người dùng gửi (2026-11-16, đã tách nền): public/assets/portraits/custom/<id>.webp 160×160; person = tên|quốc tịch, hiện đầu danh sách chọn Miniface.",
+ "note": "Miniface tùy chọn do người dùng gửi (2026-11-16, đã tách nền): public/assets/portraits/custom/<id>.webp 160×160; person = tên|quốc tịch, hiện đầu danh sách chọn Miniface. Mùa NARUTO (2026-11-25): naruto-<tên> = ảnh ghép nhân vật + cầu thủ người dùng gửi (240×240, giữ nguyên cả hai, canh đáy), miniface mặc định của thẻ NARUTO.",
  "items": {
   "barca-christensen": {
    "person": "A. Christensen|Đan Mạch",
@@ -224,6 +224,170 @@
   "juve-cristiano-ronaldo": {
    "person": "Cristiano Ronaldo|Bồ Đào Nha",
    "label": "Juventus"
+  },
+  "naruto-lamine-yamal": {
+   "person": "Lamine Yamal|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-raphinha": {
+   "person": "Raphinha|Brazil",
+   "label": "NARUTO"
+  },
+  "naruto-r-lewandowski": {
+   "person": "R. Lewandowski|Ba Lan",
+   "label": "NARUTO"
+  },
+  "naruto-ferran-torres": {
+   "person": "Ferran Torres|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-pedri": {
+   "person": "Pedri|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-f-de-jong": {
+   "person": "F. de Jong|Hà Lan",
+   "label": "NARUTO"
+  },
+  "naruto-gavi": {
+   "person": "Gavi|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-dani-olmo": {
+   "person": "Dani Olmo|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-fermin-lopez": {
+   "person": "Fermín López|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-marc-casado": {
+   "person": "Marc Casadó|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-marc-bernal": {
+   "person": "Marc Bernal|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-pau-cubarsi": {
+   "person": "Pau Cubarsí|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-r-araujo": {
+   "person": "R. Araujo|Uruguay",
+   "label": "NARUTO"
+  },
+  "naruto-j-kounde": {
+   "person": "J. Koundé|Pháp",
+   "label": "NARUTO"
+  },
+  "naruto-balde": {
+   "person": "Balde|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-eric-garcia": {
+   "person": "Eric García|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-w-szczesny": {
+   "person": "W. Szczęsny|Ba Lan",
+   "label": "NARUTO"
+  },
+  "naruto-l-messi": {
+   "person": "L. Messi|Argentina",
+   "label": "NARUTO"
+  },
+  "naruto-ronaldinho": {
+   "person": "Ronaldinho|Brazil",
+   "label": "NARUTO"
+  },
+  "naruto-j-cruyff": {
+   "person": "J. Cruyff|Hà Lan",
+   "label": "NARUTO"
+  },
+  "naruto-ronaldo": {
+   "person": "Ronaldo|Brazil",
+   "label": "NARUTO"
+  },
+  "naruto-rivaldo": {
+   "person": "Rivaldo|Brazil",
+   "label": "NARUTO"
+  },
+  "naruto-xavi": {
+   "person": "Xavi|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-iniesta": {
+   "person": "Iniesta|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-p-guardiola": {
+   "person": "P. Guardiola|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-m-laudrup": {
+   "person": "M. Laudrup|Đan Mạch",
+   "label": "NARUTO"
+  },
+  "naruto-c-puyol": {
+   "person": "C. Puyol|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-r-koeman": {
+   "person": "R. Koeman|Hà Lan",
+   "label": "NARUTO"
+  },
+  "naruto-k-mbappe": {
+   "person": "K. Mbappé|Pháp",
+   "label": "NARUTO"
+  },
+  "naruto-vini-jr": {
+   "person": "Vini Jr.|Brazil",
+   "label": "NARUTO"
+  },
+  "naruto-rodrygo": {
+   "person": "Rodrygo|Brazil",
+   "label": "NARUTO"
+  },
+  "naruto-j-bellingham": {
+   "person": "J. Bellingham|Anh",
+   "label": "NARUTO"
+  },
+  "naruto-e-camavinga": {
+   "person": "E. Camavinga|Pháp",
+   "label": "NARUTO"
+  },
+  "naruto-f-valverde": {
+   "person": "F. Valverde|Uruguay",
+   "label": "NARUTO"
+  },
+  "naruto-t-courtois": {
+   "person": "T. Courtois|Bỉ",
+   "label": "NARUTO"
+  },
+  "naruto-cristiano-ronaldo": {
+   "person": "Cristiano Ronaldo|Bồ Đào Nha",
+   "label": "NARUTO"
+  },
+  "naruto-k-benzema": {
+   "person": "K. Benzema|Pháp",
+   "label": "NARUTO"
+  },
+  "naruto-z-zidane": {
+   "person": "Z. Zidane|Pháp",
+   "label": "NARUTO"
+  },
+  "naruto-t-kroos": {
+   "person": "T. Kroos|Đức",
+   "label": "NARUTO"
+  },
+  "naruto-sergio-ramos": {
+   "person": "Sergio Ramos|Tây Ban Nha",
+   "label": "NARUTO"
+  },
+  "naruto-casillas": {
+   "person": "Casillas|Tây Ban Nha",
+   "label": "NARUTO"
   }
  }
 }

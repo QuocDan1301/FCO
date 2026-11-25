@@ -7,6 +7,7 @@ import { SELL_BAND_PERCENT, SYSTEM_BUY_LEVEL, hasSystemSale, sellRange } from '.
 import type { MarketDepth } from './inventory-server';
 import { PriceChart, priceHistory } from './SellDialog';
 import LevelPicker from './LevelPicker';
+import { extraOf } from './player-extra';
 import './sell.css';
 import './buy-order.css';
 
@@ -70,7 +71,8 @@ export default function BuyOrderDialog({ card: initial, balance, renderCard, lev
   // Chưa tự sửa giá thì đề xuất giá bán thấp nhất trong khung (mua ngay được).
   useEffect(() => { if (!touched && bestAsk && range && bestAsk >= range.min && bestAsk <= range.max) setPriceText(fullFormat.format(bestAsk)); }, [bestAsk, touched, level]);
   const pad = (list: Level[], top: boolean) => { const out = list.slice(0, BOOK_ROWS), fill = Array<Level>(BOOK_ROWS - out.length).fill(null); return top ? [...fill, ...out] : [...out, ...fill]; };
-  const bidRows = pad([...(depth?.bids ?? [])].sort((a, b) => a.price - b.price).slice(-BOOK_ROWS), true);
+  // Như chợ FC Online: lệnh mua xếp từ trên xuống (giá cao nhất trước), lệnh bán xếp từ giá thấp nhất.
+  const bidRows = pad([...(depth?.bids ?? [])].sort((a, b) => b.price - a.price), false);
   const askRows = pad(asks, false);
 
   const typed = Number(priceText.replace(/\D/g, '')) || 0;
@@ -96,6 +98,7 @@ export default function BuyOrderDialog({ card: initial, balance, renderCard, lev
     : tab === 'now' ? `Mua ngay giá ${money(bestAsk!)}${asks[0]?.system ? ' của hệ thống' : ''}.`
     : instant ? `Có người bán ${money(bestAsk!)}: mua ngay theo giá đó.` : 'Chưa ai bán giá này: giữ BP, treo lệnh mua tới khi có người bán (không hết hạn; huỷ ở Lịch sử chuyển nhượng thì trả lại BP).';
   const full = { uid: `market-${card.playerId}-${level}`, playerId: card.playerId, level, received: 0 };
+  const skill = extraOf(card.playerId)?.skill ?? 0;
 
   return <div className="sd-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }} onKeyDown={e => { if (e.key === 'Escape') onClose(); }}><div className="sd bo" role="dialog" aria-modal="true" aria-labelledby="bo-title">
     <header className="sd-head"><h2 id="bo-title">Mua cầu thủ</h2><button className="sd-x" onClick={onClose} aria-label="Đóng"><X size={22}/></button></header>
@@ -106,7 +109,8 @@ export default function BuyOrderDialog({ card: initial, balance, renderCard, lev
     <div className="sd-single">
       <aside className="sd-left">
         <div className="sd-card">{renderCard(full)}</div>
-        {range ? <PriceChart history={priceHistory(card, range.price)}/> : <p className="sd-muted">Chưa có lịch sử giá.</p>}
+        <div className="bo-skill"><span>Kỹ thuật</span><span className="bo-stars" role="img" aria-label={skill ? `${skill} sao` : 'Chưa rõ'}>{Array.from({ length: 5 }, (_, i) => <svg key={i} className={i < skill ? 'is-on' : ''} viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.2 2.9 6.2 6.7.8-4.9 4.6 1.3 6.7L12 17.1l-6 3.4 1.3-6.7L2.4 9.2l6.7-.8z"/></svg>)}</span></div>
+        {range ? <PriceChart history={priceHistory(card, range.price)} fco/> : <p className="sd-muted">Chưa có lịch sử giá.</p>}
       </aside>
       <section className="sd-book">
         <h3><b className={`squad-season season-tag-${player.tier}`}>{seasonShort(player.tier)}</b>{player.name}
