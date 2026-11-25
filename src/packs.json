@@ -9072,6 +9072,27 @@
       "published": true,
       "eventOnly": true,
       "choose": true
+    },
+    {
+      "id": "naruto-2",
+      "name": "NARUTO SHIPPUDEN All",
+      "short": "NARUTO",
+      "title": "NARUTO SHIPPUDEN",
+      "seasons": [
+        "naruto"
+      ],
+      "minOvr": null,
+      "topPrice": null,
+      "levels": [
+        1,
+        1
+      ],
+      "price": 428000000,
+      "description": "Gói NARUTO.",
+      "range": "132–136",
+      "back": "/assets/custom/naruto-2-back.webp",
+      "published": true,
+      "eventOnly": true
     }
   ]
 }
