@@ -30,7 +30,7 @@ for (const f of readdirSync(dir).filter(f => f.endsWith('.sql')).sort()) {
   if (f.startsWith('20261122000')) text = text.replace(/do \$\$\nbegin\n  if \(select count\(\*\) from public\.fco_cat_packs[\s\S]*?end \$\$;\n/, '');
   try { await db.exec(text); } catch (e) { errs.push(f + ': ' + e.message.slice(0, 120)); try { await db.exec('rollback'); } catch {} }
 }
-assert.ok(!errs.some(x => x.startsWith('20261124000')), 'migration jackpot lỗi: ' + errs.join(' | '));
+assert.ok(!errs.some(x => x.startsWith('2026112400')), 'migration jackpot lỗi: ' + errs.join(' | '));
 console.log('migrations áp xong, migration khác lỗi (bỏ qua):', errs.length);
 const one = async sql => Object.values((await db.query(sql)).rows[0])[0];
 
@@ -44,28 +44,15 @@ async function run(steps) {
   }
   return log;
 }
-// 1. Hôm nay: quỹ rất lớn (bot chắc chắn nổ) nhưng Giải Đặc Biệt chỉ nổ đúng 1 lần dù chạy 300 nhịp.
-await db.exec(`update public.fco_jackpot set pot = 30000, feed = '[]', at = now() - interval '1 hour', speed = 0, special_day = null`);
-const today = await one('select public.fco_today()::text');
-let log = await run(300);
+// 1. (202611240014) Bot trúng Giải Đặc Biệt NHIỀU LẦN mỗi ngày, kể cả khi hôm nay đã có người trúng; 300 bot săn quỹ.
+await db.exec(`update public.fco_jackpot set pot = 5000, feed = '[]', at = now() - interval '1 hour', speed = 0, special_day = public.fco_today()`);
+const log = await run(36);
 const specials = log.filter(e => e.kind === 'special');
-assert.equal(specials.length, 1, `Giải Đặc Biệt phải đúng 1 lần/ngày, thực tế ${specials.length}`);
-assert.equal(await one('select special_day::text from public.fco_jackpot'), today);
-assert.ok(log.filter(e => e.kind === 'mini').length > 0, 'Giải Phụ vẫn nổ bình thường');
-// Quỹ vẫn tích lũy sau khi đã trúng trong ngày (không bị reset về 2.000 nhiều lần).
-assert.ok(Number(await one('select pot from public.fco_jackpot')) > 2000);
+assert.ok(specials.length >= 3, `bot phải trúng Giải Đặc Biệt nhiều lần trong 3 giờ, thực tế ${specials.length}`);
+assert.ok(log.filter(e => e.kind === 'mini').length > 0, 'Giải Phụ vẫn nổ');
+assert.ok(specials.every(e => e.amount >= 13000 && e.amount <= 23300), 'Giải Đặc Biệt trong khoảng 13.000–23.000: ' + specials.map(e => e.amount).join(', '));
+assert.match(await one(`select pg_get_functiondef('public.fco_jackpot_tick()'::regprocedure)`), /hunters constant integer := 300;/);
 
-// 2. Người chơi trúng Giải Đặc Biệt hôm nay (tin ghi trong bảng tin) thì bot cũng không nổ thêm.
-await db.exec(`update public.fco_jackpot set pot = 30000, special_day = null, at = now() - interval '1 hour',
-  feed = jsonb_build_array(jsonb_build_object('name','Người chơi','amount',5000,'kind','special','time',(extract(epoch from now()) * 1000)::bigint))`);
-log = await run(60);
-assert.equal(log.filter(e => e.kind === 'special').length, 0, 'người chơi đã trúng hôm nay thì bot không nổ Giải Đặc Biệt');
-
-// 3. Sang ngày mới (special_day cũ, bảng tin không còn tin hôm nay) thì bot lại được nổ Giải Đặc Biệt đúng 1 lần.
-await db.exec(`update public.fco_jackpot set pot = 30000, special_day = (public.fco_today() - 1), at = now() - interval '1 hour',
-  feed = jsonb_build_array(jsonb_build_object('name','Cũ','amount',1,'kind','special','time',0))`);
-log = await run(300);
-assert.equal(log.filter(e => e.kind === 'special').length, 1, 'ngày mới: đúng 1 Giải Đặc Biệt');
 // 4. Người chơi (Cờ tỷ phú, migration 202611240002): Giải Đặc Biệt tối đa 1 lần / ngày theo giờ Việt Nam.
 const ctp = async (jpAt) => {
   const o = await one(`select public.fco_ctp_sim(4000, 1, 1, 30000, ${jpAt}, null, null, null, '{}'::text[])`);

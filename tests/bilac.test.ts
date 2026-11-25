@@ -113,7 +113,11 @@ test('Quỹ jackpot: 140 bot săn quỹ, giữ luật Giải Phụ trước (202
   assert.match(sql, /if not mini_done then/);
   assert.doesNotMatch(sql, /, 40\)/);
   const { BOT_HUNTERS } = await import('../src/jackpot.ts');
-  assert.equal(BOT_HUNTERS, 140);
+  // 2026-11-25: tăng lên 300 bot (202611240014_fco_jackpot_more_bots.sql).
+  assert.equal(BOT_HUNTERS, 300);
+  const more = readFileSync('supabase/migrations/202611240014_fco_jackpot_more_bots.sql', 'utf8');
+  assert.match(more, /hunters constant integer := 300;/);
+  assert.doesNotMatch(more.split('begin;')[1], /special_day|blocked/, 'bot trúng Giải Đặc Biệt nhiều lần / ngày');
 });
 
 test('Quỹ jackpot: mức dễ nổ 15.000 FC, chắc chắn nổ 25.000 FC (202611090012)', () => {

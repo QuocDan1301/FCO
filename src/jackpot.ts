@@ -16,7 +16,7 @@ export const JACKPOT_TICK_MS = 2_000;
 // quỹ vừa qua JACKPOT_MIN thì chỉ vài giây là có bot nổ Giải Đặc Biệt. Quỹ càng lớn càng nhiều người săn: tỷ lệ Giải Đặc Biệt
 // nhân hệ số pressure (bình phương, +1 mỗi 5.000 FC trên JACKPOT_MIN); quỹ chạm JACKPOT_MAX thì chắc chắn có bot nổ.
 export const PLAYER_ODDS = { special: .0002, mini: .0015 } as const;
-export const BOT_HUNTERS = 140; // 2026-11-09: 40 → 140, khớp fco_jackpot_tick (202611090011)
+export const BOT_HUNTERS = 300; // 2026-11-25: 140 → 300 (trước: 40 → 140 ngày 2026-11-09), khớp fco_jackpot_tick (202611240014_fco_jackpot_more_bots.sql)
 export const BOT_ODDS = { special: .002, mini: .001 } as const;
 export const JACKPOT_MAX = 23_000;
 export const pressure = (pot: number) => (1 + Math.max(0, pot - JACKPOT_MIN) / 5_000) ** 2;
