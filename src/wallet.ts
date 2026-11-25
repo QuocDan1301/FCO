@@ -24,9 +24,10 @@ export * from './wallet-state';
 
 // Ví FC trên máy chủ (supabase/migrations/202611070001_fco_wallet.sql): số FC, quà ngày, gift code, lượt sự kiện và jackpot
 // do máy chủ quyết định; trình duyệt chỉ hiển thị và cộng phần BP / gói. Chỉ dùng khi đã đăng nhập tài khoản.
-async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<T> {
+// timeoutMs: game tự huỷ lệnh chờ quá lâu (mặc định 20 giây); đồng bộ dữ liệu kho thẻ cần lâu hơn (2026-11-25: 4.441 cầu thủ vượt 20 giây → báo nhầm 'Không kết nối được').
+async function call<T>(fn: string, args: Record<string, unknown> = {}, timeoutMs = 20000): Promise<T> {
   if (!accountClient) throw new Error(LOGIN_FOR_FC);
-  const { data, error } = await accountClient.rpc(fn, args).abortSignal(AbortSignal.timeout(20000));
+  const { data, error } = await accountClient.rpc(fn, args).abortSignal(AbortSignal.timeout(timeoutMs));
   if (error) {
     // Lỗi gốc của máy chủ (thông báo cho người chơi đã được dịch gọn): xem ở Console khi cần tìm nguyên nhân.
     console.error(`[fco] ${fn}`, error);
@@ -40,7 +41,7 @@ async function call<T>(fn: string, args: Record<string, unknown> = {}): Promise<
 }
 
 // Dùng chung cho kho thẻ trên máy chủ (src/inventory-server.ts).
-export const rpcCall = <T>(fn: string, args: Record<string, unknown> = {}) => call<T>(fn, args);
+export const rpcCall = <T>(fn: string, args: Record<string, unknown> = {}, timeoutMs?: number) => call<T>(fn, args, timeoutMs);
 export const fetchServerNow = () => call<number>('fco_server_now');
 export const fetchWallet = (seedPoints: number) => call<Wallet>('fco_wallet', { p_seed_points: Math.max(0, Math.floor(seedPoints)) });
 // Gửi mã thiết bị đang dùng: giới hạn chống clone chỉ xét máy này (migration 202611170016).

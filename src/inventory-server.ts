@@ -53,14 +53,21 @@ export const serverClaimGifts = () => rpcCall<{ texts: string[]; fc: boolean; sa
 // ===== Admin =====
 export const adminInventoryEnforce = (enabled: boolean) => rpcCall<InventoryState>('fco_admin_inventory_enforce', { p_enabled: enabled });
 // Gửi bộ dữ liệu của bản game đang chạy lên máy chủ: begin → cầu thủ / gói từng phần → commit (một giao dịch thay bản cũ).
+// Đồng bộ chậm hơn lệnh thường (ghi lại toàn bộ danh mục): mỗi bước chờ tới 120 giây, gói nhỏ hơn (400 cầu thủ / 10 gói một lần);
+// lỗi thì báo kèm bước đang làm để biết hỏng ở đâu (2026-11-25: đồng bộ 4.441 cầu thủ quá 20 giây bị báo nhầm "Không kết nối được máy chủ").
+const SYNC_TIMEOUT = 120_000, PLAYER_CHUNK = 400, PACK_CHUNK = 10;
 export async function adminSyncCatalog(progress: (done: number, total: number) => void = () => {}) {
   const catalog = buildCatalog(), version = await catalogVersion();
-  const playerChunks = Math.ceil(catalog.players.length / 800), packChunks = Math.ceil(catalog.packs.length / 15), total = playerChunks + packChunks + 2;
+  const playerChunks = Math.ceil(catalog.players.length / PLAYER_CHUNK), packChunks = Math.ceil(catalog.packs.length / PACK_CHUNK), total = playerChunks + packChunks + 2;
   let done = 0;
   const step = () => progress(++done, total);
-  await rpcCall('fco_admin_catalog_begin', { p_version: version }); step();
-  for (let i = 0; i < catalog.players.length; i += 800) { await rpcCall('fco_admin_catalog_players', { p_version: version, p_rows: catalog.players.slice(i, i + 800) }); step(); }
-  for (let i = 0; i < catalog.packs.length; i += 15) { await rpcCall('fco_admin_catalog_packs', { p_version: version, p_rows: catalog.packs.slice(i, i + 15) }); step(); }
-  const state = await rpcCall<InventoryState>('fco_admin_catalog_commit', { p_version: version, p_rules: catalog.rules, p_players: catalog.players.length, p_packs: catalog.packs.length }); step();
+  const run = async <T>(label: string, fn: string, args: Record<string, unknown>) => {
+    try { return await rpcCall<T>(fn, args, SYNC_TIMEOUT); }
+    catch (e) { throw new Error(`Đồng bộ lỗi ở bước ${done + 1}/${total} (${label}): ${(e as Error).message}`); }
+  };
+  await run('bắt đầu', 'fco_admin_catalog_begin', { p_version: version }); step();
+  for (let i = 0; i < catalog.players.length; i += PLAYER_CHUNK) { await run(`cầu thủ ${i + 1}–${Math.min(i + PLAYER_CHUNK, catalog.players.length)}`, 'fco_admin_catalog_players', { p_version: version, p_rows: catalog.players.slice(i, i + PLAYER_CHUNK) }); step(); }
+  for (let i = 0; i < catalog.packs.length; i += PACK_CHUNK) { await run(`gói ${i + 1}–${Math.min(i + PACK_CHUNK, catalog.packs.length)}`, 'fco_admin_catalog_packs', { p_version: version, p_rows: catalog.packs.slice(i, i + PACK_CHUNK) }); step(); }
+  const state = await run<InventoryState>('chốt dữ liệu', 'fco_admin_catalog_commit', { p_version: version, p_rules: catalog.rules, p_players: catalog.players.length, p_packs: catalog.packs.length }); step();
   return state;
 }
