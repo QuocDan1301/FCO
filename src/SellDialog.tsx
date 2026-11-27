@@ -16,8 +16,8 @@ import { faceOf } from './portraits';
 
 type Tab = 'single' | 'bulk';
 export type SellTarget = 'market' | 'system';
-// Bán là xong ngay (202611180010): có lệnh đặt mua của người chơi thì khớp, không thì hệ thống mua ngay đúng giá bán.
-const SELL_HINT = 'Bán ngay với giá tự đặt: có người đặt mua giá ≥ giá bán thì khớp với người đó, không thì hệ thống mua ngay đúng giá bán (trừ thuế). BP chờ nhận ở TTCN › Lịch sử chuyển nhượng.';
+// Bán là xong ngay (202611180010): có lệnh đặt mua của người chơi thì khớp, không thì hệ thống mua ngay — tối đa bằng giá tham chiếu (202611270001).
+const SELL_HINT = 'Bán ngay với giá tự đặt: có người đặt mua giá ≥ giá bán thì khớp với người đó, không thì hệ thống mua ngay theo giá bán nhưng tối đa bằng giá tham chiếu (trừ thuế). BP chờ nhận ở TTCN › Lịch sử chuyển nhượng.';
 type Mode = 'fit' | 'min' | 'max';
 type Props = {
   save: Save;
@@ -107,6 +107,9 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const sellable = card && !locked.has(card.uid) && !isTradeLocked(card) ? twins.length : 0;
   const selling = twins.slice(0, count);
   const sellingFees = selling.length * saleFee(price, taxPercent);
+  // Không có người đặt mua thì hệ thống trả tối đa giá tham chiếu (202611270001): treo cao hơn thì báo số BP thực nhận theo giá tham chiếu.
+  const sysPrice = range ? Math.min(price, range.price) : price;
+  const sysNet = sysPrice * selling.length - selling.length * saleFee(sysPrice, taxPercent);
   const view = card && range ? marketView(card, range.price) : null;
   const [depth, setDepth] = useState<MarketDepth | null>(null);
   useEffect(() => {
@@ -207,7 +210,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
         <label className="sd-field"><span>Giá{toSystem && <small> (giá tham chiếu)</small>}</span>
           <input inputMode="numeric" value={toSystem && range ? full(range.price) : priceText} readOnly={toSystem} disabled={!range} aria-invalid={!!range && !priceOk} onChange={e => setPriceText(e.target.value.replace(/\D/g, '') ? full(Number(e.target.value.replace(/\D/g, ''))) : '')} onBlur={clampPrice} onKeyDown={e => { if (e.key === 'ArrowUp') { e.preventDefault(); step(1); } if (e.key === 'ArrowDown') { e.preventDefault(); step(-1); } }}/>
         </label>
-        <p className={`sd-price-note ${range && !priceOk ? 'is-error' : ''}`}>{!range ? marketPriceMissing(card) : !priceOk ? `Giá phải từ ${money(range.min)} đến ${money(range.max)} (±${SELL_BAND_PERCENT}% giá thị trường)` : toSystem ? `Hệ thống mua ngay ${money(price)} · nhận ngay ${money(price * selling.length - sellingFees)} BP sau phí ${pctText(taxPercent)}%` : `${money(price)} · nhận ${money(price * selling.length - sellingFees)} BP sau phí ${pctText(taxPercent)}% · treo 24 giờ`}</p>
+        <p className={`sd-price-note ${range && !priceOk ? 'is-error' : ''}`}>{!range ? marketPriceMissing(card) : !priceOk ? `Giá phải từ ${money(range.min)} đến ${money(range.max)} (±${SELL_BAND_PERCENT}% giá thị trường)` : toSystem ? `Hệ thống mua ngay ${money(price)} · nhận ngay ${money(price * selling.length - sellingFees)} BP sau phí ${pctText(taxPercent)}%` : sysPrice < price ? `${money(price)} · có người đặt mua giá này thì nhận ${money(price * selling.length - sellingFees)} BP; không thì hệ thống mua theo giá tham chiếu ${money(sysPrice)} · nhận ${money(sysNet)} BP sau phí ${pctText(taxPercent)}%` : `${money(price)} · nhận ${money(price * selling.length - sellingFees)} BP sau phí ${pctText(taxPercent)}%`}</p>
         <div className="sd-row"><span>Số lượng bán</span><div className="sd-stepper"><b>{count}</b><span><button aria-label="Tăng số lượng" disabled={count >= sellable} onClick={() => setCount(c => Math.min(sellable, c + 1))}><ChevronUp size={14}/></button><button aria-label="Giảm số lượng" disabled={count <= 1} onClick={() => setCount(c => Math.max(1, c - 1))}><ChevronDown size={14}/></button></span></div></div>
         <div className="sd-row"><span>Số lượng có thể bán</span><b className="sd-big">{sellable}</b></div>
         {isTradeLocked(card) ? <p className="sd-price-note is-error">{TRADE_LOCKED}</p> : locked.has(card.uid) && <p className="sd-price-note is-error">Thẻ đang bị khóa. Mở khóa trước khi bán.</p>}

@@ -609,7 +609,7 @@ export default function App({ storage = localStorage, storageKey = STORAGE_KEY, 
     busy.current = true;
     try {
       const sold = items.map(item => latest.current.cards.find(c => c.uid === item.uid)).filter((c): c is Card => !!c);
-      // Bán ngay (202611180010): khớp lệnh mua sẵn có của người chơi, còn lại hệ thống mua ngay đúng giá bán; BP chờ nhận ở Lịch sử chuyển nhượng.
+      // Bán ngay (202611180010): khớp lệnh mua sẵn có của người chơi, còn lại hệ thống mua ngay (tối đa giá tham chiếu, 202611270001); BP chờ nhận ở Lịch sử chuyển nhượng.
       const result = await serverMarketSell(items, voucher);
       adoptRecord(result.save);
       const ids = new Set(items.map(item => item.uid));
