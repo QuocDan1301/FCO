@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { MAX_LEVEL, makeCard, ovr, players } from '../src/game.ts';
 import { FLAT_PRICE, SEASON_PRICE_FACTOR, groupPrice } from '../src/group-price.ts';
 import type { PriceGroup } from '../src/group-price.ts';
-import { MARKET_FEE_PERCENT, buyPlayer, marketQuote, nextPriceChange, priceAt, pricePeriod, saleFee, sellCards, sellRange, setMarketClock } from '../src/market.ts';
+import { MARKET_FEE_PERCENT, PRICE_SWING_PERCENT, buyPlayer, marketQuote, priceAt, pricePeriod, saleFee, sellCards, sellRange, setMarketClock } from '../src/market.ts';
 import { initialSave } from './stocked-save.ts';
 
 const { groups } = JSON.parse(readFileSync('src/player-groups.json', 'utf8')) as { groups: Record<string, PriceGroup> };
@@ -43,36 +43,14 @@ test('INFINITE PRIME và PRIME giá ×1,5, ICON TM (ITM) giá ×2 so với giá 
   }
 });
 
-test('Giá luôn nằm trong ±10% giá chuẩn, là số nguyên và vừa số an toàn ở nhiều kỳ', () => {
+test('Tắt dao động giá (2026-11-27): mọi kỳ, mọi thẻ đều đúng giá chuẩn', () => {
+  assert.equal(PRICE_SWING_PERCENT, 0);
   for (const period of [0, 1, 7, 50, 1000]) {
     const at = START + period * 5 * HOUR;
     for (const p of players) for (let level = 1; level <= MAX_LEVEL; level++) {
-      const base = table[p.id][level - 1], price = priceAt({ playerId: p.id, level }, at)!;
-      assert.ok(Number.isSafeInteger(price), `${p.name} +${level}`);
-      assert.ok(price >= base * .9 && price <= base * 1.1, `${p.name} +${level}: ${price} so với ${base}`);
+      assert.equal(priceAt({ playerId: p.id, level }, at), table[p.id][level - 1] ?? null, `${p.name} +${level} kỳ ${period}`);
     }
   }
-});
-
-test('Giá đứng yên trong một kỳ 5 giờ và đổi sang kỳ sau; thẻ khác nhau, mức cộng khác nhau có độ lệch khác nhau', () => {
-  const card = { playerId: players[100].id, level: 3 };
-  const start = nextPriceChange(START), end = nextPriceChange(start);
-  assert.equal(end - start, 5 * HOUR);
-  assert.equal(priceAt(card, start), priceAt(card, end - 1));
-  const rows = players.map(p => ({ id: p.id, level: 1 })).concat(players.map(p => ({ id: p.id, level: 8 })));
-  const ratio = (id: number, level: number, at: number) => priceAt({ playerId: id, level }, at)! / table[id][level - 1];
-  const changed = rows.filter(r => ratio(r.id, r.level, start) !== ratio(r.id, r.level, end)).length;
-  assert.ok(changed / rows.length > .97, `chỉ ${changed}/${rows.length} thẻ đổi giá`);
-  const differs = players.filter(p => ratio(p.id, 1, start) !== ratio(p.id, 8, start)).length;
-  assert.ok(differs / players.length > .97, `chỉ ${differs}/${players.length} thẻ lệch khác nhau giữa các mức`);
-});
-
-test('Độ lệch phân bố đều: có đủ thẻ tăng, giảm và gần biên ±10%', () => {
-  const ratios = players.map(p => priceAt({ playerId: p.id, level: 5 }, START)! / table[p.id][4]);
-  const share = (test: (r: number) => boolean) => ratios.filter(test).length / ratios.length;
-  assert.ok(Math.abs(share(r => r < 1) - .5) < .05);
-  assert.ok(Math.abs(share(r => r < .95) - .25) < .05);
-  assert.ok(Math.abs(share(r => r > 1.05) - .25) < .05);
 });
 
 test('Giá dùng đồng hồ máy chủ: đổi giờ trên máy không đổi kỳ giá', () => {

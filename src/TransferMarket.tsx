@@ -5,7 +5,7 @@ import { ArrowRight, ChevronDown, Search, Star } from 'lucide-react';
 import { getPlayer, INVENTORY_CARD_CAP, MAX_LEVEL, money, ovr, players, seasons } from './game';
 import type { Card, Save, Tier } from './game';
 import { goldTraitOf } from './gold-traits';
-import { marketQuote, compareMarketPrices, formatMarketPrice, nextPriceChange, saleTaxPercent, isTradeLocked, TRADE_LOCKED, SELL_BAND_PERCENT } from './market';
+import { marketQuote, compareMarketPrices, formatMarketPrice, saleTaxPercent, isTradeLocked, TRADE_LOCKED, SELL_BAND_PERCENT } from './market';
 import { usePricePeriod } from './use-price-period';
 import type { MarketTrade } from './market';
 import { asset } from './asset';
@@ -162,7 +162,6 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
   const [unavailableOnly, setUnavailableOnly] = useState(false);
   const buying = mode !== 'sell' && mode !== 'orders';
   const period = usePricePeriod();
-  const nextChange = new Date(nextPriceChange()).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' });
   // Bộ đội hình đang dùng chưa có ai thì tab Đội hình chính trống nên mở thẳng tab Cầu thủ.
   const mineSet = useMemo(() => { const l = getLineups(save); return new Set(membersOf(l.sets[l.active])); }, [save.cards, save.squad, save.lineups]);
   const mineView = mineSet.size ? mineTab : 'outside';
@@ -290,7 +289,7 @@ export default function TransferMarket({ save, free, onTrade, onHistory, onOpenP
           <span className="market-gold-cell">{(() => { const g = goldTraitOf(player.id); return g && <img src={g.icon} alt={`Chỉ số ẩn: ${g.name}`} title={`Chỉ số ẩn: ${g.name} — ${g.desc}`} width={30} height={30}/>; })()}</span>
           {onDetail ? <button type="button" className="mk-row-btn is-info" title="Thông tin cầu thủ" aria-label={`Thông tin ${player.name}`} onClick={event => { event.stopPropagation(); onDetail(card); }}><Search size={18}/></button> : <span/>}
           <button type="button" className="mk-row-btn is-find" title="Xem tất cả các mùa của cầu thủ này" aria-label={`Tìm mọi mùa của ${player.name}`} onClick={event => { event.stopPropagation(); viewInList(card); }}>Tìm<ArrowRight size={16}/></button>
-          <div className={`market-price${unpriced || !rowQuote.available ? ' is-unpriced' : ''}`} title={rowQuote.reason || [formatMarketPrice(shown), rowQuote.liquidityNote, `Giá đổi lúc ${nextChange}`].filter(Boolean).join(' · ')}><b>{shown === null ? '—' : money(shown)}</b>{note && <small>{note}</small>}</div>
+          <div className={`market-price${unpriced || !rowQuote.available ? ' is-unpriced' : ''}`} title={rowQuote.reason || [formatMarketPrice(shown), rowQuote.liquidityNote].filter(Boolean).join(' · ')}><b>{shown === null ? '—' : money(shown)}</b>{note && <small>{note}</small>}</div>
         </article>;
       })}</div>
       {!buying && <div className="mk-foot"><b>{mineView === 'lineup' ? inTeam : save.cards.length - inTeam}</b> / {mineView === 'lineup' ? SQUAD_LIMIT : INVENTORY_CARD_CAP}</div>}

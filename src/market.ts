@@ -7,13 +7,14 @@ import { calculatePrice, insuranceRate, playerPricingOptions, playerClassificati
 import { bestMembership } from './membership';
 import { FLAT_PRICE } from './group-price';
 
-// player-prices.json giữ giá chuẩn theo nhóm và OVR (group-price.ts). Giá thật dao động quanh giá chuẩn và đổi mỗi 5 giờ.
+// player-prices.json giữ giá chuẩn theo nhóm và OVR (group-price.ts). Từ 2026-11-27 TẮT dao động (người dùng): giá = giá chuẩn, không đổi theo kỳ 5 giờ.
+// Lý do: mua lúc giá thấp rồi bán lúc giá cao vẫn lãi với tài khoản thuế thấp. Bật lại: đặt PRICE_SWING_PERCENT > 0 rồi admin Đồng bộ dữ liệu.
 export const PRICE_AS_OF = priceData.updatedAt;
 const recordedPrices: Record<string, (number | null)[]> = priceData.players;
 export const formatMarketPrice = (price: number | null) => price === null ? 'Chưa có giá' : `${money(price)} BP`;
 
 export const PRICE_PERIOD_HOURS = 5;
-export const PRICE_SWING_PERCENT = 10;
+export const PRICE_SWING_PERCENT = 0;
 export const PRICE_PERIOD_MS = PRICE_PERIOD_HOURS * 3_600_000;
 // Mốc tính kỳ giá: 00:00 ngày 9/11/2026 giờ Việt Nam. Máy chủ dùng cùng mốc (src/inventory-catalog.ts gửi lên).
 export const PRICE_EPOCH = Date.UTC(2026, 10, 8, 17);
@@ -47,7 +48,7 @@ export const fixedPricePlayers: ReadonlySet<number> = new Set(players.filter(p =
 // Giá thẻ tại một thời điểm (mặc định là bây giờ). Dùng trực tiếp để sắp xếp 3.883 cầu thủ khỏi phải dựng cả báo giá cho mỗi lần so sánh.
 export function priceAt(card: Pick<Card, 'playerId' | 'level'>, at = marketNow()) {
   const base = recordedPrices[String(card.playerId)]?.[card.level - 1] ?? null;
-  return base === null || base === 0 || base === FLAT_PRICE || fixedPricePlayers.has(card.playerId) ? base : swungPrice(base, priceSwing(card.playerId, card.level, pricePeriod(at)));
+  return base === null || base === 0 || base === FLAT_PRICE || !PRICE_SWING_PERCENT || fixedPricePlayers.has(card.playerId) ? base : swungPrice(base, priceSwing(card.playerId, card.level, pricePeriod(at)));
 }
 export function compareMarketPrices(a: Pick<Card, 'playerId' | 'level'>, b: Pick<Card, 'playerId' | 'level'>, descending = false) {
   const first = priceAt(a), second = priceAt(b);
