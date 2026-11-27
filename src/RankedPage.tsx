@@ -540,6 +540,8 @@ function MatchView({ match, names: liveNames, info: liveInfo, onClose, onAgain, 
     </aside>
     <div className="rkd-pitch-wrap">
       <canvas ref={canvas} className="rkd-pitch" aria-label="Sân bóng: đội bạn ở dưới, đối thủ ở trên"/>
+      {/* Nút loa trên góc sân (người dùng 2026-11-27): luôn thấy kể cả màn nhỏ, chung trạng thái với nút "Tiếng" ở cột trái. */}
+      <button type="button" className={`rkd-pitch-sound${muted ? ' is-off' : ''}`} onClick={toggleMute} aria-pressed={!muted} aria-label={muted ? 'Bật âm thanh trận' : 'Tắt âm thanh trận'} title={muted ? 'Bật tiếng khán đài và còi' : 'Tắt tiếng'}>{muted ? <VolumeX size={18}/> : <Volume2 size={18}/>}</button>
       {banner && <div className={`rkd-banner ${banner.side === 'me' ? 'is-me' : 'is-opp'}`}>VÀOOO! <b>{banner.minute}'</b> {who(banner, banner.scorer)}</div>}
       {finished && <div className={`rkd-result is-${result}`}>
         <h2>{abandoned ? 'Bỏ trận · Thua 0 – 3' : `${result === 'win' ? 'Thắng' : result === 'loss' ? 'Thua' : 'Hoà'} ${match.score[0]} – ${match.score[1]}`}</h2>

@@ -285,3 +285,10 @@ svg.rkd-board-club.is-me{color:#38c6ff}svg.rkd-board-club.is-opp{color:#ff7a7a}
 .rki-token .lu-token-name{font-size:clamp(9px,2.3cqh,14px);max-width:calc(var(--face) * 2.4)}
 .rkd-gold.is-multi{gap:1px}.rkd-gold.is-multi>img{width:19px;height:19px}
 .rkd-match.is-compact .rkd-gold.is-multi>img{width:calc(17px * var(--z));height:calc(17px * var(--z))}
+
+/* Nút loa góc trên trái sân GLXH (2026-11-27). */
+.rkd-pitch-sound{position:absolute;top:10px;left:10px;z-index:3;display:grid;place-items:center;width:38px;height:38px;padding:0;border:1px solid #ffffff33;border-radius:50%;background:#000000a6;color:#fff;cursor:pointer;box-shadow:0 4px 14px #0008}
+.rkd-pitch-sound:hover{background:#000000d9;border-color:#ffffff66}
+.rkd-pitch-sound:focus-visible{outline:2px solid #7cc4ff;outline-offset:2px}
+.rkd-pitch-sound.is-off{color:#ff9b9b}
+.rkd-match.is-compact .rkd-pitch-sound{top:6px;left:6px;transform:scale(var(--z));transform-origin:top left}
