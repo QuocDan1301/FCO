@@ -33,10 +33,10 @@ test('Phiếu giảm thuế với Premium: không cộng dồn; phiếu giảm t
   const cards = priced.map(p => makeCard(p.id));
   const state = { ...initialSave(), balance: 0, cards, taxVouchers: { 20: 1, 30: 1 }, premiumUntil: Date.now() + DAY };
   const price = sellRange(cards[0])!.max;
-  assert.throws(() => sellCards(state, [{ uid: cards[0].uid, price }], false, 20), /Premium/);
+  assert.throws(() => sellCards(state, [{ uid: cards[0].uid, price }], false, 20), /không cộng dồn/);
   const sold = sellCards(state, [{ uid: cards[0].uid, price }]);
   assert.equal(sold.fees, Math.floor(price * 14 / 100));
-  assert.throws(() => sellCards(state, [{ uid: cards[1].uid, price: sellRange(cards[1])!.max }], false, 30), /Premium/);
+  assert.throws(() => sellCards(state, [{ uid: cards[1].uid, price: sellRange(cards[1])!.max }], false, 30), /không cộng dồn/);
 });
 
 test('Ví máy chủ đặt hạn Premium vào bản lưu; về Classic thì xoá hạn', () => {
@@ -64,4 +64,17 @@ test('Luxury giảm 75% thuế bán (40% → 10%), hạn 30 ngày; không cộng
   assert.deepEqual([s.luxuryUntil, s.premiumUntil], [NOW + 30 * DAY, null]);
   const back = applyWallet(s, { ...base, tier: 'classic', tierUntil: null });
   assert.deepEqual([back.luxuryUntil, back.premiumUntil], [null, null]);
+});
+
+test('Phiếu giảm thuế không cộng dồn với gói thành viên SVIP Class / Premium (202611270002): lấy mức thấp hơn', () => {
+  const svip = { membership: { svip: NOW + DAY } }, prem = { membership: { premium: NOW + DAY } };
+  assert.equal(saleTaxPercent(svip, NOW), 28);
+  assert.equal(taxFor(svip, 40, NOW), 24, 'SVIP 28% + phiếu 40% → 24%, không phải 16,8%');
+  assert.equal(taxFor(svip, 35, NOW), 26);
+  assert.equal(voucherHelps(svip, 30, NOW), false, 'phiếu 30% (28%) không thấp hơn SVIP 28%');
+  assert.equal(voucherHelps(svip, 10, NOW), false);
+  for (const v of [10, 20, 30, 35, 40] as const) assert.equal(voucherHelps(prem, v, NOW), false, `gói Premium 20%: phiếu ${v}% không giảm thêm`);
+  assert.equal(taxFor({}, 40, NOW), 24, 'không gói: phiếu vẫn giảm đủ');
+  const sql = readFileSync('supabase/migrations/202611270002_fco_voucher_no_stack_membership.sql', 'utf8');
+  assert.match(sql, /fco_account_tier\(uid\) is not null/);
 });

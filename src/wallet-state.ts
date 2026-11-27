@@ -154,7 +154,7 @@ const MESSAGES: Record<string, string> = {
   FCO_STP_PACKAGE: 'Gói Star Point này không còn bán.',
   FCO_STP_DAILY_LIMIT: 'Bạn đã mua gói này hôm nay. Mỗi gói Star Point mua 1 lần mỗi ngày, làm mới lúc 00:00.',
   FCO_NO_VOUCHER: 'Bạn không còn phiếu giảm thuế này.',
-  FCO_VOUCHER_USELESS: 'Phiếu này không giảm thêm thuế cho tài khoản Premium (không cộng dồn).',
+  FCO_VOUCHER_USELESS: 'Phiếu này không giảm thêm thuế: phiếu không cộng dồn với hạng tài khoản hay gói thành viên.',
   FCO_BAD_VOUCHER: 'Phiếu giảm thuế không hợp lệ.',
   FCO_DAILY_CLAIMED: 'Bạn đã nhận quà hôm nay. Hẹn gặp lại vào ngày mai!',
   FCO_GIFT_INVALID: 'Gift code không đúng.',

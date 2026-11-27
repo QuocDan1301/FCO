@@ -80,7 +80,7 @@ export default function SellDialog({ save, initial, free, renderCard, levelBadge
   const feeBase = MARKET_FEE_PERCENT;
   // Phiếu giảm thuế (gói Star Point): giảm theo % của thuế lượt bán này (thuế × (100 − phiếu)%); hết phiếu đang chọn thì bỏ chọn.
   const [chosenVoucher, setVoucher] = useState<TaxVoucher | null>(null);
-  // Premium (giảm 65%, không cộng dồn) chỉ dùng được phiếu cho thuế thấp hơn 14%.
+  // Phiếu không cộng dồn với hạng tài khoản / gói thành viên (202611270002): chỉ hiện phiếu cho thuế thấp hơn thuế đang có.
   const usable = TAX_VOUCHERS.filter(pct => voucherCount(save, pct) > 0 && voucherHelps(save, pct, undefined, feeBase));
   const voucher = chosenVoucher && usable.includes(chosenVoucher) ? chosenVoucher : null;
   const baseTax = saleTaxPercent(save, undefined, feeBase);

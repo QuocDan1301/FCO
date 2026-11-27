@@ -80,13 +80,15 @@ export const saleTaxPercent = (state: TaxState, at = marketNow(), base = MARKET_
   const tier = tierDiscount(state, at);
   return tier !== null ? base * (100 - tier) / 100 : base * (100 - (bestMembership(state.membership, at)?.discount ?? 0)) / 100;
 };
-// Thuế khi dùng phiếu giảm thuế (giảm theo % của thuế). Premium / Luxury / Royal không cộng dồn: lấy mức thấp hơn giữa thuế của hạng và thuế gốc × (100 − phiếu)%.
+// Thuế khi dùng phiếu giảm thuế (giảm theo % của thuế). Phiếu KHÔNG cộng dồn với hạng tài khoản (Premium / Luxury / Royal) lẫn gói thành viên
+// (SVIP Class / Premium, người dùng 2026-11-27; máy chủ 202611270002_fco_voucher_no_stack_membership.sql): lấy mức thấp hơn giữa thuế đang có
+// và thuế gốc × (100 − phiếu)%. Không có gì giảm thì thuế đang có = thuế gốc nên phiếu giảm đủ.
 export const taxFor = (state: TaxState, voucher: TaxVoucher | null | undefined, at = marketNow(), base = MARKET_FEE_PERCENT) => !voucher
   ? saleTaxPercent(state, at, base)
-  : tierDiscount(state, at) !== null ? Math.min(saleTaxPercent(state, at, base), base * (100 - voucher) / 100) : taxWithVoucher(saleTaxPercent(state, at, base), voucher);
+  : Math.min(saleTaxPercent(state, at, base), taxWithVoucher(base, voucher));
 // Phiếu có giảm thêm thuế không (Premium chỉ phiếu 30% mới thấp hơn 14%; Luxury 10% thì không phiếu nào thấp hơn).
 export const voucherHelps = (state: TaxState, voucher: TaxVoucher, at = marketNow(), base = MARKET_FEE_PERCENT) => taxFor(state, voucher, at, base) < saleTaxPercent(state, at, base);
-const USELESS_VOUCHER = 'Phiếu này không giảm thêm thuế cho tài khoản Premium / Luxury / Royal (không cộng dồn).';
+const USELESS_VOUCHER = 'Phiếu này không giảm thêm thuế: phiếu không cộng dồn với hạng tài khoản hay gói thành viên.';
 export const saleFee = (price: number, taxPercent = MARKET_FEE_PERCENT) => Math.floor(price * taxPercent / 100);
 
 // Phần không đổi của báo giá (phân loại, nhóm giá, tỷ lệ bảo hiểm) chỉ phụ thuộc cầu thủ + cấp nên tính một lần;
